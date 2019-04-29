@@ -16608,6 +16608,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("paddingBeforeProgramStarts", "\"paddingBeforeProgramStarts\": " + PaddingBeforeProgramStarts);
             }
+            if(PrivateCopyEnabled.HasValue)
+            {
+                ret.Add("privateCopyEnabled", "\"privateCopyEnabled\": " + PrivateCopyEnabled.ToString().ToLower());
+            }
             if(ProtectionEnabled.HasValue)
             {
                 ret.Add("protectionEnabled", "\"protectionEnabled\": " + ProtectionEnabled.ToString().ToLower());
@@ -16732,6 +16736,10 @@ namespace WebAPI.Models.API
             if(PaddingBeforeProgramStarts.HasValue)
             {
                 ret.Add("paddingBeforeProgramStarts", "<paddingBeforeProgramStarts>" + PaddingBeforeProgramStarts + "</paddingBeforeProgramStarts>");
+            }
+            if(PrivateCopyEnabled.HasValue)
+            {
+                ret.Add("privateCopyEnabled", "<privateCopyEnabled>" + PrivateCopyEnabled.ToString().ToLower() + "</privateCopyEnabled>");
             }
             if(ProtectionEnabled.HasValue)
             {

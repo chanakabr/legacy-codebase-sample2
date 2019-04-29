@@ -16851,7 +16851,6 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16859,10 +16858,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
-            MinLong = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -16870,6 +16869,7 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 0,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -17086,6 +17086,10 @@ namespace WebAPI.Models.API
                         RecoveryGracePeriodSchemaProperty.Validate("recoveryGracePeriod", parameters["recoveryGracePeriod"]);
                     }
                     RecoveryGracePeriod = (Int32) Convert.ChangeType(parameters["recoveryGracePeriod"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("privateCopyEnabled") && parameters["privateCopyEnabled"] != null)
+                {
+                    PrivateCopyEnabled = (Boolean) Convert.ChangeType(parameters["privateCopyEnabled"], typeof(Boolean));
                 }
             }
         }
@@ -17484,7 +17488,6 @@ namespace WebAPI.Models.Pricing
     {
         private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -17492,10 +17495,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         private static RuntimeSchemePropertyAttribute AssetFileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
-            MinLong = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
@@ -17503,6 +17506,7 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinLong = 1,
         };
         public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -20954,9 +20958,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserDynamicDataList")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -20990,9 +20994,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UsernameEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
-            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21000,9 +21004,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute ExternalIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
-            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21010,9 +21014,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
-            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21020,9 +21024,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
             ReadOnly = false,
-            RequiresPermission = 6,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 6,
             IsNullable = false,
             DynamicMinInt = 0,
             MaxLength = -1,
@@ -21094,9 +21098,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserType")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21127,9 +21131,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute privilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSession")
         {
             ReadOnly = false,
-            RequiresPermission = 1,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 1,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21195,9 +21199,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSSOAdapterProfile")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21367,9 +21371,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserAssetsListItem")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21443,9 +21447,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserInterest")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21531,9 +21535,9 @@ namespace WebAPI.Models.Users
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserLoginPin")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21600,9 +21604,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21610,9 +21614,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LengthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21620,9 +21624,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LengthTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21630,9 +21634,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MultiplierSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21693,9 +21697,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MinScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21703,9 +21707,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MaxScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21713,9 +21717,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21723,9 +21727,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21733,9 +21737,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21743,9 +21747,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21826,9 +21830,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentSource")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21855,9 +21859,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MinValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21865,9 +21869,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute MaxValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21875,9 +21879,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21885,9 +21889,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21895,9 +21899,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21966,9 +21970,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21976,9 +21980,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -21986,9 +21990,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22041,9 +22045,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute NameFormatSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentAllValues")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22070,9 +22074,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22080,9 +22084,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22090,9 +22094,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22178,9 +22182,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SegmentationTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationTypeListResponse")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22214,9 +22218,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22224,9 +22228,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22234,9 +22238,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22244,9 +22248,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute GreaterThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22254,9 +22258,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute GreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22264,9 +22268,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LessThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22274,9 +22278,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute LessThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22284,9 +22288,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute EqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22369,9 +22373,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SourceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22379,9 +22383,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute RangesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22436,9 +22440,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22446,9 +22450,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22456,9 +22460,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22466,9 +22470,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22519,9 +22523,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SourceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22529,9 +22533,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22580,9 +22584,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22590,9 +22594,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute AffectedUsersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22627,9 +22631,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22637,9 +22641,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22674,9 +22678,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDynamicDataSource")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22703,9 +22707,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SegmentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22713,9 +22717,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = true,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -22750,9 +22754,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute UserIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentFilter")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
@@ -22779,9 +22783,9 @@ namespace WebAPI.Models.Segmentation
         private static RuntimeSchemePropertyAttribute SegmentsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegmentListResponse")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23012,9 +23016,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23022,9 +23026,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute FileNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23032,9 +23036,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23042,9 +23046,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23052,9 +23056,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute NumOfObjectsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23062,9 +23066,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23072,9 +23076,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23082,9 +23086,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UploadedByUserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23092,9 +23096,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ResultsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23202,9 +23206,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute TypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetData")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23232,9 +23236,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23242,9 +23246,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23285,9 +23289,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadFilter")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             DynamicType = typeof(KalturaBulkUploadJobStatus),
             MaxLength = -1,
@@ -23327,9 +23331,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IngestProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadIngestJobData")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23383,9 +23387,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23393,9 +23397,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ExternalEpgIngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23403,9 +23407,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ProgramsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadLiveAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23479,9 +23483,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ProgramIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23489,9 +23493,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ProgramExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23499,9 +23503,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute LiveAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23509,9 +23513,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute LiveAssetExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23562,9 +23566,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23572,9 +23576,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23582,9 +23586,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute BulkUploadIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23592,9 +23596,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23602,9 +23606,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23612,9 +23616,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute WarningsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23700,9 +23704,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23710,9 +23714,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23720,9 +23724,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute FileSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23730,9 +23734,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23740,9 +23744,9 @@ namespace WebAPI.Models.Upload
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23810,9 +23814,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23820,9 +23824,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23830,9 +23834,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = false,
-            RequiresPermission = 0,
             InsertOnly = true,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23840,9 +23844,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23850,9 +23854,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute NumberOfDevicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
@@ -23860,9 +23864,9 @@ namespace WebAPI.Models.DMS
         private static RuntimeSchemePropertyAttribute ConfigurationIdentifiersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
             ReadOnly = true,
-            RequiresPermission = 0,
             InsertOnly = false,
             WriteOnly = false,
+            RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
