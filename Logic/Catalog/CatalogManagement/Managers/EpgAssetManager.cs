@@ -62,6 +62,11 @@ namespace Core.Catalog.CatalogManagement
             { CRID_META_SYSTEM_NAME, CRID_META_NAME },
             { EXTERNAL_ID_META_SYSTEM_NAME, EXTERNAL_ID_META_NAME }
         };
+        
+        internal static readonly HashSet<string> TopicsInBasicProgramTable = new HashSet<string>()
+        {
+            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, CRID_META_SYSTEM_NAME, START_DATE_META_SYSTEM_NAME, END_DATE_META_SYSTEM_NAME
+        };
 
         internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
