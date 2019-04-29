@@ -194,6 +194,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "recoveryGracePeriod", IsNullable = true)]
         [SchemeProperty(MinInteger = 0)]
         public int? RecoveryGracePeriod { get; set; }
+
+        /// <summary>
+        ///  Is private copy enabled for the account
+        /// </summary>
+        [DataMember(Name = "privateCopyEnabled")]
+        [JsonProperty("privateCopyEnabled")]
+        [XmlElement(ElementName = "privateCopyEnabled", IsNullable = true)]
+        public bool? PrivateCopyEnabled { get; set; }
     }
 
 

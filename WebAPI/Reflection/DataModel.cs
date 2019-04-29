@@ -5806,6 +5806,8 @@ namespace WebAPI.Reflection
                             return "paddingAfterProgramEnds";
                         case "PaddingBeforeProgramStarts":
                             return "paddingBeforeProgramStarts";
+                        case "PrivateCopyEnabled":
+                            return "privateCopyEnabled";
                         case "ProtectionEnabled":
                             return "protectionEnabled";
                         case "ProtectionPeriod":

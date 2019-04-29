@@ -39,7 +39,8 @@
     },
     {
       "permissions": [
-        "Administrator"
+        "Administrator",
+        "Operator"
       ],
       "excluded_permissions": [],
       "name": "Session_Get_Session",

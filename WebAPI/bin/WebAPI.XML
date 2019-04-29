@@ -6721,6 +6721,11 @@
             The time in days for recovery recording that was delete by Auto Delete .
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.PrivateCopyEnabled">
+            <summary>
+             Is private copy enabled for the account
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaPurchaseSettingsResponse">
             <summary>
             Purchase settings and PIN
