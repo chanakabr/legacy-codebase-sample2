@@ -178,7 +178,7 @@ namespace ApiObjects.SearchObjects
 
         public void PadMetas(HashSet<string> metasToPad)
         {
-            if (metasToPad != null)
+            if (metasToPad != null && metasToPad.Count > 0 && this.m_dMeatsValues != null && this.m_dMeatsValues.Count > 0)
             {
                 foreach (var meta in this.m_dMeatsValues.ToList())
                 {
