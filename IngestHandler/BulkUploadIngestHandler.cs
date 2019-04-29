@@ -242,7 +242,11 @@ namespace IngestHandler
                 FilterSettings = filterCompositeType
             };
 
-            // get the epg ids from elasticsearch
+            query.ReturnFields.Clear();
+            query.ReturnFields.Add("document_id");
+            query.ReturnFields.Add("epg_id");
+
+            // get the epg document ids from elasticsearch
             string searchQuery = query.ToString();
             var searchResult = elasticSearchClient.Search(index, type, ref searchQuery);
 
@@ -250,7 +254,7 @@ namespace IngestHandler
             // TODO : get epg complete data from CB
             // LANGUAGE
             //
-            List<string> epgIds = new List<string>();
+            List<string> documentIds = new List<string>();
 
             // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (!string.IsNullOrEmpty(searchResult))
@@ -261,10 +265,10 @@ namespace IngestHandler
 
                 foreach (var hit in hits)
                 {
-                    epgIds.Add(hit["epg_id"].ToString());
+                    documentIds.Add(hit["document_id"].ToString());
                 }
 
-                result = new EpgDal_Couchbase(groupId).GetProgram(epgIds);
+                result = new EpgDal_Couchbase(groupId).GetProgram(documentIds);
             }
 
             return result;
