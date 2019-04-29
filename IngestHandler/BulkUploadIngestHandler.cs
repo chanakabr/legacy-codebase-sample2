@@ -68,7 +68,6 @@ namespace IngestHandler
                 log.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
                 
                 ValidateServiceEvent(serviceEvent);
-              
             }
             catch (Exception ex)
             {
@@ -77,7 +76,6 @@ namespace IngestHandler
             }
 
             return Task.CompletedTask;
-
         }
 
         #endregion
@@ -398,8 +396,8 @@ namespace IngestHandler
 
             foreach (var program in calculatedPrograms)
             {
-                // TODO: CONSIDER LANGUAGE
-                string key = $"{program.EpgID}_{bulkUploadId}";
+                // TODO: CONSIDER LANGUAGE - is it enough?
+                string key = $"{program.EpgID}__{program.Language}_{bulkUploadId}";
                 program.DocumentId = key;
 
                 bool insertResult = dal.InsertProgram(key, program, program.EndDate.AddDays(EXPIRY_DATE));
@@ -606,7 +604,6 @@ namespace IngestHandler
         }
 
         /// <summary>
-        /// 
         /// switch aliases - 
         /// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
         /// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
@@ -629,7 +626,6 @@ namespace IngestHandler
             string newIndex = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
             elasticSearchClient.AddAlias(newIndex, dateAlias);
             elasticSearchClient.AddAlias(newIndex, generalAlias);
-
         }
 
         #endregion
