@@ -25,8 +25,7 @@ namespace ApiObjects.BulkUpload
     public class BulkUploadProgramAssetResult : BulkUploadResult
     {
         public int? ProgramId { get; set; }
-        public int LiveAssetId { get; set; }
-        public string LiveAssetExternalId { get; set; }
+        public long LiveAssetId { get; set; }
         public string ProgramExternalId { get; set; }
     }
 }

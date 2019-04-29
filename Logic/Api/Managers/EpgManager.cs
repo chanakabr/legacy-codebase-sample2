@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects.Catalog;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;

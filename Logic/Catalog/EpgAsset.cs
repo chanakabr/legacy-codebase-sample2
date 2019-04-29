@@ -70,7 +70,7 @@ namespace Core.Catalog
                     var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, this.EpgChannelId);
                     if (linearChannelSettings != null)
                     {
-                        this.LinearAssetId = linearChannelSettings.linearMediaId;
+                        this.LinearAssetId = linearChannelSettings.LinearMediaId;
                         this.CdvrEnabled = GetEnableData(defaultEpgCB.EnableCDVR, linearChannelSettings.EnableCDVR);
                         this.StartOverEnabled = GetEnableData(defaultEpgCB.EnableStartOver, linearChannelSettings.EnableStartOver);
                         this.CatchUpEnabled = GetEnableData(defaultEpgCB.EnableCatchUp, linearChannelSettings.EnableCatchUp);

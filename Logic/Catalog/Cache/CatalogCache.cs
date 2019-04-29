@@ -1,6 +1,6 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using CachingProvider;
-using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
 using KLogMonitor;
@@ -295,7 +295,7 @@ namespace Core.Catalog.Cache
 
         public Dictionary<string, LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
         {
-            Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
+            var linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
             try
             {
                 List<int> missingsKeys = null;
@@ -326,28 +326,14 @@ namespace Core.Catalog.Cache
                 if (missingsKeys != null && missingsKeys.Count > 0)
                 {
                     //get from DB
-                    DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetLinearChannelSettings(groupID, missingsKeys);
-                    DataRow drAccount = null;
-                    DataTable dtChannel;
-                    if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                    var linearChannelSettingsFromDb = CatalogDAL.GetLinearChannelSettings(groupID, missingsKeys);
+                    foreach (var linearFromDb in linearChannelSettingsFromDb)
                     {
-                        dtChannel = ds.Tables[1];
-                        if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                        string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, linearFromDb.ChannelID);
+                        if (linearFromDb != null && !linearChannelSettings.ContainsKey(linearFromDb.ChannelID))
                         {
-                            drAccount = ds.Tables[0].Rows[0];
-                        }
-                        //inset to cache
-                        foreach (DataRow channel in dtChannel.Rows)
-                        {
-                            linear = SetLinearChannelSettings(drAccount, channel);
-
-                            string channelID = ODBCWrapper.Utils.GetSafeStr(channel, "ID");
-                            string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, channelID);
-                            if (linear != null && !linearChannelSettings.ContainsKey(channelID))
-                            {
-                                linearChannelSettings.Add(channelID, linear);
-                                Set(sKey, linear);
-                            }
+                            linearChannelSettings.Add(linearFromDb.ChannelID, linearFromDb);
+                            Set(sKey, linearFromDb);
                         }
                     }
                 }
@@ -431,8 +417,10 @@ namespace Core.Catalog.Cache
             }
             linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
 
-            linearChannelSettings.linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drChannel, "media_id", 0);
+            linearChannelSettings.LinearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drChannel, "media_id", 0);
             linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID");
+            linearChannelSettings.ChannelExternalID = ODBCWrapper.Utils.GetSafeStr(drChannel, "CHANNEL_ID");
+
             return linearChannelSettings;
         }
 
@@ -483,7 +471,7 @@ namespace Core.Catalog.Cache
             }
             return watchPermissionsTypes;
         }
-        
+
         internal Dictionary<int, string> GetMediaQualities()
         {
             Dictionary<int, string> mediaQualities = null;

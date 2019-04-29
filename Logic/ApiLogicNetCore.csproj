@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Remove="**" />
     <EmbeddedResource Remove="**\**" />
+    <EmbeddedResource Remove="Catalog\Cache\**" />
     <None Remove="**" />
   </ItemGroup>
 
@@ -94,6 +95,10 @@
 
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Catalog\Cache\" />
   </ItemGroup>
 
 
