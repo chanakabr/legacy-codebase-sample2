@@ -3590,7 +3590,7 @@ namespace Tvinci.Core.DAL
 
             if (externalChannel.MetaData != null)
             {
-                sp.AddParameter("@hasMetadata",  externalChannel.MetaData.Any());
+                sp.AddParameter("@hasMetadata", externalChannel.MetaData.Any());
             }
 
             DataSet ds = sp.ExecuteDataSet();
@@ -4136,21 +4136,119 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key, true);
         }
 
-        public static DataSet GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
+        public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LinearChannelSettings");
+                var sp = new StoredProcedure("Get_LinearChannelSettings");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddIDListParameter<int>("@EpgChannelID", epgChannelIDs, "id");
 
-                return sp.ExecuteDataSet();
+                var ds = sp.ExecuteDataSet();
+                var lineraChannelSettingsResponse = new List<LinearChannelSettings>();
+                DataRow drAccount = null;
+                DataTable dtChannel;
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                {
+                    dtChannel = ds.Tables[1];
+                    if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        drAccount = ds.Tables[0].Rows[0];
+                    }
+                    //inset to cache
+                    foreach (DataRow channel in dtChannel.Rows)
+                    {
+                        var linear = SetLinearChannelSettings(drAccount, channel);
+                        lineraChannelSettingsResponse.Add(linear);
+                    }
+                }
+
+                return lineraChannelSettingsResponse;
             }
             catch
             {
                 return null;
             }
+        }
+
+
+        private static LinearChannelSettings SetLinearChannelSettings(DataRow drAccount, DataRow drChannel)
+        {
+            int enable = 0;
+            int enableChannel = 0;
+            LinearChannelSettings linearChannelSettings = new LinearChannelSettings();
+
+            enable = Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // account
+            enableChannel = Utils.GetIntSafeVal(drChannel, "ENABLE_CDVR"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+
+            linearChannelSettings.EnableCDVR = enable == 1 ? true : false;
+
+
+            enable = Utils.GetIntSafeVal(drAccount, "ENABLE_CATCH_UP"); // account
+            enableChannel = Utils.GetIntSafeVal(drChannel, "ENABLE_CATCH_UP"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableCatchUp = enable == 1 ? true : false;
+
+            enable = Utils.GetIntSafeVal(drAccount, "ENABLE_START_OVER"); // account
+            enableChannel = Utils.GetIntSafeVal(drChannel, "ENABLE_START_OVER"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableStartOver = enable == 1 ? true : false;
+
+            enable = Utils.GetIntSafeVal(drAccount, "ENABLE_TRICK_PLAY"); // account
+            enableChannel = Utils.GetIntSafeVal(drChannel, "ENABLE_TRICK_PLAY"); //channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableTrickPlay = enable == 1 ? true : false;
+
+            // Buffer setting from Channel - if zero - get it from account            
+            int buffer = Utils.GetIntSafeVal(drChannel, "CATCH_UP_BUFFER"); // channel settings
+            if (buffer == 0)
+            {
+                buffer = Utils.GetIntSafeVal(drAccount, "CATCH_UP_BUFFER"); // account
+            }
+            linearChannelSettings.CatchUpBuffer = buffer;
+
+            buffer = Utils.GetIntSafeVal(drChannel, "TRICK_PLAY_BUFFER"); // channel settings
+            if (buffer == 0)
+            {
+                buffer = Utils.GetIntSafeVal(drAccount, "TRICK_PLAY_BUFFER"); // account
+            }
+            linearChannelSettings.TrickPlayBuffer = buffer;
+
+            enable = Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_entitled"); // account
+            enableChannel = Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_entitled"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableRecordingPlaybackNonEntitledChannel = enable == 1 ? true : false;
+
+            enable = Utils.GetIntSafeVal(drAccount, "enable_recording_playback_non_existing"); // account
+            enableChannel = Utils.GetIntSafeVal(drChannel, "enable_recording_playback_non_existing"); // channel settings
+            if (enable == 1 && enableChannel == 2)
+            {
+                enable = enableChannel;
+            }
+            linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
+
+            linearChannelSettings.LinearMediaId = Utils.GetLongSafeVal(drChannel, "media_id", 0);
+            linearChannelSettings.ChannelID = Utils.GetSafeStr(drChannel, "ID");
+            linearChannelSettings.ChannelExternalID = Utils.GetSafeStr(drChannel, "CHANNEL_ID");
+
+            return linearChannelSettings;
         }
 
         public static string GetEPGChannelCDVRId(int groupId, long epgChannelId)
@@ -5319,7 +5417,7 @@ namespace Tvinci.Core.DAL
 
             return result;
         }
-               
+
         public static void SaveChannelMetaData(int id, eChannelType channelType, Dictionary<string, string> metaData)
         {
             var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
@@ -5732,7 +5830,7 @@ namespace Tvinci.Core.DAL
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
             var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
-            
+
 
             if (!isAnyInError)
             {
@@ -5742,7 +5840,7 @@ namespace Tvinci.Core.DAL
             {
                 newStatus = BulkUploadJobStatus.Failed;
             }
-            else 
+            else
             {
                 newStatus = BulkUploadJobStatus.Partial;
             }
