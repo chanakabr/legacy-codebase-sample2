@@ -87,6 +87,7 @@ namespace APILogic.Users
                 if (response.RespStatus.Code != (int)eResponseStatus.OK) { return response; }
 
                 response.SSOAdapter = DAL.UsersDal.AddSSOAdapters(adapterDetails, updaterId);
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(adapterDetails.GroupId));
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(adapterDetails.GroupId));
 
@@ -165,6 +166,9 @@ namespace APILogic.Users
             {
                 _Logger.ErrorFormat("Failed DeleteSSOAdapter groupID={0}, adapterId={1}, ex:{2}", groupId, ssoAdapterId, ex);
             }
+
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId));
+
             return response;
 
         }
