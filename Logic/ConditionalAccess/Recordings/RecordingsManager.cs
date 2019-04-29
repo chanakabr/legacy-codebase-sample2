@@ -134,6 +134,7 @@ namespace Core.Recordings
             {
                 Dictionary<long, Recording> recordingsEpgMap = ConditionalAccess.Utils.GetEpgToRecordingsMapByCridAndChannel(groupId, crid, epgChannelID, programId);
                 bool shouldIssueRecord = recordingsEpgMap.Count == 0;
+                syncParmeters.Add("shouldInsertRecording", shouldIssueRecord);
                 bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
                 if (isPrivateCopy)
                 {
