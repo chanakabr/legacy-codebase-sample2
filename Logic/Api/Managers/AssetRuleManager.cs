@@ -18,6 +18,7 @@ using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
+using QueueWrapper;
 using ScheduledTasks;
 using System;
 using System.Collections.Concurrent;
@@ -33,6 +34,7 @@ namespace Core.Api.Managers
 {
     public class AssetRuleManager
     {
+        private const string ROUTING_KEY_GEO_RULE_UPDATE = "PROCESS_GEO_RULE_UPDATE\\{0}";
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
@@ -189,9 +191,10 @@ namespace Core.Api.Managers
                 ksql.AppendFormat(")");
 
                 ksqlFilter = ksql.ToString();
-            } else
+            }
+            else
             {
-                return true; //TODO: make sure it's right / possible
+                return true; 
             }
 
             if (!string.IsNullOrEmpty(ksqlFilter))
@@ -450,7 +453,6 @@ namespace Core.Api.Managers
             return rules;
         }
 
-        //TODO: Remove the types
         private static UnifiedSearchResponse GetMediaUnifiedSearchResponse(int groupId, string ksql)
         {
             // Initialize unified search request:
@@ -1160,11 +1162,19 @@ namespace Core.Api.Managers
             return result;
         }
 
-        private static void HandleRuleUpdate(int groupId, AssetRule assetRule, List<int> countriesToRemove, bool removeBlocked, bool removeAllowed, bool updateKsql)
+        public static bool HandleRuleUpdate(int groupId, long assetRuleId, List<int> countriesToRemove, bool removeBlocked, bool removeAllowed, bool updateKsql)
         {
             List<long> updatedMediaIds = new List<long>();
             DataTable mediaTable;
-            
+            var assetRuleResponse = GetAssetRule(groupId, assetRuleId);
+            if (!assetRuleResponse.HasObject())
+            {
+                log.ErrorFormat("Failed to get asset rule by id = {0}", assetRuleId);
+                return true;
+            }
+
+            AssetRule assetRule = assetRuleResponse.Object;
+
             //1. countries
             if (countriesToRemove != null && countriesToRemove.Count > 0)
             {
@@ -1222,15 +1232,16 @@ namespace Core.Api.Managers
                 List<long> mediaIdsToRemove = new List<long>();
                 List<long> mediaIds = GetMediaIdsByRule(groupId, assetRule.Id);
                 int listLength = mediaIds.Count;
-                
+
                 //2. filter old media
-                for (int i = 0; i < listLength; i = i + 500)
+                int bulkSize = 500;
+                for (int i = 0; i < listLength; i = i + bulkSize)
                 {
-                    var pageMediaIds = mediaIds.Skip(i).Take(500);
+                    var pageMediaIds = mediaIds.Skip(i).Take(bulkSize);
 
                     string ksql = string.Format("(and {0} media_id: '{1}')", newKsql, string.Join(",", pageMediaIds));
 
-                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql); //TODO: remove mediaTypes
+                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql); 
                     if (unifiedSearchResponse != null)
                     {
                         bool isSearchSuccessfull = unifiedSearchResponse.status.Code == (int)eResponseStatus.OK;
@@ -1265,6 +1276,8 @@ namespace Core.Api.Managers
             {
                 SetInvalidationKeys(groupId, assetRule.Id);
             }
+
+            return true;
         }
 
         private static void HandleRuleUpdate(int groupId, AssetRule assetRule)
@@ -1273,9 +1286,9 @@ namespace Core.Api.Managers
             var oldRuleResopnse = GetAssetRule(groupId, assetRule.Id);
             if (oldRuleResopnse != null && oldRuleResopnse.HasObject())
             {
-                bool removeBlocked;
-                bool removeAllowed;
-                bool updateKsql;
+                bool removeBlocked = false;
+                bool removeAllowed = false;
+                bool updateKsql = false;
 
                 var oldRule = oldRuleResopnse.Object;
                 
@@ -1325,8 +1338,15 @@ namespace Core.Api.Managers
                     SetInvalidationKeys(groupId, assetRule.Id);
                 }
 
-                // TODO: send msg
-
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id, 
+                    countriesToRemove, removeBlocked, removeAllowed, updateKsql)
+                { ETA = DateTime.UtcNow };
+                bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
+                if (!queueGeoRuleUpdateResult)
+                {
+                    log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
+                }
             }
         }
 
