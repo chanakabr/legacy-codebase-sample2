@@ -61,7 +61,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
             this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
             this.RecoveryGracePeriod = recoveryGracePeriod;
-            this.IsPrivateCopyEnabled = IsPrivateCopyEnabled;
+            this.IsPrivateCopyEnabled = isPrivateCopyEnabled;
 
             if (quotaOveragePolicy.HasValue)
             {
