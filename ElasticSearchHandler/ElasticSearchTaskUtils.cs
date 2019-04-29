@@ -19,6 +19,7 @@ using Core.Catalog;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
+using ApiObjects.Catalog;
 
 namespace ElasticSearchHandler
 {
