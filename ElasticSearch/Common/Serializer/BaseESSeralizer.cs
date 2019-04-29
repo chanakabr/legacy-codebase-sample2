@@ -1013,7 +1013,7 @@ namespace ElasticSearch.Common
 
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
                 " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
-                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\", \"external_id\": \"{16}\",",
+                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\", \"external_id\": \"{16}\", \"document_id\" : \"{17}\", ",
                 oEpg.EpgID, doesGroupUsesTemplates ? oEpg.ParentGroupID : oEpg.GroupID, oEpg.ChannelID, (oEpg.IsActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"),
                 oEpg.EndDate.ToString("yyyyMMddHHmmss"), Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase),
                 Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase), /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
@@ -1025,7 +1025,9 @@ namespace ElasticSearch.Common
                 // {15}
                 oEpg.EpgIdentifier,
                 // {16}
-                oEpg.EpgIdentifier
+                oEpg.EpgIdentifier,
+                // {17}
+                oEpg.DocumentId
                 );
 
             // Add this field only if it has a value

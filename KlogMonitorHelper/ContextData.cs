@@ -44,7 +44,7 @@ namespace KlogMonitorHelper
         public static readonly LogicalThreadContextProperties _ContextData = KLogger.LogContextData;
 
         private readonly MessageProperties _WCFContextData = OperationContext.Current?.IncomingMessageProperties;
-        private readonly IDictionary _HttpContextData = HttpContext.Current?.Items;
+        //private readonly IDictionary _HttpContextData = HttpContext.Current?.Items;
 
         public void Load(string log4NetConfigFile = null)
         {
@@ -90,15 +90,15 @@ namespace KlogMonitorHelper
                     case KLogEnums.AppType.WS:
                     default:
 
-                        if (_HttpContextData != null)
+                        if (HttpContext.Current?.Items != null)
                         {
-                            _ContextData[Constants.CLIENT_TAG] = _HttpContextData.TryGetStringValueSafe(Constants.CLIENT_TAG);
-                            _ContextData[Constants.HOST_IP] = _HttpContextData.TryGetStringValueSafe(Constants.HOST_IP);
-                            _ContextData[Constants.REQUEST_ID_KEY] = _HttpContextData.TryGetStringValueSafe(Constants.REQUEST_ID_KEY);
-                            _ContextData[Constants.GROUP_ID] = _HttpContextData.TryGetStringValueSafe(Constants.GROUP_ID);
-                            _ContextData[Constants.ACTION] = _HttpContextData.TryGetStringValueSafe(Constants.ACTION);
-                            _ContextData[Constants.USER_ID] = _HttpContextData.TryGetStringValueSafe(Constants.USER_ID);
-                            _ContextData[Constants.TOPIC] = _HttpContextData.TryGetStringValueSafe(Constants.TOPIC);
+                            _ContextData[Constants.CLIENT_TAG] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.CLIENT_TAG);
+                            _ContextData[Constants.HOST_IP] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.HOST_IP);
+                            _ContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.REQUEST_ID_KEY);
+                            _ContextData[Constants.GROUP_ID] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.GROUP_ID);
+                            _ContextData[Constants.ACTION] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.ACTION);
+                            _ContextData[Constants.USER_ID] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.USER_ID);
+                            _ContextData[Constants.TOPIC] = HttpContext.Current.Items.TryGetStringValueSafe(Constants.TOPIC);
                         }
 
                         break;

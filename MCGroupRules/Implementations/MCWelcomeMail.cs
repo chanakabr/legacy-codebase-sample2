@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Web.Script.Serialization;
 using KLogMonitor;
+using Newtonsoft.Json;
 using TVinciShared;
 
 namespace MCGroupRules.Implementations
@@ -100,8 +100,7 @@ namespace MCGroupRules.Implementations
             {
                 try
                 {
-                    JavaScriptSerializer jsSer = new JavaScriptSerializer();
-                    string json = jsSer.Serialize(mcObj);
+                    string json = JsonConvert.SerializeObject(mcObj);
                     string sResp = WS_Utils.SendXMLHttpReq("https://mandrillapp.com/api/1.0/messages/send-template.json", json, null);
                     log.InfoFormat("Mail Response: {0}", sResp);
                     return true;
