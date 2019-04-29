@@ -1203,7 +1203,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static Status DeleteChannel(int groupId, int channelId, long userId)
+        public static Status DeleteChannel(int groupId, int channelId, long userId, bool isFromAsset = false)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -1232,15 +1232,18 @@ namespace Core.Catalog.CatalogManagement
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
-                        //delete virtual asset
-                        bool needToCreateVirtualAsset = false;
-                        Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
-                        if (virtualChannel != null)
+                        if (!isFromAsset)
                         {
-                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
-                            if (status == null || !status.IsOkStatusCode())
+                            //delete virtual asset
+                            bool needToCreateVirtualAsset = false;
+                            Asset virtualChannel = GetVirtualAsset(groupId, userId, channelResponse.Object, out needToCreateVirtualAsset);
+                            if (virtualChannel != null)
                             {
-                                log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
+                                Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
+                                if (status == null || !status.IsOkStatusCode())
+                                {
+                                    log.ErrorFormat("Failed delete virtual asset {0}. for channel {1}", virtualChannel.Id, channelId);
+                                }
                             }
                         }
 

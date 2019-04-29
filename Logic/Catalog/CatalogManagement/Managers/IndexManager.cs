@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
@@ -743,7 +744,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
                 if (linearChannelSettings == null)
                 {
-                    linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+                    linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
                 }
 
                 if (epgObjects != null)
@@ -786,7 +787,7 @@ namespace Core.Catalog.CatalogManagement
                                     // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
                                     if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                                     {
-                                        epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
+                                        epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
                                     }
 
                                     string serializedEpg = esSerializer.SerializeEpgObject(epg, suffix);

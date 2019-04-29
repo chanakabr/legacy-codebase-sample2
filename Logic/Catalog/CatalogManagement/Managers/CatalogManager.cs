@@ -1597,7 +1597,7 @@ namespace Core.Catalog.CatalogManagement
                         if (isProgramStruct)
                         {
                             var topic = catalogGroupCache.TopicsMapById[metaId];
-                            if (!EpgAssetManager.BasicProgramMetasSystemNameToName.ContainsKey(topic.SystemName))
+                            if (!EpgAssetManager.TopicsInBasicProgramTable.Contains(topic.SystemName))
                             {
                                 if (topic.Type == MetaType.Tag)
                                 {

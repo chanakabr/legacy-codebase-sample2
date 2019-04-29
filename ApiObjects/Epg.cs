@@ -373,7 +373,7 @@ namespace ApiObjects
 
         public void PadMetas(HashSet<string> metasToPad)
         {
-            if (metasToPad != null)
+            if (metasToPad != null && metasToPad.Count > 0 && this.Metas != null && this.Metas.Count > 0)
             {
                 foreach (var meta in this.Metas.ToList())
                 {

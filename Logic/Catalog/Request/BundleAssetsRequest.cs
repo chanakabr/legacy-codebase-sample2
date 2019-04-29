@@ -69,24 +69,26 @@ namespace Core.Catalog.Request
                 List<int> channelIds = CatalogLogic.GetBundleChannelIds(parentGroupId, request.m_nBundleID, request.m_eBundleType);
                 List<GroupsCacheManager.Channel> allChannels = new List<GroupsCacheManager.Channel>();
 
+                if (channelIds == null)
+                    channelIds = new List<int>();
+                
+                if (doesGroupUsesTemplates)
+                {
+                    long userId = 0;
+                    long.TryParse(m_sSiteGuid, out userId);
 
-                    if (doesGroupUsesTemplates)
+                    GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(
+                        parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id,
+                        ApiObjects.SearchObjects.OrderDir.ASC, false, userId);
+                    if (channelRes.HasObjects())
                     {
-                        long userId = 0;
-                        long.TryParse(m_sSiteGuid, out userId);
-
-                        GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(
-                            parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id, 
-                            ApiObjects.SearchObjects.OrderDir.ASC, false, userId);
-                        if (channelRes.HasObjects())
-                        {
-                            allChannels.AddRange(channelRes.Objects);
-                        }
+                        allChannels.AddRange(channelRes.Objects);
                     }
-                    else
-                    {
-                        allChannels.AddRange(groupManager.GetChannels(channelIds, parentGroupId));
-                    }
+                }
+                else
+                {
+                    allChannels.AddRange(groupManager.GetChannels(channelIds, parentGroupId));
+                }
 
                 if (channelIds != null && channelIds.Count > 0)
                 {
@@ -158,7 +160,7 @@ namespace Core.Catalog.Request
                         }
                     }
                 }
-                
+
 
                 log.Debug("Info - BundleMediaRequest - total returned items = " + response.m_nTotalItems);
                 return (BaseResponse)response;

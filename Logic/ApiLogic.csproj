@@ -9,8 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.100.5" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.31.20" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.101.9" />
     <PackageReference Include="EnyimMemcached" Version="2.11" />
     <PackageReference Include="LinqToTwitter" Version="2.1.11" />
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />

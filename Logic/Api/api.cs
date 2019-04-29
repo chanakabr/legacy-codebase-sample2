@@ -7677,7 +7677,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId)
+        public static Status DeleteExternalChannel(int groupId, int externalChannelId, long userId, bool isFromAsset = false)
         {
             Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
@@ -7716,14 +7716,14 @@ namespace Core.Api
                     // delete meta data
                     CatalogDAL.DeleteChannelMetaData(externalChannelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
 
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
                         //delete virtual asset
                         bool needToCreateVirtualAsset = false;
                         Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
                         if (virtualChannel != null)
                         {
-                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId);
+                            Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
                             if (status == null || !status.IsOkStatusCode())
                             {
                                 log.ErrorFormat("Failed delete virtual asset {0}. for external channel {1}", virtualChannel.Id, externalChannelId);
