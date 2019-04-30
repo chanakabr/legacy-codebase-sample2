@@ -244,7 +244,7 @@ namespace Core.Api.Managers
         {
             List<int> result = new List<int>();
 
-            if (rule.InProgress)
+            if (rule.Status == RuleStatus.InProgress)
             {
                 log.DebugFormat("Rule In Progress, ruleId = {0} ", rule.Id);
                 return result;
@@ -1267,7 +1267,7 @@ namespace Core.Api.Managers
                 IndexManager.UpsertMedia(groupId, mediaId);
             }
 
-            assetRule.InProgress = false;
+            assetRule.Status = RuleStatus.Ready;
             if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
             {
                 log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
@@ -1328,7 +1328,7 @@ namespace Core.Api.Managers
                     updateKsql = true;
                 }
 
-                assetRule.InProgress = true;
+                assetRule.Status = RuleStatus.InProgress;
                 if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
                 {
                     log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
