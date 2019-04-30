@@ -18,6 +18,7 @@ using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
+using QueueWrapper;
 using ScheduledTasks;
 using System;
 using System.Collections.Concurrent;
@@ -33,6 +34,7 @@ namespace Core.Api.Managers
 {
     public class AssetRuleManager
     {
+        private const string ROUTING_KEY_GEO_RULE_UPDATE = "PROCESS_GEO_RULE_UPDATE\\{0}";
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
@@ -59,24 +61,9 @@ namespace Core.Api.Managers
                     bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                     Group group = null;
                     CatalogGroupCache catalogGroupCache = null;
-                    List<int> mediaTypes = null;
+                    bool isGeoAvailabilityWindowingEnabled = doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled;
 
-                    if (doesGroupUsesTemplates)
-                    {
-                        if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                        {
-                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
-                            return result.Count;
-                        }
-                        mediaTypes = catalogGroupCache.AssetStructsMapById.Values.Where(a => !a.IsProgramAssetStruct).Select(a => (int)a.Id).ToList();
-                    }
-                    else
-                    {
-                        group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-                        mediaTypes = group.GetMediaTypes();
-                    }
-                                        
-                    if (doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
+                    if (isGeoAvailabilityWindowingEnabled)
                     {
                         List<AssetRule> rules = pair.Value;
                         Task<List<int>>[] tasks = new Task<List<int>>[rules.Count];
@@ -90,7 +77,7 @@ namespace Core.Api.Managers
                             tasks[ruleIndex] = new Task<List<int>>((obj) =>
                             {
                                 contextData.Load();
-                                return DoActionOnRule(rules[(int)obj], groupId, mediaTypes);
+                                return DoActionOnRule(rules[(int)obj], groupId);
                             }, ruleIndex);
 
                             tasks[ruleIndex].Start();
@@ -114,39 +101,13 @@ namespace Core.Api.Managers
                         {
                             log.DebugFormat("going to update index for {0} assets", result.Count);
 
-                            if (doesGroupUsesTemplates)
+                            RebuildIndexForMedias(groupId, doesGroupUsesTemplates, result);
+
+                            List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
+                            if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
                             {
-                                foreach (var assetId in result)
-                                {
-                                    bool indexingResult = Catalog.CatalogManagement.IndexManager.UpsertMedia(groupId, assetId);
-                                    if (!indexingResult)
-                                    {
-                                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
-                                    }
-
-                                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetId);
-                                }
-
+                                log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
                             }
-                            else
-                            {
-                                if (Catalog.Module.UpdateIndex(result, groupId, eAction.Update))
-                                {
-                                    log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", result));
-                                    return result.Count;
-                                }
-                                else
-                                {
-                                    log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", result));
-                                    return 0;
-                                }
-                            }
-                        }
-
-                        List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
-                        if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
-                        {
-                            log.ErrorFormat("Failed to update asset rule last run date, rule IDs = {0}", string.Join(", ", ranRules));
                         }
                     }
                     #endregion
@@ -230,14 +191,15 @@ namespace Core.Api.Managers
                 ksql.AppendFormat(")");
 
                 ksqlFilter = ksql.ToString();
-            } else
+            }
+            else
             {
-                return true; //TODO: make sure it's right / possible
+                return true; 
             }
 
             if (!string.IsNullOrEmpty(ksqlFilter))
             {
-                UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(assetRule.GroupId, null, ksqlFilter);
+                UnifiedSearchResponse unifiedSearcjResponse = GetMediaUnifiedSearchResponse(assetRule.GroupId, ksqlFilter);
 
                 if (unifiedSearcjResponse != null)
                 {
@@ -278,9 +240,15 @@ namespace Core.Api.Managers
 
         }
 
-        private static List<int> DoActionOnRule(AssetRule rule, int groupId, List<int> mediaTypes)
+        private static List<int> DoActionOnRule(AssetRule rule, int groupId)
         {
             List<int> result = new List<int>();
+
+            if (rule.InProgress)
+            {
+                log.DebugFormat("Rule In Progress, ruleId = {0} ", rule.Id);
+                return result;
+            }
 
             log.DebugFormat("Starting to do action on ruleId = {0} ", rule.Id);
 
@@ -292,20 +260,7 @@ namespace Core.Api.Managers
                 List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => c as CountryCondition).ToList();
                 List<AssetCondition> assetConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
 
-                string ksqlFilter = null;
-
-                // concatenate the ksql with 'and'
-                if (assetConditions != null && assetConditions.Count > 0)
-                {
-                    StringBuilder ksql = new StringBuilder("(and");
-                    foreach (var assetCondition in assetConditions)
-                    {
-                        ksql.Append(" " + assetCondition.Ksql);
-                    }
-                    ksql.AppendFormat(")");
-
-                    ksqlFilter = ksql.ToString();
-                }
+                string ksqlFilter = BuildKsqlFromConditions(assetConditions);
 
                 // concatenate the countries lists with NOT and without not
                 List<int> countries = new List<int>();
@@ -357,7 +312,7 @@ namespace Core.Api.Managers
 
                         if (!string.IsNullOrEmpty(actionKsqlFilter))
                         {
-                            UnifiedSearchResponse unifiedSearcjResponse = GetUnifiedSearchResponse(groupId, mediaTypes, actionKsqlFilter);
+                            UnifiedSearchResponse unifiedSearcjResponse = GetMediaUnifiedSearchResponse(groupId, actionKsqlFilter);
 
                             if (unifiedSearcjResponse != null)
                             {
@@ -400,13 +355,33 @@ namespace Core.Api.Managers
             }
         }
 
+        private static string BuildKsqlFromConditions(List<AssetCondition> assetConditions)
+        {
+            string ksqlFilter = string.Empty;
+
+            // concatenate the ksql with 'and'
+            if (assetConditions != null && assetConditions.Count > 0)
+            {
+                StringBuilder ksql = new StringBuilder("(and");
+                foreach (var assetCondition in assetConditions)
+                {
+                    ksql.Append(" " + assetCondition.Ksql);
+                }
+                ksql.AppendFormat(")");
+
+                ksqlFilter = ksql.ToString();
+            }
+
+            return ksqlFilter;
+        }
+
         private static IEnumerable<int> GetAllCountriesBut(int groupId, List<int> countryIds)
         {
             List<int> response = new List<int>();
             List<Country> countries = Core.Api.api.GetCountryListByIds(null, groupId);
             if (countries != null)
             {
-                response = countries.Select(c => c.Id).Where(c => !countryIds.Contains(c)).ToList();
+                response.AddRange(countries.Select(c => c.Id).Where(c => !countryIds.Contains(c)));
             }
             return response;
         }
@@ -478,8 +453,7 @@ namespace Core.Api.Managers
             return rules;
         }
 
-        //TODO: Remove the types
-        private static UnifiedSearchResponse GetUnifiedSearchResponse(int groupId, List<int> mediaTypes, string ksql)
+        private static UnifiedSearchResponse GetMediaUnifiedSearchResponse(int groupId, string ksql)
         {
             // Initialize unified search request:
             // SignString/Signature (basic catalog parameters)
@@ -512,15 +486,46 @@ namespace Core.Api.Managers
                     m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
                     m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
                 },
-                filterQuery = ksql,
+                filterQuery = string.Format("(and asset_type = 'media' {0})", ksql),
                 isInternalSearch = true,
-                assetTypes = mediaTypes,
                 shouldIgnoreEndDate = shouldIgnoreEndDate,
                 isAllowedToViewInactiveAssets = true
             };
 
             // Call catalog
             return unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+        }
+
+        public static int RebuildIndexForMedias(int groupId, bool doesGroupUsesTemplates, List<int> mediaToUpdate)
+        {
+            if (doesGroupUsesTemplates)
+            {
+                foreach (var assetId in mediaToUpdate)
+                {
+                    bool indexingResult = Catalog.CatalogManagement.IndexManager.UpsertMedia(groupId, assetId);
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
+                    }
+
+                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetId);
+
+                }
+                return mediaToUpdate.Count;
+            }
+            else
+            {
+                if (Catalog.Module.UpdateIndex(mediaToUpdate, groupId, eAction.Update))
+                {
+                    log.InfoFormat("Successfully updated index after asset rule for assets: {0}", string.Join(",", mediaToUpdate));
+                    return mediaToUpdate.Count;
+                }
+                else
+                {
+                    log.InfoFormat("Failed to update index after asset rule for assets", string.Join(",", mediaToUpdate));
+                    return 0;
+                }
+            }
         }
 
         #endregion
@@ -704,8 +709,7 @@ namespace Core.Api.Managers
 
                 if (assetRule.HasCountryConditions())
                 {
-                    ResetMediaCountries(groupId, assetRule.Id);
-                    //TODO Irena - run rule after update
+                    HandleRuleUpdate(groupId, assetRule);
                 }
 
                 // upsert dtUpdatedAssetRulesActions            
@@ -1126,6 +1130,248 @@ namespace Core.Api.Managers
                     log.InfoFormat("Failed to update index after asset rule update for assets", string.Join(",", mediaIds));
                 }
             }
+        }
+
+        private static HashSet<int> GetRuleCountriesList(int groupId, AssetRule rule)
+        {
+            List<CountryCondition> countryConditions = rule.Conditions.Where(c => c.Type == RuleConditionType.Country).Select(c => c as CountryCondition).ToList();
+
+            HashSet<int> result = new HashSet<int>();
+            if (countryConditions != null && countryConditions.Count > 0)
+            {
+                List<int> countries = new List<int>();
+                foreach (var countryCondition in countryConditions)
+                {
+                    if (countryCondition.Not)
+                    {
+                        countries.AddRange(GetAllCountriesBut(groupId, countryCondition.Countries));
+                    }
+                    else
+                    {
+                        countries.AddRange(countryCondition.Countries);
+                    }
+                }
+
+                foreach(int item in countries)
+                {
+                    if (!result.Contains(item))
+                        result.Add(item);
+                }
+            }
+
+            return result;
+        }
+
+        public static bool HandleRuleUpdate(int groupId, long assetRuleId, List<int> countriesToRemove, bool removeBlocked, bool removeAllowed, bool updateKsql)
+        {
+            List<long> updatedMediaIds = new List<long>();
+            DataTable mediaTable;
+            var assetRuleResponse = GetAssetRule(groupId, assetRuleId);
+            if (!assetRuleResponse.HasObject())
+            {
+                log.ErrorFormat("Failed to get asset rule by id = {0}", assetRuleId);
+                return true;
+            }
+
+            AssetRule assetRule = assetRuleResponse.Object;
+
+            //1. countries
+            if (countriesToRemove != null && countriesToRemove.Count > 0)
+            {
+                //remove from table
+                mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, countriesToRemove);
+                if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in mediaTable.Rows)
+                    {
+                        long mediaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID");
+                        updatedMediaIds.Add(mediaId);
+                    }
+                }
+            }
+
+            //2. Block or EndtDate
+            if (removeBlocked)
+            {
+                //remove block from table
+                mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, null, null, 0);
+                if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in mediaTable.Rows)
+                    {
+                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                        updatedMediaIds.Add(mediaId);
+                    }
+                    //updatedMediaIds = updatedMediaIds.Distinct().ToList();
+                }
+            }
+
+            //3. StartDate
+            if (removeAllowed)
+            {
+                //remove allowd from table
+                mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, null, null, 1);
+                if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in mediaTable.Rows)
+                    {
+                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                        updatedMediaIds.Add(mediaId);
+                    }
+                }
+                updatedMediaIds = updatedMediaIds.Distinct().ToList();
+            }
+
+            //4. Ksql
+            if (updateKsql)
+            {
+                List<AssetCondition> newKsqlConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
+                string newKsql = BuildKsqlFromConditions(newKsqlConditions);
+
+                //1. get all assets from DB
+                List<long> mediaIdsToRemove = new List<long>();
+                List<long> mediaIds = GetMediaIdsByRule(groupId, assetRule.Id);
+                int listLength = mediaIds.Count;
+
+                //2. filter old media
+                int bulkSize = 500;
+                for (int i = 0; i < listLength; i = i + bulkSize)
+                {
+                    var pageMediaIds = mediaIds.Skip(i).Take(bulkSize);
+
+                    string ksql = string.Format("(and {0} media_id: '{1}')", newKsql, string.Join(",", pageMediaIds));
+
+                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql); 
+                    if (unifiedSearchResponse != null)
+                    {
+                        bool isSearchSuccessfull = unifiedSearchResponse.status.Code == (int)eResponseStatus.OK;
+                        if (isSearchSuccessfull && unifiedSearchResponse.searchResults != null && unifiedSearchResponse.searchResults.Count > 0)
+                        {
+                            var assetIds = unifiedSearchResponse.searchResults.Select(asset => long.Parse(asset.AssetId)).ToList();
+                            mediaIdsToRemove.AddRange(mediaIds.Where(x => !assetIds.Contains(x)).ToList());
+                        }
+                    }
+                }
+
+                //3. remove old from DB
+                if (mediaIdsToRemove.Count > 0)
+                {
+                    //TODO irena- paging for update UpdateMediaCountries
+                    ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, null, mediaIdsToRemove);
+                    updatedMediaIds.AddRange(mediaIdsToRemove);
+                }
+            }
+
+            foreach (var mediaId in updatedMediaIds)
+            {
+                IndexManager.UpsertMedia(groupId, mediaId);
+            }
+
+            assetRule.InProgress = false;
+            if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
+            {
+                log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
+            }
+            else
+            {
+                SetInvalidationKeys(groupId, assetRule.Id);
+            }
+
+            return true;
+        }
+
+        private static void HandleRuleUpdate(int groupId, AssetRule assetRule)
+        {
+            //get old rule
+            var oldRuleResopnse = GetAssetRule(groupId, assetRule.Id);
+            if (oldRuleResopnse != null && oldRuleResopnse.HasObject())
+            {
+                bool removeBlocked = false;
+                bool removeAllowed = false;
+                bool updateKsql = false;
+
+                var oldRule = oldRuleResopnse.Object;
+                
+                //1. countries
+                HashSet<int> oldCountries = GetRuleCountriesList(groupId, oldRule);
+                HashSet<int> newCountries = GetRuleCountriesList(groupId, assetRule);
+
+                List<int> countriesToRemove = oldCountries.Where(x => !newCountries.Contains(x)).ToList();
+
+                //2. Block or EndtDate
+                var oldAssetActionBlock = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.Block);
+                var newAssetActionBlock = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.Block);
+                TimeOffsetRuleAction oldAssetActionEndDate = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.EndDateOffset) as TimeOffsetRuleAction;
+                TimeOffsetRuleAction newAssetActionEndDate = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.EndDateOffset) as TimeOffsetRuleAction;
+
+                if ((oldAssetActionBlock != null && newAssetActionBlock == null) || (oldAssetActionEndDate != null && newAssetActionEndDate == null))
+                {
+                    removeBlocked = true;
+                }
+
+                //3. StartDate
+                TimeOffsetRuleAction oldAssetActionStartDate = oldRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.StartDateOffset) as TimeOffsetRuleAction;
+                TimeOffsetRuleAction newAssetActionStartDate = assetRule.Actions.FirstOrDefault<AssetRuleAction>(c => c.Type == RuleActionType.StartDateOffset) as TimeOffsetRuleAction;
+                if (oldAssetActionStartDate != null && newAssetActionStartDate == null)
+                {
+                    removeAllowed = true;
+                }
+
+                //4. Ksql
+                List<AssetCondition> oldKsqlConditions = oldRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
+                List<AssetCondition> newKsqlConditions = assetRule.Conditions.Where(c => c.Type == RuleConditionType.Asset).Select(c => c as AssetCondition).ToList();
+                string oldKsql = BuildKsqlFromConditions(oldKsqlConditions);
+                string newKsql = BuildKsqlFromConditions(newKsqlConditions);
+
+                if (oldKsql != newKsql)
+                {
+                    updateKsql = true;
+                }
+
+                assetRule.InProgress = true;
+                if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
+                {
+                    log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
+                }
+                else
+                {
+                    SetInvalidationKeys(groupId, assetRule.Id);
+                }
+
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id, 
+                    countriesToRemove, removeBlocked, removeAllowed, updateKsql)
+                { ETA = DateTime.UtcNow };
+                bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
+                if (!queueGeoRuleUpdateResult)
+                {
+                    log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
+                }
+            }
+        }
+
+        private static List<long> GetMediaIdsByRule(int groupId, long ruleId)
+        {
+            List<long> mediaIds = new List<long>();
+            long offset = 0;
+            while (true)
+            {
+                DataTable dt = ApiDAL.GetMediaCountriesMediaIdsByRuleId(ruleId, offset);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        offset = ODBCWrapper.Utils.GetLongSafeVal(row, "MEDIA_ID");
+                        mediaIds.Add(offset);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return mediaIds;
         }
 
         #endregion
