@@ -12896,6 +12896,7 @@ namespace WebAPI.Models.API
                 propertyValue = "[" + String.Join(", ", Conditions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("conditions", "\"conditions\": " + propertyValue);
             }
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaAssetRuleStatus), Status) + "\"");
             return ret;
         }
         
@@ -12915,6 +12916,7 @@ namespace WebAPI.Models.API
                 propertyValue = Conditions.Count > 0 ? "<item>" + String.Join("</item><item>", Conditions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("conditions", "<conditions>" + propertyValue + "</conditions>");
             }
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaAssetRuleStatus), Status) + "" + "</status>");
             return ret;
         }
     }

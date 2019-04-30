@@ -540,6 +540,8 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
+                        case "Status":
+                            return "status";
                     }
                     break;
                     
