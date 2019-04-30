@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+***********************************************************************************************
+website.publishproj
+
+WARNING: DO NOT MODIFY this file, it is used for the web publish process.
+
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+***********************************************************************************************
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.30319</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{c3bd48f7-809d-41ad-95cd-2823f865ee52}</ProjectGuid>
+    <SourceWebPhysicalPath>$(MSBuildThisFileDirectory)</SourceWebPhysicalPath>
+    <SourceWebVirtualPath>/TVM</SourceWebVirtualPath>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SourceWebProject>
+    </SourceWebProject>
+    <SourceWebMetabasePath>
+    </SourceWebMetabasePath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <!-- for VS2010 we need to use 10.5 but for VS2012+ we should use VisualStudioVersion -->
+    <WebPublishTargetsVersion Condition=" '$(WebPublishTargetsVersion)' =='' and '$(VisualStudioVersion)' == 10.0 ">10.5</WebPublishTargetsVersion>
+    <WebPublishTargetsVersion Condition=" '$(WebPublishTargetsVersion)'=='' ">$(VisualStudioVersion)</WebPublishTargetsVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(WebPublishTargetsVersion)</VSToolsPath>
+    <_WebPublishTargetsPath Condition=" '$(_WebPublishTargetsPath)'=='' ">$(VSToolsPath)</_WebPublishTargetsPath>
+    <AssemblyFileVersion Condition="'$(AssemblyFileVersion)' == ''">1.0.0.0</AssemblyFileVersion>
+    <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyAttributes Include="AssemblyFileVersion">
+      <Value>$(AssemblyFileVersion)</Value>
+    </AssemblyAttributes>
+    <AssemblyAttributes Include="AssemblyVersion">
+      <Value>$(AssemblyVersion)</Value>
+    </AssemblyAttributes>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
+      <Project>{4E22204A-9560-4E78-8805-EFED0D0EEC9D}</Project>
+      <Name>AkamaiTokenGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\CachingManager\CachingManager.csproj">
+      <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+      <Project>{4191D9E7-8502-4B00-A488-771240E2CF40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\DalCB\DalCB.csproj">
+      <Project>{CC97D8E8-CFCB-4A33-A8AE-34EBDB0812C3}</Project>
+      <Name>DalCB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
+      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\EpgBL\EpgBL.csproj">
+      <Project>{D458E586-6306-4111-8080-E3FCDBF82995}</Project>
+      <Name>EpgBL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121B-FB3F-48D8-89B9-7E0BE7E9C901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\FTPUploadQueue\UploadQueue.csproj">
+      <Project>{8E6BE280-9DCC-42D2-84C2-1A56812AE704}</Project>
+      <Name>UploadQueue</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\ImageManager\ImageManager.csproj">
+      <Project>{145E19BB-EA2E-430A-8CA6-707877D53D02}</Project>
+      <Name>ImageManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\LLNWMediaVault\LLNWMediaVault.csproj">
+      <Project>{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}</Project>
+      <Name>LLNWMediaVault</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\Notifiers\Notifiers.csproj">
+      <Project>{31A03896-6FD2-4591-AB2E-A4278C24F8DB}</Project>
+      <Name>Notifiers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\QueueWrapper\QueueWrapper.csproj">
+      <Project>{E4F95CCC-2127-4A5C-90BB-D60A446BEC3B}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
+      <Project>{4EB719ED-06B1-4C05-A7CA-269D802105EA}</Project>
+      <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tvmcore\TvinciCache\TvinciCache.csproj">
+      <Project>{D57B2371-DA31-4035-8B00-6A6D0256EC00}</Project>
+      <Name>TvinciCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
+      <Project>{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}</Project>
+      <Name>TvinciImporter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+      <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TvmCore\Uploader\Uploader.csproj">
+      <Project>{A35BD0D3-3055-4206-8B3F-80079F9ECA15}</Project>
+      <Name>Uploader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Feeders\ExcelFeeder\ExcelFeeder.csproj">
+      <Project>{0CFBCE3D-D598-4EB1-B04C-F0A934EE7CC2}</Project>
+      <Name>ExcelFeeder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Feeders\ExcelGenerator\ExcelGenerator.csproj">
+      <Project>{D03B289E-FA54-4FC9-B30A-6345C4A782C4}</Project>
+      <Name>ExcelGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Financial\Financial.csproj">
+      <Project>{F484A18A-443F-48E0-8B6A-7944AE2200DC}</Project>
+      <Name>Financial</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(_WebPublishTargetsPath)\Web\Microsoft.WebSite.Publishing.targets" />
+</Project>
