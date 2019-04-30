@@ -32,4 +32,8 @@
     <ProjectReference Include="..\..\TvmCore\ElasticSearch\ElasticSearch.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>
