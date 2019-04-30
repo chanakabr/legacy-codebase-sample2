@@ -10201,7 +10201,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("idEqual", "\"idEqual\": " + IdEqual);
             if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
@@ -10224,7 +10224,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
             if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaChannelsFilter", "MediaIdEqual", requestType.Value)))
@@ -15633,7 +15633,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(CurrentUserPermissionsContains.HasValue)
             {
@@ -15651,7 +15651,7 @@ namespace WebAPI.Models.API
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(CurrentUserPermissionsContains.HasValue)
             {
@@ -17855,7 +17855,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("percentage", "\"percentage\": " + Percentage);
             return ret;
@@ -17866,7 +17866,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("percentage", "<percentage>" + Percentage + "</percentage>");
             return ret;
@@ -18841,7 +18841,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(Amount.HasValue)
             {
@@ -18871,7 +18871,7 @@ namespace WebAPI.Models.Pricing
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(Amount.HasValue)
             {
@@ -21137,7 +21137,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)))
             {
@@ -21163,7 +21163,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)))
             {
@@ -21257,7 +21257,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("createDate", "\"createDate\": " + createDate);
             if(expiry.HasValue)
@@ -21296,7 +21296,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("createDate", "<createDate>" + createDate + "</createDate>");
             if(expiry.HasValue)
@@ -21337,7 +21337,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -21347,7 +21347,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -24807,7 +24807,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(DeviceFamilyIdIn != null)
             {
@@ -24825,7 +24825,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(DeviceFamilyIdIn != null)
             {
@@ -25149,7 +25149,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)))
             {
@@ -25163,7 +25163,7 @@ namespace WebAPI.Models.Domains
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
-            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)))
             {
