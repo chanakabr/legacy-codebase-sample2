@@ -13255,11 +13255,6 @@
             The  live asset Id that was identified according liveAssetExternalId that was sent in bulk xml file
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetExternalId">
-            <summary>
-            The external live asset Id as was sent in bulk xml file
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">
             <summary>
             Upload-token identifier

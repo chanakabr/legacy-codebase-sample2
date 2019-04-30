@@ -23270,10 +23270,6 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(LiveAssetExternalId != null)
-            {
-                ret.Add("liveAssetExternalId", "\"liveAssetExternalId\": " + "\"" + EscapeJson(LiveAssetExternalId) + "\"");
-            }
             ret.Add("liveAssetId", "\"liveAssetId\": " + LiveAssetId);
             if(ProgramExternalId != null)
             {
@@ -23292,10 +23288,6 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(LiveAssetExternalId != null)
-            {
-                ret.Add("liveAssetExternalId", "<liveAssetExternalId>" + EscapeXml(LiveAssetExternalId) + "</liveAssetExternalId>");
-            }
             ret.Add("liveAssetId", "<liveAssetId>" + LiveAssetId + "</liveAssetId>");
             if(ProgramExternalId != null)
             {
