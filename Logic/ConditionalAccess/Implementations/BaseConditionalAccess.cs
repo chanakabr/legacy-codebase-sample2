@@ -15403,6 +15403,7 @@ namespace Core.ConditionalAccess
                         maxDegreeOfParallelism = 5;
                     }
 
+                    System.Collections.Concurrent.ConcurrentBag<long> domainIds = new System.Collections.Concurrent.ConcurrentBag<long>();
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                     while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
                     {
@@ -15429,6 +15430,7 @@ namespace Core.ConditionalAccess
 
                                 if (quotaSuccessfullyUpdated)
                                 {
+                                    domainIds.Add(domainId);
                                     if (!CompleteDomainSeriesRecordings(domainId))
                                     {
                                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
@@ -15448,6 +15450,9 @@ namespace Core.ConditionalAccess
                         maxDomainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(modifiedDomainRecordings.Rows[modifiedDomainRecordings.Rows.Count - 1], "ID");
                         modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
                     }
+
+                    // bulk delete for all domainIds
+                    RecordingsManager.Instance.DeleteRecording();
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
                     // add recording schedule task for next min protected date
@@ -16194,10 +16199,86 @@ namespace Core.ConditionalAccess
         private bool DistributeRecordingForPrivateCopy(long epgId, long id, DateTime epgStartDate, List<long> domainSeriesIds)
         {
             bool result = true;
+            // were suppose to call the adapter only once with the list of domainIds but currently its not possible because we need to also call record which is at a domain level...
+            log.Debug("DistributeRecordingForPrivateCopy not implemented");
             try
-            {                
-                // were suppose to call the adapter only once with the list of domainIds but currently its not possible because we need to also call record which is at a domain level...
-                log.Debug("DistributeRecordingForPrivateCopy not implemented");
+            {
+                //1. get all domain ids
+                //2. parallel (queryrecording) 
+                //3. wait all
+                //4. record adapter (bulks)
+                //5. parallel  (after adapter record logic)
+                //6. wait all
+                //{
+                //long domainID = 0;
+                //bool quotaOverage = false;
+
+                //recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true, shouldCheckQuota);
+                //if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
+                //{
+                //    log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                //    recording.Status = recordingResponse.Status;
+                //    return recording;
+                //}
+
+                //recording = recordingResponse.Recordings[0];
+                //if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
+                //{
+                //    //check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
+                //    //else return exceedeQuota
+                //    if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
+                //    {
+                //        TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                //        if (accountSettings != null && accountSettings.QuotaOveragePolicy == QuotaOveragePolicy.FIFOAutoDelete)
+                //        {
+                //            quotaOverage = true;
+                //        }
+                //    }
+
+                //    if (!quotaOverage)
+                //    {
+                //        log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                //        return recording;
+                //    }
+                //}
+
+                //if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                //{
+                //    HashSet<long> failedDomainIds;
+                //    log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                //    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording.Crid,
+                //                                                    new List<long>() { domainID }, out failedDomainIds);
+                //    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
+                //        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                //    {
+                //        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                //        log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
+                //        if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
+                //        {
+                //            // handle delete to overage quota
+                //            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
+                //            if (bRes != null && bRes.Code == (int)eResponseStatus.OK)
+                //            {
+                //                UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                //            }
+                //            else
+                //            {
+                //                log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                //                recording.Status = bRes != null ? bRes : new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                //            }
+                //        }
+                //        else
+                //        {
+                //            UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}",
+                //            recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
+                //        recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -16337,6 +16418,19 @@ namespace Core.ConditionalAccess
             };
             try
             {
+                //TODO 
+                //-------------------------------------------------------------------------------------
+                //1. get all domains (not only for single recording) + update the procedure to return the recording type
+                //2. keep the same logic as today for single recordings
+                //3. bulk verify vs the adapter
+                //4. parallel update for all the failed domain ids + return quota
+
+
+
+
+
+
+
                 log.Debug("GetRecordingStatusForPrivateRecording not implemented");
                 //Dictionary<string, long> domainsWithNoentitlementMap = new Dictionary<string, long>();// fill with users with no Entitlement
                 //List<long> domainIds = new List<long>();
