@@ -25,7 +25,7 @@ namespace CachingProvider.LayeredCache
         public const string IS_READ_ACTION = "IsReadAction";
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
-            "get", "list"
+            "get", "list", "getContext", "playManifest"
         };
 
         private LayeredCache()

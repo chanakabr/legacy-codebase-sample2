@@ -88,6 +88,21 @@ namespace KLogMonitor
             AppType = appType;
         }
 
+        public static void InitLogger(string logConfigFile, KLogEnums.AppType appType, string defaultLogsPath)
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+            var assemblyVersion = $"{fvi.FileMajorPart}_{fvi.FileMinorPart}_{fvi.FileBuildPart}";
+            var logDir = Environment.GetEnvironmentVariable("API_LOG_DIR");
+            logDir = logDir != null ? Environment.ExpandEnvironmentVariables(logDir) : defaultLogsPath;
+            log4net.GlobalContext.Properties["LogDir"] = logDir;
+            log4net.GlobalContext.Properties["ApiVersion"] = assemblyVersion;
+            log4net.GlobalContext.Properties["LogName"] = assembly.GetName().Name;
+
+            KMonitor.Configure(logConfigFile, appType);
+            KLogger.Configure(logConfigFile, appType);
+        }
+
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
