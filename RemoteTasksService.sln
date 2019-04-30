@@ -182,6 +182,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PartialUpdateHandler", "Par
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaticHttpContextForNetCore", "..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj", "{E4961D31-4CF4-4F54-97BE-995C3A6C4489}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoRuleUpdateHandler", "GeoRuleUpdateHandler\GeoRuleUpdateHandler.csproj", "{9B4DCD87-7B0D-4BE5-AD88-19381EA74ABC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
