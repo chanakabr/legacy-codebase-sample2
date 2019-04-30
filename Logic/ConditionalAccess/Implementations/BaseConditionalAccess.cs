@@ -15452,7 +15452,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // bulk delete for all domainIds
-                    RecordingsManager.Instance.DeleteRecording();
+                    //RecordingsManager.Instance.DeleteRecording();
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
                     // add recording schedule task for next min protected date
