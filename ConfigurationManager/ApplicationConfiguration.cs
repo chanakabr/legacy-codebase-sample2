@@ -22,6 +22,10 @@ namespace ConfigurationManager
 
         #endregion
 
+        #region FTP API Server Configuration Values
+        public static FtpApiServerConfiguration FtpApiServerConfiguration;
+        #endregion
+
         #region TVM Configuration Values
 
         public static StringConfigurationValue PictureUploaderPath;
@@ -216,7 +220,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks configuratin for professional services handler."
             };
-
+            FtpApiServerConfiguration = new FtpApiServerConfiguration("ftp_api_server")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
             PictureUploaderPath = new StringConfigurationValue("pic_uploader_path")
             {
                 ShouldAllowEmpty = true,
@@ -592,6 +600,7 @@ namespace ConfigurationManager
                     CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
                     GraceNoteALUIdConvertion,
+                    FtpApiServerConfiguration,
                     GraceNoteXSLTPath,
                     ElasticSearchHandlerConfiguration,
                     ShouldDistributeRecordingSynchronously,

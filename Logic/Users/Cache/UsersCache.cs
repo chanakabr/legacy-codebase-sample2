@@ -83,6 +83,25 @@ namespace Core.Users
 
         #region Public methods
 
+        internal long GetDomainIdByUser(int userId, int groupId)
+        {
+            long domainId = 0;
+            try
+            {
+                User user = GetUser(userId, groupId);
+                if (user != null && user.m_domianID > 0)
+                {
+                    domainId = (long)user.m_domianID;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDomainIdByUser for groupId: {0}, userId: {1}", groupId, userId), ex);
+            }
+
+            return domainId;
+        }
+
         // try getting the user from the cache
         /*internal User GetUser(int userID, int groupID)
         {

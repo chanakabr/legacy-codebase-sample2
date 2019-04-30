@@ -4837,18 +4837,20 @@ namespace Core.ConditionalAccess
                             int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
                             int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
                             int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
+                            int privateCopy = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_private_copy", 0);
 
                             if (recordingScheduleWindow > -1)
                             {
                                 tstvAccountSettings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                             trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                             protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
-                                            recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy, recoveryGracePeriod);
+                                            recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy,
+                                            recoveryGracePeriod, privateCopy == 1);
                             }
                         }
                         else
                         {
-                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0);
+                            tstvAccountSettings = new TimeShiftedTvPartnerSettings(false, false, false, false, false, 7, 1, 0, 0, 0, false, 90, 25, 182, 7, true, false, false, 0, 0, 0, false);
                         }
                     }
                 }

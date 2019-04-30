@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
 using ApiObjects;
 using ApiObjects.BulkUpload;
+using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using Core.GroupManagers;
@@ -114,9 +115,9 @@ namespace Core.Catalog
 
             //var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
-            
+
             _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
-            var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
+            var kalturaChannels = GetLinearChannelSettings(groupId, channelExternalIds);
             var languages = GroupLanguageManager.GetGroupLanguages(groupId);
             var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
             if (defaultLanguage == null)
@@ -132,13 +133,13 @@ namespace Core.Catalog
                 var channelExternalId = prog.channel;
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
-                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalId.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
+                var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalID.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
                 var programResults = new List<BulkUploadProgramAssetResult>();
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
                     foreach (var lang in languages)
                     {
-                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel.ChannelId, prog, lang.Code, defaultLanguage.Code);
+                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel, prog, lang.Code, defaultLanguage.Code);
                         newEpgAssetResult.BulkUploadId = bulkUploadId;
                         if (newEpgAssetResult.Errors?.Any() == true)
                         {
@@ -150,11 +151,10 @@ namespace Core.Catalog
                         }
 
                         newEpgAssetResult.Index = programIndex;
-                        newEpgAssetResult.LiveAssetExternalId = innerChannel.ChannelExternalId;
-                        newEpgAssetResult.LiveAssetId = innerChannel.ChannelId;
                         programResults.Add(newEpgAssetResult);
                     }
                 }
+
 
                 response.AddRange(programResults);
             }
@@ -162,15 +162,23 @@ namespace Core.Catalog
             return response.ToList();
         }
 
+        private static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
+        {
+            var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
+            var kalturaChannelIds = kalturaChannels.Select(k => k.ChannelId).ToList();
+            var liveAsstes = CatalogDAL.GetLinearChannelSettings(groupId, kalturaChannelIds);
+            return liveAsstes;
+        }
 
-        private BulkUploadProgramAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, int channelId, programme prog, string langCode, string defaultLangCode)
+        private BulkUploadProgramAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, LinearChannelSettings channelSettings, programme prog, string langCode, string defaultLangCode)
         {
             // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
             var response = new BulkUploadProgramAssetResult();
             var epgItem = new EpgCB();
 
             epgItem.Language = langCode;
-            epgItem.ChannelID = channelId;
+            epgItem.ChannelID = int.Parse(channelSettings.ChannelID);
+            epgItem.LinearMediaId = channelSettings.LinearMediaId;
             epgItem.GroupID = groupId;
             epgItem.ParentGroupID = parentGroupId;
             epgItem.EpgIdentifier = prog.external_id;
@@ -221,6 +229,7 @@ namespace Core.Catalog
 
             epgItem.Metas = ParseMetas(prog, langCode, defaultLangCode, response);
             epgItem.Tags = ParseTags(prog, langCode, defaultLangCode, response);
+            response.LiveAssetId = epgItem.LinearMediaId;
             response.ProgramExternalId = epgItem.EpgIdentifier;
             response.Object = epgItem;
             return response;

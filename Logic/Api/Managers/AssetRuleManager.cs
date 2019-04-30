@@ -806,7 +806,7 @@ namespace Core.Api.Managers
                 var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, epgChannelId);
                 if (linearChannelSettings != null)
                 {
-                    linearMediaId = (int)linearChannelSettings.linearMediaId;
+                    linearMediaId = (int)linearChannelSettings.LinearMediaId;
                 }
             }
             else if (mediaFileId != 0 && linearMediaId == 0)

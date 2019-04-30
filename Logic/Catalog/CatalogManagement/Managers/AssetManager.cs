@@ -2030,7 +2030,7 @@ namespace Core.Catalog.CatalogManagement
             return parentAsset;
         }
 
-        private static Status DeleteMediaAsset(int groupId, long mediaId, long userId)
+        private static Status DeleteMediaAsset(int groupId, long mediaId, long userId, MediaAsset currentAsset, bool isFromChannel = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -2041,9 +2041,54 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
+            if(currentAsset == null)
+            {
+                result.Set((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
+                return result;
+            }           
+
             if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId))
             {
                 result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                if(!isFromChannel)
+                {
+                    CatalogGroupCache catalogGroupCache;
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAsset", groupId);
+                        return result;
+                    }
+
+                    AssetStruct assetStruct = null;
+                    if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
+                    {
+                        assetStruct = catalogGroupCache.AssetStructsMapById[currentAsset.MediaType.m_nTypeID];
+                    }
+
+                    if (assetStruct.SystemName == MANUAL_ASSET_STRUCT_NAME || assetStruct.SystemName == DYNAMIC_ASSET_STRUCT_NAME || assetStruct.SystemName == EXTERNAL_ASSET_STRUCT_NAME)
+                    {
+                        if (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0)
+                        {
+                            if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                            {
+                                assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                                  .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                                  .ToDictionary(x => x.Value.SystemName, y => y.Value);
+                            }
+                        }
+
+                        if (assetStruct.SystemName == EXTERNAL_ASSET_STRUCT_NAME)
+                        {
+                            DeleteExternalChannel(groupId, userId, currentAsset, assetStruct);
+                        }
+                        else
+                        {
+                            DeleteChannel(groupId, userId, currentAsset, assetStruct);
+                        }
+                    }
+                }
+
                 // Delete Index
                 bool indexingResult = IndexManager.DeleteMedia(groupId, (int)mediaId);
                 if (!indexingResult)
@@ -2057,7 +2102,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
+        }        
 
         private static int GetTotalAmountOfDistinctAssets(List<BaseObject> assets)
         {
@@ -2117,12 +2162,10 @@ namespace Core.Catalog.CatalogManagement
 
                     if (!channelUpdateResponse.IsOkStatusCode())
                     {
-                        log.ErrorFormat("Failed update channelId{0}, groupId {1}, channelId {2}", channel.m_nChannelID, groupId);
+                        log.ErrorFormat("Failed update channelId {0}, groupId {1}, assetId {2}", channel.m_nChannelID, groupId, asset.Id);
                     }
                 }
             }
-
-            return;
         }
 
         private static void UpdateExternalChannel(int groupId, long userId, MediaAsset asset, AssetStruct assetStruct)
@@ -2162,6 +2205,81 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed update channelId{0}, groupId {1}, channelId {2}", channelToUpdate.ID, groupId);
                     }
+                }
+            }            
+        }
+
+        private static void DeleteExternalChannel(int groupId, long userId, MediaAsset asset, AssetStruct assetStruct)
+        {
+            if (assetStruct.TopicsMapBySystemName.ContainsKey(AssetManager.CHANNEL_ID_META_SYSTEM_NAME))
+            {
+                if (asset != null && asset.Metas != null && asset.Metas.Count > 0)
+                {
+                    int channelId = 0;
+                    var tagMeta = asset.Metas.Where(x => x.m_oTagMeta.m_sName == AssetManager.CHANNEL_ID_META_SYSTEM_NAME).FirstOrDefault();
+                    if (tagMeta == null)
+                    {
+                        log.ErrorFormat("Error while delete asset {0} External channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    int.TryParse(tagMeta.m_sValue, out channelId);
+                    if (channelId == 0)
+                    {
+                        log.ErrorFormat("Error while delete asset {0} External channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    //check external channel exist
+                    ExternalChannel channelToUpdate = CatalogDAL.GetExternalChannelById(groupId, channelId);
+                    if (channelToUpdate == null || channelToUpdate.ID <= 0)
+                    {
+                        log.ErrorFormat("Failed UpdateExternalChannel. External channel not found. groupId {0}, ExternalchannelId {1}", groupId, channelId);
+                        return;
+                    }
+
+                    channelToUpdate.Name = asset.Name;
+
+                    Status status = Api.api.DeleteExternalChannel(groupId, channelToUpdate.ID, userId, true);
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed delete channelId {0}, groupId {1}, assetId {2}", channelId, groupId, asset.Id);
+
+                    }                   
+                }
+            }
+
+            return;
+        }
+
+        private static void DeleteChannel(int groupId, long userId, MediaAsset asset, AssetStruct assetStruct)
+        {
+            // Check assetStruct catalogId existence          
+            if (assetStruct.TopicsMapBySystemName.ContainsKey(CHANNEL_ID_META_SYSTEM_NAME))
+            {
+                if (asset != null && asset.Metas != null && asset.Metas.Count > 0)
+                {
+                    int channelId = 0;
+                    var tagMeta = asset.Metas.Where(x => x.m_oTagMeta.m_sName == CHANNEL_ID_META_SYSTEM_NAME).FirstOrDefault();
+                    if (tagMeta == null)
+                    {
+                        log.ErrorFormat("Error while delete asset {0} channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    int.TryParse(tagMeta.m_sValue, out channelId);
+                    if (channelId == 0)
+                    {
+                        log.ErrorFormat("Error while delete asset {0} channel. channelId is missing. groupId {1}", asset.Id, groupId);
+                        return;
+                    }
+
+                    Status status = ChannelManager.DeleteChannel(groupId, channelId, userId, true);
+                    if(status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed delete  channelId {0}, groupId {1}, assetId {2}", channelId, groupId, asset.Id);
+
+                    }                   
                 }
             }
 
@@ -2539,7 +2657,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId)
+        public static Status DeleteAsset(int groupId, long id, eAssetTypes assetType, long userId, bool isFromChannel = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -2561,7 +2679,7 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.NPVR:
                         break;
                     case eAssetTypes.MEDIA:
-                        result = DeleteMediaAsset(groupId, id, userId);                        
+                        result = DeleteMediaAsset(groupId, id, userId, assets[0] as MediaAsset, isFromChannel);                        
                         break;
                     default:
                     case eAssetTypes.UNKNOWN:
