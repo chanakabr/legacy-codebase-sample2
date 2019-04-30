@@ -68,7 +68,6 @@ namespace IngestHandler
                 log.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
                 
                 ValidateServiceEvent(serviceEvent);
-              
             }
             catch (Exception ex)
             {
@@ -77,7 +76,6 @@ namespace IngestHandler
             }
 
             return Task.CompletedTask;
-
         }
 
         #endregion
@@ -88,7 +86,7 @@ namespace IngestHandler
         {
             if (serviceEvent.ProgramsToIngest == null)
             {
-                throw new Exception($"Received bulk upload ingest event with null programs to insert. group id ={serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
+                throw new Exception($"Received bulk upload ingest event with null programs to insert. group id = {serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
             }
 
             long bulkUploadId = serviceEvent.BulkUploadId;
@@ -242,7 +240,11 @@ namespace IngestHandler
                 FilterSettings = filterCompositeType
             };
 
-            // get the epg ids from elasticsearch
+            query.ReturnFields.Clear();
+            query.ReturnFields.Add("document_id");
+            query.ReturnFields.Add("epg_id");
+
+            // get the epg document ids from elasticsearch
             string searchQuery = query.ToString();
             var searchResult = elasticSearchClient.Search(index, type, ref searchQuery);
 
@@ -250,7 +252,7 @@ namespace IngestHandler
             // TODO : get epg complete data from CB
             // LANGUAGE
             //
-            List<string> epgIds = new List<string>();
+            List<string> documentIds = new List<string>();
 
             // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (!string.IsNullOrEmpty(searchResult))
@@ -261,10 +263,10 @@ namespace IngestHandler
 
                 foreach (var hit in hits)
                 {
-                    epgIds.Add(hit["epg_id"].ToString());
+                    documentIds.Add(hit["document_id"].ToString());
                 }
 
-                result = new EpgDal_Couchbase(groupId).GetProgram(epgIds);
+                result = new EpgDal_Couchbase(groupId).GetProgram(documentIds);
             }
 
             return result;
@@ -394,8 +396,8 @@ namespace IngestHandler
 
             foreach (var program in calculatedPrograms)
             {
-                // TODO: CONSIDER LANGUAGE
-                string key = $"{program.EpgID}_{bulkUploadId}";
+                // TODO: CONSIDER LANGUAGE - is it enough?
+                string key = $"{program.EpgID}__{program.Language}_{bulkUploadId}";
                 program.DocumentId = key;
 
                 bool insertResult = dal.InsertProgram(key, program, program.EndDate.AddDays(EXPIRY_DATE));
@@ -602,7 +604,6 @@ namespace IngestHandler
         }
 
         /// <summary>
-        /// 
         /// switch aliases - 
         /// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
         /// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
@@ -625,7 +626,6 @@ namespace IngestHandler
             string newIndex = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
             elasticSearchClient.AddAlias(newIndex, dateAlias);
             elasticSearchClient.AddAlias(newIndex, generalAlias);
-
         }
 
         #endregion

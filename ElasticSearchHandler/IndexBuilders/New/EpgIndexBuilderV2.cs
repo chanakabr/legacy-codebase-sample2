@@ -17,6 +17,7 @@ using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
 using Core.Catalog;
+using ApiObjects.Catalog;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -431,14 +432,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // used only to support linear media id search on elastic search
             List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
-            Dictionary<string, Core.Catalog.LinearChannelSettings>  linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+            Dictionary<string, LinearChannelSettings>  linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
             if (doesGroupUsesTemplates)
             {
                 linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
             }
 
             // Run on all programs
-                foreach (ulong epgID in programs.Keys)
+            foreach (ulong epgID in programs.Keys)
             {
                 foreach (string languageCode in programs[epgID].Keys)
                 {
@@ -483,7 +484,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         // used only to currently support linear media id search on elastic search
                         if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                         {
-                            epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
+                            epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
                         }
 
                         // Serialize EPG object to string
