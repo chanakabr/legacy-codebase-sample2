@@ -13,6 +13,7 @@ using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
 using Core.Catalog;
+using ApiObjects.Catalog;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -208,7 +209,7 @@ namespace ElasticSearchHandler.Updaters
                 ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
 
                 // used only to support linear media id search on elastic search                
-                Dictionary<string, Core.Catalog.LinearChannelSettings> linearChannelSettings = new Dictionary<string, Core.Catalog.LinearChannelSettings>();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
                 if (doesGroupUsesTemplates)
                 {
                     List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
@@ -257,7 +258,7 @@ namespace ElasticSearchHandler.Updaters
                                     // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
                                     if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                                     {
-                                        epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
+                                        epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
                                     }
 
                                     string serializedEpg = SerializeEPG(epg, suffix, doesGroupUsesTemplates);
