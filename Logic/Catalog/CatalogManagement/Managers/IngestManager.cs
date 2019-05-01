@@ -1,6 +1,7 @@
 ﻿using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
@@ -72,6 +73,7 @@ namespace Core.Catalog.CatalogManagement
             var groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupId);
             var tagsTranslations = new Dictionary<string, TagsTranslations>();
             var assetsWithNoTags = new Dictionary<int, bool>();
+            var cdnAdapters = GetCDNAdaptersMapping(groupId);
 
             for (int i = 0; i < feedResponse.Object.Export.MediaList.Count; i++)
             {
@@ -108,7 +110,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                             
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
-                            var assetFiles = GetAssetFiles(media.Files, mediaFileTypes);
+                            var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
 
                             var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, TRUE.Equals(media.Erase));
                             if (!upsertStatus.IsOkStatusCode())
@@ -861,7 +863,7 @@ namespace Core.Catalog.CatalogManagement
             return images;
         }
 
-        private static Dictionary<int, Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes)
+        private static Dictionary<int, Tuple<AssetFile, string>> GetAssetFiles(IngestFiles files, GenericListResponse<MediaFileType> mediaFileTypes, Dictionary<string, CDNAdapter> cdnAdapters)
         {
             Dictionary<int, Tuple<AssetFile, string>> assetFiles = null;
 
@@ -882,25 +884,28 @@ namespace Core.Catalog.CatalogManagement
                         {
                             assetFiles.Add(mediaFileTypeId, new Tuple<AssetFile, string>(new AssetFile(mediaFile.Type)
                             {
+                                //Id
+                                //AssetId
                                 TypeId = mediaFileTypeId,
                                 Url = mediaFile.CdnCode,
                                 Duration = StringUtils.TryConvertTo<long>(mediaFile.AssetDuration),
                                 ExternalId = mediaFile.CoGuid,
                                 AltExternalId = mediaFile.AltCoGuid,
                                 ExternalStoreId = mediaFile.ProductCode,
+                                CdnAdapaterProfileId = !string.IsNullOrEmpty(mediaFile.CdnName) && cdnAdapters.ContainsKey(mediaFile.CdnName) ? cdnAdapters[mediaFile.CdnName].ID : (long?)null,
                                 AltStreamingCode = mediaFile.AltCdnCode,
+                                AlternativeCdnAdapaterProfileId = !string.IsNullOrEmpty(mediaFile.AltCdnName) && cdnAdapters.ContainsKey(mediaFile.AltCdnName) ? cdnAdapters[mediaFile.AltCdnName].ID : (long?)null,
+                                //AdditionalData
                                 BillingType = GetBillingTypeIdByName(mediaFile.BillingType),
+                                //OrderNum
                                 Language = mediaFile.Language,
                                 IsDefaultLanguage = StringUtils.TryConvertTo<bool>(mediaFile.IsDefaultLanguage),
                                 OutputProtecationLevel = StringUtils.ConvertTo<int>(mediaFile.OutputProtecationLevel),
                                 StartDate = DateUtils.TryExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
                                 EndDate = DateUtils.TryExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
-                                IsActive = true,
-                                CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT)
-                                //AlternativeCdnAdapaterProfileId,
-                                //AdditionalData
-                                //OrderNum
+                                IsActive = true
+                                //CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT),
                             }, mediaFile.PpvModule));
                         }
                     }
@@ -908,6 +913,22 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return assetFiles;
+        }
+
+        private static Dictionary<string, CDNAdapter> GetCDNAdaptersMapping(int groupId)
+        {
+            Dictionary<string, CDNAdapter> cdnAdapterMapping = new Dictionary<string, CDNAdapter>();
+            var cdnAdapterList = DAL.ApiDAL.GetCDNAdapters(groupId);
+
+            foreach (var cdnAdapter in cdnAdapterList)
+            {
+                if (!cdnAdapterMapping.ContainsKey(cdnAdapter.Name))
+                {
+                    cdnAdapterMapping.Add(cdnAdapter.Name, cdnAdapter);
+                }
+            }
+
+            return cdnAdapterMapping;
         }
     }
 }

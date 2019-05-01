@@ -112,7 +112,7 @@ namespace Core.Users
             try
             {
                 keyValueList = keyValueList ?? new List<KeyValuePair>();
-
+                
                 var postSignInModel = new PostSignInModel
                 {
                     AuthenticatedUser = ConvertUserToSSOUser(authenticatedUser?.m_user),
@@ -175,7 +175,7 @@ namespace Core.Users
                 return new UserResponseObject
                 {
                     m_RespStatus = ResponseStatus.OK,
-                    m_user = ConvertSSOUserToUser(response.User),
+                        m_user = ConvertSSOUserToUser(response.User),
                 };
             }
             catch (Exception e)
@@ -201,7 +201,7 @@ namespace Core.Users
 
                 var customParamsStr = string.Concat(customParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, userData?.Id, userData?.Username, userData?.Email, customParamsStr);
-
+                
                 _Logger.InfoFormat("Calling sso adapter PostGetUserData [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
                 var response = _AdapterClient.PostGetUserData(_AdapterId, userData, customParams, signature);
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
@@ -235,7 +235,6 @@ namespace Core.Users
 
         }
 
-
         private SSOImplementationsResponse GetSSOImplementations()
         {
             SSOImplementationsResponse implementationsResponse = null;
@@ -268,7 +267,6 @@ namespace Core.Users
                 {
                     implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
                 }
-
 
                 return new Tuple<SSOImplementationsResponse, bool>(implementationsResponse, true);
             }
@@ -338,8 +336,8 @@ namespace Core.Users
                 m_sAddress = userData.Address,
                 m_UserType = new ApiObjects.UserType
                 {
-                    ID = userData.UserType.Id,
-                    Description = userData.UserType.Description,
+                ID = userData.UserType.Id,
+                Description = userData.UserType.Description,
                 },
             };
             ioUser.m_domianID = userData.HouseholdID ?? 0;
@@ -362,7 +360,6 @@ namespace Core.Users
                 var settingsString = string.Concat(configDict.Select(kv => kv.Key + kv.Value));
                 var signature = GenerateSignature(_AdapterId, _GroupId, settingsString);
 
-
                 _Logger.DebugFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", _AdapterConfig.Name, string.Concat(configDict.Select(kv => string.Format("[{0}|{1}], ", kv.Key, kv.Value))));
                 _AdapterClient.SetConfiguration(_AdapterId, _GroupId, configDict, signature);
                 return false;
@@ -384,8 +381,8 @@ namespace Core.Users
             return new UserResponseObject
             {
                 m_RespStatus = (ResponseStatus)(int)ssoResponseStatus.ResponseStatus,
-                ExternalCode = ssoResponseStatus.ExternalCode,
-                ExternalMessage = ssoResponseStatus.ExternalMessage,
+                    ExternalCode = ssoResponseStatus.ExternalCode,
+                    ExternalMessage = ssoResponseStatus.ExternalMessage,
             };
         }
 
