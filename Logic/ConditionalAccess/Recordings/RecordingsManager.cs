@@ -258,14 +258,7 @@ namespace Core.Recordings
             return recording;
         }
 
-        public Status BulkDeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, IList<long> domainId, int adapterId = 0)
-        {
-            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            return status;
-        }
-
-        public Status DeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, long domainId, int adapterId = 0)
+        public Status DeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, List<long> domainIds, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -297,11 +290,11 @@ namespace Core.Recordings
                         //  recording in status scheduled/recording is canceled, otherwise we delete
                         if (slimRecording.EpgEndDate > DateTime.UtcNow)
                         {
-                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainId);
+                            adapterResponse = adapterController.CancelRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainIds.First());
                         }
                         else
                         {
-                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainId);
+                            adapterResponse = adapterController.DeleteRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainIds);
                         }
                     }
                     catch (KalturaException ex)
@@ -317,7 +310,7 @@ namespace Core.Recordings
                 }
 
                 // if last recording then update the DB
-                if (isLastRecording || (isPrivateCopy && domainId == 0))
+                if (isLastRecording || (isPrivateCopy && !domainIds.Any()))
                 {
                     status = internalModifyRecording(groupId, slimRecording.Id, slimRecording.EpgEndDate);
                 }

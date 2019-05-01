@@ -13658,7 +13658,7 @@ namespace Core.ConditionalAccess
                     bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
                     if (isPrivateCopy)
                     {
-                        recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, false, domainId);
+                        recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, false, new List<long>() { domainId });
                         if (recording.Status.Code != (int)eResponseStatus.OK)
                         {
                             recording.Id = domainRecordingId;
@@ -14309,7 +14309,7 @@ namespace Core.ConditionalAccess
                 {
                     Recording recording = Utils.GetRecordingByEpgId(m_nGroupID, id);
                     bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
-                    var currentStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, true, 0);
+                    var currentStatus = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, isPrivateCopy, true, new List<long> { 0 });
 
                     // If something went wrong, use the first status that failed
                     if (status == null)
@@ -14944,7 +14944,7 @@ namespace Core.ConditionalAccess
                             }
 
                             // Try to delete the current recording
-                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, false, false, 0, groupIdToAdapterIdMap[pair.Key]);
+                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, false, false, new List<long>() { 0 }, groupIdToAdapterIdMap[pair.Key]);
 
                             if (deleteStatus.Code != (int)eResponseStatus.OK)
                             {
@@ -15455,7 +15455,7 @@ namespace Core.ConditionalAccess
                     // bulk delete for all domainIds
                     if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
                     {
-                        RecordingsManager.Instance.BulkDeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
                     }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
