@@ -285,7 +285,7 @@ namespace WebAPI.Utils
             List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseData, request.m_oFilter, managementData);            
 
             if (assets != null)
-                return  MapAssets(assets);
+                return  MapAssets(request.m_nGroupID, assets);
             else
                 return null;
         }
@@ -511,7 +511,7 @@ namespace WebAPI.Utils
 
             if (assets != null)
             {
-                List<KalturaAsset> tempAssets = MapAssets(assets);
+                List<KalturaAsset> tempAssets = MapAssets(request.m_nGroupID, assets);
 
                 SetTopHitCount(responseProfile, aggregationResults, tempAssets);
 
