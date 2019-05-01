@@ -230,6 +230,10 @@
       <Project>{24639160-158d-4110-9585-eaa81adb5249}</Project>
       <Name>FreeAssetUpdateHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GeoRuleUpdateHandler\GeoRuleUpdateHandler.csproj">
+      <Project>{9b4dcd87-7b0d-4be5-ad88-19381ea74abc}</Project>
+      <Name>GeoRuleUpdateHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ImageResizeHandler\ImageResizeHandler.csproj">
       <Project>{ead60549-3a6d-455c-abab-b2f29945b97f}</Project>
       <Name>ImageResizeHandler</Name>
