@@ -157,3 +157,8 @@ $RECYCLE.BIN/
 UsersCoreToPS/UsersBin/
 /packages
 /.vs
+EventBus.RabbitMQ/.vs/EventBus.RabbitMQ/v15/Server/sqlite3/storage.ide-wal
+EventBus.RabbitMQ/.vs/EventBus.RabbitMQ/v15/Server/sqlite3/storage.ide-shm
+EventBus.RabbitMQ/.vs/EventBus.RabbitMQ/v15/Server/sqlite3/storage.ide
+EventBus.RabbitMQ/.vs/EventBus.RabbitMQ/v15/Server/sqlite3/db.lock
+EventBus.RabbitMQ/.vs/EventBus.RabbitMQ/DesignTimeBuild/.dtbcache
