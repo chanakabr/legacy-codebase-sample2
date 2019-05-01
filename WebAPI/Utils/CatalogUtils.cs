@@ -575,23 +575,23 @@ namespace WebAPI.Utils
             }
         }
 
-        internal static List<KalturaAsset> MapAssets(List<BaseObject> assets)
+        internal static List<KalturaAsset> MapAssets(int groupId, List<BaseObject> assets)
         {
+            GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+            int linearMediaTypeId = groupManager.GetLinearMediaTypeId(groupId);            
+            Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+            bool isNewerThenOpcMergeVersion = requestVersion.CompareTo(opcMergeVersion) > 0;
             List<KalturaAsset> result = new List<KalturaAsset>();
             foreach (BaseObject asset in assets)
             {
                 KalturaAsset assetToAdd = null;
                 if (asset.AssetType == eAssetTypes.MEDIA && asset is MediaObj)
                 {
-                    assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);                    
-                    Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                    assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);                                        
                     MediaObj mediaObj = asset as MediaObj;
-                    if (requestVersion.CompareTo(opcMergeVersion) > 0)
+                    if (isNewerThenOpcMergeVersion && linearMediaTypeId > 0 && mediaObj.m_oMediaType.m_nTypeID == linearMediaTypeId)
                     {
-                        if (!string.IsNullOrEmpty(mediaObj.m_ExternalIDs))
-                        {
-                            assetToAdd = AutoMapper.Mapper.Map<KalturaLiveAsset>(mediaObj);
-                        }
+                        assetToAdd = AutoMapper.Mapper.Map<KalturaLiveAsset>(mediaObj);                        
                     }
                 }
                 else
