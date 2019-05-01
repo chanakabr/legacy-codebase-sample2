@@ -252,6 +252,22 @@ namespace GroupsCacheManager
             return mediaTypes;
         }
 
+        public int GetLinearMediaTypeId(int groupId)
+        {
+            int result = 0;
+
+            try
+            {
+                result = cache.GetLinearMediaTypeId(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetLinearMediaTypeId - failed get linear media type id, groupId = {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Private

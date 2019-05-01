@@ -792,6 +792,26 @@ namespace GroupsCacheManager
             return (mediaTypes);
         }
 
+        internal int GetLinearMediaTypeId(int groupId)
+        {
+            int result = 0;            
+
+            try
+            {
+                Group group = this.GetGroup(groupId);
+                if (group != null && group.mediaTypes != null && group.mediaTypes.Any(x=> x.isLinear))
+                {
+                    result = group.mediaTypes.First(x => x.isLinear).id;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetLinearMediaType, groupId = {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
         #endregion
 
     }
