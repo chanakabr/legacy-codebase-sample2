@@ -91,7 +91,7 @@ namespace Reflector
             
             if (properties.Any(doesPropertyRequiresReadPermission))
             {
-                file.WriteLine("            RequestType ? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];");
+                file.WriteLine("            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;");
             }
 
             file.Write(Environment.NewLine);

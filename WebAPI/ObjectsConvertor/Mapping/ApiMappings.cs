@@ -538,7 +538,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
             cfg.CreateMap<KalturaAssetRule, AssetRule>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
@@ -1794,6 +1795,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+
             cfg.CreateMap<ApiObjects.PlaybackAdapter.DrmSchemeName, KalturaDrmSchemeName>()
                 .ConvertUsing(type =>
                 {
@@ -1819,6 +1821,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown DrmSchemeName value : {0}", type.ToString()));
+                            break;
+                    }
+                });
+
+            cfg.CreateMap<RuleStatus, KalturaAssetRuleStatus>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case RuleStatus.InProgress:
+                            return KalturaAssetRuleStatus.IN_PROGRESS;
+                            break;
+                        case RuleStatus.Ready:
+                            return KalturaAssetRuleStatus.READY;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleStatus value : {0}", type.ToString()));
                             break;
                     }
                 });

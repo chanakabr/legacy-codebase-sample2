@@ -5634,6 +5634,11 @@
             List of actions for the rule
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRule.Status">
+            <summary>
+            List of actions for the rule
+            </summary>
+        </member>
         <member name="M:WebAPI.Models.API.KalturaAssetRule.FillEmpty(WebAPI.Models.API.KalturaAssetRule)">
             <summary>
             Fill current AssetRule data members with givven assetRule only if they are empty\null
@@ -13253,11 +13258,6 @@
         <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetId">
             <summary>
             The  live asset Id that was identified according liveAssetExternalId that was sent in bulk xml file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Upload.KalturaBulkUploadProgramAssetResult.LiveAssetExternalId">
-            <summary>
-            The external live asset Id as was sent in bulk xml file
             </summary>
         </member>
         <member name="P:WebAPI.Models.Upload.KalturaUploadToken.Id">

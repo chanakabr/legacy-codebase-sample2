@@ -35,6 +35,15 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "actions")]
         public List<KalturaAssetRuleAction> Actions { get; set; }
 
+        /// <summary>
+        /// List of actions for the rule
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaAssetRuleStatus Status { get; set; }
+
         internal void Validate()
         {
             if (this.Conditions == null || this.Conditions.Count == 0)
@@ -219,5 +228,11 @@ namespace WebAPI.Models.API
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaAssetRule> Objects { get; set; }
+    }
+
+    public enum KalturaAssetRuleStatus
+    {
+        READY,
+        IN_PROGRESS
     }
 }

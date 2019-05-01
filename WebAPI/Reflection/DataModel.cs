@@ -540,6 +540,8 @@ namespace WebAPI.Reflection
                             return "actions";
                         case "Conditions":
                             return "conditions";
+                        case "Status":
+                            return "status";
                     }
                     break;
                     
@@ -992,8 +994,6 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadProgramAssetResult":
                     switch(property.Name)
                     {
-                        case "LiveAssetExternalId":
-                            return "liveAssetExternalId";
                         case "LiveAssetId":
                             return "liveAssetId";
                         case "ProgramExternalId":

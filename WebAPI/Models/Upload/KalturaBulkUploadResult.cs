@@ -171,13 +171,5 @@ namespace WebAPI.Models.Upload
         [SchemeProperty(ReadOnly = true)]
         public int LiveAssetId { get; set; }
 
-        /// <summary>
-        /// The external live asset Id as was sent in bulk xml file
-        /// </summary>
-        [DataMember(Name = "liveAssetExternalId")]
-        [JsonProperty(PropertyName = "liveAssetExternalId")]
-        [XmlElement(ElementName = "liveAssetExternalId")]
-        [SchemeProperty(ReadOnly = true)]
-        public string LiveAssetExternalId { get; set; }
     }
 }
