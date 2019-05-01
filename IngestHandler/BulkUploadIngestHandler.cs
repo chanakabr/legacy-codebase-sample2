@@ -69,6 +69,8 @@ namespace IngestHandler
                 // coulnd find document_id in elastic response
                 // 
                 var crudOperations = CalculateCRUDOperations(groupId, currentPrograms, programsToIngest);
+                var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
+
 
             }
             catch (Exception ex)
@@ -352,7 +354,7 @@ namespace IngestHandler
             return result;
         }
 
-        private CRUDOperations<EpgCB> CalculateCRUDOperations(int groupId, List<EpgCB> currentPrograms, List<EpgCB> programsToIngest)
+        private CRUDOperations<EpgCB> CalculateCRUDOperations(int groupId, IList<EpgCB> currentPrograms, IList<EpgCB> programsToIngest)
         {
             var crudOperations = new CRUDOperations<EpgCB>
             {
@@ -392,14 +394,16 @@ namespace IngestHandler
             return crudOperations;
         }
 
-        private List<EpgCB> CalculateSimulatedFinalStateAfterIngest(List<EpgCB> programsToAdd, List<EpgCB> programsToUpdate)
+        private List<EpgCB> CalculateSimulatedFinalStateAfterIngest(IList<EpgCB> programsToAdd, IList<EpgCB> programsToUpdate)
         {
             List<EpgCB> result = new List<EpgCB>();
 
             // set the new programs with new IDs from sequence document in couchbase
             foreach (var program in programsToAdd)
             {
-                program.EpgID = _CouchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, 1);
+                
+                var newEPGId = _CouchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, 1);
+                program.EpgID = newEPGId + 1000000;
             }
 
             // union lists and order by start date
