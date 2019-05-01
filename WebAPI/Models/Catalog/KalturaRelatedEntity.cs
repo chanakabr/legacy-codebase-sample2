@@ -8,7 +8,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     [Serializable]
-    public class KalturaRelatedEntity : KalturaOTTObject
+    public partial class KalturaRelatedEntity : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the related entry
@@ -24,17 +24,18 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public KalturaRelatedEntryType Type { get; set; }
+        public KalturaRelatedEntityType Type { get; set; }
     }
 
-    public enum KalturaRelatedEntryType
-    {
+    public enum KalturaRelatedEntityType
+    {        
         CHANNEL = 0,
         EXTERNAL_CHANNEL = 1,
         MEDIA = 2,
         PROGRAM = 3
     }
 
+    [Serializable]
     public partial class KalturaRelatedEntityArray : KalturaOTTObject
     {
         /// <summary>

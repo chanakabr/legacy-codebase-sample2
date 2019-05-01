@@ -3138,6 +3138,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ApiObjects.MetaType.DateTime:
                     response = KalturaMetaType.DATE;
                     break;
+                case ApiObjects.MetaType.ReleatedEntity:
+                    response = KalturaMetaType.RELEATED_ENTITY;
+                    break;
                 case ApiObjects.MetaType.All:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown meta type");
@@ -3216,6 +3219,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaMetaType.DATE:
                         response = ApiObjects.MetaType.DateTime;
+                        break;
+                    case KalturaMetaType.RELEATED_ENTITY:
+                        response = ApiObjects.MetaType.ReleatedEntity;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown meta type");

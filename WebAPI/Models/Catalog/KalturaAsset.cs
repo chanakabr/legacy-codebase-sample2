@@ -247,6 +247,7 @@ namespace WebAPI.Models.Catalog
 
             this.ValidateMetas();
             this.ValidateTags();
+            this.ValidateRelatedEntities();
         }
 
         internal virtual void ValidateForUpdate()
@@ -287,6 +288,7 @@ namespace WebAPI.Models.Catalog
 
             this.ValidateMetas();
             this.ValidateTags();
+            this.ValidateRelatedEntities();
         }
 
         internal void ValidateTags()
@@ -335,6 +337,37 @@ namespace WebAPI.Models.Catalog
         {
             Dictionary<string, object> excelValues = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelValues(groupId, this);
             return excelValues;
+        }
+
+        internal void ValidateRelatedEntities()
+        {
+            if(RelatedEntities?.Count > 5)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "asset.relatedEntities", 5);
+            }
+
+            if (RelatedEntities?.Count > 0)
+            {
+                foreach (KeyValuePair<string, KalturaRelatedEntityArray> relatedEntityArray in RelatedEntities)
+                {
+                    if (relatedEntityArray.Value?.Objects?.Count > 0)
+                    {
+                        if (relatedEntityArray.Value?.Objects?.Count > 20)
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "asset.relatedEntities.objects", 20);
+
+                        }
+
+                        foreach (KalturaRelatedEntity item in relatedEntityArray.Value.Objects)
+                        {
+                            if (item == null)
+                            {
+                                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "item");
+                            }                          
+                        }
+                    }
+                }
+            }
         }
     }
 }

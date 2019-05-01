@@ -12,6 +12,7 @@ namespace WebAPI.Models.Catalog
         MULTILINGUAL_STRING,
         NUMBER,
         BOOLEAN,        
-        DATE     
+        DATE,
+        RELEATED_ENTITY
     }
 }

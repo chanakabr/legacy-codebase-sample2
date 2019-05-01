@@ -12,6 +12,7 @@ namespace WebAPI.Models.API
         NUMBER,
         BOOLEAN,
         STRING_ARRAY, // tag
-        DATE
+        DATE,
+        RELEATED_ENTITY
     }
 }

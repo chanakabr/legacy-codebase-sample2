@@ -392,7 +392,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.START_DATE)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringToUtcUnixTimestampSeconds(src.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))                
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.EPG_IDENTIFIER))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
@@ -423,7 +423,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreationDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))                
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.m_ExternalIDs))
@@ -539,6 +539,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.Ignore())
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => src.Metas != null ? GetMetaList(src.Metas) : new List<Metas>()))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags != null ? GetTagsList(src.Tags) : new List<Tags>()))
+                .ForMember(dest => dest.RelatedEntities, opt => opt.MapFrom(src => src.RelatedEntities != null ? GetRelatedEntitiesList(src.RelatedEntities) : new List<RelatedEntities>()))
                 .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.StartDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.StartDate)))
@@ -602,6 +603,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.Metas)))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
+                .ForMember(dest => dest.RelatedEntities, opt => opt.MapFrom(src => BuildRelatedEntitiesDictionary(src.RelatedEntities)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid));
 
@@ -1105,7 +1107,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
             #endregion
-        }
+        }       
 
         private static int? ConvertToNullableInt(bool? value)
         {
@@ -1347,6 +1349,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case ApiObjects.MetaType.MultilingualString:
                     response = KalturaMetaDataType.MULTILINGUAL_STRING;
                     break;
+                case ApiObjects.MetaType.ReleatedEntity:
+                    response = KalturaMetaDataType.RELEATED_ENTITY;
+                    break;
                 case ApiObjects.MetaType.All:
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown meta type");
@@ -1383,6 +1388,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaMetaDataType.DATE:
                         response = ApiObjects.MetaType.DateTime;
+                        break;
+                    case KalturaMetaDataType.RELEATED_ENTITY:
+                        response = ApiObjects.MetaType.ReleatedEntity;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown meta data type");
@@ -2706,6 +2714,110 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return ppvModule;
+        }
+
+        private static List<RelatedEntities> GetRelatedEntitiesList(SerializableDictionary<string, KalturaRelatedEntityArray> relatedEntitiesDictionary)
+        {
+            List<RelatedEntities> relatedEntitiesList = new List<RelatedEntities>();
+            RelatedEntities relatedEntitiesToAdd = null;
+            RelatedEntity relatedEntity = null;
+
+            if (relatedEntitiesDictionary == null || relatedEntitiesDictionary.Count == 0)
+            {
+                return relatedEntitiesList;
+            }
+
+            HashSet<string> relatedEntityNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (KeyValuePair<string, KalturaRelatedEntityArray> relatedEntities in relatedEntitiesDictionary)
+            {
+                if (relatedEntityNames.Contains(relatedEntities.Key))
+                {
+                    throw new ClientException((int)StatusCode.Error, string.Format("The request contains relatedEntity with the name {0} more than once", relatedEntities.Key));
+                }
+
+                relatedEntitiesToAdd = new RelatedEntities() { TagMeta = new TagMeta(relatedEntities.Key, ApiObjects.MetaType.ReleatedEntity.ToString()) };
+                relatedEntitiesToAdd.Items = new List<RelatedEntity>();
+
+                if (relatedEntities.Value.Objects != null)
+                {
+                    foreach (KalturaRelatedEntity kalturaRelatedEntity in relatedEntities.Value.Objects)
+                    {
+                        relatedEntity = new RelatedEntity()
+                        {
+                            Id = kalturaRelatedEntity.Id,
+                            Type = ConvertRelatedEntityType(kalturaRelatedEntity.Type)
+                        };
+                        
+                        if (relatedEntitiesToAdd.Items.Contains(relatedEntity))
+                        {
+                            throw new ClientException((int)StatusCode.Error, string.Format("The request contains relatedEntity with the id {0} and type {1} more than once", relatedEntity.Id, relatedEntity.Type));
+                        }
+                        
+                        relatedEntitiesToAdd.Items.Add(relatedEntity);
+                    }
+                }
+
+                relatedEntityNames.Add(relatedEntities.Key);
+                relatedEntitiesList.Add(relatedEntitiesToAdd);
+            }
+
+            return relatedEntitiesList;
+        }
+
+        private static RelatedEntityType ConvertRelatedEntityType(KalturaRelatedEntityType type)
+        {
+            RelatedEntityType result;
+            switch (type)
+            {
+                case KalturaRelatedEntityType.CHANNEL:
+                    return RelatedEntityType.Channel;                    
+                case KalturaRelatedEntityType.EXTERNAL_CHANNEL:
+                    return RelatedEntityType.ExternalChannel;                    
+                case KalturaRelatedEntityType.MEDIA:
+                    return RelatedEntityType.Media;                    
+                case KalturaRelatedEntityType.PROGRAM:
+                    return RelatedEntityType.Program;                    
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaRelatedEntryType");
+            }
+        }
+
+        private static KalturaRelatedEntityType ConvertRelatedEntityType(RelatedEntityType type)
+        {
+            KalturaRelatedEntityType result;
+            switch (type)
+            {
+                case RelatedEntityType.Channel:
+                    return KalturaRelatedEntityType.CHANNEL;
+                case RelatedEntityType.ExternalChannel:
+                    return KalturaRelatedEntityType.EXTERNAL_CHANNEL;
+                case RelatedEntityType.Media:
+                    return KalturaRelatedEntityType.MEDIA;
+                case RelatedEntityType.Program:
+                    return KalturaRelatedEntityType.PROGRAM;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown RelatedEntryType");
+            }
+        }
+
+        private static Dictionary<string, KalturaRelatedEntityArray> BuildRelatedEntitiesDictionary(List<RelatedEntities> relatedEntitiesList)
+        {
+            if (relatedEntitiesList == null)
+            {
+                return null;
+            }
+            
+            SerializableDictionary<string, KalturaRelatedEntityArray> result = new SerializableDictionary<string, KalturaRelatedEntityArray>();
+
+            foreach (var item in relatedEntitiesList)
+            {
+                result.Add(item.TagMeta.m_sName, new KalturaRelatedEntityArray()
+                {
+                    Objects = item.Items.Select( v => new KalturaRelatedEntity() {  Id = v.Id, Type = ConvertRelatedEntityType(v.Type)}).ToList()
+                });
+            }
+
+            return result;
         }
     }
 }

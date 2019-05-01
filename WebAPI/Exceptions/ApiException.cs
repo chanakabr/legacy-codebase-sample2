@@ -247,6 +247,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_BULK_UPLOAD_STRUCTURE = new ClientExceptionType(eResponseStatus.InvalidBulkUploadStructure, "", "Invalid BulkUpload Structure");
         public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "", "BulkUpload Does Not Exist");
         public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "", "BulkUploadResult Is Missing");
+        public static ClientExceptionType RELATED_ENTITIES_EXCEED_LIMITATION = new ClientExceptionType(eResponseStatus.RelatedEntitiesExceedLimitation, "", "Related entities exceed limitation");
 
         #endregion
 
