@@ -433,10 +433,10 @@ namespace AdapterControllers.cdvrAdap {
         System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> CancelRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/DeleteRecording", ReplyAction="http://tempuri.org/IService/DeleteRecordingResponse")]
-        AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/DeleteRecording", ReplyAction="http://tempuri.org/IService/DeleteRecordingResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLinks", ReplyAction="http://tempuri.org/IService/GetRecordingLinksResponse")]
         AdapterControllers.cdvrAdap.RecordingResponse GetRecordingLinks(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
@@ -512,12 +512,12 @@ namespace AdapterControllers.cdvrAdap {
             return base.Channel.CancelRecordingAsync(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.DeleteRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
+        public AdapterControllers.cdvrAdap.RecordingResponse DeleteRecording(string recordingId, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature) {
+            return base.Channel.DeleteRecording(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string epgId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
-            return base.Channel.DeleteRecordingAsync(recordingId, epgId, channelId, domainId, adapterId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> DeleteRecordingAsync(string recordingId, string epgId, string channelId, System.Collections.Generic.List<long> domainIds, int adapterId, long timeStamp, string signature) {
+            return base.Channel.DeleteRecordingAsync(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, signature);
         }
         
         public AdapterControllers.cdvrAdap.RecordingResponse GetRecordingLinks(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {

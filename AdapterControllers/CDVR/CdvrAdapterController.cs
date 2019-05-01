@@ -562,7 +562,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult DeleteRecording(int partnerId, string epgId, string channelId, string recordingId, int adapterId, long domainId)
+        public RecordResult DeleteRecording(int partnerId, string epgId, string channelId, string recordingId, int adapterId, List<long> domainIds)
         {
             RecordResult recordResult = new RecordResult();
 
@@ -600,7 +600,7 @@ namespace AdapterControllers.CDVR
                     //call Adapter DeleteRecording
                     try
                     {
-                        adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -631,7 +631,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter - DeleteRecording after it is configured
                         try
                         {
-                            adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {

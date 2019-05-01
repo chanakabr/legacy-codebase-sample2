@@ -147,7 +147,23 @@
     <None Include="Service References\cdvrAdap\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\cdvrAdap\Service3.wsdl" />
     <None Include="Service References\cdvrAdap\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\cdvrAdap\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\cdvrAdap\Service6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\cdvrAdap\Service7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\cdvrAdap\Service8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\cdvrAdap\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\drmAdapter\AdapterControllers.drmAdapter.AdapterStatus.datasource">
@@ -312,6 +328,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\PlaybackAdapter\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\cdvrAdap\Service2.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
