@@ -10,7 +10,8 @@ COPY [".", "RemoteTasks"]
 WORKDIR /src/RemoteTasks
 
 RUN bash /src/Core/DllVersioning.Core.sh .
-RUN dotnet publish -c Release "./RemoteTasksNetCore.sln" -o /src/published
+RUN dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/published/IngestHandler
+RUN dotnet publish -c Release "./IngestHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
@@ -23,4 +24,4 @@ ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
 
 COPY --from=builder /src/published .
-ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}.dll" ]
+ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}/${RUN_TASK}.dll" ]
