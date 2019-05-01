@@ -1343,6 +1343,7 @@ namespace DAL
             return res;
         }
 
+        
         public static DataTable Get_LastBillingTransactions(int nGroupID, List<long> nSubscriptionPurchasesIDs, List<int> mBillingProvidersList)
         {
             ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_LastBillingTransactions");
@@ -4524,9 +4525,8 @@ namespace DAL
             return false;
         }
 
-        public static DataTable UpdateMediaCountries(int groupId, long ruleId, List<int> countryIds = null)
+        public static DataTable UpdateMediaCountries(int groupId, long ruleId, List<int> countryIds = null, List<long> mediaIds = null, int isAllowed = -1)
         {
-            DataTable dt = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountry");
@@ -4534,46 +4534,17 @@ namespace DAL
                 sp.AddParameter("@ruleId", ruleId);
                 sp.AddParameter("@status", 2);
                 sp.AddIDListParameter("@countryIds", countryIds != null ? countryIds : new List<int>(), "ID");
+                sp.AddIDListParameter("@mediaIds", mediaIds != null ? mediaIds : new List<long>(), "ID");
+                sp.AddParameter("@isAllowed", isAllowed);
 
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables.Count > 0)
-                {
-                    dt = ds.Tables[0];
-                }
+                return sp.Execute();
             }
             catch (Exception ex)
             {
                 log.Error("Error while update media country", ex);
             }
 
-            return dt;
-        }
-
-        public static DataTable UpdateMediaCountries(int groupId, long ruleId, bool isAllowed)
-        {
-            DataTable dt = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountries");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@ruleId", ruleId);
-                sp.AddParameter("@status", 2);
-                sp.AddParameter("@isAllowed", isAllowed ? 1 : 0);
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables.Count > 0)
-                {
-                    dt = ds.Tables[0];
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while UpdateMediaCountries", ex);
-            }
-
-            return dt;
+            return null;
         }
 
         public static DataTable GetMediaCountries(long mediaId)
@@ -4593,6 +4564,26 @@ namespace DAL
 
             return result;
         }
+
+        public static DataTable GetMediaCountriesMediaIdsByRuleId(long ruleId, long offset)
+        {
+            DataTable result = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetMediaCountriesMediaIdsByRuleId");
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddParameter("@offset", offset);
+
+                result = sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetMediaCountriesMediaIdsByRuleId in DB, ruleId: {0}, ex:{1} ", ruleId, ex);
+            }
+
+            return result;
+        }
+
 
         #region AssetRule
 

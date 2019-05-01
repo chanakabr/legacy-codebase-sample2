@@ -885,7 +885,7 @@ namespace ElasticSearch.Searcher
 
                     ESTerm blockedCountryTerm = new ESTerm(true)
                     {
-                        Key = "blocked_countries",                      
+                        Key = "blocked_countries",
                         Value = SearchDefinitions.countryId.ToString(),
                         isNot = true
                     };
@@ -894,20 +894,7 @@ namespace ElasticSearch.Searcher
                     blocked.AddChild(blockedCountryTerm);
                     blocked.AddChild(allowed);
 
-                    FilterCompositeType notAllowed = new FilterCompositeType(CutWith.AND);
-
-                    ESTerm notAllowedTerm = new ESTerm(true)
-                    {
-                        Key = "allowed_countries",
-                        Value = (-1 * SearchDefinitions.countryId).ToString(),
-                        isNot = true
-                    };
-
-                    // allowed_countries != -1 * countryId and blocked_countries != countryId and allowed
-                    notAllowed.AddChild(notAllowedTerm);
-                    notAllowed.AddChild(blocked);
-
-                    mediaFilter.AddChild(notAllowed);
+                    mediaFilter.AddChild(blocked);
                 }
                 else if (!mediaDatesFilter.IsEmpty()) // No geo availability - handle dates without country consideration 
                 {
