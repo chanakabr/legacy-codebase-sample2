@@ -61,6 +61,20 @@ namespace Core.Api.Managers
                     bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                     Group group = null;
                     CatalogGroupCache catalogGroupCache = null;
+
+                    if (doesGroupUsesTemplates)
+                    {
+                        if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
+                            return result.Count;
+                        }
+                    }
+                    else
+                    {
+                        group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    }
+
                     bool isGeoAvailabilityWindowingEnabled = doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled;
 
                     if (isGeoAvailabilityWindowingEnabled)
