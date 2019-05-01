@@ -60,7 +60,8 @@ namespace Core.Catalog.CatalogManagement
 
                     foreach (KeyValuePair<string, Dictionary<string, Topic>> topics in catalogGroupCache.TopicsMapBySystemNameAndByType)
                     {
-                        if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString()))
+                        //TODO anat ask Ira
+                        if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString() && x != ApiObjects.MetaType.ReleatedEntity.ToString()))
                         {
                             string nullValue = string.Empty;
                             eESFieldType metaType;
