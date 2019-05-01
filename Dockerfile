@@ -11,7 +11,7 @@ WORKDIR /src/RemoteTasks
 
 RUN bash /src/Core/DllVersioning.Core.sh .
 RUN dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/published/IngestHandler
-RUN dotnet publish -c Release "./IngestHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler
+RUN dotnet publish -c Release "./IngestTransformationHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
