@@ -442,8 +442,8 @@ namespace Core.Catalog
 
         [XmlAttribute("billing_type")]
         public string BillingType { get; set; }
-
-        [XmlAttribute("PPV_MODULE")]
+        
+        [XmlAttribute("ppv_module")]
         public string PpvModule { get; set; }
 
         [XmlAttribute("product_code")]
