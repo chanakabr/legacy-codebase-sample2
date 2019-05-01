@@ -209,11 +209,11 @@ namespace WebAPI.Utils
                 return 0;
             }
         }
-
-        public static bool IsAllowedToViewInactiveAssets(int groupId, string userId)
+        
+        public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
             return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
-                   && DoesGroupUsesTemplates(groupId);
+                   && (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
 
         public static bool DoesGroupUsesTemplates(int groupId)
