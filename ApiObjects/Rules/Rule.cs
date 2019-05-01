@@ -21,5 +21,8 @@ namespace ApiObjects.Rules
 
         [JsonProperty("GroupId")]
         public int GroupId { get; set; }
+
+        [JsonProperty("Status")]
+        public RuleStatus Status { get; set; }
     }
 }

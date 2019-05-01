@@ -213,7 +213,7 @@ namespace ConfigurationManager
             ShouldDistributeRecordingSynchronously = new BooleanConfigurationValue("ShouldDistributeRecordingSynchronously")
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = false
+                DefaultValue = true
             };
             ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration("professional_services_tasks")
             {

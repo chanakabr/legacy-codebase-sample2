@@ -1128,4 +1128,10 @@ namespace ApiObjects
         Pics = 0,
         EpgPics = 1
     }
+
+    public enum RuleStatus
+    {
+        Ready = 0,
+        InProgress = 1
+    }
 }

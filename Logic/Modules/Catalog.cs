@@ -139,6 +139,11 @@ namespace Core.Catalog
 
         public static bool UpdateIndex(List<int> objectIds, int groupId, eAction action)
         {
+            return UpdateIndex(objectIds.ConvertAll<long>(i => (long)i), groupId, action);
+        }
+
+        public static bool UpdateIndex(List<long> objectIds, int groupId, eAction action)
+        {
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
 
@@ -148,7 +153,7 @@ namespace Core.Catalog
             {
                 try
                 {
-                    bIsUpdateIndexSucceeded = CatalogLogic.UpdateIndex(objectIds.ConvertAll<long>(i => (long)i), groupId, action);
+                    bIsUpdateIndexSucceeded = CatalogLogic.UpdateIndex(objectIds, groupId, action);
                 }
                 catch
                 {

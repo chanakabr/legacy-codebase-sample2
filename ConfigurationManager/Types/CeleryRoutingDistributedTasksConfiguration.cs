@@ -37,6 +37,7 @@ namespace ConfigurationManager
         public StringConfigurationValue unified_renew_subscription;
         public StringConfigurationValue ps_events;
         public StringConfigurationValue asset_inheritance;
+        public StringConfigurationValue geo_rule_update;
 
 
         public CeleryRoutingDistributedTasksConfiguration(string key, ConfigurationValue parent) : base(key, parent)
@@ -184,6 +185,11 @@ namespace ConfigurationManager
             asset_inheritance = new ConfigurationManager.StringConfigurationValue("asset_inheritance", this)
             {
                 DefaultValue = "AssetInheritanceHandler",
+                ShouldAllowEmpty = true
+            };
+            geo_rule_update = new ConfigurationManager.StringConfigurationValue("geo_rule_update", this)
+            {
+                DefaultValue = "GeoRuleUpdateHandler",
                 ShouldAllowEmpty = true
             };
         }

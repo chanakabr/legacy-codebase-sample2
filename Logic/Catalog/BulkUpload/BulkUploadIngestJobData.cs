@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
 using AdapterClients.IngestTransformation;
+using ApiLogic;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
@@ -100,7 +101,7 @@ namespace Core.Catalog
                 // TODO: Arthur, Should we use this or the group id came with the builk request ?
                 var groupId = xmlTvEpgData.groupid;
                 var parentGroupId = xmlTvEpgData.parentgroupid;
-                var epgPrograms = MapXmlTvProgramToCBEpgProgram(bulkUploadId, parentGroupId, groupId, xmlTvEpgData);
+                var epgPrograms = GetBulkUploadResults(bulkUploadId, parentGroupId, groupId, xmlTvEpgData);
                 return epgPrograms;
             }
             catch (Exception ex)
@@ -110,26 +111,18 @@ namespace Core.Catalog
             }
         }
 
-        private List<BulkUploadResult> MapXmlTvProgramToCBEpgProgram(long bulkUploadId, int parentGroupId, int groupId, EpgChannels xmlTvEpgData)
+        private List<BulkUploadResult> GetBulkUploadResults(long bulkUploadId, int parentGroupId, int groupId, EpgChannels xmlTvEpgData)
         {
-
             //var fieldEntityMapping = EpgIngest.Utils.GetMappingFields(parentGroupId);
             var channelExternalIds = xmlTvEpgData.channel.Select(s => s.id).ToList();
 
-            _Logger.Debug($"MapXmlTvProgramToCBEpgProgram > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
+            _Logger.Debug($"GetBulkUploadResults > Retriving kaltura channels for external IDs [{string.Join(",", channelExternalIds)}] ");
             var kalturaChannels = GetLinearChannelSettings(groupId, channelExternalIds);
-            var languages = GroupLanguageManager.GetGroupLanguages(groupId);
-            var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
-            if (defaultLanguage == null)
-            {
-                throw new Exception($"No main language defined for group:[{groupId}], ingest failed");
-            }
 
             var response = new List<BulkUploadResult>();
             var programIndex = 0;
             foreach (var prog in xmlTvEpgData.programme)
             {
-                programIndex++;
                 var channelExternalId = prog.channel;
                 // Every channel external id can point to mulitple interbal channels that have to have the same EPG
                 // like channel per region or HD channel vs SD channel etc..
@@ -137,22 +130,28 @@ namespace Core.Catalog
                 var programResults = new List<BulkUploadProgramAssetResult>();
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
-                    foreach (var lang in languages)
-                    {
-                        var newEpgAssetResult = ParseXmlTvProgramToEpgCBObj(parentGroupId, groupId, innerChannel, prog, lang.Code, defaultLanguage.Code);
-                        newEpgAssetResult.BulkUploadId = bulkUploadId;
-                        if (newEpgAssetResult.Errors?.Any() == true)
-                        {
-                            newEpgAssetResult.Status = BulkUploadResultStatus.Error;
-                        }
-                        else
-                        {
-                            newEpgAssetResult.Status = BulkUploadResultStatus.InProgress;
-                        }
+                    var result = new BulkUploadProgramAssetResult();
+                    result.BulkUploadId = bulkUploadId;
+                    result.Index = programIndex++;
+                    result.ProgramExternalId = prog.external_id;
+                    result.Status = BulkUploadResultStatus.InProgress;
+                    result.LiveAssetId = innerChannel.LinearMediaId;
 
-                        newEpgAssetResult.Index = programIndex;
-                        programResults.Add(newEpgAssetResult);
-                    }
+                    var progrStartDate = prog.ParseStartDate(result);
+                    var progrEnDate = prog.ParseEndDate(result);
+
+                    result.Object = new EpgProgramBulkUploadObject
+                    {
+                        ParsedProgramObject = prog,
+                        ChannelExternalId = innerChannel.ChannelExternalID,
+                        ChannelId = int.Parse(innerChannel.ChannelID),
+                        LinearMediaId = innerChannel.LinearMediaId,
+                        GroupId = groupId,
+                        ParentGroupId = parentGroupId,
+                        StartDate = progrStartDate,
+                        EndDate = progrEnDate,
+                    };
+                    programResults.Add(result);
                 }
 
 
@@ -170,186 +169,7 @@ namespace Core.Catalog
             return liveAsstes;
         }
 
-        private BulkUploadProgramAssetResult ParseXmlTvProgramToEpgCBObj(int parentGroupId, int groupId, LinearChannelSettings channelSettings, programme prog, string langCode, string defaultLangCode)
-        {
-            // TODO: Arthur\ sunny make this code pretty, break into methods .. looks too long. :\
-            var response = new BulkUploadProgramAssetResult();
-            var epgItem = new EpgCB();
-
-            epgItem.Language = langCode;
-            epgItem.ChannelID = int.Parse(channelSettings.ChannelID);
-            epgItem.LinearMediaId = channelSettings.LinearMediaId;
-            epgItem.GroupID = groupId;
-            epgItem.ParentGroupID = parentGroupId;
-            epgItem.EpgIdentifier = prog.external_id;
-
-            if (ParseXmlTvDateString(prog.start, out var progStartDate)) { epgItem.StartDate = progStartDate; }
-            else
-            {
-                response.AddError(eResponseStatus.EPGSProgramDatesError,
-                    $"programExternalId:[{prog.external_id}], Start date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
-            }
-
-            if (ParseXmlTvDateString(prog.stop, out var progEndDate)) { epgItem.EndDate = progEndDate; }
-            else
-            {
-                response.AddError(eResponseStatus.EPGSProgramDatesError,
-                    $"programExternalId:[{prog.external_id}], End date:[{prog.start}] could not be parsed expected format:[{XML_TV_DATE_FORMAT}]");
-            }
-
-            epgItem.UpdateDate = DateTime.UtcNow;
-            epgItem.CreateDate = DateTime.UtcNow;
-            epgItem.IsActive = true;
-            epgItem.Status = 1;
-            epgItem.EnableCatchUp = ParseXmlTvEnableStatusValue(prog.enablecatchup);
-            epgItem.EnableCDVR = ParseXmlTvEnableStatusValue(prog.enablecdvr);
-            epgItem.EnableStartOver = ParseXmlTvEnableStatusValue(prog.enablestartover);
-            epgItem.EnableTrickPlay = ParseXmlTvEnableStatusValue(prog.enabletrickplay);
-            epgItem.Crid = prog.crid;
-            epgItem.pictures = prog.icon.Select(p => new EpgPicture
-            {
-                Url = p.src,
-                Ratio = p.ratio,
-                PicWidth = p.width,
-                PicHeight = p.height,
-                ImageTypeId = 0, // TODO: Atthur\sunny look at the code in ws_ingest ingets.cs line#338
-            }).ToList();
-
-            epgItem.Name = GetTitleByLanguage(prog.title, langCode, defaultLangCode, out var nameParsingStatus);
-            if (nameParsingStatus != eResponseStatus.OK)
-            {
-                response.AddError(nameParsingStatus, $"Error parsing title for programExternalId:[{prog.external_id}], langCode:[{langCode}], defaultLang:[{defaultLangCode}]");
-            }
-
-            epgItem.Description = GetDescriptionByLanguage(prog.desc, langCode, defaultLangCode, out var descriptionParsingStatus);
-            if (descriptionParsingStatus != eResponseStatus.OK)
-            {
-                response.AddError(nameParsingStatus, $"Error parsing description for programExternalId:[{prog.external_id}], langCode:[{langCode}], defaultLang:[{defaultLangCode}]");
-            }
-
-            epgItem.Metas = ParseMetas(prog, langCode, defaultLangCode, response);
-            epgItem.Tags = ParseTags(prog, langCode, defaultLangCode, response);
-            response.LiveAssetId = epgItem.LinearMediaId;
-            response.ProgramExternalId = epgItem.EpgIdentifier;
-            response.Object = epgItem;
-            return response;
-        }
-
-        private Dictionary<string, List<string>> ParseTags(programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
-        {
-            var tagsToSet = new Dictionary<string, List<string>>();
-            foreach (var tag in prog.tags)
-            {
-                var tagValue = GetMetaByLanguage(tag, langCode, defaultLangCode, out var tagParsingStatus);
-                if (tagParsingStatus != eResponseStatus.OK)
-                {
-                    response.AddError(tagParsingStatus, $"Error parsing meta:[{tag.TagType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
-                }
-                tagsToSet[tag.TagType] = tagValue;
-            }
-
-            return tagsToSet;
-        }
-
-        private Dictionary<string, List<string>> ParseMetas(programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
-        {
-            var metasToSet = new Dictionary<string, List<string>>();
-            foreach (var meta in prog.metas)
-            {
-                var mataValue = GetMetaByLanguage(meta, langCode, defaultLangCode, out var metaParsingStatus);
-                if (metaParsingStatus != eResponseStatus.OK)
-                {
-                    response.AddError(metaParsingStatus, $"Error parsing meta:[{meta.MetaType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
-                }
-                metasToSet[meta.MetaType] = mataValue;
-            }
-
-            return metasToSet;
-        }
-
-        private List<string> GetMetaByLanguage(metas meta, string language, string defaultLanguage, out eResponseStatus parsingStatus)
-        {
-            parsingStatus = eResponseStatus.OK;
-
-            var valuesByLang = meta.MetaValues.Where(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase));
-            valuesByLang = valuesByLang ?? meta.MetaValues.Where(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
-            if (valuesByLang == null)
-            {
-                parsingStatus = eResponseStatus.EPGLanguageNotFound;
-                return new List<string>();
-            }
-
-            var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
-            return valuesStrByLang;
-        }
-
-        private List<string> GetMetaByLanguage(tags tags, string language, string defaultLanguage, out eResponseStatus parsingStatus)
-        {
-            parsingStatus = eResponseStatus.OK;
-
-            var valuesByLang = tags.TagValues.Where(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase));
-            valuesByLang = valuesByLang ?? tags.TagValues.Where(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
-            if (valuesByLang == null)
-            {
-                parsingStatus = eResponseStatus.EPGLanguageNotFound;
-                return new List<string>();
-            }
-
-            var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
-            return valuesStrByLang;
-        }
-
-        private string GetDescriptionByLanguage(desc[] desc, string language, string defaultLanguage, out eResponseStatus parsingStatus)
-        {
-            parsingStatus = eResponseStatus.OK;
-            var valueByLang = desc.FirstOrDefault(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase))?.Value;
-            valueByLang = valueByLang ?? desc.FirstOrDefault(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase))?.Value;
-            if (valueByLang == null)
-            {
-                parsingStatus = eResponseStatus.EPGLanguageNotFound;
-            }
-
-            return valueByLang;
-        }
-
-        private string GetTitleByLanguage(title[] title, string language, string defaultLanguage, out eResponseStatus parsingStatus)
-        {
-            parsingStatus = eResponseStatus.OK;
-            var valueByLang = title.FirstOrDefault(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase))?.Value;
-            valueByLang = valueByLang ?? title.FirstOrDefault(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase))?.Value;
-            if (valueByLang == null)
-            {
-                parsingStatus = eResponseStatus.EPGLanguageNotFound;
-            }
-
-            return valueByLang;
-        }
 
 
-        private static bool ParseXmlTvDateString(string dateStr, out DateTime theDate)
-        {
-            theDate = default(DateTime);
-            if (string.IsNullOrEmpty(dateStr) || dateStr.Length < 14) { return false; }
-            bool res = DateTime.TryParseExact(dateStr.Substring(0, 14), XML_TV_DATE_FORMAT, null, System.Globalization.DateTimeStyles.None, out theDate);
-            return res;
-        }
-
-        private int ParseXmlTvEnableStatusValue(string val)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(val))
-                    return 0; // 0 == none
-                if (val == "false" || val == "2")
-                    return 2;
-                if (val == "true" || val == "1")
-                    return 1;
-                return 0;
-            }
-            catch
-            {
-                return 0;
-            }
-        }
     }
 }
