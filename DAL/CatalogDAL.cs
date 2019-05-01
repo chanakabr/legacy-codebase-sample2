@@ -4787,7 +4787,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaAssets(int groupId, List<long> ids, long defaultLanguageId, bool getAlsoInactive)
         {
-            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds");
+            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds_Z");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter<long>("@Ids", ids, "Id");
@@ -4810,7 +4810,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetGroupMediaAssets(int groupId, long defaultLanguageId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets_z");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
@@ -4820,9 +4820,9 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertMediaAsset(int groupId, long defaultLanguageId, System.Xml.XmlDocument metas, System.Xml.XmlDocument tags, string coGuid, string entryId, int? deviceRuleId,
                                                 int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
-                                                long userId, int InheritancePolicy)
+                                                long userId, int InheritancePolicy, System.Xml.XmlDocument relatedEntities)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset_z");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
@@ -4842,15 +4842,17 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@FinalEndDate", finalEndDate);
             sp.AddParameter("@UpdaterId", userId);
             sp.AddParameter("@InheritancePolicy", InheritancePolicy);
-
+            sp.AddParameter("@RelatedEntitiesExist", relatedEntities != null && !string.IsNullOrEmpty(relatedEntities.InnerXml) ? 1 : 0);
+            sp.AddParameter("@RelatedEntitiesXml", relatedEntities != null ? relatedEntities.InnerXml : string.Empty);
             return sp.ExecuteDataSet();
         }
 
         public static DataSet UpdateMediaAsset(int groupId, long id, long defaultLanguageId, System.Xml.XmlDocument metasToAdd, System.Xml.XmlDocument tagsToAdd, System.Xml.XmlDocument metasToUpdate,
                                                 System.Xml.XmlDocument tagsToUpdate, string coGuid, string entryId, int? deviceRuleId, int? geoBlockRuleId, bool? isActive, DateTime? startDate,
-                                                DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy)
+                                                DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy,
+                                                System.Xml.XmlDocument relatedEntitiesToAdd, System.Xml.XmlDocument relatedEntitiesToUpdate)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset_z");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@ID", id);
@@ -4874,6 +4876,10 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@FinalEndDate", finalEndDate);
             sp.AddParameter("@UpdaterId", userId);
             sp.AddParameter("@InheritancePolicy", inheritancePolicy);
+            sp.AddParameter("@RelatedEntitiesToAddExist", relatedEntitiesToAdd != null && !string.IsNullOrEmpty(relatedEntitiesToAdd.InnerXml) ? 1 : 0);
+            sp.AddParameter("@RelatedEntitiesToAddXml", relatedEntitiesToAdd != null ? relatedEntitiesToAdd.InnerXml : string.Empty);
+            sp.AddParameter("@RelatedEntitiesToUpdateExist", relatedEntitiesToUpdate != null && !string.IsNullOrEmpty(relatedEntitiesToUpdate.InnerXml) ? 1 : 0);
+            sp.AddParameter("@RelatedEntitiesToUpdateXml", relatedEntitiesToUpdate != null ? relatedEntitiesToUpdate.InnerXml : string.Empty);
 
             return sp.ExecuteDataSet();
         }
@@ -4890,7 +4896,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId)
+        public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId, List<long> releatedEntityIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4902,6 +4908,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@TagsExist", tagIds != null && tagIds.Count > 0 ? 1 : 0);
             sp.AddIDListParameter<long>("@TagIdsToRemove", tagIds, "Id");
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@ReleatedEntityExist", releatedEntityIds != null && releatedEntityIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@ReleatedEntityIdsToRemove", releatedEntityIds, "Id");
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -5228,7 +5236,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet UpdateTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> MetaTopicIds, long assetStructId, long userId)
+        public static DataSet UpdateTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> MetaTopicIds, long assetStructId,
+            long userId, List<long> RelatedEntitiesTopicIds, bool shouldDeleteRelatedEntities)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopicsAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5241,6 +5250,9 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ShouldDeleteAssets", shouldDeleteAssets ? 1 : 0);
             sp.AddParameter("@AssetStructId", assetStructId);
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@RelatedEntitiesTopicsExist", RelatedEntitiesTopicIds != null && RelatedEntitiesTopicIds.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@RelatedEntitiesTopicIds", RelatedEntitiesTopicIds, "Id");
+            sp.AddParameter("@ShouldDeleteRelatedEntities", shouldDeleteRelatedEntities ? 1 : 0);
 
             return sp.ExecuteDataSet();
         }
@@ -5898,18 +5910,6 @@ namespace Tvinci.Core.DAL
             }
 
             return assetType;
-        }
-
-        public static bool SaveRelatedEntities(long assetId, List<RelatedEntities> relatedEntityLists)
-        {
-            string key = UtilsDal.GetRelatedEntitiesKey(assetId);
-            return UtilsDal.SaveObjectInCB<List<RelatedEntities>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, relatedEntityLists);
-        }
-
-        public static List<RelatedEntities> GetReleatedEntitiesForAsset(long assetId)
-        {
-            string key = UtilsDal.GetRelatedEntitiesKey(assetId);
-            return UtilsDal.GetObjectFromCB<List<RelatedEntities>>(eCouchbaseBucket.OTT_APPS, key, true);
         }
     }
 }

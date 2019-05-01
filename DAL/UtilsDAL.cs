@@ -396,12 +396,7 @@ namespace DAL
         {
             return string.Format("purchase_coupon_remainder_{0}", purchaseId);
         }
-
-        internal static string GetRelatedEntitiesKey(long assetId)
-        {
-            return string.Format("related_entities_asset_id_{0}", assetId);
-        }
-
+       
         #endregion
 
         private static void HandleException(Exception ex)
