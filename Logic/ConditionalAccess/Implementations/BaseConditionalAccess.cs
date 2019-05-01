@@ -14916,7 +14916,6 @@ namespace Core.ConditionalAccess
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
-                    bool isPrivateCopy = false;
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
                         
