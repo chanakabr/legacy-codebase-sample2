@@ -220,7 +220,7 @@ namespace Core.Catalog.Cache
 
         public Dictionary<long, List<PicSize>> GetGroupRatioIdToPicSizeMapping(int groupID)
         {
-            var groupRatioIdToPicSize = new Dictionary<long, List<PicSize>>();
+            Dictionary<long, List<PicSize>> groupRatioIdToPicSize = null;
             try
             {
                 string sKey = "GroupRatioIdToPicSizeMapping_" + groupID.ToString();
@@ -228,6 +228,7 @@ namespace Core.Catalog.Cache
 
                 if (groupRatioIdToPicSize == null)
                 {
+                    groupRatioIdToPicSize = new Dictionary<long, List<PicSize>>();
                     DataRowCollection picsSizeRows = CatalogDAL.GetGroupPicSizesTableData(groupID);
                     if (picsSizeRows == null)
                     {
