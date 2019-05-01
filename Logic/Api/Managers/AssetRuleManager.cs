@@ -1255,14 +1255,20 @@ namespace Core.Api.Managers
 
                     string ksql = string.Format("(and {0} media_id: '{1}')", newKsql, string.Join(",", pageMediaIds));
 
-                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql); 
+                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql);
                     if (unifiedSearchResponse != null)
                     {
-                        bool isSearchSuccessfull = unifiedSearchResponse.status.Code == (int)eResponseStatus.OK;
-                        if (isSearchSuccessfull && unifiedSearchResponse.searchResults != null && unifiedSearchResponse.searchResults.Count > 0)
+                        if (unifiedSearchResponse.status.Code == (int)eResponseStatus.OK)
                         {
-                            var assetIds = unifiedSearchResponse.searchResults.Select(asset => long.Parse(asset.AssetId)).ToList();
-                            mediaIdsToRemove.AddRange(mediaIds.Where(x => !assetIds.Contains(x)).ToList());
+                            if (unifiedSearchResponse.searchResults != null && unifiedSearchResponse.searchResults.Count > 0)
+                            {
+                                var assetIds = unifiedSearchResponse.searchResults.Select(asset => long.Parse(asset.AssetId)).ToList();
+                                mediaIdsToRemove.AddRange(mediaIds.Where(x => !assetIds.Contains(x)).ToList());
+                            }
+                            else
+                            {
+                                mediaIdsToRemove.AddRange(mediaIds);
+                            }
                         }
                     }
                 }
