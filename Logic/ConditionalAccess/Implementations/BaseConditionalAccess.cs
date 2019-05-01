@@ -15453,7 +15453,10 @@ namespace Core.ConditionalAccess
                     }
 
                     // bulk delete for all domainIds
-                    //RecordingsManager.Instance.DeleteRecording();
+                    if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
+                    {
+                        RecordingsManager.Instance.BulkDeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                    }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
                     // add recording schedule task for next min protected date

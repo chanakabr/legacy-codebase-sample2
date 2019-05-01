@@ -258,6 +258,13 @@ namespace Core.Recordings
             return recording;
         }
 
+        public Status BulkDeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, IList<long> domainId, int adapterId = 0)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            return status;
+        }
+
         public Status DeleteRecording(int groupId, Recording slimRecording, bool isPrivateCopy, bool deleteEpgEvent, long domainId, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
