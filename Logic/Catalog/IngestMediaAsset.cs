@@ -428,6 +428,9 @@ namespace Core.Catalog
         [XmlAttribute("cdn_name")]
         public string CdnName { get; set; }
 
+        [XmlAttribute("alt_cdn_name")]
+        public string AltCdnName { get; set; }
+
         [XmlAttribute("cdn_code")]
         public string CdnCode { get; set; }
 
