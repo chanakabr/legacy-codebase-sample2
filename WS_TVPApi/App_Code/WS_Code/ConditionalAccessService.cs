@@ -345,6 +345,8 @@ namespace TVPApiServices
             {
                 try
                 {
+                    userIP = SiteHelper.GetClientIP();
+
                     var response = new ApiConditionalAccessService(groupId, initObj.Platform).GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, deviceName, formatType);
                     if (response != null)
                         res = response.LicensedLink.MainUrl;
@@ -1599,6 +1601,8 @@ namespace TVPApiServices
             {
                 try
                 {
+                    userIP = SiteHelper.GetClientIP();
+
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).
                         GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, initObj.UDID, formatType);
                 }
