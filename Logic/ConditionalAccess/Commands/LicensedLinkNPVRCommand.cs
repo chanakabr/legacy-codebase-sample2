@@ -40,6 +40,10 @@ namespace Core.ConditionalAccess
             {
                 res.status = NPVRStatus.Suspended.ToString();
             }
+            else if (licensedLinkResponse.status.Equals(eResponseStatus.NetworkRuleBlock.ToString()))
+            {
+                res.status = NPVRStatus.NetworkRuleBlock.ToString();
+            }
             else
             {
                 res.status = NPVRStatus.Error.ToString();
