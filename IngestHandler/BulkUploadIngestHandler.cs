@@ -25,6 +25,8 @@ using ApiLogic;
 using Core.GroupManagers;
 using TVinciShared;
 using ApiObjects.Epg;
+using EpgBL;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace IngestHandler
 {
@@ -32,12 +34,20 @@ namespace IngestHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly string DEFAULT_INDEX_TYPE = "epg";
+        private static readonly string DEFAULT_INDEX_MAPPING_TYPE = "epg";
         private static readonly string EPG_SEQUENCE_DOCUMENT = "epg_sequence_document";
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private static readonly int EXPIRY_DATE_DELTA = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
-        private ElasticSearchApi _ElasticSearchClient = null;
-        private CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
+        private readonly ElasticSearchApi _ElasticSearchClient = null;
+        private readonly CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
+
+        private TvinciEpgBL _EpgBL;
+        private BulkUploadIngestEvent _EventData;
+        private BulkUpload _BulkUploadObject;
+        private BulkUploadIngestJobData _BulkUploadJobData;
+        private IngestProfile _IngestProfile;
+        private IDictionary<string, LanguageObj> _Languages;
+        private LanguageObj _DefaultLanguage;
 
         public BulkUploadIngestHandler()
         {
@@ -45,60 +55,74 @@ namespace IngestHandler
             _CouchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
         }
 
-        public Task Handle(BulkUploadIngestEvent serviceEvent)
+        public async Task Handle(BulkUploadIngestEvent serviceEvent)
         {
             try
             {
                 log.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
-                var groupId = serviceEvent.GroupId;
-                var bulkUploadId = serviceEvent.BulkUploadId;
-                var bulkUploadData = GetBulkUploadData(serviceEvent, bulkUploadId);
+                _EpgBL = new TvinciEpgBL(serviceEvent.GroupId);
+                _EventData = serviceEvent;
+                _BulkUploadObject = GetBulkUploadData();
+                _BulkUploadJobData = _BulkUploadObject.JobData as BulkUploadIngestJobData;
+                _IngestProfile = GetIngestProfile(_BulkUploadJobData.IngestProfileId);
+                _Languages = GetGroupLanguages(out _DefaultLanguage);
 
-                ValidateServiceEvent(serviceEvent);
+                ValidateServiceEvent();
 
-                var results = GetProgramAssetResults(serviceEvent, bulkUploadData);
-                AddEpgCBObjects(groupId, results);
+                var results = GetProgramAssetResults();
+                AddEpgCBObjects(results);
                 var epgBulkUploadObjects = results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>();
 
                 var minStartDate = epgBulkUploadObjects.Min(p => p.StartDate);
                 var maxEndDate = epgBulkUploadObjects.Max(p => p.EndDate);
-                var currentPrograms = GetCurrentProgramsByDate(groupId, minStartDate, maxEndDate);
-                var programsToIngest = epgBulkUploadObjects.SelectMany(p=>p.EpgCbObjects).ToList();
+                var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
+                var programsToIngest = epgBulkUploadObjects.SelectMany(p => p.EpgCbObjects).ToList();
 
-                // TODO: elastic, type is used to identify languages .. 
-                // coulnd find document_id in elastic response
-                // 
-                var crudOperations = CalculateCRUDOperations(groupId, currentPrograms, programsToIngest);
+                var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
 
+                // TODO: validate policies
+                // TODO: update edges if policy requires to cut source or target;
+                await UpdateCouchbase(finalEpgState, results);
+
+                CloneExistingIndex();
+                UpdateClonedIndex(finalEpgState, crudOperations.ItemsToDelete);
+                
+                // TODO: validate index
+                // TODO: switch alias
 
             }
             catch (Exception ex)
             {
                 log.Error($"An Exception occurred in BulkUploadIngestHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", ex);
-                return Task.FromException(ex);
+                throw;
             }
 
-            return Task.CompletedTask;
+            return;
         }
 
-        private void AddEpgCBObjects(int groupId, Dictionary<string, BulkUploadProgramAssetResult> results)
+        private void AddEpgCBObjects(Dictionary<string, BulkUploadProgramAssetResult> results)
         {
             // TODO: move language getting to the right place
-            var languages = GroupLanguageManager.GetGroupLanguages(groupId);
-            var defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
-            if (defaultLanguage == null) { throw new Exception($"No main language defined for group:[{groupId}], ingest failed"); }
 
             foreach (var progResult in results.Values)
             {
                 var programBulkUploadObject = progResult.Object as EpgProgramBulkUploadObject;
                 programBulkUploadObject.EpgCbObjects = new List<EpgCB>();
-                foreach (var lang in languages)
+                foreach (var lang in _Languages.Values)
                 {
-                    var epgItem = GetEpgCBObject(lang.Code, defaultLanguage.Code, programBulkUploadObject, progResult);
+                    var epgItem = GetEpgCBObject(lang.Code, _DefaultLanguage.Code, programBulkUploadObject, progResult);
                     programBulkUploadObject.EpgCbObjects.Add(epgItem);
                 }
             }
+        }
+
+        private IDictionary<string, LanguageObj> GetGroupLanguages(out LanguageObj defaultLanguage)
+        {
+            var languages = GroupLanguageManager.GetGroupLanguages(_EventData.GroupId);
+            defaultLanguage = languages.FirstOrDefault(l => l.IsDefault);
+            if (defaultLanguage == null) { throw new Exception($"No main language defined for group:[{_EventData.GroupId}], ingest failed"); }
+            return languages.ToDictionary(l => l.Code);
         }
 
         private static EpgCB GetEpgCBObject(string langCode, string defaultLangCode, EpgProgramBulkUploadObject prog, BulkUploadProgramAssetResult bulkUploadResultItem)
@@ -157,103 +181,26 @@ namespace IngestHandler
             return $"epg_{bulkUploadId}_{langCode}_{external_id}";
         }
 
-        private void ValidateServiceEvent(BulkUploadIngestEvent serviceEvent)
+        private void ValidateServiceEvent()
         {
 
-            if (serviceEvent.ProgramsToIngest?.Any() != true)
+            if (_EventData.ProgramsToIngest?.Any() != true)
             {
-                throw new Exception($"Received bulk upload ingest event with null or empty programs to insert. group id = {serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
+                throw new Exception($"Received bulk upload ingest event with null or empty programs to insert. group id = {_EventData.GroupId} id = {_EventData.BulkUploadId}");
             }
 
-            if (serviceEvent.ProgramsToIngest.Count() == 0)
+            if (_EventData.ProgramsToIngest.Count() == 0)
             {
-                log.Warn($"Received bulk upload ingest event with 0 programs to insert. group id ={serviceEvent.GroupId} id = {serviceEvent.BulkUploadId}");
+                log.Warn($"Received bulk upload ingest event with 0 programs to insert. group id ={_EventData.GroupId} id = {_EventData.BulkUploadId}");
             }
-
-            //var groupId = serviceEvent.GroupId;
-            //var bulkUploadId = serviceEvent.BulkUploadId;
-            //var bulkUploadData = GetBulkUploadData(serviceEvent, bulkUploadId);
-
-
-            //var results = GetProgramAssetResults(serviceEvent, bulkUploadData);
-            //var programsToIngest = ParseAssetResultsToEpgCB(results);
-
-
-            //List<EpgCB> programsToAdd;
-            //List<EpgCB> programsToUpdate;
-            //List<EpgCB> programsToDelete;
-
-            //CalculateCRUDOperations(groupId, currentPrograms, programsToIngest, out programsToAdd, out programsToUpdate, out programsToDelete);
-
-            //List<EpgCB> calculatedPrograms = CalculateSimulatedFinalStateAfterIngest(programsToAdd, programsToUpdate);
-
-            //bool isValid = ValidateProgramDates(calculatedPrograms, programAssetResultsDictionary, ingestProfile);
-
-            //if (!isValid)
-            //{
-            //    bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.Fail, "Ingest handler failure");
-            //}
-            //else
-            //{
-            //    // ?
-            //    // ?
-            //    // ?
-            //    // TODO : UPLOAD PICTURES
-            //    // ?
-            //    // ?
-            //    // ?
-
-            //    InsertIngestedProgramsToCouchbase(groupId, calculatedPrograms, bulkUploadId);
-
-            //    /*
-            //     *  real name: epg_203_20190422_123456
-            //        alias: epg_203_20190422
-
-            //        reindex epg_203_20190422 to epg_203_20190422_current_bulk_upload_id
-
-            //        update cloned index
-            //     */
-
-            //    // duplicate the index of this day
-            //    var dateOfIngest = serviceEvent.DateOfProgramsToIngest;
-            //    bool cloneResult = CloneExistingIndex(groupId, bulkUploadId, dateOfIngest);
-
-            //    if (cloneResult)
-            //    {
-            //        bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
-            //    }
-            //    else
-            //    {
-            //        UpdateClonedIndex(groupId, bulkUploadId, dateOfIngest, calculatedPrograms, programsToDelete);
-
-            //        bool isClonedIndexValid = ValidateClonedIndex(groupId, bulkUploadId, dateOfIngest, calculatedPrograms);
-
-            //        if (isClonedIndexValid)
-            //        {
-            //            SwitchAliases(groupId, bulkUploadId, dateOfIngest);
-
-            //            // update all INGESTED bulk upload results to status success
-
-            //            bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.OK, "Ingest handler success");
-            //        }
-            //        else
-            //        {
-            //            bulkUploadData.SetStatus(ApiObjects.Response.eResponseStatus.Fail, "Ingest handler failure");
-            //        }
-            //    }
-            //}
-
-            //// update bulk upload in the end
-            //BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(bulkUploadData, BulkUploadJobStatus.Success);
         }
 
-        private Dictionary<string, BulkUploadProgramAssetResult> GetProgramAssetResults(BulkUploadIngestEvent serviceEvent, BulkUpload bulkUploadData)
+        private Dictionary<string, BulkUploadProgramAssetResult> GetProgramAssetResults()
         {
-            var programsToIngest = serviceEvent.ProgramsToIngest;
-            var bulkUploadResultsDictionary = bulkUploadData.Results.Cast<BulkUploadProgramAssetResult>().ToDictionary(k => k.ProgramExternalId);
+            var programsToIngest = _EventData.ProgramsToIngest;
+            var bulkUploadResultsDictionary = _BulkUploadObject.Results.Cast<BulkUploadProgramAssetResult>().ToDictionary(k => k.ProgramExternalId);
 
-            var programAssetResultsDictionary = bulkUploadData.Results.Cast<BulkUploadProgramAssetResult>().ToDictionary(program => program.ProgramExternalId);
-            var ingestProfile = GetIngestProfile(bulkUploadData);
+            var programAssetResultsDictionary = _BulkUploadObject.Results.Cast<BulkUploadProgramAssetResult>().ToDictionary(program => program.ProgramExternalId);
 
             foreach (var programToIngest in programsToIngest)
             {
@@ -262,10 +209,10 @@ namespace IngestHandler
 
             return programAssetResultsDictionary;
         }
-        
-        private static BulkUpload GetBulkUploadData(BulkUploadIngestEvent serviceEvent, long bulkUploadId)
+
+        private BulkUpload GetBulkUploadData()
         {
-            var bulkUploadData = BulkUploadManager.GetBulkUpload(serviceEvent.GroupId, bulkUploadId);
+            var bulkUploadData = BulkUploadManager.GetBulkUpload(_EventData.GroupId, _EventData.BulkUploadId);
 
             if (bulkUploadData?.Object == null)
             {
@@ -276,42 +223,32 @@ namespace IngestHandler
                     message = bulkUploadData.Status.Message;
                 }
 
-                throw new Exception($"Received invalid bulk upload. group id ={serviceEvent.GroupId} id = {serviceEvent.BulkUploadId} message = {message}");
+                throw new Exception($"Received invalid bulk upload. group id = {_EventData.GroupId} id = {_EventData.BulkUploadId} message = {message}");
             }
 
             return bulkUploadData.Object;
         }
 
-        private List<EpgCB> GetCurrentProgramsByDate(int groupId, DateTime minStartDate, DateTime maxEndDate)
+        private List<EpgCB> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate)
         {
-            List<EpgCB> result = new List<EpgCB>();
-            string index = GetProgramIndexAlias(groupId);
+            var result = new List<EpgCB>();
+            string index = GetProgramIndexAlias(_EventData.GroupId);
 
             // if index does not exist - then we have a fresh start, we have 0 programs currently
-            if (!_ElasticSearchClient.IndexExists(index))
-            {
-                return result;
-            }
+            if (!_ElasticSearchClient.IndexExists(index)) { return result; }
 
-            string type = DEFAULT_INDEX_TYPE;
+            // type represens the language, the default is the main language
+            string type = DEFAULT_INDEX_MAPPING_TYPE;
 
-            FilteredQuery query = new FilteredQuery(true);
+            var query = new FilteredQuery(true);
 
             // Program end date > minimum start date
-            ESRange minimumRange = new ESRange(false)
-            {
-                Key = "end_date"
-            };
-            minimumRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minStartDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)));
-
             // program start date < maximum end date
-            ESRange maximumRange = new ESRange(false)
-            {
-                Key = "start_date"
-            };
-            maximumRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, maxEndDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)));
+            var minimumRange = new ESRange(false, "end_date", eRangeComp.GTE, minStartDate.ToString(ESUtils.ES_DATE_FORMAT));
+            var maximumRange = new ESRange(false, "start_date", eRangeComp.LTE, maxEndDate.ToString(ESUtils.ES_DATE_FORMAT));
 
-            FilterCompositeType filterCompositeType = new FilterCompositeType(ApiObjects.SearchObjects.CutWith.AND);
+
+            var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(minimumRange);
             filterCompositeType.AddChild(maximumRange);
 
@@ -321,40 +258,42 @@ namespace IngestHandler
             };
 
             query.ReturnFields.Clear();
-            query.ReturnFields.Add("document_id");
-            query.ReturnFields.Add("epg_id");
-            query.ReturnFields.Add("start_date");
-            query.ReturnFields.Add("end_date");
+            query.AddReturnField("document_id");
+            query.AddReturnField("epg_id");
+            query.AddReturnField("start_date");
+            query.AddReturnField("end_date");
+            query.AddReturnField("epg_identifier");
 
             // get the epg document ids from elasticsearch
             string searchQuery = query.ToString();
             var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
 
-            //
-            // TODO : get epg complete data from CB
-            // LANGUAGE
-            //
             List<string> documentIds = new List<string>();
 
             // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (!string.IsNullOrEmpty(searchResult))
             {
-                JObject json = JObject.Parse(searchResult);
+                var json = JObject.Parse(searchResult);
 
-                var hits = (json["hits"] as JArray);
+                var hits = (json["hits"]["hits"] as JArray);
 
                 foreach (var hit in hits)
                 {
-                    documentIds.Add(hit["document_id"].ToString());
-                }
+                    var epgItem = new EpgCB();
+                    epgItem.DocumentId = hit["document_id"]?.ToString();
+                    epgItem.EpgIdentifier = hit["epg_identifier"]?.ToString();
+                    epgItem.StartDate = hit.Value<DateTime>("start_date");
+                    epgItem.EndDate = hit.Value<DateTime>("end_date");
+                    epgItem.EpgID = hit.Value<ulong>("epg_id");
 
-                result = new EpgDal_Couchbase(groupId).GetProgram(documentIds);
+                    result.Add(epgItem);
+                }
             }
 
             return result;
         }
 
-        private CRUDOperations<EpgCB> CalculateCRUDOperations(int groupId, IList<EpgCB> currentPrograms, IList<EpgCB> programsToIngest)
+        private CRUDOperations<EpgCB> CalculateCRUDOperations(IList<EpgCB> currentPrograms, IList<EpgCB> programsToIngest)
         {
             var crudOperations = new CRUDOperations<EpgCB>
             {
@@ -364,31 +303,73 @@ namespace IngestHandler
             };
 
             var currentProgramsDictionary = currentPrograms.ToDictionary(epg => epg.EpgIdentifier);
-            var programsToIngestDictionary = programsToIngest.ToDictionary(epg => epg.EpgIdentifier);
 
-            foreach (var programToIngest in programsToIngestDictionary)
+            // we cannot use the current programs as a dictioanry becuse there are multiple translation with same external id
+            //var programsToIngestDictionary = programsToIngest.ToDictionary(epg => epg.EpgIdentifier);
+
+            foreach (var programToIngest in programsToIngest)
             {
                 // if a program exists both on newly ingested epgs and in index - it's an update
-                if (currentProgramsDictionary.ContainsKey(programToIngest.Key))
+                if (currentProgramsDictionary.ContainsKey(programToIngest.EpgIdentifier))
                 {
                     // update the epg id of the ingested programs with their existing epg id from CB
-                    programToIngest.Value.EpgID = currentProgramsDictionary[programToIngest.Key].EpgID;
-                    crudOperations.ItemsToUpdate.Add(programToIngest.Value);
+                    programToIngest.EpgID = currentProgramsDictionary[programToIngest.EpgIdentifier].EpgID;
+                    crudOperations.ItemsToUpdate.Add(programToIngest);
                 }
                 else
                 {
                     // if it exists only on newly ingested epgs and not in index, it's a program to add
-                    crudOperations.ItemsToAdd.Add(programToIngest.Value);
+                    crudOperations.ItemsToAdd.Add(programToIngest);
                 }
+
+                // Remove programs that marked to add or update so that all that is left will be to delete
+                currentProgramsDictionary.Remove(programToIngest.EpgIdentifier);
             }
 
-            foreach (var currentProgram in currentProgramsDictionary)
+            // all update or add programs were removed form list so we left with items to delete
+            crudOperations.ItemsToDelete = currentProgramsDictionary.Values.ToList();
+
+            if (_IngestProfile.DefaultOverlapPolicy != eIngestProfileOverlapPolicy.Reject)
             {
-                // if a program exists in index but not in newly ingested programs, it should be deleted
-                if (!programsToIngestDictionary.ContainsKey(currentProgram.Key))
+                var orderedCurrentPrograms = currentPrograms.OrderBy(p => p.StartDate);
+                var orderedProgramsToIngest = programsToIngest.OrderBy(p => p.StartDate);
+                var firstCurrentProgram = currentPrograms.FirstOrDefault();
+                var firstProgramToIngest = orderedProgramsToIngest.FirstOrDefault();
+                var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault();
+                var lastProgramToIngest = orderedProgramsToIngest.LastOrDefault();
+
+                if (firstCurrentProgram != null && firstProgramToIngest != null)
                 {
-                    crudOperations.ItemsToDelete.Add(currentProgram.Value);
+                    if (firstCurrentProgram.EndDate > firstProgramToIngest.StartDate)
+                    {
+                        // TODO: Get all Current program translation epgCB object
+                        if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
+                        {
+                            firstCurrentProgram.EndDate = firstProgramToIngest.StartDate;
+                        }
+                        else
+                        {
+                            firstProgramToIngest.StartDate = firstCurrentProgram.EndDate;
+                        }
+                    }
                 }
+
+                if (lastCurrentProgram != null && lastProgramToIngest != null)
+                {
+                    if (lastCurrentProgram.StartDate < lastProgramToIngest.EndDate)
+                    {
+                        // TODO: Get all Current program translation epgCB object
+                        if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
+                        {
+                            lastCurrentProgram.StartDate = lastProgramToIngest.EndDate;
+                        }
+                        else
+                        {
+                            lastProgramToIngest.EndDate = lastCurrentProgram.StartDate;
+                        }
+                    }
+                }
+
             }
 
             return crudOperations;
@@ -396,19 +377,13 @@ namespace IngestHandler
 
         private List<EpgCB> CalculateSimulatedFinalStateAfterIngest(IList<EpgCB> programsToAdd, IList<EpgCB> programsToUpdate)
         {
-            List<EpgCB> result = new List<EpgCB>();
+            var result = new List<EpgCB>();
+            _EpgBL.SetEpgIds(programsToAdd);
+            result.AddRange(programsToAdd);
+            result.AddRange(programsToUpdate);
 
-            // set the new programs with new IDs from sequence document in couchbase
-            foreach (var program in programsToAdd)
-            {
-                
-                var newEPGId = _CouchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, 1);
-                program.EpgID = newEPGId + 1000000;
-            }
+            // TODO: calculate programs to cut according to policy
 
-            // union lists and order by start date
-            result.Union(programsToAdd);
-            result.Union(programsToUpdate);
             result = result.OrderBy(program => program.StartDate).ToList();
 
             return result;
@@ -416,6 +391,7 @@ namespace IngestHandler
 
         private bool ValidateProgramDates(List<EpgCB> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary, IngestProfile ingestProfile)
         {
+            // TODO: consider returning false if should reject .. review ...
             bool isValid = true;
 
             bool checkOverlap = ingestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject;
@@ -478,22 +454,30 @@ namespace IngestHandler
         /// <param name="groupId"></param>
         /// <param name="calculatedPrograms"></param>
         /// <param name="bulkUploadId"></param>
-        private void InsertIngestedProgramsToCouchbase(int groupId, List<EpgCB> calculatedPrograms, long bulkUploadId)
+        private async Task UpdateCouchbase(List<EpgCB> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary)
         {
-            var dal = new EpgDal_Couchbase(groupId);
-
-            foreach (var program in calculatedPrograms)
-            {
-                // TODO: CONSIDER LANGUAGE - is it enough?
-                string key = $"{program.EpgID}__{program.Language}_{bulkUploadId}";
-                program.DocumentId = key;
-
-                bool insertResult = dal.InsertProgram(key, program, program.EndDate.AddDays(EXPIRY_DATE));
-
-                if (!insertResult)
+            var dal = new EpgDal_Couchbase(_EventData.GroupId);
+            // tcm configurable?
+            int retryCount = 3;
+            var policy = Policy.Handle<Exception>()
+                .WaitAndRetryAsync(retryCount, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (ex, time, attempt, ctx) =>
                 {
-                    log.Error($"Failed inserting program. group {groupId} epgId {program.EpgID} bulkUploadId {bulkUploadId}");
+                    // TODO: improve logging
+                    log.Warn("Error while trying to upsert EPG to couchbase", ex);
+                    log.Warn($"couchbase upsert retry attempt:[{attempt}/{retryCount}]");
                 }
+            );
+
+            var insertResult = false;
+            await policy.ExecuteAsync(async () =>
+            {
+                insertResult = await dal.InsertPrograms(calculatedPrograms, EXPIRY_DATE_DELTA);
+
+            });
+
+            if (!insertResult)
+            {
+                log.Error($"Failed inserting program. group:[{_EventData.GroupId}] bulkUploadId:[{_EventData.GroupId}]");
             }
         }
 
@@ -505,57 +489,50 @@ namespace IngestHandler
         /// <param name="groupId"></param>
         /// <param name="bulkUploadId"></param>
         /// <param name="dateOfIngest"></param>
-        private bool CloneExistingIndex(int groupId, long bulkUploadId, DateTime dateOfIngest)
+        private bool CloneExistingIndex()
         {
-            string source = GetProgramIndexDateAlias(groupId, dateOfIngest);
-            string destination = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
-            // TODO: check if reindex works with alias. if not, get the original index name and reindex it
-            bool result = _ElasticSearchClient.Reindex(source, destination);
+            var result = true;
+            string source = GetProgramIndexDateAlias();
+            string destination = GetProgramIndexDateName();
 
-            if (result)
+            // need to clone first to have all original settings
+            var isCloneSuccess = _ElasticSearchClient.CloneIndexWithoutData(source, destination);
+            if (isCloneSuccess)
             {
-                log.Debug($"Reindex {source} to {destination} success");
+                var isReindexSuccess = _ElasticSearchClient.Reindex(source, destination);
+                if (!isReindexSuccess) { log.ErrorFormat($"Reindex {source} to {destination} failure"); }
             }
             else
             {
                 log.ErrorFormat($"Reindex {source} to {destination} failure");
             }
 
+            log.Debug($"Clone and Reindex {source} to {destination} success");
+
             return result;
         }
 
-        private void UpdateClonedIndex(int groupId, long bulkUploadId, DateTime dateOfIngest, List<EpgCB> calculatedPrograms, List<EpgCB> programsToDelete)
+        private void UpdateClonedIndex(IList<EpgCB> calculatedPrograms, IList<EpgCB> programsToDelete)
         {
-            // basic variables initialization
-            int bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-            string index = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
-            List<ESBulkRequestObj<string>> bulkRequests = new List<ESBulkRequestObj<string>>();
-            ESSerializerV2 serializer = new ESSerializerV2();
-            bool isOpc = GroupSettingsManager.IsOpc(groupId);
-            HashSet<string> metasToPad = GetMetasToPad(groupId);
+            var bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            var index = GetProgramIndexDateName();
+            var bulkRequests = new List<ESBulkRequestObj<string>>();
+            var serializer = new ESSerializerV2();
+            var isOpc = GroupSettingsManager.IsOpc(_EventData.GroupId);
+            var metasToPad = GetMetasToPad(_EventData.GroupId);
 
             foreach (var program in calculatedPrograms)
             {
                 program.PadMetas(metasToPad);
-
-                //
-                // TODO: this should already happen in deserialize???
-                // 
-                //// used only to currently support linear media id search on elastic search
-                //if (isOpc && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
-                //{
-                //    epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].linearMediaId;
-                //}
-
-                string suffix = program.Language;
-                LanguageObj language = null;
+                var suffix = program.Language;
+                var language = _Languages[program.Language];
 
                 // Serialize EPG object to string
-                string serializedEpg = serializer.SerializeEpgObject(program, suffix, isOpc);
-                string epgType = GetTanslationType(DEFAULT_INDEX_TYPE, language);
+                var serializedEpg = serializer.SerializeEpgObject(program, suffix, isOpc);
+                var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
 
-                double totalMinutes = GetTTLMinutes(program);
-                string ttl = string.Format("{0}m", totalMinutes);
+                var totalMinutes = GetTTLMinutes(program);
+                var ttl = string.Format("{0}m", totalMinutes);
 
                 var bulkRequest = new ESBulkRequestObj<string>()
                 {
@@ -578,13 +555,15 @@ namespace IngestHandler
                     {
                         foreach (var item in invalidResults)
                         {
-                            log.Error($"Could not add EPG to ES index. GroupID={groupId} epgId={item.Key} error={item.Value}");
+                            log.Error($"Could not add EPG to ES index. GroupID={_EventData.GroupId} epgId={item.Key} error={item.Value}");
                         }
                     }
 
                     bulkRequests.Clear();
                 }
             }
+
+            // TODO: programs to delete
 
             // If we have anything left that is less than the size of the bulk
             if (bulkRequests.Count > 0)
@@ -595,7 +574,7 @@ namespace IngestHandler
                 {
                     foreach (var item in invalidResults)
                     {
-                        log.Error($"Could not add EPG to ES index. GroupID={groupId} epgId={item.Key} error={item.Value}");
+                        log.Error($"Could not add EPG to ES index. GroupID={_EventData.GroupId} epgId={item.Key} error={item.Value}");
                     }
                 }
             }
@@ -626,10 +605,10 @@ namespace IngestHandler
                 }
             );
 
-            string index = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+            string index = GetProgramIndexDateName();
 
             // TODO: LANGUAGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-            string type = DEFAULT_INDEX_TYPE;
+            string type = DEFAULT_INDEX_MAPPING_TYPE;
             int bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
 
             bool isValid = true;
@@ -700,7 +679,7 @@ namespace IngestHandler
         /// <param name="dateOfIngest"></param>
         private void SwitchAliases(int groupId, long bulkUploadId, DateTime dateOfIngest)
         {
-            string dateAlias = GetProgramIndexDateAlias(groupId, dateOfIngest);
+            string dateAlias = GetProgramIndexDateAlias();
             string generalAlias = GetProgramIndexAlias(groupId);
 
             var previousIndices = _ElasticSearchClient.GetAliases(dateAlias);
@@ -711,19 +690,14 @@ namespace IngestHandler
                 _ElasticSearchClient.RemoveAlias(index, dateAlias);
             }
 
-            string newIndex = GetProgramIndexDateName(groupId, dateOfIngest, bulkUploadId);
+            string newIndex = GetProgramIndexDateName();
             _ElasticSearchClient.AddAlias(newIndex, dateAlias);
             _ElasticSearchClient.AddAlias(newIndex, generalAlias);
         }
 
-        private static IngestProfile GetIngestProfile(BulkUpload bulkUploadData)
+        private static IngestProfile GetIngestProfile(int profileId)
         {
-            IngestProfile ingestProfile = null;
-            if (bulkUploadData?.JobData is BulkUploadIngestJobData ingestJobData)
-            {
-                var ingestProfileId = ingestJobData.IngestProfileId;
-                ingestProfile = IngestProfileManager.GetIngestProfileById(ingestProfileId)?.Object;
-            }
+            var ingestProfile = IngestProfileManager.GetIngestProfileById(profileId)?.Object;
 
             if (ingestProfile == null)
             {
@@ -740,16 +714,16 @@ namespace IngestHandler
             return $"{groupId}_epg_v2";
         }
 
-        private string GetProgramIndexDateAlias(int groupId, DateTime date)
+        private string GetProgramIndexDateAlias()
         {
-            string dateString = date.ToString(Utils.ES_DATEONLY_FORMAT);
-            return $"{groupId}_epg_v2_{dateString}";
+            string dateString = _EventData.DateOfProgramsToIngest.ToString(ESUtils.ES_DATEONLY_FORMAT);
+            return $"{_EventData.GroupId}_epg_v2_{dateString}";
         }
 
-        private string GetProgramIndexDateName(int groupId, DateTime date, long bulkUploadId)
+        private string GetProgramIndexDateName()
         {
-            string dateString = date.ToString(Utils.ES_DATEONLY_FORMAT);
-            return $"{groupId}_epg_v2_{dateString}_{bulkUploadId}";
+            string dateString = _EventData.DateOfProgramsToIngest.ToString(ESUtils.ES_DATEONLY_FORMAT);
+            return $"{_EventData.GroupId}_epg_v2_{dateString}_{_EventData.BulkUploadId}";
         }
 
         public static string GetTanslationType(string type, LanguageObj language)
@@ -766,7 +740,7 @@ namespace IngestHandler
 
         protected virtual double GetTTLMinutes(EpgCB epg)
         {
-            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
+            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE_DELTA) - DateTime.UtcNow).TotalMinutes);
         }
     }
 
