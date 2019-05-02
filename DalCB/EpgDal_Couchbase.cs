@@ -1,12 +1,15 @@
 ﻿using ApiObjects;
 using ConfigurationManager;
+using Couchbase;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DalCB
 {
@@ -75,6 +78,40 @@ namespace DalCB
                     sb.Append(String.Concat(" Doc ID: ", sDocID));
                     sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
                     sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        public async Task<bool> InsertPrograms(List<EpgCB> objects, int expiryDatleDeltaInDays)
+        {
+            bool bRes = false;
+
+            if (objects != null)
+            {
+                try
+                {
+                    var documents = objects.Select(o => new Document<EpgCB>
+                    {
+                        Id = o.DocumentId,
+                        Content = o,
+                        Expiry = (uint)ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(o.EndDate.AddDays(expiryDatleDeltaInDays)),
+                    }).Cast<IDocument<EpgCB>>().ToList();
+
+                    var results = await cbManager.MultiSet(documents, allowPartial: false);
+                    // no need to check anything becasue allowPartials = false; means if one failes we get exception
+                    bRes = true;
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                     sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                     sb.Append(String.Concat(" ST: ", ex.StackTrace));
                     log.Error("Exception - " + sb.ToString(), ex);

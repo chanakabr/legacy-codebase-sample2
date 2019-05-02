@@ -12,6 +12,7 @@ using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
 using System.Collections.Specialized;
+using Newtonsoft.Json;
 
 namespace ElasticSearch.Common
 {
@@ -28,7 +29,7 @@ namespace ElasticSearch.Common
             get;
             set;
         }
-      
+
         #region Ctor
 
         public ElasticSearchApi(string elaticSearchUrl = null)
@@ -44,8 +45,42 @@ namespace ElasticSearch.Common
         }
 
         #endregion
-        
+
         #region Index creation
+
+        public bool CloneIndexWithoutData(string source, string dest)
+        {
+            bool result = false;
+            try
+            {
+                string urlGetSettings = string.Format("{0}/{1}/_settings", baseUrl, source);
+                int nStatus = 0;
+                string settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus, string.Empty, string.Empty, true);
+
+                var jsonResult = JObject.Parse(settingsResponse);
+                var settingsStr = jsonResult.First["settings"].ToString();
+
+                string urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
+                string createIndexResponse = SendPostHttpReq(urlSetSettings, ref nStatus, string.Empty, string.Empty, settingsStr, true);
+
+                var createIndexResponseJson = JObject.Parse(createIndexResponse);
+
+                if (createIndexResponseJson.ContainsKey("acknowledged") && createIndexResponseJson["acknowledged"].Value<string>() == "true")
+                {
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("error when cloning index src {0} to desc {1} ", source, dest);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("error when cloning index src {0} to desc {1}, ex {2} ", source, dest, ex);
+            }
+
+            return result;
+        }
 
         public bool BuildIndex(string index, int shards, int replicas,
             List<string> analyzers, List<string> filters, List<string> tokenizers = null, int maxResultWindow = 0)
@@ -469,7 +504,7 @@ namespace ElasticSearch.Common
 
             // /{index}/_alias/{name}
             string url = string.Format("{0}/{1}/_alias/{2}", baseUrl, index, alias);
-            
+
             try
             {
                 string putResult = SendPutHttpRequest(url, string.Empty);
@@ -1106,40 +1141,40 @@ namespace ElasticSearch.Common
                 case "int16":
                 case "int32":
                 case "int64":
-                {
-                    sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
-                    for (int i = 0; i < listLength; i++)
                     {
-                        if (i != 0)
-                            sb.Append(",");
-                        sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
-                    }
-                    sb.Append("] }");
-                    break;
-                }
-                case "string":
-                {
-                    bool isFirstIDWritten = false;
-                    sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
-                    for (int i = 0; i < listLength; i++)
-                    {
-                        long temp = 0;
-                        if (Int64.TryParse(oIDsList[i].ToString(), out temp))
+                        sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
+                        for (int i = 0; i < listLength; i++)
                         {
-                            if (isFirstIDWritten)
+                            if (i != 0)
                                 sb.Append(",");
                             sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
-                            isFirstIDWritten = true;
                         }
+                        sb.Append("] }");
+                        break;
                     }
-                    sb.Append("] }");
-                    break;
-                }
+                case "string":
+                    {
+                        bool isFirstIDWritten = false;
+                        sb = new StringBuilder(String.Concat("{\"size\": ", nNumOfResultsToReturn, ", \"ids\": ["));
+                        for (int i = 0; i < listLength; i++)
+                        {
+                            long temp = 0;
+                            if (Int64.TryParse(oIDsList[i].ToString(), out temp))
+                            {
+                                if (isFirstIDWritten)
+                                    sb.Append(",");
+                                sb.Append(String.Concat("\"", oIDsList[i].ToString(), "\""));
+                                isFirstIDWritten = true;
+                            }
+                        }
+                        sb.Append("] }");
+                        break;
+                    }
                 default:
-                {
-                    sb = new StringBuilder();
-                    break;
-                }
+                    {
+                        sb = new StringBuilder();
+                        break;
+                    }
 
             }
 
@@ -1156,7 +1191,7 @@ namespace ElasticSearch.Common
             int status = 0;
             return SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true, true);
         }
-        
+
         public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry, bool isPut = false)
         {
             Int32 nStatusCode = -1;
@@ -1365,7 +1400,7 @@ namespace ElasticSearch.Common
             return (int)HttpStatusCode.InternalServerError;
 
         }
-        
+
         #endregion
 
         public class ESAssetDocument
