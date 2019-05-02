@@ -115,7 +115,12 @@ namespace Core.Api.Managers
                         {
                             log.DebugFormat("going to update index for {0} assets", result.Count);
 
-                            RebuildIndexForMedias(groupId, doesGroupUsesTemplates, result);
+                            int bulkSize = 10000;
+                            for (int i = 0; i < result.Count; i = i + bulkSize)
+                            {
+                                var pageMediaIds = result.Skip(i).Take(bulkSize).ToList();
+                                RebuildIndexForMedias(groupId, doesGroupUsesTemplates, pageMediaIds);
+                            }
 
                             List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
                             if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
@@ -678,6 +683,11 @@ namespace Core.Api.Managers
                 {
                     response.Set((int)eResponseStatus.AssetRuleNotExists, ASSET_RULE_NOT_EXIST);
                     return response;
+                }
+
+                if (assetRule.Status == RuleStatus.InProgress)
+                {
+                    response.Set((int)eResponseStatus.AssetRuleStatusNotWritable, "Cannot update or delete asset rule when in progress");
                 }
 
                 if (assetRule.HasCountryConditions())

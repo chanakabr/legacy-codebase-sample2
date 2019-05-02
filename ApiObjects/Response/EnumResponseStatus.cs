@@ -334,6 +334,7 @@ namespace ApiObjects.Response
         IngestProfileNotExists = 5048,
         NoIngestProfileToInsert = 5049,
         IngestProfileIdRequired = 5060,
+        AssetRuleStatusNotWritable = 5061,
 
         #endregion
 
