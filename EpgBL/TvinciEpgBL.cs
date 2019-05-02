@@ -438,6 +438,11 @@ namespace EpgBL
             return result;
         }
 
+        public List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language)
         {
             List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();

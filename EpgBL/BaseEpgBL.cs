@@ -8,11 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using DalCB;
 using System.Collections.Concurrent;
+using ConfigurationManager;
 
 namespace EpgBL
 {
     public abstract class BaseEpgBL
     {
+        private static readonly string EPG_SEQUENCE_DOCUMENT = "epg_sequence_document";
+
         public int m_nGroupID { get; protected set; }
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
@@ -137,5 +140,22 @@ namespace EpgBL
             return langContainers.ToArray();
         }
 
+        public void SetEpgIds(IList<EpgCB> programsToAdd)
+        {
+            if (programsToAdd != null && programsToAdd.Count > 0)
+            {
+                var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.EPG);
+                // capture the ids for the entire range to update instead of calling this for every program
+                var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, (ulong)programsToAdd.Count + 1);
+                var firstNewEpgId = lastNewEpgId - (ulong)programsToAdd.Count;
+                
+                firstNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
+                // set the new programs with new IDs from sequence document in couchbase
+                foreach (var program in programsToAdd)
+                {
+                    program.EpgID = firstNewEpgId++;
+                }
+            }
+        }
     }
 }
