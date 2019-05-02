@@ -146,7 +146,8 @@ namespace ApiObjects.ConditionalAccess
         QuotaExceeded = 10,
         Suspended = 11,
         ServiceNotAllowed = 12,
-        NotPurchased = 13
+        NotPurchased = 13,
+        NetworkRuleBlock = 14
     }
 
     //public enum eService
