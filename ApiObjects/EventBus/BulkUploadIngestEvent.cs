@@ -14,7 +14,7 @@ namespace ApiObjects.EventBus
 
         public DateTime DateOfProgramsToIngest { get; set; }
 
-        public IEnumerable<EpgProgramBulkUploadObject> ProgramsToIngest { get; set; }
+        public List<EpgProgramBulkUploadObject> ProgramsToIngest { get; set; }
     }
 
 }

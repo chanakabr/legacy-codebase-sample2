@@ -39,7 +39,7 @@ namespace Core.Catalog
                 BulkUploadId = bulkUpload.Id,
                 GroupId = bulkUpload.GroupId,
                 DateOfProgramsToIngest = p.Key,
-                ProgramsToIngest = p,
+                ProgramsToIngest = p.ToList(),
                 RequestId = KLogger.GetRequestId(),
             });
 

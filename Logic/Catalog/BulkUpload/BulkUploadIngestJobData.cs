@@ -150,6 +150,7 @@ namespace Core.Catalog
                         ParentGroupId = parentGroupId,
                         StartDate = progrStartDate,
                         EndDate = progrEnDate,
+                        EpgExternalId = prog.external_id,
                     };
                     programResults.Add(result);
                 }

@@ -411,6 +411,11 @@ namespace ApiObjects
             return metaValue;
         }
 
+        public override string ToString()
+        {
+            return $"{{EpgID:{EpgID}, EpgIdentifier:{EpgIdentifier}, StartDate:{StartDate}, EndDate:{EndDate}}}";
+        }
+
     }
 
     [Serializable]

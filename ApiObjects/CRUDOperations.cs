@@ -6,8 +6,15 @@ namespace ApiObjects
 {
     public class CRUDOperations<T>
     {
-        public IList<T> ItemsToAdd { get; set; }
-        public IList<T> ItemsToUpdate { get; set; }
-        public IList<T> ItemsToDelete { get; set; }
+        public List<T> ItemsToAdd { get; set; }
+        public List<T> ItemsToUpdate { get; set; }
+        public List<T> ItemsToDelete { get; set; }
+
+        public CRUDOperations()
+        {
+            ItemsToAdd = new List<T>();
+            ItemsToUpdate = new List<T>();
+            ItemsToDelete = new List<T>();
+        }
     }
 }

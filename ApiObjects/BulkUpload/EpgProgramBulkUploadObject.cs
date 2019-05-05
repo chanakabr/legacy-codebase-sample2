@@ -4,10 +4,13 @@ using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
+    // TODO: Move and merge with all other epg objects
     public class EpgProgramBulkUploadObject : IBulkUploadObject
     {
         public programme ParsedProgramObject { get; set; }
-        public IList<EpgCB> EpgCbObjects { get; set; }
+        public List<EpgCB> EpgCbObjects { get; set; }
+        public ulong EpgId { get; set; }
+        public string EpgExternalId { get; set; }
         public int ParentGroupId { get; set; }
         public int GroupId { get; set; }
         public int ChannelId { get; set; }
