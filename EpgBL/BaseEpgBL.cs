@@ -157,5 +157,15 @@ namespace EpgBL
                 }
             }
         }
+
+        public virtual ulong GetNewEpgId()
+        {
+            ulong result = 0;
+            var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.EPG);
+            
+            result = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, 1) + (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
+            return result;
+        }
+
     }
 }
