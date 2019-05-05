@@ -7958,6 +7958,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("name", propertyValue);
             }
+            if(RelatedEntities != null)
+            {
+                propertyValue = "{" + String.Join(", ", RelatedEntities.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("relatedEntities", "\"relatedEntities\": " + propertyValue);
+            }
             if(StartDate.HasValue)
             {
                 ret.Add("startDate", "\"startDate\": " + StartDate);
@@ -8032,6 +8037,11 @@ namespace WebAPI.Models.Catalog
                 ret.Add("metas", "<metas>" + propertyValue + "</metas>");
             }
             ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            if(RelatedEntities != null)
+            {
+                propertyValue = RelatedEntities.Count > 0 ? "<item>" + String.Join("</item><item>", RelatedEntities.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("relatedEntities", "<relatedEntities>" + propertyValue + "</relatedEntities>");
+            }
             if(StartDate.HasValue)
             {
                 ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
@@ -12292,6 +12302,66 @@ namespace WebAPI.Models.Catalog
             if(RecordingType.HasValue)
             {
                 ret.Add("recordingType", "<recordingType>" + "" + Enum.GetName(typeof(KalturaRecordingType), RecordingType) + "" + "</recordingType>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaRelatedEntity
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Id != null)
+            {
+                ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaRelatedEntityType), Type) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Id != null)
+            {
+                ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaRelatedEntityType), Type) + "" + "</type>");
+            return ret;
+        }
+    }
+    public partial class KalturaRelatedEntityArray
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

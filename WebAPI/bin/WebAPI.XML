@@ -6859,6 +6859,21 @@
             PIN type
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRelatedEntity.Id">
+            <summary>
+            Unique identifier for the related entry
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRelatedEntity.Type">
+            <summary>
+            Defines related entry type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaRelatedEntityArray.Objects">
+            <summary>
+            List of related entities
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetStructMetaFilter">
             <summary>
             Filtering Asset Struct Metas
@@ -8020,6 +8035,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.Tags">
             <summary>
             Dynamic collection of key-value pairs according to the Tag Types defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.RelatedEntities">
+            <summary>
+            Dynamic collection of key-value pairs according to the related entity defined in the system
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.StartDate">

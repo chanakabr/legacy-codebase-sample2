@@ -252,6 +252,8 @@ namespace WebAPI.Reflection
                             return "metas";
                         case "Name":
                             return "name";
+                        case "RelatedEntities":
+                            return "relatedEntities";
                         case "StartDate":
                             return "startDate";
                         case "Statistics":
@@ -4899,6 +4901,24 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "RegistrySettings":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaRelatedEntity":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaRelatedEntityArray":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;
