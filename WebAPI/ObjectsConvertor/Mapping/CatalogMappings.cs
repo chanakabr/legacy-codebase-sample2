@@ -1,10 +1,12 @@
 ﻿using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using AutoMapper;
+using AutoMapper.Configuration;
 using Catalog.Response;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -15,18 +17,16 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using TVinciShared;
+using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using WebAPI.Utils;
-using AutoMapper.Configuration;
-using TVinciShared;
-using WebAPI.Models.Upload;
-using WebAPI.App_Start;
-using ApiObjects.BulkUpload;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -2450,15 +2450,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     if (!string.IsNullOrEmpty(meta.m_sValue))
                     {
-                        DateTime parsedDate;
-                        if (DateTime.TryParse(meta.m_sValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
-                        {
-                            value = new KalturaLongValue() { value = DateUtils.DateTimeToUtcUnixTimestampSeconds(parsedDate) };
-                        }
-                        else
-                        {
-                            value = new KalturaLongValue() { value = 0 };
-                        }
+                        value = new KalturaLongValue() { value = DateUtils.StringToUtcUnixTimestampSeconds(meta.m_sValue) };
                     }
                 }
                 else
