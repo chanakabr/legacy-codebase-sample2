@@ -41,6 +41,8 @@ namespace EventBus.RabbitMQ
 
         public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder, Action<EventBusConfiguration> configureService)
         {
+            Console.Title = _EntryAssembly.GetName().ToString();
+
             // Default configuration
             var configuration = new EventBusConfiguration
             {
@@ -65,7 +67,6 @@ namespace EventBus.RabbitMQ
                 if (!isHealthy) { throw new Exception("Health check returned errors, service will not start"); }
 
                 services.AddHostedService<KalturaEventBusRabbitMQConsumerService>();
-
             });
 
             return builder;
