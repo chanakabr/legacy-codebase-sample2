@@ -2592,6 +2592,20 @@ namespace Core.Catalog.CatalogManagement
                 return new Status((int)eResponseStatus.Error);
             }
 
+            // Basic details tables
+            if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count != 1)
+            {
+                log.WarnFormat("CreateAssetResponseFromDataSet - basic details table is not valid");
+                return new Status((int)eResponseStatus.Error);
+            }
+
+            DataRow basicDataRow = ds.Tables[0].Rows[0];
+            long id = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ID", 0);
+            if (id <= 0)
+            {
+                return CreateAssetResponseStatusFromResult(id);
+            }
+
             if (ds.Tables.Count < 7)
             {
                 log.WarnFormat("BuildTableDicAfterUpdateMediaAsset didn't receive dataset with 6 or more tables assetId {0}", assetId);
@@ -3160,7 +3174,10 @@ namespace Core.Catalog.CatalogManagement
 
                     if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId, releatedEntityIds))
                     {
-                        CatalogManager.RemoveInheritedValue(groupId, catalogGroupCache, mediaAsset, metaIds, tagIds);
+                        if (metaIds?.Count > 0 || tagIds?.Count > 0)
+                        {
+                            CatalogManager.RemoveInheritedValue(groupId, catalogGroupCache, mediaAsset, metaIds, tagIds);
+                        }
 
                         // invalidate asset
                         InvalidateAsset(eAssetTypes.MEDIA, id);
