@@ -1,0 +1,62 @@
+﻿ARG BUILD_TAG=latest
+ARG IIS_TAG=windowsservercore-ltsc2019
+FROM 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:${BUILD_TAG} AS builder
+SHELL ["powershell"]
+
+ADD . tvpapi_rest
+
+RUN nuget restore tvpapi_rest/TVPProAPIs.sln
+RUN msbuild /p:Configuration=Release tvpapi_rest/TVPProAPIs.sln
+
+RUN tvpapi_rest\Generator\bin\Release\Generator.exe
+RUN mv KalturaClient.xml tvpapi_rest\WebAPI\clientlibs\KalturaClient.xml
+RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI /p:Profile=FolderProfile tvpapi_rest/WebAPI/WebAPI.csproj
+
+
+
+
+
+
+
+
+FROM mcr.microsoft.com/windows/servercore/iis:${IIS_TAG}
+SHELL ["powershell"]
+
+RUN Install-WindowsFeature NET-Framework-45-ASPNET
+RUN Install-WindowsFeature Web-Asp-Net45
+
+COPY --from=builder WebAPI WebAPI
+
+RUN Remove-WebSite -Name 'Default Web Site'; \
+	New-Website -Name WebAPI -Port 80 -PhysicalPath 'C:\WebAPI'
+
+RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
+	$doc = New-Object System.Xml.XmlDocument; \
+	$doc.Load($filePath); \
+	$child = $doc.CreateElement(\"logFile\"); \
+	$child.SetAttribute(\"directory\", \"C:\log\iis\%COMPUTERNAME%\"); \
+	$site = $doc.SelectSingleNode(\"//site[@name='WebAPI']\"); \
+	$site.AppendChild($child); \
+	$doc.Save($filePath)
+	
+RUN mkdir C:\log
+RUN mkdir C:\log\api
+
+ARG API_LOG_DIR=C:\\log\\api\\%COMPUTERNAME%
+ENV API_LOG_DIR ${API_LOG_DIR}
+
+RUN mv /WebAPI/ssl-dev /Certificate
+
+RUN import-module webadministration; \
+    $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
+    $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
+    New-Item -path IIS:\SslBindings\0.0.0.0!443 -value $cert; \
+    New-WebBinding -Name "WebAPI" -IP "*" -Port 443 -Protocol https
+
+
+EXPOSE 80
+EXPOSE 443
+
+RUN $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo('C:\WebAPI\bin\WebAPI.dll').FileVersion; \
+	Set-Content -Path 'C:\VERSION' -Value $version
+	
