@@ -3157,6 +3157,13 @@ namespace Core.Catalog.CatalogManagement
                     existingTopicsIds.AddRange(mediaAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                     && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
                                                                     .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList());
+                    if (mediaAsset.RelatedEntities != null)
+                    {
+                        existingTopicsIds.AddRange(mediaAsset.RelatedEntities.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.TagMeta.m_sName)
+                                                                        && catalogGroupCache.TopicsMapBySystemNameAndByType[x.TagMeta.m_sName].ContainsKey(x.TagMeta.m_sType))
+                                                                        .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.TagMeta.m_sName][x.TagMeta.m_sType].Id).ToList());
+                    }
+
                     List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
                     if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
                     {
