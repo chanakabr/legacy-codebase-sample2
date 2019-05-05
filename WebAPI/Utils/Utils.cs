@@ -211,7 +211,13 @@ namespace WebAPI.Utils
 
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId)
         {
-            return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS);
+            return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
+                   && DoesGroupUsesTemplates(groupId);
+        }
+
+        public static bool DoesGroupUsesTemplates(int groupId)
+        {
+            return Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
         }
 
         internal static bool GetAbortOnErrorFromRequest()

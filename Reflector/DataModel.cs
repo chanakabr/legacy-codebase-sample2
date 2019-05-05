@@ -218,7 +218,7 @@ namespace Reflector
                     {
                         continue;
                     }
-                    file.WriteLine("                            case \"" + oldStandardActionAttribute.oldName + "\":");
+                    file.WriteLine("                            case \"" + oldStandardActionAttribute.oldName.ToLower() + "\":");
                     file.WriteLine("                                action = \"" + actionAttribute.Name.ToLower() + "\";");
                     file.WriteLine("                                break;");
                     file.WriteLine("                                ");
@@ -403,6 +403,13 @@ namespace Reflector
                                                     file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
                                                 }
                                             }
+                                            else if (schemeArgumentProperty.PropertyType == typeof(double))
+                                            {
+                                                if ((double)val != double.MinValue && (double)val != double.MaxValue)
+                                                {
+                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                                }
+                                            }
                                             else if (schemeArgumentProperty.PropertyType == typeof(float))
                                             {
                                                 if ((float)val != float.MinValue && (float)val != float.MaxValue)
@@ -573,7 +580,7 @@ namespace Reflector
                 }
                 foreach(string oldStandardName in leftOldStandard)
                 {
-                    file.WriteLine("                        case \"" + oldStandardName + "\":");
+                    file.WriteLine("                        case \"" + oldStandardName.ToLower() + "\":");
 
                     foreach (MethodInfo oldAction in actions)
                     {
