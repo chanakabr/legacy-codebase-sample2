@@ -182,8 +182,7 @@ namespace AdapterControllers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in GetVodLink: adapterId = {0}",
-                    adapterId, ex);
+                log.ErrorFormat("Error in GetVodLink: adapterId = {0}, ex = {1}.", adapterId, ex);
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 
@@ -242,8 +241,7 @@ namespace AdapterControllers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in GetRecordingLink: adapterId = {0}",
-                    adapterId, ex);
+                log.ErrorFormat("Error in GetRecordingLink: adapterId = {0}, ex = {1}.", adapterId, ex);
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 
@@ -306,8 +304,7 @@ namespace AdapterControllers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in GetRecordingLink: adapterId = {0}",
-                    adapterId, ex);
+                log.ErrorFormat("Error in GetRecordingLink: adapterId = {0}, ex = {1}.", adapterId, ex);
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 

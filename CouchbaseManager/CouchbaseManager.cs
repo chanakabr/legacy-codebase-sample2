@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using Couchbase.N1QL;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CouchbaseManager
 {
@@ -52,6 +53,7 @@ namespace CouchbaseManager
 
         public const string COUCHBASE_CONFIG = "couchbaseClients/Couchbase";
         public const string COUCHBASE_TCM_CONFIG_KEY = "couchbase_client_config";
+        public const string MAX_DEGREE_OF_PARALLELISM_KEY = "max_degree_of_parallelism";
         public const string COUCHBASE_APP_CONFIG = "CouchbaseSectionMapping";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
         private const double GET_LOCK_TS_SECONDS = 5;
@@ -73,8 +75,9 @@ namespace CouchbaseManager
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
+        private static ParallelOptions PARALLEL_OPTIONS = new ParallelOptions { MaxDegreeOfParallelism = 1 };
         protected static Couchbase.Core.Serialization.DefaultSerializer serializer;
+
 
         private static bool IsClusterInitialized
         {
@@ -107,6 +110,10 @@ namespace CouchbaseManager
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
             clientConfiguration = GetCouchbaseClientConfiguration();
+
+            var maxDegreeOfParallelism = TCMClient.Settings.Instance.GetValue<int>($"{COUCHBASE_TCM_CONFIG_KEY}.{MAX_DEGREE_OF_PARALLELISM_KEY}");
+            PARALLEL_OPTIONS.MaxDegreeOfParallelism = maxDegreeOfParallelism > 1 ? maxDegreeOfParallelism : 1;
+
 
         }
         /// <summary>
@@ -404,6 +411,19 @@ namespace CouchbaseManager
             }
         }
 
+        private static List<IDocument<string>> ObjectsToJson<T>(List<IDocument<T>> objs)
+        {
+            if (objs == null) { return new List<IDocument<string>>(); }
+            var result = objs.Select(o => new Document<string>
+            {
+                Id = o.Id,
+                Content = ObjectToJson(o.Content),
+                Cas = o.Cas,
+                Expiry = o.Expiry,
+            });
+            return result.Cast<IDocument<string>>().ToList();
+        }
+
         private static string ObjectToJson<T>(T obj)
         {
             if (obj != null)
@@ -661,6 +681,56 @@ namespace CouchbaseManager
             }
             return result;
         }
+
+        public async Task<IDictionary<string, bool>> MultiSet<T>(List<IDocument<T>> values, bool allowPartial = false, bool asJson = false)
+        {
+            IDictionary<string, bool> results = null;
+            IDocumentResult[] insertResult = null;
+
+            try
+            {
+                values.ForEach(v => v.Expiry = FixExpirationTime(v.Expiry));
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                string cbDescription = string.Format("bucket: {0}; keyCount: {1};", bucketName, values.Count);
+                using (var km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
+                {
+
+                    if (!asJson)
+                        insertResult = await bucket.UpsertAsync(values);
+                    else
+                    {
+                        var serializedValue = ObjectsToJson(values);
+                        insertResult = await bucket.UpsertAsync(serializedValue);
+                    }
+                }
+
+
+                if (insertResult.Any(d => d.Status != Couchbase.IO.ResponseStatus.Success))
+                {
+                    var errors = insertResult.Where(r => r.Exception != null).Select(r => r.Exception).ToList();
+
+                    if (!allowPartial)
+                    {
+                        var failedItems = insertResult.Where(r => !r.Success);
+                        errors.Add(new Exception($"CouchBaseCache - Will not allow partial set, One or more of the set operation failed: [{ObjectToJson(failedItems)}]"));
+                    }
+
+                    if (errors.Any())
+                    {
+                        throw new AggregateException(errors);
+                    }
+                }
+
+                results = insertResult.ToDictionary(k => k.Id, v => v.Success);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"CouchBaseCache - Failed MultiSet<T> with keys:[{ObjectToJson(values.Select(v => v.Id))}],", ex);
+            }
+
+            return results;
+        }
+
 
         /// <summary>
         /// 

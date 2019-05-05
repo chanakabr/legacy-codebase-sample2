@@ -16,7 +16,7 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-        
+
         public bool IsEmpty()
         {
             if (FilterSettings == null)
@@ -61,7 +61,7 @@ namespace ElasticSearch.Searcher
     #endregion
 
     #region Term
-    
+
     public class ESTerm : IESTerm
     {
         public string Value
@@ -89,7 +89,7 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-        
+
         bool m_bIsNumeric;
 
         public ESTerm(bool bIsNumeric)
@@ -174,7 +174,7 @@ namespace ElasticSearch.Searcher
             //return  sb.ToString();
 
         }
-    } 
+    }
 
     #endregion
 
@@ -374,6 +374,12 @@ namespace ElasticSearch.Searcher
             m_bIsNumeric = bIsNumeric;
         }
 
+        public ESRange(bool IsNumeric, string key, eRangeComp comp, string value) : this(IsNumeric)
+        {
+            this.Key = key;
+            this.Value.Add(new KeyValuePair<eRangeComp, string>(comp, value));
+        }
+
         public bool IsEmpty()
         {
             return string.IsNullOrEmpty(Key) || Value == null || Value.Count == 0;
@@ -439,11 +445,11 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sb = new StringBuilder();
 
-            if(isNot)
+            if (isNot)
                 sb.Append("{\"not\":");
 
             sb.Append("{\"wildcard\":{");
-            sb.AppendFormat("\"{0}\":",Key);
+            sb.AppendFormat("\"{0}\":", Key);
             sb.Append("{");
             sb.AppendFormat("\"value\":\"{0}\"", Value);
 
@@ -493,7 +499,7 @@ namespace ElasticSearch.Searcher
                 sb.Append("{\"not\":");
 
             sb.Append("{\"exists\":{");
-             sb.AppendFormat("\"field\":\"{0}\"", Value);
+            sb.AppendFormat("\"field\":\"{0}\"", Value);
 
             sb.Append("}}");
 
