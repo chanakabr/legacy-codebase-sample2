@@ -101,6 +101,10 @@ namespace WebAPI.Controllers
             try
             {
                 var oldAssetRule = ClientsManager.ApiClient().GetAssetRule(groupId, id);
+                if (oldAssetRule.Status == KalturaAssetRuleStatus.IN_PROGRESS)
+                {
+                    throw new ClientException((int)eResponseStatus.AssetRuleStatusNotWritable, "Cannot update or delete asset rule when in progress");
+                }
                 // before updating AssetRule fill properties in case they are empty so it will be possible to validate the new properties
                 assetRule.FillEmpty(oldAssetRule);
                 assetRule.Validate();
