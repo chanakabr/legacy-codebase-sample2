@@ -151,7 +151,7 @@ namespace EpgBL
             firstNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
             var listOfIds = new List<ulong>();
 
-            for (var epgId = firstNewEpgId; epgId <= lastNewEpgId; firstNewEpgId++)
+            for (var epgId = firstNewEpgId; epgId <= lastNewEpgId; epgId++)
             {
                 listOfIds.Add(epgId);
             }
