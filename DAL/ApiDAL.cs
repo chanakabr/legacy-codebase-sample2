@@ -4525,7 +4525,7 @@ namespace DAL
             return false;
         }
 
-        public static DataTable UpdateMediaCountries(int groupId, long ruleId, List<int> countryIds = null, List<long> mediaIds = null, int isAllowed = -1)
+        public static DataTable UpdateMediaCountries(int groupId, long ruleId)
         {
             try
             {
@@ -4533,15 +4533,69 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@ruleId", ruleId);
                 sp.AddParameter("@status", 2);
-                sp.AddIDListParameter("@countryIds", countryIds != null ? countryIds : new List<int>(), "ID");
-                sp.AddIDListParameter("@mediaIds", mediaIds != null ? mediaIds : new List<long>(), "ID");
-                sp.AddParameter("@isAllowed", isAllowed);
 
                 return sp.Execute();
             }
             catch (Exception ex)
             {
                 log.Error("Error while update media country", ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable UpdateMediaCountriesByCountryIds(int groupId, long ruleId, List<int> countryIds)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountriesByCountryIds");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddIDListParameter("@countryIds", countryIds != null ? countryIds : new List<int>(), "ID");
+
+                return sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while UpdateMediaCountriesByCountryIds", ex);
+            }
+
+            return null;
+        }
+
+        public static int UpdateMediaCountriesByMediaIds(int groupId, long ruleId, List<long> mediaIds)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountriesByMediaIds");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddIDListParameter("@mediaIds", mediaIds != null ? mediaIds : new List<long>(), "ID");
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while UpdateMediaCountriesByMediaIds", ex);
+            }
+
+            return 0;
+        }
+
+        public static DataTable UpdateMediaCountriesByIsAllowed(int groupId, long ruleId, int isAllowed)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaCountriesByIsAllowed");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddParameter("@isAllowed", isAllowed);
+
+                return sp.Execute();
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while UpdateMediaCountriesByIsAllowed", ex);
             }
 
             return null;
