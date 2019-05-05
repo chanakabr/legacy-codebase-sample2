@@ -1,9 +1,13 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
+using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using DalCB;
+using ElasticSearch.Common;
+using ElasticSearch.Searcher;
 using KLogMonitor;
 using KlogMonitorHelper;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,11 +27,13 @@ namespace EpgBL
         private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
         private static readonly int DAYSBUFFER = 7;
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+        protected ElasticSearchApi elasticSearchApi;
 
         public TvinciEpgBL(int nGroupID)
         {
             this.m_nGroupID = nGroupID;
             m_oEpgCouchbase = new DalCB.EpgDal_Couchbase(m_nGroupID);
+            elasticSearchApi = new ElasticSearchApi();
         }
 
         public override bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null)
@@ -786,6 +792,11 @@ namespace EpgBL
         {
             List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
 
+            return GetEpgChannelProgrammeObjects(lIdsStrings);
+        }
+
+        public override List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIdsStrings)
+        {
             // get EPG programs
             List<EpgCB> result = m_oEpgCouchbase.GetProgram(lIdsStrings);
 
@@ -1003,6 +1014,53 @@ namespace EpgBL
             return lRes;
         }
 
+        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        {
+            List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
+
+            try
+            {
+                string index = GetProgramIndexAlias(this.m_nGroupID);
+                string type = "epg";
+
+                var query = new FilteredQuery(true);
+
+                var channelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelId.ToString() };
+
+                var endDateRange = new ESRange(false, "end_date", eRangeComp.GTE, endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+                var startDateRange = new ESRange(false, "start_date", eRangeComp.LTE, startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+
+                var filterCompositeType = new FilterCompositeType(CutWith.AND);
+                filterCompositeType.AddChild(endDateRange);
+                filterCompositeType.AddChild(startDateRange);
+
+                query.Filter = new QueryFilter()
+                {
+                    FilterSettings = filterCompositeType
+                };
+
+                query.ReturnFields.Clear();
+                query.AddReturnField("document_id");
+
+                // get the epg document ids from elasticsearch
+                var searchQuery = query.ToString();
+
+                var searchResult = elasticSearchApi.Search(index, type, ref searchQuery);
+
+                JObject json = JObject.Parse(searchResult);
+                var hits = (json["hits"]["hits"] as JArray);
+
+                var documentIds = hits.Select(hit => hit["document_id"].Value<string>()).ToList();
+
+                result = GetEpgChannelProgrammeObjects(documentIds);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting channel programs for channel {0}. ex = {1}", channelId, ex);
+            }
+
+            return result;
+        }
 
         #region Private
 
@@ -1068,6 +1126,14 @@ namespace EpgBL
 
 
 
+
+        /// <summary>
+        /// This is the main alias of all programs
+        /// </summary>
+        private string GetProgramIndexAlias(int groupId)
+        {
+            return $"{groupId}_epg_v2";
+        }
 
         #endregion
 

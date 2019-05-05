@@ -20,6 +20,7 @@ namespace EpgBL
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
         public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
+        public abstract List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIds);
         public abstract List<EpgCB> GetEpgs(List<string> lIds);
 
         public abstract EpgCB GetEpgCB(ulong nProgramID, bool includeRecordingFallback = false);
@@ -164,10 +165,7 @@ namespace EpgBL
             return GetNewEpgIds(1).First();
         }
 
-        public virtual List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate);
 
     }
 }

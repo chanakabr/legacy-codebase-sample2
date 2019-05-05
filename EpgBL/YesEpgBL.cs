@@ -753,5 +753,15 @@ namespace EpgBL
         {
             return new List<EPGChannelProgrammeObject>();
         }
+
+        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        {
+            return new List<EPGChannelProgrammeObject>();
+        }
+
+        public override List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIds)
+        {
+            return new List<EPGChannelProgrammeObject>();
+        }
     }
 }
