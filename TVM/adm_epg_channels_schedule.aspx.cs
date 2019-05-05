@@ -1,14 +1,18 @@
 ﻿using ApiObjects;
 using EpgBL;
+using KLogMonitor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using TVinciShared;
 
 public partial class adm_epg_channels_schedule : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -364,52 +368,59 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
 
         try
         {
-            List<int> epgIds = new List<int>();
+            TvinciEpgBL epgBL = new TvinciEpgBL(DAL.UtilsDal.GetParentGroupID(groupId));
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            selectQuery += "SELECT ID FROM epg_channels_schedule with (nolock) where status<>2 and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channel_id", "=", channelId);
-            selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", start.AddDays(-1));
-            selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", end);
-            selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
-            selectQuery += "order by START_DATE asc";
-            if (selectQuery.Execute("query", true) != null)
-            {
-                int count = selectQuery.Table("query").DefaultView.Count;
-                for (int i = 0; i < count; i++)
-                {
-                    epgIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i));
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
+            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end);
 
-            if (epgIds.Count > 0)
-            {
-                TvinciEpgBL oEpgBL = new TvinciEpgBL(DAL.UtilsDal.GetParentGroupID(groupId));
-                List<EPGChannelProgrammeObject> Epgs = oEpgBL.GetEpgs(epgIds);
+            //if (programs != null && programs.Count > 0)
+            //{
+            //    List<int> epgIds = programs.Select(program => (int)program.EpgID).ToList();
 
-                if (Epgs != null && Epgs.Count > 0)
-                {
-                    foreach (int id in epgIds)
-                    {
-                        EPGChannelProgrammeObject program = Epgs.FirstOrDefault(x => x.EPG_ID == id);
-                        if (program != null)
-                        {
-                            orderEpgs.Add(program);
-                            Epgs.Remove(program);
-                        }
-                    }
-                }
-            }
+            //    //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            //    //selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            //    //selectQuery += "SELECT ID FROM epg_channels_schedule with (nolock) where status<>2 and";
+            //    //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("epg_channel_id", "=", channelId);
+            //    //selectQuery += "and";
+            //    //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", ">=", start.AddDays(-1));
+            //    //selectQuery += "and";
+            //    //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "<=", end);
+            //    //selectQuery += "and";
+            //    //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
+            //    //selectQuery += "order by START_DATE asc";
+            //    //if (selectQuery.Execute("query", true) != null)
+            //    //{
+            //    //    int count = selectQuery.Table("query").DefaultView.Count;
+            //    //    for (int i = 0; i < count; i++)
+            //    //    {
+            //    //        epgIds.Add(ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", i));
+            //    //    }
+            //    //}
+            //    //selectQuery.Finish();
+            //    //selectQuery = null;
+
+            //    if (epgIds.Count > 0)
+            //    {
+            //        List<EPGChannelProgrammeObject> Epgs = epgBL.GetEpgs(epgIds);
+
+            //        if (Epgs != null && Epgs.Count > 0)
+            //        {
+            //            foreach (int id in epgIds)
+            //            {
+            //                EPGChannelProgrammeObject program = Epgs.FirstOrDefault(x => x.EPG_ID == id);
+            //                if (program != null)
+            //                {
+            //                    orderEpgs.Add(program);
+            //                    Epgs.Remove(program);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
         }
         catch (Exception ex)
         {
-
+            log.ErrorFormat("error when getting programs. group = {0}, channel id = {1}, start = {2}, end = {3}, ex = {4}",
+                groupId, channelId, start, end, ex);
         }
 
         return orderEpgs;

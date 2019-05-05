@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Web;
 using TvinciImporter;
 using TVinciShared;
 
@@ -38,21 +39,34 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
             {
                 int nGroupID = LoginManager.GetLoginGroupID();
 
-                int epgID = DBManipulator.DoTheWork();//insert the EPG to DB first
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg
+
+                ulong epgId = 0;
+                EpgCB epg = null; 
+
+                System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();
+
+                if (coll["id"] != null)
+                {
+                    epgId = ulong.Parse(coll["id"].ToString());
+                }
+
+                if (epgId == 0)
+                {
+                    epgId = epgBLTvinci.GetNewEpgId();
+                }
+                //epgBLTvinci.SetEpgIds(new List<EpgCB>() { });//insert the EPG to DB first
 
                 //if record was saved , update media record with Pic Id 
-                if (epgID > 0)
+                if (epgId > 0)
                 {
-                    int picId = UpdateEpgChannelSchedulePics(epgID, nGroupID);
+                    int picId = UpdateEpgChannelSchedulePics((int)epgId, nGroupID);
 
                     //retreive all tags and Metas IDs from DB
                     Dictionary<int, string> tagsDic = getMetaTag(false);
                     Dictionary<int, string> metasDic = getMetaTag(true);
 
-                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
-                    TvinciEpgBL epgBLTvinci = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg
-
-                    EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgID);
                     CouchBaseManipulator.DoTheWork(ref epg, metasDic, tagsDic); //update the data of the Epg from the page
 
                     if (picId > 0)
@@ -63,12 +77,12 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
                     ulong nID = 0;
                     if (epg.EpgID == 0)
                     {
-                        epg.EpgID = (ulong)epgID;
+                        epg.EpgID = epgId;
                         epgBLTvinci.InsertEpg(epg, out nID);
                     }
                     else
                     {
-                        epg.EpgID = (ulong)epgID;
+                        epg.EpgID = epgId;
                         epgBLTvinci.UpdateEpg(epg);
                     }
 
