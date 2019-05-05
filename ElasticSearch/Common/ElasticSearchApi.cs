@@ -862,7 +862,7 @@ namespace ElasticSearch.Common
         {
             string result = string.Empty;
 
-            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(indexType) || string.IsNullOrEmpty(searchQuery))
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(searchQuery))
                 return result;
 
             string url;
