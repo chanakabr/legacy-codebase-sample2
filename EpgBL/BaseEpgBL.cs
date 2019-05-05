@@ -19,7 +19,7 @@ namespace EpgBL
         public int m_nGroupID { get; protected set; }
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
-        public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);        
+        public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
         public abstract List<EpgCB> GetEpgs(List<string> lIds);
 
         public abstract EpgCB GetEpgCB(ulong nProgramID, bool includeRecordingFallback = false);
@@ -31,7 +31,7 @@ namespace EpgBL
 
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDic(int nPageSize, int nStartIndex, List<int> lChannelIDs, DateTime fromDate, DateTime toDate);
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs);
-      
+
         public abstract List<EPGChannelProgrammeObject> SearchEPGContent(int groupID, string searchValue, int pageIndex, int pageSize);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByScids(int groupID, string[] scids, Language eLang, int duration);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByProgramsIdentefier(int groupID, string[] pids, Language eLang, int duration);
@@ -79,7 +79,7 @@ namespace EpgBL
                                 programmeObject.EPG_TAGS[i] = currTag;
                             }
                         }
-                        
+
                         // set Multilingual Metas
                         for (int i = 0; i < programmeObject.EPG_Meta.Count; i++)
                         {
@@ -140,22 +140,34 @@ namespace EpgBL
             return langContainers.ToArray();
         }
 
-        public void SetEpgIds(IList<EpgCB> programsToAdd)
+        public virtual IList<ulong> GetNewEpgIds(int countOfIds)
         {
-            if (programsToAdd != null && programsToAdd.Count > 0)
+            if (countOfIds <= 0) { throw new ArgumentException("Count should be greater than zero", nameof(countOfIds)); }
+
+            var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.EPG);
+            var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, (ulong)countOfIds);
+            var firstNewEpgId = (lastNewEpgId - (ulong)countOfIds) + 1;
+
+            firstNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
+            var listOfIds = new List<ulong>();
+
+            for (var epgId = firstNewEpgId; epgId <= lastNewEpgId; firstNewEpgId++)
             {
-                var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.EPG);
-                // capture the ids for the entire range to update instead of calling this for every program
-                var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, (ulong)programsToAdd.Count + 1);
-                var firstNewEpgId = lastNewEpgId - (ulong)programsToAdd.Count;
-                
-                firstNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
-                // set the new programs with new IDs from sequence document in couchbase
-                foreach (var program in programsToAdd)
-                {
-                    program.EpgID = firstNewEpgId++;
-                }
+                listOfIds.Add(epgId);
             }
+
+            return listOfIds;
         }
+
+        public virtual ulong GetNewEpgId()
+        {
+            return GetNewEpgIds(1).First();
+        }
+
+        public virtual List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

@@ -10,6 +10,7 @@ namespace TVinciShared
     {
         public static readonly Type DateTimeType = typeof(DateTime);
         public static readonly Type NullableDateTimeType = typeof(DateTime?);
+        public const string MAIN_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
         static public string GetDateForSchedule(DateTime theDate)
         {
@@ -372,9 +373,8 @@ namespace TVinciShared
         /// <returns></returns>
         public static long StringToUtcUnixTimestampSeconds(string date)
         {
-            string dateFormat = "dd/MM/yyyy HH:mm:ss";
             DateTime formattedDate;
-            if (DateTime.TryParseExact(date, dateFormat, null, DateTimeStyles.None, out formattedDate))
+            if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out formattedDate))
             {
                 return DateTimeToUtcUnixTimestampSeconds(formattedDate);
             }
