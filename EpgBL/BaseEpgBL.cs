@@ -140,13 +140,13 @@ namespace EpgBL
             return langContainers.ToArray();
         }
 
-        public virtual IList<ulong> GetNewEpgIds(ulong countOfIds)
+        public virtual IList<ulong> GetNewEpgIds(int countOfIds)
         {
             if (countOfIds <= 0) { throw new ArgumentException("Count should be greater than zero", nameof(countOfIds)); }
 
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.EPG);
-            var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, countOfIds);
-            var firstNewEpgId = (lastNewEpgId - countOfIds) + 1;
+            var lastNewEpgId = couchbaseManager.Increment(EPG_SEQUENCE_DOCUMENT, (ulong)countOfIds);
+            var firstNewEpgId = (lastNewEpgId - (ulong)countOfIds) + 1;
 
             firstNewEpgId += (ulong)ApplicationConfiguration.EpgInitialId.LongValue;
             var listOfIds = new List<ulong>();
