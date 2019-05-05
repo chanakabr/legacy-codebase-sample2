@@ -61,6 +61,20 @@ namespace Core.Api.Managers
                     bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
                     Group group = null;
                     CatalogGroupCache catalogGroupCache = null;
+
+                    if (doesGroupUsesTemplates)
+                    {
+                        if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        {
+                            log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
+                            return result.Count;
+                        }
+                    }
+                    else
+                    {
+                        group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    }
+
                     bool isGeoAvailabilityWindowingEnabled = doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled;
 
                     if (isGeoAvailabilityWindowingEnabled)
@@ -101,7 +115,12 @@ namespace Core.Api.Managers
                         {
                             log.DebugFormat("going to update index for {0} assets", result.Count);
 
-                            RebuildIndexForMedias(groupId, doesGroupUsesTemplates, result);
+                            int bulkSize = 10000;
+                            for (int i = 0; i < result.Count; i = i + bulkSize)
+                            {
+                                var pageMediaIds = result.Skip(i).Take(bulkSize).ToList();
+                                RebuildIndexForMedias(groupId, doesGroupUsesTemplates, pageMediaIds);
+                            }
 
                             List<long> ranRules = allRules.Values.SelectMany(ar => ar).Select(ar => ar.Id).ToList();
                             if (!ApiDAL.UpdateAssetRulesLastRunDate(groupId, ranRules))
@@ -244,7 +263,7 @@ namespace Core.Api.Managers
         {
             List<int> result = new List<int>();
 
-            if (rule.InProgress)
+            if (rule.Status == RuleStatus.InProgress)
             {
                 log.DebugFormat("Rule In Progress, ruleId = {0} ", rule.Id);
                 return result;
@@ -664,6 +683,11 @@ namespace Core.Api.Managers
                 {
                     response.Set((int)eResponseStatus.AssetRuleNotExists, ASSET_RULE_NOT_EXIST);
                     return response;
+                }
+
+                if (assetRule.Status == RuleStatus.InProgress)
+                {
+                    response.Set((int)eResponseStatus.AssetRuleStatusNotWritable, "Cannot update or delete asset rule when in progress");
                 }
 
                 if (assetRule.HasCountryConditions())
@@ -1241,14 +1265,20 @@ namespace Core.Api.Managers
 
                     string ksql = string.Format("(and {0} media_id: '{1}')", newKsql, string.Join(",", pageMediaIds));
 
-                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql); 
+                    var unifiedSearchResponse = GetMediaUnifiedSearchResponse(groupId, ksql);
                     if (unifiedSearchResponse != null)
                     {
-                        bool isSearchSuccessfull = unifiedSearchResponse.status.Code == (int)eResponseStatus.OK;
-                        if (isSearchSuccessfull && unifiedSearchResponse.searchResults != null && unifiedSearchResponse.searchResults.Count > 0)
+                        if (unifiedSearchResponse.status.Code == (int)eResponseStatus.OK)
                         {
-                            var assetIds = unifiedSearchResponse.searchResults.Select(asset => long.Parse(asset.AssetId)).ToList();
-                            mediaIdsToRemove.AddRange(mediaIds.Where(x => !assetIds.Contains(x)).ToList());
+                            if (unifiedSearchResponse.searchResults != null && unifiedSearchResponse.searchResults.Count > 0)
+                            {
+                                var assetIds = unifiedSearchResponse.searchResults.Select(asset => long.Parse(asset.AssetId)).ToList();
+                                mediaIdsToRemove.AddRange(mediaIds.Where(x => !assetIds.Contains(x)).ToList());
+                            }
+                            else
+                            {
+                                mediaIdsToRemove.AddRange(mediaIds);
+                            }
                         }
                     }
                 }
@@ -1267,7 +1297,7 @@ namespace Core.Api.Managers
                 IndexManager.UpsertMedia(groupId, mediaId);
             }
 
-            assetRule.InProgress = false;
+            assetRule.Status = RuleStatus.Ready;
             if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
             {
                 log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
@@ -1328,7 +1358,7 @@ namespace Core.Api.Managers
                     updateKsql = true;
                 }
 
-                assetRule.InProgress = true;
+                assetRule.Status = RuleStatus.InProgress;
                 if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
                 {
                     log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);

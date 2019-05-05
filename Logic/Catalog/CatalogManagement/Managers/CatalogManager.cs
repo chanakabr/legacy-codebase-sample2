@@ -655,14 +655,14 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
-                                                                        long assetStructId, long userId)
+                                                                        long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities)
         {
             bool res = true;
             try
             {
                 DataSet ds;
                 // update and get all assets
-                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds, shouldDeleteTag, shouldDeleteAssets, metaTopicIds, assetStructId, userId);
+                ds = CatalogDAL.UpdateTopicAssets(groupId, tagTopicIds, shouldDeleteTag, shouldDeleteAssets, metaTopicIds, assetStructId, userId, relatedEntitiesTopicIds, shouldDeleteRelatedEntities);
 
                 // preparing media list and epg
                 List<int> mediaIds = null;
@@ -1676,6 +1676,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         List<long> tagTopicIds = new List<long>();
                         List<long> metaTopicIds = new List<long>();
+                        List<long> relatedEntitiesTopicIds = new List<long>();
 
                         foreach (long topicId in removedTopicIds)
                         {
@@ -1686,6 +1687,10 @@ namespace Core.Catalog.CatalogManagement
                                 {
                                     tagTopicIds.Add(topicId);
                                 }
+                                else if (topicToRemoveFromAssetStruct.Type == MetaType.ReleatedEntity)
+                                {
+                                    relatedEntitiesTopicIds.Add(topicId);
+                                }
                                 else
                                 {
                                     metaTopicIds.Add(topicId);
@@ -1693,10 +1698,10 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, false, metaTopicIds, id, userId))
+                        if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, false, metaTopicIds, id, userId, relatedEntitiesTopicIds, false))
                         {
-                            log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
-                                            groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
+                            log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}, relatedEntitiesTopicIds: {4}",
+                                            groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds), string.Join(",", relatedEntitiesTopicIds));
                         }
                     }
 
@@ -1757,6 +1762,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     List<long> tagTopicIds = new List<long>();
                     List<long> metaTopicIds = new List<long>();
+                    List<long> relatedEntitiesTopicIds = new List<long>();
                     foreach (long topicId in assetStruct.MetaIds)
                     {
                         if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
@@ -1766,6 +1772,10 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 tagTopicIds.Add(topicId);
                             }
+                            else if (topicToRemoveFromAssetStruct.Type == MetaType.ReleatedEntity)
+                            {
+                                relatedEntitiesTopicIds.Add(topicId);
+                            }
                             else
                             {
                                 metaTopicIds.Add(topicId);
@@ -1773,10 +1783,10 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, true, metaTopicIds, id, userId))
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, false, true, metaTopicIds, id, userId, relatedEntitiesTopicIds, false))
                     {
-                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}",
-                                        groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds));
+                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0}, assetStructId: {1}, tagTopicIds: {2}, metaTopicIds: {3}, relatedEntitiesTopicIds: {4}",
+                                        groupId, id, string.Join(",", tagTopicIds), string.Join(",", metaTopicIds), string.Join(",", relatedEntitiesTopicIds));
                     }
 
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -2093,10 +2103,12 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteTopic(groupId, id, userId))
                 {
-                    bool isTag = topic.Type == MetaType.Tag;
                     List<long> tagTopicIds = new List<long>();
                     List<long> metaTopicIds = new List<long>();
-                    if (isTag)
+                    List<long> relatedEntitiesTopicIds = new List<long>();
+
+
+                    if (topic.Type == MetaType.Tag)
                     {
                         ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
                         Status deleteTopicFromEsResult = wrapper.DeleteTagsByTopic(groupId, catalogGroupCache, id);
@@ -2107,15 +2119,19 @@ namespace Core.Catalog.CatalogManagement
 
                         tagTopicIds.Add(id);
                     }
+                    else if(topic.Type == MetaType.ReleatedEntity)
+                    {
+                        relatedEntitiesTopicIds.Add(id);
+                    }
                     else
                     {
                         metaTopicIds.Add(id);
                     }
 
                     // shouldDelete = isTag on purpose, since we are in DeleteTopic, if its a tag then delete it, on UpdateAssetStruct we don't delete the tag itself
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, isTag, false, metaTopicIds, 0, userId))
+                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, topic.Type == MetaType.Tag, false, metaTopicIds, 0, userId, relatedEntitiesTopicIds, topic.Type == MetaType.ReleatedEntity))
                     {
-                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicId: {1}, isTag: {2}", groupId, id, isTag);
+                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicType: {1}, isTag: {2}", groupId, id, topic.Type.ToString());
                     }
 
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

@@ -34,6 +34,7 @@
     <Compile Include="GroupManagers\GroupLanguageManager.cs" />
     <Compile Include="FileHandler.cs" />
     <Compile Include="Profiles\IngestProfileManager.cs" />
+    <Compile Include="XmlTvParsingHelper.cs" />
   </ItemGroup>
 
 

@@ -279,7 +279,7 @@ namespace ApiObjects.Response
         NoValuesToUpdate = 4084,
         AssetStructMetasConatinSystemNameDuplication = 4085,
         InvalidBulkUploadStructure = 4086,
-
+        RelatedEntitiesExceedLimitation = 4087,
         #endregion
 
         #region Api 5000 - 5999
@@ -334,6 +334,7 @@ namespace ApiObjects.Response
         IngestProfileNotExists = 5048,
         NoIngestProfileToInsert = 5049,
         IngestProfileIdRequired = 5060,
+        AssetRuleStatusNotWritable = 5061,
 
         #endregion
 

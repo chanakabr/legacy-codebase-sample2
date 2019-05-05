@@ -135,6 +135,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
         public static NumericConfigurationValue MediaMarksListLength;
         public static NumericConfigurationValue MediaMarksTTL;
+        public static NumericConfigurationValue EpgInitialId;
 
         #endregion
 
@@ -213,7 +214,7 @@ namespace ConfigurationManager
             ShouldDistributeRecordingSynchronously = new BooleanConfigurationValue("ShouldDistributeRecordingSynchronously")
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = false
+                DefaultValue = true
             };
             ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration("professional_services_tasks")
             {
@@ -594,6 +595,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 90
             };
+            EpgInitialId = new NumericConfigurationValue("epg_initial_id")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 100000000
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -703,7 +709,8 @@ namespace ConfigurationManager
                     AllowUnknownCountry,
                     ShouldSubscriptionOverlapConsiderDLM,
                     MediaMarksListLength,
-                    MediaMarksTTL
+                    MediaMarksTTL,
+                    EpgInitialId
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

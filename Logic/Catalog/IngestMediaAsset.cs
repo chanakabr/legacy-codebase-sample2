@@ -428,6 +428,9 @@ namespace Core.Catalog
         [XmlAttribute("cdn_name")]
         public string CdnName { get; set; }
 
+        [XmlAttribute("alt_cdn_name")]
+        public string AltCdnName { get; set; }
+
         [XmlAttribute("cdn_code")]
         public string CdnCode { get; set; }
 
@@ -442,8 +445,8 @@ namespace Core.Catalog
 
         [XmlAttribute("billing_type")]
         public string BillingType { get; set; }
-
-        [XmlAttribute("PPV_MODULE")]
+        
+        [XmlAttribute("ppv_module")]
         public string PpvModule { get; set; }
 
         [XmlAttribute("product_code")]

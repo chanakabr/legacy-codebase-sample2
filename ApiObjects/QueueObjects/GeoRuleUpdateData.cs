@@ -33,7 +33,6 @@ namespace ApiObjects.QueueObjects
             this.args = new List<object>()
             {
                 groupId,
-                id,
                 assetRuleId,
                 countriesToRemove,
                 removeBlocked,

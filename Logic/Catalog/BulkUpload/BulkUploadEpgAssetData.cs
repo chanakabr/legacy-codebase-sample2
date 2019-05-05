@@ -29,7 +29,7 @@ namespace Core.Catalog
 
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
         {
-            var programResults = objects.Select(p => (EpgCB)p.Object);
+            var programResults = objects.Cast<BulkUploadProgramAssetResult>().Select(r => r.Object as EpgProgramBulkUploadObject);
             var programsByDate = programResults.GroupBy(p => p.StartDate.Date);
             var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
 

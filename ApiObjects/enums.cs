@@ -801,7 +801,8 @@ namespace ApiObjects
         Bool = 3,
         Tag = 4,
         DateTime = 5,
-        MultilingualString = 6
+        MultilingualString = 6,
+        ReleatedEntity = 7
     }
 
     public enum MetaFieldName
@@ -1126,5 +1127,11 @@ namespace ApiObjects
     {
         Pics = 0,
         EpgPics = 1
+    }
+
+    public enum RuleStatus
+    {
+        Ready = 0,
+        InProgress = 1
     }
 }

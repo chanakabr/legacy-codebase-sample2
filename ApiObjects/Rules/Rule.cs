@@ -22,7 +22,7 @@ namespace ApiObjects.Rules
         [JsonProperty("GroupId")]
         public int GroupId { get; set; }
 
-        [JsonProperty("InProgress")]
-        public bool InProgress { get; set; }
+        [JsonProperty("Status")]
+        public RuleStatus Status { get; set; }
     }
 }
