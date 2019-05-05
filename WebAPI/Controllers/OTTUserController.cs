@@ -94,7 +94,14 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid), User = response };
+            Dictionary<string, string> priviliges = null;
+            var tmp = HttpContext.Current.Items[KLogMonitor.Constants.PRIVILIGES];
+            if (tmp != null)
+            {
+                priviliges = (Dictionary<string, string>)tmp;
+            }
+
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid, priviliges), User = response };
         }
 
         /// <summary>
