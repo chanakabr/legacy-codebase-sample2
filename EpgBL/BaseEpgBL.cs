@@ -140,7 +140,7 @@ namespace EpgBL
             return langContainers.ToArray();
         }
 
-        public void SetEpgIds(IList<EpgCB> programsToAdd)
+        public virtual void SetEpgIds(IList<EpgCB> programsToAdd)
         {
             if (programsToAdd != null && programsToAdd.Count > 0)
             {
