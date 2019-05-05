@@ -4787,7 +4787,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaAssets(int groupId, List<long> ids, long defaultLanguageId, bool getAlsoInactive)
         {
-            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds_Z");
+            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter<long>("@Ids", ids, "Id");
@@ -4810,7 +4810,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetGroupMediaAssets(int groupId, long defaultLanguageId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets_z");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupMediaAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
@@ -4822,7 +4822,7 @@ namespace Tvinci.Core.DAL
                                                 int? geoBlockRuleId, bool? isActive, DateTime startDate, DateTime endDate, DateTime catalogStartDate, DateTime? finalEndDate, long assetStructId,
                                                 long userId, int InheritancePolicy, System.Xml.XmlDocument relatedEntities)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset_z");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DefaultLanguageId", defaultLanguageId);
@@ -4852,7 +4852,7 @@ namespace Tvinci.Core.DAL
                                                 DateTime? endDate, DateTime? catalogStartDate, DateTime? finalEndDate, long userId, int inheritancePolicy,
                                                 System.Xml.XmlDocument relatedEntitiesToAdd, System.Xml.XmlDocument relatedEntitiesToUpdate)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset_z");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMediaAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@ID", id);
@@ -4898,7 +4898,7 @@ namespace Tvinci.Core.DAL
 
         public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId, List<long> releatedEntityIds)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset_z");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
