@@ -157,6 +157,11 @@ namespace ElasticSearch.Searcher
             return sResult;
         }
 
+        public void AddReturnField(string key)
+        {
+            ReturnFields.Add($"\"{key}\"");
+        }
+
         private string GetSort(List<ESOrderObj> lOrderObj, bool bOrderByScore)
         {
             string sRes = string.Empty;
@@ -213,5 +218,6 @@ namespace ElasticSearch.Searcher
 
             return sRes;
         }
+
     }
 }

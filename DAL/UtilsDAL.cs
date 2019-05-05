@@ -396,7 +396,7 @@ namespace DAL
         {
             return string.Format("purchase_coupon_remainder_{0}", purchaseId);
         }
-
+       
         #endregion
 
         private static void HandleException(Exception ex)
