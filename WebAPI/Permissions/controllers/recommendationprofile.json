@@ -2,7 +2,8 @@
   "permission_items": [
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "EXT_COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_List",
@@ -22,7 +23,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "EXT_COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_Add",
@@ -32,7 +34,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "EXT_COLLECTIONS_MNG"
       ],
       "excluded_permissions": [],
       "name": "RecommendationProfile_Update",

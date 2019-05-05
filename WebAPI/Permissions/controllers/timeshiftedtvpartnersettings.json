@@ -18,7 +18,8 @@
     {
       "permissions": [
         "Manager",
-        "ASSETS_MNG"
+        "ASSETS_MNG",
+        "BSC_ASSETS_MNG"
       ],
       "excluded_permissions": [],
       "name": "TimeShiftedTvPartnerSettings_Update",
