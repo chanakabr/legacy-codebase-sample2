@@ -4898,7 +4898,7 @@ namespace Tvinci.Core.DAL
 
         public static bool RemoveMetasAndTagsFromAsset(int groupId, long id, int dbAssetType, List<long> metaIds, List<long> tagIds, long userId, List<long> releatedEntityIds)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveMetasAndTagsFromAsset_z");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Id", id);
