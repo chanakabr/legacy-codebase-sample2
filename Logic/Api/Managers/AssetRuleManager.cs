@@ -1203,13 +1203,20 @@ namespace Core.Api.Managers
             if (countriesToRemove != null && countriesToRemove.Count > 0)
             {
                 //remove from table
-                mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, countriesToRemove);
-                if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                while (true)
                 {
-                    foreach (DataRow dr in mediaTable.Rows)
+                    mediaTable = ApiDAL.UpdateMediaCountriesByCountryIds(groupId, assetRule.Id, countriesToRemove);
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
                     {
-                        long mediaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID");
-                        updatedMediaIds.Add(mediaId);
+                        foreach (DataRow dr in mediaTable.Rows)
+                        {
+                            long mediaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
+                        }
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
@@ -1218,32 +1225,46 @@ namespace Core.Api.Managers
             if (removeBlocked)
             {
                 //remove block from table
-                mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, null, null, 0);
-                if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                while (true)
                 {
-                    foreach (DataRow dr in mediaTable.Rows)
+                    mediaTable = ApiDAL.UpdateMediaCountriesByIsAllowed(groupId, assetRule.Id, 0);
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
                     {
-                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
-                        updatedMediaIds.Add(mediaId);
+                        foreach (DataRow dr in mediaTable.Rows)
+                        {
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
+                        }
                     }
-                    //updatedMediaIds = updatedMediaIds.Distinct().ToList();
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
-            //3. StartDate
-            if (removeAllowed)
-            {
-                //remove allowd from table
-                mediaTable = ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, null, null, 1);
-                if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+
+                //3. StartDate
+                if (removeAllowed)
                 {
-                    foreach (DataRow dr in mediaTable.Rows)
+                    //remove allowd from table
+                    mediaTable = ApiDAL.UpdateMediaCountriesByIsAllowed(groupId, assetRule.Id, 1);
+                    while (true)
                     {
-                        int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
-                        updatedMediaIds.Add(mediaId);
+                        if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                        {
+                            foreach (DataRow dr in mediaTable.Rows)
+                            {
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                                updatedMediaIds.Add(mediaId);
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                }
-                updatedMediaIds = updatedMediaIds.Distinct().ToList();
+
             }
 
             //4. Ksql
@@ -1287,10 +1308,12 @@ namespace Core.Api.Managers
                 if (mediaIdsToRemove.Count > 0)
                 {
                     //TODO irena- paging for update UpdateMediaCountries
-                    ApiDAL.UpdateMediaCountries(groupId, assetRule.Id, null, mediaIdsToRemove);
+                    while (ApiDAL.UpdateMediaCountriesByMediaIds(groupId, assetRule.Id, mediaIdsToRemove) > 0) ;
                     updatedMediaIds.AddRange(mediaIdsToRemove);
                 }
             }
+
+            updatedMediaIds = updatedMediaIds.Distinct().ToList();
 
             foreach (var mediaId in updatedMediaIds)
             {
