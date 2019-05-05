@@ -167,5 +167,10 @@ namespace EpgBL
             return result;
         }
 
+        public virtual List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
