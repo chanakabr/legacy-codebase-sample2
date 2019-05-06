@@ -16,6 +16,7 @@ using System.Web;
 using Core.Catalog;
 using ConfigurationManager;
 using TVinciShared;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Notification
 {
@@ -274,35 +275,95 @@ namespace Core.Notification
         {
             seriesIdName = seasonNumberName = episodeNumberName = null;
 
-            var metaTagsMappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
-            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+            try
             {
-                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return GetSeriesMetaTagsFieldsNamesAndTypesForOpcAccount(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName);
+                }
+
+                var metaTagsMappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
+                if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+                {
+                    log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                    return false;
+                }
+
+                var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
+                if (feild == null)
+                {
+                    log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                    return false;
+                }
+
+                seriesIdName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
+
+                feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
+                if (feild != null)
+                {
+                    seasonNumberName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
+                }
+
+                feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "episode_number").FirstOrDefault();
+                if (feild != null)
+                {
+                    episodeNumberName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetSeriesMetaTagsFieldsNamesAndTypes for groupId = {0}", groupId), ex);
                 return false;
             }
+        }
 
-            var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
-            if (feild == null)
+        internal static bool GetSeriesMetaTagsFieldsNamesAndTypesForOpcAccount(int groupId, out Tuple<string, FieldTypes> seriesIdName,
+            out Tuple<string, FieldTypes> seasonNumberName, out Tuple<string, FieldTypes> episodeNumberName)
+        {
+            seriesIdName = seasonNumberName = episodeNumberName = null;
+
+            try
             {
-                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetSeriesMetaTagsFieldsNamesAndTypesForOpcAccount", groupId);
+                    return false;
+                }
+
+                if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(Core.ConditionalAccess.Utils.SERIES_ID))
+                {
+                    log.ErrorFormat("topic for seriesId wasn't found. group_id = {0}", groupId);
+                    return false;
+                }
+
+                bool isTag = catalogGroupCache.TopicsMapBySystemNameAndByType[Core.ConditionalAccess.Utils.SERIES_ID].ContainsKey(MetaType.Tag.ToString());
+                string systemName = catalogGroupCache.TopicsMapBySystemNameAndByType[Core.ConditionalAccess.Utils.SERIES_ID].First().Value.SystemName;
+                seriesIdName = new Tuple<string, FieldTypes>(systemName, isTag ? FieldTypes.Tag : FieldTypes.Meta);
+
+                if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER))
+                {
+                    isTag = catalogGroupCache.TopicsMapBySystemNameAndByType[Core.ConditionalAccess.Utils.SERIES_ID].ContainsKey(MetaType.Tag.ToString());
+                    systemName = catalogGroupCache.TopicsMapBySystemNameAndByType[Core.ConditionalAccess.Utils.SERIES_ID].First().Value.SystemName;
+                    seasonNumberName = new Tuple<string, FieldTypes>(systemName, isTag ? FieldTypes.Tag : FieldTypes.Meta);
+                }
+
+                if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(Core.ConditionalAccess.Utils.EPISODE_NUMBER))
+                {
+                    isTag = catalogGroupCache.TopicsMapBySystemNameAndByType[Core.ConditionalAccess.Utils.SERIES_ID].ContainsKey(MetaType.Tag.ToString());
+                    systemName = catalogGroupCache.TopicsMapBySystemNameAndByType[Core.ConditionalAccess.Utils.SERIES_ID].First().Value.SystemName;
+                    seasonNumberName = new Tuple<string, FieldTypes>(systemName, isTag ? FieldTypes.Tag : FieldTypes.Meta);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetSeriesMetaTagsFieldsNamesAndTypesForOpcAccount for groupId = {0}", groupId), ex);
                 return false;
             }
-
-            seriesIdName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
-
-            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
-            if (feild != null)
-            {
-                seasonNumberName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
-            }
-
-            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "episode_number").FirstOrDefault();
-            if (feild != null)
-            {
-                episodeNumberName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
-            }
-
-            return true;
         }
 
         internal static List<DbReminder> GetReminders(int groupId, List<long> reminderIds)

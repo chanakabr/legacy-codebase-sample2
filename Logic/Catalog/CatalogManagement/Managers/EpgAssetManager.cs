@@ -77,6 +77,11 @@ namespace Core.Catalog.CatalogManagement
             { CRID_META_SYSTEM_NAME, MetaType.String.ToString() }
         };
 
+        public static readonly HashSet<string> RecordingFieldsSystemName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            SERIES_ID_META_SYSTEM_NAME, SEASON_NUMBER_META_SYSTEM_NAME, EPISODE_NUMBER_META_SYSTEM_NAME
+        };
+
         #endregion
 
         #region Internal Methods

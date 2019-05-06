@@ -17,6 +17,7 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Pricing;
@@ -51,7 +52,7 @@ namespace Core.ConditionalAccess
 
         public const string SERIES_ID = "seriesId";
         public const string SEASON_NUMBER = "seasonNumber";
-        private const string EPISODE_NUMBER = "episodeNumber";
+        internal const string EPISODE_NUMBER = "episodeNumber";
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
@@ -692,7 +693,7 @@ namespace Core.ConditionalAccess
                     {
                         nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalIntervalMinutes);
                     }
-                    
+
                     Utils.RenewUnifiedTransactionMessageInQueue(groupId, domainId, DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate), nextRenewalDate, processId);
                 }
 
@@ -965,7 +966,7 @@ namespace Core.ConditionalAccess
             public DateTime dtPurchaseDate;
             public DateTime dtEndDate;
             public int nNumOfUses;
-            public int nMaxNumOfUses;            
+            public int nMaxNumOfUses;
 
             public UserBundlePurchase() { }
         }
@@ -1111,7 +1112,7 @@ namespace Core.ConditionalAccess
             if (!string.IsNullOrEmpty(couponCode))
             {
                 CouponDataResponse theCouponData = Pricing.Module.GetCouponStatus(groupID, couponCode, domainId);
-                
+
                 if (couponsGroup != null &&
                     theCouponData != null &&
                     theCouponData.Status != null &&
@@ -1252,7 +1253,7 @@ namespace Core.ConditionalAccess
             return p;
         }
 
-        private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID, 
+        private static Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
                                                           string subCode, out DateTime? dtDiscountEnd, long domainId)
         {
             Price pModule = ObjectCopier.Clone(ppvModule.m_oPriceCode.m_oPrise);
@@ -1270,7 +1271,7 @@ namespace Core.ConditionalAccess
             UnifiedBillingCycle unifiedBillingCycle = null;
             double couponRemainder = 0;
 
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, 
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip,
                                              ref unifiedBillingCycle, out couponRemainder);
         }
 
@@ -1279,13 +1280,13 @@ namespace Core.ConditionalAccess
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
             double couponRemainder = 0;
-            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, ref unifiedBillingCycle, 
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, ref couponCode, ref theReason, ref subscription, countryCode, languageCode, udid, ip, ref unifiedBillingCycle,
                                             out couponRemainder, currencyCode, isSubscriptionSetModifySubscription);
         }
-        
+
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, ref string couponCode, ref PriceReason theReason, ref Subscription subscription,
-                                                        string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle, 
-                                                        out double couponRemainder, string currencyCode = null, bool isSubscriptionSetModifySubscription = false, 
+                                                        string countryCode, string languageCode, string udid, string ip, ref UnifiedBillingCycle unifiedBillingCycle,
+                                                        out double couponRemainder, string currencyCode = null, bool isSubscriptionSetModifySubscription = false,
                                                         BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE)
         {
             //create web service pricing insatance
@@ -1313,17 +1314,17 @@ namespace Core.ConditionalAccess
                     theReason = PriceReason.GeoCommerceBlocked;
                     return null;
                 }
-                
+
                 DiscountModule externalDiscount;
                 PriceCode priceCode = subscription.m_oSubscriptionPriceCode;
-                finalPrice = HandlePriceCodeAndExternalDiscount(blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ref theReason, groupId, ref currencyCode, ip, userId, 
+                finalPrice = HandlePriceCodeAndExternalDiscount(blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ref theReason, groupId, ref currencyCode, ip, userId,
                                                            ref countryCode, subscription.m_oExtDisountModule, out externalDiscount, ref priceCode);
                 subscription.m_oSubscriptionPriceCode = priceCode;
                 if (theReason != PriceReason.ForPurchase)
                 {
                     return finalPrice;
                 }
-                
+
                 bool blockDoublePurchase = false;
                 DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
                 int domainId = 0;
@@ -1356,7 +1357,7 @@ namespace Core.ConditionalAccess
 
                 if (theReason != PriceReason.SubscriptionPurchased || !blockDoublePurchase)
                 {
-                    if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && 
+                    if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null &&
                         IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref finalPrice, ref theReason, domainId))
                     {
                         long? groupUnifiedBillingCycle = GetGroupUnifiedBillingCycle(groupId);
@@ -1382,12 +1383,12 @@ namespace Core.ConditionalAccess
                     }
 
                     var originalPrice = CopyPrice(finalPrice);
-                    finalPrice = GetLowestPrice(groupId, finalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode), 
+                    finalPrice = GetLowestPrice(groupId, finalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode),
                                                 countryCode, ref couponCode, subscription.m_oCouponsGroup, subscription.CouponsGroups, null);
 
                     if (finalPrice != null && originalPrice != null)
                     {
-                        var finalPriceAndCouponRemainder = 
+                        var finalPriceAndCouponRemainder =
                             CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, finalPrice.m_dPrice, ref unifiedBillingCycle,
                                                                              groupId, subscription, false, domainId);
                         finalPrice.m_dPrice = finalPriceAndCouponRemainder.Item1;
@@ -1403,7 +1404,7 @@ namespace Core.ConditionalAccess
 
             return finalPrice;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1416,10 +1417,10 @@ namespace Core.ConditionalAccess
         /// <param name="isFirstTimePreviewModuleEnd"></param>
         /// <param name="domainId"></param>
         /// <returns>item1 = priceAfterUnified, item2 = couponRemainder</returns>
-        internal static Tuple<double, double> CalcPriceAndCouponRemainderByUnifiedBillingCycle(double originalPrice, string couponCode, double finalPrice, 
+        internal static Tuple<double, double> CalcPriceAndCouponRemainderByUnifiedBillingCycle(double originalPrice, string couponCode, double finalPrice,
             ref UnifiedBillingCycle unifiedBillingCycle, int groupId, Subscription subscription, bool isFirstTimePreviewModuleEnd, int domainId)
         {
-            log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - {0}, original Price:{1}, price after discount and coupon:{2}.", 
+            log.DebugFormat("CalcPriceAndCouponRemainderByUnifiedBillingCycle - {0}, original Price:{1}, price after discount and coupon:{2}.",
                             subscription != null ? subscription.ToString() : "Subscription:null", originalPrice, finalPrice);
 
             double couponRemainder = 0;
@@ -1490,7 +1491,7 @@ namespace Core.ConditionalAccess
         }
 
 
-        private static Price HandlePriceCodeAndExternalDiscount(bool isBlockEntitlementType, ref PriceReason theReason, int groupId, ref string currencyCode, string ip, string userId, 
+        private static Price HandlePriceCodeAndExternalDiscount(bool isBlockEntitlementType, ref PriceReason theReason, int groupId, ref string currencyCode, string ip, string userId,
                                                                 ref string countryCode, DiscountModule externalDiscountModule, out DiscountModule externalDiscount, ref PriceCode priceCode)
         {
             Price price = null;
@@ -1527,7 +1528,7 @@ namespace Core.ConditionalAccess
 
                     if (externalDiscount != null)
                     {
-                        DiscountModule externalDisountWithCurrency = 
+                        DiscountModule externalDisountWithCurrency =
                             Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, externalDiscount.m_nObjectID, countryCode, currencyCode);
                         externalDiscount = externalDisountWithCurrency != null ? ObjectCopier.Clone(externalDisountWithCurrency) : externalDiscount;
                     }
@@ -1589,7 +1590,7 @@ namespace Core.ConditionalAccess
             }
 
             log.DebugFormat("Utils.GetLowestPrice - segmentIds: {0}", string.Join(", ", segmentIds));
-            
+
             // calc lowest price
             ConditionScope filter = new ConditionScope()
             {
@@ -1601,7 +1602,7 @@ namespace Core.ConditionalAccess
                 GroupId = groupId,
                 MediaId = mediaId
             };
-            
+
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
             if (businessModuleRules != null && businessModuleRules.HasObjects())
             {
@@ -1644,14 +1645,14 @@ namespace Core.ConditionalAccess
                     lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
                 }
             }
-            
+
             return lowestPrice;
         }
 
         internal static List<RenewSubscriptionDetails> BuildSubscriptionPurchaseDetails(DataTable subscriptionPurchaseDt, int groupId, BaseConditionalAccess cas)
         {
             try
-            {    
+            {
                 DateTime minStartDate = DateTime.UtcNow;
                 List<RenewSubscriptionDetails> renewSubscriptionDetails = new List<RenewSubscriptionDetails>();
                 int numOfPayments, paymentNumber;
@@ -1676,7 +1677,7 @@ namespace Core.ConditionalAccess
                     };
 
                     rsd.CountryCode = Utils.GetCountryCodeByCountryName(groupId, rsd.CountryName);
-                    
+
                     // get compensation data
                     rsd.Compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(rsd.PurchaseId);
 
@@ -1714,8 +1715,8 @@ namespace Core.ConditionalAccess
             return null;
         }
 
-        internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions, 
-                                                             BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle, int householdId, int groupId, 
+        internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions,
+                                                             BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle, int householdId, int groupId,
                                                              bool isRenew = true)
         {
             try
@@ -1732,7 +1733,7 @@ namespace Core.ConditionalAccess
                     previousPurchaseCurrencyCode = rsDetail.Currency;
 
                     subscription = subscriptions.FirstOrDefault(x => x.m_SubscriptionCode == rsDetail.ProductId);
-                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, 
+                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle,
                                                              previousPurchaseCurrencyCode, groupId, householdId, true, isRenew))
                     {
                         // "Error while trying to get Price plan
@@ -1753,7 +1754,7 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("GetMultiSubscriptionUsageModule failed ex = {0}", ex);
             }
         }
-        
+
         internal static UnifiedBillingCycle TryGetHouseholdUnifiedBillingCycle(int domainId, long renewLifeCycle)
         {
             UnifiedBillingCycle unifiedBillingCycle = null;
@@ -1875,7 +1876,7 @@ namespace Core.ConditionalAccess
                 theReason = PriceReason.UnKnown;
                 return null;
             }
-            
+
             // get user status and validity if needed
             int domainID = 0;
             DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.Suspended;
@@ -1890,7 +1891,7 @@ namespace Core.ConditionalAccess
             {
                 return price;
             }
-            
+
             List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, groupId, ref domainID);
             DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode, domainID);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -1908,11 +1909,11 @@ namespace Core.ConditionalAccess
 
             price = GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
                                    ref couponCode, collection.m_oCouponsGroup, collection.CouponsGroups, lUsersIds.ConvertAll(x => x.ToString()));
-            
+
             return price;
         }
-        
-        internal static Price GetPrePaidFinalPrice(Int32 groupId, string prePaidCode, ref PriceReason theReason, ref PrePaidModule thePrePaid, string countryCode, 
+
+        internal static Price GetPrePaidFinalPrice(Int32 groupId, string prePaidCode, ref PriceReason theReason, ref PrePaidModule thePrePaid, string countryCode,
                                                    string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode = "")
         {
             Price p = null;
@@ -1928,7 +1929,7 @@ namespace Core.ConditionalAccess
                     theReason = PriceReason.UnKnown;
                     return null;
                 }
-            } 
+            }
 
             if (thePrePaid.m_PriceCode != null)
             {
@@ -2046,7 +2047,7 @@ namespace Core.ConditionalAccess
 
         static public bool isMonthlyLifeCycle(long lifeCycle)
         {
-            return (lifeCycle == 1111111 || lifeCycle == 2222222 || lifeCycle == 3333333 || lifeCycle == 4444444 || lifeCycle == 5555555 || lifeCycle == 6666666 || lifeCycle == 9999999);       
+            return (lifeCycle == 1111111 || lifeCycle == 2222222 || lifeCycle == 3333333 || lifeCycle == 4444444 || lifeCycle == 5555555 || lifeCycle == 6666666 || lifeCycle == 9999999);
         }
 
         public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
@@ -2299,7 +2300,7 @@ namespace Core.ConditionalAccess
                 theReason = PriceReason.UserSuspended;
                 return null;
             }
-            
+
             if (userSuspendStatus == DomainSuspentionStatus.Suspended)
             {
                 userSuspendStatus = DomainSuspentionStatus.OK;
@@ -2347,7 +2348,7 @@ namespace Core.ConditionalAccess
                     relatedMediaFileIDs.AddRange(lstFileIDs);
                     relatedMediaFileIDs = relatedMediaFileIDs.Distinct().ToList();
                     price = ObjectCopier.Clone((Price)(ppvModule.m_oPriceCode.m_oPrise));
-                    
+
                     string sSubCode = string.Empty;
                     string sPPCode = string.Empty;
                     bool isEntitled = false;
@@ -2380,7 +2381,7 @@ namespace Core.ConditionalAccess
 
                         if (IsPurchasedAsPurePPV(sSubCode, sPPCode))
                         {
-                            if (ppvModule.m_bFirstDeviceLimitation && 
+                            if (ppvModule.m_bFirstDeviceLimitation &&
                                 !IsFirstDeviceEqualToCurrentDevice(nMediaFileID, ppvModule.m_sObjectCode, allUserIDsInDomain, sDEVICE_NAME, ref sFirstDeviceNameFound))
                             {
                                 theReason = PriceReason.FirstDeviceLimitation;
@@ -2573,7 +2574,7 @@ namespace Core.ConditionalAccess
                         theReason = PriceReason.ForPurchase;
                     }
                 }
-            }      
+            }
             else
             {
                 // end if site guid is not null or empty       
@@ -2873,7 +2874,7 @@ namespace Core.ConditionalAccess
             if (sBasicLink.Equals(string.Format("{0}||{1}", mediaID, nMediaFileID)))
             {
                 string sBaseURL = string.Empty;
-                string sStreamID = string.Empty;                
+                string sStreamID = string.Empty;
 
                 ConditionalAccessDAL.Get_BasicLinkData(nMediaFileID, ref sBaseURL, ref sStreamID, ref nStreamingCompanyID, ref fileType, out drmId);
 
@@ -3205,7 +3206,7 @@ namespace Core.ConditionalAccess
         {
             return (startDate.CompareTo(endDate) < 0); // If true, then startDate is earlier than endDate
         }
-        
+
         internal static void ReplaceSubStr(ref string url, Dictionary<string, object> oValuesToReplace)
         {
             if (oValuesToReplace.Count > 0)
@@ -3759,7 +3760,7 @@ namespace Core.ConditionalAccess
             }
             return mediaFilesStatus;
         }
-        
+
         /// <summary>
         /// Validates that a user exists and belongs to a given domain
         /// </summary>
@@ -4859,7 +4860,7 @@ namespace Core.ConditionalAccess
             {
                 log.Error(string.Format("GetTimeShiftedTvPartnerSettings failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            
+
             return new Tuple<TimeShiftedTvPartnerSettings, bool>(tstvAccountSettings, getTstsvSuccess);
         }
 
@@ -5016,7 +5017,7 @@ namespace Core.ConditionalAccess
                         {
                             if (recordingIdToDomainRecording.ContainsKey(searchRecordingID))
                             {
-                                Recording recording = recordingIdToDomainRecording[searchRecordingID].isExternalRecording ? 
+                                Recording recording = recordingIdToDomainRecording[searchRecordingID].isExternalRecording ?
                                                       recordingIdToDomainRecording[searchRecordingID] as ExternalRecording : recordingIdToDomainRecording[searchRecordingID];
                                 recordings.Add(recording);
                             }
@@ -5116,9 +5117,9 @@ namespace Core.ConditionalAccess
         {
             foreach (var recording in dic.Values)
             {
-                if (recording.RecordingStatus == TstvRecordingStatus.OK 
-                    || recording.RecordingStatus == TstvRecordingStatus.Recorded 
-                    || recording.RecordingStatus == TstvRecordingStatus.Recording 
+                if (recording.RecordingStatus == TstvRecordingStatus.OK
+                    || recording.RecordingStatus == TstvRecordingStatus.Recorded
+                    || recording.RecordingStatus == TstvRecordingStatus.Recording
                     || recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                 {
                     recording.RecordingStatus = SetRecordingStatus(recording.EpgStartDate, recording.EpgEndDate);
@@ -5557,7 +5558,7 @@ namespace Core.ConditionalAccess
                     {
                         foreach (KeyValuePair<long, Recording> recToCopy in recordingsToCopy)
                         {
-                            response[recToCopy.Key] = recToCopy.Value.isExternalRecording ? new ExternalRecording(recToCopy.Value as ExternalRecording) : new Recording(recToCopy.Value);                            
+                            response[recToCopy.Key] = recToCopy.Value.isExternalRecording ? new ExternalRecording(recToCopy.Value as ExternalRecording) : new Recording(recToCopy.Value);
                         }
                     }
                 }
@@ -5634,7 +5635,7 @@ namespace Core.ConditionalAccess
                 DomainRecordingStatus.Canceled,
                 DomainRecordingStatus.SeriesCancel,
             };
-            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x=>(int)x).ToList());
+            DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());
             if (dt != null && dt.Rows != null)
             {
                 DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
@@ -5840,26 +5841,26 @@ namespace Core.ConditionalAccess
                 long viewableUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "VIEWABLE_UNTIL_EPOCH", 0);
                 long protectedUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", 0);
                 RecordingInternalStatus recordingInternalStatus =
-                    (RecordingInternalStatus) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
+                    (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
                 DomainRecordingStatus domainRecordingStatus =
-                    (DomainRecordingStatus) ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
+                    (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
                 DateTime epgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
                 DateTime epgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
                 string externalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID");
                 string domainExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_DOMAIN_RECORDING_ID");
                 string crid = ODBCWrapper.Utils.GetSafeStr(dr, "CRID");
-                RecordingType recordingType = (RecordingType) ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
+                RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_TYPE");
                 string metaDataStr = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATA");
                 long externalExpiryDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "EXTERNAL_EXPIRY_DATE", 0);
-                
+
                 Dictionary<string, string> metaData = null;
                 try
                 {
                     metaData = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(metaDataStr);
                 }
                 catch { }
- 
+
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat(
@@ -5963,7 +5964,7 @@ namespace Core.ConditionalAccess
 
                 // if we got until here then recording.Status is OK
                 recording.Status =
-                    new ApiObjects.Response.Status((int) eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return recording;
@@ -6237,6 +6238,12 @@ namespace Core.ConditionalAccess
             Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>();
             try
             {
+                // support for OPC accout
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return GetEpgFieldTypeEntitysForOpcAccount(groupId, epg);
+                }
+
                 List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = GetAliasMappingFields(groupId);
                 if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
@@ -6310,6 +6317,60 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.Error("Failed GetEpgFieldTypeEntitys", ex);
+            }
+
+            return epgFieldMappings;
+        }
+
+        internal static Dictionary<string, string> GetEpgFieldTypeEntitysForOpcAccount(int groupId, EPGChannelProgrammeObject epg)
+        {
+            Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgFieldTypeEntitysForOpcAccount", groupId);
+                    return epgFieldMappings;
+                }
+
+                foreach (string field in EpgAssetManager.RecordingFieldsSystemName)
+                {
+                    if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(field))
+                    {
+                        bool isTag = catalogGroupCache.TopicsMapBySystemNameAndByType[field].ContainsKey(MetaType.Tag.ToString());
+                        if (isTag)
+                        {
+                            if (epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0 && epg.EPG_TAGS.Any(x => x.Key.ToLower() == field.ToLower()))
+                            {
+                                epgFieldMappings.Add(field, epg.EPG_TAGS.First(x => x.Key.ToLower() == field.ToLower()).Value);
+                            }
+                            else
+                            {
+                                log.WarnFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);                                
+                            }
+                        }
+                        else
+                        {
+                            if (epg.EPG_Meta != null && epg.EPG_Meta.Count > 0 && epg.EPG_Meta.Any(x => x.Key.ToLower() == field.ToLower()))
+                            {
+                                epgFieldMappings.Add(field, epg.EPG_Meta.First(x => x.Key.ToLower() == field.ToLower()).Value);
+                            }
+                            else
+                            {
+                                log.WarnFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);                                
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("field {0} was not found as meta or tag for group_id = {1}", field, groupId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed GetEpgFieldTypeEntitysForOpcAccount", ex);
             }
 
             return epgFieldMappings;
@@ -6424,6 +6485,29 @@ namespace Core.ConditionalAccess
         internal static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
         {
             seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
+            // support for OPC accout
+            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetSeriesMetaTagsFieldsNamesForSearch", groupId);
+                    return false;
+                }
+
+                if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(SERIES_ID) 
+                    || !catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(SEASON_NUMBER)
+                    || !catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(EPISODE_NUMBER))
+                {
+                    log.ErrorFormat("topic for seriesId / seasonNumber / episodeNumber weren't found. group_id = {0}", groupId);
+                    return false;
+                }
+
+                seriesIdName = SERIES_ID;
+                seasonNumberName = SEASON_NUMBER;
+                episodeNumberName = EPISODE_NUMBER;
+                return true;
+            }
 
             var metaTagsMappings = GetAliasMappingFields(groupId);
             if (metaTagsMappings == null || metaTagsMappings.Count == 0)
@@ -6461,6 +6545,11 @@ namespace Core.ConditionalAccess
             List<EpgCB> epgMatch = new List<EpgCB>();
             try
             {
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return GetEpgRelatedToSeriesRecordingForOpcAccount(groupId, seriesRecording, epgs, seasonNumber);
+                }
+
                 List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = GetAliasMappingFields(groupId);
                 if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
@@ -6509,6 +6598,64 @@ namespace Core.ConditionalAccess
             {
                 log.ErrorFormat("failed to 'GetEpgRelatedToSeriesRecording groupId = {0}, seriesRecordingID = {1}", groupId, seriesRecording.Id);
             }
+            return epgMatch;
+        }
+
+        internal static List<EpgCB> GetEpgRelatedToSeriesRecordingForOpcAccount(int groupId, SeriesRecording seriesRecording, List<EpgCB> epgs, long seasonNumber = 0)
+        {
+            List<EpgCB> epgMatch = new List<EpgCB>();
+            try
+            {
+                CatalogGroupCache catalogGroupCache;
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgRelatedToSeriesRecordingForOpcAccount", groupId);
+                    return epgMatch;
+                }
+
+                if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(SERIES_ID))
+                {
+                    log.ErrorFormat("topic for seriesId wasn't found. group_id = {0}", groupId);
+                    return epgMatch;
+                }
+
+                bool isTag = catalogGroupCache.TopicsMapBySystemNameAndByType[SERIES_ID].ContainsKey(MetaType.Tag.ToString());
+
+                if (isTag)
+                {
+                    epgMatch = epgs.Where(x => x.Tags.Any(y => y.Key.ToLower() == SERIES_ID.ToLower() && y.Value.Contains(seriesRecording.SeriesId))).ToList();                    
+                }
+                else if (isTag)
+                {
+                    epgMatch = epgs.Where(x => x.Metas.Any(y => y.Key.ToLower() == SERIES_ID.ToLower() && y.Value.Contains(seriesRecording.SeriesId))).ToList();
+                }
+
+                if (seriesRecording.SeasonNumber > 0 || seasonNumber > 0)
+                {
+                    long seasonNumberEqual = seriesRecording.SeasonNumber > 0 ? seriesRecording.SeasonNumber : seasonNumber;
+                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(SEASON_NUMBER))
+                    {
+                        log.ErrorFormat("topic for seasonNumber wasn't found. group_id = {0}", groupId);
+                        return epgMatch;
+                    }
+
+                    isTag = catalogGroupCache.TopicsMapBySystemNameAndByType[SEASON_NUMBER].ContainsKey(MetaType.Tag.ToString());
+
+                    if (isTag)
+                    {
+                        epgMatch = epgMatch.Where(x => x.Tags.Any(y => y.Key.ToLower() == SEASON_NUMBER.ToLower() && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();                        
+                    }
+                    else
+                    {
+                        epgMatch = epgMatch.Where(x => x.Metas.Any(y => y.Key.ToLower() == SEASON_NUMBER.ToLower() && y.Value.Contains(seasonNumberEqual.ToString()))).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetEpgRelatedToSeriesRecordingForOpcAccount groupId = {0}, seriesRecordingID = {1}", groupId, seriesRecording.Id), ex);
+            }
+
             return epgMatch;
         }
 
@@ -8669,8 +8816,13 @@ namespace Core.ConditionalAccess
 
             try
             {
-                if (!LayeredCache.Instance.Get<List<ApiObjects.Epg.FieldTypeEntity>>(LayeredCacheKeys.GetAliasMappingFields(groupId), ref res, GetAliasMappingFields, new Dictionary<string, object>() { { "groupId", groupId } },
-                    groupId, LayeredCacheConfigNames.GET_ALIAS_MAPPING_FIELDS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAliasMappingFieldsInvalidationKey(groupId) }))
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    return new List<ApiObjects.Epg.FieldTypeEntity>();
+                }
+                else if (!LayeredCache.Instance.Get<List<ApiObjects.Epg.FieldTypeEntity>>(LayeredCacheKeys.GetAliasMappingFields(groupId), ref res, GetAliasMappingFields,
+                        new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_ALIAS_MAPPING_FIELDS_CACHE_CONFIG_NAME,
+                        new List<string>() { LayeredCacheKeys.GetAliasMappingFieldsInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting alias mapping fields from LayeredCache, groupId: {0}", groupId);
                 }
