@@ -15,6 +15,12 @@ namespace WebAPI.Managers.Models
         [JsonProperty(PropertyName = "user_secret")]
         public string UserSecret { get; set; }
 
+        [JsonProperty(PropertyName = "user_secret_fallback")]
+        public string UserSecretFallback { get; set; }
+
+        [JsonProperty(PropertyName = "user_secret_fallback_expiry_epoch")]
+        public long UserSecretFallbackExpiryEpoch { get; set; }
+
         [JsonProperty(PropertyName = "admin_secret")]
         public string AdminSecret { get; set; }
 
