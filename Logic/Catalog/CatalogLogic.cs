@@ -8570,7 +8570,8 @@ namespace Core.Catalog
 
             #region Geo Availability
 
-            if (!definitions.isAllowedToViewInactiveAssets && doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled)
+            var isGeoAvailabilityWindowingEnabled = doesGroupUsesTemplates ? catalogGroupCache.IsGeoAvailabilityWindowingEnabled : group.isGeoAvailabilityWindowingEnabled;
+            if (!definitions.isAllowedToViewInactiveAssets && isGeoAvailabilityWindowingEnabled)
             {
                 definitions.countryId = Utils.GetIP2CountryId(request.m_nGroupID, request.m_sUserIP);
             }
