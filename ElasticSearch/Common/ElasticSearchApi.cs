@@ -511,7 +511,7 @@ namespace ElasticSearch.Common
 
                 JObject jsonResult = JObject.Parse(putResult);
 
-                if (jsonResult.ContainsKey("acknowledged") && jsonResult["acknowledged"].Value<string>() == "true")
+                if (jsonResult.ContainsKey("acknowledged") && jsonResult["acknowledged"].Value<bool>())
                 {
                     result = true;
                 }

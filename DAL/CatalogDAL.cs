@@ -5801,6 +5801,29 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
+        public static bool SaveBulkUploadResultsCB(List<BulkUploadResult> resultsToSave, uint ttl)
+        {
+            if (!resultsToSave.Any())
+            {
+                log.Error($"SaveBulkUploadResultsCB > got empty results list to save.");
+                return false;
+            }
+            var bulkUploadId = resultsToSave.First().BulkUploadId;
+            var bulkUploadKey = GetBulkUploadKey(bulkUploadId);
+
+            var isUpdateSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
+            {
+                foreach (var resultToSave in resultsToSave)
+                {
+                    bulkUpload.Results[resultToSave.Index] = resultToSave;
+                    bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                    log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
+                }
+            });
+
+            return isUpdateSuccess;
+        }
+
         public static bool SaveBulkUploadStatusCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
