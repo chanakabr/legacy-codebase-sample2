@@ -83,8 +83,9 @@ namespace Core.Catalog.CatalogManagement
 
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
-                    response.SetStatus(eResponseStatus.OK);
                 }
+
+                response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
