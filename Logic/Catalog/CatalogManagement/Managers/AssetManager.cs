@@ -1213,16 +1213,15 @@ namespace Core.Catalog.CatalogManagement
                     if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
                     {
                         DataSet updateDS = UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetStruct, inheritancePolicy, result.Object);
-
-                        status = BuildTableDicAfterUpdateMediaAsset(updateDS, assetToUpdate.Id, out tables);
-                        if (status.Code != (int)eResponseStatus.OK)
-                        {
-                            result.SetStatus(status);
-                            return result;
-                        }
-
+                        
                         if (updateDS != null)
                         {
+                            status = BuildTableDicAfterUpdateMediaAsset(updateDS, assetToUpdate.Id, out tables);
+                            if (status.Code != (int)eResponseStatus.OK)
+                            {
+                                result.SetStatus(status);
+                                return result;
+                            }
                             result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
                         }
                     }
