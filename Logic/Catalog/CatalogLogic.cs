@@ -8277,7 +8277,7 @@ namespace Core.Catalog
             definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
             definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
-            
+
             #endregion
 
             #region Device Rules
@@ -8290,7 +8290,7 @@ namespace Core.Catalog
             }
 
             definitions.deviceRuleId = deviceRules;
-            
+
             definitions.shouldIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID;
 
             if (definitions.isAllowedToViewInactiveAssets)
@@ -8376,20 +8376,40 @@ namespace Core.Catalog
                 if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
                     (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
                 {
-
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
                     definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 }
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
+                // In non-opc accounts, 
                 // this 0 probably came when TVM/CRUD decided this channel is for all types, but forgot to delete it when the others join in (424, 425 etc.).
-                definitions.mediaTypes.Remove(0);
+                // in opc accounts it just means EPG
+                // IN ANY CASE
+                // we don't want to search for asset_type = 0, because the assets are not indexed with it! EPGs are just indexed in their index
+                // and media will never have 0 media type
+                bool hasZeroMediaType = definitions.mediaTypes.Remove(0);
+                bool hasMinusTwentySixMediaType = definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
 
-                if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
+                if (doesGroupUsesTemplates)
                 {
-                    definitions.shouldSearchEpg = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                    bool hasProgramStructMediaType = definitions.mediaTypes.Remove((int)catalogGroupCache.ProgramAssetStructId);
+
+                    // in OPC accounts, 0 media type means EPG
+                    if (hasZeroMediaType || hasProgramStructMediaType)
+                    {
+                        definitions.shouldSearchEpg = true;
+                        definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                    }
+                }
+                else
+                {
+                    // in non-OPC accounts, -26 media type means EPG
+                    if (hasMinusTwentySixMediaType)
+                    {
+                        definitions.shouldSearchEpg = true;
+                        definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                    }
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
