@@ -102,17 +102,12 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            bool isMediaExists = false;
+                            bool isMediaExists = mediaId > 0 ;
                             MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currentTags);
-                            if (mediaAsset.Id > 0)
-                            {
-                                isMediaExists = true;
-                            }
-                            
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
 
-                            var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, TRUE.Equals(media.Erase));
+                            var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, TRUE.Equals(media.Erase), true);
                             if (!upsertStatus.IsOkStatusCode())
                             {
                                 ingestResponse.AssetsStatus[i].Status = upsertStatus.Status;

@@ -28,7 +28,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public static GenericListResponse<Status> UpsertMediaAsset(int groupId, MediaAsset mediaAsset, long userId, Dictionary<long, Image> images,
-                                                                   Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia)
+                                                                   Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia, bool isFromIngest = false)
         {
             GenericListResponse<Status> response = new GenericListResponse<Status>();
             try
@@ -72,17 +72,19 @@ namespace Core.Catalog.CatalogManagement
                     response.Objects = UpsertMediaAssetImagesAndFiles(groupId, true, mediaAsset.Id, images, needToEraseMedia, assetFiles, dateFormat, userId);
                 }
 
-                // UpdateIndex
-                bool indexingResult = IndexManager.UpsertMedia(groupId, mediaAsset.Id);
-                if (!indexingResult)
+                if (!isFromIngest)
                 {
-                    log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
+                    // UpdateIndex
+                    bool indexingResult = IndexManager.UpsertMedia(groupId, mediaAsset.Id);
+                    if (!indexingResult)
+                    {
+                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
+                    }
+
+                    // invalidate asset
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
+                    response.SetStatus(eResponseStatus.OK);
                 }
-
-                // invalidate asset
-                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
-                response.SetStatus(eResponseStatus.OK);
-
             }
             catch (Exception ex)
             {
