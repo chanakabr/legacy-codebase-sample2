@@ -45,11 +45,13 @@ namespace TCMClient
         private bool m_VerifySSL;
         private string m_LocalPath;
 
+        public static bool IsInitilized { get; set; }
+
         #region Constructors
 
         private Settings()
         {
-
+            IsInitilized = false;
         }
 
         #endregion
@@ -266,6 +268,13 @@ namespace TCMClient
 
         private void PopulateSettings(bool fromLocal)
         {
+            if (IsInitilized)
+            {
+                _Logger.Warn($"TCM Client does not support multiple initializations, leaving settings as they are loaded previouslly, ignoting init call.");
+                return;
+            }
+
+            IsInitilized = true;
             string settings = getSettings(fromLocal);
 
             if (!string.IsNullOrEmpty(settings) && !settings.ToLower().Equals("null"))
