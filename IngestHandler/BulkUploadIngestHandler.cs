@@ -74,10 +74,13 @@ namespace IngestHandler
         {
             try
             {
+
                 _Logger.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
                 _EpgBL = new TvinciEpgBL(serviceEvent.GroupId);
                 _EventData = serviceEvent;
                 _BulkUploadObject = GetBulkUploadData();
+                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Processing);
+
                 _BulkUploadJobData = _BulkUploadObject.JobData as BulkUploadIngestJobData;
                 _IngestProfile = GetIngestProfile(_BulkUploadJobData.IngestProfileId);
                 _Languages = GetGroupLanguages(out _DefaultLanguage);
@@ -100,17 +103,52 @@ namespace IngestHandler
 
                 CloneExistingIndex();
                 UpdateClonedIndex(finalEpgState, crudOperations.ItemsToDelete);
-                ValidateClonedIndex(finalEpgState);
-                SwitchAliases();
+
+                var indexIsValid = ValidateClonedIndex(finalEpgState);
+
+                if (indexIsValid)
+                {
+                    UpdateBulkUploadResults(results, finalEpgState);
+                    SwitchAliases();
+                    BulkUploadManager.UpdateBulkUploadResults(results.Values);
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
+                }
+                else
+                {
+                    BulkUploadManager.UpdateBulkUploadResults(results.Values);
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
+                }
 
             }
             catch (Exception ex)
             {
                 _Logger.Error($"An Exception occurred in BulkUploadIngestHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", ex);
+                try
+                {
+                    _Logger.Debug($"Trying to set fatal status on bulk");
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
+                }
+                catch (Exception innerEx)
+                {
+                    _Logger.Error($"An Exception occurred when trying to set FATAL status on bulkUpload. requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", innerEx);
+                    throw;
+                }
                 throw;
             }
 
             return;
+        }
+
+        private void UpdateBulkUploadResults(Dictionary<string, BulkUploadProgramAssetResult> results, List<EpgProgramBulkUploadObject> finalEpgState)
+        {
+            foreach (var prog in finalEpgState)
+            {
+                var resultObj = results[prog.EpgExternalId];
+                resultObj.ObjectId = (long)prog.EpgId;
+                resultObj.Status = BulkUploadResultStatus.Ok;
+                // TODO: allow updating results in bulk
+                //BulkUploadManager.UpdateBulkUploadResult(_EventData.GroupId, _BulkUploadObject.Id, resultObj.Index, Status.Ok, resultObj.ObjectId, resultObj.Warnings);
+            }
         }
 
         private void AddEpgCBObjects(Dictionary<string, BulkUploadProgramAssetResult> results)
@@ -324,7 +362,7 @@ namespace IngestHandler
             _Logger.Debug($"CalculateCRUDOperations > currentPrograms.count:[{currentPrograms.Count}] programsToIngest.count:[{programsToIngest.Count}]");
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
 
-           var currentProgramsDictionary = currentPrograms.ToDictionary(epg => epg.EpgExternalId);
+            var currentProgramsDictionary = currentPrograms.ToDictionary(epg => epg.EpgExternalId);
             _Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
 
             // we cannot use the programs to ingest as a dictioanry becuse there are multiple translation with same external id
@@ -335,7 +373,9 @@ namespace IngestHandler
                 if (currentProgramsDictionary.ContainsKey(programToIngest.EpgExternalId))
                 {
                     // update the epg id of the ingested programs with their existing epg id from CB
-                    programToIngest.EpgId = currentProgramsDictionary[programToIngest.EpgExternalId].EpgId;
+                    var idToUpdate = currentProgramsDictionary[programToIngest.EpgExternalId].EpgId; ;
+                    programToIngest.EpgId = idToUpdate;
+                    programToIngest.EpgCbObjects.ForEach(p => p.EpgID = idToUpdate);
                     crudOperations.ItemsToUpdate.Add(programToIngest);
                 }
                 else
@@ -725,9 +765,9 @@ namespace IngestHandler
             // Checking all languages by searhcing for all types
             string type = string.Empty;
             bool isValid = true;
-
             policy.Execute(() =>
             {
+                isValid = true;
                 // Build query for getting programs
                 var query = new FilteredQuery(true);
                 var filter = new QueryFilter();
