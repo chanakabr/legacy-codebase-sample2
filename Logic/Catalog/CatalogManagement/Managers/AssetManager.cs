@@ -186,7 +186,6 @@ namespace Core.Catalog.CatalogManagement
             List<Metas> metas = null;
             List<Tags> tags = null;
             List<RelatedEntities> RelatedEntitiesList = null;
-            //Dictionary<string, int> tagNameToIdMap = null;
             DataTable metasTable = new DataTable();
             DataTable tagsTable = new DataTable();
             DataTable relatedEntitiesTable = new DataTable();
@@ -221,14 +220,14 @@ namespace Core.Catalog.CatalogManagement
             if (tables.ContainsKey(TABLE_NAME_IMAGES) && tables[TABLE_NAME_IMAGES]?.Rows.Count > 0)
             {
                 GenericListResponse<Image> imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, tables[TABLE_NAME_IMAGES], true);
-                if (imageResponse == null || imageResponse.Status == null || imageResponse.Status.Code != (int)eResponseStatus.OK || imageResponse.Objects.Count == 0)
+                if (!imageResponse.HasObjects())
                 {
                     log.WarnFormat("CreateMediaAssetFromDataSet - failed to get images for Id: {0}", id);
                     return null;
                 }
 
                 // get only active images
-                images = imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).Any() ? imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
+                images = imageResponse.Objects.Any(x => x.Status == eTableStatus.OK) ? imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
             }
 
             List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
@@ -286,7 +285,6 @@ namespace Core.Catalog.CatalogManagement
             // Handle new relatedEntities
             if (tables.ContainsKey(TABLE_NAME_RELATED_ENTITIES) && tables[TABLE_NAME_RELATED_ENTITIES]?.Rows.Count > 0)
             {
-                
                 if (!TryGetRelatedEntitiesList(groupId, id, tables[TABLE_NAME_RELATED_ENTITIES], ref RelatedEntitiesList))
                 {
                     log.WarnFormat("CreateMediaAsset - failed to get media RelatedEntities for Id: {0}", id);
@@ -344,55 +342,14 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 result = new List<MediaAsset>();
-                EnumerableRowCollection<DataRow> metas = new DataTable().AsEnumerable();
-                // metas table
-                if (ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                {
-                    metas = ds.Tables[1].AsEnumerable();
-                }
-
-                EnumerableRowCollection<DataRow> tags = new DataTable().AsEnumerable();
-                // tags table
-                if (ds.Tables[2] != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
-                {
-                    tags = ds.Tables[2].AsEnumerable();
-                }
-
-                EnumerableRowCollection<DataRow> files = new DataTable().AsEnumerable();
-                // files table
-                if (ds.Tables[3] != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
-                {
-                    files = ds.Tables[3].AsEnumerable();
-                }
-
-                EnumerableRowCollection<DataRow> images = new DataTable().AsEnumerable();
-                // images table
-                if (ds.Tables[4] != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
-                {
-                    images = ds.Tables[4].AsEnumerable();
-                }
-
-                EnumerableRowCollection<DataRow> assetUpdateDate = new DataTable().AsEnumerable();
-                // update dates table
-                if (ds.Tables[5] != null && ds.Tables[5].Rows != null && ds.Tables[5].Rows.Count > 0)
-                {
-                    assetUpdateDate = ds.Tables[5].AsEnumerable();
-                }
-
-                EnumerableRowCollection<DataRow> linearMedias = new DataTable().AsEnumerable();
-                // epgChannels table
-                if (ds.Tables[6] != null && ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
-                {
-                    linearMedias = ds.Tables[6].AsEnumerable();
-                }
-
-                EnumerableRowCollection<DataRow> relatedEntities = new DataTable().AsEnumerable();
                 
-                // RelatedEntities table
-                if (ds.Tables[7] != null && ds.Tables[7].Rows?.Count > 0)
-                {
-                    relatedEntities = ds.Tables[7].AsEnumerable();
-                }                
+                var metasTable = GetDataRows(ds, 1);
+                var tagsTable = GetDataRows(ds, 2);
+                var filesTable = GetDataRows(ds, 3);
+                var imagesTable = GetDataRows(ds, 4);
+                var assetUpdateDateTable = GetDataRows(ds, 5);
+                var linearMediasTable = GetDataRows(ds, 6);
+                var relatedEntitiesTable = GetDataRows(ds, 7);
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
@@ -402,88 +359,15 @@ namespace Core.Catalog.CatalogManagement
                         Dictionary<string, DataTable> tables = new Dictionary<string, DataTable>();
                         DataTable basicDataTable = ds.Tables[0].Clone();
                         basicDataTable.ImportRow(basicDataRow);
-                        tables.Add(TABLE_NAME_BASIC,basicDataTable);
-                        EnumerableRowCollection<DataRow> assetMetas = (from row in metas
-                                                                       where (Int64)row["ASSET_ID"] == id
-                                                                       select row);
-                        if (assetMetas != null && assetMetas.Any())
-                        {
-                            tables.Add(TABLE_NAME_METAS, assetMetas.CopyToDataTable());
-                        }
-                        else
-                        {
-                            tables.Add(TABLE_NAME_METAS, ds.Tables[1].Clone());
-                        }
-
-                        EnumerableRowCollection<DataRow> assetTags = (from row in tags
-                                                                      where (Int64)row["ASSET_ID"] == id
-                                                                      select row);
-                        if (assetTags != null && assetTags.Any())
-                        {
-                            tables.Add(TABLE_NAME_TAGS, assetTags.CopyToDataTable());
-                        }
-                        else
-                        {
-                            tables.Add(TABLE_NAME_TAGS, ds.Tables[2].Clone());
-                        }
-
-                        EnumerableRowCollection<DataRow> assetFiles = (from row in files
-                                                                       where (Int64)row["MEDIA_ID"] == id
-                                                                       select row);
-                        if (assetFiles != null && assetFiles.Any())
-                        {
-                            tables.Add(TABLE_NAME_FILES, assetFiles.CopyToDataTable());
-                        }
-                        else
-                        {
-                            tables.Add(TABLE_NAME_FILES, ds.Tables[3].Clone());
-                        }
-
-                        EnumerableRowCollection<DataRow> assetImages = (from row in images
-                                                                        where (Int64)row["ASSET_ID"] == id
-                                                                        select row);
-                        if (assetImages != null && assetImages.Any())
-                        {
-                            tables.Add(TABLE_NAME_IMAGES, assetImages.CopyToDataTable());
-                        }
-                        else
-                        {
-                            tables.Add(TABLE_NAME_IMAGES,ds.Tables[4].Clone());
-                        }
-
-                        EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
-                                                                               where (Int64)row["ID"] == id
-                                                                               select row);
-                        if (assetUpdateDateRow != null && assetUpdateDateRow.Any())
-                        {
-                            tables.Add(TABLE_NAME_UPDATE_DATE, assetUpdateDateRow.CopyToDataTable());
-                        }
-                        else
-                        {
-                            tables.Add(TABLE_NAME_UPDATE_DATE, ds.Tables[5].Clone());
-                        }
-
-                        EnumerableRowCollection<DataRow> linearMediaRow = (from row in linearMedias
-                                                                           where (Int64)row["MEDIA_ID"] == id
-                                                                           select row);
-                        if (linearMediaRow != null && linearMediaRow.Any())
-                        {
-                            tables.Add(TABLE_NAME_LINEAR, linearMediaRow.CopyToDataTable());
-                        }
-
-                        EnumerableRowCollection<DataRow> assetRelatedEntities = (from row in relatedEntities
-                                                                       where (Int64)row["ASSET_ID"] == id
-                                                                       select row);
-
-                        if (assetRelatedEntities != null && assetRelatedEntities.Any())
-                        {
-                            tables.Add(TABLE_NAME_RELATED_ENTITIES, assetRelatedEntities.CopyToDataTable());
-                        }
-                        else
-                        {
-                            tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[7].Clone());
-                        }
-
+                        tables.Add(TABLE_NAME_BASIC, basicDataTable);
+                        tables.Add(TABLE_NAME_METAS, GetTableByAssetDataRows(metasTable, "ASSET_ID", id, ds, 1));
+                        tables.Add(TABLE_NAME_TAGS, GetTableByAssetDataRows(tagsTable, "ASSET_ID", id, ds, 2));
+                        tables.Add(TABLE_NAME_FILES, GetTableByAssetDataRows(filesTable, "MEDIA_ID", id, ds, 3));
+                        tables.Add(TABLE_NAME_IMAGES, GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, ds, 4));
+                        tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
+                        tables.Add(TABLE_NAME_LINEAR, GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, ds, 6));
+                        tables.Add(TABLE_NAME_RELATED_ENTITIES, GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, ds, 7));
+                        
                         MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages);
                         if (mediaAsset != null)
                         {
@@ -498,6 +382,35 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static EnumerableRowCollection<DataRow> GetDataRows(DataSet ds, int tableIndex)
+        {
+            var dataRows = new DataTable().AsEnumerable();
+            if (ds.Tables.Count > tableIndex && ds.Tables[tableIndex] != null && ds.Tables[tableIndex].Rows != null && ds.Tables[tableIndex].Rows.Count > 0)
+            {
+                dataRows = ds.Tables[tableIndex].AsEnumerable();
+            }
+
+            return dataRows;
+        }
+
+        private static DataTable GetTableByAssetDataRows(EnumerableRowCollection<DataRow> dataRows, string assetIdColumn, int assetId, DataSet ds, int tableIndex)
+        {
+            var dataRowsByAsset = (from row in dataRows
+                                   where (Int64)row[assetIdColumn] == assetId
+                                   select row);
+
+            if (dataRowsByAsset != null && dataRowsByAsset.Any())
+            {
+                return dataRowsByAsset.CopyToDataTable();
+            }
+            else if (ds.Tables.Count > tableIndex)
+            {
+                return ds.Tables[tableIndex].Clone();
+            }
+
+            return null;
         }
 
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
