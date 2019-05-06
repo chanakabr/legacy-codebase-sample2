@@ -275,6 +275,11 @@ namespace TVinciShared
             }
         }
 
+        public static object StringExactToUtcUnixTimestampSeconds(string sTART_DATE)
+        {
+            throw new NotImplementedException();
+        }
+
         public static string GetDayName(DayOfWeek theDay)
         {
             if (theDay == DayOfWeek.Friday)
