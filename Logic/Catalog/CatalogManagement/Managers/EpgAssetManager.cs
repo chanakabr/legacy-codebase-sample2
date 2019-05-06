@@ -814,6 +814,7 @@ namespace Core.Catalog.CatalogManagement
             }
             if (programAssetStruct == null)
             {
+                log.ErrorFormat("ValidateEpgAssetStruct - Program AssetStruct does not exist, ProgramAssetStructId:{0}.", catalogGroupCache.ProgramAssetStructId);
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
             }
 
