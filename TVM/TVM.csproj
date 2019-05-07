@@ -814,7 +814,6 @@
     <Content Include="Web References\apiWS\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="settings.json" />
     <Content Include="Tvinci.Statistics.Client.xap" />
     <Content Include="TvinciStatistics.xap" />
     <None Include="Web References\apiWS\api.disco" />
