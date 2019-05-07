@@ -9,7 +9,6 @@ using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.MediaMarks;
-using ApiObjects.PlayCycle;
 using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
@@ -7491,9 +7490,20 @@ namespace Core.ConditionalAccess
                 if (nMediaID != 0)
                 {
                     res.m_eItemType = BillingItemsType.PPV;
-
-                    res.m_sPurchasedItemName = GetMediaTitle(nMediaID);
                     res.m_sPurchasedItemCode = nMediaID.ToString();
+
+                    if (Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(m_nGroupID))
+                    {
+                        GenericResponse<Catalog.Asset> assetResponse = Catalog.CatalogManagement.AssetManager.GetAsset(m_nGroupID, nMediaID, eAssetTypes.MEDIA, true);
+                        if(assetResponse?.Object != null)
+                        {
+                            res.m_sPurchasedItemName = assetResponse.Object.Name;
+                        }
+                    }
+                    else
+                    {
+                        res.m_sPurchasedItemName = GetMediaTitle(nMediaID);
+                    }
                 }
 
                 ePaymentMethod pm = ePaymentMethod.Unknown;
