@@ -174,7 +174,7 @@ namespace TVinciShared
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(0);
             selectQuery += "select id from tags where status<>2 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(VALUE)))", "=", sVal.Trim().ToLower());
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE_trim", "=", sVal.ToLower().Trim());
             selectQuery += "and group_id " + sGroups;
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("TAG_TYPE_ID", "=", nTagTypeID);
@@ -199,7 +199,7 @@ namespace TVinciShared
                 insertQuery = null;
 
                 //fictivic here
-                string sTagType = ODBCWrapper.Utils.GetTableSingleVal("media_tags_types", "name", nTagTypeID).ToString();
+                string sTagType = ODBCWrapper.Utils.GetTableSingleVal("media_tags_types", "name", nTagTypeID, 86400).ToString();
                 DBManipulator.BuildFictivicMedia(sTagType, sVal, 0, nGroupID);
 
                 return GetTagID(sVal, nGroupID, nTagTypeID, "false");
@@ -562,15 +562,17 @@ namespace TVinciShared
                 string[] sSpliter = { ";" }; //{ ";", "," };
                 string[] sVals = sValues.Split(sSpliter, StringSplitOptions.RemoveEmptyEntries);
                 for (int j = 0; j < sVals.Length; j++)
-                {
-                    string sVal = sVals[j];
-                    if (sFinalVal != "")
-                        sFinalVal += ";";
-                    sFinalVal += sVal;
-                    Int32 nTagTypeID = int.Parse(sExtraFieldVal);
-                    Int32 nTagID = GetTagID(sVal, nGroupID, nTagTypeID, sAddExtra);
-                    if (sVal != "")
+                {                                    
+                    if (!string.IsNullOrEmpty(sVals[j]))
                     {
+                        string sVal = sVals[j].Trim();                        
+                        if (sFinalVal != "")
+                            sFinalVal += ";";
+                        sFinalVal += sVal;
+                        Int32 nTagTypeID = int.Parse(sExtraFieldVal);
+
+                        Int32 nTagID = GetTagID(sVal, nGroupID, nTagTypeID, sAddExtra);
+
                         System.Collections.Hashtable theTable = (System.Collections.Hashtable)(theStr.m_theTable[sKey]);
 
                         List<LanguageString> translations = new List<LanguageString>();
@@ -615,7 +617,7 @@ namespace TVinciShared
                             {
                                 if (tagTranslations.ContainsKey(ls.m_sLang))
                                 {
-                                    if (tagTranslations[ls.m_sLang].Key.ToLower() != ls.m_sVal.Trim().ToLower())
+                                    if (tagTranslations[ls.m_sLang].Key.Trim().ToLower() != ls.m_sVal.Trim().ToLower())
                                     {
                                         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("tags_translate");
                                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", ls.m_sVal.Trim());
