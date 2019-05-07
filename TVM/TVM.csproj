@@ -539,12 +539,7 @@
     <Content Include="AjaxSubRenewable.aspx" />
     <Content Include="AjaxToken.aspx" />
     <Content Include="AjaxTokenApprove.aspx" />
-    <None Include="Old_App_WebReferences1\apiWS\api.discomap" />
-    <None Include="Old_App_WebReferences1\apiWS\api.wsdl" />
-    <None Include="Old_App_WebReferences1\Billing\module.discomap" />
-    <None Include="Old_App_WebReferences1\Billing\module.wsdl" />
-    <None Include="Old_App_WebReferences1\ca_ws\module.discomap" />
-    <None Include="Old_App_WebReferences1\ca_ws\module.wsdl" />
+    <Content Include="log4net.config" />
     <None Include="Old_App_WebReferences\apiWS\api.disco" />
     <None Include="Old_App_WebReferences\Billing\module.disco" />
     <None Include="Old_App_WebReferences\ca_ws\module.disco" />
@@ -552,6 +547,7 @@
     <None Include="Old_App_WebReferences\TvinciPricing\module.disco" />
     <None Include="Old_App_WebReferences\users_ws\module.disco" />
     <Content Include="clear_cache.aspx" />
+    <Content Include="clientaccesspolicy.xml" />
     <Content Include="components\duallist\css\duallist.css" />
     <Content Include="components\duallist\images\add-hover.png" />
     <Content Include="components\duallist\images\add.png" />
@@ -577,6 +573,7 @@
     <Content Include="components\duallist\js\numberField.js" />
     <Content Include="components\duallist\js\script.js" />
     <Content Include="components\duallist\js\script2.js" />
+    <Content Include="crossdomain.xml" />
     <Content Include="css\addPic-en.css" />
     <Content Include="css\addPic.css" />
     <Content Include="css\anylinkmenu.css" />
@@ -588,6 +585,7 @@
     <Content Include="css\styles-en_b.css" />
     <Content Include="css\styles.css" />
     <Content Include="css\tvinci_style.css" />
+    <Content Include="External\AMS.Web.RemoteScripting.dll" />
     <Content Include="flash\admin_player_single.swf" />
     <Content Include="flash\admin_tree_player.swf" />
     <Content Include="flash\amin_tree_menu.swf" />
@@ -784,6 +782,8 @@
     <Content Include="js\WMPInterface.js" />
     <Content Include="js\WMPInterface_b.js" />
     <Content Include="js\WMPObject.js" />
+    <Content Include="login.html" />
+    <Content Include="logout.aspx" />
     <Content Include="mailtemplates\BagReport.html" />
     <Content Include="mailtemplates\BagReportToClient.html" />
     <Content Include="mailtemplates\bounty.html" />
@@ -795,21 +795,28 @@
     <Content Include="mailtemplates\hamsin.html" />
     <Content Include="mailtemplates\MediaFriend.html" />
     <Content Include="mailtemplates\YouGotMailMale.html" />
+    <Content Include="NDSPlayer.htm" />
     <Content Include="NDSPlayer\NDSInitialize.aspx" />
     <Content Include="NDSPlayer\NDSPlayer.aspx" />
-    <Content Include="obj\Debug\TVM.csproj.FileListAbsolute.txt" />
+    <!--<Content Include="obj\Debug\TVM.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Debug\TVM.dll" />
-    <Content Include="obj\Debug\TVM.pdb" />
+    <Content Include="obj\Debug\TVM.pdb" />-->
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Old_App_WebReferences1\apiWS\api.disco" />
-    <None Include="Old_App_WebReferences1\Billing\module.disco" />
-    <None Include="Old_App_WebReferences1\ca_ws\module.disco" />
+    <Content Include="sl_cube.svc" />
+    <Content Include="staging_test.aspx" />
+    <Content Include="token.html" />
+    <Content Include="token_enter.html" />
+    <Content Include="TvinciStatistics.html" />
+    <Content Include="VERSION_UPLOAD.htm" />
     <Content Include="Web References\apiWS\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="settings.json" />
+    <Content Include="Tvinci.Statistics.Client.xap" />
+    <Content Include="TvinciStatistics.xap" />
     <None Include="Web References\apiWS\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -1365,6 +1372,8 @@
     </Content>
     <None Include="Web References\TvinciPricing\module.disco" />
     <None Include="Web References\DomainsWS\module.disco" />
+    <Content Include="whoami.aspx" />
+    <Content Include="xti_listener.aspx" />
     <Content Include="_adm_external_recommendation_related_enrichments.aspx" />
     <None Include="Web References\users_ws\module.wsdl" />
     <None Include="Web References\users_ws\Reference.map">
@@ -4629,6 +4638,10 @@
     <Compile Include="clear_cache.aspx.designer.cs">
       <DependentUpon>clear_cache.aspx</DependentUpon>
     </Compile>
+    <Compile Include="logout.aspx.cs">
+      <DependentUpon>logout.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="NDSPlayer\NDSInitialize.aspx.cs">
       <DependentUpon>NDSInitialize.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -4643,9 +4656,6 @@
     <Compile Include="NDSPlayer\NDSPlayer.aspx.designer.cs">
       <DependentUpon>NDSPlayer.aspx</DependentUpon>
     </Compile>
-    <Compile Include="obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
-    <Compile Include="obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
-    <Compile Include="obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
     <Compile Include="Old_App_Code\PermittedModule.cs" />
     <Compile Include="Old_App_Code\RedirectToHttpsModule.cs" />
     <Compile Include="Old_App_Code\SubscriptionSet.cs" />
@@ -4657,6 +4667,10 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="staging_test.aspx.cs">
+      <DependentUpon>staging_test.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Web References\apiWS\Reference.cs">
       <AutoGen>True</AutoGen>
@@ -4688,6 +4702,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
+    <Compile Include="whoami.aspx.cs">
+      <DependentUpon>whoami.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="xti_listener.aspx.cs">
+      <DependentUpon>xti_listener.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="_adm_external_recommendation_related_enrichments.aspx.cs">
       <DependentUpon>_adm_external_recommendation_related_enrichments.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -4700,12 +4722,6 @@
     <Content Include="flash\lucy_player_admin.swf.b" />
     <Content Include="flash\widgets\videoPlayer\VideoPlayer.swf.b" />
     <Content Include="flash_bu\widgets\videoPlayer\VideoPlayer.swf.b" />
-    <Content Include="Images\login\Thumbs.db" />
-    <Content Include="Images\Thumbs.db" />
-    <Content Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
-    <Content Include="obj\Debug\TVM.csproj.CopyComplete" />
-    <Content Include="obj\Debug\TVM.csproj.CoreCompileInputs.cache" />
-    <Content Include="obj\Debug\TVM.csprojAssemblyReference.cache" />
     <None Include="Old_App_WebReferences\apiWS\api.discomap" />
     <None Include="Old_App_WebReferences\apiWS\api.wsdl" />
     <None Include="Old_App_WebReferences\Billing\module.discomap" />
@@ -4723,7 +4739,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
-    <Folder Include="obj\Debug\TempPE\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">

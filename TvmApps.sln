@@ -35,8 +35,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiObjects", "..\Core\ApiOb
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AkamaiTokenGenerator", "..\TvmCore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj", "{4E22204A-9560-4E78-8805-EFED0D0EEC9D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web Sites", "Web Sites", "{C3C9EB38-E983-48C9-B93B-43427B35C58C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Feeders", "Feeders", "{A782D54E-287C-4DBD-9FD8-E04D201DBE00}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XMLAdapter", "..\TvmCore\XMLAdapter\XMLAdapter.csproj", "{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}"
