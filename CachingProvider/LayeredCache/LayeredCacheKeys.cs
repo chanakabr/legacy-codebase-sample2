@@ -300,7 +300,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetCatalogGroupCacheKey(int groupId)
         {
-            return string.Format("CatalogGroupCacheV2_groupId_{0}", groupId);
+            return string.Format("CatalogGroupCacheV3_groupId_{0}", groupId);
         }
 
         public static string GetGroupDeviceRulesKey(int groupId)
@@ -315,7 +315,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetAssetKey(string assetType, long id)
         {
-            return string.Format("AssetV2_type_{0}_id_{1}", assetType, id);
+            return string.Format("AssetV3_type_{0}_id_{1}", assetType, id);
         }
 
         public static string GetAssetWithLanguageKey(string assetType, string id, int languageId)
