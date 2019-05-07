@@ -10753,6 +10753,7 @@ namespace Core.ConditionalAccess
                         if (!networkRulesStatus.IsOkStatusCode())
                         {
                             response.Status = networkRulesStatus;
+                            response.status = eResponseStatus.NetworkRuleBlock.ToString();
                             return response;
                         }
                     }
