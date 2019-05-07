@@ -371,15 +371,26 @@ namespace TVinciShared
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
+        public static long StringExactToUtcUnixTimestampSeconds(string date)
+        {
+            DateTime parsedDate;
+            if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
+            {
+                return DateTimeToUtcUnixTimestampSeconds(parsedDate);
+            }
+            
+            return 0;
+        }
+
         public static long StringToUtcUnixTimestampSeconds(string date)
         {
-            DateTime formattedDate;
-            if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out formattedDate))
+            DateTime parsedDate;
+            if (DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
             {
-                return DateTimeToUtcUnixTimestampSeconds(formattedDate);
+                return DateTimeToUtcUnixTimestampSeconds(parsedDate);
             }
 
-            return 0;
+            return StringExactToUtcUnixTimestampSeconds(date);
         }
 
         public static DateTime? TryExtractDate(string dateTime, string format)
