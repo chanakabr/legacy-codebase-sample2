@@ -15,9 +15,13 @@ namespace ApiObjects
         Program = 4
     }
 
+    [Serializable]
     public class RelatedEntity : IEquatable<RelatedEntity>
     {
+        [JsonProperty("Id")]
         public string Id { get; set; }
+
+        [JsonProperty("Type")]
         public RelatedEntityType Type { get; set; }
 
         public bool Equals(RelatedEntity other)
@@ -48,12 +52,17 @@ namespace ApiObjects
         }
     }
 
+    [Serializable]
     public class RelatedEntities : IEquatable<RelatedEntities>
     {
         [DataMember]
         [JsonProperty("tagMeta")]
         public TagMeta TagMeta;
-
+        
+        [JsonProperty(PropertyName = "Items",
+                      TypeNameHandling = TypeNameHandling.Auto,
+                      ItemTypeNameHandling = TypeNameHandling.Auto,
+                      ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<RelatedEntity> Items { get; set; }
 
         public RelatedEntities()
@@ -85,6 +94,7 @@ namespace ApiObjects
             return true;
         }
     }
+
     public class RelatedEntitiesComparer : IEqualityComparer<RelatedEntities>
     {
         public bool Equals(RelatedEntities x, RelatedEntities y)

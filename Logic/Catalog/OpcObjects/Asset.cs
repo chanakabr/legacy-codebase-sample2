@@ -36,26 +36,26 @@ namespace Core.Catalog
         [JsonProperty("Name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// Name in other languages other then default (when language="*")        
+        /// </summary>
         [JsonProperty(PropertyName = "NamesWithLanguages",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        /// <summary>
-        /// Name in other languages other then default (when language="*")        
-        /// </summary>
         public List<LanguageContainer> NamesWithLanguages { get; set; }
 
         [ExcelColumn(ExcelColumnType.Meta, AssetManager.DESCRIPTION_META_SYSTEM_NAME)]
         [JsonProperty("Description")]
         public string Description { get; set; }
 
+        /// <summary>
+        /// Description in other languages other then default (when language="*")
+        /// </summary>
         [JsonProperty(PropertyName = "DescriptionsWithLanguages",
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        /// <summary>
-        /// Description in other languages other then default (when language="*")
-        /// </summary>
         public List<LanguageContainer> DescriptionsWithLanguages { get; set; }
 
         [JsonProperty("CreateDate")]
