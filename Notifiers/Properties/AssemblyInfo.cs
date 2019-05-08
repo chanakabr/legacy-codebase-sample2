@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Notifiers")]
-[assembly: AssemblyDescription("2019-01-16 16:12:20 | Hostname:IL-TANTANK-TE | Published by:Jonathan Kanarek")]
+[assembly: AssemblyDescription("2019-01-07 12:05:59 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-218-g9f360008-dirty")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Notifiers")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("5.2.0.8551")]
-[assembly: AssemblyVersion("5.2.0.8551")]
-[assembly: AssemblyInformationalVersion("5.2.0.8551")]
+// [assembly: AssemblyVersion("5.2.0.8657")]
+[assembly: AssemblyVersion("5.2.0.8657")]
+[assembly: AssemblyInformationalVersion("5.2.0.8657")]
