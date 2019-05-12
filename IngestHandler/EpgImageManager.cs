@@ -289,7 +289,7 @@ namespace IngestHandler
                             ImageUtils.UpdateImageState(groupID, picId, version, eMediaType.EPG, eTableStatus.OK, updaterId);
 
                             // Update EpgMultiPictures
-                            EpgDal.UpdateEPGMultiPic(groupID, epgIdentifier, channelID, picId, ratioID, updaterId);
+                            EpgDal.UpdateEPGMultiPic(groupID, epgIdentifier, channelID, picId, (int)ratioID, updaterId);
 
                             log.DebugFormat("post image success. picId {0} ", picId);
                         }
