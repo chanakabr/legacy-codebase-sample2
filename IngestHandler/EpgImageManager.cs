@@ -3,6 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.DRM;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
 using KLogMonitor;
@@ -74,7 +75,7 @@ namespace IngestHandler
         }
 
         // DO NOT DELETE
-        public static int DownloadEPGPic(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, int ratioID = 0, long imageTypeId = 0)
+        public static int DownloadEPGPic(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, long ratioID = 0, long imageTypeId = 0)
         {
             int picId = 0;
 
@@ -117,7 +118,7 @@ namespace IngestHandler
             return picId;
         }
 
-        public static int DownloadEPGPicToUploader(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, int ratioID)
+        public static int DownloadEPGPicToUploader(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, long ratioID)
         {
             if (sThumb.Trim() == "")
                 return 0;
@@ -202,7 +203,7 @@ namespace IngestHandler
             return nPicID;
         }
 
-        public static int DownloadEPGPicToQueue(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, int ratioID)
+        public static int DownloadEPGPicToQueue(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, long ratioID)
         {
             //string sBasePath = GetBasePath(nGroupID);
             string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);
@@ -224,7 +225,7 @@ namespace IngestHandler
             return picId;
         }
 
-        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, long imageTypeId, bool isAsync = true,
+        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, long ratioID, long imageTypeId, bool isAsync = true,
             int? updaterId = null, string epgIdentifier = null)
         {
             int version = 0;
@@ -346,7 +347,7 @@ namespace IngestHandler
             }
         }
 
-        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, int ratioID, out string picName, out int picId, int pendingThresholdInMinutes = 0, int activeThresholdInMinutes = 0)
+        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, long ratioID, out string picName, out int picId, int pendingThresholdInMinutes = 0, int activeThresholdInMinutes = 0)
         {
             picName = getPictureFileName(thumb);
             picId = 0;
@@ -379,7 +380,7 @@ namespace IngestHandler
         }
 
         //Epg Pics will alsays have "full" and "tn". also, all sizes of the group in 'epg_pics_sizes' will be added  
-        private static string[] getEPGPicSizes(int nGroupID, int ratioID)
+        private static string[] getEPGPicSizes(int nGroupID, long ratioID)
         {
             string[] str;
             List<string> lString = new List<string>();
@@ -541,6 +542,144 @@ namespace IngestHandler
 
             return nRet;
         }
+
+        public static Dictionary<string, ImageType> GetImageTypesMapBySystemName(int groupId)
+        {
+            Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
+
+            GenericListResponse<ImageType> imageTypes = GetImageTypes(groupId, false, null);
+            if (imageTypes != null && imageTypes.HasObjects())
+            {
+                groupRatioNamesToImageTypes = new Dictionary<string, ImageType>();
+
+                foreach (var imageType in imageTypes.Objects)
+                {
+                    if (!groupRatioNamesToImageTypes.ContainsKey(imageType.SystemName))
+                    {
+                        groupRatioNamesToImageTypes.Add(imageType.SystemName, imageType);
+                    }
+                }
+            }
+
+            return groupRatioNamesToImageTypes;
+        }
+
+        public static GenericListResponse<ImageType> GetImageTypes(int groupId, bool isSearchByIds, List<long> ids)
+        {
+            GenericListResponse<ImageType> response = new GenericListResponse<ImageType>();
+
+            List<ImageType> imageTypes = GetGroupImageTypes(groupId);
+
+            if (imageTypes != null)
+            {
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.TotalItems = imageTypes.Count;
+
+                if (ids == null || ids.Count == 0)
+                {
+                    response.Objects = imageTypes;
+                    return response;
+                }
+
+                if (isSearchByIds)
+                {
+                    // return image Types according to Ids
+                    response.Objects = imageTypes.Where(x => ids.Contains(x.Id)).ToList();
+                }
+                else
+                {
+                    // return image Types according to ratio Ids
+                    response.Objects = imageTypes.Where(x => ids.Contains(x.RatioId.Value)).ToList();
+                }
+
+                response.TotalItems = response.Objects.Count;
+            }
+
+            return response;
+        }
+
+        private static List<ImageType> GetGroupImageTypes(int groupId)
+        {
+            List<ImageType> result = null;
+
+            // check if image types exists for group
+            string key = LayeredCacheKeys.GetGroupImageTypesKey(groupId);
+
+            // try to get from cache  
+            List<ImageType> tempResult = null;
+            bool cacheResult = LayeredCache.Instance.Get<List<ImageType>>(
+                key, ref tempResult, GetImageType, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GET_IMAGE_TYPE_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupImageTypesInvalidationKey(groupId) });
+
+            if (!cacheResult)
+            {
+                log.Error(string.Format("GetImageTypes - Failed get data from cache groupId = {0}", groupId));
+                result = null;
+            }
+            else
+            {
+                result = new List<ImageType>(tempResult);
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<ImageType>, bool> GetImageType(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ImageType> imageTypes = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        DataSet ds = CatalogDAL.GetImageTypes(groupId.Value);
+                        imageTypes = CreateImageTypes(ds);
+
+                        res = imageTypes != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetImageType failed params : {0}", funcParams != null ? string.Join(";",
+                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
+            }
+
+            return new Tuple<List<ImageType>, bool>(imageTypes, res);
+        }
+
+        private static List<ImageType> CreateImageTypes(DataSet ds)
+        {
+            List<ImageType> response = null;
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable imageTypes = ds.Tables[0];
+                if (imageTypes != null && imageTypes.Rows != null)
+                {
+                    response = new List<ImageType>();
+                    foreach (DataRow dr in imageTypes.Rows)
+                    {
+                        ImageType imageType = new ImageType()
+                        {
+                            Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
+                            SystemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME"),
+                            RatioId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RATIO_ID"),
+                            HelpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT"),
+                            DefaultImageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DEFAULT_IMAGE_ID")
+                        };
+
+                        response.Add(imageType);
+                    }
+                }
+            }
+
+            return response;
+        }
+
 
     }
 }

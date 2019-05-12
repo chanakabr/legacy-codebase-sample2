@@ -28,6 +28,8 @@ using ApiObjects.Epg;
 using EpgBL;
 using ESUtils = ElasticSearch.Common.Utils;
 using System.Globalization;
+using ApiObjects.Catalog;
+using Tvinci.Core.DAL;
 
 namespace IngestHandler
 {
@@ -62,7 +64,11 @@ namespace IngestHandler
         private BulkUploadIngestJobData _BulkUploadJobData;
         private IngestProfile _IngestProfile;
         private IDictionary<string, LanguageObj> _Languages;
+        // key = ratioId , value = ration value
+        private Dictionary<string, string> _NonOpcGroupRatios;
+        private Dictionary<string, ImageType> _GroupRatioNamesToImageTypes;
         private LanguageObj _DefaultLanguage;
+        private bool _IsOpc;
 
         public BulkUploadIngestHandler()
         {
@@ -84,6 +90,9 @@ namespace IngestHandler
                 _BulkUploadJobData = _BulkUploadObject.JobData as BulkUploadIngestJobData;
                 _IngestProfile = GetIngestProfile(_BulkUploadJobData.IngestProfileId);
                 _Languages = GetGroupLanguages(out _DefaultLanguage);
+                _NonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
+                _GroupRatioNamesToImageTypes = EpgImageManager.GetImageTypesMapBySystemName(serviceEvent.GroupId);
+                _IsOpc = GroupSettingsManager.IsOpc(serviceEvent.GroupId);
 
                 ValidateServiceEvent();
 
@@ -174,7 +183,7 @@ namespace IngestHandler
             return languages.ToDictionary(l => l.Code);
         }
 
-        private static EpgCB GetEpgCBObject(string langCode, string defaultLangCode, EpgProgramBulkUploadObject prog, BulkUploadProgramAssetResult bulkUploadResultItem)
+        private EpgCB GetEpgCBObject(string langCode, string defaultLangCode, EpgProgramBulkUploadObject prog, BulkUploadProgramAssetResult bulkUploadResultItem)
         {
             var epgItem = new EpgCB();
             var parsedProg = prog.ParsedProgramObject;
@@ -197,15 +206,6 @@ namespace IngestHandler
             epgItem.EnableStartOver = XmlTvParsingHelper.ParseXmlTvEnableStatusValue(parsedProg.enablestartover);
             epgItem.EnableTrickPlay = XmlTvParsingHelper.ParseXmlTvEnableStatusValue(parsedProg.enabletrickplay);
             epgItem.Crid = parsedProg.crid;
-            epgItem.pictures = parsedProg.icon.Select(p => new EpgPicture
-            {
-                // TODO Upload picture
-                Url = p.src,
-                Ratio = p.ratio,
-                PicWidth = p.width,
-                PicHeight = p.height,
-                ImageTypeId = 0, // TODO: Atthur\sunny look at the code in ws_ingest ingets.cs line#338
-            }).ToList();
 
             epgItem.Name = parsedProg.title.GetTitleByLanguage(langCode, defaultLangCode, out var nameParsingStatus);
             if (nameParsingStatus != eResponseStatus.OK)
@@ -221,7 +221,61 @@ namespace IngestHandler
 
             epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem);
             epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem);
+
+            UploadEpgItemImages(parsedProg.icon,epgItem, bulkUploadResultItem);
+
             return epgItem;
+        }
+
+        private void UploadEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
+        {
+            var result = new List<EpgPicture>();
+            foreach (var icon in icons)
+            {
+                var epgPicture = new EpgPicture();
+                var imgUrl = icon.src;
+                long ratio = 0;
+                long imageTypeId = 0;
+
+
+                if (_IsOpc)
+                {
+                    if (_GroupRatioNamesToImageTypes.TryGetValue(icon.ratio, out var imgType))
+                    {
+                        imageTypeId = imgType.Id;
+                        ratio = imgType.RatioId.Value;
+                    }
+
+                }
+                else
+                {
+                    ratio = long.Parse(_NonOpcGroupRatios.FirstOrDefault(r => r.Value == icon.ratio).Key);
+                }
+
+                if (!string.IsNullOrEmpty(imgUrl))
+                {
+                    int picId = EpgImageManager.DownloadEPGPic(imgUrl, epgItem.Name, epgItem.GroupID, 0, epgItem.ChannelID, ratio, imageTypeId);
+                    if (picId != 0)
+                    {
+                        var baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", picId);
+                        if (baseURl != null && baseURl != DBNull.Value)
+                        {
+                            epgPicture.Url = baseURl.ToString();
+                            epgPicture.PicID = picId;
+                            epgPicture.Ratio = icon.ratio;
+                            epgPicture.ImageTypeId = imageTypeId;
+                        }
+                    }
+                    else
+                    {
+                        bulkUploadResultItem.AddWarning((int)IngestWarnings.FailedDownloadPic, "Failed to download Epg picture");
+                    }
+                }
+            }
+
+
+
+
         }
 
         private static string GetEpgCBDocumentId(string external_id, string langCode, long bulkUploadId)
