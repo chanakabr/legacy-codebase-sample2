@@ -1356,6 +1356,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidArgumentValue)]
         [Throws(eResponseStatus.BulkUploadDoesNotExist)]
         [Throws(eResponseStatus.BulkUploadResultIsMissing)]
+        [Throws(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
 
