@@ -280,6 +280,7 @@ namespace ApiObjects.Response
         AssetStructMetasConatinSystemNameDuplication = 4085,
         InvalidBulkUploadStructure = 4086,
         RelatedEntitiesExceedLimitation = 4087,
+        AccountEpgIngestVersionDoesNotSupportBulk = 4088,
         #endregion
 
         #region Api 5000 - 5999

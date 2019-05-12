@@ -188,7 +188,15 @@ namespace Core.Catalog.CatalogManagement
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (jobData is BulkUploadIngestJobData)
                 {
-                    // TODO: Arthur send service event using event bus
+                    var epgIngestVersion = GroupManagers.GroupSettingsManager.GetEpgIngestVersion(groupId);
+                    if (epgIngestVersion > 2)
+                    {
+                        var msg = $"AddBulkUpload > GroupId :[{groupId}], epgIngestVersion:[{epgIngestVersion}]. epg ingest using bulk upload is supported from version 2 and above";
+                        log.Warn(msg);
+                        response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Fatal);
+                        response.SetStatus(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, msg);
+                        return response;
+                    }
                     response = SendTransformationEventToServiceEventBus(groupId, userId, response);
                 }
                 else
