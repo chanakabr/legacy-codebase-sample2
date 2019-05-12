@@ -4601,6 +4601,15 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() == 1;
         }
 
+        public static int GetEpgIngestVersion(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupEpgIngestVersion");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            return sp.ExecuteReturnValue<int>();
+        }
+
         public static DataSet GetAssetStructsByGroupId(int groupId)
         {
             StoredProcedure sp = new StoredProcedure("GetAssetStructsByGroupId");
