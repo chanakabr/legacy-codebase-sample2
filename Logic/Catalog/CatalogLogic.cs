@@ -6176,21 +6176,20 @@ namespace Core.Catalog
                     };
 
                     int elasticSearchPageSize = 0;
+                    var recommendationsMapping = recommendations.GroupBy(x => x.type).ToDictionary(x => x.Key, x => x.ToDictionary(y => y.id, y => y.TagsExtarData));
 
-                    List<string> listOfMedia = recommendations.Where(x => x.type == eAssetTypes.MEDIA).Select(x => x.id).ToList();
-                    if (listOfMedia.Count > 0)
+                    if (recommendationsMapping.ContainsKey(eAssetTypes.MEDIA) && recommendationsMapping[eAssetTypes.MEDIA].Count > 0)
                     {
-                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, listOfMedia);
+                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, recommendationsMapping[eAssetTypes.MEDIA].Keys.ToList());
                         searchDefinitions.shouldSearchMedia = true;
-                        elasticSearchPageSize += listOfMedia.Count;
+                        elasticSearchPageSize += recommendationsMapping[eAssetTypes.MEDIA].Count;
                     }
 
-                    List<string> listOfPrograms = recommendations.Where(x => x.type == eAssetTypes.EPG).Select(x => x.id).ToList();
-                    if (listOfPrograms.Count > 0)
+                    if (recommendationsMapping.ContainsKey(eAssetTypes.EPG) && recommendationsMapping[eAssetTypes.EPG].Count > 0)
                     {
-                        searchDefinitions.specificAssets.Add(eAssetTypes.EPG, listOfPrograms);
+                        searchDefinitions.specificAssets.Add(eAssetTypes.EPG, recommendationsMapping[eAssetTypes.EPG].Keys.ToList());
                         searchDefinitions.shouldSearchEpg = true;
-                        elasticSearchPageSize += listOfPrograms.Count;
+                        elasticSearchPageSize += recommendationsMapping[eAssetTypes.EPG].Count;
                     }
 
                     searchDefinitions.pageSize = elasticSearchPageSize;
@@ -6207,11 +6206,12 @@ namespace Core.Catalog
 
                             foreach (var searchResult in searchResults)
                             {
-                                searchResultsList.Add(new UnifiedSearchResult
+                                searchResultsList.Add(new RecommendationSearchResult
                                 {
                                     AssetId = searchResult.AssetId,
                                     AssetType = searchResult.AssetType,
-                                    m_dUpdateDate = searchResult.m_dUpdateDate
+                                    m_dUpdateDate = searchResult.m_dUpdateDate,
+                                    TagsExtraData = recommendationsMapping[searchResult.AssetType][searchResult.AssetId]
                                 });
                             }
                         }
