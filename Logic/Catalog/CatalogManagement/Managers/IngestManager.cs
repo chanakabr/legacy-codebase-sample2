@@ -904,8 +904,8 @@ namespace Core.Catalog.CatalogManagement
                                 StartDate = DateUtils.TryExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
                                 EndDate = DateUtils.TryExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
-                                IsActive = true
-                                //CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT),
+                                IsActive = true,
+                                CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT),
                             }, mediaFile.PpvModule));
                         }
                     }
