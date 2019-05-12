@@ -47,7 +47,16 @@ namespace Core.Catalog
 
             var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
             response.Objects = epgData;
-            response.SetStatus(eResponseStatus.OK);
+
+            if (epgData.Any(e => e.Status == BulkUploadResultStatus.Error))
+            {
+                response.SetStatus(eResponseStatus.Error, "There were errors during desirilization of bulk upload");
+            }
+            else
+            {
+                response.SetStatus(eResponseStatus.OK);
+            }
+
             return response;
         }
 
