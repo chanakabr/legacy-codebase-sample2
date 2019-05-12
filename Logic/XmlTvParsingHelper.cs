@@ -17,6 +17,8 @@ namespace ApiLogic
         public static Dictionary<string, List<string>> ParseTags(this programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
         {
             var tagsToSet = new Dictionary<string, List<string>>();
+            if (prog?.tags == null) { return tagsToSet; }
+
             foreach (var tag in prog.tags)
             {
                 var tagValue = GetMetaByLanguage(tag, langCode, defaultLangCode, out var tagParsingStatus);
@@ -33,6 +35,8 @@ namespace ApiLogic
         public static Dictionary<string, List<string>> ParseMetas(this programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
         {
             var metasToSet = new Dictionary<string, List<string>>();
+            if (prog?.metas == null) { return metasToSet; }
+
             foreach (var meta in prog.metas)
             {
                 var mataValue = GetMetaByLanguage(meta, langCode, defaultLangCode, out var metaParsingStatus);
@@ -48,7 +52,7 @@ namespace ApiLogic
 
         public static DateTime ParseStartDate(this programme prog, BulkUploadProgramAssetResult response)
         {
-            var result = default(DateTime); 
+            var result = default(DateTime);
             if (ParseXmlTvDateString(prog.start, out var progStartDate))
             {
                 result = progStartDate;
@@ -64,7 +68,7 @@ namespace ApiLogic
 
         public static DateTime ParseEndDate(this programme prog, BulkUploadProgramAssetResult response)
         {
-            var result = default(DateTime); 
+            var result = default(DateTime);
             if (ParseXmlTvDateString(prog.stop, out var progStartDate))
             {
                 result = progStartDate;

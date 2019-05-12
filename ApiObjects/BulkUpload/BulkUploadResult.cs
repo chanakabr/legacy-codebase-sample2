@@ -101,5 +101,22 @@ namespace ApiObjects.BulkUpload
             
             AddError(errorStatus);
         }
+
+        public void AddWarning(int warnningCode, string msg = "")
+        {
+            var warnningStatus = new Status(warnningCode, msg);
+            
+            this.Status = BulkUploadResultStatus.Error;
+            if (Warnings == null)
+            {
+                Warnings = new List<Status>();
+            }
+
+            if (warnningStatus != null)
+            {
+                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
+                this.Errors.Add(warnningStatus);
+            }
+        }
     }
 }
