@@ -128,6 +128,7 @@ namespace Core.Catalog
                 // like channel per region or HD channel vs SD channel etc..
                 var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalID.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
                 var programResults = new List<BulkUploadProgramAssetResult>();
+
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
                     var result = new BulkUploadProgramAssetResult();
@@ -136,7 +137,6 @@ namespace Core.Catalog
                     result.ProgramExternalId = prog.external_id;
                     result.Status = BulkUploadResultStatus.InProgress;
                     result.LiveAssetId = innerChannel.LinearMediaId;
-
                     var progrStartDate = prog.ParseStartDate(result);
                     var progrEnDate = prog.ParseEndDate(result);
 
@@ -152,6 +152,34 @@ namespace Core.Catalog
                         EndDate = progrEnDate,
                         EpgExternalId = prog.external_id,
                     };
+                    programResults.Add(result);
+                }
+
+                // If there are no inner channels found the previous loop did not fill any results, than we add error results;
+                if (!channelsToIngestProgramInto.Any())
+                {
+                    var result = new BulkUploadProgramAssetResult();
+                    result.BulkUploadId = bulkUploadId;
+                    result.Index = programIndex++;
+                    result.ProgramExternalId = prog.external_id;
+                    result.Status = BulkUploadResultStatus.Error;
+                    result.LiveAssetId = -1;
+                    var progrStartDate = prog.ParseStartDate(result);
+                    var progrEnDate = prog.ParseEndDate(result);
+
+                    result.Object = new EpgProgramBulkUploadObject
+                    {
+                        ParsedProgramObject = prog,
+                        ChannelExternalId = string.Empty,
+                        ChannelId = -1,
+                        LinearMediaId = -1,
+                        GroupId = groupId,
+                        ParentGroupId = parentGroupId,
+                        StartDate = progrStartDate,
+                        EndDate = progrEnDate,
+                        EpgExternalId = prog.external_id,
+                    };
+
                     programResults.Add(result);
                 }
 
