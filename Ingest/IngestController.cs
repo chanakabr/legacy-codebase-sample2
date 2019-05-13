@@ -1,11 +1,14 @@
 ﻿using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.ServiceModel;
 using System.Xml;
@@ -98,6 +101,15 @@ namespace Ingest
                                     OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "EPG Ingest";
                                 }
 
+                                var epgIngestVersion = Core.GroupManagers.GroupSettingsManager.GetEpgIngestVersion(groupID);
+                                if (epgIngestVersion > 1)
+                                {
+                                    IngestEpgUsingBulkUpoad(groupID, request);
+                                    ingestResponse.Status = "Ingest redirected to Add from bulk upload";
+                                    return ingestResponse;
+                                }
+
+
                                 bool isSucceeded = false;
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();
 
@@ -148,6 +160,27 @@ namespace Ingest
             }
 
             return ingestResponse;
+        }
+
+        private static int IngestEpgUsingBulkUpoad(int groupID, IngestRequest request)
+        {
+            var tempDirPath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
+            var tempFileName = "Upload_From_WS_ingest.xml";
+            var tempFilePath = Path.Combine(tempDirPath, tempFileName);
+            Path.GetTempPath();
+            if (!Directory.Exists(tempDirPath))
+            {
+                Directory.CreateDirectory(tempDirPath);
+            }
+
+            File.WriteAllText(tempFilePath, request.Data);
+
+            var jobData = new BulkUploadIngestJobData { IngestProfileId = null };
+            var objectData = new BulkUploadEpgAssetData { GroupId = groupID};
+
+            BulkUploadManager.AddBulkUpload(groupID, tempFileName, 0, tempFilePath, "KalturaProgramAsset", BulkUploadJobAction.Upsert, jobData, objectData);
+
+            throw new NotImplementedException();
         }
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
