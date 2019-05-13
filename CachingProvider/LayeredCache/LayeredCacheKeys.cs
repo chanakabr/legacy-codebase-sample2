@@ -420,7 +420,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetTstvAccountSettingsKey(int groupId)
         {
-            return string.Format("TstvAccountSettings_groupId_{0}", groupId);
+            return string.Format("TstvAccountSettingsV2_groupId_{0}", groupId);
         }
 
         public static string GetIsTstvSettingsExistsKey(int groupId)
