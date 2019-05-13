@@ -67,10 +67,10 @@ namespace ApiLogic
             return Delete(fileUrl);
         }
 
-        public GenericResponse<string> SaveFile(string id, FileInfo fileInfo, Type objectType)
+        public GenericResponse<string> SaveFile(string id, FileInfo fileInfo, string objectTypeName)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
-            var validationResponse = Validate(objectType, fileInfo);
+            var validationResponse = Validate(objectTypeName, fileInfo);
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
@@ -87,10 +87,10 @@ namespace ApiLogic
             return saveFileResponse;
         }
 
-        public GenericResponse<string> SaveFile(long id, FileInfo fileInfo, Type objectType)
+        public GenericResponse<string> SaveFile(long id, FileInfo fileInfo, string objectTypeName)
         {
             GenericResponse<string> saveFileResponse = new GenericResponse<string>();
-            var validationResponse = Validate(objectType, fileInfo);
+            var validationResponse = Validate(objectTypeName, fileInfo);
             if (validationResponse.HasObject())
             {
                 saveFileResponse = GetSubDir(id, validationResponse.Object);
@@ -112,7 +112,7 @@ namespace ApiLogic
             return (id + fileExtension);
         }
 
-        private GenericResponse<string> Validate(Type objectType, FileInfo fileInfo = null)
+        private GenericResponse<string> Validate(string objectTypeName, FileInfo fileInfo = null)
         {
             var validationStatus = new GenericResponse<string>();
             if (fileInfo != null && !fileInfo.Exists)
@@ -121,13 +121,7 @@ namespace ApiLogic
                 return validationStatus;
             }
 
-            if (objectType == null || !objectType.IsClass || objectType.IsAbstract)
-            {
-                validationStatus.SetStatus(eResponseStatus.InvalidFileType);
-                return validationStatus;
-            }
-
-            validationStatus = GetFileObjectTypeName(objectType.Name);
+            validationStatus = GetFileObjectTypeName(objectTypeName);
             return validationStatus;
         }
 

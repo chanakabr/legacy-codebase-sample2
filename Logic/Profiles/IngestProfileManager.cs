@@ -85,8 +85,17 @@ namespace Core.Profiles
             return response;
         }
 
-        public static GenericResponse<IngestProfile> GetIngestProfileById(int profileId)
+        public static GenericResponse<IngestProfile> GetIngestProfileById(int groupId, int? profileId)
         {
+            // If profileId is not provided we will use a default backward compatiable ingest profile
+            if (!profileId.HasValue)
+            {
+                var defaultResponse = new GenericResponse<IngestProfile>();
+                defaultResponse.Object = GetDefaultIngestProgile(groupId);
+                defaultResponse.SetStatus(eResponseStatus.OK);
+                return defaultResponse;
+            }
+
             var response = new GenericResponse<IngestProfile>();
             try
             {
@@ -107,6 +116,23 @@ namespace Core.Profiles
             }
 
             return response;
+        }
+
+        private static IngestProfile GetDefaultIngestProgile(int groupId)
+        {
+            return new IngestProfile
+            {
+                AssetTypeId = 1,
+                DefaultAutoFillPolicy = eIngestProfileAutofillPolicy.KeepHoles,
+                DefaultOverlapPolicy = eIngestProfileOverlapPolicy.CutTarget,
+                ExternalId = "",
+                GroupId = groupId,
+                Id = 0,
+                Name = "Default_Ingest_Profile",
+                Settings = null,
+                TransformationAdapterSharedSecret = null,
+                TransformationAdapterUrl = null,
+            };
         }
 
         public static Status DeleteIngestProfile(int groupId, int userId, int ingestProfileId)

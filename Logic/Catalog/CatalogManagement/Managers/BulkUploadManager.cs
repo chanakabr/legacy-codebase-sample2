@@ -138,7 +138,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId, string fileName, long userId, string filePath, Type bulkObjectType, BulkUploadJobAction action, BulkUploadJobData jobData, BulkUploadObjectData objectData)
+        public static GenericResponse<BulkUpload> AddBulkUpload(int groupId, string fileName, long userId, string filePath, string objectTypeName, BulkUploadJobAction action, BulkUploadJobData jobData, BulkUploadObjectData objectData)
         {
             var response = new GenericResponse<BulkUpload>();
             try
@@ -164,7 +164,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL
                 var fileInfo = new FileInfo(filePath);
-                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, bulkObjectType);
+                var saveFileResponse = FileHandler.Instance.SaveFile(response.Object.Id, fileInfo, objectTypeName);
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -173,8 +173,8 @@ namespace Core.Catalog.CatalogManagement
                 }
                 response.Object.FileURL = saveFileResponse.Object;
 
-                var objectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType.Name);
-                response.Object.BulkObjectType = objectTypeName.Object;
+                var objectTypeNameWithoutKalturaPrefix = FileHandler.Instance.GetFileObjectTypeName(objectTypeName);
+                response.Object.BulkObjectType = objectTypeNameWithoutKalturaPrefix.Object;
                 response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded);
 
                 //
@@ -209,11 +209,16 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.",
-                                        groupId, filePath, userId, action, bulkObjectType), ex);
+                                        groupId, filePath, userId, action, objectTypeName), ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
+        }
+
+        public static void AddBulkUpload(int groupID, string tempFileName, int v, string tempFilePath, Type type, BulkUploadJobAction upsert, BulkUploadIngestJobData jobData, object objectData)
+        {
+            throw new NotImplementedException();
         }
 
         private static GenericResponse<BulkUpload> SendTransformationEventToServiceEventBus(int groupId, long userId, GenericResponse<BulkUpload> response)
@@ -323,7 +328,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static GenericListResponse<BulkUploadResult> ParseBulkUploadData(BulkUpload bulkUpload, GenericResponse<BulkUpload> bulkUploadResponse)
         {
-            var objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUpload.Id, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
+            var objectsListResponse = bulkUploadResponse.Object.JobData.Deserialize(bulkUpload.GroupId, bulkUpload.Id, bulkUploadResponse.Object.FileURL, bulkUploadResponse.Object.ObjectData);
             if (objectsListResponse.IsOkStatusCode())
             {
                 return objectsListResponse;

@@ -31,12 +31,12 @@ namespace Core.Catalog
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly XmlSerializer _XmltTVserilizer = new XmlSerializer(typeof(EpgChannels));
-        public int IngestProfileId { get; set; }
+        public int? IngestProfileId { get; set; }
 
-        public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<BulkUploadResult> Deserialize(int groupId, long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
             var response = new GenericListResponse<BulkUploadResult>();
-            var profile = IngestProfileManager.GetIngestProfileById(IngestProfileId)?.Object;
+            var profile = IngestProfileManager.GetIngestProfileById(groupId, IngestProfileId)?.Object;
             var xmlTvString = GetXmlTv(fileUrl, profile);
 
             if (string.IsNullOrEmpty(xmlTvString))
