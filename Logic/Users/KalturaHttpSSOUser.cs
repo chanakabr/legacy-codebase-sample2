@@ -112,7 +112,7 @@ namespace Core.Users
             try
             {
                 keyValueList = keyValueList ?? new List<KeyValuePair>();
-                
+
                 var postSignInModel = new PostSignInModel
                 {
                     AuthenticatedUser = ConvertUserToSSOUser(authenticatedUser?.m_user),
@@ -175,7 +175,7 @@ namespace Core.Users
                 return new UserResponseObject
                 {
                     m_RespStatus = ResponseStatus.OK,
-                        m_user = ConvertSSOUserToUser(response.User),
+                    m_user = ConvertSSOUserToUser(response.User),
                 };
             }
             catch (Exception e)
@@ -201,7 +201,7 @@ namespace Core.Users
 
                 var customParamsStr = string.Concat(customParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterId, userData?.Id, userData?.Username, userData?.Email, customParamsStr);
-                
+
                 _Logger.InfoFormat("Calling sso adapter PostGetUserData [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
                 var response = _AdapterClient.PostGetUserData(_AdapterId, userData, customParams, signature);
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
@@ -318,7 +318,7 @@ namespace Core.Users
 
         private static void ExtendUserWithSSOUser(SSOAdapaterUser userData, ref User ioUser)
         {
-            ioUser = ioUser?? new User();
+            ioUser = ioUser ?? new User();
             var dynamicData = userData.DynamicData.Select(kv => new UserDynamicDataContainer { m_sDataType = kv.Key, m_sValue = kv.Value }).ToArray();
 
             ioUser.Id = userData.Id;
@@ -336,8 +336,8 @@ namespace Core.Users
                 m_sAddress = userData.Address,
                 m_UserType = new ApiObjects.UserType
                 {
-                ID = userData.UserType.Id,
-                Description = userData.UserType.Description,
+                    ID = userData.UserType.Id,
+                    Description = userData.UserType.Description,
                 },
             };
             ioUser.m_domianID = userData.HouseholdID ?? 0;
@@ -355,19 +355,23 @@ namespace Core.Users
         {
             if (responseStatus == AdapterStatusCode.NoConfigurationFound)
             {
-
-                var configDict = _AdapterConfig.Settings.ToDictionary(k => k.Key, v => v.Value);
-                var settingsString = string.Concat(configDict.Select(kv => kv.Key + kv.Value));
-                var signature = GenerateSignature(_AdapterId, _GroupId, settingsString);
-
-                _Logger.DebugFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", _AdapterConfig.Name, string.Concat(configDict.Select(kv => string.Format("[{0}|{1}], ", kv.Key, kv.Value))));
-                _AdapterClient.SetConfiguration(_AdapterId, _GroupId, configDict, signature);
+                SetAdapaterConfiguration(_AdapterClient, _AdapterConfig);
                 return false;
             }
             return true;
         }
 
-        private string GenerateSignature(params object[] values)
+        public static void SetAdapaterConfiguration(ServiceClient client, SSOAdapter adapter)
+        {
+            var configDict = adapter.Settings.ToDictionary(k => k.Key, v => v.Value);
+            var settingsString = string.Concat(configDict.Select(kv => kv.Key + kv.Value));
+            var signature = GenerateSignature(adapter.Id, adapter.GroupId, settingsString);
+
+            _Logger.DebugFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", adapter.Name, string.Concat(configDict.Select(kv => string.Format("[{0}|{1}], ", kv.Key, kv.Value))));
+            client.SetConfiguration(adapter.Id.Value, adapter.GroupId, configDict, signature);
+        }
+
+        private static string GenerateSignature(params object[] values)
         {
             var signatureStr = string.Concat(values);
             var signatureSHA1 = TVinciShared.EncryptUtils.HashSHA1(signatureStr);
@@ -381,8 +385,8 @@ namespace Core.Users
             return new UserResponseObject
             {
                 m_RespStatus = (ResponseStatus)(int)ssoResponseStatus.ResponseStatus,
-                    ExternalCode = ssoResponseStatus.ExternalCode,
-                    ExternalMessage = ssoResponseStatus.ExternalMessage,
+                ExternalCode = ssoResponseStatus.ExternalCode,
+                ExternalMessage = ssoResponseStatus.ExternalMessage,
             };
         }
 

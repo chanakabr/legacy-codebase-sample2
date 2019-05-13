@@ -118,13 +118,14 @@ namespace APILogic.Users
                 }
                 _Logger.DebugFormat("Validation Response is code:[{0}] msg:[{1}]", response.RespStatus.Code, response.RespStatus.Message);
 
-
-
                 response.SSOAdapter = DAL.UsersDal.UpdateSSOAdapter(adapterDetails, updaterId);
                 if (response.SSOAdapter == null) { response.RespStatus = new Status((int)eResponseStatus.SSOAdapterNotExist, SSO_ADAPTER_NOT_EXIST); }
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(adapterDetails.GroupId));
 
+                _Logger.Debug($"Adapter cache cleared, sending new configuration to SSOAdapater:[{response.SSOAdapter.Id}]");
+                var adapterClient = new SSOAdapaterService.ServiceClient(string.Empty, response.SSOAdapter.AdapterUrl);
+                Core.Users.KalturaHttpSSOUser.SetAdapaterConfiguration(adapterClient, response.SSOAdapter);
 
             }
             catch (Exception ex)
