@@ -12720,6 +12720,14 @@ namespace Core.ConditionalAccess
                     default:
                         break;
                 }
+
+                // invalidate purchase key anyway - BEO-6693
+                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(householdId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
+                }
+
                 return status;
             }
             catch (Exception ex)
