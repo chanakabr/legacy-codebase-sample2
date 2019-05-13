@@ -47,10 +47,7 @@ namespace Core.Catalog
             try
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, definitions);
-                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
-                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
-                definitions.isInternalSearch = request.isInternalSearch || request.isAllowedToViewInactiveAssets;
-                definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID;
+
                 int parentGroupID = request.m_nGroupID;
                 GroupManager groupManager = null;
                 Group group = null;
@@ -66,7 +63,16 @@ namespace Core.Catalog
                     parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                     groupManager = new GroupManager();
                     group = groupManager.GetGroup(parentGroupID);
-                }                                    
+                    if (request.isAllowedToViewInactiveAssets)
+                    {
+                        definitions.shouldIgnoreDeviceRuleID = true;
+                        request.isAllowedToViewInactiveAssets = false;
+                    }
+                }
+
+                definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
+                definitions.isInternalSearch = request.isInternalSearch || request.isAllowedToViewInactiveAssets;
 
                 definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
                 if (definitions.isAllowedToViewInactiveAssets)
