@@ -15570,26 +15570,31 @@ namespace Core.ConditionalAccess
 
                     DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
                     DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
-                    HashSet<long> failedDomainIds;
-                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid, new List<long>() { domainId }, out failedDomainIds);
-
-                    if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
+                    long recordingId = 0;
+                    if (!accountSettings.IsPrivateCopyEnabled.Value)
                     {
-                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
-                        continue;
+                        HashSet<long> failedDomainIds;
+                        Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid, new List<long>() { }, out failedDomainIds);
+                        if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
+                        {
+                            log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
+                            continue;
+                        }
+
+                        recordingId = globalRecording.Id;
                     }
 
-                    if (globalRecording.EpgStartDate > DateTime.UtcNow)
+                    if (epgPaddedStartDate > DateTime.UtcNow)
                     {
                         // add message which will add the recording to all the following domains
                         DateTime distributeTime = epgPaddedStartDate.AddMinutes(1);
                         eRecordingTask task = eRecordingTask.DistributeRecording;
-                        RecordingsManager.EnqueueMessage(m_nGroupID, globalRecording.EpgId, globalRecording.Id, epgPaddedStartDate, distributeTime, task);
+                        RecordingsManager.EnqueueMessage(m_nGroupID, epgId, recordingId, epgPaddedStartDate, distributeTime, task);
                     }
-                    else if (!userRecordingCrids.Contains(globalRecording.Crid))
+                    else if (!userRecordingCrids.Contains(crid))
                     {
-                        Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season, domainSeriesRecordingId, true);
-                        userRecordingCrids.Add(globalRecording.Crid);
+                        Recording userRecording = Record(userId, epgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season, domainSeriesRecordingId, true);
+                        userRecordingCrids.Add(crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
                             log.DebugFormat("successfully recorded epgId = {0}, domainId = {1}, new recordingId = {2}", epgId, domainId, userRecording.Id);
