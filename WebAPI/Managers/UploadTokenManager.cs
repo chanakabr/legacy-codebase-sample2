@@ -88,7 +88,7 @@ namespace WebAPI.Managers
             FileInfo fileInfo = new FileInfo(path);
             cbUploadToken.FileSize = fileInfo.Length;
             
-            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, typeof(KalturaUploadToken));
+            var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken");
             if (!saveFileResponse.HasObject())
             {
                 throw new ClientException(saveFileResponse.Status.Code, saveFileResponse.Status.Message);
