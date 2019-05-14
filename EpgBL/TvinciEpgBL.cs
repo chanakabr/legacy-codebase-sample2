@@ -1020,7 +1020,7 @@ namespace EpgBL
 
             try
             {
-                string index = GetProgramIndexAlias(this.m_nGroupID);
+                string index = GetProgramIndexAlias();
                 string type = "epg";
 
                 var query = new FilteredQuery(true);
@@ -1130,9 +1130,9 @@ namespace EpgBL
         /// <summary>
         /// This is the main alias of all programs
         /// </summary>
-        private string GetProgramIndexAlias(int groupId)
+        public string GetProgramIndexAlias()
         {
-            return $"{groupId}_epg_v2";
+            return $"{m_nGroupID}_epg_v2";
         }
 
         #endregion
