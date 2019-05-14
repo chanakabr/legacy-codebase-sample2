@@ -88,7 +88,7 @@ namespace IngestHandler
                 BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Processing);
 
                 _BulkUploadJobData = _BulkUploadObject.JobData as BulkUploadIngestJobData;
-                _IngestProfile = GetIngestProfile(_BulkUploadJobData.IngestProfileId);
+                _IngestProfile = GetIngestProfile();
                 _Languages = GetGroupLanguages(out _DefaultLanguage);
                 _NonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
                 _GroupRatioNamesToImageTypes = EpgImageManager.GetImageTypesMapBySystemName(serviceEvent.GroupId);
@@ -344,7 +344,7 @@ namespace IngestHandler
         {
             _Logger.Debug($"GetCurrentProgramsByDate > minStartDate:[{minStartDate}], maxEndDate:[{maxEndDate}]");
             var result = new List<EpgProgramBulkUploadObject>();
-            string index = GetProgramIndexAlias();
+            string index = _EpgBL.GetProgramIndexAlias();
 
             // if index does not exist - then we have a fresh start, we have 0 programs currently
             if (!_ElasticSearchClient.IndexExists(index))
@@ -537,7 +537,7 @@ namespace IngestHandler
 
             string searchQuery = query.ToString();
 
-            var alias = GetProgramIndexAlias();
+            var alias = _EpgBL.GetProgramIndexAlias();
             var indexType = ""; // all languages
             var searchResult = _ElasticSearchClient.Search(alias, indexType, ref searchQuery);
 
@@ -881,7 +881,7 @@ namespace IngestHandler
         private void SwitchAliases()
         {
             string currentProgramsAlias = GetIngestCurrentProgramsAliasName();
-            string globalAlias = GetProgramIndexAlias();
+            string globalAlias = _EpgBL.GetProgramIndexAlias();
 
 
             // Should only be one but we will loop anyway ...
@@ -901,9 +901,9 @@ namespace IngestHandler
             _ElasticSearchClient.AddAlias(newIndex, globalAlias);
         }
 
-        private static IngestProfile GetIngestProfile(int profileId)
+        private IngestProfile GetIngestProfile()
         {
-            var ingestProfile = IngestProfileManager.GetIngestProfileById(profileId)?.Object;
+            var ingestProfile = IngestProfileManager.GetIngestProfileById(_EventData.GroupId, _BulkUploadJobData.IngestProfileId)?.Object;
 
             if (ingestProfile == null)
             {
@@ -918,10 +918,11 @@ namespace IngestHandler
         /// <summary>
         /// This is the main alias of all programs
         /// </summary>
-        private string GetProgramIndexAlias()
-        {
-            return $"{_EventData.GroupId}_epg_v2";
-        }
+        //private string GetProgramIndexAlias()
+        //{
+
+        //    return $"{_EventData.GroupId}_epg_v2";
+        //}
 
         /// <summary>
         /// This is the index name of exsisting programs
