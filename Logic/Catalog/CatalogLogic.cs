@@ -4112,7 +4112,7 @@ namespace Core.Catalog
                     {
                         BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
                         Dictionary<string, BuzzWeightedAverScore> buzzDict = null;
-                        if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
+                        if (DAL.GroupDAL.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
                         {
                             buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
                         }

@@ -264,7 +264,7 @@ namespace Core.Catalog.Request
                 int.TryParse(m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
 
                 // since by default we used to write this log, we don't write it only if the account specified not to write it
-                if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.WRITE_MEDIA_EOH_STATISTICS_LOG))
+                if (!DAL.GroupDAL.GetGroupFeatureStatus(m_nGroupID, GroupFeature.WRITE_MEDIA_EOH_STATISTICS_LOG))
                 {
                     CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                                                                               nBillingTypeID, nCDNID, nMediaDuration, countryId, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
@@ -288,7 +288,7 @@ namespace Core.Catalog.Request
             }
 
             //if this is not a bit rate change, log for mediahit for statistics
-            if ((!resultParse || action == MediaPlayActions.HIT) && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
+            if ((!resultParse || action == MediaPlayActions.HIT) && DAL.GroupDAL.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
             {
                 WriteLiveViews(this.m_nGroupID, mediaId, mediaTypeId, locationSec);
             }

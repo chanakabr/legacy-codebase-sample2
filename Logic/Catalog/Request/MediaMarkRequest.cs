@@ -232,7 +232,7 @@ namespace Core.Catalog.Request
                         }
 
                         // since by default we used to write this log, we don't write it only if the account specified not to write it
-                        if (!TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.WRITE_MEDIA_EOH_STATISTICS_LOG))
+                        if (!DAL.GroupDAL.GetGroupFeatureStatus(m_nGroupID, GroupFeature.WRITE_MEDIA_EOH_STATISTICS_LOG))
                         {
                             CatalogLogic.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                                                     nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
@@ -250,7 +250,7 @@ namespace Core.Catalog.Request
                                                                                         m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc,
                                                                                         nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
                     }
-                    else if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
+                    else if (DAL.GroupDAL.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
                     // log for mediahit for statistics
                     {
                         WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime);
