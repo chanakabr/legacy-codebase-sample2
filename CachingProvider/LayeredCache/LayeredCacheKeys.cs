@@ -47,11 +47,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("mediaConcurrencyRules_mediaId_{0}", mediaId);
         }
 
-        public static string GetEpgIngestVersionCacheKey(int groupId)
-        {
-            return string.Format("epg_ingest_version_groupId_{0}", groupId);
-        }
-
         public static string GetMediaConcurrencyRulesDeviceLimitationModuleKey(int dlmId)
         {
             return string.Format("mediaConcurrencyRules_dlmId_{0}", dlmId);
