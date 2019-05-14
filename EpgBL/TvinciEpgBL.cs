@@ -1124,15 +1124,12 @@ namespace EpgBL
             return lProg;
         }
 
-
-
-
         /// <summary>
         /// This is the main alias of all programs
         /// </summary>
         public string GetProgramIndexAlias()
         {
-            return $"{m_nGroupID}_epg_v2";
+            return $"{m_nGroupID}_epg";
         }
 
         #endregion
