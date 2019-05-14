@@ -7523,7 +7523,7 @@ namespace Core.ConditionalAccess
                         int? groupId = funcParams["groupId"] as int?;
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
-                        bool isExternalRecordingAccount = DAL.GroupDAL.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
+                        bool isExternalRecordingAccount = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EXTERNAL_RECORDINGS);
                         if (!string.IsNullOrEmpty(assetId) && assetType.HasValue && groupId.HasValue && !string.IsNullOrEmpty(userId)
                             && (long.TryParse(assetId, out id) || (isExternalRecordingAccount && assetType.Value == eAssetTypes.NPVR)))
                         {

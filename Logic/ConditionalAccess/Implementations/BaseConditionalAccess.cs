@@ -13701,7 +13701,7 @@ namespace Core.ConditionalAccess
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
 
-                    if (DAL.GroupDAL.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                    if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                     {
                         recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
                     }
@@ -16955,7 +16955,7 @@ namespace Core.ConditionalAccess
             SearchableRecording[] result = new SearchableRecording[0];
             List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
             bool shouldFilterViewableRecordingOnly = true;
-            if (DAL.GroupDAL.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+            if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
             {
                 recordingStatuses.AddRange(new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled });
                 shouldFilterViewableRecordingOnly = false;

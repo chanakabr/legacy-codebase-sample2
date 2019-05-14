@@ -100,7 +100,7 @@ namespace Core.ConditionalAccess
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
-                bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && DAL.GroupDAL.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
+                bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
                 if (assetType != eAssetTypes.MEDIA)
                 {
                     response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);

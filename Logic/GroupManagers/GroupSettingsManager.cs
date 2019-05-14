@@ -39,7 +39,7 @@ namespace Core.GroupManagers
 
         public static bool DoesGroupUseNewEpgIngest(int groupId)
         {
-            return DAL.GroupDAL.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+            return TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
         }
 
         private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)
