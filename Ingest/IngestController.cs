@@ -101,8 +101,8 @@ namespace Ingest
                                     OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "EPG Ingest";
                                 }
 
-                                var epgIngestVersion = Core.GroupManagers.GroupSettingsManager.GetEpgIngestVersion(groupID);
-                                if (epgIngestVersion > 1)
+                                var doesGroupUseNewEpgIngest = Core.GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupID);
+                                if (doesGroupUseNewEpgIngest)
                                 {
                                     IngestEpgUsingBulkUpoad(groupID, request);
                                     ingestResponse.Status = "Ingest redirected to Add from bulk upload";
