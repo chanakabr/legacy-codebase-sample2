@@ -458,7 +458,7 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateMediaAssetForUpdate(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, HashSet<string> currentAssetMetasAndTags,
                                                             ref XmlDocument metasXmlDocToAdd, ref XmlDocument tagsXmlDocToAdd, ref XmlDocument metasXmlDocToUpdate, ref XmlDocument tagsXmlDocToUpdate,
                                                             ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDocToAdd, 
-                                                            ref XmlDocument relatedEntitiesXmlDocToUpdate, bool isFromIngest = false)
+                                                            ref XmlDocument relatedEntitiesXmlDocToUpdate, MediaAsset currentAsset, bool isFromIngest = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
@@ -506,7 +506,7 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
             
-            result = ValidateRelatedEntitiesLimitaion(relatedEntitiesToAdd, relatedEntitiesToUpdate);
+            result = ValidateRelatedEntitiesLimitaion(relatedEntitiesToAdd, currentAsset.RelatedEntities);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -1157,7 +1157,7 @@ namespace Core.Catalog.CatalogManagement
 
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
                                                         ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, 
-                                                        ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, isFromIngest);
+                                                        ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, currentAsset, isFromIngest);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateAssetTopicsResult);
