@@ -1,15 +1,19 @@
 ﻿using ApiObjects;
-using CachingProvider.LayeredCache;
-using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using DAL;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
+using System.Reflection;
 
-namespace DAL
+namespace TvinciCache
 {
-    public class GroupDAL
+    public class GroupsFeatures
     {
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static bool GetGroupFeatureStatus(int groupId, GroupFeature groupFeature)
