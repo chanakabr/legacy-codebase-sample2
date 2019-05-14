@@ -104,8 +104,8 @@ namespace Ingest
                                 var doesGroupUseNewEpgIngest = Core.GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupID);
                                 if (doesGroupUseNewEpgIngest)
                                 {
-                                    IngestEpgUsingBulkUpoad(groupID, request);
-                                    ingestResponse.Status = "Ingest redirected to Add from bulk upload";
+                                    var bulk = IngestEpgUsingBulkUpoad(groupID, request);
+                                    ingestResponse.Status = $"Ingest redirected to Add from bulk upload with id:[{bulk.Id}]";
                                     return ingestResponse;
                                 }
 
@@ -162,7 +162,7 @@ namespace Ingest
             return ingestResponse;
         }
 
-        private static int IngestEpgUsingBulkUpoad(int groupID, IngestRequest request)
+        private static BulkUpload IngestEpgUsingBulkUpoad(int groupID, IngestRequest request)
         {
             var tempDirPath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
             var tempFileName = "Upload_From_WS_ingest.xml";
@@ -176,11 +176,12 @@ namespace Ingest
             File.WriteAllText(tempFilePath, request.Data);
 
             var jobData = new BulkUploadIngestJobData { IngestProfileId = null };
-            var objectData = new BulkUploadEpgAssetData { GroupId = groupID};
+            var objectData = new BulkUploadEpgAssetData { GroupId = groupID };
 
-            BulkUploadManager.AddBulkUpload(groupID, tempFileName, 0, tempFilePath, "KalturaProgramAsset", BulkUploadJobAction.Upsert, jobData, objectData);
+            var response = BulkUploadManager.AddBulkUpload(groupID, tempFileName, 0, tempFilePath, "KalturaProgramAsset", BulkUploadJobAction.Upsert, jobData, objectData);
+            if (!response.IsOkStatusCode()) { throw new Exception($"Error while trying to redirected ws ingest into bulk upload"); }
 
-            throw new NotImplementedException();
+            return response.Object;
         }
 
         private static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
