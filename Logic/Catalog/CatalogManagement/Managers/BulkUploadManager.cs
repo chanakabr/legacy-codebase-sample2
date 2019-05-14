@@ -189,7 +189,7 @@ namespace Core.Catalog.CatalogManagement
                 if (jobData is BulkUploadIngestJobData)
                 {
                     var epgIngestVersion = GroupManagers.GroupSettingsManager.GetEpgIngestVersion(groupId);
-                    if (epgIngestVersion > 2)
+                    if (epgIngestVersion < 2)
                     {
                         var msg = $"AddBulkUpload > GroupId :[{groupId}], epgIngestVersion:[{epgIngestVersion}]. epg ingest using bulk upload is supported from version 2 and above";
                         log.Warn(msg);
