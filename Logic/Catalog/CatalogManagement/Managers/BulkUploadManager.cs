@@ -189,7 +189,7 @@ namespace Core.Catalog.CatalogManagement
                 if (jobData is BulkUploadIngestJobData)
                 {
                     var doesGroupUseNewEpgIngest = GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
-                    if (doesGroupUseNewEpgIngest)
+                    if (!doesGroupUseNewEpgIngest)
                     {
                         var msg = $"AddBulkUpload > GroupId :[{groupId}]. epg ingest using bulk upload is not supported for this account";
                         log.Warn(msg);
