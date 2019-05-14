@@ -2372,12 +2372,14 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateRelatedEntitiesLimitaion(List<RelatedEntities> relatedEntitiesToAdd, List<RelatedEntities> relatedEntitiesToUpdate)
         {
-            if ((relatedEntitiesToAdd.Count + relatedEntitiesToUpdate.Count) > 5)
+            var relatedEntitiesToAddCount = relatedEntitiesToAdd != null ? relatedEntitiesToAdd.Count : 0;
+            var relatedEntitiesToUpdateCount = relatedEntitiesToUpdate != null ? relatedEntitiesToUpdate.Count : 0;
+            if (relatedEntitiesToAddCount + relatedEntitiesToUpdateCount > 5)
             {
                 return new Status() { Code = (int)eResponseStatus.RelatedEntitiesExceedLimitation };
             }
 
-            return new Status((int)eResponseStatus.OK);
+            return Status.Ok;
         }
 
         private static void AddRealtedEntitiesValueToXml(ref XmlDocument relatedEntitiesXmlDoc, XmlNode rootNode, long topicId, string value)
