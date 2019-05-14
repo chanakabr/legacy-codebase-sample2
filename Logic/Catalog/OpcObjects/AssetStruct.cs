@@ -297,22 +297,15 @@ namespace Core.Catalog
                     {
                         foreach (var topic in this.TopicsMapBySystemName)
                         {
-                            if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME))
+                            if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME) || 
+                                topic.Value.Type == MetaType.ReleatedEntity ||
+                                (!lang.Value.IsDefault && topic.Value.Type != MetaType.MultilingualString))
                             {
                                 continue;
                             }
 
-                            string language = null;
-                            if (!lang.Value.IsDefault)
-                            {
-                                if (topic.Value.Type != MetaType.MultilingualString)
-                                {
-                                    continue;
-                                }
-
-                                language = lang.Value.Code;
-                            }
-
+                            string language = lang.Value.IsDefault ? null : lang.Value.Code;
+                           
                             if (systemNameToExcelAttribute.ContainsKey(topic.Value.SystemName) &&
                                 systemNameToExcelAttribute[topic.Value.SystemName].Item1.IsUniqueMeta)
                             {
