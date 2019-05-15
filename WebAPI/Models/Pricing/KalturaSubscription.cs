@@ -329,5 +329,12 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "isCancellationBlocked")]
         public bool IsCancellationBlocked { get; set; }
 
+        /// <summary>
+        /// The Pre-Sale date the subscription is available for purchasing         
+        /// </summary>
+        [DataMember(Name = "preSaleDate")]
+        [JsonProperty("preSaleDate")]
+        [XmlElement(ElementName = "preSaleDate")]        
+        public long? PreSaleDate { get; set; }
     }
 }

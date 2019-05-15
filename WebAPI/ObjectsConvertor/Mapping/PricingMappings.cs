@@ -175,6 +175,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                    src.m_MultiSubscriptionUsageModule != null && src.m_MultiSubscriptionUsageModule.Length > 0 ?
                    string.Join(",", src.m_MultiSubscriptionUsageModule.Select(um => um.m_nObjectID).ToArray()) :
                    string.Empty))
+               .ForMember(dest => dest.PreSaleDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.PreSaleDate)))
                ;
 
             // KalturaPricePlan
