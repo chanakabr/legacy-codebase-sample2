@@ -6349,7 +6349,7 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                    cas.IngestRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
                 }
                 log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
             }
