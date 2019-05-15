@@ -2372,8 +2372,9 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateRelatedEntitiesLimitaion(List<RelatedEntities> relatedEntitiesToAdd, List<RelatedEntities> relatedEntitiesToUpdate)
         {
-            var relatedEntitiesToAddCount = relatedEntitiesToAdd != null ? relatedEntitiesToAdd.Count : 0;
-            var relatedEntitiesToUpdateCount = relatedEntitiesToUpdate != null ? relatedEntitiesToUpdate.Count : 0;
+            var relatedEntitiesToAddCount = relatedEntitiesToAdd?.Count ?? 0;
+            var relatedEntitiesToUpdateCount = relatedEntitiesToUpdate?.Count ?? 0;
+            
             if (relatedEntitiesToAddCount + relatedEntitiesToUpdateCount > 5)
             {
                 return new Status() { Code = (int)eResponseStatus.RelatedEntitiesExceedLimitation };
