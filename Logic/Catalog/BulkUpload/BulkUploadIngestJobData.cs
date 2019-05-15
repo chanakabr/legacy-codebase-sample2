@@ -39,24 +39,22 @@ namespace Core.Catalog
             var profile = IngestProfileManager.GetIngestProfileById(groupId, IngestProfileId)?.Object;
             var xmlTvString = GetXmlTv(fileUrl, profile);
 
-            if (string.IsNullOrEmpty(xmlTvString))
+            try
             {
-                response.SetStatus(eResponseStatus.FileDoesNotExists, $"Could not find file:[{fileUrl}]");
-                return response;
-            }
+                if (string.IsNullOrEmpty(xmlTvString))
+                {
+                    response.SetStatus(eResponseStatus.FileDoesNotExists, $"Could not find file:[{fileUrl}]");
+                    return response;
+                }
 
-            var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
-            response.Objects = epgData;
-
-            if (epgData.Any(e => e.Status == BulkUploadResultStatus.Error))
-            {
-                response.SetStatus(eResponseStatus.Error, "There were errors during desirilization of bulk upload");
-            }
-            else
-            {
+                var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
+                response.Objects = epgData;
                 response.SetStatus(eResponseStatus.OK);
             }
-
+            catch (Exception e)
+            {
+                response.SetStatus(eResponseStatus.Error, $"Error during Epg Injest Deserialize > ex:[{e}]");
+            }
             return response;
         }
 
@@ -199,7 +197,8 @@ namespace Core.Catalog
             return response.ToList();
         }
 
-        private static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
+        // TODO: Take this from apiLogic after logic is fully converted
+        public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
         {
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
             var kalturaChannelIds = kalturaChannels.Select(k => k.ChannelId).ToList();

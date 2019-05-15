@@ -2,8 +2,14 @@
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using Core.GroupManagers;
+using ElasticSearch.Common;
+using ElasticSearch.Searcher;
+using EpgBL;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using MetaType = ApiObjects.MetaType;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -63,7 +70,7 @@ namespace Core.Catalog.CatalogManagement
             { CRID_META_SYSTEM_NAME, CRID_META_NAME },
             { EXTERNAL_ID_META_SYSTEM_NAME, EXTERNAL_ID_META_NAME }
         };
-        
+
         internal static readonly HashSet<string> TopicsInBasicProgramTable = new HashSet<string>()
         {
             NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, CRID_META_SYSTEM_NAME, START_DATE_META_SYSTEM_NAME, END_DATE_META_SYSTEM_NAME
@@ -336,13 +343,16 @@ namespace Core.Catalog.CatalogManagement
                     return null;
                 }
 
-                List<LanguageObj> languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
-
-                List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
+                var languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
+                var docIds = GetEpgCBKeys(groupId, epgId, languages);
+                var epgCbList = EpgDal.GetEpgCBList(docIds);
 
                 foreach (EpgCB epgCB in epgCbList)
                 {
-                    if (!EpgDal.DeleteEpgCB(epgCB, epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code)))
+                    // the documents with main language are saved without a language code so we will send null to get key
+                    var lang = epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code) ? null : epgCB.Language;
+                    var docId = GetEpgCBKey(groupId, epgId, lang);
+                    if (!EpgDal.DeleteEpgCB(docId, epgCB))
                     {
                         log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
                     }
@@ -492,7 +502,8 @@ namespace Core.Catalog.CatalogManagement
 
                         foreach (var epgId in epgIds)
                         {
-                            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
+                            var docIds = GetEpgCBKeys(groupId.Value, epgId, languages);
+                            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(docIds);
 
                             if (epgCbList != null && epgCbList.Count > 0)
                             {
@@ -543,7 +554,10 @@ namespace Core.Catalog.CatalogManagement
                     epgCB.Tags = epgTags[currLang.Key];
                 }
 
-                if (!EpgDal.SaveEpgCB(epgCB, currLang.Key.Equals(defaultLanguageCode)))
+                // the documents with main language are saved without a language code so we will send null to get key
+                var lang = currLang.Key.Equals(defaultLanguageCode) ? null : currLang.Key;
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, lang);
+                if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", epgCB.EpgID, currLang.Key);
                 }
@@ -696,7 +710,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgMetasToUpdate = new List<Metas>();
             }
-            
+
             List<Metas> excluded = oldMetasAsset != null && oldMetasAsset.Count > 0 ?
                                         oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
                                         catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
@@ -705,7 +719,7 @@ namespace Core.Catalog.CatalogManagement
                                         ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
                                         !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : null;
 
-            
+
             if (excluded != null && excluded.Count > 0)
             {
                 // get all program asset struct topic systemNames and types mapping
@@ -1472,15 +1486,15 @@ namespace Core.Catalog.CatalogManagement
 
         private static void RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags)
         {
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling RemoveTopicsFromProgramEpgCBs", groupId);
                 return;
             }
 
-            List<LanguageObj> languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
-            List<EpgCB> epgCbList = EpgDal.GetEpgCBList(epgId, languages);
+            var languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
+            var docIds = GetEpgCBKeys(groupId, epgId, languages);
+            var epgCbList = EpgDal.GetEpgCBList(docIds);
 
             foreach (EpgCB epgCB in epgCbList)
             {
@@ -1516,7 +1530,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                if (!EpgDal.SaveEpgCB(epgCB, true))
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID);
+                if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("RemoveTopicsFromProgramEpgCB - Failed to SaveEpgCB for epgId: {0}.", epgCB.EpgID);
                 }
@@ -1528,9 +1543,11 @@ namespace Core.Catalog.CatalogManagement
         }
 
 
-        internal static void UpdateProgramAssetPictures(Image image)
+
+        internal static void UpdateProgramAssetPictures(int groupId, Image image)
         {
-            EpgCB program = EpgDal.GetEpgCB(image.ImageObjectId);
+            var docId = GetEpgCBKey(groupId, image.ImageObjectId);
+            var program = EpgDal.GetEpgCB(docId);
 
             if (program != null)
             {
@@ -1566,21 +1583,21 @@ namespace Core.Catalog.CatalogManagement
                     bool picReplaced = false;
                     for (int picIndex = 0; picIndex < program.pictures.Count; picIndex++)
                     {
-                        if(!program.pictures[picIndex].IsProgramImage && program.pictures[picIndex].Ratio == image.RatioName)
+                        if (!program.pictures[picIndex].IsProgramImage && program.pictures[picIndex].Ratio == image.RatioName)
                         {
                             program.pictures[picIndex] = pic;
                             picReplaced = true;
                         }
                     }
 
-                    if(!picReplaced)
+                    if (!picReplaced)
                     {
                         program.pictures.Add(pic);
 
                     }
                 }
 
-                if (!EpgDal.SaveEpgCB(program, true))
+                if (!EpgDal.SaveEpgCB(docId, program))
                 {
                     log.ErrorFormat("Error while update epgCB at SetContent. imageId:{0}", image.Id);
 
@@ -1664,6 +1681,31 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        public static List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes)
+        {
+            var isNewEpgIngestEnabled = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+            if (isNewEpgIngestEnabled)
+            {
+                // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
+                // so there is no way for us to now what is the document id.
+                // elastisearch holds the current document in CB so we go there to take it
+                var epgBL = new TvinciEpgBL(groupId);
+                return epgBL.GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+            }
+
+            if (langCodes == null) { return new List<string> { epgId.ToString() }; }
+            var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+            return keys.ToList();
+        }
+
+        public static string GetEpgCBKey(int groupId, long epgId, string langCode = null)
+        {
+
+            var lang = string.IsNullOrEmpty(langCode) ? null : new LanguageObj() { Code = langCode };
+            var keys = GetEpgCBKeys(groupId, epgId, new[] { lang });
+            return keys.FirstOrDefault();
         }
 
         #endregion

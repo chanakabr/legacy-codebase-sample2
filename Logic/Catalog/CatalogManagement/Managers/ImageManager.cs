@@ -3,6 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.GroupManagers;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
@@ -858,14 +859,15 @@ namespace Core.Catalog.CatalogManagement
                         // in case of program, need to remove pic and update CB
                         if (image.ImageObjectType == eAssetImageType.Program)
                         {
-                            EpgCB program = EpgDal.GetEpgCB(image.ImageObjectId);
+                            var docId = EpgAssetManager.GetEpgCBKey(groupId, image.ImageObjectId);
+                            EpgCB program = EpgDal.GetEpgCB(docId);
                             if (program != null && program.pictures != null)
                             {
                                 /// remove picture
                                 var pic = program.pictures.Where(x => x.IsProgramImage && x.PicID == image.ReferenceId).FirstOrDefault();
                                 if (pic != null && program.pictures.Remove(pic))
                                 {
-                                    if (!EpgDal.SaveEpgCB(program, true))
+                                    if (!EpgDal.SaveEpgCB(docId, program))
                                     {
                                         log.ErrorFormat("Error while update epgCB at DeleteImage. groupId: {0}, imageId:{1}, user: {2}", groupId, id, userId);
                                     }
@@ -940,7 +942,8 @@ namespace Core.Catalog.CatalogManagement
 
             if (imageObjectType == eAssetImageType.Program)
             {
-                EpgCB epgCB = EpgDal.GetEpgCB(imageObjectId);
+                var docId = EpgAssetManager.GetEpgCBKey(groupId, imageObjectId);
+                EpgCB epgCB = EpgDal.GetEpgCB(docId);
                 if (epgCB != null && epgCB.pictures != null)
                 {
                     pics = new Dictionary<long, Image>();
@@ -1133,7 +1136,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (result.Object != null)
                         {
-                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());                            
+                            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
 
                         ImageReferenceTable table = GetImageReferenceTable(imageToAdd.ImageObjectType);
@@ -1264,7 +1267,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (image.ImageObjectType == eAssetImageType.Program)
                     {
-                        EpgAssetManager.UpdateProgramAssetPictures(image);
+                        EpgAssetManager.UpdateProgramAssetPictures(groupId, image);
                     }
 
                     // invalidate asset with this image

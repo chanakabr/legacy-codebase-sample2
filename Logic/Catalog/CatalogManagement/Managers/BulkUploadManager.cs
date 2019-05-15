@@ -392,8 +392,9 @@ namespace Core.Catalog.CatalogManagement
 
                 if (warnings != null && warnings.Count > 0)
                 {
-                    bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings;
+                    bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings.ToArray();
                 }
+
 
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL, out updatedStatus))
