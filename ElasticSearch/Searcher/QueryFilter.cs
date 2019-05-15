@@ -212,6 +212,16 @@ namespace ElasticSearch.Searcher
             m_bIsNumeric = bIsNumeric;
         }
 
+        public ESTerms(string key, params long[] terms)
+        {
+            eType = eTermType.TERMS;
+            Key = key;
+            Value = new List<string>();
+            var termsStr = terms.Select(t=>t.ToString());
+            Value.AddRange(termsStr);
+            m_bIsNumeric = true;
+        }
+
         public bool IsEmpty()
         {
             return (string.IsNullOrEmpty(Key) || Value == null || Value.Count == 0) ? true : false;

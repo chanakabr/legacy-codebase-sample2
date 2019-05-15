@@ -17,6 +17,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TVinciShared;
+using ESUtils = ElasticSearch.Common.Utils;
+
 
 namespace EpgBL
 {
@@ -335,7 +337,8 @@ namespace EpgBL
 
             if (includeRecordingFallback)
             {
-                var list = m_oEpgCouchbase.GetProgram(new List<string>() { nProgramID.ToString() });
+                var docKey = GetEpgCBKey(m_nGroupID, (long)nProgramID);
+                var list = m_oEpgCouchbase.GetProgram(new List<string>() { docKey });
                 oRes = list.FirstOrDefault();
             }
             else
@@ -350,17 +353,9 @@ namespace EpgBL
         {
             try
             {
-
-                string docID = string.Empty;
-                List<string> docIDs = new List<string>();
-                docIDs.Add(nProgramID.ToString()); // for main language
-                //Build list of keys with language
-                foreach (string lang in languages)
-                {
-                    docID = string.Format("epg_{0}_lang_{1}", nProgramID, lang.ToLower());
-                    docIDs.Add(docID);
-                }
-                List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(docIDs);
+                var partialLangObjects = languages.Select(landCode => new LanguageObj { Code = landCode });
+                var docIDs = GetEpgCBKeys(m_nGroupID, (long)nProgramID, partialLangObjects);
+                var lResCB = m_oEpgCouchbase.GetProgram(docIDs);
 
                 return lResCB;
             }
@@ -373,25 +368,25 @@ namespace EpgBL
 
         public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> languages)
         {
-            List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
-            List<EPGChannelProgrammeObject> resultForMultilingual = new List<EPGChannelProgrammeObject>();
+            var result = new List<EPGChannelProgrammeObject>();
+            var resultForMultilingual = new List<EPGChannelProgrammeObject>();
 
             try
             {
-                string docID = string.Empty;
-                List<string> docIDs = new List<string>();
+                var docID = string.Empty;
+                var docIDs = new List<string>();
                 LanguageObj defaultLanguage = null;
                 List<EpgCB> cbEpgs = null;
 
                 if (languages != null && languages.Count > 0)
                 {
                     // in case default Language is needed calling the default CB document with program Id
-                    defaultLanguage = languages.FirstOrDefault(x => x.IsDefault);                    
+                    defaultLanguage = languages.FirstOrDefault(x => x.IsDefault);
                     if (defaultLanguage != null)
                     {
-                        foreach (ulong programId in programIDs)
+                        foreach (var programId in programIDs)
                         {
-                            docID = programId.ToString();
+                            docID = GetEpgCBKey(m_nGroupID, (long)programId);
                             docIDs.Add(docID);
                         }
 
@@ -402,7 +397,7 @@ namespace EpgBL
                         UpdateProgrammeWithMultilingual(ref result, defaultLanguage);
                     }
 
-                    List<LanguageObj> noneDefaultLanguages = languages.Where(x => !x.IsDefault).ToList();
+                    var noneDefaultLanguages = languages.Where(x => !x.IsDefault).ToList();
                     if (noneDefaultLanguages != null)
                     {
                         foreach (var languageObj in noneDefaultLanguages)
@@ -410,7 +405,7 @@ namespace EpgBL
                             docIDs = new List<string>();
                             foreach (ulong programId in programIDs)
                             {
-                                docID = string.Format("epg_{0}_lang_{1}", programId, languageObj.Code.ToLower());
+                                docID = GetEpgCBKey(m_nGroupID, (long)programId, languageObj.Code.ToLower());
                                 docIDs.Add(docID);
                             }
                             cbEpgs = m_oEpgCouchbase.GetProgram(docIDs);
@@ -455,15 +450,7 @@ namespace EpgBL
                 //Build list of keys with language
                 foreach (ulong programId in programIDs)
                 {
-                    // default
-                    if (string.IsNullOrEmpty(language))
-                    {
-                        docID = programId.ToString();
-                    }
-                    else
-                    {
-                        docID = string.Format("epg_{0}_lang_{1}", programId, language.ToLower());
-                    }
+                    docID = GetEpgCBKey(m_nGroupID, (long)programId, language);
                     docIDs.Add(docID);
 
                 }
@@ -486,13 +473,15 @@ namespace EpgBL
 
         public override EpgCB GetEpgCB(ulong nProgramID, out ulong cas)
         {
-            EpgCB oRes = m_oEpgCouchbase.GetProgram(nProgramID.ToString(), out cas);
+            var docId = GetEpgCBKey(m_nGroupID, (long)nProgramID);
+            EpgCB oRes = m_oEpgCouchbase.GetProgram(docId, out cas);
             oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
             return oRes;
         }
 
         public override EpgCB GetEpgCB(string ProgramID, out ulong cas)
         {
+            // TODO: Arthur: I think this is not in use, see if we can remove this
             EpgCB oRes = m_oEpgCouchbase.GetProgram(ProgramID, out cas);
             oRes = (oRes != null && oRes.ParentGroupID == m_nGroupID) ? oRes : null;
             return oRes;
@@ -790,8 +779,7 @@ namespace EpgBL
 
         public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
         {
-            List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
-
+            var lIdsStrings = lIds.ConvertAll(x => GetEpgCBKey(m_nGroupID, x));
             return GetEpgChannelProgrammeObjects(lIdsStrings);
         }
 
@@ -972,6 +960,7 @@ namespace EpgBL
         {
             try
             {
+                // Arthur: TODO: check if we can do long.parse here to get the key from elastic
                 List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIds);
                 return lResCB;
             }
@@ -1085,7 +1074,7 @@ namespace EpgBL
                     }
                 }
             }
-            
+
             List<EPGDictionary> lTags = new List<EPGDictionary>();
             if (epg.Tags != null && epg.Tags.Count > 0)
             {
@@ -1102,11 +1091,11 @@ namespace EpgBL
                     }
                 }
             }
-            
+
             int nUPDATER_ID = 0;                      //not in use
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
-            oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), 
-                             epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(), epg.IsActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), 
+            oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"),
+                             epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(), epg.IsActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(),
                              epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString("dd/MM/yyyy HH:mm:ss"), epg.CreateDate.ToString("dd/MM/yyyy HH:mm:ss"), lTags, lMetas,
                              epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes, epg.pictures, epg.EnableCDVR, epg.EnableCatchUp, epg.EnableStartOver, epg.EnableTrickPlay, epg.Crid);
             oProg.PIC_ID = epg.PicID;
@@ -1130,6 +1119,85 @@ namespace EpgBL
         public string GetProgramIndexAlias()
         {
             return $"{m_nGroupID}_epg";
+        }
+
+        public List<string> GetEpgCBDocumentIdsByEpgIdFromElasticsearch(int groupId, long epgId, IEnumerable<LanguageObj> langCodes)
+        {
+            langCodes = langCodes ?? Enumerable.Empty<LanguageObj>();
+            var epgBl = new TvinciEpgBL(groupId);
+            var esClient = new ElasticSearchApi();
+
+            // Build query for getting programs
+            var query = new FilteredQuery(true);
+            var filter = new QueryFilter();
+
+            // basic initialization
+            query.PageIndex = 0;
+            query.PageSize = 0;
+            query.ReturnFields.Clear();
+            query.AddReturnField("epg_id");
+            query.AddReturnField("document_id");
+
+            var composite = new FilterCompositeType(CutWith.AND);
+            var terms = new ESTerms("epg_id", epgId);
+            composite.AddChild(terms);
+
+            filter.FilterSettings = composite;
+            query.Filter = filter;
+
+            string searchQuery = query.ToString();
+
+            var alias = GetProgramIndexAlias();
+            var languageIndexes = langCodes.Select(langCode => langCode.IsDefault ? "epg" : $"epg_{langCode.Code}");
+            var indexType = langCodes.Any() ? string.Join(",", languageIndexes) : "epg";
+
+            var searchResult = esClient.Search(alias, indexType, ref searchQuery);
+
+            if (string.IsNullOrEmpty(searchResult)) { throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > Got empty results from elasticsearch epgId:[{epgId}], groupId:[{groupId}], langCodes:[{string.Join(",", langCodes)}]"); }
+
+            var json = JObject.Parse(searchResult);
+
+            var hits = (json["hits"]["hits"] as JArray);
+            var results = hits.Select(hit => ESUtils.ExtractValueFromToken<string>(hit["fields"], "document_id")).ToList();
+            return results;
+        }
+
+
+
+        //public static List<string> GetEpgCBKeys(int groupId, IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
+        //{
+        //    var result = new List<string>();
+        //    foreach (var epgId in epgIds)
+        //    {
+        //        var docKeys = GetEpgCBKeys(groupId, epgId, langCodes);
+        //        result.AddRange(docKeys);
+        //    }
+
+        //    return result;
+        //}
+
+        public List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes)
+        {
+            var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+            if (isNewEpgIngestEnabled)
+            {
+                // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
+                // so there is no way for us to now what is the document id.
+                // elastisearch holds the current document in CB so we go there to take it
+                return GetEpgCBDocumentIdsByEpgIdFromElasticsearch(groupId, epgId, langCodes);
+            }
+
+            if (langCodes == null) { return new List<string> { epgId.ToString() }; }
+            var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+            return keys.ToList();
+        }
+
+        public string GetEpgCBKey(int groupId, long epgId, string langCode = null)
+        {
+
+            var langs = string.IsNullOrEmpty(langCode) ? null : new[] {new LanguageObj { Code = langCode } };
+            var keys = GetEpgCBKeys(groupId, epgId, langs);
+            return keys.FirstOrDefault();
         }
 
         #endregion

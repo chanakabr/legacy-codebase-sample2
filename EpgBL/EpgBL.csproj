@@ -22,6 +22,7 @@
     <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>
   
