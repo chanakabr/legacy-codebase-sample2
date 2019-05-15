@@ -827,7 +827,8 @@ namespace ApiObjects
         BUZZFEED = 1,
         WRITE_MEDIA_EOH_STATISTICS_LOG = 2,
         WRITE_NEW_WATCHER_MEDIA_ACTION_LOG = 3,
-        EXTERNAL_RECORDINGS = 4
+        EXTERNAL_RECORDINGS = 4,
+        EPG_INGEST_V2 = 5
     }
 
     public enum ResponseStatus

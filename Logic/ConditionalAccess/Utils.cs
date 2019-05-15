@@ -6261,7 +6261,11 @@ namespace Core.ConditionalAccess
                 {
                     if (epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
                     {
-                        epgFieldMappings.Add(SERIES_ID, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                        var meta = epg.EPG_Meta.Where(x => x.Key == field.Name.ToLower()).FirstOrDefault();
+                        if (!meta.Equals(default(EPGDictionary)))
+                        {
+                            epgFieldMappings.Add(SERIES_ID, meta.Value);
+                        }
                     }
                     else
                     {
@@ -6273,7 +6277,11 @@ namespace Core.ConditionalAccess
                 {
                     if (epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
                     {
-                        epgFieldMappings.Add(SERIES_ID, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                        var tag = epg.EPG_TAGS.Where(x => x.Key == field.Name.ToLower()).FirstOrDefault();
+                        if (!tag.Equals(default(EPGDictionary)))
+                        {
+                            epgFieldMappings.Add(SERIES_ID, tag.Value);
+                        }
                     }
                     else
                     {
@@ -6292,11 +6300,19 @@ namespace Core.ConditionalAccess
                 {
                     if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
                     {
-                        epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                        var meta = epg.EPG_Meta.Where(x => x.Key == field.Name.ToLower()).FirstOrDefault();
+                        if (!meta.Equals(default(EPGDictionary)))
+                        {
+                            epgFieldMappings.Add(SEASON_NUMBER, meta.Value);
+                        }
                     }
                     else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
                     {
-                        epgFieldMappings.Add(SEASON_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                        var tag = epg.EPG_TAGS.Where(x => x.Key == field.Name.ToLower()).FirstOrDefault();
+                        if (!tag.Equals(default(EPGDictionary)))
+                        {
+                            epgFieldMappings.Add(SEASON_NUMBER, tag.Value);
+                        }
                     }
                 }
 
@@ -6305,11 +6321,19 @@ namespace Core.ConditionalAccess
                 {
                     if (field.FieldType == FieldTypes.Meta && epg.EPG_Meta != null && epg.EPG_Meta.Count > 0)
                     {
-                        epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_Meta.Where(x => x.Key == field.Name).First().Value);
+                        var meta = epg.EPG_Meta.Where(x => x.Key == field.Name.ToLower()).FirstOrDefault();
+                        if (!meta.Equals(default(EPGDictionary)))
+                        {
+                            epgFieldMappings.Add(EPISODE_NUMBER, meta.Value);
+                        }
                     }
                     else if (field.FieldType == FieldTypes.Tag && epg.EPG_TAGS != null && epg.EPG_TAGS.Count > 0)
                     {
-                        epgFieldMappings.Add(EPISODE_NUMBER, epg.EPG_TAGS.Where(x => x.Key == field.Name).First().Value);
+                        var tag = epg.EPG_TAGS.Where(x => x.Key == field.Name.ToLower()).FirstOrDefault();
+                        if (!tag.Equals(default(EPGDictionary)))
+                        {
+                            epgFieldMappings.Add(EPISODE_NUMBER, tag.Value);
+                        }
                     }
                 }
             }

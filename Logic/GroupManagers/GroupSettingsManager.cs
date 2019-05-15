@@ -14,7 +14,7 @@ namespace Core.GroupManagers
     {
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static bool IsOpc (int groupId) => DoesGroupUsesTemplates(groupId);
+        public static bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
@@ -37,48 +37,9 @@ namespace Core.GroupManagers
             return result;
         }
 
-         public static int GetEpgIngestVersion(int groupId)
+        public static bool DoesGroupUseNewEpgIngest(int groupId)
         {
-            int result = 1;
-            try
-            {
-                string key = LayeredCacheKeys.GetEpgIngestVersionCacheKey(groupId);
-
-                if (!LayeredCache.Instance.Get<int>(key, ref result, GetEpgIngestVersion, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                        LayeredCacheConfigNames.GET_EPG_INGEST_VERSION_CACHE_CONFIG_NAME))
-                {
-                    _logger.ErrorFormat("Failed getting GetEpgIngestVersion from LayeredCache, groupId: {0}", groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(string.Format("Failed GetEpgIngestVersion with groupId: {0}", groupId), ex);
-            }
-
-            return result;
-        }
-
-        private static Tuple<int, bool> GetEpgIngestVersion(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            int epgIngestVersion = 0;
-            try
-            {
-                if (funcParams.TryGetValue("groupId", out var groupIdStr))
-                {
-                    var groupId = (int)groupIdStr;
-                    epgIngestVersion = CatalogDAL.GetEpgIngestVersion(groupId);
-                    res = true;
-
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(string.Format("EpgIngestVersion failed params : {0}", funcParams != null ? string.Join(";",
-                         funcParams.Select(x => string.Format("key:{0}, value: {1}", x.Key, x.Value.ToString())).ToList()) : string.Empty), ex);
-            }
-
-            return Tuple.Create(epgIngestVersion, res);
+            return TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
         }
 
         private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)
