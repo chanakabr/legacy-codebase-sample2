@@ -38,6 +38,7 @@ namespace IngestHandler
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly string DEFAULT_INDEX_MAPPING_TYPE = "epg";
+        public static readonly int DEFAULT_CATCHUP_DAYS = 7;
         public const string LOWERCASE_ANALYZER =
             "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
 
@@ -222,9 +223,44 @@ namespace IngestHandler
             epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem);
             epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem);
 
-            UploadEpgItemImages(parsedProg.icon,epgItem, bulkUploadResultItem);
+            UploadEpgItemImages(parsedProg.icon, epgItem, bulkUploadResultItem);
 
             return epgItem;
+        }
+
+        private static void SetSearchEndDate(List<EpgCB> lEpg, int groupID)
+        {
+            try
+            {
+                var days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+                days = days == 0 ? DEFAULT_CATCHUP_DAYS : days;
+
+                List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
+                var linearChannelSettings = BulkUploadIngestJobData.GetLinearChannelSettings(groupID, epgChannelIds);
+
+                Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
+                {
+                    var channel = linearChannelSettings.FirstOrDefault(c => c.ChannelID.Equals(currentElement.ChannelID));
+                    if (channel == null)
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
+                    }
+                    else if (channel.EnableCatchUp)
+                    {
+                        currentElement.SearchEndDate =
+                            currentElement.EndDate.AddMinutes(channel.CatchUpBuffer);
+                    }
+                    else
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"Error EPG ingest threw an exception. (in GetSearchEndDate). Exception={ex.Message};Stack={ex.StackTrace}", ex);
+                throw ex;
+            }
         }
 
         private void UploadEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
@@ -427,7 +463,7 @@ namespace IngestHandler
                 if (currentProgramsDictionary.ContainsKey(programToIngest.EpgExternalId))
                 {
                     // update the epg id of the ingested programs with their existing epg id from CB
-                    var idToUpdate = currentProgramsDictionary[programToIngest.EpgExternalId].EpgId; ;
+                    var idToUpdate = currentProgramsDictionary[programToIngest.EpgExternalId].EpgId;
                     programToIngest.EpgId = idToUpdate;
                     programToIngest.EpgCbObjects.ForEach(p => p.EpgID = idToUpdate);
                     crudOperations.ItemsToUpdate.Add(programToIngest);
@@ -513,46 +549,9 @@ namespace IngestHandler
 
         private List<EpgCB> GetAllProgramsTranslations(ulong epgID)
         {
-            return GetAllProgramsTranslations(new[] { epgID });
-        }
-
-        private List<EpgCB> GetAllProgramsTranslations(IEnumerable<ulong> epgID)
-        {
-            // Build query for getting programs
-            var query = new FilteredQuery(true);
-            var filter = new QueryFilter();
-
-            // basic initialization
-            query.PageIndex = 0;
-            query.PageSize = 0;
-            query.ReturnFields.Clear();
-
-            var composite = new FilterCompositeType(CutWith.AND);
-            var terms = new ESTerms(bIsNumeric: true);
-            terms.Value.AddRange(epgID.Select(ids => ids.ToString()));
-            composite.AddChild(terms);
-
-            filter.FilterSettings = composite;
-            query.Filter = filter;
-
-            string searchQuery = query.ToString();
-
-            var alias = _EpgBL.GetProgramIndexAlias();
-            var indexType = ""; // all languages
-            var searchResult = _ElasticSearchClient.Search(alias, indexType, ref searchQuery);
-
-            if (!string.IsNullOrEmpty(searchResult))
-            {
-                var json = JObject.Parse(searchResult);
-
-                var hits = (json["hits"]["hits"] as JArray);
-                var documentIds = hits.Select(h => h["document_id"]?.ToString()).ToList();
-                var result = _CouchbaseManager.GetValues<EpgCB>(documentIds, false);
-                return result.Values.ToList();
-
-            }
-
-            return new List<EpgCB>();
+            var documentIds = _EpgBL.GetEpgCBKeys(_EventData.GroupId, (long)epgID, _Languages.Values);
+            var result = _CouchbaseManager.GetValues<EpgCB>(documentIds, false);
+            return result.Values.ToList();
         }
 
         private List<EpgProgramBulkUploadObject> CalculateSimulatedFinalStateAfterIngest(IList<EpgProgramBulkUploadObject> programsToAdd, IList<EpgProgramBulkUploadObject> programsToUpdate)
@@ -662,6 +661,7 @@ namespace IngestHandler
             await policy.ExecuteAsync(async () =>
             {
                 var epgCbObjectToInsert = calculatedPrograms.SelectMany(p => p.EpgCbObjects).ToList();
+                SetSearchEndDate(epgCbObjectToInsert, _EventData.GroupId);
                 insertResult = await dal.InsertPrograms(epgCbObjectToInsert, EXPIRY_DATE_DELTA);
 
             });
