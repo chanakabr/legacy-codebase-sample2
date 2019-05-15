@@ -14306,6 +14306,8 @@ namespace Core.ConditionalAccess
 
         public ApiObjects.Response.Status IngestRecording(List<long> epgIds, eAction action)
         {
+            log.Debug(string.Format("IngestRecording called with epg ids: {0} and action: {1}", string.Join(",", epgIds), action));
+
             ApiObjects.Response.Status status = null;
 
             // Nothing to do
