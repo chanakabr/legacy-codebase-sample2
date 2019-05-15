@@ -733,7 +733,7 @@ namespace Core.Api.Managers
 
                 if (assetRule.HasCountryConditions())
                 {
-                    HandleRuleUpdate(groupId, assetRule);
+                    HandleRuleUpdate(groupId, ref assetRule);
                 }
 
                 // upsert dtUpdatedAssetRulesActions            
@@ -1200,7 +1200,7 @@ namespace Core.Api.Managers
             AssetRule assetRule = assetRuleResponse.Object;
 
             //1. countries
-            if (countriesToRemove != null && countriesToRemove.Count > 0)
+            if (countriesToRemove?.Count > 0)
             {
                 //remove from table
                 while (true)
@@ -1243,27 +1243,26 @@ namespace Core.Api.Managers
                 }
             }
 
-
-                //3. StartDate
-                if (removeAllowed)
+            //3. StartDate
+            if (removeAllowed)
+            {
+                //remove allowd from table
+                mediaTable = ApiDAL.UpdateMediaCountriesByIsAllowed(groupId, assetRule.Id, 1);
+                while (true)
                 {
-                    //remove allowd from table
-                    mediaTable = ApiDAL.UpdateMediaCountriesByIsAllowed(groupId, assetRule.Id, 1);
-                    while (true)
+                    if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
                     {
-                        if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
+                        foreach (DataRow dr in mediaTable.Rows)
                         {
-                            foreach (DataRow dr in mediaTable.Rows)
-                            {
-                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
-                                updatedMediaIds.Add(mediaId);
-                            }
-                        }
-                        else
-                        {
-                            break;
+                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                            updatedMediaIds.Add(mediaId);
                         }
                     }
+                    else
+                    {
+                        break;
+                    }
+                }
 
             }
 
@@ -1333,7 +1332,7 @@ namespace Core.Api.Managers
             return true;
         }
 
-        private static void HandleRuleUpdate(int groupId, AssetRule assetRule)
+        private static void HandleRuleUpdate(int groupId, ref AssetRule assetRule)
         {
             //get old rule
             var oldRuleResopnse = GetAssetRule(groupId, assetRule.Id);
@@ -1381,25 +1380,20 @@ namespace Core.Api.Managers
                     updateKsql = true;
                 }
 
-                assetRule.Status = RuleStatus.InProgress;
-                if (!ApiDAL.SaveAssetRuleCB(groupId, assetRule))
+                if (updateKsql || removeAllowed || removeBlocked || countriesToRemove?.Count > 0)
                 {
-                    log.ErrorFormat("Error while saving AssetRule. groupId: {0}, assetRuleId:{1}", groupId, assetRule.Id);
-                }
-                else
-                {
-                    SetInvalidationKeys(groupId, assetRule.Id);
-                }
+                    assetRule.Status = RuleStatus.InProgress;
 
-                GenericCeleryQueue queue = new GenericCeleryQueue();
-                ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id, 
-                    countriesToRemove, removeBlocked, removeAllowed, updateKsql)
-                { ETA = DateTime.UtcNow };
-                bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
-                if (!queueGeoRuleUpdateResult)
-                {
-                    log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
-                }
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id,
+                        countriesToRemove, removeBlocked, removeAllowed, updateKsql)
+                    { ETA = DateTime.UtcNow };
+                    bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
+                    if (!queueGeoRuleUpdateResult)
+                    {
+                        log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
+                    }
+                }                
             }
         }
 
