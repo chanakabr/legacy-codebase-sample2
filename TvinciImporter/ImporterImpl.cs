@@ -6340,7 +6340,7 @@ namespace TvinciImporter
                         break;
                 }
 
-                log.DebugFormat("calling cas.IngestRecording: {0}, {1}, {2}, {3}, {4}", casURL, sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                log.DebugFormat("calling cas.IngestRecording: {0}, {1}, {2}, {3}, {4}", casURL, sWSUserName, sWSPassword, string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()), casAction);
 
                 if (isCalledFromTvm)
                 {
