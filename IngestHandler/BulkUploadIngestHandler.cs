@@ -515,7 +515,8 @@ namespace IngestHandler
                         var firstCurrentProgramTranslations = GetAllProgramsTranslations(firstCurrentProgram.EpgId);
                         firstCurrentProgramTranslations.ForEach(p => p.StartDate = firstProgramToIngest.StartDate);
                         firstCurrentProgram.EpgCbObjects = firstCurrentProgramTranslations;
-                        crudOperations.ItemsToUpdate.Add(firstCurrentProgram);
+                        var isProgramAlreadyInUpdateList = crudOperations.ItemsToUpdate.Any(p => p.EpgExternalId == firstCurrentProgram.EpgExternalId);
+                        if (!isProgramAlreadyInUpdateList) { crudOperations.ItemsToUpdate.Add(firstCurrentProgram); }
                     }
                     else
                     {
@@ -536,7 +537,8 @@ namespace IngestHandler
                         var lastCurrentProgramTranslations = GetAllProgramsTranslations(lastCurrentProgram.EpgId);
                         lastCurrentProgramTranslations.ForEach(p => p.StartDate = lastProgramToIngest.EndDate);
                         lastCurrentProgram.EpgCbObjects = lastCurrentProgramTranslations;
-                        crudOperations.ItemsToUpdate.Add(lastCurrentProgram);
+                        var isProgramAlreadyInUpdateList = crudOperations.ItemsToUpdate.Any(p => p.EpgExternalId == lastCurrentProgram.EpgExternalId);
+                        if (!isProgramAlreadyInUpdateList) { crudOperations.ItemsToUpdate.Add(lastCurrentProgram); }
                     }
                     else
                     {
