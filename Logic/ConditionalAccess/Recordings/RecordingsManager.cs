@@ -323,10 +323,9 @@ namespace Core.Recordings
             return status;
         }
 
-        public Recording GetRecordingStatus(int groupId, long recordingId, List<long> domainIds, out HashSet<long> failedDomainIds)
+        public Recording GetRecordingStatus(int groupId, long recordingId)
         {
             Recording currentRecording = ConditionalAccess.Utils.GetRecordingById(recordingId);
-            failedDomainIds = null;
             try
             {
                 if (currentRecording == null)
@@ -374,7 +373,7 @@ namespace Core.Recordings
 
                             try
                             {
-                                adapterResponse = adapterController.GetRecordingStatus(groupId, externalChannelId, currentRecording.ExternalRecordingId, adapterId, domainIds);
+                                adapterResponse = adapterController.GetRecordingStatus(groupId, externalChannelId, currentRecording.ExternalRecordingId, adapterId);
                             }
                             catch (KalturaException ex)
                             {
@@ -408,15 +407,10 @@ namespace Core.Recordings
                                 if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                                 {
                                     currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
-                                    if (adapterResponse.FailedDomainIds != null && adapterResponse.FailedDomainIds.Count > 0)
-                                    {
-                                        failedDomainIds = new HashSet<long>(adapterResponse.FailedDomainIds);
-                                    }
                                 }
                                 else
                                 {
                                     currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
-
                                     currentRecording.Status = CreateFailStatus(adapterResponse);
                                 }
 
