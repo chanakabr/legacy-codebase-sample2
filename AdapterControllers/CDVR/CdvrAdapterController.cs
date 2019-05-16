@@ -273,8 +273,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         //call Adapter GetRecordingStatus
-                        //TODO GUY - remove domains list after update Adapter ref
-                        adapterResponse = client.GetRecordingStatus(recordingId, channelId, new List<long>(), adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
                     catch (Exception ex)
                     {
@@ -305,8 +304,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingStatus - after it is configured
                         try
                         {
-                            //TODO GUY - remove domains list after update Adapter ref
-                            adapterResponse = client.GetRecordingStatus(recordingId, channelId, new List<long>(), adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                         }
                         catch (Exception ex)
                         {
