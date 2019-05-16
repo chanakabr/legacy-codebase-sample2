@@ -6160,68 +6160,8 @@ namespace Core.Catalog
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
-                var groupPermittedWatchRules = GetGroupPermittedWatchRules(request.m_nGroupID);
-                if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
-                {
-                    string watchRules = string.Join(" ", GetGroupPermittedWatchRules(request.m_nGroupID));
-
-                    // validate media on ES
-                    UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
-                    {
-                        groupId = request.m_nGroupID,
-                        permittedWatchRules = watchRules,
-                        specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                        shouldUseFinalEndDate = true,
-                        shouldUseStartDateForMedia = true,
-                        shouldAddIsActiveTerm = true,
-                        shouldIgnoreDeviceRuleID = true,
-                        shouldUseSearchEndDate = true,
-                        shouldUseEndDateForEpg = false,
-                        shouldUseStartDateForEpg = false
-                    };
-
-                    int elasticSearchPageSize = 0;
-                    var recommendationsMapping = recommendations.GroupBy(x => x.type).ToDictionary(x => x.Key, x => x.ToDictionary(y => y.id, y => y.TagsExtarData));
-
-                    if (recommendationsMapping.ContainsKey(eAssetTypes.MEDIA) && recommendationsMapping[eAssetTypes.MEDIA].Count > 0)
-                    {
-                        searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, recommendationsMapping[eAssetTypes.MEDIA].Keys.ToList());
-                        searchDefinitions.shouldSearchMedia = true;
-                        elasticSearchPageSize += recommendationsMapping[eAssetTypes.MEDIA].Count;
-                    }
-
-                    if (recommendationsMapping.ContainsKey(eAssetTypes.EPG) && recommendationsMapping[eAssetTypes.EPG].Count > 0)
-                    {
-                        searchDefinitions.specificAssets.Add(eAssetTypes.EPG, recommendationsMapping[eAssetTypes.EPG].Keys.ToList());
-                        searchDefinitions.shouldSearchEpg = true;
-                        elasticSearchPageSize += recommendationsMapping[eAssetTypes.EPG].Count;
-                    }
-
-                    searchDefinitions.pageSize = elasticSearchPageSize;
-
-                    if (elasticSearchPageSize > 0)
-                    {
-                        ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
-                        int esTotalItems = 0, to = 0;
-                        var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
-
-                        if (searchResults != null && searchResults.Count > 0)
-                        {
-                            totalItems = searchResults.Count;
-
-                            foreach (var searchResult in searchResults)
-                            {
-                                searchResultsList.Add(new RecommendationSearchResult
-                                {
-                                    AssetId = searchResult.AssetId,
-                                    AssetType = searchResult.AssetType,
-                                    m_dUpdateDate = searchResult.m_dUpdateDate,
-                                    TagsExtraData = recommendationsMapping[searchResult.AssetType][searchResult.AssetId]
-                                });
-                            }
-                        }
-                    }
-                }
+                searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
+                totalItems = searchResultsList.Count;
             }
             // If there is, go to ES and perform further filter
             else
@@ -6338,6 +6278,89 @@ namespace Core.Catalog
             }
 
             return status;
+        }
+
+        private static List<UnifiedSearchResult> GetValidateRecommendationsAssets(List<RecommendationResult> recommendations, int groupId)
+        {
+            var searchResultsList = new List<UnifiedSearchResult>();
+            var groupPermittedWatchRules = GetGroupPermittedWatchRules(groupId);
+            if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
+            {
+                string watchRules = string.Join(" ", GetGroupPermittedWatchRules(groupId));
+
+                // validate media on ES
+                UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()
+                {
+                    groupId = groupId,
+                    permittedWatchRules = watchRules,
+                    specificAssets = new Dictionary<eAssetTypes, List<string>>(),
+                    shouldUseFinalEndDate = true,
+                    shouldUseStartDateForMedia = true,
+                    shouldAddIsActiveTerm = true,
+                    shouldIgnoreDeviceRuleID = true,
+                    shouldUseSearchEndDate = true,
+                    shouldUseEndDateForEpg = false,
+                    shouldUseStartDateForEpg = false
+                };
+
+                int elasticSearchPageSize = 0;
+                var recommendationsMapping = recommendations.GroupBy(x => x.type).ToDictionary(x => x.Key, x => x.ToDictionary(y => y.id, y => y.TagsExtarData));
+
+                if (recommendationsMapping.ContainsKey(eAssetTypes.MEDIA) && recommendationsMapping[eAssetTypes.MEDIA].Count > 0)
+                {
+                    searchDefinitions.specificAssets.Add(eAssetTypes.MEDIA, recommendationsMapping[eAssetTypes.MEDIA].Keys.ToList());
+                    searchDefinitions.shouldSearchMedia = true;
+                    elasticSearchPageSize += recommendationsMapping[eAssetTypes.MEDIA].Count;
+                }
+
+                if (recommendationsMapping.ContainsKey(eAssetTypes.EPG) && recommendationsMapping[eAssetTypes.EPG].Count > 0)
+                {
+                    searchDefinitions.specificAssets.Add(eAssetTypes.EPG, recommendationsMapping[eAssetTypes.EPG].Keys.ToList());
+                    searchDefinitions.shouldSearchEpg = true;
+                    elasticSearchPageSize += recommendationsMapping[eAssetTypes.EPG].Count;
+                }
+
+                searchDefinitions.pageSize = elasticSearchPageSize;
+
+                var searchResultsMapping = new Dictionary<eAssetTypes, Dictionary<string, DateTime>>();
+
+                if (elasticSearchPageSize > 0)
+                {
+                    ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                    int esTotalItems = 0, to = 0;
+                    var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+
+                    if (searchResults != null && searchResults.Count > 0)
+                    {
+                        searchResultsMapping = searchResults.GroupBy(x => x.AssetType).ToDictionary(x => x.Key, x => x.ToDictionary(y => y.AssetId, y => y.m_dUpdateDate));
+                    }
+                }
+
+                foreach (var recommendation in recommendations)
+                {
+                    if (recommendation.type == eAssetTypes.NPVR)
+                    {
+                        searchResultsList.Add(new RecommendationSearchResult
+                        {
+                            AssetId = recommendation.id,
+                            AssetType = recommendation.type,
+                            TagsExtraData = recommendation.TagsExtarData
+                        });
+                    }
+                    else if (searchResultsMapping.ContainsKey(recommendation.type) && searchResultsMapping[recommendation.type].ContainsKey(recommendation.id))
+                    {
+                        searchResultsList.Add(new RecommendationSearchResult
+                        {
+                            AssetId = recommendation.id,
+                            AssetType = recommendation.type,
+                            m_dUpdateDate = searchResultsMapping[recommendation.type][recommendation.id],
+                            TagsExtraData = recommendation.TagsExtarData
+                        });
+                    }
+                }
+            }
+
+            return searchResultsList;
         }
 
         internal static ApiObjects.Response.Status GetExternalRelatedAssets(MediaRelatedExternalRequest request, out int totalItems, out List<RecommendationResult> resultsList, out string requestId)
