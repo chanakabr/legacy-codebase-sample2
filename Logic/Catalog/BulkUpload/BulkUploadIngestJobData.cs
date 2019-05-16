@@ -37,6 +37,8 @@ namespace Core.Catalog
         {
             var response = new GenericListResponse<BulkUploadResult>();
             var profile = IngestProfileManager.GetIngestProfileById(groupId, IngestProfileId)?.Object;
+            if (profile?.GroupId != groupId) { throw new Exception("Ingest Profile does not exist."); }
+
             var xmlTvString = GetXmlTv(fileUrl, profile);
 
             try
