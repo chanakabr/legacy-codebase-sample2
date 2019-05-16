@@ -1601,12 +1601,10 @@ namespace TVPApiServices
             {
                 try
                 {
-                    string ip = SiteHelper.GetClientIP();
-
-                    logger.DebugFormat("BEO-6653 - GetClientIP:{0}, useriP:{1}", ip, userIP == null ? "NULL" : userIP);
+                    userIP = SiteHelper.GetClientIP();
 
                     response = new ApiConditionalAccessService(groupId, initObj.Platform).
-                        GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, ip, refferer, countryCd2, languageCode3, initObj.UDID, formatType);
+                        GetEPGLicensedLink(initObj.SiteGuid, mediaFileID, EPGItemID, startTime, basicLink, userIP, refferer, countryCd2, languageCode3, initObj.UDID, formatType);
                 }
                 catch (Exception ex)
                 {
