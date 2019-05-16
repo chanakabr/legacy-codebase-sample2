@@ -348,7 +348,7 @@ namespace Tvinci.Core.DAL
             {
                 return ds.Tables[0].ToList<EpgChannelObj>();
             }
-            
+
             return new List<EpgChannelObj>();
         }
 
@@ -797,15 +797,14 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static bool SaveEpgCB(EpgCB epgCB, bool isMainLang)
+        public static bool SaveEpgCB(string documentId, EpgCB epgCB)
         {
             bool bRes = false;
 
             if (epgCB == null)
                 return false;
 
-            string key = GetEpgCBKey((long)epgCB.EpgID, isMainLang ? null : epgCB.Language);
-            epgCB.DocumentId = key;
+            epgCB.DocumentId = documentId;
 
             try
             {
@@ -814,13 +813,13 @@ namespace Tvinci.Core.DAL
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
-                    bRes = cbManager.Set(key, JsonConvert.SerializeObject(epgCB, Formatting.None), expiration);
+                    bRes = cbManager.Set(documentId, JsonConvert.SerializeObject(epgCB, Formatting.None), expiration);
                 }
 
                 if (!bRes)
                 {
-                    log.Error("SaveEpgCB - " + string.Format("Failed insert to CB id={0}", key));
-                    key = string.Empty;
+                    log.Error("SaveEpgCB - " + string.Format("Failed insert to CB id={0}", documentId));
+                    documentId = string.Empty;
                 }
             }
             catch (Exception ex)
@@ -832,46 +831,34 @@ namespace Tvinci.Core.DAL
             return bRes;
         }
 
-        public static List<EpgCB> GetEpgCBList(long epgId, List<LanguageObj> languages)
+        public static List<EpgCB> GetEpgCBList(List<string> documentIds)
         {
-            List<EpgCB> resultEpgs = new List<EpgCB>();
+            var resultEpgs = new List<EpgCB>();
+            var recordingKeys = new List<string>();
+            var tempEpgs = UtilsDal.GetObjectListFromCB<EpgCB>(eCouchbaseBucket.EPG, documentIds, true);
 
-            if (languages != null && languages.Count > 0)
+            if (tempEpgs != null && tempEpgs.Count > 0)
             {
-                Dictionary<string, string> langCodeToKeyMapping = new Dictionary<string, string>();
-
-                foreach (var lang in languages)
+                foreach (var epg in tempEpgs)
                 {
-                    string key = GetEpgCBKey(epgId, lang.IsDefault ? null : lang.Code);
-                    langCodeToKeyMapping.Add(lang.Code, key);
-                }
-
-                List<string> recordingKeys = new List<string>();
-                List<EpgCB> tempEpgs = UtilsDal.GetObjectListFromCB<EpgCB>(eCouchbaseBucket.EPG, langCodeToKeyMapping.Values.ToList(), true);
-
-                if (tempEpgs != null && tempEpgs.Count > 0)
-                {
-                    foreach (var epg in tempEpgs)
+                    if (epg.Status == 1)
                     {
-                        if (epg.Status == 1)
-                        {
-                            resultEpgs.Add(epg);
-                        }
-                        else
-                        {
-                            recordingKeys.Add(langCodeToKeyMapping[epg.Language]);
-                            log.WarnFormat("GetEpgCBList - epg with key {0} from CB, returned with status {1}", langCodeToKeyMapping[epg.Language], epg.Status);
-                        }
+                        resultEpgs.Add(epg);
+                    }
+                    else
+                    {
+                        recordingKeys.Add(epg.DocumentId);
+                        log.WarnFormat("GetEpgCBList - epg with key {0} from CB, returned with status {1}", epg.DocumentId, epg.Status);
                     }
                 }
-
-                resultEpgs.AddRange(GetEpgCBRecordingsList(recordingKeys, langCodeToKeyMapping));
             }
+
+            resultEpgs.AddRange(GetEpgCBRecordingsList(recordingKeys));
 
             return resultEpgs;
         }
 
-        private static List<EpgCB> GetEpgCBRecordingsList(List<string> keys, Dictionary<string, string> langCodeToKeyMapping)
+        private static List<EpgCB> GetEpgCBRecordingsList(List<string> keys)
         {
             List<EpgCB> resultEpgs = new List<EpgCB>();
 
@@ -887,7 +874,7 @@ namespace Tvinci.Core.DAL
                     }
                     else
                     {
-                        log.WarnFormat("GetEpgCBRecordingsList - epg with key {0} from CB, returned with status {1}", langCodeToKeyMapping[epg.Language], epg.Status);
+                        log.WarnFormat("GetEpgCBRecordingsList - epg with key {0} from CB, returned with status {1}", epg.DocumentId, epg.Status);
                     }
                 }
             }
@@ -1017,12 +1004,10 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool DeleteEpgCB(EpgCB epgCB, bool isMainLang)
+        public static bool DeleteEpgCB(string documentId, EpgCB epgCB)
         {
             bool result = false;
             int limitRetries = RETRY_LIMIT;
-
-            string key = GetEpgCBKey((long)epgCB.EpgID, isMainLang ? null : epgCB.Language);
 
             try
             {
@@ -1032,7 +1017,7 @@ namespace Tvinci.Core.DAL
 
                 while (!result && numOfRetries < limitRetries)
                 {
-                    result = cbManager.Remove(key);
+                    result = cbManager.Remove(documentId);
                     if (!result)
                     {
                         numOfRetries++;
@@ -1050,21 +1035,9 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        private static string GetEpgCBKey(long epgId, string langCode = null)
+        public static EpgCB GetEpgCB(string documentId)
         {
-            if (string.IsNullOrEmpty(langCode))
-            {
-                return epgId.ToString();
-            }
-            else
-            {
-                return string.Format("epg_{0}_lang_{1}", epgId, langCode.ToLower());
-            }
-        }
-
-        public static EpgCB GetEpgCB(long epgId)
-        {
-            return UtilsDal.GetObjectFromCB<EpgCB>(eCouchbaseBucket.EPG, GetEpgCBKey(epgId), true);
+            return UtilsDal.GetObjectFromCB<EpgCB>(eCouchbaseBucket.EPG, documentId, true);
         }
     }
 }

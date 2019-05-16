@@ -4600,7 +4600,7 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteReturnValue<int>() == 1;
         }
-
+        
         public static DataSet GetAssetStructsByGroupId(int groupId)
         {
             StoredProcedure sp = new StoredProcedure("GetAssetStructsByGroupId");
