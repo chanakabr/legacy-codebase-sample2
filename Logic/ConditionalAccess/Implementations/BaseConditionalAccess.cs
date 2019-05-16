@@ -16394,8 +16394,7 @@ namespace Core.ConditionalAccess
             };
             try
             {
-                
-                    recording = Core.Recordings.RecordingsManager.Instance.GetRecordingStatus(groupId, recordingId);
+                recording = Core.Recordings.RecordingsManager.Instance.GetRecordingStatus(groupId, recordingId);
                 //Recordings entitlements modifications
                 //Updated definitions for future/scheduled single recordings on channel entitlements revoke
                 if (recording.RecordingStatus == TstvRecordingStatus.Recorded)
