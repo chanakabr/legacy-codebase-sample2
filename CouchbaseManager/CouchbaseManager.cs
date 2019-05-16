@@ -76,6 +76,8 @@ namespace CouchbaseManager
         private static object locker = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private static ParallelOptions PARALLEL_OPTIONS = new ParallelOptions { MaxDegreeOfParallelism = 1 };
+        private static DateTime lastInitializationTime = DateTime.MinValue;
+        
         protected static Couchbase.Core.Serialization.DefaultSerializer serializer;
 
 
@@ -294,6 +296,13 @@ namespace CouchbaseManager
 
         #region Private Methods
 
+        private void HandleException(string key, IOperationResult operationResult)
+        {
+            eResultStatus status = eResultStatus.ERROR;
+            HandleStatusCode(operationResult, ref status, key);
+            throw operationResult.Exception;
+        }
+
         /// <summary>
         /// See status codes at: http://docs.couchbase.com/couchbase-sdk-net-1.3/#checking-error-codes
         /// </summary>
@@ -362,7 +371,25 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.Busy:
                     break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
-                    break;
+                    {
+                        log.Debug("CouchBase : ClientFailure detected. " +
+                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : +" +
+                            "it will be reinitialized later.");
+
+                        // remove bucket
+                        lock (locker)
+                        {
+                            // don't do this if we had already done this in last 15 seconds, 
+                            // to avoid problems with resource concurrency (dispose and use at same time)
+                            if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
+                            {
+                                lastInitializationTime = DateTime.Now;
+                                ClusterHelper.RemoveBucket(bucketName);
+                            }
+                        }
+
+                        break;
+                    }
                 case Couchbase.IO.ResponseStatus.DocumentMutationLost:
                     break;
                 case Couchbase.IO.ResponseStatus.IncrDecrOnNonNumericValue:
@@ -390,7 +417,25 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.NotSupported:
                     break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
-                    break;
+                    {
+                        log.Debug("CouchBase : OperationTimeout detected. " +
+                            "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
+                            "it will be reinitialized later.");
+
+                        // remove bucket
+                        lock (locker)
+                        {
+                            // don't do this if we had already done this in last 15 seconds, 
+                            // to avoid problems with resource concurrency (dispose and use at same time)
+                            if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
+                            {
+                                lastInitializationTime = DateTime.Now;
+                                ClusterHelper.RemoveBucket(bucketName);
+                            }
+                        }
+
+                        break;
+                    }
                 case Couchbase.IO.ResponseStatus.OutOfMemory:
                     break;
                 case Couchbase.IO.ResponseStatus.Success:
@@ -528,7 +573,7 @@ namespace CouchbaseManager
                 if (insertResult != null)
                 {
                     if (insertResult.Exception != null)
-                        throw insertResult.Exception;
+                        HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
@@ -591,7 +636,7 @@ namespace CouchbaseManager
                 if (insertResult != null)
                 {
                     if (insertResult.Exception != null)
-                        throw insertResult.Exception;
+                        HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
@@ -653,7 +698,7 @@ namespace CouchbaseManager
                 if (insertResult != null)
                 {
                     if (insertResult.Exception != null)
-                        throw insertResult.Exception;
+                        HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
@@ -765,7 +810,7 @@ namespace CouchbaseManager
                 if (insertResult != null)
                 {
                     if (insertResult.Exception != null)
-                        throw insertResult.Exception;
+                        HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
@@ -823,7 +868,7 @@ namespace CouchbaseManager
                 if (insertResult != null)
                 {
                     if (insertResult.Exception != null)
-                        throw insertResult.Exception;
+                        HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -906,7 +951,7 @@ namespace CouchbaseManager
                 if (insertResult != null)
                 {
                     if (insertResult.Exception != null)
-                        throw insertResult.Exception;
+                        HandleException(key, insertResult);
 
                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = insertResult.Success;
@@ -947,7 +992,7 @@ namespace CouchbaseManager
                 if (unlockResult != null)
                 {
                     if (unlockResult.Exception != null)
-                        throw unlockResult.Exception;
+                        HandleException(key, unlockResult);
 
                     if (unlockResult.Status == Couchbase.IO.ResponseStatus.Success)
                         result = true;
@@ -987,7 +1032,7 @@ namespace CouchbaseManager
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
                     }
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1028,7 +1073,7 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1068,8 +1113,8 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
-
+                        HandleException(key, getResult);
+                    
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
                         if (!string.IsNullOrEmpty(getResult.Value))
@@ -1127,7 +1172,45 @@ namespace CouchbaseManager
 
             return res;
         }
+        
+        public T Get<T>(string key, out eResultStatus status, int inMemoryCacheTTL)
+        {
+            T result = default(T);
+            status = eResultStatus.ERROR;
 
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                IOperationResult<T> getResult = null;
+
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    getResult = bucket.Get<T>(key);
+                }
+
+                if (getResult != null)
+                {
+                    if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        HandleException(key, getResult);
+
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        result = getResult.Value;
+                        status = eResultStatus.SUCCESS;
+                    }
+                    else
+                        HandleStatusCode(getResult, ref status, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+        
         public T Get<T>(string key, bool withLock, out ulong cas, out eResultStatus status)
         {
             T result = default(T);
@@ -1157,7 +1240,7 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1240,7 +1323,7 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1280,9 +1363,9 @@ namespace CouchbaseManager
                 }
 
                 if (getResult != null)
-                {
+                {  
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1368,7 +1451,7 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1411,7 +1494,7 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        throw getResult.Exception;
+                        HandleException(key, getResult);
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1474,7 +1557,7 @@ namespace CouchbaseManager
                     shouldRetry = false;
 
                     if (!(setResult.Exception is CasMismatchException))
-                        throw setResult.Exception;
+                        HandleException(key, setResult);
                 }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1527,9 +1610,9 @@ namespace CouchbaseManager
                     shouldRetry = false;
 
                     if (!(setResult.Exception is CasMismatchException))
-                        throw setResult.Exception;
+                        HandleException(key, setResult);
                 }
-
+                
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
                     result = setResult.Success;
                 else
@@ -1581,7 +1664,7 @@ namespace CouchbaseManager
                     shouldRetry = false;
 
                     if (!(setResult.Exception is CasMismatchException))
-                        throw setResult.Exception;
+                        HandleException(key, setResult);
                 }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1654,7 +1737,7 @@ namespace CouchbaseManager
                     shouldRetry = false;
 
                     if (!(setResult.Exception is CasMismatchException))
-                        throw setResult.Exception;
+                        HandleException(key, setResult);
                 }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1713,7 +1796,7 @@ namespace CouchbaseManager
                     shouldRetry = false;
 
                     if (!(setResult.Exception is CasMismatchException))
-                        throw setResult.Exception;
+                        HandleException(key, setResult);
                 }
 
                 if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
@@ -1842,6 +1925,10 @@ namespace CouchbaseManager
 
                 foreach (var item in getResult)
                 {
+                    // handle exception if there is one
+                    if (item.Value.Exception != null)
+                        HandleException(item.Key, item.Value);
+
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
                     if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                     {
@@ -1924,9 +2011,9 @@ namespace CouchbaseManager
 
                 foreach (var item in getResult)
                 {
-                    // Throw exception if there is one
+                    // Handle exception if there is one
                     if (item.Value.Exception != null)
-                        throw item.Value.Exception;
+                        HandleException(item.Key, item.Value);
 
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
                     if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
@@ -2317,7 +2404,7 @@ namespace CouchbaseManager
             {
                 if (incrementResult.Exception != null)
                 {
-                    throw incrementResult.Exception;
+                    HandleException(key, incrementResult);
                 }
 
                 if (incrementResult.Status == Couchbase.IO.ResponseStatus.Success)
