@@ -4018,12 +4018,12 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string fileName, long userId, string filePath, Type objectType, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
+        internal KalturaBulkUpload AddAssetBulkUpload(int groupId, string fileName, long userId, string filePath, string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData)
         {
             var bulkUploadJobData = AutoMapper.Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = AutoMapper.Mapper.Map<BulkUploadObjectData>(objectData);
 
-            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, fileName, userId, filePath, objectType, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
+            Func<GenericResponse<BulkUpload>> addBulkUploadFunc = () => BulkUploadManager.AddBulkUpload(groupId, fileName, userId, filePath, objectTypeName, BulkUploadJobAction.Upsert, bulkUploadJobData, bulkUploadObjectData);
             KalturaBulkUpload result = ClientUtils.GetResponseFromWS<KalturaBulkUpload, BulkUpload>(addBulkUploadFunc);
             return result;
         }

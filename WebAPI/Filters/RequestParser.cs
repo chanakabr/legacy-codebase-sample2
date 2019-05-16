@@ -324,58 +324,6 @@ namespace WebAPI.Filters
             return true;
         }
 
-        //public KeyValuePair<string, object> ParseFormField(byte[] fieldBytes)
-        //{
-        //    Regex rgxName = new Regex("Content-Disposition: form-data; name=\"?([^\" ]+)\"?", RegexOptions.IgnoreCase);
-        //    Regex rgxFileName = new Regex("filename=\"?([^\"]+)\"?", RegexOptions.IgnoreCase);
-
-        //    string fieldStr = Encoding.UTF8.GetString(fieldBytes);
-        //    string[] fieldLines = fieldStr.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-        //    string name = null;
-        //    string fileName = null;
-
-        //    int index = 0;
-        //    foreach (string fieldLine in fieldLines)
-        //    {
-        //        if (fieldLine.StartsWith("Content-"))
-        //        {
-        //            MatchCollection matches = rgxName.Matches(fieldLine);
-        //            if (matches.Count > 0)
-        //            {
-        //                name = matches[0].Groups[1].Value;
-
-        //                matches = rgxFileName.Matches(fieldLine);
-        //                if (matches.Count > 0)
-        //                {
-        //                    fileName = matches[0].Groups[1].Value;
-        //                }
-        //            }
-        //            index += fieldLine.Length + 2; // \r\n
-        //        }
-        //        else
-        //        {
-        //            break;
-        //        }
-        //    }
-        //    index += 2; // \r\n
-
-        //    if (fileName == null)
-        //    {
-        //        return new KeyValuePair<string, object>(name, Encoding.UTF8.GetString(fieldBytes, index, fieldBytes.Length - index - 2));
-        //    }
-        //    else
-        //    {
-        //        string filePath = String.Format("{0}\\{1}", fileSystemUploaderSourcePath, CreateRandomFileName(fileName));
-        //        byte[] bytes = new byte[fieldBytes.Length - index - 2];  // \r\n
-        //        Array.Copy(fieldBytes, index, bytes, 0, bytes.Length);
-        //        File.WriteAllBytes(filePath, bytes);
-
-        //        return new KeyValuePair<string, object>(name, new KalturaOTTFile(filePath, fileName));
-        //    }
-
-        //    return new KeyValuePair<string, object>("aaa", "bb");
-        //}
-
         private object CreateRandomFileName(string fileName)
         {
             var randomFileName = Path.GetRandomFileName();

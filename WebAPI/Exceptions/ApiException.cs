@@ -248,6 +248,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType BULK_UPLOAD_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.BulkUploadDoesNotExist, "", "BulkUpload Does Not Exist");
         public static ClientExceptionType BULK_UPLOAD_RESULT_IS_MISSING = new ClientExceptionType(eResponseStatus.BulkUploadResultIsMissing, "", "BulkUploadResult Is Missing");
         public static ClientExceptionType RELATED_ENTITIES_EXCEED_LIMITATION = new ClientExceptionType(eResponseStatus.RelatedEntitiesExceedLimitation, "", "Related entities exceed limitation");
+        public static ClientExceptionType ACCOUNT_EPG_INGEST_VERSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, "", "Account Epg Ingest Version does not support ingest using bulk upload");
 
         #endregion
 
