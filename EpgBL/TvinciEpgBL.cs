@@ -354,27 +354,14 @@ namespace EpgBL
             try
             {
                 var partialLangObjects = languages.Select(landCode => new LanguageObj { Code = landCode });
-                return GetEpgCB(nProgramID, partialLangObjects);
+                var docIDs = GetEpgCBKeys(m_nGroupID, (long)nProgramID, partialLangObjects);
+                var lResCB = m_oEpgCouchbase.GetProgram(docIDs);
+
+                return lResCB;
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed in GetEpgCB. Program Id = {0}. error = {1}", nProgramID, ex);
-                return new List<EpgCB>();
-            }
-        }
-
-        public List<EpgCB> GetEpgCB(ulong programId, IEnumerable<LanguageObj> languages)
-        {
-            try
-            {
-                var docIDs = GetEpgCBKeys(m_nGroupID, (long)programId, languages);
-                var result = m_oEpgCouchbase.GetProgram(docIDs);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed in GetEpgCB. Program Id = {0}. error = {1}", programId, ex);
                 return new List<EpgCB>();
             }
         }
