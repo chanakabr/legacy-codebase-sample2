@@ -3,6 +3,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -34,10 +35,14 @@ namespace ApiObjects.BulkUpload
         public BulkUploadResultStatus Status { get; set; }
 
         [JsonProperty("Errors")]
-        public List<Status> Errors { get; private set; }
+        // This is an array and not a list becasue it curntlly serlized by .net core and deserlized with .net45
+        // any generic collection will cause a deserlization error
+        public Status[] Errors { get; private set; }
 
         [JsonProperty("Warnings")]
-        public List<Status> Warnings { get; set; }
+        // This is an array and not a list becasue it curntlly serlized by .net core and deserlized with .net45
+        // any generic collection will cause a deserlization error
+        public Status[] Warnings { get; set; }
 
         [JsonIgnore()]
         public IBulkUploadObject Object { get; set; }
@@ -56,18 +61,18 @@ namespace ApiObjects.BulkUpload
             {
                 sb.AppendFormat(", ObjectId:{0}", ObjectId);
             }
-            
-            if (Errors != null && Errors.Count > 0)
+
+            if (Errors != null && Errors.Length > 0)
             {
-                for (int i = 0; i < Errors.Count; i++)
+                for (int i = 0; i < Errors.Length; i++)
                 {
                     sb.AppendFormat(", Error {0}:{1}", i + 1, Errors[i].ToString());
                 }
             }
 
-            if (Warnings != null && Warnings.Count > 0)
+            if (Warnings != null && Warnings.Length > 0)
             {
-                for (int i = 0; i < Warnings.Count; i++)
+                for (int i = 0; i < Warnings.Length; i++)
                 {
                     sb.AppendFormat(", Warning {0}:{1}", i + 1, Warnings[i].ToString());
                 }
@@ -83,23 +88,46 @@ namespace ApiObjects.BulkUpload
         public void AddError(Status errorStatus)
         {
             this.Status = BulkUploadResultStatus.Error;
-            if (Errors == null)
-            {
-                Errors = new List<Status>();
-            }
 
             if (errorStatus != null)
             {
                 _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{errorStatus.Message}]");
-                this.Errors.Add(errorStatus);
+                if (Errors == null)
+                {
+                    Errors = new[] { errorStatus };
+                }
+                else
+                {
+                    Errors = Errors.Concat(new[] { errorStatus }).ToArray();
+                }
             }
         }
 
         public void AddError(eResponseStatus errorCode, string msg = "")
         {
             var errorStatus = new Status((int)errorCode, msg);
-            
+
             AddError(errorStatus);
+        }
+
+        public void AddWarning(int warnningCode, string msg = "")
+        {
+            var warnningStatus = new Status(warnningCode, msg);
+
+            this.Status = BulkUploadResultStatus.Error;
+
+            if (warnningStatus != null)
+            {
+                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
+                if (Warnings == null)
+                {
+                    Warnings = new[] { warnningStatus };
+                }
+                else
+                {
+                    Warnings = Warnings.Concat(new[] { warnningStatus }).ToArray();
+                }
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Core.GroupManagers
     {
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static bool IsOpc (int groupId) => DoesGroupUsesTemplates(groupId);
+        public static bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
@@ -35,6 +35,11 @@ namespace Core.GroupManagers
             }
 
             return result;
+        }
+
+        public static bool DoesGroupUseNewEpgIngest(int groupId)
+        {
+            return TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
         }
 
         private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)

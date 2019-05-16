@@ -29,6 +29,13 @@ namespace Core.Catalog
 
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
         {
+            var hasErrors = objects.Any(o => o.Errors?.Any() == true);
+            if (hasErrors)
+            {
+                _Logger.Error($"Ingest transformation encountered errors. will no enqueue bulkUploadId:[{bulkUpload.Id}], groupId:[{bulkUpload.GroupId}]");
+                return;
+            }
+
             var programResults = objects.Cast<BulkUploadProgramAssetResult>().Select(r => r.Object as EpgProgramBulkUploadObject);
             var programsByDate = programResults.GroupBy(p => p.StartDate.Date);
             var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();

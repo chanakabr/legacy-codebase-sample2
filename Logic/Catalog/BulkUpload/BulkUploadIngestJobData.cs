@@ -31,23 +31,30 @@ namespace Core.Catalog
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
         private static readonly XmlSerializer _XmltTVserilizer = new XmlSerializer(typeof(EpgChannels));
-        public int IngestProfileId { get; set; }
+        public int? IngestProfileId { get; set; }
 
-        public override GenericListResponse<BulkUploadResult> Deserialize(long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
+        public override GenericListResponse<BulkUploadResult> Deserialize(int groupId, long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
             var response = new GenericListResponse<BulkUploadResult>();
-            var profile = IngestProfileManager.GetIngestProfileById(IngestProfileId)?.Object;
+            var profile = IngestProfileManager.GetIngestProfileById(groupId, IngestProfileId)?.Object;
             var xmlTvString = GetXmlTv(fileUrl, profile);
 
-            if (string.IsNullOrEmpty(xmlTvString))
+            try
             {
-                response.SetStatus(eResponseStatus.FileDoesNotExists, $"Could not find file:[{fileUrl}]");
-                return response;
-            }
+                if (string.IsNullOrEmpty(xmlTvString))
+                {
+                    response.SetStatus(eResponseStatus.FileDoesNotExists, $"Could not find file:[{fileUrl}]");
+                    return response;
+                }
 
-            var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
-            response.Objects = epgData;
-            response.SetStatus(eResponseStatus.OK);
+                var epgData = DeserializeXmlTvEpgData(bulkUploadId, xmlTvString);
+                response.Objects = epgData;
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception e)
+            {
+                response.SetStatus(eResponseStatus.Error, $"Error during Epg Injest Deserialize > ex:[{e}]");
+            }
             return response;
         }
 
@@ -128,6 +135,7 @@ namespace Core.Catalog
                 // like channel per region or HD channel vs SD channel etc..
                 var channelsToIngestProgramInto = kalturaChannels.Where(c => c.ChannelExternalID.Equals(channelExternalId, StringComparison.OrdinalIgnoreCase));
                 var programResults = new List<BulkUploadProgramAssetResult>();
+
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
                     var result = new BulkUploadProgramAssetResult();
@@ -136,7 +144,6 @@ namespace Core.Catalog
                     result.ProgramExternalId = prog.external_id;
                     result.Status = BulkUploadResultStatus.InProgress;
                     result.LiveAssetId = innerChannel.LinearMediaId;
-
                     var progrStartDate = prog.ParseStartDate(result);
                     var progrEnDate = prog.ParseEndDate(result);
 
@@ -155,6 +162,34 @@ namespace Core.Catalog
                     programResults.Add(result);
                 }
 
+                // If there are no inner channels found the previous loop did not fill any results, than we add error results;
+                if (!channelsToIngestProgramInto.Any())
+                {
+                    var result = new BulkUploadProgramAssetResult();
+                    result.BulkUploadId = bulkUploadId;
+                    result.Index = programIndex++;
+                    result.ProgramExternalId = prog.external_id;
+                    result.Status = BulkUploadResultStatus.Error;
+                    result.LiveAssetId = -1;
+                    var progrStartDate = prog.ParseStartDate(result);
+                    var progrEnDate = prog.ParseEndDate(result);
+
+                    result.Object = new EpgProgramBulkUploadObject
+                    {
+                        ParsedProgramObject = prog,
+                        ChannelExternalId = string.Empty,
+                        ChannelId = -1,
+                        LinearMediaId = -1,
+                        GroupId = groupId,
+                        ParentGroupId = parentGroupId,
+                        StartDate = progrStartDate,
+                        EndDate = progrEnDate,
+                        EpgExternalId = prog.external_id,
+                    };
+
+                    programResults.Add(result);
+                }
+
 
                 response.AddRange(programResults);
             }
@@ -162,7 +197,8 @@ namespace Core.Catalog
             return response.ToList();
         }
 
-        private static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
+        // TODO: Take this from apiLogic after logic is fully converted
+        public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
         {
             var kalturaChannels = EpgDal.GetAllEpgChannelObjectsList(groupId, channelExternalIds);
             var kalturaChannelIds = kalturaChannels.Select(k => k.ChannelId).ToList();
