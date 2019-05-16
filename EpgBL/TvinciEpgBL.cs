@@ -355,6 +355,7 @@ namespace EpgBL
             {
                 var partialLangObjects = languages.Select(landCode => new LanguageObj { Code = landCode });
                 var docIDs = GetEpgCBKeys(m_nGroupID, (long)nProgramID, partialLangObjects);
+                docIDs.Add(nProgramID.ToString());
                 var lResCB = m_oEpgCouchbase.GetProgram(docIDs);
 
                 return lResCB;
