@@ -1926,7 +1926,7 @@ namespace CouchbaseManager
                 foreach (var item in getResult)
                 {
                     // handle exception if there is one
-                    if (item.Value.Exception != null)
+                    if (item.Value.Exception != null && item.Value.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(item.Key, item.Value);
 
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
@@ -2012,7 +2012,7 @@ namespace CouchbaseManager
                 foreach (var item in getResult)
                 {
                     // Handle exception if there is one
-                    if (item.Value.Exception != null)
+                    if (item.Value.Exception != null && item.Value.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(item.Key, item.Value);
 
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
