@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
@@ -1580,9 +1581,23 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("GetNPVRLicensedLink: Error calling webservice protocol : GetNPVRResponse with LicensedLinkNPVRCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}, startTime: {5}, mediaFileID: {6}, basicLink: {7}, userIP: {8}, referrer: {9}, countryCode: {10}, languageCode: {11}, couponCode: {12}, format: {13}",
-                    ex.Message, siteGuid, domainId, udid, recordingId, startTime, mediaFileID, basicLink, userIP, referrer, countryCode, languageCode, couponCode);
+                StringBuilder sb = new StringBuilder("GetNPVRLicensedLink: Error calling webservice protocol: GetNPVRResponse with LicensedLinkNPVRCommand.");
+                sb.Append(String.Concat(" siteGuid: ", siteGuid));
+                sb.Append(String.Concat(" domainId: ", domainId));
+                sb.Append(String.Concat(" udid: ", udid));
+                sb.Append(String.Concat(" recordingId: ", recordingId));
+                sb.Append(String.Concat(" startTime: ", startTime));
+                sb.Append(String.Concat(" mediaFileID: ", mediaFileID));
+                sb.Append(String.Concat(" basicLink: ", basicLink));
+                sb.Append(String.Concat(" userIP: ", userIP));
+                sb.Append(String.Concat(" referrer: ", referrer));
+                sb.Append(String.Concat(" countryCode: ", countryCode));
+                sb.Append(String.Concat(" languageCode: ", languageCode));
+                sb.Append(String.Concat(" couponCode: ", couponCode));
+                sb.Append(String.Concat(" contextType: ", contextType));
+                logger.Error(sb.ToString(), ex);
             }
+
             return res;
         }        
 
