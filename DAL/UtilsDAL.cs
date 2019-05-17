@@ -57,9 +57,14 @@ namespace DAL
                     }
 
                     numOfTries++;
-                    log.ErrorFormat("Error while SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
+                    log.WarnFormat("while SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
                         key, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
                     Thread.Sleep(r.Next(50));
+                }
+
+                if (getResult != eResultStatus.SUCCESS)
+                {
+                    log.Error($"Error while SaveObjectWithVersionCheckInCB, key:[{key}], all retry attempts exhausted object was not saved");
                 }
             }
             catch (Exception ex)

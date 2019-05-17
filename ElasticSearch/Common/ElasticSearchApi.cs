@@ -58,18 +58,14 @@ namespace ElasticSearch.Common
                 string settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus, string.Empty, string.Empty, true);
 
                 var jsonResult = JObject.Parse(settingsResponse);
-                var settingsStr = jsonResult.First["settings"].ToString();
+                var settingsStr = jsonResult.First.First["settings"].ToString(Formatting.None);
 
                 string urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
                 string createIndexResponse = SendPostHttpReq(urlSetSettings, ref nStatus, string.Empty, string.Empty, settingsStr, true);
 
                 var createIndexResponseJson = JObject.Parse(createIndexResponse);
-
-                if (createIndexResponseJson.ContainsKey("acknowledged") && createIndexResponseJson["acknowledged"].Value<string>() == "true")
-                {
-                    result = true;
-                }
-                else
+                result = createIndexResponseJson["acknowledged"].Value<bool>();
+                if (!result)
                 {
                     log.ErrorFormat("error when cloning index src {0} to desc {1} ", source, dest);
                 }
@@ -214,8 +210,13 @@ namespace ElasticSearch.Common
             {
                 string url = $"{baseUrl}/_reindex";
 
-                JObject jsonBody = new JObject();
-                string body = jsonBody.ToString();
+                var jsonBody = new
+                {
+                    source = new { index = source },
+                    dest = new { index = destination }
+                };
+
+                string body = JsonConvert.SerializeObject(jsonBody);
                 int status = 0;
                 string postResult = SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true);
 
@@ -235,7 +236,7 @@ namespace ElasticSearch.Common
                         "failures": []
                       }
                      */
-                    JObject jsonResult = JObject.Parse(postResult);
+                    var jsonResult = JObject.Parse(postResult);
 
                     log.Debug($"Reindex of {source} to {destination} result is {postResult}");
 
@@ -543,13 +544,9 @@ namespace ElasticSearch.Common
                 int status = 0;
                 string deleteResult = SendDeleteHttpReq(url, ref status, string.Empty, string.Empty, string.Empty, true);
 
-                JObject jsonResult = JObject.Parse(deleteResult);
-
-                if (jsonResult.ContainsKey("acknowledged") && jsonResult["acknowledged"].Value<string>() == "true")
-                {
-                    result = true;
-                }
-                else
+                var jsonResult = JObject.Parse(deleteResult);
+                result = jsonResult["acknowledged"].Value<bool>();
+                if (!result)
                 {
                     log.ErrorFormat("error when removing alias {0} to index {1} putResult = {2}", alias, index, deleteResult);
                 }
