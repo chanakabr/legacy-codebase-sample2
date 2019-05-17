@@ -217,10 +217,32 @@ namespace ElasticSearch.Searcher
             eType = eTermType.TERMS;
             Key = key;
             Value = new List<string>();
-            var termsStr = terms.Select(t=>t.ToString());
+            var termsStr = terms.Select(t => t.ToString());
             Value.AddRange(termsStr);
             m_bIsNumeric = true;
         }
+
+
+        public static ESTerms GetSimpleNumericTerm<T>(string key, IEnumerable<T> terms)
+        {
+            return GetSimpleTerm(key, true, terms);
+        }
+
+        public static ESTerms GetSimpleStringTerm<T>(string key, IEnumerable<T> terms)
+        {
+            return GetSimpleTerm(key, false, terms);
+        }
+
+        private static ESTerms GetSimpleTerm<T>(string key, bool isNumeric, IEnumerable<T> terms)
+        {
+            var esTerm = new ESTerms(isNumeric);
+            esTerm.Key = key;
+            var strTerms = terms.Select(t => t.ToString()).ToList();
+            esTerm.Value.AddRange(strTerms);
+            return esTerm;
+        }
+
+
 
         public bool IsEmpty()
         {
