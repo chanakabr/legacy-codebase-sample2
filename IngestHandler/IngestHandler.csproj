@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>5.2.0.3909</Version>
-    <Description>2019-05-16 12:18:46 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-383-g88ae28c0-dirty</Description>
+    <Version>5.2.0.848</Version>
+    <Description>2019-05-16 18:23:45 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-101-g73e441e-dirty</Description>
   </PropertyGroup>
 
   <PropertyGroup>

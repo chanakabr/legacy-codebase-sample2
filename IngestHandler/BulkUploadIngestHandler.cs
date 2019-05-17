@@ -106,6 +106,8 @@ namespace IngestHandler
                 var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
 
                 var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
+                // TODO: CRUD Update and delete from different indexes. items are not really deleted curentlly
+                // TODO: Crud Update and delete are not in results dictionary causing error un bulk upload updating
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
 
                 ValidateProgramDates(finalEpgState, results);
@@ -345,14 +347,22 @@ namespace IngestHandler
         {
             var programsToIngest = _EventData.ProgramsToIngest;
             _Logger.Debug($"Creating bulk results dictionary for:[{programsToIngest.Count}] programs to ingest");
-            var bulkUploadResultsDictionary = _BulkUploadObject.Results.Cast<BulkUploadProgramAssetResult>().ToDictionary(k => k.ProgramExternalId);
 
-            var programAssetResultsDictionary = _BulkUploadObject.Results.Cast<BulkUploadProgramAssetResult>().ToDictionary(program => program.ProgramExternalId);
+            var programAssetResultsDictionary = _BulkUploadObject.Results
+                .Cast<BulkUploadProgramAssetResult>()
+                .ToDictionary(program => program.ProgramExternalId);
 
             foreach (var programToIngest in programsToIngest)
             {
                 programAssetResultsDictionary[programToIngest.ParsedProgramObject.external_id].Object = programToIngest;
             }
+
+
+            // Select only results that have objects asspciated with them, 
+            // and ignore other results, theey should probably be handled by a different event
+            programAssetResultsDictionary = programAssetResultsDictionary
+                .Where(p => p.Value.Object != null)
+                .ToDictionary(k => k.Key, v => v.Value);
 
             return programAssetResultsDictionary;
         }
@@ -803,24 +813,25 @@ namespace IngestHandler
 
         private bool ValidateClonedIndex(List<EpgProgramBulkUploadObject> calculatedPrograms)
         {
-            bool result = false;
-
-            // tcm configurable?
-            int retryCount = 3;
+            // Wait time is 1 sec + 50ms for every program that was indexed
+            // TODO: make configurable
+            var delayMsBeforeValidation = 1000 + (calculatedPrograms.Count * 50); 
+            var result = false;
+            int retryCount = 3; // TODO: Tcm configuration?
 
             var policy = RetryPolicy.Handle<Exception>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
                 {
                     // TODO: improve logging
-                    _Logger.Warn(ex.ToString());
+                    _Logger.Warn($"Validation Attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.",ex);
                 }
             );
 
-            string index = GetIngestDraftTargetIndexName();
+            var index = GetIngestDraftTargetIndexName();
 
             // Checking all languages by searhcing for all types
-            string type = string.Empty;
-            bool isValid = true;
+            var type = string.Empty;
+            var isValid = true;
             policy.Execute(() =>
             {
                 isValid = true;
@@ -836,9 +847,8 @@ namespace IngestHandler
                 var composite = new FilterCompositeType(CutWith.AND);
 
                 // build terms query: epg_id IN (1, 2, 3 ... bulkSize)
-                var programIds = calculatedPrograms.Select(program => program.EpgId.ToString());
-                var terms = new ESTerms(true);
-                terms.Value.AddRange(programIds);
+                var programIds = calculatedPrograms.Select(program => program.EpgId);
+                var terms = ESTerms.GetSimpleNumericTerm("epg_id", programIds);
                 composite.AddChild(terms);
 
                 filter.FilterSettings = composite;
