@@ -509,6 +509,7 @@ namespace ApiObjects.Response
         UnknownIngestType = 11002,
         EPGSProgramDatesError = 11003,
         EPGLanguageNotFound = 11004,
+        EPGProgramOverlapFixed = 11005,
         #endregion
 
         #region DMS  12000-12999
