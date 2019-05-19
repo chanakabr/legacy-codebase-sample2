@@ -2038,7 +2038,7 @@ namespace ElasticSearch.Searcher
                     if (newChild != null)
                     {
                         // If it is a SIMPLE NOT PHRASE
-                        if (childNode.type == BooleanNodeType.Leaf && cut == CutWith.OR &&
+                        if (childNode.type == BooleanNodeType.Leaf &&
                             (((childNode as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) &&
                             (!(childNode as BooleanLeaf).shouldLowercase)))
                         {
