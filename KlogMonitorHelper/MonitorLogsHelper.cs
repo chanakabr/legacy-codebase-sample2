@@ -16,10 +16,10 @@ namespace KlogMonitorHelper
     public class MonitorLogsHelper
     {
         #if NET452
-        private static readonly HttpRequest _CurrentRequest = HttpContext.Current?.Request;
+        private static HttpRequest _CurrentRequest => HttpContext.Current?.Request;
         #endif
 
-        private static readonly LogicalThreadContextProperties _LogContextData = log4net.LogicalThreadContext.Properties;
+        private static LogicalThreadContextProperties _LogContextData => log4net.LogicalThreadContext.Properties;
 
         private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
