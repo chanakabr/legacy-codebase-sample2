@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="xti_listener.aspx.cs" Inherits="xti_listener" %>
