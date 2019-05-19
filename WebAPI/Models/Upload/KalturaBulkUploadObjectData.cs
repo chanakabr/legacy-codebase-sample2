@@ -17,7 +17,7 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public abstract partial class KalturaBulkUploadObjectData : KalturaOTTObject
     {
-        internal abstract Type GetBulkUploadObjectType();
+        internal abstract string GetBulkUploadObjectType();
         internal abstract void Validate();
     }
 
@@ -43,9 +43,9 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public partial class KalturaBulkUploadMediaAssetData : KalturaBulkUploadAssetData
     {
-        internal override Type GetBulkUploadObjectType()
+        internal override string GetBulkUploadObjectType()
         {
-            return typeof(KalturaMediaAsset);
+            return typeof(KalturaMediaAsset).Name;
         }
 
         internal override void Validate()
@@ -62,9 +62,9 @@ namespace WebAPI.Models.Upload
     /// </summary>
     public partial class KalturaBulkUploadProgramAssetData : KalturaBulkUploadAssetData
     {
-        internal override Type GetBulkUploadObjectType()
+        internal override string GetBulkUploadObjectType()
         {
-            return typeof(KalturaProgramAsset);
+            return typeof(KalturaProgramAsset).Name;
         }
 
         internal override void Validate()

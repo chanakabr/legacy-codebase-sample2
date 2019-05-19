@@ -55,7 +55,7 @@ namespace WebAPI.Models.Upload
         [JsonProperty(PropertyName = "ingestProfileId")]
         [XmlElement(ElementName = "ingestProfileId")]
         [SchemeProperty(MinInteger = 1)]
-        public int IngestProfileId { get; set; }
+        public int? IngestProfileId { get; set; }
 
         internal override void Validate(KalturaOTTFile fileData)
         {
