@@ -39,7 +39,7 @@ if(![System.IO.File]::Exists($assemblyFile)) {
 }
 
 #get the latest tag info. The 'always' flag will give you a shortened SHA1 if no tag exists.
-$tag = $(git describe --always --dirty --long)
+$tag = $(git describe --tags --always --dirty --long)
 $commitCount = $(git rev-list --count HEAD)
 Write-Host "Git tag: $tag"
 Write-Host "Git commitCount: $commitCount"

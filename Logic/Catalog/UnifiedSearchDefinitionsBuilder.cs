@@ -63,7 +63,7 @@ namespace Core.Catalog
                     parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                     groupManager = new GroupManager();
                     group = groupManager.GetGroup(parentGroupID);
-                    if (request.isAllowedToViewInactiveAssets)
+                    if (request.isAllowedToViewInactiveAssets && !request.isInternalSearch)
                     {
                         definitions.shouldIgnoreDeviceRuleID = true;
                         request.isAllowedToViewInactiveAssets = false;

@@ -517,22 +517,26 @@ namespace Core.ConditionalAccess
          * Answer: In order to later on unify the NPVR Licensed Link calculation with the EPG Licensed Link
          */
         public override LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-             string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, out string drmData)
+                                                        string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, 
+                                                        PlayContextType contextType, out string drmData)
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
+            
             // validate user state (suspended or not)
             int domainId = 0;
             drmData = string.Empty;
             DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
             Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainId, ref domainStatus);
 
+            var logParams = GetGetEPGLinkLog(sProgramId, dStartTime, sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, m_nGroupID, domainId);
+
+            log.DebugFormat("GetEPGLink parameters: {0}.", logParams);
+
             // check if domain is suspended
             if (domainStatus == DomainSuspentionStatus.Suspended)
             {
                 StringBuilder sb = new StringBuilder("GetEPGLink: domain is suspended.");
-                sb.Append(String.Concat(" sSiteGUID: ", sSiteGUID));
-                sb.Append(String.Concat(" group ID: ", m_nGroupID));
-                sb.Append(String.Concat(" domain ID: ", domainId));
+                sb.Append(logParams);
                 log.Error("Error - " + sb.ToString());
                 response.status = eResponseStatus.DomainSuspended.ToString();
                 response.Status.Code = (int)eResponseStatus.DomainSuspended;
@@ -553,13 +557,9 @@ namespace Core.ConditionalAccess
                 eService eservice = GetServiceByEPGFormat(eformat);
                 if (eservice != eService.Unknown && !IsServiceAllowed(domainId, eservice))
                 {
-                    #region Logging
                     StringBuilder sb = new StringBuilder("GetEPGLink: service not allowed.");
-                    sb.Append(String.Concat(" service: ", eservice.ToString()));
-                    sb.Append(String.Concat(" group ID: ", m_nGroupID));
-                    sb.Append(String.Concat(" domain ID: ", domainId));
+                    sb.Append(logParams);
                     log.Error("Error - " + sb.ToString());
-                    #endregion
                     response.status = eLicensedLinkStatus.ServiceNotAllowed.ToString();
                     response.Status.Code = (int)eResponseStatus.ServiceNotAllowed;
                     response.Status.Message = string.Format("{0} service is not allowed", eservice.ToString());
@@ -602,7 +602,7 @@ namespace Core.ConditionalAccess
                 //GetLicensedLink return empty link no need to continue
                 if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
                 {
-                    throw new Exception("GetLicensedLinks returned empty response.");
+                    throw new Exception("GetEPGLink returned empty response.");
                 }
                 else if (licensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -638,51 +638,37 @@ namespace Core.ConditionalAccess
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
                 Scheduling scheduling = Api.Module.GetProgramSchedule(m_nGroupID, programId);
-                if (scheduling != null)
-                {
-                    dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
-
-                    dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
-                    switch (eformat)
-                    {
-                        case eEPGFormatType.Catchup:
-                        case eEPGFormatType.StartOver:
-                            {
-                                dURLParams.Add(EpgLinkConstants.PROGRAM_START, scheduling.StartDate);
-                            }
-                            break;
-                        case eEPGFormatType.LivePause:
-                            dURLParams.Add(EpgLinkConstants.PROGRAM_START, dStartTime);
-                            break;
-                        case eEPGFormatType.NPVR:
-                        default:
-                            {
-                                #region Logging
-                                StringBuilder sb = new StringBuilder(String.Concat("Error. Flow not implemented for format: ", eformat.ToString()));
-                                sb.Append(String.Concat(" P ID: ", programId));
-                                sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
-                                sb.Append(String.Concat(" SG :", sSiteGUID));
-                                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
-                                sb.Append(String.Concat(" BL: ", sBasicLink));
-                                sb.Append(String.Concat(" U IP: ", sUserIP));
-                                sb.Append(String.Concat(" Ref: ", sRefferer));
-                                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
-                                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
-                                sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
-                                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
-                                log.Error("Error - " + sb.ToString());
-                                #endregion
-                                break;
-                            }
-                    }
-                }
-                else
+                if (scheduling == null)
                 {
                     // to do write to log
                     log.Debug("get epg url link - " + string.Format("api.GetProgramSchedule return null response can't create link with no dates "));
                     response.status = eLicensedLinkStatus.Error.ToString();
                     response.Status.Code = (int)eResponseStatus.Error;
                     return response;
+                }
+
+                dURLParams.Add(EpgLinkConstants.PROGRAM_END, scheduling.EndTime);
+                dURLParams.Add(EpgLinkConstants.EPG_FORMAT_TYPE, eformat);
+
+                switch (eformat)
+                {
+                    case eEPGFormatType.Catchup:
+                    case eEPGFormatType.StartOver:
+                        {
+                            dURLParams.Add(EpgLinkConstants.PROGRAM_START, scheduling.StartDate);
+                        }
+                        break;
+                    case eEPGFormatType.LivePause:
+                        dURLParams.Add(EpgLinkConstants.PROGRAM_START, dStartTime);
+                        break;
+                    case eEPGFormatType.NPVR:
+                    default:
+                        {
+                            StringBuilder sb = new StringBuilder(String.Concat("Error. Flow not implemented for format: ", eformat.ToString()));
+                            sb.Append(logParams);
+                            log.Error("Error - " + sb.ToString());
+                            break;
+                        }
                 }
 
                 // get adapter
@@ -735,22 +721,11 @@ namespace Core.ConditionalAccess
                 }
 
                 return response;
-
             }
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder(String.Concat("Exception at GetEPGLink. Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" P ID: ", sProgramId));
-                sb.Append(String.Concat(" ST: ", dStartTime.ToString()));
-                sb.Append(String.Concat(" SG :", sSiteGUID));
-                sb.Append(String.Concat(" MF ID: ", nMediaFileID));
-                sb.Append(String.Concat(" BL: ", sBasicLink));
-                sb.Append(String.Concat(" U IP: ", sUserIP));
-                sb.Append(String.Concat(" Ref: ", sRefferer));
-                sb.Append(String.Concat(" Country Cd: ", sCOUNTRY_CODE));
-                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
-                sb.Append(String.Concat(" D Name: ", sDEVICE_NAME));
-                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
+                sb.Append(logParams);
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" ST: ", ex.StackTrace));
@@ -759,6 +734,27 @@ namespace Core.ConditionalAccess
                 response.Status.Code = (int)eResponseStatus.Error;
                 return response;
             }
+        }
+
+        private string GetGetEPGLinkLog(string programId, DateTime startDate, string userId, int mediaFileId, string basicLink, string userIp, string refferer, string countryCode,
+                                        string languageCode, string udid, string couponCode, int groupId, int domainId)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(String.Concat(" programId: ", programId));
+            sb.Append(String.Concat(" startDate: ", startDate.ToString()));
+            sb.Append(String.Concat(" userId :", userId));
+            sb.Append(String.Concat(" mediaFileId: ", mediaFileId));
+            sb.Append(String.Concat(" basicLink: ", basicLink));
+            sb.Append(String.Concat(" userIp: ", userIp));
+            sb.Append(String.Concat(" refferer: ", refferer));
+            sb.Append(String.Concat(" countryCode: ", countryCode));
+            sb.Append(String.Concat(" languageCode: ", languageCode));
+            sb.Append(String.Concat(" udid: ", udid));
+            sb.Append(String.Concat(" couponCode: ", couponCode));
+            sb.Append(String.Concat(" groupId: ", groupId));
+            sb.Append(String.Concat(" domainId: ", domainId));
+
+            return sb.ToString();
         }
 
         protected internal override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,

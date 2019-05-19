@@ -4,7 +4,7 @@
 
 startScanPath=$1
 allProjFiles=$( grep --include=\*.csproj -rnwl ${startScanPath} -e "netstandard2.0")
-tag=$(git describe --always --dirty --long)
+tag=$(git describe --tags --always --dirty --long)
 
 echo "VERSION_TAG: $VERSION_TAG"
 commitCount=$(git rev-list --count HEAD)
