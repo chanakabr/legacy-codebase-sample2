@@ -30,6 +30,7 @@ using ESUtils = ElasticSearch.Common.Utils;
 using System.Globalization;
 using ApiObjects.Catalog;
 using Tvinci.Core.DAL;
+using CachingProvider.LayeredCache;
 
 namespace IngestHandler
 {
@@ -134,6 +135,8 @@ namespace IngestHandler
                         UpdateClonedIndex(edgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
                     }
 
+                    InvalidateEpgAssets(finalEpgState.Concat(edgeProgramsToUpdate));
+
                 }
                 else
                 {
@@ -159,6 +162,18 @@ namespace IngestHandler
             }
 
             return;
+        }
+
+        public static void InvalidateEpgAssets(IEnumerable<EpgProgramBulkUploadObject> programs)
+        {
+            foreach (var prog in programs)
+            {
+                string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetType.PROGRAM.ToString(), (long)prog.EpgId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    _Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", prog.EpgId, eAssetType.PROGRAM.ToString(), invalidationKey);
+                }
+            }
         }
 
         private void UpdateBulkUploadResults(Dictionary<string, BulkUploadProgramAssetResult> results, List<EpgProgramBulkUploadObject> finalEpgState)
