@@ -152,7 +152,7 @@ namespace WebAPI.Managers.Models
             return string.Join(valuesSeperator, privileges.Select(p => string.Join(inValueSeperator, p.Key, (p.Value == null ? string.Empty : p.Value))));
         }
 
-        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSVersion ksType)
+        public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSVersion ksType, string secretFallback = null)
         {
             KS ks = new KS();
             ks.encryptedValue = ksVal;
@@ -174,7 +174,25 @@ namespace WebAPI.Managers.Models
 
             if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
             {
-                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                if (!string.IsNullOrEmpty(secretFallback))
+                {
+                    fieldsWithHashBytes = Utils.EncryptionUtils.AesDecrypt(secretFallback, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
+
+                    // trim Right 0
+                    fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
+
+                    // check hash
+                    hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
+                    fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
+                    if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
+                    {
+                        throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                    }
+                }
+                else
+                {
+                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                }
             }
 
             //parse fields
@@ -352,7 +370,8 @@ namespace WebAPI.Managers.Models
             string adminSecret = group.UserSecret;
 
             // build KS
-            return KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KS.KSVersion.V2);
+            string fallbackSecret = group.UserSecretFallbackExpiryEpoch > DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) ? group.UserSecretFallback : null;
+            return KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KS.KSVersion.V2, fallbackSecret);
         }
     }
 }
