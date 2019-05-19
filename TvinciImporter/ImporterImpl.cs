@@ -6340,20 +6340,20 @@ namespace TvinciImporter
                         break;
                 }
 
-                log.DebugFormat("calling cas.IngestRecording: {0}, {1}, {2}, {3}, {4}", casURL, sWSUserName, sWSPassword, string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()), casAction);
+                var epgIdsArray = epgIds.Select(i => (long)i).ToArray();
+                log.DebugFormat("calling cas.IngestRecording: {0}, {1}, {2}, {3}, {4}", casURL, sWSUserName, sWSPassword, casAction, string.Join(", ", epgIdsArray));
 
                 if (isCalledFromTvm)
                 {
                     System.Threading.Tasks.Task ingestRecordingAsync = System.Threading.Tasks.Task.Factory.StartNew(() =>
                     {
-                        cas.IngestRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                        cas.IngestRecording(sWSUserName, sWSPassword, epgIdsArray, casAction);
                     });
                 }
                 else
                 {
-                    cas.IngestRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+                    cas.IngestRecordingAsync(sWSUserName, sWSPassword, epgIdsArray, casAction);
                 }
-                log.DebugFormat("cas.IngestRecordingAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
             }
             catch (Exception ex)
             {
