@@ -740,19 +740,19 @@ namespace Core.ConditionalAccess
                                         string languageCode, string udid, string couponCode, int groupId, int domainId)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(String.Concat(" programId: ", programId));
-            sb.Append(String.Concat(" startDate: ", startDate.ToString()));
-            sb.Append(String.Concat(" userId :", userId));
-            sb.Append(String.Concat(" mediaFileId: ", mediaFileId));
-            sb.Append(String.Concat(" basicLink: ", basicLink));
-            sb.Append(String.Concat(" userIp: ", userIp));
-            sb.Append(String.Concat(" refferer: ", refferer));
-            sb.Append(String.Concat(" countryCode: ", countryCode));
-            sb.Append(String.Concat(" languageCode: ", languageCode));
-            sb.Append(String.Concat(" udid: ", udid));
-            sb.Append(String.Concat(" couponCode: ", couponCode));
-            sb.Append(String.Concat(" groupId: ", groupId));
-            sb.Append(String.Concat(" domainId: ", domainId));
+            sb.AppendFormat(" programId: {0},", programId);
+            sb.AppendFormat(" startDate: {0},", startDate.ToString());
+            sb.AppendFormat(" userId: {0},", userId);
+            sb.AppendFormat(" mediaFileId: {0},", mediaFileId);
+            sb.AppendFormat(" basicLink: {0},", basicLink);
+            sb.AppendFormat(" userIp: {0},", userIp);
+            sb.AppendFormat(" refferer: {0},", refferer);
+            sb.AppendFormat(" countryCode: {0},", countryCode);
+            sb.AppendFormat(" languageCode: {0},", languageCode);
+            sb.AppendFormat(" udid: {0},", udid);
+            sb.AppendFormat(" couponCode: {0},", couponCode);
+            sb.AppendFormat(" groupId: {0},", groupId);
+            sb.AppendFormat(" domainId: {0}.", domainId);
 
             return sb.ToString();
         }
