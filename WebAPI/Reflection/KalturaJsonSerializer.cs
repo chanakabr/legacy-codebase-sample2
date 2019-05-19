@@ -23150,7 +23150,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("ingestProfileId", "\"ingestProfileId\": " + IngestProfileId);
+            if(IngestProfileId.HasValue)
+            {
+                ret.Add("ingestProfileId", "\"ingestProfileId\": " + IngestProfileId);
+            }
             return ret;
         }
         
@@ -23160,7 +23163,10 @@ namespace WebAPI.Models.Upload
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("ingestProfileId", "<ingestProfileId>" + IngestProfileId + "</ingestProfileId>");
+            if(IngestProfileId.HasValue)
+            {
+                ret.Add("ingestProfileId", "<ingestProfileId>" + IngestProfileId + "</ingestProfileId>");
+            }
             return ret;
         }
     }
