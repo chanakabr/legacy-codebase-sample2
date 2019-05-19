@@ -70,6 +70,7 @@ namespace IngestHandler
         private Dictionary<string, ImageType> _GroupRatioNamesToImageTypes;
         private LanguageObj _DefaultLanguage;
         private bool _IsOpc;
+        private Dictionary<string, BulkUploadProgramAssetResult> _Results;
 
         public BulkUploadIngestHandler()
         {
@@ -97,21 +98,22 @@ namespace IngestHandler
 
                 ValidateServiceEvent();
 
-                var results = GetProgramAssetResults();
-                AddEpgCBObjects(results);
-                var programsToIngest = results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
+                _Results = GetProgramAssetResults();
+                AddEpgCBObjects(_Results);
+                var programsToIngest = _Results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
 
                 var minStartDate = programsToIngest.Min(p => p.StartDate);
                 var maxEndDate = programsToIngest.Max(p => p.EndDate);
                 var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
 
                 var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
-                // TODO: CRUD Update and delete from different indexes. items are not really deleted curentlly
-                // TODO: Crud Update and delete are not in results dictionary causing error un bulk upload updating
+
+                var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, programsToIngest, crudOperations);
+
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
 
-                ValidateProgramDates(finalEpgState, results);
-                await UpdateCouchbase(finalEpgState, results);
+                ValidateProgramDates(finalEpgState, _Results);
+                await UpdateCouchbase(finalEpgState, _Results);
 
                 CloneExistingIndex();
                 UpdateClonedIndex(finalEpgState, crudOperations.ItemsToDelete);
@@ -120,14 +122,22 @@ namespace IngestHandler
 
                 if (indexIsValid)
                 {
-                    UpdateBulkUploadResults(results, finalEpgState);
+                    UpdateBulkUploadResults(_Results, finalEpgState);
                     SwitchAliases();
-                    BulkUploadManager.UpdateBulkUploadResults(results.Values);
+                    BulkUploadManager.UpdateBulkUploadResults(_Results.Values);
                     BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
+
+                    // Update edgs if there are any updates to be made dure to overlap
+                    if (edgeProgramsToUpdate.Any())
+                    {
+                        await UpdateCouchbase(edgeProgramsToUpdate, _Results);
+                        UpdateClonedIndex(edgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
+                    }
+
                 }
                 else
                 {
-                    BulkUploadManager.UpdateBulkUploadResults(results.Values);
+                    BulkUploadManager.UpdateBulkUploadResults(_Results.Values);
                     BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
                 }
 
@@ -492,20 +502,27 @@ namespace IngestHandler
             crudOperations.ItemsToDelete = currentProgramsDictionary.Values.ToList();
 
             _Logger.Debug($"CalculateCRUDOperations > add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
-            // If overlaps are allowed we have to check the edges of the give range for overlap and cut the source or the target
-            if (_IngestProfile.DefaultOverlapPolicy != eIngestProfileOverlapPolicy.Reject)
-            {
-                _Logger.Debug($"CalculateCRUDOperations > _IngestProfile.DefaultOverlapPolicy:[{_IngestProfile.DefaultOverlapPolicy}], calculating required update to edge programs");
-                CutSourceOrTargetOverlappingDates(currentPrograms, programsToIngest, crudOperations);
-                _Logger.Debug($"CalculateCRUDOperations > after edge overlap calculations add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
-
-            }
 
             return crudOperations;
         }
 
-        private void CutSourceOrTargetOverlappingDates(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
+        private List<EpgProgramBulkUploadObject> CalculateRequiredUpdatesToEdgesDueToOverlap(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
         {
+            var result = new List<EpgProgramBulkUploadObject>();
+            // If overlaps are allowed we have to check the edges of the give range for overlap and cut the source or the target
+            if (_IngestProfile.DefaultOverlapPolicy != eIngestProfileOverlapPolicy.Reject)
+            {
+                _Logger.Debug($"CalculateCRUDOperations > _IngestProfile.DefaultOverlapPolicy:[{_IngestProfile.DefaultOverlapPolicy}], calculating required update to edge programs");
+                result = CutSourceOrTargetOverlappingDates(currentPrograms, programsToIngest);
+                _Logger.Debug($"CalculateCRUDOperations > after edge overlap calculations add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
+            }
+
+            return result;
+        }
+
+        private List<EpgProgramBulkUploadObject> CutSourceOrTargetOverlappingDates(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest)
+        {
+            var result = new List<EpgProgramBulkUploadObject>();
             var orderedCurrentPrograms = currentPrograms.OrderBy(p => p.StartDate);
             var orderedProgramsToIngest = programsToIngest.OrderBy(p => p.StartDate);
             var firstCurrentProgram = currentPrograms.FirstOrDefault();
@@ -520,17 +537,20 @@ namespace IngestHandler
                 {
                     if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
                     {
-                        _Logger.Debug($"Cutting the first current program end date");
-                        // TODO: Validate that the current program from the edge is in the same index :\
+                        var msg = $"Program [{firstProgramToIngest.EpgExternalId}] overlapping [{firstCurrentProgram.EpgExternalId}, cutting current programs end date from [{firstCurrentProgram.EndDate}], to [{firstProgramToIngest.StartDate}]";
+                        _Results[firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _Logger.Debug(msg);
                         var firstCurrentProgramTranslations = GetAllProgramsTranslations(firstCurrentProgram.EpgId);
-                        firstCurrentProgramTranslations.ForEach(p => p.StartDate = firstProgramToIngest.StartDate);
+                        firstCurrentProgramTranslations.ForEach(p => p.EndDate = firstProgramToIngest.StartDate);
                         firstCurrentProgram.EpgCbObjects = firstCurrentProgramTranslations;
-                        var isProgramAlreadyInUpdateList = crudOperations.ItemsToUpdate.Any(p => p.EpgExternalId == firstCurrentProgram.EpgExternalId);
-                        if (!isProgramAlreadyInUpdateList) { crudOperations.ItemsToUpdate.Add(firstCurrentProgram); }
+
+                        result.Add(firstCurrentProgram);
                     }
                     else
                     {
-                        _Logger.Debug($"Cutting the first program to ingest start date");
+                        var msg = $"Program [{firstProgramToIngest.EpgExternalId}] overlapping [{firstCurrentProgram.EpgExternalId}, cutting program to ingest start date from [{firstProgramToIngest.StartDate}] to [{firstCurrentProgram.EndDate}]";
+                        _Results[firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _Logger.Debug(msg);
                         firstProgramToIngest.StartDate = firstCurrentProgram.EndDate;
                     }
                 }
@@ -542,21 +562,25 @@ namespace IngestHandler
                 {
                     if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
                     {
-                        _Logger.Debug($"Cutting the last current program start date");
-                        // TODO: Validate that the current program from the edge is in the same index :\
+                        var msg = $"Program [{lastCurrentProgram.EpgExternalId}] overlapping [{lastProgramToIngest.EpgExternalId}, cutting current programs start date from [{lastCurrentProgram.StartDate}], to [{lastProgramToIngest.EndDate}]";
+                        _Results[firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _Logger.Debug(msg);
                         var lastCurrentProgramTranslations = GetAllProgramsTranslations(lastCurrentProgram.EpgId);
                         lastCurrentProgramTranslations.ForEach(p => p.StartDate = lastProgramToIngest.EndDate);
                         lastCurrentProgram.EpgCbObjects = lastCurrentProgramTranslations;
-                        var isProgramAlreadyInUpdateList = crudOperations.ItemsToUpdate.Any(p => p.EpgExternalId == lastCurrentProgram.EpgExternalId);
-                        if (!isProgramAlreadyInUpdateList) { crudOperations.ItemsToUpdate.Add(lastCurrentProgram); }
+                        result.Add(lastCurrentProgram);
                     }
                     else
                     {
-                        _Logger.Debug($"Cutting the last program to ingest end date");
+                        var msg = $"Program [{lastCurrentProgram.EpgExternalId}] overlapping [{lastProgramToIngest.EpgExternalId}, cutting program to ingest end date from [{lastProgramToIngest.EndDate}], to [{lastCurrentProgram.StartDate}]";
+                        _Results[firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _Logger.Debug(msg);
                         lastProgramToIngest.EndDate = lastCurrentProgram.StartDate;
                     }
                 }
             }
+
+            return result;
         }
 
         private List<EpgCB> GetAllProgramsTranslations(ulong epgID)
@@ -784,7 +808,13 @@ namespace IngestHandler
                 }
             }
 
-            // TODO: programs to delete
+            var programIds = programsToDelete.Select(program => program.EpgId);
+            _Logger.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
+            if (programIds.Any())
+            {
+                var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds);
+                _ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery);
+            }
 
             // If we have anything left that is less than the size of the bulk
             if (bulkRequests.Count > 0)
@@ -813,17 +843,17 @@ namespace IngestHandler
 
         private bool ValidateClonedIndex(List<EpgProgramBulkUploadObject> calculatedPrograms)
         {
-            // Wait time is 1 sec + 50ms for every program that was indexed
+            // Wait time is 2 sec + 50ms for every program that was indexed
             // TODO: make configurable
-            var delayMsBeforeValidation = 1000 + (calculatedPrograms.Count * 50); 
+            var delayMsBeforeValidation = 2000 + (calculatedPrograms.Count * 10);
             var result = false;
-            int retryCount = 3; // TODO: Tcm configuration?
+            int retryCount = 5; // TODO: Tcm configuration?
 
             var policy = RetryPolicy.Handle<Exception>()
                 .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
                 {
                     // TODO: improve logging
-                    _Logger.Warn($"Validation Attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.",ex);
+                    _Logger.Warn($"Validation Attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
                 }
             );
 
@@ -835,26 +865,8 @@ namespace IngestHandler
             policy.Execute(() =>
             {
                 isValid = true;
-                // Build query for getting programs
-                var query = new FilteredQuery(true);
-                var filter = new QueryFilter();
-
-                // basic initialization
-                query.PageIndex = 0;
-                query.PageSize = 1;
-                query.ReturnFields.Clear();
-
-                var composite = new FilterCompositeType(CutWith.AND);
-
-                // build terms query: epg_id IN (1, 2, 3 ... bulkSize)
                 var programIds = calculatedPrograms.Select(program => program.EpgId);
-                var terms = ESTerms.GetSimpleNumericTerm("epg_id", programIds);
-                composite.AddChild(terms);
-
-                filter.FilterSettings = composite;
-                query.Filter = filter;
-
-                var searchQuery = query.ToString();
+                var searchQuery = GetElasticsearchQueryForEpgIDs(programIds);
 
                 var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
 
@@ -881,6 +893,31 @@ namespace IngestHandler
             result = isValid;
 
             return result;
+        }
+
+        private static string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds)
+        {
+            // Build query for getting programs
+            var query = new FilteredQuery(true);
+            var filter = new QueryFilter();
+
+            // basic initialization
+            query.PageIndex = 0;
+            query.PageSize = 1;
+            query.ReturnFields.Clear();
+
+            var composite = new FilterCompositeType(CutWith.AND);
+
+            // build terms query: epg_id IN (1, 2, 3 ... bulkSize)
+
+            var terms = ESTerms.GetSimpleNumericTerm("epg_id", programIds);
+            composite.AddChild(terms);
+
+            filter.FilterSettings = composite;
+            query.Filter = filter;
+
+            var searchQuery = query.ToString();
+            return searchQuery;
         }
 
         /// <summary>
