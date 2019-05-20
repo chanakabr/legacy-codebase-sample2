@@ -1,29 +1,25 @@
 ﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
+using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
-using GroupsCacheManager;
 using KLogMonitor;
-using ScheduledTasks;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using TVinciShared;
 
 namespace Core.Api.Managers
 {
     public class AssetLifeCycleRuleManager
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
 
         #region Public Methods
@@ -37,6 +33,37 @@ namespace Core.Api.Managers
                 if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
                 {
                     groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(ds);
+                }
+
+                var assetLifeCycleTransitionRules = AssetRuleManager.GetAssetRules(RuleConditionType.Asset, 0, null, RuleActionType.AssetLifeCycleTransition);
+                if (assetLifeCycleTransitionRules.HasObjects())
+                {
+                    // TODO SHIR - IMPLEMENT IT BETTER BEO-6589 IN O(N)
+                    foreach (var assetLifeCycleTransitionRule in assetLifeCycleTransitionRules.Objects)
+                    {
+                        if (!groupIdToRulesMap.ContainsKey(assetLifeCycleTransitionRule.GroupId))
+                            groupIdToRulesMap.Add(assetLifeCycleTransitionRule.GroupId, new List<AssetLifeCycleRule>());
+                        
+                        var tagsActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleTagTransitionAction).Select(x => x as AssetLifeCycleTagTransitionAction).ToList();
+                        var ppvActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleBuisnessModuleTransitionAction).Select(x => x as AssetLifeCycleBuisnessModuleTransitionAction).ToList();
+
+                        groupIdToRulesMap[assetLifeCycleTransitionRule.GroupId].Add(new AssetLifeCycleRule()
+                        {
+                            Id = assetLifeCycleTransitionRule.Id,
+                            Name = assetLifeCycleTransitionRule.Name,
+                            Description = assetLifeCycleTransitionRule.Description,
+                            GroupId = assetLifeCycleTransitionRule.GroupId,
+                            KsqlFilter = (assetLifeCycleTransitionRule.Conditions[0] as AssetCondition).Ksql,
+                            Actions = new LifeCycleTransitions()
+                            {
+                                TagIdsToAdd = tagsActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Add).TagIds,
+                                TagIdsToRemove = tagsActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Remove).TagIds,
+                                FileTypesAndPpvsToAdd = ppvActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Add).Transitions,
+                                FileTypesAndPpvsToRemove = ppvActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Remove).Transitions
+                            },
+                            IsAssetRule = true
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -81,7 +108,8 @@ namespace Core.Api.Managers
             try
             {
                 // Get all rules of this group
-                Dictionary<int, List<AssetLifeCycleRule>> allRules = GetLifeCycleRules(groupId, rulesIds);                
+                Dictionary<int, List<AssetLifeCycleRule>> allRules = GetLifeCycleRules(groupId, rulesIds);
+                
                 foreach (KeyValuePair<int, List<AssetLifeCycleRule>> pair in allRules)
                 {
                     groupId = pair.Key;
@@ -193,7 +221,8 @@ namespace Core.Api.Managers
                                         {
                                             // init result for DoActionByRuleIds
                                             result = 0;
-                                            if (!ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id))
+                                            if ((rule.IsAssetRule && !ApiDAL.UpdateAssetRulesLastRunDate(groupId, new List<long>() { rule.Id })) || 
+                                                (!rule.IsAssetRule && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id)))
                                             {
                                                 log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
                                             }
