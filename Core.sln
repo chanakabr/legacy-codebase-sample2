@@ -45,7 +45,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProvider", "..\Tvm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TvinciCache", "..\TvmCore\TvinciCache\TvinciCache.csproj", "{D57B2371-DA31-4035-8B00-6A6D0256EC00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uploader", "..\TvmCore\Uploader\Uploader.csproj", "{A35BD0D3-3055-4206-8B3F-80079F9ECA15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uploader", "..\TvmCore\Uploader\Uploader.csproj", "{A35BD0D3-3055-4206-8B3F-80079F9ECA15}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpgIngest", "..\TvmCore\EpgIngest\EpgIngest.csproj", "{13504508-227B-4099-9987-3DF3D2F8E792}"
 EndProject
@@ -57,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCGroupRules", "..\TvmCore\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifiers", "..\TvmCore\Notifiers\Notifiers.csproj", "{31A03896-6FD2-4591-AB2E-A4278C24F8DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledTasks", "..\TvmCore\ScheduledTasks\ScheduledTasks.csproj", "{4EB719ED-06B1-4C05-A7CA-269D802105EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduledTasks", "..\TvmCore\ScheduledTasks\ScheduledTasks.csproj", "{4EB719ED-06B1-4C05-A7CA-269D802105EA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaticticsBL", "..\TvmCore\StaticticsBL\StaticticsBL.csproj", "{798ABF79-9CC5-4D97-BAC3-DE1F9B016EC2}"
 EndProject
@@ -79,7 +79,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageManager", "..\TvmCore\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLNWMediaVault", "..\TvmCore\LLNWMediaVault\LLNWMediaVault.csproj", "{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadQueue", "..\TvmCore\FTPUploadQueue\UploadQueue.csproj", "{8E6BE280-9DCC-42D2-84C2-1A56812AE704}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadQueue", "..\TvmCore\FTPUploadQueue\UploadQueue.csproj", "{8E6BE280-9DCC-42D2-84C2-1A56812AE704}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A8E50363-7008-4D2C-A79A-6A70775BD2AD}"
 	ProjectSection(SolutionItems) = preProject
@@ -411,12 +411,12 @@ Global
 		{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}.Local|Any CPU.Build.0 = Release|Any CPU
 		{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Local|Any CPU.Build.0 = Local|Any CPU
+		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Local|Any CPU.Build.0 = Release|Any CPU
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Basic|Any CPU.ActiveCfg = Release|Any CPU
