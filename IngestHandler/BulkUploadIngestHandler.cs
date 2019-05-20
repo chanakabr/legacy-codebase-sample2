@@ -578,7 +578,7 @@ namespace IngestHandler
                     if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.CutTarget)
                     {
                         var msg = $"Program [{lastCurrentProgram.EpgExternalId}] overlapping [{lastProgramToIngest.EpgExternalId}, cutting current programs start date from [{lastCurrentProgram.StartDate}], to [{lastProgramToIngest.EndDate}]";
-                        _Results[firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _Results[lastProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
                         _Logger.Debug(msg);
                         var lastCurrentProgramTranslations = GetAllProgramsTranslations(lastCurrentProgram.EpgId);
                         lastCurrentProgramTranslations.ForEach(p => p.StartDate = lastProgramToIngest.EndDate);
@@ -588,7 +588,7 @@ namespace IngestHandler
                     else
                     {
                         var msg = $"Program [{lastCurrentProgram.EpgExternalId}] overlapping [{lastProgramToIngest.EpgExternalId}, cutting program to ingest end date from [{lastProgramToIngest.EndDate}], to [{lastCurrentProgram.StartDate}]";
-                        _Results[firstProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
+                        _Results[lastProgramToIngest.EpgExternalId].AddWarning((int)eResponseStatus.EPGProgramOverlapFixed, msg);
                         _Logger.Debug(msg);
                         lastProgramToIngest.EndDate = lastCurrentProgram.StartDate;
                     }
