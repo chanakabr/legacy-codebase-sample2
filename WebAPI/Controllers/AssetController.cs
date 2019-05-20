@@ -222,7 +222,7 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
                         response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.Ksql,
                             regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy,
                             regularAssetFilter.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, regularAssetFilter.GroupByOrder);
