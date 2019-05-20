@@ -342,7 +342,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static void PadMediaMetas(HashSet<string> metasToPad, Media media)
         {
-            if (metasToPad != null)
+            if (metasToPad != null && media.m_dMeatsValues != null)
             {
                 foreach (var meta in media.m_dMeatsValues.ToList())
                 {
@@ -360,7 +360,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static void PadEPGMetas(HashSet<string> metasToPad, EpgCB epg)
         {
-            if (metasToPad != null)
+            if (metasToPad != null && epg.Metas != null)
             {
                 foreach (var meta in epg.Metas.ToList())
                 {
