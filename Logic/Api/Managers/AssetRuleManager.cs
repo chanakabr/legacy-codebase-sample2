@@ -1247,9 +1247,9 @@ namespace Core.Api.Managers
             if (removeAllowed)
             {
                 //remove allowd from table
-                mediaTable = ApiDAL.UpdateMediaCountriesByIsAllowed(groupId, assetRule.Id, 1);
                 while (true)
                 {
+                    mediaTable = ApiDAL.UpdateMediaCountriesByIsAllowed(groupId, assetRule.Id, 1);
                     if (mediaTable != null && mediaTable.Rows != null && mediaTable.Rows.Count > 0)
                     {
                         foreach (DataRow dr in mediaTable.Rows)
@@ -1306,7 +1306,6 @@ namespace Core.Api.Managers
                 //3. remove old from DB
                 if (mediaIdsToRemove.Count > 0)
                 {
-                    //TODO irena- paging for update UpdateMediaCountries
                     while (ApiDAL.UpdateMediaCountriesByMediaIds(groupId, assetRule.Id, mediaIdsToRemove) > 0) ;
                     updatedMediaIds.AddRange(mediaIdsToRemove);
                 }
