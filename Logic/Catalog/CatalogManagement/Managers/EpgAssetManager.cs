@@ -1702,9 +1702,8 @@ namespace Core.Catalog.CatalogManagement
 
         public static string GetEpgCBKey(int groupId, long epgId, string langCode = null)
         {
-
-            var lang = string.IsNullOrEmpty(langCode) ? null : new LanguageObj() { Code = langCode };
-            var keys = GetEpgCBKeys(groupId, epgId, new[] { lang });
+            var langs = string.IsNullOrEmpty(langCode) ? null : new[] { new LanguageObj() { Code = langCode } };
+            var keys = GetEpgCBKeys(groupId, epgId, langs);
             return keys.FirstOrDefault();
         }
 
