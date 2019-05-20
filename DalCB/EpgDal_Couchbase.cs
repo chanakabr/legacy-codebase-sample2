@@ -1,0 +1,734 @@
+﻿using ApiObjects;
+using ConfigurationManager;
+using Couchbase;
+using CouchbaseManager;
+using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DalCB
+{
+    public class EpgDal_Couchbase
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly string sEndMaxValue = @"\uefff";
+
+        private static readonly string CB_EPG_DESGIN = ApplicationConfiguration.CouchBaseDesigns.EPGDesign.Value;
+        private static readonly string EPG_DAL_CB_LOG_FILE = "EpgDAL_CB";
+
+        CouchbaseManager.CouchbaseManager cbManager;
+        CouchbaseManager.CouchbaseManager recordingCbManager;
+        private int m_nGroupID;
+
+        public EpgDal_Couchbase(int nGroupID)
+        {
+            m_nGroupID = nGroupID;
+
+            try
+            {
+                cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
+                recordingCbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.RECORDINGS);
+
+                if (cbManager == null || recordingCbManager == null)
+                {
+                    log.ErrorFormat("Error creating couchbaseManager for GID:{0}. Couchbase bucket EPG/RECORDINGS", nGroupID);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("Error creating couchbaseManager for GID:{0}. Couchbase bucket EPG. Exception:{1}", nGroupID, exc);
+                throw exc;
+            }
+        }
+
+        private string GetLogFileName()
+        {
+            return String.Concat(EPG_DAL_CB_LOG_FILE, "_", m_nGroupID);
+        }
+
+        //Given a key, will generate a unique number that can be used as a unique identifier
+        public ulong IDGenerator(string sKey)
+        {
+            return cbManager.Increment(sKey, 1);
+        }
+
+        public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        public async Task<bool> InsertPrograms(List<EpgCB> objects, int expiryDatleDeltaInDays)
+        {
+            bool bRes = false;
+
+            if (objects != null)
+            {
+                try
+                {
+                    var documents = objects.Select(o => new Document<EpgCB>
+                    {
+                        Id = o.DocumentId,
+                        Content = o,
+                        Expiry = (uint)ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(o.EndDate.AddDays(expiryDatleDeltaInDays)),
+                    }).Cast<IDocument<EpgCB>>().ToList();
+
+                    var results = await cbManager.MultiSet(documents, allowPartial: false);
+                    // no need to check anything becasue allowPartials = false; means if one failes we get exception
+                    bRes = true;
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+
+        public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    // TODO  : add here the json serialize 
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram. ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" CAS: ", cas));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        //This method uses StoreMode.Set, hence can Inserts&Updates a records
+        public bool UpdateProgram(string sDocID, object epg, DateTime? dtExpiresAt)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at UpdateProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        public bool UpdateProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at UpdateProgram. ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" CAS: ", cas));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        public bool DeleteProgram(string sDocID)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(sDocID);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at DeleteProgram. Msg: {0} , Doc ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, sDocID, ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
+
+        public EpgCB GetProgram(string id)
+        {
+            EpgCB result = null;
+            try
+            {
+                result = cbManager.GetJsonAsT<EpgCB>(id);
+                if (result != null)
+                {
+                    result.DocumentId = id;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception 0 " + string.Format("Exception at GetProgram. Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
+
+        public EpgCB GetProgram(string id, out ulong cas)
+        {
+            EpgCB result = null;
+            cas = 0;
+            try
+            {
+                var cbRes = cbManager.GetWithVersion<string>(id, out cas);
+                result = JsonConvert.DeserializeObject<EpgCB>(cbRes);
+                result.DocumentId = id;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetProgram (2 argument overload). Msg: {0} , ID: {1} , Ex Type: {2} , ST: {3}", ex.Message, id, ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
+
+        public List<EpgCB> GetProgram(List<string> ids)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            try
+            {
+                if (ids != null && ids.Count > 0)
+                {
+                    IDictionary<string, object> getResult = cbManager.GetValues<object>(ids, true);
+                    List<string> idsToGetFromRecordingsBucket = new List<string>(ids);
+
+                    if (getResult != null && getResult.Count > 0)
+                    {
+                        // Run on original list of Ids, to maintain their order
+                        foreach (string id in ids)
+                        {
+                            // Make sure the Id was returned from CB
+                            if (getResult.ContainsKey(id))
+                            {
+                                EpgCB tempEpg = BuildEpgCbFromCbObject(getResult[id]);
+
+                                if (tempEpg != null)
+                                {
+                                    tempEpg.DocumentId = id;
+
+                                    if (tempEpg.Status == 1)
+                                    {
+                                        resultEpgs.Add(tempEpg);
+                                        idsToGetFromRecordingsBucket.Remove(id);
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("EPG CB DAL - get program with ID {0} from CB, returned with status {1}", tempEpg.EpgID, tempEpg.Status);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    var fallBackEpgs = RecordingsBucketFallBack(idsToGetFromRecordingsBucket);
+
+                    resultEpgs.AddRange(fallBackEpgs);
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("IDs: ");
+                if (ids != null && ids.Count > 0)
+                {
+                    for (int i = 0; i < ids.Count; i++)
+                    {
+                        sb.Append(String.Concat(ids[i], ";"));
+                    }
+                }
+                else
+                {
+                    sb.Append("list is null or empty.");
+                }
+
+                log.Error("Exception - " + string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return resultEpgs;
+        }
+
+        private List<EpgCB> RecordingsBucketFallBack(List<string> idsToGetFromRecordingsBucket)
+        {
+            List<EpgCB> resultEpgs = new List<EpgCB>();
+
+            if (idsToGetFromRecordingsBucket != null && idsToGetFromRecordingsBucket.Count > 0)
+            {
+                // try getting Ids from recording bucket
+                IDictionary<string, object> epgsOnRecordingBucket = recordingCbManager.GetValues<object>(idsToGetFromRecordingsBucket, true);
+
+                if (epgsOnRecordingBucket != null && epgsOnRecordingBucket.Count > 0)
+                {
+                    foreach (string id in idsToGetFromRecordingsBucket)
+                    {
+                        if (epgsOnRecordingBucket.ContainsKey(id))
+                        {
+                            EpgCB tempEpg = BuildEpgCbFromCbObject(epgsOnRecordingBucket[id]);
+
+                            if (tempEpg != null && tempEpg.Status == 1)
+                            {
+                                tempEpg.DocumentId = id;
+
+                                resultEpgs.Add(tempEpg);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return resultEpgs;
+        }
+
+        private EpgCB BuildEpgCbFromCbObject(object cbObject)
+        {
+            EpgCB epgCb = null;
+
+            // Old code:
+            // If the value that CB returned is valid
+            if (cbObject != null)
+            {
+                if (cbObject is string || cbObject is Newtonsoft.Json.Linq.JToken ||
+                    cbObject is Newtonsoft.Json.Linq.JObject)
+                {
+                    string sValue = Convert.ToString(cbObject);
+
+                    if (!string.IsNullOrEmpty(sValue))
+                    {
+                        // Deserialize string from CB to an EpgCB object
+                        epgCb = JsonConvert.DeserializeObject<EpgCB>(sValue);
+                    }
+                }
+                else if (cbObject is EpgCB)
+                {
+                    epgCb = cbObject as EpgCB;
+                }
+            }
+
+            return epgCb;
+        }
+
+        //returns all programs with group id from view (does not take start_date into consideration)
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, bool falseStaleState = false)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            var startKey = new List<object>() { m_nGroupID, null }.ToArray();
+            var endKey = new List<object>() { m_nGroupID, "\uefff" }.ToArray();
+
+            try
+            {
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    allowPartialQuery = true,
+                    shouldLookupById = true,
+                    staleState = ViewStaleState.False
+                };
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                PerformEPGView(lRes, viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , ST: {4}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return lRes;
+        }
+
+        //(dStartDate <= start_date < sEndMaxValue) 
+        //returns all programs with group id, that have a start date that's greater than or equal to dStartDate
+        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dStartDate, bool falseStaleState = false)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> startKey = new List<object>() { m_nGroupID, dStartDate.ToString("yyyyMMddHHmmss") };
+            List<object> endKey = new List<object>() { m_nGroupID, sEndMaxValue };
+
+            try
+            {
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    allowPartialQuery = true,
+                    shouldLookupById = true
+                };
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                PerformEPGView(lRes, viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetGroupProgramsByStartDate. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , SD: {4} , ST: {5}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, dStartDate.ToString(), ex.StackTrace), ex);
+            }
+
+            return lRes;
+        }
+
+        //(dFromDate <= start_date < dToDate)
+        //returns all programs with group id, that have a start date that's greater than or equal to dFromDate and smaller than dToDate
+        public List<EpgCB> GetGroupProgramsByStartDate(int nPageSize, int nStartIndex, DateTime dFromDate, DateTime dToDate, bool falseStaleState = false)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> startKey = new List<object>() { m_nGroupID, dFromDate.ToString("yyyyMMddHHmmss") };
+            List<object> endKey = new List<object>() { m_nGroupID, dToDate.ToString("yyyyMMddHHmmss") };
+
+            try
+            {
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    allowPartialQuery = true,
+                    shouldLookupById = true
+                };
+
+                if (falseStaleState)
+                {
+                    viewManager.staleState = ViewStaleState.False;
+                }
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                PerformEPGView(lRes, viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetGroupProgramsByStartDate. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , SD: {4} , TD: {5} , ST: {6}", ex.Message, nPageSize, nStartIndex, ex.GetType().Name, dFromDate.ToString(), dToDate.ToString(), ex.StackTrace), ex);
+            }
+
+            return lRes;
+        }
+
+        private void PerformEPGView(List<EpgCB> lRes, ViewManager viewManager)
+        {
+            var res = cbManager.View<object>(viewManager);
+
+            if (res != null)
+            {
+                foreach (object currentValue in res)
+                {
+                    // Old code:
+                    // If the value that CB returned is valid
+                    if (currentValue != null)
+                    {
+                        if (currentValue is string || currentValue is Newtonsoft.Json.Linq.JToken ||
+                            currentValue is Newtonsoft.Json.Linq.JObject)
+                        {
+                            string sValue = Convert.ToString(currentValue);
+
+                            if (!string.IsNullOrEmpty(sValue))
+                            {
+                                // Deserialize string from CB to an EpgCB object
+                                EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+
+                                // If it was successful, add to list
+                                if (tempEpg != null)
+                                {
+                                    lRes.Add(tempEpg);
+                                }
+                            }
+                        }
+                        else if (currentValue is EpgCB)
+                        {
+                            lRes.Add(currentValue as EpgCB);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                log.Debug("group_programs view result is null");
+            }
+        }
+
+        //returns all channel programs from view. (does not take start/end date into consideration) 
+        public List<EpgCB> GetChannelPrograms(int nPageSize, int nStartIndex, int nChannelID)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> startKey = new List<object>() { m_nGroupID, nChannelID };
+            List<object> endKey = new List<object>() { m_nGroupID, nChannelID, sEndMaxValue };
+            try
+            {
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    allowPartialQuery = true,
+                    shouldLookupById = true
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                PerformEPGView(lRes, viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetChannelPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , C ID: {3} , Ex Type: {4} , ST: {5}", ex.Message, nPageSize, nStartIndex, nChannelID, ex.GetType().Name, ex.StackTrace), ex);
+            }
+            return lRes;
+        }
+
+        //(fromDate <= start_date < toDate) 
+        //returns all channel programs from view that have a startdate that's greater than or equal to fromDate and less than toDate
+        public List<EpgCB> GetChannelProgramsByStartDate(int nPageSize, int nStartIndex, int nChannelID, DateTime fromDate, DateTime toDate, bool bDesc)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> startKey = new List<object>() { m_nGroupID, nChannelID, fromDate.ToString("yyyyMMddHHmmss") };
+            List<object> endKey = new List<object>() { m_nGroupID, nChannelID, toDate.ToString("yyyyMMddHHmmss") };
+            try
+            {
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    shouldLookupById = true
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                if (bDesc)
+                {
+                    viewManager.isDescending = true;
+                    viewManager.startKey = endKey;
+                    viewManager.endKey = startKey;
+                }
+
+                PerformEPGView(lRes, viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetChannelProgramsByStartDate. Msg: {0} , PS: {1} , SI: {2} ,C ID: {3} , FD: {4} , TD: {5} , Desc: {6} , Ex Type: {7} ST: {8}", ex.Message, nPageSize, nStartIndex, nChannelID, fromDate, toDate, bDesc.ToString(), ex.GetType().Name, ex.StackTrace), ex);
+            }
+
+            return lRes;
+        }
+
+
+        public List<EpgCB> GetGroupPrograms(int nPageSize, int nStartIndex, int nParentGroupID, List<string> eIds)
+        {
+            List<EpgCB> lRes = new List<EpgCB>();
+            List<object> Keys = new List<object>();
+            try
+            {
+                foreach (string eID in eIds)
+                {
+                    List<object> obj = new List<object>() { nParentGroupID, eID.ToString() };
+
+                    Keys.Add(obj);
+                }
+
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "programs_by_identifier")
+                {
+                    keys = Keys,
+                    shouldLookupById = true
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                PerformEPGView(lRes, viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("Exception at GetGroupPrograms. Ex Msg: {0} , PS: {1} , SI: {2} , Ex Type: {3} , nParentGroupID: {4}, ST: {5}",
+                    ex.Message, nPageSize, nStartIndex, ex.GetType().Name, nParentGroupID, ex.StackTrace), ex);
+            }
+
+            return lRes;
+        }
+
+
+
+
+        //This method uses StoreMode.Set Store ==>  the data, overwrite if already exist
+        public bool SetProgram(string sDocID, object epg, DateTime? dtExpiresAt)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+
+        //This method uses StoreMode.Set Store ==>  the data, overwrite if already exist
+        public bool SetProgram(string sDocID, object epg, DateTime? dtExpiresAt, ulong cas)
+        {
+            bool bRes = false;
+
+            if (epg != null)
+            {
+                try
+                {
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
+                }
+                catch (Exception ex)
+                {
+                    #region Logging
+                    StringBuilder sb = new StringBuilder("Exception at InsertProgram (3 argument overload). ");
+                    sb.Append(String.Concat(" Ex Msg: ", ex.Message));
+                    sb.Append(String.Concat(" Doc ID: ", sDocID));
+                    sb.Append(String.Concat(" EPG: ", epg != null ? epg.ToString() : "null"));
+                    sb.Append(String.Concat(" ExpiresAt: ", dtExpiresAt != null ? dtExpiresAt.ToString() : "null"));
+                    sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
+                    sb.Append(String.Concat(" ST: ", ex.StackTrace));
+                    log.Error("Exception - " + sb.ToString(), ex);
+                    #endregion
+                }
+            }
+
+            return bRes;
+        }
+    }
+
+}
+

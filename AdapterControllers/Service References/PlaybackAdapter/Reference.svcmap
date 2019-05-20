@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="a0bfd3dd-5780-4863-a148-d2e773f89f77" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://localhost/playbackAdapter/Service.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="99ac7059-9491-4a93-9a3c-f177b798c80f" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service41.xsd" MetadataType="Schema" ID="d4e9a1aa-233f-4721-b319-01186f8dfcf9" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service42.xsd" MetadataType="Schema" ID="152f9f87-9c07-4b72-9e62-8586a5c4a297" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service43.xsd" MetadataType="Schema" ID="feb5557a-7024-4f9f-8d5d-fda6282443c2" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service1.disco" MetadataType="Disco" ID="c1b6c007-6b21-4cbc-a0c3-d941e9f96131" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?disco" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="76199cf8-472f-4e45-86d1-b6fd6e3c48ab" SourceId="1" SourceUrl="http://localhost/playbackAdapter/Service.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

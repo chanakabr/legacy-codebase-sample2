@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="08b411db-2eb9-4922-9f58-529e95216b8d" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings>
+      <CollectionMapping TypeName="System.Collections.Generic.List`1" Category="List" />
+    </CollectionMappings>
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://34.249.122.223:90/CdvrAdapter_private_copy/Service.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="Service2.disco" MetadataType="Disco" ID="874d8905-ec1e-480b-8b78-80e984061937" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?disco" />
+    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="7d2be924-c0e8-4ca7-8aaf-3c5c82c49205" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?xsd=xsd4" />
+    <MetadataFile FileName="Service6.xsd" MetadataType="Schema" ID="741c8c50-a420-4ff3-816f-7748d7c74294" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service7.xsd" MetadataType="Schema" ID="b61b1087-ace2-4795-a708-0daee990b2ea" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service8.xsd" MetadataType="Schema" ID="664904aa-5186-45f5-acd5-fad0b8e9e6c1" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service9.xsd" MetadataType="Schema" ID="ee7a4644-334f-4873-a2ed-ea862613921b" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="b1c11bbf-d17a-43b0-bb78-c460d90f9f1a" SourceId="1" SourceUrl="http://34.249.122.223:90/CdvrAdapter_Private_Copy/Service.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

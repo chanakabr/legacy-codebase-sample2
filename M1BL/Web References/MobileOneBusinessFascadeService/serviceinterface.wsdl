@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://m1.com.sg/ServiceInterface" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://m1.com.sg/ServiceInterface" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://m1.com.sg/ServiceInterface">
+      <s:element name="Execute">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputXML" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sChannelId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="onErrorContinue" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecuteResult" type="tns:StandardStringArrayResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="StandardStringArrayResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="WebServiceResult" type="tns:ExceptionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="Return" type="tns:ArrayOfString" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ExceptionResult">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ErrorCode" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Exceptions" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ErrorMessages" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AuthenticationSoapHeader" type="tns:AuthenticationSoapHeader" />
+      <s:complexType name="AuthenticationSoapHeader">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Credential" type="s:string" />
+        </s:sequence>
+        <s:anyAttribute />
+      </s:complexType>
+      <s:element name="XMLtest">
+        <s:complexType />
+      </s:element>
+      <s:element name="XMLtestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="XMLtestResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ExecuteAsObject">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="inputObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="sChannelId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sUserId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="onErrorContinue" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="StandardObjectArrayResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="WebServiceResult" type="tns:ExceptionResult" />
+          <s:element minOccurs="0" maxOccurs="1" name="Return" type="tns:ArrayOfAnyType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfAnyType">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="anyType" nillable="true" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ExecuteAsObjectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ExecuteAsObjectResult" type="tns:StandardObjectArrayResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StandardStringArrayResult" nillable="true" type="tns:StandardStringArrayResult" />
+      <s:element name="string" nillable="true" type="s:string" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ExecuteSoapIn">
+    <wsdl:part name="parameters" element="tns:Execute" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteAuthenticationSoapHeader">
+    <wsdl:part name="AuthenticationSoapHeader" element="tns:AuthenticationSoapHeader" />
+  </wsdl:message>
+  <wsdl:message name="XMLtestSoapIn">
+    <wsdl:part name="parameters" element="tns:XMLtest" />
+  </wsdl:message>
+  <wsdl:message name="XMLtestSoapOut">
+    <wsdl:part name="parameters" element="tns:XMLtestResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteAsObjectSoapIn">
+    <wsdl:part name="parameters" element="tns:ExecuteAsObject" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteAsObjectSoapOut">
+    <wsdl:part name="parameters" element="tns:ExecuteAsObjectResponse" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteAsObjectAuthenticationSoapHeader">
+    <wsdl:part name="AuthenticationSoapHeader" element="tns:AuthenticationSoapHeader" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpPostIn">
+    <wsdl:part name="inputXML" type="s:string" />
+    <wsdl:part name="sChannelId" type="s:string" />
+    <wsdl:part name="sUserId" type="s:string" />
+    <wsdl:part name="onErrorContinue" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ExecuteHttpPostOut">
+    <wsdl:part name="Body" element="tns:StandardStringArrayResult" />
+  </wsdl:message>
+  <wsdl:message name="XMLtestHttpPostIn" />
+  <wsdl:message name="XMLtestHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:portType name="ServiceInterfaceSoap">
+    <wsdl:operation name="Execute">
+      <wsdl:input message="tns:ExecuteSoapIn" />
+      <wsdl:output message="tns:ExecuteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="XMLtest">
+      <wsdl:input message="tns:XMLtestSoapIn" />
+      <wsdl:output message="tns:XMLtestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteAsObject">
+      <wsdl:input message="tns:ExecuteAsObjectSoapIn" />
+      <wsdl:output message="tns:ExecuteAsObjectSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ServiceInterfaceHttpPost">
+    <wsdl:operation name="Execute">
+      <wsdl:input message="tns:ExecuteHttpPostIn" />
+      <wsdl:output message="tns:ExecuteHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="XMLtest">
+      <wsdl:input message="tns:XMLtestHttpPostIn" />
+      <wsdl:output message="tns:XMLtestHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceInterfaceSoap" type="tns:ServiceInterfaceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Execute">
+      <soap:operation soapAction="http://m1.com.sg/ServiceInterface/Execute" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:ExecuteAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+        <soap:header message="tns:ExecuteAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="XMLtest">
+      <soap:operation soapAction="http://m1.com.sg/ServiceInterface/XMLtest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteAsObject">
+      <soap:operation soapAction="http://m1.com.sg/ServiceInterface/ExecuteAsObject" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:ExecuteAsObjectAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+        <soap:header message="tns:ExecuteAsObjectAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceInterfaceSoap12" type="tns:ServiceInterfaceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Execute">
+      <soap12:operation soapAction="http://m1.com.sg/ServiceInterface/Execute" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ExecuteAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ExecuteAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="XMLtest">
+      <soap12:operation soapAction="http://m1.com.sg/ServiceInterface/XMLtest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ExecuteAsObject">
+      <soap12:operation soapAction="http://m1.com.sg/ServiceInterface/ExecuteAsObject" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ExecuteAsObjectAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ExecuteAsObjectAuthenticationSoapHeader" part="AuthenticationSoapHeader" use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceInterfaceHttpPost" type="tns:ServiceInterfaceHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="Execute">
+      <http:operation location="/Execute" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="XMLtest">
+      <http:operation location="/XMLtest" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ServiceInterface">
+    <wsdl:port name="ServiceInterfaceSoap" binding="tns:ServiceInterfaceSoap">
+      <soap:address location="http://proximityws3.m1.com.sg/MobileOneBusinessFascade/serviceinterface/serviceinterface.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceInterfaceSoap12" binding="tns:ServiceInterfaceSoap12">
+      <soap12:address location="http://proximityws3.m1.com.sg/MobileOneBusinessFascade/serviceinterface/serviceinterface.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceInterfaceHttpPost" binding="tns:ServiceInterfaceHttpPost">
+      <http:address location="http://proximityws3.m1.com.sg/MobileOneBusinessFascade/serviceinterface/serviceinterface.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

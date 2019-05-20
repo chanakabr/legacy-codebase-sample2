@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:intf="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:impl="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws">
+      <xsd:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <xsd:complexType name="ArrayOf_xsd_string">
+        <xsd:complexContent mixed="false">
+          <xsd:restriction base="soapenc:Array">
+            <xsd:attribute wsdl:arrayType="xsd:string[]" ref="soapenc:arrayType" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:element name="ArrayOf_xsd_string" nillable="true" type="impl:ArrayOf_xsd_string" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="requestScheduledBatchAccessResponse">
+    <wsdl:part name="requestScheduledBatchAccessReturn" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="setScheduledBatchAccessResultResponse" />
+  <wsdl:message name="isWithinScheduleAndWithinBatchSizeRequest">
+    <wsdl:part name="appID" type="xsd:string" />
+    <wsdl:part name="serviceID" type="xsd:string" />
+    <wsdl:part name="batchSize" type="xsd:int" />
+  </wsdl:message>
+  <wsdl:message name="canBatchAccessResponse">
+    <wsdl:part name="canBatchAccessReturn" type="impl:ArrayOf_xsd_string" />
+  </wsdl:message>
+  <wsdl:message name="setScheduledBatchAccessResultRequest">
+    <wsdl:part name="result" type="impl:ArrayOf_xsd_string" />
+  </wsdl:message>
+  <wsdl:message name="canAccessVASResponse">
+    <wsdl:part name="canAccessVASReturn" type="impl:ArrayOf_xsd_string" />
+  </wsdl:message>
+  <wsdl:message name="isWithinScheduleAndWithinBatchSizeResponse">
+    <wsdl:part name="isWithinScheduleAndWithinBatchSizeReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="canAccessResponse">
+    <wsdl:part name="canAccessReturn" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="releaseRequest">
+    <wsdl:part name="handle" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="canAccessRequest">
+    <wsdl:part name="msisdn" type="xsd:string" />
+    <wsdl:part name="appID" type="xsd:string" />
+    <wsdl:part name="serviceID" type="xsd:string" />
+    <wsdl:part name="appPassword" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="requestScheduledBatchAccessRequest">
+    <wsdl:part name="msisdnList" type="impl:ArrayOf_xsd_string" />
+    <wsdl:part name="appID" type="xsd:string" />
+    <wsdl:part name="serviceID" type="xsd:string" />
+    <wsdl:part name="appPassword" type="xsd:string" />
+    <wsdl:part name="continueOnFailure" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="canBatchAccessRequest">
+    <wsdl:part name="msisdnList" type="impl:ArrayOf_xsd_string" />
+    <wsdl:part name="appID" type="xsd:string" />
+    <wsdl:part name="serviceID" type="xsd:string" />
+    <wsdl:part name="appPassword" type="xsd:string" />
+    <wsdl:part name="continueOnFailure" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="checkJobResponse">
+    <wsdl:part name="checkJobReturn" type="xsd:boolean" />
+  </wsdl:message>
+  <wsdl:message name="checkJobRequest">
+    <wsdl:part name="handle" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="releaseResponse" />
+  <wsdl:message name="canAccessVASRequest">
+    <wsdl:part name="userID" type="xsd:string" />
+    <wsdl:part name="macAddress" type="xsd:string" />
+    <wsdl:part name="appID" type="xsd:string" />
+    <wsdl:part name="serviceID" type="xsd:string" />
+    <wsdl:part name="password" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="getScheduleBatchAccessResultResponse">
+    <wsdl:part name="getScheduleBatchAccessResultReturn" type="impl:ArrayOf_xsd_string" />
+  </wsdl:message>
+  <wsdl:message name="getScheduleBatchAccessResultRequest">
+    <wsdl:part name="handle" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:portType name="AuthorizationWebService">
+    <wsdl:operation name="canAccess" parameterOrder="msisdn appID serviceID appPassword">
+      <wsdl:input name="canAccessRequest" message="impl:canAccessRequest" />
+      <wsdl:output name="canAccessResponse" message="impl:canAccessResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="canAccessVAS" parameterOrder="userID macAddress appID serviceID password">
+      <wsdl:input name="canAccessVASRequest" message="impl:canAccessVASRequest" />
+      <wsdl:output name="canAccessVASResponse" message="impl:canAccessVASResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="canBatchAccess" parameterOrder="msisdnList appID serviceID appPassword continueOnFailure">
+      <wsdl:input name="canBatchAccessRequest" message="impl:canBatchAccessRequest" />
+      <wsdl:output name="canBatchAccessResponse" message="impl:canBatchAccessResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="checkJob" parameterOrder="handle">
+      <wsdl:input name="checkJobRequest" message="impl:checkJobRequest" />
+      <wsdl:output name="checkJobResponse" message="impl:checkJobResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="getScheduleBatchAccessResult" parameterOrder="handle">
+      <wsdl:input name="getScheduleBatchAccessResultRequest" message="impl:getScheduleBatchAccessResultRequest" />
+      <wsdl:output name="getScheduleBatchAccessResultResponse" message="impl:getScheduleBatchAccessResultResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="isWithinScheduleAndWithinBatchSize" parameterOrder="appID serviceID batchSize">
+      <wsdl:input name="isWithinScheduleAndWithinBatchSizeRequest" message="impl:isWithinScheduleAndWithinBatchSizeRequest" />
+      <wsdl:output name="isWithinScheduleAndWithinBatchSizeResponse" message="impl:isWithinScheduleAndWithinBatchSizeResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="release" parameterOrder="handle">
+      <wsdl:input name="releaseRequest" message="impl:releaseRequest" />
+      <wsdl:output name="releaseResponse" message="impl:releaseResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="requestScheduledBatchAccess" parameterOrder="msisdnList appID serviceID appPassword continueOnFailure">
+      <wsdl:input name="requestScheduledBatchAccessRequest" message="impl:requestScheduledBatchAccessRequest" />
+      <wsdl:output name="requestScheduledBatchAccessResponse" message="impl:requestScheduledBatchAccessResponse" />
+    </wsdl:operation>
+    <wsdl:operation name="setScheduledBatchAccessResult" parameterOrder="result">
+      <wsdl:input name="setScheduledBatchAccessResultRequest" message="impl:setScheduledBatchAccessResultRequest" />
+      <wsdl:output name="setScheduledBatchAccessResultResponse" message="impl:setScheduledBatchAccessResultResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="AuthorizationWebServiceSoapBinding" type="impl:AuthorizationWebService">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" style="rpc" />
+    <wsdl:operation name="canAccess">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="canAccessRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="canAccessResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="canAccessVAS">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="canAccessVASRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="canAccessVASResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="canBatchAccess">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="canBatchAccessRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="canBatchAccessResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkJob">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="checkJobRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="checkJobResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getScheduleBatchAccessResult">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="getScheduleBatchAccessResultRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="getScheduleBatchAccessResultResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="isWithinScheduleAndWithinBatchSize">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="isWithinScheduleAndWithinBatchSizeRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="isWithinScheduleAndWithinBatchSizeResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="release">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="releaseRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="releaseResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="requestScheduledBatchAccess">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="requestScheduledBatchAccessRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="requestScheduledBatchAccessResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setScheduledBatchAccessResult">
+      <wsdlsoap:operation soapAction="" />
+      <wsdl:input name="setScheduledBatchAccessResultRequest">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:input>
+      <wsdl:output name="setScheduledBatchAccessResultResponse">
+        <wsdlsoap:body use="encoded" namespace="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AuthorizationWebServiceService">
+    <wsdl:port name="AuthorizationWebService" binding="impl:AuthorizationWebServiceSoapBinding">
+      <wsdlsoap:address location="http://ads1.m1.com.sg/ws/AuthorizationWebService.jws" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
