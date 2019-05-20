@@ -58,16 +58,14 @@ namespace Core.Catalog
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetDefinitions", parentGroupID);
                     return definitions;
                 }
-                else
+
+                parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                groupManager = new GroupManager();
+                group = groupManager.GetGroup(parentGroupID);
+                if (!doesGroupUsesTemplates && request.isAllowedToViewInactiveAssets && !request.isInternalSearch)
                 {
-                    parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
-                    groupManager = new GroupManager();
-                    group = groupManager.GetGroup(parentGroupID);
-                    if (request.isAllowedToViewInactiveAssets && !request.isInternalSearch)
-                    {
-                        definitions.shouldIgnoreDeviceRuleID = true;
-                        request.isAllowedToViewInactiveAssets = false;
-                    }
+                    definitions.shouldIgnoreDeviceRuleID = true;
+                    request.isAllowedToViewInactiveAssets = false;
                 }
 
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
