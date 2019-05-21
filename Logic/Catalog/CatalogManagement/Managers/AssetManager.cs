@@ -36,6 +36,7 @@ namespace Core.Catalog.CatalogManagement
         private const string CATALOG_END_DATE_META_NAME = "Catalog End Date";
         private const string PLAYBACK_END_DATE_META_NAME = "Playback End Date";
         private const string CATALOG_START_DATE_META_NAME = "Catalog Start Date";
+        private const string CREATE_DATE_META_NAME = "Creation Date";
         private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         private const string DEVICE_RULE_ID = "DeviceRuleId";
         private const string GEO_BLOCK_RULE_ID = "GeoBlockRuleId";
@@ -49,6 +50,8 @@ namespace Core.Catalog.CatalogManagement
         internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
         internal const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
         internal const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
+        internal const string CREATE_DATE_TIME_META_SYSTEM_NAME = "CreateDate";
+
         internal const string CHANNEL_ID_META_SYSTEM_NAME = "ChannelId";
         internal const string MANUAL_ASSET_STRUCT_NAME = "Manual";
         internal const string DYNAMIC_ASSET_STRUCT_NAME = "Dynamic";
@@ -63,7 +66,7 @@ namespace Core.Catalog.CatalogManagement
         private const string TABLE_NAME_UPDATE_DATE = "UPDATE_DATE";        
         private const string TABLE_NAME_RELATED_ENTITIES = "RELATED_ENTITIES";        
         private const string TABLE_NAME_LINEAR = "LINEAR";        
-        private const string TABLE_NAME_GEO_AVAILABILITY = "GEO_AVAILABILITY";        
+        private const string TABLE_NAME_GEO_AVAILABILITY = "GEO_AVAILABILITY";
 
         private static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
         {
@@ -75,7 +78,8 @@ namespace Core.Catalog.CatalogManagement
             { PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, PLAYBACK_START_DATE_META_NAME },
             { PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, PLAYBACK_END_DATE_META_NAME },
             { CATALOG_START_DATE_TIME_META_SYSTEM_NAME, CATALOG_START_DATE_META_NAME },
-            { CATALOG_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_META_NAME}
+            { CATALOG_END_DATE_TIME_META_SYSTEM_NAME, CATALOG_END_DATE_META_NAME },
+            { CREATE_DATE_TIME_META_SYSTEM_NAME, CREATE_DATE_META_NAME }
         };
 
         internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -88,7 +92,8 @@ namespace Core.Catalog.CatalogManagement
             { PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
             { PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
             { CATALOG_START_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
-            { CATALOG_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString()}
+            { CATALOG_END_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() },
+            { CREATE_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() }
         };
 
         #endregion
@@ -3189,6 +3194,7 @@ namespace Core.Catalog.CatalogManagement
                         break;
                     case STATUS_META_SYSTEM_NAME:
                         topicToAdd.SetType(MetaType.Bool);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
                         topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
                         break;
                     case PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
@@ -3196,6 +3202,12 @@ namespace Core.Catalog.CatalogManagement
                     case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                     case CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
                         topicToAdd.SetType(MetaType.DateTime);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
+                        break;
+                    case CREATE_DATE_TIME_META_SYSTEM_NAME:
+                        topicToAdd.SetType(MetaType.DateTime);
+                        topicToAdd.Features.Add(CatalogManager.OPC_UI_MANDATORY);
                         topicToAdd.Features.Add(CatalogManager.OPC_UI_AVAILABILITY);
                         break;
                     default:
