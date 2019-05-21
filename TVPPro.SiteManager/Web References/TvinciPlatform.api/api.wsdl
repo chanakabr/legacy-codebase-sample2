@@ -431,26 +431,11 @@
           <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="AssetTypes" type="tns:ArrayOfInt" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="NamesInOtherLanguages" type="tns:ArrayOfLanguageContainer" />
-          <s:element minOccurs="0" maxOccurs="1" name="SystemName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="DescriptionInOtherLanguages" type="tns:ArrayOfLanguageContainer" />
           <s:element minOccurs="0" maxOccurs="1" name="Order" type="tns:OrderObj" />
           <s:element minOccurs="0" maxOccurs="1" name="FilterQuery" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="filterTree" type="tns:BooleanPhraseNode" />
           <s:element minOccurs="0" maxOccurs="1" name="GroupBy" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfLanguageContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="tns:LanguageContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="LanguageContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="LanguageCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="OrderObj">
@@ -3869,9 +3854,9 @@
       <s:complexType name="Region">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="externalId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="isDefault" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="linearChannels" type="tns:ArrayOfKeyValuePair" />
           <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
         </s:sequence>
@@ -3934,17 +3919,17 @@
       </s:complexType>
       <s:complexType name="ParentalRule">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="order" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="mediaTagTypeId" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="epgTagTypeId" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="blockAnonymousAccess" nillable="true" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="ruleType" nillable="true" type="tns:eParentalRuleType" />
-          <s:element minOccurs="0" maxOccurs="1" name="mediaTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="epgTagTypeId" nillable="true" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="epgTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="isDefault" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="mediaTagTypeId" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="mediaTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="order" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ruleType" nillable="true" type="tns:eParentalRuleType" />
           <s:element minOccurs="1" maxOccurs="1" name="level" type="tns:eRuleLevel" />
           <s:element minOccurs="0" maxOccurs="1" name="mediaTagType" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="epgTagType" type="s:string" />
@@ -5173,14 +5158,24 @@
       <s:complexType name="EPGChannelProgrammeObject">
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="ProgrammeName" type="s2:ArrayOfLanguageContainer" />
-          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="ProgrammeDescription" type="s2:ArrayOfLanguageContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="s2:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="s2:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="s2:ArrayOfEpgPicture" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CRID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="LINEAR_MEDIA_ID" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
@@ -5191,17 +5186,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="s2:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="s2:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="s2:ArrayOfEpgPicture" />
-          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="LINEAR_MEDIA_ID" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="CRID" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfLanguageContainer">
