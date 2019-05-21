@@ -163,6 +163,15 @@ namespace WebAPI.Reflection
                 case "KalturaAssetInfoListResponse":
                     return new KalturaAssetInfoListResponse(parameters);
                     
+                case "KalturaAssetLifeCycleBuisnessModuleTransitionAction":
+                    return new KalturaAssetLifeCycleBuisnessModuleTransitionAction(parameters);
+                    
+                case "KalturaAssetLifeCycleTagTransitionAction":
+                    return new KalturaAssetLifeCycleTagTransitionAction(parameters);
+                    
+                case "KalturaAssetLifeCycleTransitionAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaAssetListResponse":
                     return new KalturaAssetListResponse(parameters);
                     
@@ -1884,6 +1893,79 @@ namespace WebAPI.Models.ConditionalAccess
                         IsOfflinePlayBackSchemaProperty.Validate("isOfflinePlayBack", parameters["isOfflinePlayBack"]);
                     }
                     IsOfflinePlayBack = (Boolean) Convert.ChangeType(parameters["isOfflinePlayBack"], typeof(Boolean));
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetLifeCycleBuisnessModuleTransitionAction
+    {
+        public KalturaAssetLifeCycleBuisnessModuleTransitionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("fileTypeIds") && parameters["fileTypeIds"] != null)
+                {
+                    FileTypeIds = (String) Convert.ChangeType(parameters["fileTypeIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("ppvIds") && parameters["ppvIds"] != null)
+                {
+                    PpvIds = (String) Convert.ChangeType(parameters["ppvIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetLifeCycleTagTransitionAction
+    {
+        public KalturaAssetLifeCycleTagTransitionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("tagIds") && parameters["tagIds"] != null)
+                {
+                    TagIds = (String) Convert.ChangeType(parameters["tagIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaAssetLifeCycleTransitionAction
+    {
+        private static RuntimeSchemePropertyAttribute AssetLifeCycleRuleTransitionTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetLifeCycleTransitionAction")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaAssetLifeCycleTransitionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("assetLifeCycleRuleActionType") && parameters["assetLifeCycleRuleActionType"] != null)
+                {
+                    AssetLifeCycleRuleActionType = (KalturaAssetLifeCycleRuleActionType) Enum.Parse(typeof(KalturaAssetLifeCycleRuleActionType), parameters["assetLifeCycleRuleActionType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetLifeCycleRuleActionType), AssetLifeCycleRuleActionType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetLifeCycleRuleActionType, typeof(KalturaAssetLifeCycleRuleActionType)));
+                    }
+                }
+                if (parameters.ContainsKey("assetLifeCycleRuleTransitionType") && parameters["assetLifeCycleRuleTransitionType"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetLifeCycleRuleTransitionTypeSchemaProperty.Validate("assetLifeCycleRuleTransitionType", parameters["assetLifeCycleRuleTransitionType"]);
+                    }
+                    AssetLifeCycleRuleTransitionType = (KalturaAssetLifeCycleRuleTransitionType) Enum.Parse(typeof(KalturaAssetLifeCycleRuleTransitionType), parameters["assetLifeCycleRuleTransitionType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetLifeCycleRuleTransitionType), AssetLifeCycleRuleTransitionType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AssetLifeCycleRuleTransitionType, typeof(KalturaAssetLifeCycleRuleTransitionType)));
+                    }
                 }
             }
         }

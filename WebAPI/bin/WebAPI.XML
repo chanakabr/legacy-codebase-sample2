@@ -9535,6 +9535,31 @@
             Playback Adapter Identifier 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetLifeCycleTransitionAction.AssetLifeCycleRuleActionType">
+            <summary>
+            Asset LifeCycle Rule Action Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetLifeCycleTransitionAction.AssetLifeCycleRuleTransitionType">
+            <summary>
+            Asset LifeCycle Rule Transition Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetLifeCycleTagTransitionAction.TagIds">
+            <summary>
+            Comma separated list of tag Ids.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetLifeCycleBuisnessModuleTransitionAction.FileTypeIds">
+            <summary>
+            Comma separated list of fileType Ids.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAssetLifeCycleBuisnessModuleTransitionAction.PpvIds">
+            <summary>
+            Comma separated list of ppv Ids.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">
             <summary>
             KalturaSubscriptionEntitlement

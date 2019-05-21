@@ -499,6 +499,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetLifeCycleBuisnessModuleTransitionAction":
+                    switch(property.Name)
+                    {
+                        case "FileTypeIds":
+                            return "fileTypeIds";
+                        case "PpvIds":
+                            return "ppvIds";
+                    }
+                    break;
+                    
+                case "KalturaAssetLifeCycleTagTransitionAction":
+                    switch(property.Name)
+                    {
+                        case "TagIds":
+                            return "tagIds";
+                    }
+                    break;
+                    
+                case "KalturaAssetLifeCycleTransitionAction":
+                    switch(property.Name)
+                    {
+                        case "AssetLifeCycleRuleActionType":
+                            return "assetLifeCycleRuleActionType";
+                        case "AssetLifeCycleRuleTransitionType":
+                            return "assetLifeCycleRuleTransitionType";
+                    }
+                    break;
+                    
                 case "KalturaAssetListResponse":
                     switch(property.Name)
                     {
