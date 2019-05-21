@@ -354,6 +354,7 @@ namespace Core.Catalog.CatalogManagement
                                                 tag.TopicSystemName, tag.TopicId, tag.DefaultTagValue, addTagResponse.ToStringStatus());
                 response.AddError(errorMsg);
                 log.Debug(errorMsg);
+                tagToInvalidate.TagValue.tagId = -1;
                 return tagToInvalidate;
             }
 
@@ -386,6 +387,10 @@ namespace Core.Catalog.CatalogManagement
                     tagToInvalidate.TagValue.tagId = -1;
                 }
             }
+            else
+            {
+                tagToInvalidate.TagValue.tagId = -1;
+            }
 
             return tagToInvalidate;
         }
@@ -405,10 +410,12 @@ namespace Core.Catalog.CatalogManagement
                     }
                 });
 
+                // Index And Invalidate Tag only if tag Is Need To be Update (id > 0)
                 if (tag.TagValue.tagId > 0)
                 {
                     if (tag.IsTagExists)
                     {
+                        // get all assets whom contains this tag for Index and Invalidate them
                         var ds = CatalogDAL.GetTagAssets(groupId, tag.TagValue.tagId);
                         List<int> mediaIds, epgIds;
                         CatalogManager.CreateAssetsListForUpdateIndexFromDataSet(ds, out mediaIds, out epgIds);
