@@ -1067,7 +1067,7 @@ namespace Core.Api.Managers
 
                                 ksqlFilter.Append("))");
 
-                                var assets = api.SearchAssets(groupId.Value, ksqlFilter.ToString(), 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                                var assets = api.SearchAssets(groupId.Value, ksqlFilter.ToString(), 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
 
                                 // If there is a match, add rule to list
                                 if (assets != null && assets.Count() > 0)
