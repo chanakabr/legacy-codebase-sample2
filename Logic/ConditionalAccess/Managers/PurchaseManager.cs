@@ -15,8 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -1262,8 +1260,8 @@ namespace Core.ConditionalAccess
                                     //create process id only for subscription that equal the cycle and are NOT preview module or purchase with coupon
                                     long? groupUnifiedBillingCycle = Utils.GetGroupUnifiedBillingCycle(groupId);
                                     if (!paymentGateway.ExternalVerification &&
-                                        subscription != null && subscription.m_bIsRecurring && subscription.m_MultiSubscriptionUsageModule != null &&
-                                         subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
+                                        subscription != null && !subscription.PreSaleDate.HasValue && subscription.m_bIsRecurring
+                                        && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                          && groupUnifiedBillingCycle.HasValue
                                          && (int)groupUnifiedBillingCycle.Value == subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle )
                                     // group define with billing cycle
@@ -1299,7 +1297,7 @@ namespace Core.ConditionalAccess
                                 bool handleBillingPassed =
                                     cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode,
                                         userIp, country, deviceName, long.Parse(response.TransactionID), customData, productId, billingGuid.ToString(),
-                                        entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK, processId);
+                                        entitleToPreview, subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK, processId);
 
                                 if (handleBillingPassed && endDate.HasValue)
                                 {
@@ -1325,7 +1323,7 @@ namespace Core.ConditionalAccess
                                     }
 
                                     // If the subscription if recurring, put a message for renewal and all that...
-                                    if (subscription.m_bIsRecurring)
+                                    if (subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue)
                                     {
                                         DateTime nextRenewalDate = endDate.Value;
 

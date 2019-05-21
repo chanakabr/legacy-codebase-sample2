@@ -3613,6 +3613,11 @@ namespace TVinciShared
             m_timeZone = string.Empty;
         }
 
+        public void SetWithNull()
+        {
+            m_sDefaultVal = string.Empty;
+        }
+
         public void SetDefault(DateTime t)
         {
             string sDefault = "";

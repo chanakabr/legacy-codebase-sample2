@@ -1,23 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using AdapterControllers;
 using ApiObjects;
+using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
 using ApiObjects.Epg;
 using ApiObjects.Response;
+using ApiObjects.Rules;
+using Core.Api.Managers;
+using Core.ConditionalAccess.Modules;
+using Core.Pricing;
+using Core.Recordings;
 using DAL;
 using KLogMonitor;
-using Core.ConditionalAccess.Response;
-using ApiObjects.Billing;
-using AdapterControllers;
-using Core.Pricing;
-using Core.Billing;
-using ApiObjects.ConditionalAccess;
-using Core.ConditionalAccess.Modules;
-using Core.Api.Managers;
-using ApiObjects.Rules;
-using Core.Recordings;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 
 namespace Core.ConditionalAccess
 {
@@ -867,7 +864,14 @@ namespace Core.ConditionalAccess
 
                 if (!subscriptionEndDate.HasValue)
                 {
-                    subscriptionEndDate = Utils.CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
+                    if (subscription.PreSaleDate.HasValue)
+                    {
+                        subscriptionEndDate = Utils.CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, subscription.m_dStartDate);
+                    }
+                    else
+                    {
+                        subscriptionEndDate = Utils.CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
+                    }
                 }
 
                 DateTime transactionStartDate = entitlementDate.Value;
