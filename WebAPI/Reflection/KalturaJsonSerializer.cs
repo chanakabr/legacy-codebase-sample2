@@ -268,6 +268,94 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaAssetLifeCycleBuisnessModuleTransitionAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(FileTypeIds != null)
+            {
+                ret.Add("fileTypeIds", "\"fileTypeIds\": " + "\"" + EscapeJson(FileTypeIds) + "\"");
+            }
+            if(PpvIds != null)
+            {
+                ret.Add("ppvIds", "\"ppvIds\": " + "\"" + EscapeJson(PpvIds) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(FileTypeIds != null)
+            {
+                ret.Add("fileTypeIds", "<fileTypeIds>" + EscapeXml(FileTypeIds) + "</fileTypeIds>");
+            }
+            if(PpvIds != null)
+            {
+                ret.Add("ppvIds", "<ppvIds>" + EscapeXml(PpvIds) + "</ppvIds>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaAssetLifeCycleTagTransitionAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(TagIds != null)
+            {
+                ret.Add("tagIds", "\"tagIds\": " + "\"" + EscapeJson(TagIds) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(TagIds != null)
+            {
+                ret.Add("tagIds", "<tagIds>" + EscapeXml(TagIds) + "</tagIds>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaAssetLifeCycleTransitionAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("assetLifeCycleRuleActionType", "\"assetLifeCycleRuleActionType\": " + "\"" + Enum.GetName(typeof(KalturaAssetLifeCycleRuleActionType), AssetLifeCycleRuleActionType) + "\"");
+            ret.Add("assetLifeCycleRuleTransitionType", "\"assetLifeCycleRuleTransitionType\": " + "\"" + Enum.GetName(typeof(KalturaAssetLifeCycleRuleTransitionType), AssetLifeCycleRuleTransitionType) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("assetLifeCycleRuleActionType", "<assetLifeCycleRuleActionType>" + "" + Enum.GetName(typeof(KalturaAssetLifeCycleRuleActionType), AssetLifeCycleRuleActionType) + "" + "</assetLifeCycleRuleActionType>");
+            ret.Add("assetLifeCycleRuleTransitionType", "<assetLifeCycleRuleTransitionType>" + "" + Enum.GetName(typeof(KalturaAssetLifeCycleRuleTransitionType), AssetLifeCycleRuleTransitionType) + "" + "</assetLifeCycleRuleTransitionType>");
+            return ret;
+        }
+    }
     public partial class KalturaAssetRuleAction
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -20020,6 +20108,10 @@ namespace WebAPI.Models.Pricing
                     ret.Add("premium_services", "\"premium_services\": " + propertyValue);
                 }
             }
+            if(PreSaleDate.HasValue)
+            {
+                ret.Add("preSaleDate", "\"preSaleDate\": " + PreSaleDate);
+            }
             if(PreviewModule != null)
             {
                 propertyValue = PreviewModule.ToJson(currentVersion, omitObsolete);
@@ -20249,6 +20341,10 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("premium_services", "<premium_services>" + propertyValue + "</premium_services>");
                 }
+            }
+            if(PreSaleDate.HasValue)
+            {
+                ret.Add("preSaleDate", "<preSaleDate>" + PreSaleDate + "</preSaleDate>");
             }
             if(PreviewModule != null)
             {

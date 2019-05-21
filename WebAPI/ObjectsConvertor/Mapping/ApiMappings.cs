@@ -938,6 +938,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case KalturaRuleActionType.FILTER:
                             return RuleActionType.UserFilter;
                             break;
+                        case KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION:
+                            return RuleActionType.AssetLifeCycleTransition;
+                            break;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
                             break;
@@ -977,6 +980,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         case RuleActionType.UserFilter:
                             return KalturaRuleActionType.FILTER;
                             break;
+                        case RuleActionType.AssetLifeCycleTransition:
+                            return KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
                             break;
@@ -1064,6 +1069,62 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<EndDateOffsetRuleAction, KalturaEndDateOffsetRuleAction>()
                 .IncludeBase<TimeOffsetRuleAction, KalturaTimeOffsetRuleAction>();
+
+            cfg.CreateMap<KalturaAssetLifeCycleTransitionAction, AssetLifeCycleTransitionAction>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.AssetLifeCycleRuleActionType))
+                .ForMember(dest => dest.TransitionType, opt => opt.MapFrom(src => src.AssetLifeCycleRuleTransitionType));
+
+            cfg.CreateMap<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.AssetLifeCycleRuleActionType, opt => opt.MapFrom(src => src.ActionType))
+                .ForMember(dest => dest.AssetLifeCycleRuleTransitionType, opt => opt.MapFrom(src => src.TransitionType));
+
+            cfg.CreateMap<KalturaAssetLifeCycleRuleActionType, AssetLifeCycleRuleAction>()
+                .ConvertUsing(assetLifeCycleRuleActionType =>
+                {
+                    switch (assetLifeCycleRuleActionType)
+                    {
+                        case KalturaAssetLifeCycleRuleActionType.ADD:
+                            return AssetLifeCycleRuleAction.Add;
+                        case KalturaAssetLifeCycleRuleActionType.REMOVE:
+                            return AssetLifeCycleRuleAction.Remove;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaAssetLifeCycleRuleActionType value : {0}", assetLifeCycleRuleActionType.ToString()));
+                    }
+                });
+
+            cfg.CreateMap<AssetLifeCycleRuleAction, KalturaAssetLifeCycleRuleActionType>()
+                .ConvertUsing(assetLifeCycleRuleActionType =>
+                {
+                    switch (assetLifeCycleRuleActionType)
+                    {
+                        case AssetLifeCycleRuleAction.Add:
+                            return KalturaAssetLifeCycleRuleActionType.ADD;
+                        case AssetLifeCycleRuleAction.Remove:
+                            return KalturaAssetLifeCycleRuleActionType.REMOVE;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown AssetLifeCycleRuleAction value : {0}", assetLifeCycleRuleActionType.ToString()));
+                    }
+                });
+
+            cfg.CreateMap<KalturaAssetLifeCycleTagTransitionAction, AssetLifeCycleTagTransitionAction>()
+                .IncludeBase<KalturaAssetLifeCycleTransitionAction, AssetLifeCycleTransitionAction>()
+                .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => src.GetItemsIn<List<int>, int>(src.TagIds, "tagsIds", true, false)));
+
+            cfg.CreateMap<AssetLifeCycleTagTransitionAction, KalturaAssetLifeCycleTagTransitionAction>()
+                .IncludeBase<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
+                .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => string.Join(",", src.TagIds)));
+
+            cfg.CreateMap<KalturaAssetLifeCycleBuisnessModuleTransitionAction, AssetLifeCycleBuisnessModuleTransitionAction>()
+               .IncludeBase<KalturaAssetLifeCycleTransitionAction, AssetLifeCycleTransitionAction>()
+               .ForPath(dest => dest.Transitions.FileTypeIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.FileTypeIds, "fileTypeIds", true, false)))
+               .ForPath(dest => dest.Transitions.PpvIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.PpvIds, "ppvIds", true, false)));
+
+            cfg.CreateMap<AssetLifeCycleBuisnessModuleTransitionAction, KalturaAssetLifeCycleBuisnessModuleTransitionAction>()
+                .IncludeBase<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
+                .ForMember(dest => dest.FileTypeIds, opt => opt.MapFrom(src => string.Join(",", src.Transitions.FileTypeIds)))
+                .ForMember(dest => dest.PpvIds, opt => opt.MapFrom(src => string.Join(",", src.Transitions.PpvIds)));
 
             cfg.CreateMap<KalturaRuleType?, RuleType?>()
                 .ConvertUsing(kalturaRuleType =>

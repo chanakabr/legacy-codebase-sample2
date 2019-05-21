@@ -20,7 +20,8 @@ namespace WebAPI.Models.ConditionalAccess
         BLOCK_PLAYBACK,
         APPLY_DISCOUNT_MODULE,
         APPLY_PLAYBACK_ADAPTER,
-        FILTER
+        FILTER,
+        ASSET_LIFE_CYCLE_TRANSITION
     }
     
     [Serializable]
@@ -171,6 +172,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
     public partial class KalturaApplyDiscountModuleAction : KalturaRuleAction
     {
         /// <summary>
@@ -188,6 +190,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
     public partial class KalturaApplyPlaybackAdapterAction : KalturaAssetRuleAction
     {
         /// <summary>
@@ -205,4 +208,82 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
+    public abstract partial class KalturaAssetLifeCycleTransitionAction : KalturaAssetRuleAction
+    {
+        /// <summary>
+        /// Asset LifeCycle Rule Action Type
+        /// </summary>
+        [DataMember(Name = "assetLifeCycleRuleActionType")]
+        [JsonProperty("assetLifeCycleRuleActionType")]
+        [XmlElement(ElementName = "assetLifeCycleRuleActionType")]
+        public KalturaAssetLifeCycleRuleActionType AssetLifeCycleRuleActionType { get; set; }
+
+        /// <summary>
+        /// Asset LifeCycle Rule Transition Type
+        /// </summary>
+        [DataMember(Name = "assetLifeCycleRuleTransitionType")]
+        [JsonProperty("assetLifeCycleRuleTransitionType")]
+        [XmlElement(ElementName = "assetLifeCycleRuleTransitionType")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaAssetLifeCycleRuleTransitionType AssetLifeCycleRuleTransitionType { get; protected set; }
+    }
+
+    public enum KalturaAssetLifeCycleRuleActionType
+    {
+        ADD = 1,
+        REMOVE = 2
+    }
+
+    public enum KalturaAssetLifeCycleRuleTransitionType
+    {
+        TAG = 0,
+        BUSINESS_MODEL = 1
+    }
+
+    [Serializable]
+    public partial class KalturaAssetLifeCycleTagTransitionAction : KalturaAssetLifeCycleTransitionAction
+    {
+        /// <summary>
+        /// Comma separated list of tag Ids.
+        /// </summary>
+        [DataMember(Name = "tagIds")]
+        [JsonProperty("tagIds")]
+        [XmlElement(ElementName = "tagIds")]
+        public string TagIds { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION;
+            this.AssetLifeCycleRuleTransitionType = KalturaAssetLifeCycleRuleTransitionType.TAG;
+        }
+    }
+
+    [Serializable]
+    public partial class KalturaAssetLifeCycleBuisnessModuleTransitionAction : KalturaAssetLifeCycleTransitionAction
+    {
+        /// <summary>
+        /// Comma separated list of fileType Ids.
+        /// </summary>
+        [DataMember(Name = "fileTypeIds")]
+        [JsonProperty("fileTypeIds")]
+        [XmlElement(ElementName = "fileTypeIds")]
+        public string FileTypeIds { get; set; }
+
+        /// <summary>
+        /// Comma separated list of ppv Ids.
+        /// </summary>
+        [DataMember(Name = "ppvIds")]
+        [JsonProperty("ppvIds")]
+        [XmlElement(ElementName = "ppvIds")]
+        public string PpvIds { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION;
+            this.AssetLifeCycleRuleTransitionType = KalturaAssetLifeCycleRuleTransitionType.BUSINESS_MODEL;
+        }
+    }
 }
