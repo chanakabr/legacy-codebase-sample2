@@ -341,7 +341,65 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+        
+        public static void PadMediaMetas(HashSet<string> metasToPad, Media media)
+        {
+            if (metasToPad != null && media.m_dMeatsValues != null)
+            {
+                foreach (var meta in media.m_dMeatsValues.ToList())
+                {
+                    if (metasToPad.Contains(meta.Key.ToLower()))
+                    {
+                        string metaValue = meta.Value;
 
+                        metaValue = PadValue(metaValue);
+
+                        media.m_dMeatsValues[string.Format("padded_{0}", meta.Key.ToLower())] = metaValue;
+                    }
+                }
+            }
+        }
+
+        public static void PadEPGMetas(HashSet<string> metasToPad, EpgCB epg)
+        {
+            if (metasToPad != null && epg.Metas != null)
+            {
+                foreach (var meta in epg.Metas.ToList())
+                {
+                    if (meta.Value != null && meta.Value.Count > 0 &&
+                        metasToPad.Contains(meta.Key.ToLower()))
+                    {
+                        string metaValue = meta.Value.First();
+
+                        metaValue = PadValue(metaValue);
+
+                        epg.Metas[string.Format("padded_{0}", meta.Key.ToLower())] = new List<string>() { metaValue };
+                    }
+                }
+            }
+        }
+
+        public static string PadValue(string metaValue)
+        {
+            if (string.IsNullOrEmpty(metaValue))
+            {
+                return metaValue;
+            }
+
+            double parsedDouble;
+            int parsedInt;
+
+            // only for doubles and not for integers - get only the first two decimal digits
+            if (double.TryParse(metaValue, out parsedDouble) && !int.TryParse(metaValue, out parsedInt))
+            {
+                metaValue = string.Format("{0:N2}", parsedDouble);
+            }
+
+            metaValue = metaValue.PadLeft(7, '0');
+
+            return metaValue;
+        }
+            
         public static bool DeleteMedia(int groupId, int assetId)
         {
             bool result = false;
