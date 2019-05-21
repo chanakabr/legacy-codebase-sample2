@@ -137,11 +137,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\..\Core\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{100cf89a-85cc-468e-abec-4e4392b974d9}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>

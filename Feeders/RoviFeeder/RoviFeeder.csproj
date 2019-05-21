@@ -82,27 +82,27 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\..\Core\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
+    <ProjectReference Include="..\..\..\Core\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4EB719ED-06B1-4C05-A7CA-269D802105EA}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
+    <ProjectReference Include="..\..\..\Core\TvinciImporter\TvinciImporter.csproj">
       <Project>{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}</Project>
       <Name>TvinciImporter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
       <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\XMLAdapter\XMLAdapter.csproj">
+    <ProjectReference Include="..\..\..\Core\XMLAdapter\XMLAdapter.csproj">
       <Project>{42FB923F-D2ED-4B68-94FD-EA8C5A86D28C}</Project>
       <Name>XMLAdapter</Name>
     </ProjectReference>

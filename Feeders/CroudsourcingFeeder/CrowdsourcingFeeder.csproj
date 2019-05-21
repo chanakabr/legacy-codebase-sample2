@@ -78,23 +78,23 @@
       <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\CachingManager\CachingManager.csproj">
+    <ProjectReference Include="..\..\..\Core\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\DAL\DAL.csproj">
+    <ProjectReference Include="..\..\..\Core\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\tvmcore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\..\Core\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
+    <ProjectReference Include="..\..\..\Core\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
