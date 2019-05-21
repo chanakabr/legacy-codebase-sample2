@@ -59,6 +59,8 @@ namespace Core.Catalog
                     return definitions;
                 }
 
+                definitions.shouldIgnoreDeviceRuleID = request.shouldIgnoreDeviceRuleID; // BEO-6731
+
                 parentGroupID = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                 groupManager = new GroupManager();
                 group = groupManager.GetGroup(parentGroupID);
