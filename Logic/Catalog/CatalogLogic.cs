@@ -61,7 +61,7 @@ namespace Core.Catalog
         private static readonly string IS_ACTIVE = "is_active";
         private static readonly string EXTERNALID = "externalid";
         private static readonly string ENTRYID = "entryid";
-        private static readonly string CREATIONDATE = "creationdate";
+        private static readonly string CREATIONDATE = "createdate";
         private static readonly string CREATE_DATE = "create_date";
         private static readonly string PLAYBACKSTARTDATETIME = "playbackstartdatetime";
         private static readonly string START_DATE = "start_date";
