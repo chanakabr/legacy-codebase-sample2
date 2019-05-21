@@ -802,6 +802,8 @@
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
     <Compile Include="Controllers\IngestProfileController.cs" />
+    <Compile Include="Controllers\TopicNotificationController.cs" />
+    <Compile Include="Controllers\TopicNotificationMessageController.cs" />
     <Compile Include="Controllers\TvmRuleController.cs" />
     <Compile Include="Controllers\BusinessModuleRuleController.cs" />
     <Compile Include="Controllers\PlaybackProfileController.cs" />
@@ -866,6 +868,13 @@
     <Compile Include="Models\General\KalturaMessage.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />
     <Compile Include="Models\MultiRequest\MultiRequestEnums.cs" />
+    <Compile Include="Models\Notification\KalturaDispatcher.cs" />
+    <Compile Include="Models\Notification\KalturaSubscribeReference.cs" />
+    <Compile Include="Models\Notification\KalturaTopicNotification.cs" />
+    <Compile Include="Models\Notification\KalturaTopicNotificationFilter.cs" />
+    <Compile Include="Models\Notification\KalturaTopicNotificationMessage.cs" />
+    <Compile Include="Models\Notification\KalturaTopicNotificationMessageFilter.cs" />
+    <Compile Include="Models\Notification\KalturaTrigger.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />
     <Compile Include="Models\Pricing\KalturaPpvFilter.cs" />

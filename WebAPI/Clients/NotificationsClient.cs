@@ -2020,5 +2020,55 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaTopicNotification AddTopicNotification(int groupId, KalturaTopicNotification topicNotification)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaTopicNotification UpdateTopicNotification(int groupId, int id, KalturaTopicNotification topicNotification)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void DeleteTopicNotification(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaTopicNotificationListResponse TopicNotifications(int groupId, KalturaSubscribeReference subscribeReference)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SubscribeUserToTopicNotification(int groupId, string userId, long topicNotificationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void UnsubscribeUserFromTopicNotification(int groupId, string userId, long topicNotificationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaTopicNotificationMessage AddTopicNotificationMessage(int groupId, KalturaTopicNotificationMessage topicNotificationMessage)
+        {
+            throw new NotImplementedException();
+        }
+        internal KalturaTopicNotificationMessage UpdateTopicNotificationMessage(int groupId, int id, KalturaTopicNotificationMessage topicNotificationMessage)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void DeleteTopicNotificationMessage(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaTopicNotificationMessageListResponse TopicNotificationMessages(int groupId, long topicNotificationIdEqual)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

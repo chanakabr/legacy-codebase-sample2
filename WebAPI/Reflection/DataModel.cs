@@ -1743,6 +1743,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDateTrigger":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "date";
+                    }
+                    break;
+                    
                 case "KalturaDetachedResponseProfile":
                     switch(property.Name)
                     {
@@ -3198,6 +3206,16 @@ namespace WebAPI.Reflection
                             return "ks";
                         case "RefreshToken":
                             return "refreshToken";
+                    }
+                    break;
+                    
+                case "KalturaMailDispatcher":
+                    switch(property.Name)
+                    {
+                        case "BodyTemplate":
+                            return "bodyTemplate";
+                        case "SubjectTemplate":
+                            return "subjectTemplate";
                     }
                     break;
                     
@@ -5763,6 +5781,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSubscriptionSubscribeReference":
+                    switch(property.Name)
+                    {
+                        case "SubscriptionId":
+                            return "subscriptionId";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionTrigger":
+                    switch(property.Name)
+                    {
+                        case "Offset":
+                            return "offset";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
                 case "KalturaTag":
                     switch(property.Name)
                     {
@@ -5877,6 +5913,68 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "Topics":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaTopicNotification":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "SubscribeReference":
+                            return "subscribeReference";
+                    }
+                    break;
+                    
+                case "KalturaTopicNotificationFilter":
+                    switch(property.Name)
+                    {
+                        case "SubscribeReference":
+                            return "subscribeReference";
+                    }
+                    break;
+                    
+                case "KalturaTopicNotificationListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaTopicNotificationMessage":
+                    switch(property.Name)
+                    {
+                        case "Dispatchers":
+                            return "dispatchers";
+                        case "Id":
+                            return "id";
+                        case "Message":
+                            return "message";
+                        case "TopicNotificationId":
+                            return "topicNotificationId";
+                        case "Trigger":
+                            return "trigger";
+                    }
+                    break;
+                    
+                case "KalturaTopicNotificationMessageFilter":
+                    switch(property.Name)
+                    {
+                        case "TopicNotificationIdEqual":
+                            return "topicNotificationIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaTopicNotificationMessageListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;
@@ -9409,6 +9507,62 @@ namespace WebAPI.Reflection
                         case "updatestatus":
                             RolesManager.ValidateActionPermitted("topic", "updateStatus", false);
                             return TopicController.UpdateStatus((int) methodParams[0], (KalturaTopicAutomaticIssueNotification) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "topicnotification":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("topicNotification", "add", false);
+                            return TopicNotificationController.Add((KalturaTopicNotification) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("topicNotification", "delete", false);
+                            TopicNotificationController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("topicNotification", "list", false);
+                            return TopicNotificationController.List((KalturaTopicNotificationFilter) methodParams[0]);
+                            
+                        case "subscribe":
+                            RolesManager.ValidateActionPermitted("topicNotification", "subscribe", false);
+                            TopicNotificationController.Subscribe((long) methodParams[0]);
+                            return null;
+                            
+                        case "unsubscribe":
+                            RolesManager.ValidateActionPermitted("topicNotification", "unsubscribe", false);
+                            TopicNotificationController.Unubscribe((long) methodParams[0]);
+                            return null;
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("topicNotification", "update", false);
+                            return TopicNotificationController.Update((int) methodParams[0], (KalturaTopicNotification) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "topicnotificationmessage":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "add", false);
+                            return TopicNotificationMessageController.Add((KalturaTopicNotificationMessage) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "delete", false);
+                            TopicNotificationMessageController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "list", false);
+                            return TopicNotificationMessageController.List((KalturaTopicNotificationMessageFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("topicNotificationMessage", "update", false);
+                            return TopicNotificationMessageController.Update((int) methodParams[0], (KalturaTopicNotificationMessage) methodParams[1]);
                             
                     }
                     break;
@@ -16925,6 +17079,106 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaTopicAutomaticIssueNotification),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "topicnotification":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("topicNotification", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicNotification),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicNotificationFilter),
+                            });
+                            return ret;
+                            
+                        case "subscribe":
+                            ret.Add("topicNotificationId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "unsubscribe":
+                            ret.Add("topicNotificationId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("topicNotification", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicNotification),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "topicnotificationmessage":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("topicNotificationMessage", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicNotificationMessage),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicNotificationMessageFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("topicNotificationMessage", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaTopicNotificationMessage),
                             });
                             return ret;
                             
