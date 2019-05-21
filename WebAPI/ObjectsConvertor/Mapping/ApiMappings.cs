@@ -1118,8 +1118,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaAssetLifeCycleBuisnessModuleTransitionAction, AssetLifeCycleBuisnessModuleTransitionAction>()
                .IncludeBase<KalturaAssetLifeCycleTransitionAction, AssetLifeCycleTransitionAction>()
-               .ForMember(dest => dest.Transitions.FileTypeIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.FileTypeIds, "fileTypeIds", true, false)))
-               .ForMember(dest => dest.Transitions.PpvIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.PpvIds, "ppvIds", true, false)));
+               .ForPath(dest => dest.Transitions.FileTypeIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.FileTypeIds, "fileTypeIds", true, false)))
+               .ForPath(dest => dest.Transitions.PpvIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.PpvIds, "ppvIds", true, false)));
 
             cfg.CreateMap<AssetLifeCycleBuisnessModuleTransitionAction, KalturaAssetLifeCycleBuisnessModuleTransitionAction>()
                 .IncludeBase<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
