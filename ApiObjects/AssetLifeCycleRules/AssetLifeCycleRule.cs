@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.AssetLifeCycleRules
 {
@@ -16,6 +13,7 @@ namespace ApiObjects.AssetLifeCycleRules
         public string KsqlFilter { get; set; }
         public AssetLifeCycleRuleTransitionIntervalUnits TransitionIntervalUnits { get; set; } // from Tvinci.dbo.lu_alcr_transition_interval_units
         public LifeCycleTransitions Actions { get; set; }
+        public bool IsAssetRule { get; set; }
 
         public AssetLifeCycleRule()
         {

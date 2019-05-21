@@ -29,7 +29,7 @@ namespace Core.Catalog
         public Dictionary<string, LanguageObj> LanguageMapByCode { get; set; }
         public Dictionary<int, LanguageObj> LanguageMapById { get; set; }        
         public Dictionary<string, AssetStruct> AssetStructsMapBySystemName { get; set; }
-        public Dictionary<long, AssetStruct> AssetStructsMapById { get; set; }
+        public Dictionary<long, AssetStruct> AssetStructsMapById { get; private set; }
         public Dictionary<string, Dictionary<string, Topic>> TopicsMapBySystemNameAndByType { get; set; }
         public Dictionary<long, Topic> TopicsMapById { get; set; }
 
@@ -68,21 +68,17 @@ namespace Core.Catalog
 
         public bool IsAssetUserRuleEnabled { get; set; }
 
-        private long programAssetStructId;
-        public long ProgramAssetStructId
+        private AssetStruct programAssetStruct;
+        public AssetStruct ProgramAssetStruct
         {
             get
             {
-                if (programAssetStructId == 0)
-                { 
-                    var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
-                    if (programAssetStruct != null)
-                    {
-                        programAssetStructId = programAssetStruct.Id;
-                    }
+                if (programAssetStruct == null)
+                {
+                    programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
                 }
 
-                return programAssetStructId;
+                return programAssetStruct;
             }
         }
 
@@ -95,7 +91,7 @@ namespace Core.Catalog
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
             TopicsMapBySystemNameAndByType = new Dictionary<string, Dictionary<string, Topic>>(StringComparer.OrdinalIgnoreCase);
             TopicsMapById = new Dictionary<long, Topic>();
-            programAssetStructId = 0;
+            programAssetStruct = null;
         }
 
         // TODO Lior - move all language related properties in this class to seperate cache or invalidate catalogGroupCache when adding\updating languages (doesn't exist at the moment)
@@ -113,14 +109,10 @@ namespace Core.Catalog
             {
                 foreach (LanguageObj langauge in languages)
                 {
-                    if (!LanguageMapByCode.ContainsKey(langauge.Code))
+                    if (!LanguageMapByCode.ContainsKey(langauge.Code) && !LanguageMapById.ContainsKey(langauge.ID))
                     {
                         LanguageMapByCode.Add(langauge.Code, langauge);
-
-                        if (!LanguageMapById.ContainsKey(langauge.ID))
-                        {
-                            LanguageMapById.Add(langauge.ID, langauge);
-                        }
+                        LanguageMapById.Add(langauge.ID, langauge);
                     }
                 }
             }
@@ -131,14 +123,10 @@ namespace Core.Catalog
             {
                 foreach (AssetStruct assetStruct in assetStructs)
                 {
-                    if (!AssetStructsMapBySystemName.ContainsKey(assetStruct.SystemName))
+                    if (!AssetStructsMapBySystemName.ContainsKey(assetStruct.SystemName) && !AssetStructsMapById.ContainsKey(assetStruct.Id))
                     {
                         AssetStructsMapBySystemName.Add(assetStruct.SystemName, assetStruct);
-
-                        if (!AssetStructsMapById.ContainsKey(assetStruct.Id))
-                        {
-                            AssetStructsMapById.Add(assetStruct.Id, assetStruct);
-                        }
+                        AssetStructsMapById.Add(assetStruct.Id, assetStruct);
                     }
                 }
             }
@@ -149,30 +137,21 @@ namespace Core.Catalog
             {
                 foreach (Topic topic in topics)
                 {
-                    if (!TopicsMapById.ContainsKey(topic.Id))
-                    {
-                        TopicsMapById.Add(topic.Id, topic);
-                    }
-
                     if (!TopicsMapBySystemNameAndByType.ContainsKey(topic.SystemName))
                     {
                         TopicsMapBySystemNameAndByType.Add(topic.SystemName, new Dictionary<string, Topic>((StringComparer.OrdinalIgnoreCase)));
                     }
 
-                    if (!TopicsMapBySystemNameAndByType[topic.SystemName].ContainsKey(topic.Type.ToString()))
+                    if (!TopicsMapById.ContainsKey(topic.Id) && !TopicsMapBySystemNameAndByType[topic.SystemName].ContainsKey(topic.Type.ToString()))
                     {
+                        TopicsMapById.Add(topic.Id, topic);
                         TopicsMapBySystemNameAndByType[topic.SystemName].Add(topic.Type.ToString(), topic);
                     }
                 }
             }
 
             SetCatalogGroupCacheDefaults(groupId, this);
-
-            var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
-            if (programAssetStruct != null)
-            {
-                programAssetStructId = programAssetStruct.Id;
-            }
+            programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
         }
 
         public bool IsValid()
@@ -198,6 +177,20 @@ namespace Core.Catalog
             catalogGroupCache.SearchRecommendationEngineEnrichments = searchRecommendationEngineEnrichments;
             catalogGroupCache.IsGeoAvailabilityWindowingEnabled = isGeoAvailabilityEnabled;
             catalogGroupCache.IsAssetUserRuleEnabled = isAssetUserRuleEnabled;
+        }
+       
+        public long GetRealAssetStructId(long assetStructId, out bool isProgramAssetStruct)
+        {
+            var realAssetStructId = assetStructId;
+            isProgramAssetStruct = false;
+
+            if (ProgramAssetStruct != null && (assetStructId == 0 || assetStructId == ProgramAssetStruct.Id))
+            {
+                realAssetStructId = ProgramAssetStruct.Id;
+                isProgramAssetStruct = true;
+            }
+            
+            return realAssetStructId;
         }
     }
 }

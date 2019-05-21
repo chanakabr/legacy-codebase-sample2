@@ -960,6 +960,12 @@ namespace ApiObjects
         Minutes = 3
     }
 
+    public enum AssetLifeCycleRuleTransitionType
+    {
+        Tag = 0,
+        Ppv = 1
+    }
+
     public enum ProtectionPolicy
     {
         ExtendingRecordingLifetime = 0,
@@ -1084,7 +1090,8 @@ namespace ApiObjects
         BlockPlayback,
         ApplyDiscountModuleRule,
         ApplyPlaybackAdapter,
-        UserFilter
+        UserFilter,
+        AssetLifeCycleTransition
     }
 
     public enum RuleConditionType

@@ -1319,9 +1319,9 @@ namespace Core.Catalog.CatalogManagement
                 if (ids != null && ids.Count > 0)
                 {
                     response.Objects = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
-                    if (ids.Contains(0) && catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId))
+                    if (ids.Contains(0) && catalogGroupCache.ProgramAssetStruct != null)
                     {
-                        var programAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId];
+                        var programAssetStruct = catalogGroupCache.ProgramAssetStruct;
                         programAssetStruct.Id = 0;
                         response.Objects.Add(programAssetStruct);
                     }
@@ -1508,10 +1508,10 @@ namespace Core.Catalog.CatalogManagement
                         return result;
                     }
 
-                    if (id == 0 || id == catalogGroupCache.ProgramAssetStructId)
+                    id = catalogGroupCache.GetRealAssetStructId(id, out isProgramStruct);
+
+                    if (isProgramStruct)
                     {
-                        id = catalogGroupCache.ProgramAssetStructId;
-                        isProgramStruct = true;
                         mappingFields = EpgAssetManager.GetMappingFields(groupId);
                         epgMetaIdsToValue = new List<KeyValuePair<long, string>>();
                         epgTagIdsToValue = new List<KeyValuePair<long, string>>();
@@ -1733,11 +1733,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if (id == 0)
-                {
-                    id = catalogGroupCache.ProgramAssetStructId;
-                }
-
+                id = catalogGroupCache.GetRealAssetStructId(id, out bool isProgramAssetStruct);
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(id))
                 {
                     result = new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
@@ -1814,12 +1810,7 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                bool isProgramStruct = false;
-                if (assetStructId == 0 || assetStructId == catalogGroupCache.ProgramAssetStructId)
-                {
-                    assetStructId = catalogGroupCache.ProgramAssetStructId;
-                    isProgramStruct = true;
-                }
+                assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
 
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
@@ -1902,11 +1893,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                if (assetStructId == 0)
-                {
-                    assetStructId = catalogGroupCache.ProgramAssetStructId;
-                }
-
+                assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
+                
                 if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
                     List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
@@ -2832,10 +2820,7 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
-                    if (assetStructId.Value == 0)
-                    {
-                        assetStructId = catalogGroupCache.ProgramAssetStructId;
-                    }
+                    assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId.Value, out bool isProgramStruct);
 
                     if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId.Value))
                     {

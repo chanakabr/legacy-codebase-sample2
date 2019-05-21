@@ -8416,7 +8416,11 @@ namespace Core.Catalog
 
                 if (doesGroupUsesTemplates)
                 {
-                    bool hasProgramStructMediaType = definitions.mediaTypes.Remove((int)catalogGroupCache.ProgramAssetStructId);
+                    var programAssetStructId = catalogGroupCache.GetRealAssetStructId(0, out bool hasProgramStructMediaType);
+                    if (hasProgramStructMediaType)
+                    {
+                        hasProgramStructMediaType = definitions.mediaTypes.Remove((int)programAssetStructId);
+                    }
 
                     // in OPC accounts, 0 media type means EPG
                     if (hasZeroMediaType || hasProgramStructMediaType)

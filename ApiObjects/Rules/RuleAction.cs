@@ -1,9 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.AssetLifeCycleRules;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
 {
@@ -137,6 +135,43 @@ namespace ApiObjects.Rules
         public ApplyPlaybackAdapterRuleAction()
         {
             this.Type = RuleActionType.ApplyPlaybackAdapter;
+        }
+    }
+
+    // TODO SHIR - ADD TO MAPPING AND TO REST
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public abstract class AssetLifeCycleTransitionAction : AssetRuleAction
+    {   
+        public AssetLifeCycleRuleAction Action { get; set; }
+        public AssetLifeCycleRuleTransitionType TransitionType { get; set; }
+    }
+
+    // TODO SHIR - ADD TO MAPPING AND TO REST
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class AssetLifeCycleTagTransitionAction : AssetLifeCycleTransitionAction
+    {
+        public List<int> TagIds { get; set; }
+
+        public AssetLifeCycleTagTransitionAction()
+        {
+            Type = RuleActionType.AssetLifeCycleTransition;
+            TransitionType = AssetLifeCycleRuleTransitionType.Tag;
+        }
+    }
+
+    // TODO SHIR - ADD TO MAPPING AND TO REST
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class AssetLifeCycleBuisnessModuleTransitionAction : AssetLifeCycleTransitionAction
+    {
+        public LifeCycleFileTypesAndPpvsTransitions Transitions { get; set; }
+
+        public AssetLifeCycleBuisnessModuleTransitionAction()
+        {
+            Type = RuleActionType.AssetLifeCycleTransition;
+            TransitionType = AssetLifeCycleRuleTransitionType.Ppv;
         }
     }
 }
