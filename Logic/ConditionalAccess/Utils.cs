@@ -1364,11 +1364,11 @@ namespace Core.ConditionalAccess
                         if (groupUnifiedBillingCycle.HasValue)    //check that group configuration set to any unified billing cycle                    
                         {
                             //chcek that subscription contain this group billing cycle and subscription is renew                                             
-                            if (subscription != null && subscription.m_bIsRecurring
+                            if (subscription != null && subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue
                                 && subscription.m_MultiSubscriptionUsageModule != null && subscription.m_MultiSubscriptionUsageModule.Count() == 1 /*only one price plan*/
                                 && (long)subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == groupUnifiedBillingCycle.Value)
                             {
-                                //get key from CB household_renewBillingCycle
+                                //get key from CB household_renewBillingCyclepublic class Subscription : PPVModule
                                 unifiedBillingCycle = TryGetHouseholdUnifiedBillingCycle(domainId, groupUnifiedBillingCycle.Value);
                             }
                         }
@@ -2444,6 +2444,27 @@ namespace Core.ConditionalAccess
                     if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null)
                     {
                         subsPurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions;
+
+
+                        // filter pre sale subs
+                        if (subsPurchase?.Count > 0 && domainEntitlements.DomainBundleEntitlements?.SubscriptionsData?.Count > 0)
+                        {
+                            List<string> subIds = subsPurchase.Keys.ToList();
+                            int subId = 0;
+                            foreach (string subIdentifier in subIds)
+                            {
+                                subId = int.Parse(subIdentifier);
+                                if (domainEntitlements.DomainBundleEntitlements.SubscriptionsData.ContainsKey(subId))
+                                {
+                                    Subscription s = domainEntitlements.DomainBundleEntitlements.SubscriptionsData[subId];
+                                    if (s.m_dStartDate > DateTime.UtcNow)
+                                    {
+                                        subsPurchase.Remove(subIdentifier);
+                                    }
+                                }
+                            }
+                        }
+
                         collPurchase = domainEntitlements.DomainBundleEntitlements.EntitledCollections;
                         GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, groupID, fileTypes, allUserIDsInDomain, relatedMediaFileIDs, subsPurchase,
                                             collPurchase, domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings, domainEntitlements.DomainBundleEntitlements.SubscriptionsData,
@@ -4209,7 +4230,7 @@ namespace Core.ConditionalAccess
             List<int> subsToGetFromSubsDictionary = new List<int>();
             List<int> collsToGetFromDictionary = new List<int>();
 
-            if (fileTypeIdToSubscriptionMappings.Count > 0)
+            if (subsPurchase?.Count > 0 && fileTypeIdToSubscriptionMappings.Count > 0)
             {
                 int allFileTypeIDs_key = 0;
                 List<UserBundlePurchase> subscriptionsToCheck = new List<UserBundlePurchase>();
