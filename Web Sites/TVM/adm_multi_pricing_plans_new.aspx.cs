@@ -1390,6 +1390,11 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
         if (int.Parse(Session["lang_id"].ToString()) == GetMainLang(ref sMainLang, ref sMainCode))
         {
+            DataRecordDateTimeField dr_presale_date = new DataRecordDateTimeField(true);
+            dr_presale_date.Initialize("Pre-Sale Date", "adm_table_header_nbg", "FormInput", "PRE_SALE_DATE", false);
+            dr_presale_date.SetWithNull();
+            theRecord.AddRecord(dr_presale_date);
+
             DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
             dr_start_date.Initialize("Start Date", "adm_table_header_nbg", "FormInput", "START_DATE", false);
             dr_start_date.SetDefault(DateTime.Now);
