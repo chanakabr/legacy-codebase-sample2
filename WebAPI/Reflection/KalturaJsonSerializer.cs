@@ -19624,6 +19624,10 @@ namespace WebAPI.Models.Pricing
                     ret.Add("premium_services", "\"premium_services\": " + propertyValue);
                 }
             }
+            if(PreSaleDate.HasValue)
+            {
+                ret.Add("preSaleDate", "\"preSaleDate\": " + PreSaleDate);
+            }
             if(PreviewModule != null)
             {
                 propertyValue = PreviewModule.ToJson(currentVersion, omitObsolete);
@@ -19853,6 +19857,10 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("premium_services", "<premium_services>" + propertyValue + "</premium_services>");
                 }
+            }
+            if(PreSaleDate.HasValue)
+            {
+                ret.Add("preSaleDate", "<preSaleDate>" + PreSaleDate + "</preSaleDate>");
             }
             if(PreviewModule != null)
             {

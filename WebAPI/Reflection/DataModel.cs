@@ -5620,6 +5620,8 @@ namespace WebAPI.Reflection
                             return "names";
                         case "PremiumServices":
                             return "premiumServices";
+                        case "PreSaleDate":
+                            return "preSaleDate";
                         case "PreviewModule":
                             return "previewModule";
                         case "Price":
