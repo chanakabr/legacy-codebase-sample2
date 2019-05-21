@@ -64,15 +64,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TvmCore\KlogMonitorHelper\KlogMonitorHelper.csproj">
+    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj">
       <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
       <Name>KlogMonitorHelper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
