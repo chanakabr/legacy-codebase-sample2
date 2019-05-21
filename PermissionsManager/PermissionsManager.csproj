@@ -58,23 +58,23 @@
       <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\CachingProvider\CachingProvider.csproj">
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
       <Project>{4191D9E7-8502-4B00-A488-771240E2CF40}</Project>
       <Name>CachingProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
       <Name>CouchbaseManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
+    <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TvmCore\QueueWrapper\QueueWrapper.csproj">
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
     </ProjectReference>

@@ -44,10 +44,10 @@
   
   <ItemGroup>
     <ProjectReference Include="..\EventBus.Abstraction\EventBus.Abstraction.csproj" />
-    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\..\TvmCore\EventManager\EventManager.csproj" />
-    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj" />
-    <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
+    <ProjectReference Include="..\EventManager\EventManager.csproj" />
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
   </ItemGroup>
   
