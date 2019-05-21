@@ -38,14 +38,13 @@ namespace Core.Api.Managers
                 var assetLifeCycleTransitionRules = AssetRuleManager.GetAssetRules(RuleConditionType.Asset, 0, null, RuleActionType.AssetLifeCycleTransition);
                 if (assetLifeCycleTransitionRules.HasObjects())
                 {
-                    // TODO SHIR - IMPLEMENT IT BETTER BEO-6589 IN O(N)
                     foreach (var assetLifeCycleTransitionRule in assetLifeCycleTransitionRules.Objects)
                     {
                         if (!groupIdToRulesMap.ContainsKey(assetLifeCycleTransitionRule.GroupId))
                             groupIdToRulesMap.Add(assetLifeCycleTransitionRule.GroupId, new List<AssetLifeCycleRule>());
                         
-                        var tagsActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleTagTransitionAction).Select(x => x as AssetLifeCycleTagTransitionAction).ToList();
-                        var ppvActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleBuisnessModuleTransitionAction).Select(x => x as AssetLifeCycleBuisnessModuleTransitionAction).ToList();
+                        var tagsActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleTagTransitionAction).Select(x => x as AssetLifeCycleTagTransitionAction).ToDictionary(x => x.ActionType, x => x.TagIds);
+                        var ppvActions = assetLifeCycleTransitionRule.Actions.Where(x => x is AssetLifeCycleBuisnessModuleTransitionAction).Select(x => x as AssetLifeCycleBuisnessModuleTransitionAction).ToDictionary(x => x.ActionType, x => x.Transitions);
 
                         groupIdToRulesMap[assetLifeCycleTransitionRule.GroupId].Add(new AssetLifeCycleRule()
                         {
@@ -56,10 +55,10 @@ namespace Core.Api.Managers
                             KsqlFilter = (assetLifeCycleTransitionRule.Conditions[0] as AssetCondition).Ksql,
                             Actions = new LifeCycleTransitions()
                             {
-                                TagIdsToAdd = tagsActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Add).TagIds,
-                                TagIdsToRemove = tagsActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Remove).TagIds,
-                                FileTypesAndPpvsToAdd = ppvActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Add).Transitions,
-                                FileTypesAndPpvsToRemove = ppvActions.FirstOrDefault(x => x.Action == AssetLifeCycleRuleAction.Remove).Transitions
+                                TagIdsToAdd = tagsActions.ContainsKey(AssetLifeCycleRuleAction.Add) ? tagsActions[AssetLifeCycleRuleAction.Add] : new List<int>(),
+                                TagIdsToRemove = tagsActions.ContainsKey(AssetLifeCycleRuleAction.Remove) ? tagsActions[AssetLifeCycleRuleAction.Remove] : new List<int>(),
+                                FileTypesAndPpvsToAdd = ppvActions.ContainsKey(AssetLifeCycleRuleAction.Add) ? ppvActions[AssetLifeCycleRuleAction.Add] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                FileTypesAndPpvsToRemove = ppvActions.ContainsKey(AssetLifeCycleRuleAction.Remove) ? ppvActions[AssetLifeCycleRuleAction.Remove] : new LifeCycleFileTypesAndPpvsTransitions()
                             },
                             IsAssetRule = true
                         });
@@ -81,7 +80,7 @@ namespace Core.Api.Managers
             {
                 if (assetIds != null && assetIds.Count > 0 && ruleToApply != null && ruleToApply.Actions != null)
                 {
-                    res = ApplyLifeCycleRuleTagTransitionsOnAssets(assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
+                    res = ApplyLifeCycleRuleTagTransitionsOnAssets(ruleToApply.IsAssetRule, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
                           (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
                     if (!Catalog.Module.UpdateIndex(assetIds, groupId, eAction.Update))
@@ -718,7 +717,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private static bool ApplyLifeCycleRuleTagTransitionsOnAssets(List<int> assetIds, List<int> tagIdsToAdd, List<int> tagIdsToRemove)
+        private static bool ApplyLifeCycleRuleTagTransitionsOnAssets(bool isOPC, List<int> assetIds, List<int> tagIdsToAdd, List<int> tagIdsToRemove)
         {
             bool removeResult = false;
             bool addResult = false;
@@ -726,7 +725,7 @@ namespace Core.Api.Managers
             {
                 if (tagIdsToRemove != null && tagIdsToRemove.Count > 0)
                 {
-                    removeResult = ApiDAL.RemoveTagsFromAssets(assetIds, tagIdsToRemove);
+                    removeResult = ApiDAL.RemoveTagsFromAssets(assetIds, tagIdsToRemove, isOPC);
                 }
                 else
                 {
@@ -735,7 +734,7 @@ namespace Core.Api.Managers
 
                 if (tagIdsToAdd != null && tagIdsToAdd.Count > 0)
                 {
-                    addResult = ApiDAL.AddTagsToAssets(assetIds, tagIdsToAdd);
+                    addResult = ApiDAL.AddTagsToAssets(assetIds, tagIdsToAdd, isOPC);
                 }
                 else
                 {

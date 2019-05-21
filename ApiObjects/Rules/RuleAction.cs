@@ -137,21 +137,23 @@ namespace ApiObjects.Rules
             this.Type = RuleActionType.ApplyPlaybackAdapter;
         }
     }
-
-    // TODO SHIR - ADD TO MAPPING AND TO REST
+    
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class AssetLifeCycleTransitionAction : AssetRuleAction
-    {   
-        public AssetLifeCycleRuleAction Action { get; set; }
-        public AssetLifeCycleRuleTransitionType TransitionType { get; set; }
-    }
+    {
+        [JsonProperty("ActionType")]
+        public AssetLifeCycleRuleAction ActionType { get; set; }
 
-    // TODO SHIR - ADD TO MAPPING AND TO REST
+        [JsonProperty("TransitionType")]
+        public AssetLifeCycleRuleTransitionType TransitionType { get; protected set; }
+    }
+    
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetLifeCycleTagTransitionAction : AssetLifeCycleTransitionAction
     {
+        [JsonProperty("TagIds")]
         public List<int> TagIds { get; set; }
 
         public AssetLifeCycleTagTransitionAction()
@@ -160,18 +162,18 @@ namespace ApiObjects.Rules
             TransitionType = AssetLifeCycleRuleTransitionType.Tag;
         }
     }
-
-    // TODO SHIR - ADD TO MAPPING AND TO REST
+    
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class AssetLifeCycleBuisnessModuleTransitionAction : AssetLifeCycleTransitionAction
     {
+        [JsonProperty("Transitions")]
         public LifeCycleFileTypesAndPpvsTransitions Transitions { get; set; }
 
         public AssetLifeCycleBuisnessModuleTransitionAction()
         {
             Type = RuleActionType.AssetLifeCycleTransition;
-            TransitionType = AssetLifeCycleRuleTransitionType.Ppv;
+            TransitionType = AssetLifeCycleRuleTransitionType.BusinessModel;
         }
     }
 }

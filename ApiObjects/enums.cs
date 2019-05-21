@@ -963,7 +963,7 @@ namespace ApiObjects
     public enum AssetLifeCycleRuleTransitionType
     {
         Tag = 0,
-        Ppv = 1
+        BusinessModel = 1
     }
 
     public enum ProtectionPolicy

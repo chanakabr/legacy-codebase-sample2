@@ -4214,18 +4214,18 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool RemoveTagsFromAssets(List<int> assetIds, List<int> tagIdsToRemove)
+        public static bool RemoveTagsFromAssets(List<int> assetIds, List<int> tagIdsToRemove, bool isOPC)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveTagsFromAssets");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(string.Format("RemoveTagsFromAssets{0}", isOPC ? "OPC" : ""));
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
             sp.AddIDListParameter("@TagIds", tagIdsToRemove, "id");
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool AddTagsToAssets(List<int> assetIds, List<int> tagIdsToAdd)
+        public static bool AddTagsToAssets(List<int> assetIds, List<int> tagIdsToAdd, bool isOPC)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddTagsToAssets");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure(string.Format("AddTagsToAssets{0}", isOPC ? "OPC" : ""));
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
             sp.AddIDListParameter("@TagIds", tagIdsToAdd, "id");
