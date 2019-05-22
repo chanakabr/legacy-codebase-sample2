@@ -1142,4 +1142,10 @@ namespace ApiObjects
         Ready = 0,
         InProgress = 1
     }
+
+    public enum TopicNotificationSubscriptionTriggerType
+    {
+        StartDate = 0,
+        EndDate = 1
+    }
 }

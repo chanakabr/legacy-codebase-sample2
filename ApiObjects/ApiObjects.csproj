@@ -13,6 +13,12 @@
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
   
+  <ItemGroup>
+    <Compile Remove="Notification\SubscribeReference.cs" />
+    <Compile Remove="Notification\TopicNotification.cs" />
+    <Compile Remove="Notification\TopicNotificationMessage.cs" />
+  </ItemGroup>
+  
   <!--<PropertyGroup>
     <LangVersion>7</LangVersion>
   </PropertyGroup>-->
