@@ -2829,6 +2829,35 @@ namespace DAL
             return false;
         }
 
+        public static bool DeleteTopicNotificationCB(long topicNotificationId)
+        {
+            string topicNotificationKey = GetTopicNotificationKey(topicNotificationId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, topicNotificationKey);
+        }
+
+        public static DataTable GetTopicNotifications(int groupId, int type)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },
+                { "@type", type }
+            };
+
+            return UtilsDal.Execute("Get_TopicNotifications", parameters, MESSAGE_BOX_CONNECTION);
+        }
+
+        public static bool DeleteTopicNotification(long groupId, int userId, long id)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },
+                { "@id", id },
+                { "@updaterId", userId }
+            };
+
+            return UtilsDal.ExecuteReturnValue("Delete_TopicNotification", parameters, MESSAGE_BOX_CONNECTION);
+        }
+
         private static string GetTopicNotificationKey(long topicNotificationId)
         {
             return string.Format("topic_notification:{0}", topicNotificationId);

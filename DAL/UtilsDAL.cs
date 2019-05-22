@@ -21,9 +21,11 @@ namespace DAL
         private const int RETRY_LIMIT = 5;
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
+        private const string MAIN_CONNECTION_STRING = "MAIN_CONNECTION_STRING";
+
 
         #region Generic Methods
-        
+
         public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction)
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
@@ -260,10 +262,11 @@ namespace DAL
             return result;
         }
 
-        public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters = null)
+        public static DataTable Execute(string storedProcedure, Dictionary<string, object> parameters = null, string connectionKey = MAIN_CONNECTION_STRING)
         {
             StoredProcedure sp = new StoredProcedure(storedProcedure);
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                        
+            sp.SetConnectionKey(string.IsNullOrEmpty(connectionKey)? MAIN_CONNECTION_STRING : connectionKey);
 
             if (parameters != null)
             {
@@ -276,10 +279,10 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataSet ExecuteDataSet(string storedProcedure, Dictionary<string, object> parameters)
+        public static DataSet ExecuteDataSet(string storedProcedure, Dictionary<string, object> parameters, string connectionKey = MAIN_CONNECTION_STRING)
         {
             StoredProcedure sp = new StoredProcedure(storedProcedure);
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.SetConnectionKey(string.IsNullOrEmpty(connectionKey) ? MAIN_CONNECTION_STRING : connectionKey);
 
             if (parameters != null)
             {
@@ -292,10 +295,10 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool ExecuteReturnValue(string storedProcedure, Dictionary<string, object> parameters)
+        public static bool ExecuteReturnValue(string storedProcedure, Dictionary<string, object> parameters, string connectionKey = MAIN_CONNECTION_STRING)
         {
             StoredProcedure sp = new StoredProcedure(storedProcedure);
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.SetConnectionKey(string.IsNullOrEmpty(connectionKey) ? MAIN_CONNECTION_STRING : connectionKey);
 
             if (parameters != null)
             {

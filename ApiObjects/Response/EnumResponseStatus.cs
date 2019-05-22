@@ -464,6 +464,7 @@ namespace ApiObjects.Response
         MailNotificationAdapterNotExist = 8039,
         InvalidToken = 8040,
         FailCreateTopicNotification = 8041,
+        TopicNotificationNotFound = 8042,
 
         #endregion
 

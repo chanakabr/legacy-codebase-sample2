@@ -27,6 +27,8 @@ namespace ApiObjects.Notification
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
 
+        public List<Announcement> TopicNotifications { get; set; }
+
         public UserNotification(int userId)
         {
             this.UserId = userId;
@@ -37,6 +39,7 @@ namespace ApiObjects.Notification
             this.UserInterests = new List<Announcement>();
             this.Settings = new UserNotificationSettings();
             this.UserData = new UserData();
+            this.TopicNotifications = new List<Announcement>();
         }
     }
 }
