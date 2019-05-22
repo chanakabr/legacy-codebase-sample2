@@ -2846,7 +2846,7 @@ namespace DAL
             return UtilsDal.Execute("Get_TopicNotifications", parameters, MESSAGE_BOX_CONNECTION);
         }
 
-        public static bool DeleteTopicNotification(long groupId, int userId, long id)
+        public static bool DeleteTopicNotification(long groupId, long userId, long id)
         {
             var parameters = new Dictionary<string, object>()
             {

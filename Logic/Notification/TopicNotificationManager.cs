@@ -82,12 +82,12 @@ namespace Core.Notification
             return response;
         }
 
-        public static GenericResponse<TopicNotification> Update(int groupId, TopicNotification topicNotification)
+        public static GenericResponse<TopicNotification> Update(int groupId, TopicNotification topicNotification, long userId)
         {
             return null;
         }
 
-        public static Status Delete(int groupId, int userId, long topicNotificationId)
+        public static Status Delete(int groupId, long userId, long topicNotificationId)
         {
             Status responseStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             string logData = string.Format("GID: {0}, topicNotificationId: {1}", groupId, topicNotificationId);
@@ -147,13 +147,13 @@ namespace Core.Notification
             return null;
         }
 
-        public static Status Subscribe(int groupId, long topicNotificationId, int userId)
+        public static Status Subscribe(int groupId, long topicNotificationId, long userId)
         {
             Status response = new Status();
 
             // get user notifications
             UserNotification userNotificationData = null;
-            Status getUserNotificationDataStatus = Utils.GetUserNotificationData(groupId, userId, out userNotificationData);
+            Status getUserNotificationDataStatus = Utils.GetUserNotificationData(groupId, (int)userId, out userNotificationData);
             if (getUserNotificationDataStatus.Code != (int)eResponseStatus.OK || userNotificationData == null)
             {
                 response.Set((eResponseStatus)getUserNotificationDataStatus.Code, getUserNotificationDataStatus.Message);

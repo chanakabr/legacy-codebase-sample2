@@ -1249,5 +1249,89 @@ namespace Core.Notification
             }
             return result;
         }
+
+        public static GenericResponse<TopicNotification> AddTopicNotification(int groupId, TopicNotification topicNotification, long userId)
+        {
+            GenericResponse<TopicNotification> result = new GenericResponse<TopicNotification>();
+            try
+            {
+                result = TopicNotificationManager.Add(groupId, topicNotification, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in AddTopicNotification", ex);
+            }
+            return result;
+        }
+
+        public static GenericResponse<TopicNotification> UpdateTopicNotification(int groupId, TopicNotification topicNotification, long userId)
+        {
+            GenericResponse<TopicNotification> result = new GenericResponse<TopicNotification>();
+            try
+            {
+                result = TopicNotificationManager.Update(groupId, topicNotification, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in UpdateTopicNotification", ex);
+            }
+            return result;
+        }
+
+        public static Status DeleteTopicNotification(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                result = TopicNotificationManager.Delete(groupId, userId, id);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in DeleteTopicNotification", ex);
+            }
+            return result;
+        }
+
+        public static GenericListResponse<TopicNotification> GetTopicNotifications(int groupId, SubscribeReference subscribeReference)
+        {
+            GenericListResponse<TopicNotification> result = new GenericListResponse<TopicNotification>();
+            try
+            {
+                result = TopicNotificationManager.List(groupId, subscribeReference);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in GetTopicNotifications", ex);
+            }
+            return result;
+        }
+
+        public static Status SubscribeUserToTopicNotification(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                result = TopicNotificationManager.Subscribe(groupId, id, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in SubscibeToTopicNotification", ex);
+            }
+            return result;
+        }
+
+        public static Status UnsubscribeUserFromTopicNotification(int groupId, long id, long userId)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                result = TopicNotificationManager.Unsubscribe(groupId, id, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in UnsubscibeFromTopicNotification", ex);
+            }
+            return result;
+        }
     }
 }
