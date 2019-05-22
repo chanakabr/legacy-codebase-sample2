@@ -363,7 +363,7 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
                     {
-                        log.Info("CouchBase : ClientFailure detected. " +
+                        log.Debug("CouchBase : ClientFailure detected. " +
                             "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
                             "it will be reinitialized later.");
 
@@ -409,7 +409,7 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
                     {
-                        log.Info("CouchBase : OperationTimeout detected. " +
+                        log.Debug("CouchBase : OperationTimeout detected. " +
                             "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
                             "it will be reinitialized later.");
 
