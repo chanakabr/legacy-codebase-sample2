@@ -97,7 +97,7 @@ namespace DAL
             spInsertNotificationRequest.AddParameter("@status", status);
 
             DataTable dt = spInsertNotificationRequest.Execute();
-        }
+        }        
 
         /// <summary>
         /// Returns dataset of notification requests and their actions 
@@ -2805,11 +2805,33 @@ namespace DAL
 
             return result;
         }
+
+        public static long Insert_TopicNotification(int groupId, string topicName, SubscribeReferenceType type, long userId)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_TopicNotification");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@groupId", groupId);
+            spInsert.AddParameter("@name", topicName);
+            spInsert.AddParameter("@type", (int)type);
+            spInsert.AddParameter("@updaterId", userId);
+
+            return spInsert.ExecuteReturnValue<long>();            
+        }
+
+        public static bool SaveTopicNotificationCB(int groupId, TopicNotification topicNotification)
+        {
+            if (topicNotification?.Id > 0)
+            {
+                string topicNotificationKey = GetTopicNotificationKey(topicNotification.Id);
+                return UtilsDal.SaveObjectInCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, topicNotificationKey, topicNotification, true);
+            }
+
+            return false;
+        }
+
+        private static string GetTopicNotificationKey(long topicNotificationId)
+        {
+            return string.Format("topic_notification:{0}", topicNotificationId);
+        }
     }
 }
-
-
-
-
-
-

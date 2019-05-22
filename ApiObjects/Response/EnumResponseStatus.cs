@@ -463,6 +463,7 @@ namespace ApiObjects.Response
         EngagementScheduleWithoutAdapter = 8038,
         MailNotificationAdapterNotExist = 8039,
         InvalidToken = 8040,
+        FailCreateTopicNotification = 8041,
 
         #endregion
 
