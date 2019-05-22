@@ -33,7 +33,8 @@ namespace TCMClient
             }
         }
 
-        private JObject m_Settings = new JObject();
+        private JObject m_SettingsLoweredKeys = new JObject();
+        private JObject m_SettingsOriginalKeys = new JObject();
         
         private string m_URL;
         private string m_Application;
@@ -145,11 +146,21 @@ namespace TCMClient
         /// <typeparam name="T">Value type</typeparam>
         /// <param name="key">Key</param>
         /// <returns></returns>
-        public T GetValue<T>(string key)
+        public T GetValue<T>(string key, bool exactCase = false)
         {
             try
             {
-                JToken token = m_Settings.SelectToken(key.ToLower());
+                JToken token = null;
+
+                if (!exactCase)
+                {
+                    token = m_SettingsLoweredKeys.SelectToken(key.ToLower());
+                }
+                else
+                {
+                    token = m_SettingsOriginalKeys.SelectToken(key);
+                }
+
                 if (token != null)
                 {
                     return token.ToObject<T>();
@@ -169,7 +180,7 @@ namespace TCMClient
         /// <returns></returns>
         public JObject Get()
         {
-            return m_Settings;
+            return m_SettingsOriginalKeys;
         }
 
         #endregion
@@ -270,14 +281,15 @@ namespace TCMClient
                     {
                         if (record.Value is JObject)
                         {
-                            m_Settings.Add(record.Key.ToLower(), ParseNestedObjects((JObject)record.Value)); 
+                            m_SettingsLoweredKeys.Add(record.Key.ToLower(), ParseNestedObjects((JObject)record.Value, true));
+                            m_SettingsOriginalKeys.Add(record.Key, ParseNestedObjects((JObject)record.Value, false));
                         }
                         else
                         {
                             string _key = record.Key;
-                            m_Settings.Add(_key.ToLower(), new JValue(record.Value));    
+                            m_SettingsLoweredKeys.Add(_key.ToLower(), new JValue(record.Value));
+                            m_SettingsOriginalKeys.Add(_key, new JValue(record.Value));
                         }
-                        
                     }
                 }
                 catch
@@ -291,7 +303,7 @@ namespace TCMClient
             }
         }
 
-        private JObject ParseNestedObjects(JObject settings)
+        private JObject ParseNestedObjects(JObject settings, bool shouldLower)
         {
             JObject retJObject = new JObject();
             //Iterate siblings
@@ -300,12 +312,27 @@ namespace TCMClient
                 if (record.Value is JObject)
                 {
                     //if JObject (complex), go deeper in the hierarchy
-                    JObject parsedJObject = ParseNestedObjects((JObject) record.Value);
-                    retJObject.Add(record.Key.ToLower(), parsedJObject);
+                    JObject parsedJObject = ParseNestedObjects((JObject) record.Value, shouldLower);
+
+                    string key = record.Key;
+
+                    if (shouldLower)
+                    {
+                        key = key.ToLower();
+                    }
+
+                    retJObject.Add(key, parsedJObject);
                 }
                 else
                 {
-                    JProperty token = new JProperty(record.Key.ToLower(), record.Value);
+                    string key = record.Key;
+
+                    if (shouldLower)
+                    {
+                        key = key.ToLower();
+                    }
+
+                    JProperty token = new JProperty(key, record.Value);
                     retJObject.Add(token);
                 }
             }
