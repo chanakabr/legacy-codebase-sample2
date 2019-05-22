@@ -192,7 +192,7 @@ namespace CouchbaseManager
         {
             try
             {
-                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY);
+                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY, true);
                 if (couchbaseConfigFromTCM != null)
                 {
                     // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
@@ -371,7 +371,7 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.ClientFailure:
                     {
                         log.Debug("CouchBase : ClientFailure detected. " +
-                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : +" +
+                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
                             "it will be reinitialized later.");
 
                         // remove bucket
