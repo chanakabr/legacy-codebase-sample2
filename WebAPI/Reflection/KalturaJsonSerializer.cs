@@ -6422,6 +6422,10 @@ namespace WebAPI.Models.Notifications
                 ret.Add("dispatchers", "\"dispatchers\": " + propertyValue);
             }
             ret.Add("id", "\"id\": " + Id);
+            if(ImageUrl != null)
+            {
+                ret.Add("imageUrl", "\"imageUrl\": " + "\"" + EscapeJson(ImageUrl) + "\"");
+            }
             if(Message != null)
             {
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
@@ -6447,6 +6451,10 @@ namespace WebAPI.Models.Notifications
                 ret.Add("dispatchers", "<dispatchers>" + propertyValue + "</dispatchers>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
+            if(ImageUrl != null)
+            {
+                ret.Add("imageUrl", "<imageUrl>" + EscapeXml(ImageUrl) + "</imageUrl>");
+            }
             if(Message != null)
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");

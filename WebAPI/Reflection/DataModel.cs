@@ -5984,6 +5984,8 @@ namespace WebAPI.Reflection
                             return "dispatchers";
                         case "Id":
                             return "id";
+                        case "ImageUrl":
+                            return "imageUrl";
                         case "Message":
                             return "message";
                         case "TopicNotificationId":

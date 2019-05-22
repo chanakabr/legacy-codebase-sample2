@@ -11522,6 +11522,11 @@
             Topic notification message
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.ImageUrl">
+            <summary>
+            Topic notification message image URL
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.TopicNotificationId">
             <summary>
             Topic notification ID

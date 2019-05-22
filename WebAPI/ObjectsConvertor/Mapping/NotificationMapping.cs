@@ -295,6 +295,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
 
+            
             #region Engagement Adapter
 
             cfg.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
@@ -356,10 +357,95 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
                ;
-            
+
+            #endregion
+
+            #region Topic Notification
+            cfg.CreateMap<KalturaTopicNotification, TopicNotification>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.SubscribeReference, opt => opt.MapFrom(src => src.SubscribeReference));
+
+            cfg.CreateMap<TopicNotification, KalturaTopicNotification>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.SubscribeReference, opt => opt.MapFrom(src => src.SubscribeReference));
+
+            cfg.CreateMap<SubscribeReference, KalturaSubscribeReference>();
+
+            cfg.CreateMap<SubscriptionSubscribeReference, KalturaSubscriptionSubscribeReference>()
+               .IncludeBase<SubscribeReference, KalturaSubscribeReference>()
+               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId));
+
+            cfg.CreateMap<KalturaSubscribeReference, SubscribeReference>();
+
+            cfg.CreateMap<KalturaSubscriptionSubscribeReference, SubscriptionSubscribeReference>()
+               .IncludeBase<KalturaSubscribeReference, SubscribeReference>()
+               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId));
+
+            cfg.CreateMap<KalturaTrigger, TopicNotificationTrigger>();
+
+            cfg.CreateMap<KalturaDateTrigger, TopicNotificationDateTrigger>()
+               .IncludeBase<KalturaTrigger, TopicNotificationTrigger>()
+                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.Date)));
+
+            cfg.CreateMap<TopicNotificationTrigger, KalturaTrigger>();
+
+            cfg.CreateMap<TopicNotificationDateTrigger, KalturaDateTrigger>()
+               .IncludeBase<TopicNotificationTrigger, KalturaTrigger>()
+                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.Date)));
+
+            cfg.CreateMap<KalturaSubscriptionTrigger, TopicNotificationSubscriptionTrigger>()
+               .IncludeBase<KalturaTrigger, TopicNotificationTrigger>()
+                 .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.Offset))
+                 .ForMember(dest => dest.TriggerType, opt => opt.MapFrom(src => ConvertSubscriptionTriggerType(src.Type)));
+
+            cfg.CreateMap<TopicNotificationSubscriptionTrigger, KalturaSubscriptionTrigger>()
+              .IncludeBase<TopicNotificationTrigger, KalturaTrigger>()
+                .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.Offset))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSubscriptionTriggerType(src.TriggerType)));
+
+            cfg.CreateMap<KalturaDispatcher, TopicNotificationDispatcher>();
+
+            cfg.CreateMap<TopicNotificationDispatcher, KalturaDispatcher>();
+
+            cfg.CreateMap<KalturaSmsDispatcher, TopicNotificationSmsDispatcher>()
+              .IncludeBase<KalturaDispatcher, TopicNotificationDispatcher>();
+
+            cfg.CreateMap<TopicNotificationSmsDispatcher, KalturaSmsDispatcher>()
+              .IncludeBase<TopicNotificationDispatcher, KalturaDispatcher>();
+
+            cfg.CreateMap<KalturaMailDispatcher, TopicNotificationMailDispatcher>()
+              .IncludeBase<KalturaDispatcher, TopicNotificationDispatcher>()
+                .ForMember(dest => dest.SubjectTemplate, opt => opt.MapFrom(src => src.SubjectTemplate))
+                .ForMember(dest => dest.BodyTemplate, opt => opt.MapFrom(src => src.BodyTemplate));
+
+            cfg.CreateMap<TopicNotificationMailDispatcher, KalturaMailDispatcher>()
+             .IncludeBase<TopicNotificationDispatcher, KalturaDispatcher>()
+               .ForMember(dest => dest.SubjectTemplate, opt => opt.MapFrom(src => src.SubjectTemplate))
+               .ForMember(dest => dest.BodyTemplate, opt => opt.MapFrom(src => src.BodyTemplate));
+
+            cfg.CreateMap<TopicNotificationMessage, KalturaTopicNotificationMessage>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Dispatchers, opt => opt.MapFrom(src => src.Dispatchers))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.TopicNotificationId, opt => opt.MapFrom(src => src.TopicNotificationId))
+                .ForMember(dest => dest.Trigger, opt => opt.MapFrom(src => src.Trigger))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
+
+            cfg.CreateMap<KalturaTopicNotificationMessage, TopicNotificationMessage>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Dispatchers, opt => opt.MapFrom(src => src.Dispatchers))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.TopicNotificationId, opt => opt.MapFrom(src => src.TopicNotificationId))
+                .ForMember(dest => dest.Trigger, opt => opt.MapFrom(src => src.Trigger))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
+
             #endregion
         }
-        
+
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
             switch (eEngagementType)
@@ -923,5 +1009,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return result;
         }
+
+        private static KalturaSubscriptionTriggerType ConvertSubscriptionTriggerType(TopicNotificationSubscriptionTriggerType triggerType)
+        {
+            KalturaSubscriptionTriggerType result = KalturaSubscriptionTriggerType.START_DATE;
+
+            switch (triggerType)
+            {
+                case TopicNotificationSubscriptionTriggerType.StartDate:
+                    result = KalturaSubscriptionTriggerType.START_DATE;
+                    break;
+                case TopicNotificationSubscriptionTriggerType.EndDate:
+                    result = KalturaSubscriptionTriggerType.END_DATE;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown subscription trigger type");
+                    break;
+            }
+          
+            return result;
+        }
+
+        private static TopicNotificationSubscriptionTriggerType ConvertSubscriptionTriggerType(KalturaSubscriptionTriggerType triggerType)
+        {
+            TopicNotificationSubscriptionTriggerType result = TopicNotificationSubscriptionTriggerType.StartDate;
+
+            switch (triggerType)
+            {
+                case KalturaSubscriptionTriggerType.START_DATE:
+                    result = TopicNotificationSubscriptionTriggerType.StartDate;
+                    break;
+                case KalturaSubscriptionTriggerType.END_DATE:
+                    result = TopicNotificationSubscriptionTriggerType.EndDate;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown subscription trigger type");
+                    break;
+            }
+
+            return result;
+        }
+
     }
 }

@@ -31,6 +31,14 @@ namespace WebAPI.Models.Notifications
         public string Message { get; set; }
 
         /// <summary>
+        /// Topic notification message image URL
+        /// </summary>
+        [DataMember(Name = "imageUrl")]
+        [JsonProperty(PropertyName = "imageUrl")]
+        [XmlElement(ElementName = "imageUrl")]
+        public string ImageUrl { get; set; }
+
+        /// <summary>
         /// Topic notification ID
         /// </summary>
         [DataMember(Name = "topicNotificationId")]
