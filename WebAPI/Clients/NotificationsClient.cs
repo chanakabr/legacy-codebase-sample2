@@ -2021,34 +2021,60 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaTopicNotification AddTopicNotification(int groupId, KalturaTopicNotification topicNotification)
+        internal KalturaTopicNotification AddTopicNotification(int groupId, KalturaTopicNotification topicNotification, string userId)
         {
-            throw new NotImplementedException();
+            Func<TopicNotification, GenericResponse<TopicNotification>> addTopicNotificationFunc = (TopicNotification topicNotificationToAdd) =>
+               Core.Notification.Module.AddTopicNotification(groupId, topicNotificationToAdd, long.Parse(userId));
+
+            KalturaTopicNotification result =
+                ClientUtils.GetResponseFromWS<KalturaTopicNotification, TopicNotification>(topicNotification, addTopicNotificationFunc);
+
+            return result;
         }
 
-        internal KalturaTopicNotification UpdateTopicNotification(int groupId, int id, KalturaTopicNotification topicNotification)
+        internal KalturaTopicNotification UpdateTopicNotification(int groupId, KalturaTopicNotification topicNotification, string userId)
         {
-            throw new NotImplementedException();
+            Func<TopicNotification, GenericResponse<TopicNotification>> updateTopicNotificationFunc = (TopicNotification topicNotificationToUpdate) =>
+               Core.Notification.Module.UpdateTopicNotification(groupId, topicNotificationToUpdate, long.Parse(userId));
+
+            KalturaTopicNotification result =
+                ClientUtils.GetResponseFromWS<KalturaTopicNotification, TopicNotification>(topicNotification, updateTopicNotificationFunc);
+
+            return result;
         }
 
-        internal void DeleteTopicNotification(int groupId, long id)
+        internal void DeleteTopicNotification(int groupId, long id, string userId)
         {
-            throw new NotImplementedException();
+            Func<Status> deleteTopicNotificationFunc = () => Core.Notification.Module.DeleteTopicNotification(groupId, id, long.Parse(userId));
+            ClientUtils.GetResponseStatusFromWS(deleteTopicNotificationFunc);
         }
 
-        internal KalturaTopicNotificationListResponse TopicNotifications(int groupId, KalturaSubscribeReference subscribeReference)
+        internal KalturaTopicNotificationListResponse GetTopicNotifications(int groupId, KalturaSubscribeReference subscribeReference)
         {
-            throw new NotImplementedException();
+            KalturaTopicNotificationListResponse result = new KalturaTopicNotificationListResponse();
+
+            Func<GenericListResponse<TopicNotification>> getTopicNotificationsFunc = () =>
+               Core.Notification.Module.GetTopicNotifications(groupId, AutoMapper.Mapper.Map<SubscribeReference>(subscribeReference));
+
+            KalturaGenericListResponse<KalturaTopicNotification> response =
+                ClientUtils.GetResponseListFromWS<KalturaTopicNotification, TopicNotification>(getTopicNotificationsFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
 
         internal void SubscribeUserToTopicNotification(int groupId, string userId, long topicNotificationId)
         {
-            throw new NotImplementedException();
+            Func<Status> subscribeUserToTopicNotificationFunc = () => Core.Notification.Module.SubscribeUserToTopicNotification(groupId, topicNotificationId, long.Parse(userId));
+            ClientUtils.GetResponseStatusFromWS(subscribeUserToTopicNotificationFunc);
         }
 
         internal void UnsubscribeUserFromTopicNotification(int groupId, string userId, long topicNotificationId)
         {
-            throw new NotImplementedException();
+            Func<Status> unsubscribeUserFromTopicNotificationFunc = () => Core.Notification.Module.UnsubscribeUserFromTopicNotification(groupId, topicNotificationId, long.Parse(userId));
+            ClientUtils.GetResponseStatusFromWS(unsubscribeUserFromTopicNotificationFunc);
         }
 
         internal KalturaTopicNotificationMessage AddTopicNotificationMessage(int groupId, KalturaTopicNotificationMessage topicNotificationMessage)

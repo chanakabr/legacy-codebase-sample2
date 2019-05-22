@@ -34,7 +34,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                return ClientsManager.NotificationClient().AddTopicNotification(groupId, topicNotification);
+                string userId= KS.GetFromRequest().UserId;
+
+                return ClientsManager.NotificationClient().AddTopicNotification(groupId, topicNotification, userId);
             }
 
             catch (ClientException ex)
@@ -57,8 +59,11 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
-                return ClientsManager.NotificationClient().UpdateTopicNotification(groupId, id, topicNotification);
+                topicNotification.Id = id;
+
+                return ClientsManager.NotificationClient().UpdateTopicNotification(groupId, topicNotification, userId);
             }
 
             catch (ClientException ex)
@@ -80,7 +85,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                ClientsManager.NotificationClient().DeleteTopicNotification(groupId, id);
+                string userId = KS.GetFromRequest().UserId;
+
+                ClientsManager.NotificationClient().DeleteTopicNotification(groupId, id, userId);
             }
 
             catch (ClientException ex)
@@ -106,7 +113,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().TopicNotifications(groupId, filter.SubscribeReference);
+                response = ClientsManager.NotificationClient().GetTopicNotifications(groupId, filter.SubscribeReference);
             }
 
             catch (ClientException ex)
