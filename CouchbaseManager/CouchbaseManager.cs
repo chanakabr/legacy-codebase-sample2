@@ -175,7 +175,7 @@ namespace CouchbaseManager
         {
             try
             {
-                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY);
+                var couchbaseConfigFromTCM = TCMClient.Settings.Instance.GetValue<ClientConfiguration>(COUCHBASE_TCM_CONFIG_KEY, true);
                 if (couchbaseConfigFromTCM != null)
                 {
                     // This is here because the default constructor of ClientConfiguration adds a http://localhost:8091/pools url to the 0 index :\
