@@ -122,7 +122,7 @@ namespace DAL
 
             DataSet ds = spGetNotificationRequests.ExecuteDataSet();
             return ds;
-        }
+        }        
 
         /// <summary>
         /// Update status of several notification requests at notifications_requests table
@@ -2808,14 +2808,12 @@ namespace DAL
 
         public static long Insert_TopicNotification(int groupId, string topicName, SubscribeReferenceType type, long userId)
         {
-            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_TopicNotification");
-            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            spInsert.AddParameter("@groupId", groupId);
-            spInsert.AddParameter("@name", topicName);
-            spInsert.AddParameter("@type", (int)type);
-            spInsert.AddParameter("@updaterId", userId);
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },  { "@name", topicName }, { "@type", (int)type },{ "@updaterId", userId }
+            };
 
-            return spInsert.ExecuteReturnValue<long>();            
+            return UtilsDal.ExecuteReturnValue<long>("Insert_TopicNotification", parameters, MESSAGE_BOX_CONNECTION);
         }
 
         public static bool SaveTopicNotificationCB(int groupId, TopicNotification topicNotification)
@@ -2858,6 +2856,16 @@ namespace DAL
             return UtilsDal.Execute("Get_TopicNotifications", parameters, MESSAGE_BOX_CONNECTION);
         }
 
+        public static bool Update_TopicNotification(long id, int groupId, string topicName, long userId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@id", id }, { "@groupId", groupId },  { "@name", topicName }, { "@updaterId", userId }
+            };
+
+            return UtilsDal.ExecuteReturnValue<int>("Update_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;
+        }
+
         public static bool DeleteTopicNotification(long groupId, long userId, long id)
         {
             var parameters = new Dictionary<string, object>()
@@ -2867,7 +2875,7 @@ namespace DAL
                 { "@updaterId", userId }
             };
 
-            return UtilsDal.ExecuteReturnValue("Delete_TopicNotification", parameters, MESSAGE_BOX_CONNECTION);
+            return UtilsDal.ExecuteReturnValue<int>("Delete_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;
         }
 
         private static string GetTopicNotificationKey(long topicNotificationId)

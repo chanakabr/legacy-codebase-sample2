@@ -1066,16 +1066,15 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_{0}", GetBulkUploadsKey(groupId, bulkObjectType, status));
         }
 
-        public static string GetTopicNotificationsKey(int groupId)
+        public static string GetTopicNotificationsKey(int groupId, int SubscribeReferenceType)
         {
-            return string.Format("TopicNotifications_groupId_{0}", groupId);
+            return string.Format("TopicNotifications_groupId_{0}_type_{1}", groupId, SubscribeReferenceType);
         }
 
-        public static string GetTopicNotificationsInvalidationKey(int groupId)
+        public static string GetTopicNotificationsInvalidationKey(int groupId, int SubscribeReferenceType)
         {
-            return string.Format("invalidationKeyTopicNotifications_groupId_{0}", groupId);
+            return string.Format("invalidationKeyTopicNotifications_groupId_{0}_type_{1}", groupId, SubscribeReferenceType);
         }
-
 
         #endregion
 

@@ -295,7 +295,7 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static bool ExecuteReturnValue(string storedProcedure, Dictionary<string, object> parameters, string connectionKey = MAIN_CONNECTION_STRING)
+        public static T ExecuteReturnValue<T>(string storedProcedure, Dictionary<string, object> parameters, string connectionKey = MAIN_CONNECTION_STRING)
         {
             StoredProcedure sp = new StoredProcedure(storedProcedure);
             sp.SetConnectionKey(string.IsNullOrEmpty(connectionKey) ? MAIN_CONNECTION_STRING : connectionKey);
@@ -308,7 +308,7 @@ namespace DAL
                 }
             }
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            return sp.ExecuteReturnValue<T>();
         }
 
         #endregion

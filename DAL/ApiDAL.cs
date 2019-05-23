@@ -5163,7 +5163,7 @@ namespace DAL
                 { "@ruleId", ruleId }
             };
 
-            return UtilsDal.ExecuteReturnValue("Delete_UserToAssetUserRule", parameters);
+            return UtilsDal.ExecuteReturnValue<int>("Delete_UserToAssetUserRule", parameters) > 0 ;
         }
 
         #endregion
