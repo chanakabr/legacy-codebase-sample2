@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,8 @@ namespace MessageAnnouncementHandler
 
         [JsonProperty("message_announcement_id")]
         public int MessageAnnouncementId { get; set; }
+
+        [JsonProperty("type")]
+        public MessageAnnouncementRequestType? Type { get; set; }
     }
 }
