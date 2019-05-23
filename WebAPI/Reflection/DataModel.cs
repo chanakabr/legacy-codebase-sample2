@@ -5062,6 +5062,8 @@ namespace WebAPI.Reflection
                             return "description";
                         case "Id":
                             return "id";
+                        case "Label":
+                            return "label";
                         case "Name":
                             return "name";
                     }
@@ -5844,6 +5846,8 @@ namespace WebAPI.Reflection
                 case "KalturaTagFilter":
                     switch(property.Name)
                     {
+                        case "IdIn":
+                            return "idIn";
                         case "LanguageEqual":
                             return "languageEqual";
                         case "TagEqual":

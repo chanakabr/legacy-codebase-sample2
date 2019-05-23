@@ -3183,6 +3183,24 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaTagListResponse GetTags(int groupId, List<long> idIn, int pageIndex, int pageSize)
+        {
+            KalturaTagListResponse result = new KalturaTagListResponse();
+
+            Func<GenericListResponse<ApiObjects.SearchObjects.TagValue>> searchTagsFunc = delegate ()
+            {
+                return Core.Catalog.CatalogManagement.CatalogManager.GetTags(groupId, idIn, pageIndex, pageSize);
+            };
+
+            KalturaGenericListResponse<KalturaTag> response =
+                ClientUtils.GetResponseListFromWS<KalturaTag, ApiObjects.SearchObjects.TagValue>(searchTagsFunc);
+
+            result.Tags = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
         internal KalturaTag AddTag(int groupId, KalturaTag tag, long userId)
         {
             Func<TagValue, GenericResponse<TagValue>> addTagFunc = (TagValue requestTag) =>

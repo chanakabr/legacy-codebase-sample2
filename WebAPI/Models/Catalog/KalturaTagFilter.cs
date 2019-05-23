@@ -36,7 +36,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("typeEqual")]
         [XmlElement(ElementName = "typeEqual")]
         [SchemeProperty(MinInteger = 1)]
-        public int TypeEqual { get; set; }
+        public int? TypeEqual { get; set; }
 
         /// <summary>
         /// Language to filter by
@@ -46,9 +46,30 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "languageEqual")]        
         public string LanguageEqual { get; set; }
 
+        /// <summary>
+        /// Comma separated identifiers
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn", IsNullable = true)]
+        public string IdIn { get; set; }
+
         internal void Validate()
         {
-            if (this.TypeEqual <= 0)
+            if (!string.IsNullOrEmpty(IdIn))
+            {
+                if (!string.IsNullOrEmpty(TagEqual))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.idIn", "KalturaTagFilter.tagEqual");
+                }
+
+                if (!string.IsNullOrEmpty(TagStartsWith))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaTagFilter.idIn", "KalturaTagFilter.tagStartsWith");
+                }
+            }
+
+            if (string.IsNullOrEmpty(IdIn) && (!TypeEqual.HasValue || TypeEqual <= 0))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTagFilter.typeEqual");
             }
@@ -73,7 +94,28 @@ namespace WebAPI.Models.Catalog
             return KalturaTagOrderBy.NONE;
         }
 
+        public List<long> GetIdIn()
+        {
+            HashSet<long> list = new HashSet<long>();
+            if (!string.IsNullOrEmpty(IdIn))
+            {
+                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    long value;
+                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaTagFilter.idIn");
+                    }
+                }
+            }
 
+            return new List<long>(list);
+        }
     }
 
     public enum KalturaTagOrderBy

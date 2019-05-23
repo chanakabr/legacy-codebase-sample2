@@ -53,16 +53,19 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 filter.Validate();
 
-                // call client      
-                if (!string.IsNullOrEmpty(filter.TagEqual))
+                if (!string.IsNullOrEmpty(filter.IdIn))
+                {
+                    response = ClientsManager.CatalogClient().GetTags(groupId, filter.GetIdIn(), pager.getPageIndex(), pager.getPageSize());
+                }
+                else if (!string.IsNullOrEmpty(filter.TagEqual))
                 {
                     //search using tag
-                    response = ClientsManager.CatalogClient().SearchTags(groupId, true, filter.TagEqual, filter.TypeEqual, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, true, filter.TagEqual, filter.TypeEqual.Value, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
                 }
                 else
                 {
                     //search using TagStartsWith
-                    response = ClientsManager.CatalogClient().SearchTags(groupId, false, filter.TagStartsWith, filter.TypeEqual, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
+                    response = ClientsManager.CatalogClient().SearchTags(groupId, false, filter.TagStartsWith, filter.TypeEqual.Value, filter.LanguageEqual, pager.getPageIndex(), pager.getPageSize());
                 }
             }
             catch (ClientException ex)

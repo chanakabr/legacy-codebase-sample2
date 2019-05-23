@@ -13176,6 +13176,10 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
             if(LanguageEqual != null)
             {
                 ret.Add("languageEqual", "\"languageEqual\": " + "\"" + EscapeJson(LanguageEqual) + "\"");
@@ -13188,7 +13192,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("tagStartsWith", "\"tagStartsWith\": " + "\"" + EscapeJson(TagStartsWith) + "\"");
             }
-            ret.Add("typeEqual", "\"typeEqual\": " + TypeEqual);
+            if(TypeEqual.HasValue)
+            {
+                ret.Add("typeEqual", "\"typeEqual\": " + TypeEqual);
+            }
             return ret;
         }
         
@@ -13198,6 +13205,10 @@ namespace WebAPI.Models.Catalog
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
             if(LanguageEqual != null)
             {
                 ret.Add("languageEqual", "<languageEqual>" + EscapeXml(LanguageEqual) + "</languageEqual>");
@@ -13210,7 +13221,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("tagStartsWith", "<tagStartsWith>" + EscapeXml(TagStartsWith) + "</tagStartsWith>");
             }
-            ret.Add("typeEqual", "<typeEqual>" + TypeEqual + "</typeEqual>");
+            if(TypeEqual.HasValue)
+            {
+                ret.Add("typeEqual", "<typeEqual>" + TypeEqual + "</typeEqual>");
+            }
             return ret;
         }
     }
@@ -16917,6 +16931,10 @@ namespace WebAPI.Models.API
                 ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
             }
             ret.Add("id", "\"id\": " + Id);
+            if(Label != null)
+            {
+                ret.Add("label", "\"label\": " + "\"" + EscapeJson(Label) + "\"");
+            }
             if(Name != null)
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
@@ -16935,6 +16953,10 @@ namespace WebAPI.Models.API
                 ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
             }
             ret.Add("id", "<id>" + Id + "</id>");
+            if(Label != null)
+            {
+                ret.Add("label", "<label>" + EscapeXml(Label) + "</label>");
+            }
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");

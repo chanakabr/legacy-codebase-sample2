@@ -7317,6 +7317,11 @@
             Language to filter by
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaTagFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaTagListResponse.Tags">
             <summary>
             A list of partner tags
