@@ -108,7 +108,7 @@ namespace Core.Notification
                 if (!currentTopicNotification.Name.Equals(topicNotification.Name) || !currentTopicNotification.Description.Equals(topicNotification.Description))
                 {
                     // update DB topicNotification
-                    if(!NotificationDal.UpdateTopicNotification(topicNotification.Id, topicNotification.GroupId, topicNotification.Name, userId))
+                    if (!NotificationDal.UpdateTopicNotification(topicNotification.Id, topicNotification.GroupId, topicNotification.Name, userId))
                     {
                         log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotification.GroupId, topicNotification.Name);
                         response.SetStatus(eResponseStatus.Error, "fail update TopicNotification to DB");
@@ -226,7 +226,7 @@ namespace Core.Notification
             {
                 TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationId);
 
-                if(topicNotification == null)
+                if (topicNotification == null)
                 {
                     response.Code = (int)eResponseStatus.TopicNotificationNotFound;
                     return response;
@@ -243,10 +243,10 @@ namespace Core.Notification
                 // create added time
                 long addedSecs = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
-                if (userNotificationData.Settings.EnableMail.HasValue 
-                    &&  userNotificationData.Settings.EnableMail.Value 
+                if (userNotificationData.Settings.EnableMail.HasValue
+                    && userNotificationData.Settings.EnableMail.Value
                     && !string.IsNullOrEmpty(userNotificationData.UserData.Email))
-                { 
+                {
                     if (!MailNotificationAdapterClient.SubscribeToAnnouncement(topicNotification.GroupId,
                                                                                new List<string>() { topicNotification.MailExternalId },
                                                                                userNotificationData.UserData,
@@ -479,6 +479,11 @@ namespace Core.Notification
                     log.Error("Error in follow for sms", ex);
                 }
             }
+        }
+        
+        internal static TopicNotification GetTopicNotificationById(long topicNotificationId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

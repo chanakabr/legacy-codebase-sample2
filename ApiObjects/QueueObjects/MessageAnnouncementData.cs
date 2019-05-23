@@ -18,10 +18,11 @@ namespace ApiObjects.QueueObjects
         private int groupId;
         private long startTime;
         private int messageAnnouncementId;
+        private MessageAnnouncementType type;
 
         #endregion
 
-        public MessageAnnouncementData(int groupId, long startTime, int messageAnnouncementId)
+        public MessageAnnouncementData(int groupId, long startTime, int messageAnnouncementId, MessageAnnouncementType type = MessageAnnouncementType.MessageAnnoncement)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
@@ -32,14 +33,22 @@ namespace ApiObjects.QueueObjects
             this.groupId = groupId;
             this.startTime = startTime;
             this.messageAnnouncementId = messageAnnouncementId;
+            this.type = type;
 
             this.args = new List<object>()
             {
                 groupId,
                 startTime,
                 messageAnnouncementId,
+                type,
                 base.RequestId
             };
         }
+    }
+
+    public enum MessageAnnouncementType
+    {
+        MessageAnnoncement = 0,
+        TopicNotificationMessage = 1
     }
 }

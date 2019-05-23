@@ -47,6 +47,7 @@ namespace Core.Notification
                 //{
                 //    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
                 //}
+                AddTopicNotificationMessageToQueue(topicNotificationMessage);
 
                 response.Object = topicNotificationMessage;
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -163,6 +164,73 @@ namespace Core.Notification
         internal static GenericListResponse<TopicNotificationMessage> List(int groupId, long topicNotificationId)
         {
             throw new NotImplementedException();
+        }
+
+        private static bool AddTopicNotificationMessageToQueue(TopicNotificationMessage topicNotificationMessage)
+        {
+            bool result = false;
+            DateTime? triggerTime = null;
+            if (topicNotificationMessage.Trigger != null)
+            {
+                switch (topicNotificationMessage.Trigger.Type)
+                {
+                    case TopicNotificationTriggerType.Date:
+                        triggerTime = ((TopicNotificationDateTrigger)topicNotificationMessage.Trigger).Date;
+                        break;
+                    case TopicNotificationTriggerType.Subscription:
+                        {
+                            TopicNotificationSubscriptionTrigger trigger = (TopicNotificationSubscriptionTrigger)topicNotificationMessage.Trigger;
+                            TopicNotification topicNotification = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
+                            long subscriptionId = 0;
+                            if (topicNotification.SubscribeReference != null && topicNotification.SubscribeReference.Type == SubscribeReferenceType.Subscription)
+                            {
+                                subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
+                            }
+                            if (subscriptionId > 0)
+                            {
+                                var subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                                switch (trigger.TriggerType)
+                                {
+                                    case ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate:
+                                        triggerTime = subscription.m_dStartDate.AddSeconds(trigger.Offset);
+                                        break;
+                                    case ApiObjects.TopicNotificationSubscriptionTriggerType.EndDate:
+                                        triggerTime = subscription.m_dEndDate.AddSeconds(trigger.Offset);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (triggerTime.HasValue)
+            {
+                QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
+                ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
+                    topicNotificationMessage.GroupId, 
+                    DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value), 
+                    (int)topicNotificationMessage.Id, ApiObjects.QueueObjects.MessageAnnouncementType.TopicNotificationMessage)
+                {
+                    ETA = triggerTime
+                };
+
+                if (queue.Enqueue(messageAnnouncementData, AnnouncementManager.ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS))
+                {
+                    log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
+                }
+            }
+
+            return result;
         }
     }
 }
