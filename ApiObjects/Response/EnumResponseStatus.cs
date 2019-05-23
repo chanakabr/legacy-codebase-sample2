@@ -465,6 +465,7 @@ namespace ApiObjects.Response
         InvalidToken = 8040,
         FailCreateTopicNotification = 8041,
         TopicNotificationNotFound = 8042,
+        TopicNotificationMessageNotFound = 8043,
 
         #endregion
 

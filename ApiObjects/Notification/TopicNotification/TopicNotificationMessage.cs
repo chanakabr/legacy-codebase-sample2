@@ -13,7 +13,7 @@ namespace ApiObjects.Notification
         public long Id { get; set; }
 
         [JsonProperty("GroupId")]
-        public long GroupId { get; set; }
+        public int GroupId { get; set; }
 
         [JsonProperty("Message")]
         public string Message { get; set; }

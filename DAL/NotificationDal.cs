@@ -24,7 +24,7 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_REQUEST_STATUS = "UpdateNotificationRequestStatus";
         private const string SP_GET_NOTIFICATION_BY_GROUP_AND_TRIGGER_TYPE = "GetNotifictaionByGroupAndTriggerType";
         private const string SP_IS_NOTIFICATION_EXIST = "IsNotifictaionExist";
-        private const string SP_GET_DEVICE_NOTIFICATION = "GetDeviceNotification";
+        private const string SP_GET_DEVICE_NOTIFICATION = "GetDeviceNotification";       
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
@@ -73,7 +73,7 @@ namespace DAL
         private static string GetNotificationCleanupKey()
         {
             return "notification_cleanup";
-        }
+        }               
 
         /// <summary>
         /// Insert one notification request to notifications_requests table
@@ -137,7 +137,7 @@ namespace DAL
             spUpdateNotificationRequestStatus.AddIDListParameter<long>("@requestsIDs", requestsIDsList, "id");
             spUpdateNotificationRequestStatus.AddParameter("@status", status);
             DataTable dt = spUpdateNotificationRequestStatus.Execute();
-        }
+        }       
 
         /// <summary>
         /// Calls IsNotifictaionExist stored procedure to check if a notification
@@ -2806,7 +2806,8 @@ namespace DAL
             return result;
         }
 
-        public static long Insert_TopicNotification(int groupId, string topicName, SubscribeReferenceType type, long userId)
+        #region TopicNotification & TopicNotificationMessage
+        public static long InsertTopicNotification(int groupId, string topicName, SubscribeReferenceType type, long userId)
         {
             var parameters = new Dictionary<string, object>()
             {
@@ -2856,7 +2857,7 @@ namespace DAL
             return UtilsDal.Execute("Get_TopicNotifications", parameters, MESSAGE_BOX_CONNECTION);
         }
 
-        public static bool Update_TopicNotification(long id, int groupId, string topicName, long userId)
+        public static bool UpdateTopicNotification(long id, int groupId, string topicName, long userId)
         {
             var parameters = new Dictionary<string, object>()
             {
@@ -2876,11 +2877,63 @@ namespace DAL
             };
 
             return UtilsDal.ExecuteReturnValue<int>("Delete_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;
+        }       
+
+        public static bool SaveTopicNotificationMessageCB(int groupId, TopicNotificationMessage topicNotificationMessage)
+        {
+            if (topicNotificationMessage?.Id > 0)
+            {
+                string key = GetTopicNotificationMessageKey(topicNotificationMessage.Id);
+                return UtilsDal.SaveObjectInCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key, topicNotificationMessage, true);
+            }
+
+            return false;
+        }
+
+        public static long InsertTopicNotificationMessage(long groupId, long topicNotificationId, long userId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },  { "@topicNotificationId", topicNotificationId }, { "@updaterId", userId }
+            };
+
+            return UtilsDal.ExecuteReturnValue<long>("Insert_TopicNotificationMessage", parameters, MESSAGE_BOX_CONNECTION);
+        }
+
+        public static TopicNotificationMessage GetTopicNotificationMessageCB(long topicNotificationMeesageId)
+        {
+            string key = GetTopicNotificationMessageKey(topicNotificationMeesageId);
+            return UtilsDal.GetObjectFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key, true);
+        }
+
+        public static bool DeleteTopicNotificationMessage(int groupId, long userId, long topicNotificationMessageId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },
+                { "@id", topicNotificationMessageId },
+                { "@updaterId", userId }
+            };
+
+            return UtilsDal.ExecuteReturnValue<int>("Delete_TopicNotificationMessage", parameters, MESSAGE_BOX_CONNECTION) > 0;
+        }
+
+        public static bool DeleteTopicNotificationMessageCB(long topicNotificationMessageId)
+        {
+            string key = GetTopicNotificationMessageKey(topicNotificationMessageId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
 
         private static string GetTopicNotificationKey(long topicNotificationId)
         {
             return string.Format("topic_notification:{0}", topicNotificationId);
         }
+
+        private static string GetTopicNotificationMessageKey(long id)
+        {
+            return string.Format("topic_notification_message:{0}", id);
+        }
+        
+        #endregion TopicNotification & TopicNotificationMessage
     }
 }   

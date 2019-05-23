@@ -56,7 +56,7 @@ namespace Core.Notification
                 }
 
                 // create DB topicNotification
-                topicNotification.Id = NotificationDal.Insert_TopicNotification(topicNotification.GroupId, topicName, topicNotification.SubscribeReference.Type, userId);
+                topicNotification.Id = NotificationDal.InsertTopicNotification(topicNotification.GroupId, topicName, topicNotification.SubscribeReference.Type, userId);
                 if (topicNotification.Id == 0)
                 {
                     log.DebugFormat("failed to insert TopicNotification to DB groupID = {0}, topicName = {1}", topicNotification.GroupId, topicName);
@@ -108,7 +108,7 @@ namespace Core.Notification
                 if (!currentTopicNotification.Name.Equals(topicNotification.Name) || !currentTopicNotification.Description.Equals(topicNotification.Description))
                 {
                     // update DB topicNotification
-                    if(!NotificationDal.Update_TopicNotification(topicNotification.Id, topicNotification.GroupId, topicNotification.Name, userId))
+                    if(!NotificationDal.UpdateTopicNotification(topicNotification.Id, topicNotification.GroupId, topicNotification.Name, userId))
                     {
                         log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotification.GroupId, topicNotification.Name);
                         response.SetStatus(eResponseStatus.Error, "fail update TopicNotification to DB");
@@ -294,9 +294,39 @@ namespace Core.Notification
             return response;
         }
 
-        public static Status Unsubscribe(int groupId, long topicNotificationId, long userId)
+        public static Status Unsubscribe(int groupId, long topicNotificationId, int userId)
         {
-            return null;
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationId);
+
+                if (topicNotification == null)
+                {
+                    status.Code = (int)eResponseStatus.TopicNotificationNotFound;
+                    return status;
+                }
+
+                // get user notification data
+                //bool docExists = false;
+                //UserNotification userNotificationData = NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+
+                //if (userNotificationData == null || userNotificationData.Announcements == null ||
+                //   userNotificationData.TopicNotifications?.Count(x => x.AnnouncementId == topicNotification.Id) == 0)
+                //{
+                //    log.DebugFormat("user notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
+                //    statusResult = new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
+                //    return statusResult;
+                //}
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in UnSubscribe TopicNotificationId: {0}. ex : {1}", topicNotificationId, ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
         }
 
         private static void HandleSubscribePush(int userId, UserNotification userNotificationData, TopicNotification topicNotification, long addedSecs)
@@ -451,4 +481,4 @@ namespace Core.Notification
             }
         }
     }
-}  
+}

@@ -1325,7 +1325,7 @@ namespace Core.Notification
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                result = TopicNotificationManager.Unsubscribe(groupId, id, userId);
+                result = TopicNotificationManager.Unsubscribe(groupId, id, (int)userId);
             }
             catch (Exception ex)
             {
@@ -1334,24 +1334,60 @@ namespace Core.Notification
             return result;
         }
 
-        public static GenericResponse<TopicNotificationMessage> AddTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessageToAdd, long v)
+        public static GenericResponse<TopicNotificationMessage> AddTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessageToAdd, long userId)
         {
-            throw new NotImplementedException();
+            GenericResponse<TopicNotificationMessage> result = new GenericResponse<TopicNotificationMessage>();
+            try
+            {
+                result = TopicNotificationMessageManager.Add(groupId, topicNotificationMessageToAdd, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in AddTopicNotificationMessage", ex);
+            }
+            return result;
         }
 
-        public static GenericResponse<TopicNotificationMessage> UpdateTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessageToUpdate, long v)
+        public static GenericResponse<TopicNotificationMessage> UpdateTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessageToUpdate, long userId)
         {
-            throw new NotImplementedException();
+            GenericResponse<TopicNotificationMessage> result = new GenericResponse<TopicNotificationMessage>();
+            try
+            {
+                result = TopicNotificationMessageManager.Update(groupId, topicNotificationMessageToUpdate, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in UpdateTopicNotificationMessage", ex);
+            }
+            return result;
         }
 
-        public static Status DeleteTopicNotificationMessage(int groupId, long id, long v)
+        public static Status DeleteTopicNotificationMessage(int groupId, long id, long userId)
         {
-            throw new NotImplementedException();
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                result = TopicNotificationMessageManager.Delete(groupId, userId, id);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in DeleteTopicNotificationMessage", ex);
+            }
+            return result;
         }
 
-        public static GenericListResponse<TopicNotificationMessage> GetTopicNotificationMessagaes(int groupId, long topicNotificationIdEqual)
+        public static GenericListResponse<TopicNotificationMessage> GetTopicNotificationMessagaes(int groupId, long topicNotificationId)
         {
-            throw new NotImplementedException();
+            GenericListResponse<TopicNotificationMessage> result = new GenericListResponse<TopicNotificationMessage>();
+            try
+            {
+                result = TopicNotificationMessageManager.List(groupId, topicNotificationId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in GetTopicNotificationMessagaes", ex);
+            }
+            return result;
         }
     }
 }
