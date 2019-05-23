@@ -1,10 +1,12 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
-using KLogMonitor;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -13,8 +15,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
-using ApiObjects.Response;
-using TVinciShared;
 
 namespace WebAPI.Controllers
 {
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId= KS.GetFromRequest().UserId;
+                string userId = KS.GetFromRequest().UserId;
 
                 return ClientsManager.NotificationClient().AddTopicNotification(groupId, topicNotification, userId);
             }
@@ -54,6 +54,7 @@ namespace WebAPI.Controllers
         /// <param name="topicNotification">The topic notification to update</param>
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]
         static public KalturaTopicNotification Update(int id, KalturaTopicNotification topicNotification)
         {
             try
@@ -80,6 +81,7 @@ namespace WebAPI.Controllers
         /// <param name="id">ID of topic notification to delete</param>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]
         static public void Delete(long id)
         {
             try
@@ -124,7 +126,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
- 
+
         /// <summary>
         /// Subscribe a user to a topic notification
         /// </summary>

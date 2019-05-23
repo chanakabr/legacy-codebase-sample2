@@ -1,10 +1,12 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
-using KLogMonitor;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -13,8 +15,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
-using ApiObjects.Response;
-using TVinciShared;
 
 namespace WebAPI.Controllers
 {
@@ -54,6 +54,8 @@ namespace WebAPI.Controllers
         /// <param name="topicNotificationMessage">The topic notification message to update</param>
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotificationMessageNotFound)]
+
         static public KalturaTopicNotificationMessage Update(int id, KalturaTopicNotificationMessage topicNotificationMessage)
         {
             try
@@ -78,6 +80,7 @@ namespace WebAPI.Controllers
         /// <param name="id">ID of topic notification message to delete</param>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotificationMessageNotFound)]
         static public void Delete(long id)
         {
             try
