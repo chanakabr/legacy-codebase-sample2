@@ -40,5 +40,13 @@ namespace WebAPI.Models.API
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
+
+        /// <summary>
+        /// Label
+        /// </summary>
+        [DataMember(Name = "label")]
+        [JsonProperty("label")]
+        [XmlElement(ElementName = "label")]
+        public string Label { get; set; }
     }
 }
