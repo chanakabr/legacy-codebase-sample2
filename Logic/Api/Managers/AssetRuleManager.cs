@@ -703,19 +703,9 @@ namespace Core.Api.Managers
             // validate all tags exists
             var ids = assetLifeCycleTags.Select(s => s.TagIds).SelectMany(s => s).Select(s => (long)s).Distinct().ToList();
 
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
-                return res;
-            }
+            CatalogManager.GetTagValues(groupId, ids, 0, 1000, out int totalItemsCount);
 
-            var getTopicsByIdsResponse = new ElasticsearchWrapper().SearchTags(
-                new TagSearchDefinitions() { GroupId = groupId, PageIndex = 0, PageSize = 10000, TagIds = ids },
-                catalogGroupCache,
-                out var totalItems);
-
-            if (totalItems != ids.Count)
+            if (totalItemsCount != ids.Count)
             {
                 res.Set((int)eResponseStatus.Error, "tag doesn't exists");
             }

@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using MetaType = ApiObjects.MetaType;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -2694,6 +2696,52 @@ namespace Core.Catalog.CatalogManagement
             result.TotalItems = totalItemsCount;
 
             return result;
+        }
+
+        public static GenericListResponse<ApiObjects.SearchObjects.TagValue> GetTags(int groupId, List<long> idIn, int pageIndex, int pageSize)
+        {
+            GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
+
+            var tagValues = GetTagValues(groupId, idIn, pageIndex, pageSize, out int totalItemsCount);
+
+            foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
+            {
+                var tagResponse = GetTagById(groupId, tagValue.tagId);
+                if (tagResponse.HasObject())
+                {
+                    result.Objects.Add(tagResponse.Object);
+                }
+            }
+
+            result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            result.TotalItems = totalItemsCount;
+
+            return result;
+        }
+
+        public static List<ApiObjects.SearchObjects.TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
+        {
+            var res = new List<ApiObjects.SearchObjects.TagValue>();
+            totalItemsCount = 0;
+
+            try
+            {
+                if (!TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
+                    return res;
+                }
+
+                return new ElasticsearchWrapper().SearchTags(
+                    new TagSearchDefinitions() { GroupId = groupId, PageIndex = pageIndex, PageSize = pageSize, TagIds = idIn },
+                    catalogGroupCache,
+                       out totalItemsCount);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed SearchTags for groupId: {0}", groupId), ex);
+                return res;
+            }
         }
 
         public static GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
