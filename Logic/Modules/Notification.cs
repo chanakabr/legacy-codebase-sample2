@@ -1311,7 +1311,7 @@ namespace Core.Notification
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                result = TopicNotificationManager.Subscribe(groupId, id, userId);
+                result = TopicNotificationManager.Subscribe(groupId, id, (int)userId);
             }
             catch (Exception ex)
             {

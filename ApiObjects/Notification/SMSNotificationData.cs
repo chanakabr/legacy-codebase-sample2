@@ -15,6 +15,7 @@ namespace ApiObjects.Notification
             this.SubscribedReminders = new List<NotificationSubscription>();
             this.SubscribedSeriesReminders = new List<NotificationSubscription>();
             this.SubscribedUserInterests = new List<NotificationSubscription>();
+            this.SubscribedTopics = new List<NotificationSubscription>();
         }
 
         public NotificationData(int userId)
@@ -24,6 +25,7 @@ namespace ApiObjects.Notification
             this.SubscribedReminders = new List<NotificationSubscription>();
             this.SubscribedSeriesReminders = new List<NotificationSubscription>();
             this.SubscribedUserInterests = new List<NotificationSubscription>();
+            this.SubscribedTopics = new List<NotificationSubscription>();
         }
 
         public int UserId { get; set; }
@@ -37,6 +39,8 @@ namespace ApiObjects.Notification
         public List<NotificationSubscription> SubscribedSeriesReminders { get; set; }
 
         public List<NotificationSubscription> SubscribedUserInterests { get; set; }
+
+        public List<NotificationSubscription> SubscribedTopics { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }

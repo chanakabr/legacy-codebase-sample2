@@ -1,13 +1,14 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
 using CachingProvider;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
-using CachingProvider.LayeredCache;
-using ConfigurationManager;
 
 namespace Core.Notification
 {
@@ -426,6 +427,66 @@ namespace Core.Notification
             bool res = (announcements != null && announcements.Count > 0);
 
             return new Tuple<List<DbAnnouncement>, bool>(announcements, res);
+        }
+
+        internal static bool TryGetTopicNotifications(int groupId, SubscribeReference subscribeReference, ref List<TopicNotification> topics)
+        {            
+            bool res = false;
+            try
+            {
+                List<long> topicsIds = new List<long>();
+
+                string key = LayeredCacheKeys.GetTopicNotificationsKey(groupId);
+
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "SubscribeReferenceType", (int)subscribeReference.Type} };
+                res = LayeredCache.Instance.Get<List<long>>(key, ref topicsIds, InitializeTopics, funcParams,
+                                                                    groupId, LayeredCacheConfigNames.GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId) });
+
+                if (res && topicsIds.Count > 0)
+                {
+                    topics = NotificationDal.GetTopicsNotificationsCB(topicsIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed TryGetTopicNotifications, groupId: {0}", groupId, ex);
+            }
+
+            return res && topics != null && topics.Count > 0;
+        }
+
+        private static Tuple<List<long>, bool> InitializeTopics(Dictionary<string, object> funcParams)
+        {
+            List<long> topics = null;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("SubscribeReferenceType"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? type = funcParams["SubscribeReferenceType"] as int?;
+                    if (groupId.HasValue && type.HasValue)
+                    {
+
+                        var dt = NotificationDal.GetTopicNotifications(groupId.Value, type.Value);
+                        if (dt != null && dt.Rows.Count > 0)
+                        {
+                            topics = new List<long>();
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                topics.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("InitializeDomainEntitlements failed, parameters : {0}", string.Join(";", funcParams.Keys), ex);
+            }
+
+            bool res = topics?.Count > 0;
+
+            return new Tuple<List<long>, bool>(topics, res);
         }
     }
 }

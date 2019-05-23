@@ -2822,11 +2822,23 @@ namespace DAL
         {
             if (topicNotification?.Id > 0)
             {
-                string topicNotificationKey = GetTopicNotificationKey(topicNotification.Id);
-                return UtilsDal.SaveObjectInCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, topicNotificationKey, topicNotification, true);
+                string key = GetTopicNotificationKey(topicNotification.Id);
+                return UtilsDal.SaveObjectInCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, key, topicNotification, true);
             }
 
             return false;
+        }
+
+        public static TopicNotification GetTopicNotificationCB(long topicNotificationId)
+        {
+            string key = GetTopicNotificationKey(topicNotificationId);
+            return UtilsDal.GetObjectFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, key, true);
+        }
+
+        public static List<TopicNotification> GetTopicsNotificationsCB(List<long> topicNotificationIds)
+        {
+            List<string> keys = topicNotificationIds.Select(x => GetTopicNotificationKey(x)).ToList();    
+            return UtilsDal.GetObjectListFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, keys, true);
         }
 
         public static bool DeleteTopicNotificationCB(long topicNotificationId)
@@ -2863,4 +2875,4 @@ namespace DAL
             return string.Format("topic_notification:{0}", topicNotificationId);
         }
     }
-}
+}   

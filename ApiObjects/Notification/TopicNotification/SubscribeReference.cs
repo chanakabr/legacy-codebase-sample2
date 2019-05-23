@@ -10,6 +10,8 @@ namespace ApiObjects.Notification
         [JsonProperty("Type")]
         public SubscribeReferenceType Type { get; protected set; }
 
+        public abstract string GetSubscribtionReferenceId();
+
     }
 
     public enum SubscribeReferenceType

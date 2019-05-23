@@ -104,6 +104,7 @@ namespace CachingProvider.LayeredCache
         public const string ASSET_STATS_CONFIG_NAME = "AssetStats";
         public const string GET_BULK_UPLOADS_FROM_CACHE = "GetBulkUploadsFromCache";
         public const string GET_GROUP_LANGUAGES = "GetGroupLanguages";
+        public const string GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME = "TryGetTopicNotifications";
 
 
         #endregion

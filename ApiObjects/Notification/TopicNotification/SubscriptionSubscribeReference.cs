@@ -12,7 +12,12 @@ namespace ApiObjects.Notification
 
         public SubscriptionSubscribeReference()
         {
-            this.Type = SubscribeReferenceType.Subscription;
+            this.Type = SubscribeReferenceType.Subscription;            
+        }
+
+        public override string GetSubscribtionReferenceId()
+        {
+            return string.Format("{0}_{1}", Type, SubscriptionId);
         }
     }
 }

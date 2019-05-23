@@ -1066,6 +1066,17 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_{0}", GetBulkUploadsKey(groupId, bulkObjectType, status));
         }
 
+        public static string GetTopicNotificationsKey(int groupId)
+        {
+            return string.Format("TopicNotifications_groupId_{0}", groupId);
+        }
+
+        public static string GetTopicNotificationsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyTopicNotifications_groupId_{0}", groupId);
+        }
+
+
         #endregion
 
         #region Domains
