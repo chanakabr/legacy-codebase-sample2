@@ -5544,9 +5544,10 @@ namespace DAL
                 sp.AddParameter("@defaultOverlapPolicy", (int)profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
-                MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
+                var adapaterId = sp.ExecuteReturnValue<int>();
+                MergeIngestProfileAdapaterSettings(groupId, adapaterId, userId, profileToAdd.Settings);
+                return adapaterId;
 
-                return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
