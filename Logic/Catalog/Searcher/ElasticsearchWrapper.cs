@@ -2732,40 +2732,58 @@ namespace Core.Catalog
 
             BoolQuery query = new BoolQuery();
 
-            // Create the bool query of the topic Id and the value (autocomplete)
-            ESTerm topicTerm = new ESTerm(true)
+            if (definitions.TopicId != 0)
             {
-                Key = "topic_id",
-                Value = definitions.TopicId.ToString()
-            };
+                // Create the bool query of the topic Id and the value (autocomplete)
+                ESTerm topicTerm = new ESTerm(true)
+                {
+                    Key = "topic_id",
+                    Value = definitions.TopicId.ToString()
+                };
 
-            query.AddChild(topicTerm, CutWith.AND);
+                query.AddChild(topicTerm, CutWith.AND);
+            }
 
             IESTerm valueTerm = null;
 
-            // if we have a specific language - we will search it only
-            if (definitions.Language != null)
+            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
             {
-                valueTerm = CreateTagValueTerm(definitions.Language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
-            }
-            else
-            {
-                // if we don't have a specific language - we will search all languageas using OR between them
-                BoolQuery boolQuery = new BoolQuery();
-
-                foreach (var language in catalogGroupCache.LanguageMapByCode.Values)
+                // if we have a specific language - we will search it only
+                if (definitions.Language != null)
                 {
-                    var currentTerm = CreateTagValueTerm(language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
-
-                    boolQuery.AddChild(currentTerm, CutWith.OR);
+                    valueTerm = CreateTagValueTerm(definitions.Language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
                 }
+                else
+                {
+                    // if we don't have a specific language - we will search all languageas using OR between them
+                    BoolQuery boolQuery = new BoolQuery();
 
-                valueTerm = boolQuery;
+                    foreach (var language in catalogGroupCache.LanguageMapByCode.Values)
+                    {
+                        var currentTerm = CreateTagValueTerm(language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
+
+                        boolQuery.AddChild(currentTerm, CutWith.OR);
+                    }
+
+                    valueTerm = boolQuery;
+                }
             }
 
             if (valueTerm != null)
             {
                 query.AddChild(valueTerm, CutWith.AND);
+            }
+            
+            if (definitions.TagIds != null && definitions.TagIds.Count > 0)
+            {
+                ESTerms idsTerm = new ESTerms(true)
+                {
+                    Key = "tag_id"
+                };
+
+                idsTerm.Value.AddRange(definitions.TagIds.Select(id => id.ToString()));
+
+                query.AddChild(idsTerm, CutWith.AND);
             }
 
             FilteredQuery filteredQuery = new FilteredQuery()

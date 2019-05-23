@@ -436,11 +436,12 @@ namespace Core.Notification
             {
                 List<long> topicsIds = new List<long>();
 
-                string key = LayeredCacheKeys.GetTopicNotificationsKey(groupId);
+                string key = LayeredCacheKeys.GetTopicNotificationsKey(groupId, (int)subscribeReference.Type);
 
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "SubscribeReferenceType", (int)subscribeReference.Type} };
-                res = LayeredCache.Instance.Get<List<long>>(key, ref topicsIds, InitializeTopics, funcParams,
-                                                                    groupId, LayeredCacheConfigNames.GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME, new List<string> { LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId) });
+                res = LayeredCache.Instance.Get<List<long>>(key, ref topicsIds, InitializeTopics, funcParams, groupId, 
+                                                            LayeredCacheConfigNames.GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME, 
+                                                            new List<string> { LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)subscribeReference.Type) });
 
                 if (res && topicsIds.Count > 0)
                 {

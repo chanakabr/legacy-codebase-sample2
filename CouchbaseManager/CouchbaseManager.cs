@@ -597,7 +597,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Add with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Add on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -660,7 +660,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Add with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Add on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -722,7 +722,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Set with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Set on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
             return result;
         }
@@ -757,7 +757,7 @@ namespace CouchbaseManager
                     if (!allowPartial)
                     {
                         var failedItems = insertResult.Where(r => !r.Success);
-                        errors.Add(new Exception($"CouchBaseCache - Will not allow partial set, One or more of the set operation failed: [{ObjectToJson(failedItems)}]"));
+                        errors.Add(new Exception($"CouchbaseManager - Will not allow partial set, One or more of the set operation failed: [{ObjectToJson(failedItems)}]"));
                     }
 
                     if (errors.Any())
@@ -770,7 +770,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.Error($"CouchBaseCache - Failed MultiSet<T> with keys:[{ObjectToJson(values.Select(v => v.Id))}],", ex);
+                log.Error($"CouchbaseManager - Failed MultiSet<T> with keys:[{ObjectToJson(values.Select(v => v.Id))}],", ex);
             }
 
             return results;
@@ -834,7 +834,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Set<T> with key = {0}, error = {1}", key, ex);
             }
             return result;
         }
@@ -917,7 +917,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Set<T> with key = {0}, error = {1}", key, ex);
             }
             return result;
         }
@@ -975,7 +975,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Set<T> with key = {0}, error = {1}", key, ex);
             }
             return result;
         }
@@ -1005,7 +1005,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Unlock with key = {0}, error = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Unlock with key = {0}, error = {1}", key, ex);
             }
             return result;
         }
@@ -1048,7 +1048,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1088,7 +1088,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1131,7 +1131,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1149,7 +1149,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return res;
@@ -1167,7 +1167,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return res;
@@ -1205,7 +1205,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1254,7 +1254,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed GetWithLock with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed GetWithLock on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1294,7 +1294,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed remove with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed remove on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1339,7 +1339,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed GetWithVersion on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1384,7 +1384,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed GetWithVersion on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1402,7 +1402,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return res;
@@ -1420,7 +1420,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed Get on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return res;
@@ -1467,7 +1467,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed GetWithVersion on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -1513,7 +1513,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
+                log.ErrorFormat("CouchbaseManager - Failed GetWithVersion on bucket = {0} on key = {1}, ex = {2}", bucketName, key, ex);
             }
 
             return result;
@@ -2258,7 +2258,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchbaseManager - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
             }
 
             return result;
@@ -2288,7 +2288,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchbaseManager - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
             }
 
             return result;
@@ -2310,7 +2310,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchbaseManager - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
             }
 
             return result;
@@ -2349,7 +2349,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchbaseManager - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
             }
 
             return result;
@@ -2377,7 +2377,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchbaseManager - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
             }
 
             return result;

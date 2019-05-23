@@ -2,6 +2,7 @@
 using APILogic.DmsService;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
@@ -54,11 +55,11 @@ namespace Core.Notification
                     topicNotification.MailExternalId = mailExternalId;
                 }
 
-                // create DB announcement
+                // create DB topicNotification
                 topicNotification.Id = NotificationDal.Insert_TopicNotification(topicNotification.GroupId, topicName, topicNotification.SubscribeReference.Type, userId);
                 if (topicNotification.Id == 0)
                 {
-                    log.DebugFormat("failed to insert TopicNotification to DB groupID = {0}, announcementName = {1}", topicNotification.GroupId, topicName);
+                    log.DebugFormat("failed to insert TopicNotification to DB groupID = {0}, topicName = {1}", topicNotification.GroupId, topicName);
                     response.SetStatus(eResponseStatus.Error, "fail insert TopicNotification to DB");
                     return response;
                 }
@@ -70,8 +71,11 @@ namespace Core.Notification
                     //return response;
                 }
 
-                //TODO anat cache
-                //NotificationCache.Instance().RemoveAnnouncementsFromCache(topicNotification.GroupId);
+                string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
+                }
 
                 response.Object = topicNotification;
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -87,62 +91,116 @@ namespace Core.Notification
 
         public static GenericResponse<TopicNotification> Update(int groupId, TopicNotification topicNotification, long userId)
         {
-            return null;
+            GenericResponse<TopicNotification> response = new GenericResponse<TopicNotification>();
+            string logData = string.Format("groupId: {0}, topicNotificationId: {1}", groupId, topicNotification.Id);
+
+            try
+            {
+                // get currnt topicNotification
+                TopicNotification currentTopicNotification = NotificationDal.GetTopicNotificationCB(topicNotification.Id);
+                if (topicNotification == null)
+                {
+                    log.ErrorFormat("TopicNotification wasn't found. {0}", logData);
+                    response.SetStatus(eResponseStatus.TopicNotificationNotFound);
+                    return response;
+                }
+
+                if (!currentTopicNotification.Name.Equals(topicNotification.Name) || !currentTopicNotification.Description.Equals(topicNotification.Description))
+                {
+                    // update DB topicNotification
+                    if(!NotificationDal.Update_TopicNotification(topicNotification.Id, topicNotification.GroupId, topicNotification.Name, userId))
+                    {
+                        log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotification.GroupId, topicNotification.Name);
+                        response.SetStatus(eResponseStatus.Error, "fail update TopicNotification to DB");
+                        return response;
+                    }
+
+                    currentTopicNotification.Name = topicNotification.Name;
+                    currentTopicNotification.Description = topicNotification.Description;
+
+                    // Save TopicNotificationAtCB                    
+                    if (!NotificationDal.SaveTopicNotificationCB(topicNotification.GroupId, currentTopicNotification))
+                    {
+                        log.ErrorFormat("Error while saving topicNotification. groupId: {0}, topicNotificationId:{1}", topicNotification.GroupId, topicNotification.Id);
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Update TopicNotification failed groupId = {0}, ex = {1}", topicNotification.GroupId, ex);
+                return response;
+            }
+
+            return response;
+
         }
 
         public static Status Delete(int groupId, long userId, long topicNotificationId)
         {
-            Status responseStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            Status response = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             string logData = string.Format("GID: {0}, topicNotificationId: {1}", groupId, topicNotificationId);
 
-            // get announcement
-            List<TopicNotification> topicNotifications = null;
-            TopicNotification topicNotification = null;
-            //TODO anat  NotificationCache.TryGetAnnouncements(groupId, ref announcements);
-
-            if (topicNotifications != null)
-                topicNotification = topicNotifications.FirstOrDefault(x => x.Id == topicNotificationId);
-            if (topicNotification == null)
+            try
             {
-                log.ErrorFormat("TopicNotification wasn't found. {0}", logData);
-                return new Status() { Code = (int)eResponseStatus.TopicNotificationNotFound, Message = eResponseStatus.TopicNotificationNotFound.ToString() };                
-            }
-
-            // delete Amazon topic
-
-            if (topicNotification.PushExternalId != null &&
-                !NotificationAdapter.DeleteAnnouncement(groupId, topicNotification.PushExternalId))
-            {
-                log.ErrorFormat("Error while trying to delete TopicNotification topic from external adapter. {0}, external topic ID: {1}",
-                    logData, topicNotification.PushExternalId != null ? topicNotification.PushExternalId : string.Empty);
-            }
-            else
-            {
-                log.DebugFormat("Successfully removed TopicNotification from external adapter. {0},  external topic ID: {1}",
-                    logData, topicNotification.PushExternalId != null ? topicNotification.PushExternalId : string.Empty);
-            }
-
-            // delete announcement from DB
-            if (!NotificationDal.DeleteTopicNotification(groupId, userId, topicNotificationId))
-            {
-                log.ErrorFormat("Error while trying to delete DB topicNotification. {0}", logData);
-            }
-            else
-            {
-                // remove from CB
-
-                if (!NotificationDal.DeleteTopicNotificationCB(topicNotificationId))
+                // get topicNotification
+                TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationId);
+                if (topicNotification == null)
                 {
-                    log.ErrorFormat("Error while delete TopicNotification CB. groupId: {0}, TopicNotification:{1}", groupId, topicNotificationId);
+                    log.ErrorFormat("TopicNotification wasn't found. {0}", logData);
+                    response.Code = (int)eResponseStatus.TopicNotificationNotFound;
+                    return response;
                 }
-                // TODO anat cache remove announcements from cache
-                //NotificationCache.Instance().RemoveAnnouncementsFromCache(groupId);
 
-                responseStatus = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
-                log.DebugFormat("Successfully removed DB topicNotification. {0}", logData);
+                // delete Amazon topic
+                if (topicNotification.PushExternalId != null &&
+                    !NotificationAdapter.DeleteAnnouncement(groupId, topicNotification.PushExternalId))
+                {
+                    log.ErrorFormat("Error while trying to delete TopicNotification topic from external adapter. {0}, external topic ID: {1}",
+                        logData, topicNotification.PushExternalId != null ? topicNotification.PushExternalId : string.Empty);
+                }
+                else
+                {
+                    log.DebugFormat("Successfully removed TopicNotification from external adapter. {0},  external topic ID: {1}",
+                        logData, topicNotification.PushExternalId != null ? topicNotification.PushExternalId : string.Empty);
+                }
+
+                // delete topicNotification from DB
+                if (!NotificationDal.DeleteTopicNotification(groupId, userId, topicNotificationId))
+                {
+                    log.ErrorFormat("Error while trying to delete DB topicNotification. {0}", logData);
+                    return response;
+                }
+                else
+                {
+                    // remove from CB
+                    if (!NotificationDal.DeleteTopicNotificationCB(topicNotificationId))
+                    {
+                        log.ErrorFormat("Error while delete TopicNotification CB. groupId: {0}, TopicNotification:{1}", groupId, topicNotificationId);
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
+                    }
+
+                    response = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Delete TopicNotification failed topicNotificationId = {0}, ex = {1}", topicNotificationId, ex);
+                return response;
             }
 
-            return responseStatus;
+            return response;
         }
 
         public static GenericListResponse<TopicNotification> List(int groupId, SubscribeReference subscribeReference)
@@ -229,7 +287,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.Error("Error in follow", ex);
+                log.ErrorFormat("Error in Subscribe TopicNotificationId: {0}. ex : {1}", topicNotificationId, ex);
                 response.Set(eResponseStatus.Error);
             }
 
