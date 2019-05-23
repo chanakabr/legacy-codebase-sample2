@@ -2077,23 +2077,47 @@ namespace WebAPI.Clients
             ClientUtils.GetResponseStatusFromWS(unsubscribeUserFromTopicNotificationFunc);
         }
 
-        internal KalturaTopicNotificationMessage AddTopicNotificationMessage(int groupId, KalturaTopicNotificationMessage topicNotificationMessage)
+        internal KalturaTopicNotificationMessage AddTopicNotificationMessage(int groupId, KalturaTopicNotificationMessage topicNotificationMessage, string userId)
         {
-            throw new NotImplementedException();
+            Func<TopicNotificationMessage, GenericResponse<TopicNotificationMessage>> addTopicNotificationMessageFunc = (TopicNotificationMessage topicNotificationMessageToAdd) =>
+               Core.Notification.Module.AddTopicNotificationMessage(groupId, topicNotificationMessageToAdd, long.Parse(userId));
+
+            KalturaTopicNotificationMessage result =
+                ClientUtils.GetResponseFromWS<KalturaTopicNotificationMessage, TopicNotificationMessage>(topicNotificationMessage, addTopicNotificationMessageFunc);
+
+            return result;
         }
-        internal KalturaTopicNotificationMessage UpdateTopicNotificationMessage(int groupId, int id, KalturaTopicNotificationMessage topicNotificationMessage)
+        internal KalturaTopicNotificationMessage UpdateTopicNotificationMessage(int groupId, int id, KalturaTopicNotificationMessage topicNotificationMessage, string userId)
         {
-            throw new NotImplementedException();
+            Func<TopicNotificationMessage, GenericResponse<TopicNotificationMessage>> updateTopicNotificationMessageFunc = (TopicNotificationMessage topicNotificationMessageToUpdate) =>
+               Core.Notification.Module.UpdateTopicNotificationMessage(groupId, topicNotificationMessageToUpdate, long.Parse(userId));
+
+            KalturaTopicNotificationMessage result =
+                ClientUtils.GetResponseFromWS<KalturaTopicNotificationMessage, TopicNotificationMessage>(topicNotificationMessage, updateTopicNotificationMessageFunc);
+
+            return result;
         }
 
-        internal void DeleteTopicNotificationMessage(int groupId, long id)
+        internal void DeleteTopicNotificationMessage(int groupId, long id, string userId)
         {
-            throw new NotImplementedException();
+            Func<Status> deleteTopicNotificationMessageFunc = () => Core.Notification.Module.DeleteTopicNotificationMessage(groupId, id, long.Parse(userId));
+            ClientUtils.GetResponseStatusFromWS(deleteTopicNotificationMessageFunc);
         }
 
-        internal KalturaTopicNotificationMessageListResponse TopicNotificationMessages(int groupId, long topicNotificationIdEqual)
+        internal KalturaTopicNotificationMessageListResponse GetTopicNotificationMessages(int groupId, long topicNotificationIdEqual)
         {
-            throw new NotImplementedException();
+            KalturaTopicNotificationMessageListResponse result = new KalturaTopicNotificationMessageListResponse();
+
+            Func<GenericListResponse<TopicNotificationMessage>> getTopicNotificationMessagesFunc = () =>
+               Core.Notification.Module.GetTopicNotificationMessagaes(groupId, topicNotificationIdEqual);
+
+            KalturaGenericListResponse<KalturaTopicNotificationMessage> response =
+                ClientUtils.GetResponseListFromWS<KalturaTopicNotificationMessage, TopicNotificationMessage>(getTopicNotificationMessagesFunc);
+
+            result.Objects = response.Objects;
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
 
     }

@@ -34,7 +34,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                return ClientsManager.NotificationClient().AddTopicNotificationMessage(groupId, topicNotificationMessage);
+                string userId = KS.GetFromRequest().UserId;
+
+                return ClientsManager.NotificationClient().AddTopicNotificationMessage(groupId, topicNotificationMessage, userId);
             }
 
             catch (ClientException ex)
@@ -57,8 +59,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
 
-                return ClientsManager.NotificationClient().UpdateTopicNotificationMessage(groupId, id, topicNotificationMessage);
+                return ClientsManager.NotificationClient().UpdateTopicNotificationMessage(groupId, id, topicNotificationMessage, userId);
             }
 
             catch (ClientException ex)
@@ -80,7 +83,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                ClientsManager.NotificationClient().DeleteTopicNotificationMessage(groupId, id);
+                string userId = KS.GetFromRequest().UserId;
+
+                ClientsManager.NotificationClient().DeleteTopicNotificationMessage(groupId, id, userId);
             }
 
             catch (ClientException ex)
@@ -106,7 +111,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().TopicNotificationMessages(groupId, filter.TopicNotificationIdEqual);
+                response = ClientsManager.NotificationClient().GetTopicNotificationMessages(groupId, filter.TopicNotificationIdEqual);
             }
 
             catch (ClientException ex)
