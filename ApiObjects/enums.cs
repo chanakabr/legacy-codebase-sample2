@@ -1148,4 +1148,10 @@ namespace ApiObjects
         StartDate = 0,
         EndDate = 1
     }
+
+    public enum MessageAnnouncementRequestType
+    {
+        MessageAnnoncement = 0,
+        TopicNotificationMessage = 1
+    }
 }

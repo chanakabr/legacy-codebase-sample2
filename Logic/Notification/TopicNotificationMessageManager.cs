@@ -1,5 +1,6 @@
 ﻿using APILogic.AmazonSnsAdapter;
 using APILogic.DmsService;
+using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
@@ -59,6 +60,11 @@ namespace Core.Notification
             }
 
             return response;
+        }
+
+        public static bool Send(int groupId, long startTime, int messageAnnouncementId)
+        {
+            throw new NotImplementedException();
         }
 
         internal static GenericResponse<TopicNotificationMessage> Update(int groupId, TopicNotificationMessage topicNotificationMessageToUpdate, long userId)
@@ -214,7 +220,7 @@ namespace Core.Notification
                 ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
                     topicNotificationMessage.GroupId, 
                     DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value), 
-                    (int)topicNotificationMessage.Id, ApiObjects.QueueObjects.MessageAnnouncementType.TopicNotificationMessage)
+                    (int)topicNotificationMessage.Id, MessageAnnouncementRequestType.TopicNotificationMessage)
                 {
                     ETA = triggerTime
                 };
