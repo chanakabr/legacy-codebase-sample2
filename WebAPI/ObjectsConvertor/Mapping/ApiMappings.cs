@@ -526,12 +526,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaRule, Rule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Label));
 
             cfg.CreateMap<Rule, KalturaRule>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Label));
 
             cfg.CreateMap<AssetRule, KalturaAssetRule>()
                 .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))

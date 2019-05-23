@@ -5304,6 +5304,11 @@
             Description
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaRule.Label">
+            <summary>
+            Label
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaBusinessModuleRule">
             <summary>
             Business module rule
