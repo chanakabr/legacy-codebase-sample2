@@ -1333,5 +1333,25 @@ namespace Core.Notification
             }
             return result;
         }
+
+        public static GenericResponse<TopicNotificationMessage> AddTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessageToAdd, long v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static GenericResponse<TopicNotificationMessage> UpdateTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessageToUpdate, long v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status DeleteTopicNotificationMessage(int groupId, long id, long v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static GenericListResponse<TopicNotificationMessage> GetTopicNotificationMessagaes(int groupId, long topicNotificationIdEqual)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

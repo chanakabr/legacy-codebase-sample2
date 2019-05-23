@@ -28,7 +28,7 @@ namespace Core.Notification
     public class AnnouncementManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_MESSAGE_ANNOUNCEMENTS";
+        private const string ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS = "PROCESS_MESSAGE_ANNOUNCEMENTS";
 
 
         private const string ROUTING_KEY_NOTIFICATION_CLEANUP = "PROCESS_NOTIFIACTION_CLEANUP";
@@ -520,7 +520,7 @@ namespace Core.Notification
                 ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
             };
 
-            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_CHECK_PENDING_TRANSACTION);
+            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
 
             if (res)
                 log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
