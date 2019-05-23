@@ -24,5 +24,8 @@ namespace ApiObjects.Rules
 
         [JsonProperty("Status")]
         public RuleStatus Status { get; set; }
+
+        [JsonProperty("Label")]
+        public string Label { get; set; }
     }
 }

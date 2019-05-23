@@ -20,6 +20,8 @@ namespace ApiObjects.SearchObjects
 
         public int TopicId { get; set; }
 
+        public List<long> TagIds { get; set; }
+
         public LanguageObj Language { get; set; }
     }
 }

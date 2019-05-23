@@ -644,8 +644,16 @@ namespace Core.Api.Managers
         internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRuleToAdd)
         {
             GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
+
             try
             {
+                var validation = ValidateAssetLifeCycleActions(groupId, assetRuleToAdd.Actions.OfType<AssetLifeCycleTransitionAction>());
+                if (!validation.IsOkStatusCode())
+                {
+                    response.SetStatus(validation);
+                    return response;
+                }
+
                 assetRuleToAdd.GroupId = groupId;
                 DataTable dt = ApiDAL.AddAssetRule(groupId, assetRuleToAdd.Name, assetRuleToAdd.Description, (int)AssetRuleType.AssetRule);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -670,6 +678,93 @@ namespace Core.Api.Managers
             }
 
             return response;
+        }
+
+        private static Status ValidateAssetLifeCycleActions(int groupId, IEnumerable<AssetLifeCycleTransitionAction> assetLifeCycleTransitionActions)
+        {
+            Status res = Status.Ok;
+
+            res = ValidateTagTransitionAction(groupId, assetLifeCycleTransitionActions.OfType<AssetLifeCycleTagTransitionAction>());
+            if (!res.IsOkStatusCode())
+                return res;
+
+            return ValidateBuisnessModuleTransitionAction(groupId, assetLifeCycleTransitionActions.OfType<AssetLifeCycleBuisnessModuleTransitionAction>());
+        }
+
+        private static Status ValidateTagTransitionAction(int groupId, IEnumerable<AssetLifeCycleTagTransitionAction> assetLifeCycleTags)
+        {
+            Status res = Status.Ok;
+
+            if (assetLifeCycleTags == null || !assetLifeCycleTags.Any())
+            {
+                return res;
+            }
+
+            // validate all tags exists
+            var ids = assetLifeCycleTags.Select(s => s.TagIds).SelectMany(s => s).Select(s => (long)s).Distinct().ToList();
+
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
+                return res;
+            }
+
+            var getTopicsByIdsResponse = new ElasticsearchWrapper().SearchTags(
+                new TagSearchDefinitions() { GroupId = groupId, PageIndex = 0, PageSize = 10000, TagIds = ids },
+                catalogGroupCache,
+                out var totalItems);
+
+            if (totalItems != ids.Count)
+            {
+                res.Set((int)eResponseStatus.Error, "tag doesn't exists");
+            }
+
+            return res;
+        }
+
+        private static Status ValidateBuisnessModuleTransitionAction(int groupId, IEnumerable<AssetLifeCycleBuisnessModuleTransitionAction> assetLifeCycleBuisnessModule)
+        {
+            Status res = Status.Ok;
+
+            if (assetLifeCycleBuisnessModule == null || !assetLifeCycleBuisnessModule.Any())
+            {
+                return res;
+            }
+
+            // validate all file types exists
+            var fileTypeIds = assetLifeCycleBuisnessModule.Select(s => s.Transitions.FileTypeIds).SelectMany(s => s).Select(s => (long)s).Distinct();
+            if (fileTypeIds.Any())
+            {
+                var mediaFileTypesResponse = FileManager.GetMediaFileTypes(groupId);
+                if (mediaFileTypesResponse.HasObjects())
+                {
+                    var count = mediaFileTypesResponse.Objects.Count(x => fileTypeIds.Contains(x.Id));
+                    if (count != fileTypeIds.Count())
+                    {
+                        res.Set((int)eResponseStatus.Error, "file type doesn't exists");
+                        return res;
+                    }
+                }
+            }
+
+            // validate all ppv exists
+            var ppvIds = assetLifeCycleBuisnessModule.Select(s => s.Transitions.PpvIds).SelectMany(s => s).Distinct().Select(x => x.ToString());
+            if (ppvIds.Any())
+            {
+                var ppvModuleList = Core.Pricing.Module.GetPPVModuleList(groupId);
+                if (ppvModuleList.HasObjects())
+                {
+                    var count = ppvModuleList.Objects.Count(x => ppvIds.Contains(x.m_sObjectCode));
+                    if (count != fileTypeIds.Count())
+                    {
+                        res.Set((int)eResponseStatus.Error, "ppv doesn't exists");
+                        return res;
+                    }
+                }
+            }
+
+            return res;
         }
 
         internal static Status DeleteAssetRule(int groupId, long assetRuleId)
@@ -723,6 +818,13 @@ namespace Core.Api.Managers
             GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
             try
             {
+                response.SetStatus(ValidateAssetLifeCycleActions(groupId, assetRule.Actions.OfType<AssetLifeCycleTransitionAction>()));
+                if (!response.Status.IsOkStatusCode())
+                {
+                    return response;
+                }
+
+
                 assetRule.GroupId = groupId;
 
                 if (!ApiDAL.UpdateAssetRule(groupId, assetRule.Id, assetRule.Name, assetRule.Description))
