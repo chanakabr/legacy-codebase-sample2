@@ -32,9 +32,9 @@ namespace ApiObjects
         
         #endregion
 
-        public KalturaObjectActionEvent(string userIp, int groupId = 0, CoreObject coreObject = null, eKalturaEventActions action = eKalturaEventActions.None, 
+        public KalturaObjectActionEvent(int groupId = 0, CoreObject coreObject = null, eKalturaEventActions action = eKalturaEventActions.None, 
                                         eKalturaEventTime time = eKalturaEventTime.After, string type = null) : 
-            base(userIp, groupId, coreObject, type)
+            base(groupId, coreObject, type)
         {
             this.action = action;
             this.Time = time;

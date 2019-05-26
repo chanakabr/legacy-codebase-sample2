@@ -1,6 +1,7 @@
 ﻿using EventManager;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 
 namespace ApiObjects
@@ -27,28 +28,10 @@ namespace ApiObjects
         {
             // Raise event before starting to insert
             var beforeInsertEventResults = 
-                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                    GetUserIp(),
-                    this.GroupId,
-                    this,
-                    eKalturaEventActions.Created,
-                    eKalturaEventTime.Before));
-
-            bool shouldInsert = true;
+                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Created, eKalturaEventTime.Before));
 
             // Check results - if one of the consumers failed, don't insert
-            if (beforeInsertEventResults != null)
-            {
-                foreach (var eventResult in beforeInsertEventResults)
-                {
-                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
-                    {
-                        shouldInsert = false;
-                        break;
-                    }
-                }
-            }
-
+            bool shouldInsert = beforeInsertEventResults != null && beforeInsertEventResults.Any(x => x == eEventConsumptionResult.Failure) ? false : true;
             bool insertResult = false;
 
             // Do the insert if we agreed on doing it, and raise new event
@@ -58,12 +41,7 @@ namespace ApiObjects
 
                  if (insertResult)
                  {
-                     var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                         GetUserIp(),
-                         this.GroupId,
-                         this,
-                         eKalturaEventActions.Created));
-
+                     var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent( this.GroupId, this, eKalturaEventActions.Created));
                      if (afterEventResults != null)
                      {
                          // ?
@@ -71,12 +49,7 @@ namespace ApiObjects
                  }
                  else
                  {
-                     EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                         GetUserIp(),
-                         this.GroupId,
-                         this,
-                         eKalturaEventActions.Created, 
-                         eKalturaEventTime.Failed));
+                     EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Created, eKalturaEventTime.Failed));
                  }
             }
 
@@ -87,28 +60,10 @@ namespace ApiObjects
         {
             // Raise event before starting to update
             var beforeEventResults =
-                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                    GetUserIp(),
-                    this.GroupId,
-                    this,
-                    eKalturaEventActions.Changed,
-                    eKalturaEventTime.Before));
-
-            bool shouldUpdate = true;
+                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Changed, eKalturaEventTime.Before));
 
             // Check results - if one of the consumers failed, don't update
-            if (beforeEventResults != null)
-            {
-                foreach (var eventResult in beforeEventResults)
-                {
-                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
-                    {
-                        shouldUpdate = false;
-                        break;
-                    }
-                }
-            }
-
+            bool shouldUpdate = beforeEventResults != null && beforeEventResults.Any(x => x == eEventConsumptionResult.Failure) ? false : true;
             bool result = false;
 
             // Do the update if we agreed on doing it, and raise new event
@@ -120,22 +75,11 @@ namespace ApiObjects
 
                 if (result)
                 {
-                    EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
-                        GetUserIp(),
-                        this.GroupId,
-                        this,
-                        previous,
-                        this.ChangedFields));
+                    EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(this.GroupId, this, previous, this.ChangedFields));
                 }
                 else
                 {
-                    EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
-                        GetUserIp(),
-                        this.GroupId,
-                        this,
-                        previous,
-                        this.ChangedFields,
-                        eKalturaEventTime.Failed));
+                    EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(this.GroupId, this, previous, this.ChangedFields, eKalturaEventTime.Failed));
                 }
             }
 
@@ -146,28 +90,10 @@ namespace ApiObjects
         {
             // Raise event before starting to delete
             var beforeEventResults =
-                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                    GetUserIp(),
-                    this.GroupId,
-                    this,
-                    eKalturaEventActions.Deleted,
-                    eKalturaEventTime.Before));
-
-            bool shouldDelete = true;
+                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.Deleted, eKalturaEventTime.Before));
 
             // Check results - if one of the consumers failed, don't delete
-            if (beforeEventResults != null)
-            {
-                foreach (var eventResult in beforeEventResults)
-                {
-                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
-                    {
-                        shouldDelete = false;
-                        break;
-                    }
-                }
-            }
-
+            bool shouldDelete = beforeEventResults != null && beforeEventResults.Any(x => x == eEventConsumptionResult.Failure) ? false : true;
             bool result = false;
 
             if (shouldDelete)
@@ -176,22 +102,11 @@ namespace ApiObjects
 
                 if (result)
                 {
-                    EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
-                        GetUserIp(),
-                        this.GroupId,
-                        this.Id,
-                        null,
-                        this));
+                    EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(this.GroupId, this.Id, null, this));
                 }
                 else
                 {
-                    EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
-                        GetUserIp(),
-                        this.GroupId,
-                        this.Id,
-                        null,
-                        this,
-                        eKalturaEventTime.Failed));
+                    EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(this.GroupId, this.Id, null, this, eKalturaEventTime.Failed));
                 }
             }
 
@@ -207,21 +122,11 @@ namespace ApiObjects
             // If we have time, it is an action event, otherwise it is just an object event.
             if (time != null && time.HasValue)
             {
-                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                    GetUserIp(),
-                    this.GroupId,
-                    this,
-                    eKalturaEventActions.None,
-                    time.Value,
-                    type));
+                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(this.GroupId, this, eKalturaEventActions.None, time.Value, type));
             }
             else
             {
-                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectEvent(
-                    GetUserIp(),
-                    this.GroupId,
-                    this,
-                    type));
+                afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectEvent(this.GroupId, this, type));
             }
 
             // check that we actually have results before running on list...
@@ -231,29 +136,12 @@ namespace ApiObjects
             }
             else
             {
-                foreach (var eventResult in afterEventResults)
-                {
-                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
-                    {
-                        result = false;
-                        break;
-                    }
-                }
+                result = afterEventResults.Any(x => x == eEventConsumptionResult.Failure) ? false : result;
             }
 
             return result;
         }
         
         #endregion
-
-        private string GetUserIp()
-        {
-            if (HttpContext.Current.Items[KalturaEvent.USER_IP] != null)
-            {
-                return HttpContext.Current.Items[KalturaEvent.USER_IP].ToString();
-            }
-
-            return null;
-        }
     }
 }

@@ -8,9 +8,9 @@ namespace ApiObjects
         public CoreObject PreviousObject { get; set; }
         public List<string> ChangedFields { get; set; }
 
-        public KalturaObjectChangedEvent(string userIp, int groupId = 0, CoreObject newObject = null, CoreObject previousObject = null, List<string> changedFields = null, 
+        public KalturaObjectChangedEvent(int groupId = 0, CoreObject newObject = null, CoreObject previousObject = null, List<string> changedFields = null, 
                                          eKalturaEventTime time = eKalturaEventTime.After, string type = null)
-            : base(userIp, groupId, newObject, eKalturaEventActions.Changed, time, type)
+            : base(groupId, newObject, eKalturaEventActions.Changed, time, type)
         {
             this.PreviousObject = previousObject;
             this.ChangedFields = changedFields;
