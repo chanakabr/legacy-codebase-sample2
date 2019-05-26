@@ -1,15 +1,9 @@
-﻿using APILogic.AmazonSnsAdapter;
-using APILogic.DmsService;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using TVinciShared;
 
@@ -83,30 +77,23 @@ namespace Core.Notification
                     return response;
                 }
 
-                //if (!currentTopicNotification.Name.Equals(topicNotification.Name) || !currentTopicNotification.Description.Equals(topicNotification.Description))
+                if (currentTopicNotificationMessage.TopicNotificationId != topicNotificationMessageToUpdate.TopicNotificationId)
+                {
+                    log.ErrorFormat("Wrong topic notification identifier. {0}", logData);
+                    response.SetStatus(eResponseStatus.WrongTopicNotification);
+                    return response;
+                }
+
+                // Save TopicNotificationAtCB                    
+                if (!NotificationDal.SaveTopicNotificationMessageCB(currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage))
+                {
+                    log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage.Id);
+                }
+
+                //string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
+                //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 //{
-                // update DB topicNotification
-                //if (!NotificationDal.UpdateTopicNotificationMessage(currentTopicNotificationMessage.Id, topicNotification.GroupId, topicNotification.Name, userId))
-                //{
-                //    log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotification.GroupId, topicNotification.Name);
-                //    response.SetStatus(eResponseStatus.Error, "fail update TopicNotification to DB");
-                //    return response;
-                //}
-
-                //    currentTopicNotification.Name = topicNotification.Name;
-                //    currentTopicNotification.Description = topicNotification.Description;
-
-                //    // Save TopicNotificationAtCB                    
-                //    if (!NotificationDal.SaveTopicNotificationMessageCB(currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage))
-                //    {
-                //        log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage.Id);
-                //    }
-
-                //    //string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
-                //    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                //    //{
-                //    //    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
-                //    //}
+                //    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
                 //}
             }
             catch (Exception ex)
@@ -218,8 +205,8 @@ namespace Core.Notification
             {
                 QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
                 ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
-                    topicNotificationMessage.GroupId, 
-                    DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value), 
+                    topicNotificationMessage.GroupId,
+                    DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value),
                     (int)topicNotificationMessage.Id, MessageAnnouncementRequestType.TopicNotificationMessage)
                 {
                     ETA = triggerTime
