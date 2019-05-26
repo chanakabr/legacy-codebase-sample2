@@ -467,6 +467,7 @@ namespace ApiObjects.Response
         TopicNotificationNotFound = 8042,
         TopicNotificationMessageNotFound = 8043,
         WrongTopicNotification = 8044,
+        WrongTopicNotificationTrigger = 8045,
 
 
         #endregion

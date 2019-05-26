@@ -10,7 +10,7 @@ namespace ApiObjects.Notification
     public abstract class TopicNotificationTrigger
     {
         [JsonProperty("Type")]
-        public TopicNotificationTriggerType Type { get; set; }
+        public TopicNotificationTriggerType Type { get; set; }       
     }
 
     [Serializable]
@@ -23,6 +23,11 @@ namespace ApiObjects.Notification
         public TopicNotificationDateTrigger()
         {
             Type = TopicNotificationTriggerType.Date;
+        }
+
+        public bool Equals(TopicNotificationDateTrigger other)
+        {
+            return this.Type == other.Type && this.Date == other.Date;
         }
     }
 
@@ -40,6 +45,13 @@ namespace ApiObjects.Notification
         public TopicNotificationSubscriptionTrigger()
         {
             Type = TopicNotificationTriggerType.Subscription;
+        }
+
+        public bool Equals(TopicNotificationSubscriptionTrigger other)
+        {
+            return this.Type == other.Type 
+                && this.Offset == other.Offset
+                && this.TriggerType == other.TriggerType;
         }
     }
 
