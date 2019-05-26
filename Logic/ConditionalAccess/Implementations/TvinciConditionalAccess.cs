@@ -1,4 +1,5 @@
 using AdapterControllers;
+using ApiLogic.ConditionalAccess.Modules;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
@@ -960,6 +961,7 @@ namespace Core.ConditionalAccess
             long billingTransactionId, string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID)
         {
             purchaseID = 0;
+
             try
             {
                 // update coupon uses
@@ -985,11 +987,28 @@ namespace Core.ConditionalAccess
                     response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                 }
 
-                // grant entitlement
-                purchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
-                                                                         deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
-                                                                         usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
-                                                                         entitlementDate, collectionEndDate, entitlementDate, houseHoldID, billingGuid);
+                // grant entitlement 
+                var collectionPurchase = new CollectionPurchase(m_nGroupID)
+                {
+                    productId = productID.ToString(),
+                    siteGuid = siteGUID,
+                    price = price,
+                    currency = currency,
+                    customData = customData,
+                    country = country,
+                    deviceName = deviceName,
+                    maxNumberOfUses = usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
+                    viewLifeCycle = usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0,
+                    billingTransactionId = billingTransactionId,
+                    collectionStartDate = entitlementDate,
+                    collectionEndDate = collectionEndDate,
+                    createAndUpdateDate = entitlementDate,
+                    houseHoldId = houseHoldID,
+                    billingGuid = billingGuid
+                };
+
+                collectionPurchase.Insert();
+                purchaseID = collectionPurchase.purchaseId;
 
                 if (purchaseID < 1)
                 {
@@ -999,6 +1018,7 @@ namespace Core.ConditionalAccess
                                     siteGUID,             // {1}
                                     productID);           // {2}
                 }
+
 
                 ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseID);
             }

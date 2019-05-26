@@ -1,5 +1,6 @@
 using AdapterControllers;
 using AdapterControllers.CDVR;
+using ApiLogic.ConditionalAccess.Modules;
 using APILogic.ConditionalAccess.Managers;
 using APILogic.ConditionalAccess.Modules;
 using APILogic.ConditionalAccess.Response;
@@ -10127,7 +10128,14 @@ namespace Core.ConditionalAccess
                                     break;
                                 case eTransactionType.Collection:
                                     {
-                                        dalResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(purchasingSiteGuid, assetID, domainId);
+                                        var collectionPurchase = new CollectionPurchase(this.m_nGroupID)
+                                        {
+                                            siteGuid = purchasingSiteGuid,
+                                            productId = assetID.ToString(),
+                                            houseHoldId = domainId
+                                        };
+                                        dalResult = collectionPurchase.Delete();
+
                                         break;
                                     }
                                 default:
