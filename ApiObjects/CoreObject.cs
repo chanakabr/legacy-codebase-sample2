@@ -1,31 +1,16 @@
-﻿using System;
+﻿using EventManager;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
 namespace ApiObjects
 {
     [Serializable]
     public abstract class CoreObject
     {
-        public int GroupId
-        {
-            get;
-            set;
-        }
-
-        public long Id
-        {
-            get;
-            set;
-        }
-
-        public List<string> ChangedFields
-        {
-            get;
-            set;
-        }
+        public int GroupId { get; set; }
+        public long Id { get; set; }
+        public List<string> ChangedFields { get; set; }
 
         #region Abstract Methods
 
@@ -43,6 +28,7 @@ namespace ApiObjects
             // Raise event before starting to insert
             var beforeInsertEventResults = 
                 EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                    GetUserIp(),
                     this.GroupId,
                     this,
                     eKalturaEventActions.Created,
@@ -73,6 +59,7 @@ namespace ApiObjects
                  if (insertResult)
                  {
                      var afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                         GetUserIp(),
                          this.GroupId,
                          this,
                          eKalturaEventActions.Created));
@@ -85,9 +72,11 @@ namespace ApiObjects
                  else
                  {
                      EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                         GetUserIp(),
                          this.GroupId,
                          this,
-                         eKalturaEventActions.Created, eKalturaEventTime.Failed));
+                         eKalturaEventActions.Created, 
+                         eKalturaEventTime.Failed));
                  }
             }
 
@@ -99,6 +88,7 @@ namespace ApiObjects
             // Raise event before starting to update
             var beforeEventResults =
                 EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                    GetUserIp(),
                     this.GroupId,
                     this,
                     eKalturaEventActions.Changed,
@@ -131,6 +121,7 @@ namespace ApiObjects
                 if (result)
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
+                        GetUserIp(),
                         this.GroupId,
                         this,
                         previous,
@@ -139,6 +130,7 @@ namespace ApiObjects
                 else
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
+                        GetUserIp(),
                         this.GroupId,
                         this,
                         previous,
@@ -155,6 +147,7 @@ namespace ApiObjects
             // Raise event before starting to delete
             var beforeEventResults =
                 EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                    GetUserIp(),
                     this.GroupId,
                     this,
                     eKalturaEventActions.Deleted,
@@ -184,6 +177,7 @@ namespace ApiObjects
                 if (result)
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
+                        GetUserIp(),
                         this.GroupId,
                         this.Id,
                         null,
@@ -192,6 +186,7 @@ namespace ApiObjects
                 else
                 {
                     EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
+                        GetUserIp(),
                         this.GroupId,
                         this.Id,
                         null,
@@ -202,6 +197,7 @@ namespace ApiObjects
 
             return result;
         }
+
         public bool Notify(eKalturaEventTime? time = eKalturaEventTime.After, string type = null)
         {
             bool result = true;
@@ -212,6 +208,7 @@ namespace ApiObjects
             if (time != null && time.HasValue)
             {
                 afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                    GetUserIp(),
                     this.GroupId,
                     this,
                     eKalturaEventActions.None,
@@ -221,6 +218,7 @@ namespace ApiObjects
             else
             {
                 afterEventResults = EventManager.EventManager.HandleEvent(new KalturaObjectEvent(
+                    GetUserIp(),
                     this.GroupId,
                     this,
                     type));
@@ -248,5 +246,14 @@ namespace ApiObjects
         
         #endregion
 
+        private string GetUserIp()
+        {
+            if (HttpContext.Current.Items[KalturaEvent.USER_IP] != null)
+            {
+                return HttpContext.Current.Items[KalturaEvent.USER_IP].ToString();
+            }
+
+            return null;
+        }
     }
 }

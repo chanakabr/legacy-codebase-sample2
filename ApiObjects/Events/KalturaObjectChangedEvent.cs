@@ -1,29 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects
 {
     public class KalturaObjectChangedEvent : KalturaObjectActionEvent
     {
-        public ApiObjects.CoreObject PreviousObject
-        {
-            get;
-            set;
-        }
+        public CoreObject PreviousObject { get; set; }
+        public List<string> ChangedFields { get; set; }
 
-        public List<string> ChangedFields
-        {
-            get;
-            set;
-        }
-
-        public KalturaObjectChangedEvent(int groupId = 0, ApiObjects.CoreObject newObject = null, ApiObjects.CoreObject previousObject = null,
-            List<string> changedFields = null, eKalturaEventTime time = eKalturaEventTime.After, string type = null)
-            : base(groupId, newObject, eKalturaEventActions.Changed, time, type)
+        public KalturaObjectChangedEvent(string userIp, int groupId = 0, CoreObject newObject = null, CoreObject previousObject = null, List<string> changedFields = null, 
+                                         eKalturaEventTime time = eKalturaEventTime.After, string type = null)
+            : base(userIp, groupId, newObject, eKalturaEventActions.Changed, time, type)
         {
             this.PreviousObject = previousObject;
             this.ChangedFields = changedFields;
@@ -31,7 +18,7 @@ namespace ApiObjects
             GetChangedFields(newObject, previousObject);
         }
 
-        private void GetChangedFields(ApiObjects.CoreObject newObject, ApiObjects.CoreObject previousObject)
+        private void GetChangedFields(CoreObject newObject, CoreObject previousObject)
         {
             if (this.ChangedFields == null)
             {
