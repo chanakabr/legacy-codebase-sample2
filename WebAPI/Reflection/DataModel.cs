@@ -3630,6 +3630,8 @@ namespace WebAPI.Reflection
                     {
                         case "eventObject":
                             return "object";
+                        case "UserIp":
+                            return "userIp";
                     }
                     break;
                     

@@ -41,9 +41,10 @@ namespace WebAPI.EventNotifications
                     eventObjectType = eventWrapper.eventObjectType,
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
-                    partnerId = kalturaEvent.PartnerId
+                    partnerId = kalturaEvent.PartnerId,
+                    UserIp = Utils.Utils.GetClientIP()
                 }
-                );
+            );
         }
 
         #endregion

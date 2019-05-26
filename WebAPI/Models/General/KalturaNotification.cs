@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {
@@ -55,6 +56,12 @@ namespace WebAPI.Models.General
             get;
             set;
         }
+        
+        [DataMember(Name = "userIp")]
+        [JsonProperty(PropertyName = "userIp")]
+        [XmlElement(ElementName = "userIp", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public string UserIp { get; set; }
     }
 
     [Serializable]
@@ -71,5 +78,4 @@ namespace WebAPI.Models.General
         Updated,
         Replaced
     }
-
 }

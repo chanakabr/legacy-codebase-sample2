@@ -5534,6 +5534,10 @@ namespace WebAPI.Models.General
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(systemName) + "\"");
             }
+            if(UserIp != null)
+            {
+                ret.Add("userIp", "\"userIp\": " + "\"" + EscapeJson(UserIp) + "\"");
+            }
             return ret;
         }
         
@@ -5560,6 +5564,10 @@ namespace WebAPI.Models.General
             if(systemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(systemName) + "</systemName>");
+            }
+            if(UserIp != null)
+            {
+                ret.Add("userIp", "<userIp>" + EscapeXml(UserIp) + "</userIp>");
             }
             return ret;
         }

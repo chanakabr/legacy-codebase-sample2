@@ -37,9 +37,14 @@ namespace WebAPI.Utils
             else
                 return 0;
         }
-
+        
         public static string GetClientIP()
         {
+            if (HttpContext.Current.Items[RequestParser.USER_IP] != null)
+            {
+                return HttpContext.Current.Items[RequestParser.USER_IP].ToString();
+            }
+
             string ip = string.Empty;
             string retIp = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
             string[] ipRange;

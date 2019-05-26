@@ -6964,10 +6964,22 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaNotification
     {
+        private static RuntimeSchemePropertyAttribute UserIpSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaNotification(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("object") && parameters["object"] != null)
                 {
                     if (parameters["object"] is JObject)
@@ -6999,6 +7011,14 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("partnerId") && parameters["partnerId"] != null)
                 {
                     partnerId = (Int32) Convert.ChangeType(parameters["partnerId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("userIp") && parameters["userIp"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserIpSchemaProperty.Validate("userIp", parameters["userIp"]);
+                    }
+                    UserIp = (String) Convert.ChangeType(parameters["userIp"], typeof(String));
                 }
             }
         }

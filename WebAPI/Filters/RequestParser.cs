@@ -124,6 +124,7 @@ namespace WebAPI.Filters
         public const string REQUEST_LANGUAGE = "language";
         public const string REQUEST_CURRENCY = "currency";
         public const string REQUEST_FORMAT = "format";
+        public const string USER_IP = "USER_IP";
 
         // same key as in REST solution KLogMonitor.Constants
         // in-case changing this  - you must change there  as well
@@ -309,9 +310,9 @@ namespace WebAPI.Filters
                 HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
             }
             
-            if (HttpContext.Current.Items[KalturaEvent.USER_IP] == null)
+            if (HttpContext.Current.Items[RequestParser.USER_IP] == null)
             {
-                HttpContext.Current.Items.Add(KalturaEvent.USER_IP, WebAPI.Utils.Utils.GetClientIP());
+                HttpContext.Current.Items.Add(RequestParser.USER_IP, WebAPI.Utils.Utils.GetClientIP());
             }
 
             var loggingContext = new ContextData();

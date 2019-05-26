@@ -59,7 +59,8 @@ namespace WebAPI.EventNotifications
                 eventType = action,
                 eventObjectType = destination.Name,
                 systemName = systemName,
-                partnerId = objectEvent.PartnerId
+                partnerId = objectEvent.PartnerId,
+                UserIp = Utils.Utils.GetClientIP()
             };
 
             return eventWrapper;
@@ -126,6 +127,5 @@ namespace WebAPI.EventNotifications
 
             return action;
         }
-
     }
 }
