@@ -2104,12 +2104,12 @@ namespace WebAPI.Clients
             ClientUtils.GetResponseStatusFromWS(deleteTopicNotificationMessageFunc);
         }
 
-        internal KalturaTopicNotificationMessageListResponse GetTopicNotificationMessages(int groupId, long topicNotificationIdEqual)
+        internal KalturaTopicNotificationMessageListResponse GetTopicNotificationMessages(int groupId, long topicNotificationIdEqual, int pageSize, int pageIndex)
         {
             KalturaTopicNotificationMessageListResponse result = new KalturaTopicNotificationMessageListResponse();
 
             Func<GenericListResponse<TopicNotificationMessage>> getTopicNotificationMessagesFunc = () =>
-               Core.Notification.Module.GetTopicNotificationMessagaes(groupId, topicNotificationIdEqual);
+               Core.Notification.Module.GetTopicNotificationMessages(groupId, topicNotificationIdEqual, pageSize, pageIndex);
 
             KalturaGenericListResponse<KalturaTopicNotificationMessage> response =
                 ClientUtils.GetResponseListFromWS<KalturaTopicNotificationMessage, TopicNotificationMessage>(getTopicNotificationMessagesFunc);

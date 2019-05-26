@@ -56,6 +56,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotificationMessageNotFound)]
         [Throws(eResponseStatus.WrongTopicNotification)]
+        [Throws(eResponseStatus.WrongTopicNotificationTrigger)]
 
         static public KalturaTopicNotificationMessage Update(int id, KalturaTopicNotificationMessage topicNotificationMessage)
         {
@@ -103,19 +104,23 @@ namespace WebAPI.Controllers
         /// Lists all topic notifications in the system.
         /// </summary>
         /// <param name="filter">Filter options</param>
+        /// <param name="pager">Paging the request</param>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaTopicNotificationMessageListResponse List(KalturaTopicNotificationMessageFilter filter = null)
+        static public KalturaTopicNotificationMessageListResponse List(KalturaTopicNotificationMessageFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaTopicNotificationMessageListResponse response = null;
 
             if (filter == null)
                 filter = new KalturaTopicNotificationMessageFilter();
 
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().GetTopicNotificationMessages(groupId, filter.TopicNotificationIdEqual);
+                response = ClientsManager.NotificationClient().GetTopicNotificationMessages(groupId, filter.TopicNotificationIdEqual, pager.getPageSize(), pager.getPageIndex());
             }
 
             catch (ClientException ex)

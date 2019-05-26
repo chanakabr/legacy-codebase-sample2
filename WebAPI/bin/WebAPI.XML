@@ -154,11 +154,12 @@
             </summary>
             <param name="id">ID of topic notification message to delete</param>
         </member>
-        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.List(WebAPI.Models.Notifications.KalturaTopicNotificationMessageFilter)">
+        <member name="M:WebAPI.Controllers.TopicNotificationMessageController.List(WebAPI.Models.Notifications.KalturaTopicNotificationMessageFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Lists all topic notifications in the system.
             </summary>
             <param name="filter">Filter options</param>
+            <param name="pager">Paging the request</param>
         </member>
         <member name="M:WebAPI.Controllers.TvmRuleController.List(WebAPI.Models.API.KalturaTvmRuleFilter)">
             <summary>

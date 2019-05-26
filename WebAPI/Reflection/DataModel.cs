@@ -9594,7 +9594,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("topicNotificationMessage", "list", false);
-                            return TopicNotificationMessageController.List((KalturaTopicNotificationMessageFilter) methodParams[0]);
+                            return TopicNotificationMessageController.List((KalturaTopicNotificationMessageFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("topicNotificationMessage", "update", false);
@@ -17203,6 +17203,13 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTopicNotificationMessageFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             
