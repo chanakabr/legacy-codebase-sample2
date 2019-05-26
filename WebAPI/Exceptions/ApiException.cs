@@ -386,6 +386,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType USER_INBOX_MESSAGES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInboxMessagesNotExist, "User Inbox Messages Not Exist", "Requested inbox message was not found.");
         public static ClientExceptionType TOPIC_NOTIFICATION_NOT_FOUND = new ClientExceptionType(eResponseStatus.TopicNotificationNotFound, "Topic Notification Not Found", "The topic notification requested couldn't be found.");
         public static ClientExceptionType TOPIC_NOTIFICATION_MESSAGE_NOT_FOUND = new ClientExceptionType(eResponseStatus.TopicNotificationMessageNotFound, "Topic Notification Message Not Found", "The topic notification requested couldn't be found.");
+        public static ClientExceptionType WRONG_TOPIC_NOTIFICATION = new ClientExceptionType(eResponseStatus.WrongTopicNotification, "Wrong Topic Notification Identifier", "Wrong Topic Notification Identifier");
 
         #endregion
 

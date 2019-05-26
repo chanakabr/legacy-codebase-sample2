@@ -55,6 +55,7 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotificationMessageNotFound)]
+        [Throws(eResponseStatus.WrongTopicNotification)]
 
         static public KalturaTopicNotificationMessage Update(int id, KalturaTopicNotificationMessage topicNotificationMessage)
         {
