@@ -21,6 +21,7 @@ namespace CachingProvider.LayeredCache
         private static JsonSerializerSettings layeredCacheConfigSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
         private static LayeredCacheTcmConfig layeredCacheTcmConfig = null;
         private static JsonSerializerSettings jsonSerializerSettings = null;
+        private const string INVALIDATION_KEYS_HEADER = "X-Kaltura-InvalidationKeys";
         public const string MISSING_KEYS = "NeededKeys";
         public const string IS_READ_ACTION = "IsReadAction";
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
@@ -322,12 +323,12 @@ namespace CachingProvider.LayeredCache
 
                     if (HttpContext.Current != null)
                     {
-                        var invalidationKeysHeader = HttpContext.Current.Response.Headers["invalidationKeys"];
+                        var invalidationKeysHeader = HttpContext.Current.Response.Headers[INVALIDATION_KEYS_HEADER];
                         if (string.IsNullOrEmpty(invalidationKeysHeader))
                         {
                             string invalidationKeysString = string.Join(";", invalidationKeys);
 
-                            HttpContext.Current.Response.Headers.Add("invalidationKeys", invalidationKeysString);
+                            HttpContext.Current.Response.Headers.Add(INVALIDATION_KEYS_HEADER, invalidationKeysString);
                         }
                         else
                         {
@@ -338,8 +339,8 @@ namespace CachingProvider.LayeredCache
 
                             string invalidationKeysString = string.Join(";", invalidationKeysHashSet);
 
-                            HttpContext.Current.Response.Headers.Remove("invalidationKeys");
-                            HttpContext.Current.Response.Headers.Add("invalidationKeys", invalidationKeysString);
+                            HttpContext.Current.Response.Headers.Remove(INVALIDATION_KEYS_HEADER);
+                            HttpContext.Current.Response.Headers.Add(INVALIDATION_KEYS_HEADER, invalidationKeysString);
                         }
                     }
                 }
