@@ -1018,8 +1018,8 @@ namespace EpgBL
 
                 var channelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelId.ToString() };
 
-                var endDateRange = new ESRange(false, "end_date", eRangeComp.GTE, endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
-                var startDateRange = new ESRange(false, "start_date", eRangeComp.LTE, startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+                var endDateRange = new ESRange(false, "end_date", eRangeComp.LTE, endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+                var startDateRange = new ESRange(false, "start_date", eRangeComp.GTE, startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
 
                 var filterCompositeType = new FilterCompositeType(CutWith.AND);
                 filterCompositeType.AddChild(endDateRange);
