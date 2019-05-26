@@ -25,7 +25,7 @@ RUN npm install
 
 EXPOSE 80
 
-CMD node server.js
+CMD GITHUB_CLIENT_ID=dd75e59ddbcbea0ea46f GITHUB_CLIENT_SECRET=11864f66444672818f94d1b374a564ee381633ce node server.js
 
 ARG VERSION
 LABEL version=${VERSION}
