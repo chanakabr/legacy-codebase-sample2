@@ -44,13 +44,21 @@ namespace Core.Notification
                 if (!NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage))
                 {
                     log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", groupId, topicNotificationMessage.Id);
-                    //return response;
+                    response.SetStatus(eResponseStatus.Error, "fail insert TopicNotificationMessage to CB");
+                    return response;
                 }
 
-                AddTopicNotificationMessageToQueue(topicNotificationMessage, topicNotification);
-
-                response.Object = topicNotificationMessage;
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                if (!AddTopicNotificationMessageToQueue(topicNotificationMessage, topicNotification))
+                {
+                    response.Object = topicNotificationMessage;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    log.ErrorFormat("Error while AddTopicNotificationMessageToQueue. groupId: {0}, topicNotificationMessageId:{1}", groupId, topicNotificationMessage.Id);
+                    response.SetStatus(eResponseStatus.Error, "fail add topic notification message to queue");
+                    return response;
+                }
             }
             catch (Exception ex)
             {
@@ -154,7 +162,6 @@ namespace Core.Notification
             return response;
         }
 
-        //TODO anat add paging
         internal static GenericListResponse<TopicNotificationMessage> List(int groupId, long topicNotificationId, int pageSize, int pageIndex)
         {
             GenericListResponse<TopicNotificationMessage> response = new GenericListResponse<TopicNotificationMessage>();
@@ -179,6 +186,7 @@ namespace Core.Notification
                     {
                         topicNotificationMessageIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
                     }
+
                     response.TotalItems = topicNotificationMessageIds.Count;
 
                     // paging
