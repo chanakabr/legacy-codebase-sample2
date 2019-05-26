@@ -34,6 +34,7 @@ using System.Text.RegularExpressions;
 using KlogMonitorHelper;
 using TVinciShared;
 using HttpMultipartParser;
+using EventManager;
 
 namespace WebAPI.Filters
 {
@@ -306,6 +307,11 @@ namespace WebAPI.Filters
             else if (HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] != null)
             {
                 HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
+            }
+            
+            if (HttpContext.Current.Items[KalturaEvent.USER_IP] == null)
+            {
+                HttpContext.Current.Items.Add(KalturaEvent.USER_IP, WebAPI.Utils.Utils.GetClientIP());
             }
 
             var loggingContext = new ContextData();
@@ -636,7 +642,6 @@ namespace WebAPI.Filters
                         return;
                     }
                     return;
-
                 }
                 else
                 {
