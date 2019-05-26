@@ -1,6 +1,9 @@
-﻿using ApiObjects;
+﻿using APILogic.AmazonSnsAdapter;
+using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using Core.Notification.Adapters;
+using Core.Pricing;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -76,7 +79,7 @@ namespace Core.Notification
             TopicNotificationMessage topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(messageId);
             if (topicNotificationMessage == null)
             {
-                log.ErrorFormat("topic notification message was not found. grogroupIdup: {0} messageId: {1}", groupId, messageId);
+                log.ErrorFormat("topic notification message was not found. groupId: {0} messageId: {1}", groupId, messageId);
                 return false;
             }
 
@@ -88,12 +91,16 @@ namespace Core.Notification
                 return false;
             }
 
-            // validate start time - TODO: irena
-            //
-            //
+            // validate start time 
+            var triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
+            if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != startTime)
+            {
+                log.ErrorFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}", 
+                    groupId, topicNotificationMessage.TopicNotificationId, triggerTime, startTime;
+                return false;
+            }
 
-
-            long currentTimeSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            //long currentTimeSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
             string singleTopicExternalId = string.Empty;
             string singleQueueName = string.Empty;
             List<string> topicExternalIds = new List<string>();
@@ -157,9 +164,9 @@ namespace Core.Notification
             if (!string.IsNullOrEmpty(topicNotification.PushExternalId) &&
                 (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) || NotificationSettings.IsPartnerPushEnabled(groupId)))
             {
-                string url = string.Empty; // TODO: ??
-                string sound = string.Empty; // TODO: ??
-                string category = string.Empty; // TODO: ??
+                string url = string.Empty;
+                string sound = string.Empty;
+                string category = string.Empty;
 
                 var messageTemplate = NotificationCache.Instance().GetMessageTemplates(groupId).First(x => x.TemplateType == MessageTemplateType.Reminder);
 
@@ -333,43 +340,7 @@ namespace Core.Notification
         private static bool AddTopicNotificationMessageToQueue(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
         {
             bool result = false;
-            DateTime? triggerTime = null;
-            if (topicNotificationMessage.Trigger != null)
-            {
-                switch (topicNotificationMessage.Trigger.Type)
-                {
-                    case TopicNotificationTriggerType.Date:
-                        triggerTime = ((TopicNotificationDateTrigger)topicNotificationMessage.Trigger).Date;
-                        break;
-                    case TopicNotificationTriggerType.Subscription:
-                        {
-                            TopicNotificationSubscriptionTrigger trigger = (TopicNotificationSubscriptionTrigger)topicNotificationMessage.Trigger;
-                            long subscriptionId = 0;
-                            if (topicNotification != null && topicNotification.SubscribeReference != null && topicNotification.SubscribeReference.Type == SubscribeReferenceType.Subscription)
-                            {
-                                subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
-                            }
-                            if (subscriptionId > 0)
-                            {
-                                var subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
-                                switch (trigger.TriggerType)
-                                {
-                                    case ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate:
-                                        triggerTime = subscription.m_dStartDate.AddSeconds(trigger.Offset);
-                                        break;
-                                    case ApiObjects.TopicNotificationSubscriptionTriggerType.EndDate:
-                                        triggerTime = subscription.m_dEndDate.AddSeconds(trigger.Offset);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
+            DateTime? triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
 
             if (triggerTime.HasValue)
             {
@@ -394,6 +365,50 @@ namespace Core.Notification
             }
 
             return result;
+        }
+
+        private static DateTime? GetTopicNotificationTriggerTime(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
+        {
+            DateTime? triggerTime = null;
+
+            if (topicNotificationMessage.Trigger != null)
+            {
+                switch (topicNotificationMessage.Trigger.Type)
+                {
+                    case TopicNotificationTriggerType.Date:
+                        triggerTime = ((TopicNotificationDateTrigger)topicNotificationMessage.Trigger).Date;
+                        break;
+                    case TopicNotificationTriggerType.Subscription:
+                        {
+                            TopicNotificationSubscriptionTrigger trigger = (TopicNotificationSubscriptionTrigger)topicNotificationMessage.Trigger;
+                            long subscriptionId = 0;
+                            if (topicNotification != null && topicNotification.SubscribeReference != null && topicNotification.SubscribeReference.Type == SubscribeReferenceType.Subscription)
+                            {
+                                subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
+                            }
+                            if (subscriptionId > 0)
+                            {
+                                Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                                switch (trigger.TriggerType)
+                                {
+                                    case ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate:
+                                        triggerTime = subscription.m_dStartDate.AddSeconds(trigger.Offset);
+                                        break;
+                                    case ApiObjects.TopicNotificationSubscriptionTriggerType.EndDate:
+                                        triggerTime = subscription.m_dEndDate.AddSeconds(trigger.Offset);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return triggerTime;
         }
     }
 }
