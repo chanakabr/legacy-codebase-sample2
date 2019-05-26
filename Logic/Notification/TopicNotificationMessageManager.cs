@@ -1,15 +1,12 @@
-﻿using APILogic.AmazonSnsAdapter;
-using APILogic.DmsService;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using TVinciShared;
@@ -26,6 +23,15 @@ namespace Core.Notification
 
             try
             {
+                // validate topicNotificationMessage.TopicNotificationId                
+                TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationMessage.TopicNotificationId);
+                if (topicNotification == null)
+                {
+                    log.DebugFormat("failed to insert topicNotificationMessage to DB groupID = {0}, TopicNotificationId does not exist= {1}", groupId, topicNotificationMessage.TopicNotificationId);
+                    response.SetStatus(eResponseStatus.TopicNotificationNotFound);
+                    return response;
+                }
+
                 // create DB topicNotification
                 topicNotificationMessage.Id = NotificationDal.InsertTopicNotificationMessage(topicNotificationMessage.GroupId, topicNotificationMessage.TopicNotificationId, userId);
                 if (topicNotificationMessage.Id == 0)
@@ -39,20 +45,21 @@ namespace Core.Notification
                 if (!NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage))
                 {
                     log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", groupId, topicNotificationMessage.Id);
-                    //return response;
+                    response.SetStatus(eResponseStatus.Error, "fail insert TopicNotificationMessage to CB");
+                    return response;
                 }
 
-                //TODO anat/irena cache ? 
-
-                //string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
-                //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                //{
-                //    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
-                //}
-                AddTopicNotificationMessageToQueue(topicNotificationMessage);
-
-                response.Object = topicNotificationMessage;
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                if (!AddTopicNotificationMessageToQueue(topicNotificationMessage, topicNotification))
+                {
+                    response.Object = topicNotificationMessage;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    log.ErrorFormat("Error while AddTopicNotificationMessageToQueue. groupId: {0}, topicNotificationMessageId:{1}", groupId, topicNotificationMessage.Id);
+                    response.SetStatus(eResponseStatus.Error, "fail add topic notification message to queue");
+                    return response;
+                }
             }
             catch (Exception ex)
             {
@@ -206,31 +213,25 @@ namespace Core.Notification
                     return response;
                 }
 
-                //if (!currentTopicNotification.Name.Equals(topicNotification.Name) || !currentTopicNotification.Description.Equals(topicNotification.Description))
-                //{
-                // update DB topicNotification
-                //if (!NotificationDal.UpdateTopicNotificationMessage(currentTopicNotificationMessage.Id, topicNotification.GroupId, topicNotification.Name, userId))
-                //{
-                //    log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotification.GroupId, topicNotification.Name);
-                //    response.SetStatus(eResponseStatus.Error, "fail update TopicNotification to DB");
-                //    return response;
-                //}
+                if (currentTopicNotificationMessage.TopicNotificationId != topicNotificationMessageToUpdate.TopicNotificationId)
+                {
+                    log.ErrorFormat("Wrong topic notification identifier. {0}", logData);
+                    response.SetStatus(eResponseStatus.WrongTopicNotification);
+                    return response;
+                }
 
-                //    currentTopicNotification.Name = topicNotification.Name;
-                //    currentTopicNotification.Description = topicNotification.Description;
+                if (currentTopicNotificationMessage.Trigger.Equals(topicNotificationMessageToUpdate.Trigger))
+                {
+                    log.ErrorFormat("Wrong topic notification trigger. {0}", logData);
+                    response.SetStatus(eResponseStatus.WrongTopicNotificationTrigger);
+                    return response;
+                }
 
-                //    // Save TopicNotificationAtCB                    
-                //    if (!NotificationDal.SaveTopicNotificationMessageCB(currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage))
-                //    {
-                //        log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage.Id);
-                //    }
-
-                //    //string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
-                //    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                //    //{
-                //    //    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
-                //    //}
-                //}
+                // Save TopicNotificationAtCB                    
+                if (!NotificationDal.SaveTopicNotificationMessageCB(currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage))
+                {
+                    log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage.Id);
+                }
             }
             catch (Exception ex)
             {
@@ -272,12 +273,6 @@ namespace Core.Notification
                         return response;
                     }
 
-                    //string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotificationMessage.SubscribeReference.Type);
-                    //if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    //{
-                    //    log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
-                    //}
-
                     response = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
             }
@@ -290,12 +285,52 @@ namespace Core.Notification
             return response;
         }
 
-        internal static GenericListResponse<TopicNotificationMessage> List(int groupId, long topicNotificationId)
+        internal static GenericListResponse<TopicNotificationMessage> List(int groupId, long topicNotificationId, int pageSize, int pageIndex)
         {
-            throw new NotImplementedException();
+            GenericListResponse<TopicNotificationMessage> response = new GenericListResponse<TopicNotificationMessage>();
+            try
+            {
+                // validate topicNotificationMessage.TopicNotificationId                
+                TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationId);
+                if (topicNotification == null)
+                {
+                    log.DebugFormat("failed to get topicNotificationMessages for groupID = {0}, TopicNotificationId does not exist= {1}", groupId, topicNotificationId);
+                    response.SetStatus(eResponseStatus.TopicNotificationNotFound);
+                    return response;
+                }
+
+                // get topicNotificationMessages                
+                DataTable topicNotificationMessageDT = NotificationDal.GetTopicNotificationMessages(groupId, topicNotificationId);
+                if (topicNotificationMessageDT?.Rows.Count > 0)
+                {
+                    List<long> topicNotificationMessageIds = new List<long>();
+                    response.Objects = new List<TopicNotificationMessage>();
+                    foreach (DataRow row in topicNotificationMessageDT.Rows)
+                    {
+                        topicNotificationMessageIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
+                    }
+
+                    response.TotalItems = topicNotificationMessageIds.Count;
+
+                    // paging
+                    topicNotificationMessageIds = topicNotificationMessageIds.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                    if (topicNotificationMessageIds.Count > 0)
+                    {
+                        response.Objects = NotificationDal.GetTopicNotificationMessagesCB(topicNotificationMessageIds);
+                    }
+                }
+
+                response.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetTopicNotificationMessages {0}", ex);
+            }
+
+            return response;
         }
 
-        private static bool AddTopicNotificationMessageToQueue(TopicNotificationMessage topicNotificationMessage)
+        private static bool AddTopicNotificationMessageToQueue(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
         {
             bool result = false;
             DateTime? triggerTime = null;
@@ -309,7 +344,6 @@ namespace Core.Notification
                     case TopicNotificationTriggerType.Subscription:
                         {
                             TopicNotificationSubscriptionTrigger trigger = (TopicNotificationSubscriptionTrigger)topicNotificationMessage.Trigger;
-                            TopicNotification topicNotification = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
                             long subscriptionId = 0;
                             if (topicNotification != null && topicNotification.SubscribeReference != null && topicNotification.SubscribeReference.Type == SubscribeReferenceType.Subscription)
                             {
@@ -341,8 +375,8 @@ namespace Core.Notification
             {
                 QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
                 ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
-                    topicNotificationMessage.GroupId, 
-                    DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value), 
+                    topicNotificationMessage.GroupId,
+                    DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value),
                     (int)topicNotificationMessage.Id, MessageAnnouncementRequestType.TopicNotificationMessage)
                 {
                     ETA = triggerTime

@@ -1,19 +1,10 @@
 ﻿using EventManager;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects
 {
     public class KalturaObjectEvent : KalturaEvent
     {
-        public ApiObjects.CoreObject Object
-        {
-            get;
-            set;
-        }
+        public CoreObject Object { get; set; }
 
         private string type;
 
@@ -36,7 +27,8 @@ namespace ApiObjects
             }
         }
 
-        public KalturaObjectEvent(int groupId = 0, ApiObjects.CoreObject coreObject = null, string type = null) : base(groupId)
+        public KalturaObjectEvent(int groupId = 0, CoreObject coreObject = null, string type = null) 
+            : base(groupId)
         {
             this.Object = coreObject;
             this.type = type;

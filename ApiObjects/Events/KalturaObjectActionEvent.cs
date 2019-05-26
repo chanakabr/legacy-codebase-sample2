@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace ApiObjects
 {
     public enum eKalturaEventActions
@@ -32,25 +27,13 @@ namespace ApiObjects
         #region Props
 
         private eKalturaEventActions action;
-
-        public virtual eKalturaEventActions Action
-        {
-            get
-            {
-                return action;
-            }
-        }
-
-        public eKalturaEventTime Time
-        {
-            get;
-            set;
-        }
+        public virtual eKalturaEventActions Action { get { return action; } }
+        public eKalturaEventTime Time { get; set; }
         
         #endregion
 
-        public KalturaObjectActionEvent(int groupId = 0, ApiObjects.CoreObject coreObject = null, 
-            eKalturaEventActions action = eKalturaEventActions.None, eKalturaEventTime time = eKalturaEventTime.After, string type = null) : 
+        public KalturaObjectActionEvent(int groupId = 0, CoreObject coreObject = null, eKalturaEventActions action = eKalturaEventActions.None, 
+                                        eKalturaEventTime time = eKalturaEventTime.After, string type = null) : 
             base(groupId, coreObject, type)
         {
             this.action = action;

@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-
-
 #if NET452
 using System.Web;
 using System.Web.SessionState;
@@ -15,7 +13,6 @@ using System.Web.SessionState;
 #if NETSTANDARD2_0
 using Microsoft.AspNetCore.Http;
 #endif
-
 
 namespace TVinciShared
 {
@@ -104,7 +101,6 @@ namespace TVinciShared
         }
 
 #endif
-
 
 #if NETSTANDARD2_0
         public static object Get(this ISession session, string key)
@@ -210,7 +206,6 @@ namespace TVinciShared
             }
         }
 
-
         /// <summary>
         /// Note! this is a shim for netstandard. this should not be used! always will return null
         /// </summary>
@@ -218,8 +213,7 @@ namespace TVinciShared
         {
             return null;
         }
-
-
+        
         /// <summary>
         /// Note! this is a shim for netstandard. this should not be used! always will return empty string
         /// </summary>
@@ -238,6 +232,5 @@ namespace TVinciShared
         }
 
 #endif
-
     }
 }
