@@ -175,7 +175,7 @@ namespace DAL
                 return ds.Tables[0];
             }
             return null;
-        }
+        }       
 
         public static DataTable GetDeviceNotification(long groupID, long userID, long deviceID, byte? view_status, int? topRowNumber, int? notificationType)
         {
@@ -2922,6 +2922,17 @@ namespace DAL
         {
             string key = GetTopicNotificationMessageKey(topicNotificationMessageId);
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static DataTable GetTopicNotificationMessages(int groupId, long topicNotificationId)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId },
+                { "@topicNotificationId", topicNotificationId }
+            };
+
+            return UtilsDal.Execute("Get_TopicNotificationMessages", parameters, MESSAGE_BOX_CONNECTION);
         }
 
         private static string GetTopicNotificationKey(long topicNotificationId)

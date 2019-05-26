@@ -1376,12 +1376,12 @@ namespace Core.Notification
             return result;
         }
 
-        public static GenericListResponse<TopicNotificationMessage> GetTopicNotificationMessagaes(int groupId, long topicNotificationId)
+        public static GenericListResponse<TopicNotificationMessage> GetTopicNotificationMessages(int groupId, long topicNotificationId, int pageSize, int pageIndex)
         {
             GenericListResponse<TopicNotificationMessage> result = new GenericListResponse<TopicNotificationMessage>();
             try
             {
-                result = TopicNotificationMessageManager.List(groupId, topicNotificationId);
+                result = TopicNotificationMessageManager.List(groupId, topicNotificationId, pageSize, pageIndex);
             }
             catch (Exception ex)
             {

@@ -4,6 +4,9 @@ using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 using TVinciShared;
 
@@ -152,9 +155,60 @@ namespace Core.Notification
         }
 
         //TODO anat add paging
-        internal static GenericListResponse<TopicNotificationMessage> List(int groupId, long topicNotificationId)
+        internal static GenericListResponse<TopicNotificationMessage> List(int groupId, long topicNotificationId, int pageSize, int pageIndex)
         {
-            throw new NotImplementedException();
+            GenericListResponse<TopicNotificationMessage> response = new GenericListResponse<TopicNotificationMessage>();
+            try
+            {
+                // validate topicNotificationMessage.TopicNotificationId                
+                TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationId);
+                if (topicNotification == null)
+                {
+                    log.DebugFormat("failed to get topicNotificationMessages for groupID = {0}, TopicNotificationId does not exist= {1}", groupId, topicNotificationId);
+                    response.SetStatus(eResponseStatus.TopicNotificationNotFound);
+                    return response;
+                }
+
+                // get announcements                
+                DataTable topicNotificationMessageDT = NotificationDal.GetTopicNotificationMessages(groupId, topicNotificationId);
+                if (topicNotificationMessageDT?.Rows.Count > 0)
+                {
+                    List<long> topicNotificationMessageIds = new List<long>();
+                    response.Objects = new List<TopicNotificationMessage>();
+                    foreach (DataRow row in topicNotificationMessageDT.Rows)
+                    {
+                        topicNotificationMessageIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
+                    }
+
+                    // paging
+                    topicNotificationMessageIds = topicNotificationMessageIds.Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                    TopicNotificationMessage topicNotificationMessage = null;
+
+                    foreach (long item in topicNotificationMessageIds)
+                    {
+                        topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(item);
+                        if(topicNotificationMessage !=null)
+                        {
+                            response.Objects.Add(topicNotificationMessage);
+
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed to get topicNotificationMessage {0}", item);
+                        }
+                    }
+
+                    response.TotalItems = topicNotificationMessageIds.Count;
+                }
+
+                response.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetTopicNotificationMessages {0}", ex);
+            }
+
+            return response;
         }
 
         private static bool AddTopicNotificationMessageToQueue(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
