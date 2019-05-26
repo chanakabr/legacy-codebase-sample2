@@ -2906,6 +2906,12 @@ namespace DAL
             return UtilsDal.GetObjectFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key, true);
         }
 
+        public static List<TopicNotificationMessage> GetTopicNotificationMessagesCB(List<long> topicNotificationMeesageIds)
+        {
+            List<string> keys = topicNotificationMeesageIds.Select(x => GetTopicNotificationMessageKey(x)).ToList();            
+            return UtilsDal.GetObjectListFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, keys, true);
+        }
+
         public static bool DeleteTopicNotificationMessage(int groupId, long userId, long topicNotificationMessageId)
         {
             var parameters = new Dictionary<string, object>()

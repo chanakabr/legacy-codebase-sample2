@@ -309,16 +309,43 @@ namespace Core.Notification
                 }
 
                 // get user notification data
-                //bool docExists = false;
-                //UserNotification userNotificationData = NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
+                bool docExists = false;
+                UserNotification userNotificationData = NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
 
-                //if (userNotificationData == null || userNotificationData.Announcements == null ||
-                //   userNotificationData.TopicNotifications?.Count(x => x.AnnouncementId == topicNotification.Id) == 0)
-                //{
-                //    log.DebugFormat("user notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
-                //    statusResult = new Status((int)eResponseStatus.UserNotFollowing, "user is not following asset");
-                //    return statusResult;
-                //}
+                if (userNotificationData == null || userNotificationData.TopicNotifications == null ||
+                   userNotificationData.TopicNotifications?.Count(x => x.AnnouncementId == topicNotification.Id) == 0)
+                {
+                    log.DebugFormat("user notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
+                    status = new Status((int)eResponseStatus.UserNotFollowing, "user is not subscibe  to topic");
+                    return status;
+                }
+
+                if (!string.IsNullOrEmpty(userNotificationData.UserData.Email) &&
+                userNotificationData.Settings.EnableMail.HasValue &&
+                userNotificationData.Settings.EnableMail.Value)
+                {
+                    MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { topicNotification.MailExternalId }, userNotificationData.UserData, userId);
+                }
+
+                HandleUnsubscribeSms(groupId, userId, topicNotification.Id);
+                HandleUnsubscribePush(groupId, userId, userNotificationData, topicNotification.Id);
+
+                // remove announcement from user announcement list
+                Announcement announcement = userNotificationData.TopicNotifications.First(x => x.AnnouncementId == topicNotification.Id);
+                if (announcement != null)
+                {
+                    if (!userNotificationData.TopicNotifications.Remove(announcement) ||
+                    !DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
+                    {
+                        log.DebugFormat("an error while trying to remove topic. GID: {0}, UID: {1}, topicId: {2}", groupId, userId, topicNotification.Id);
+                        status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully removed topic from user topics object group: {0}, UID: {1}", groupId, userId);
+                        status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -485,5 +512,98 @@ namespace Core.Notification
         {
             throw new NotImplementedException();
         }
+
+        private static void HandleUnsubscribeSms(int groupId, int userId, long topicNotificationId)
+        {
+            SmsNotificationData smsNotificationData = NotificationDal.GetUserSmsNotificationData(groupId, userId);
+            if (smsNotificationData != null)
+            {
+                var subscribedTopics = smsNotificationData.SubscribedTopics.First(x => x.Id == topicNotificationId);
+                if (subscribedTopics == null)
+                {
+                    log.DebugFormat("sms notification data had no subscription to topic. group: {0}, userId: {1}", groupId, userId);
+                    return;
+                }
+
+                // unsubscribe sms 
+                List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedTopics.ExternalId
+                        }
+                    };
+
+                unsubscibeList = NotificationAdapter.UnSubscribeToAnnouncement(groupId, unsubscibeList);
+                if (unsubscibeList == null ||
+                    unsubscibeList.Count == 0 ||
+                    !unsubscibeList.First().Success
+                    || !smsNotificationData.SubscribedTopics.Remove(subscribedTopics)
+                    || !DAL.NotificationDal.SetUserSmsNotificationData(groupId, userId, smsNotificationData))
+                {
+                    log.ErrorFormat("error removing topic from sms subscribed. group: {0}, userId: {1}", groupId, userId);
+                }
+                else
+                    log.DebugFormat("Successfully unsubscribed device from topic group: {0}, userId: {1}", groupId, userId);
+            }
+        }
+
+        private static void HandleUnsubscribePush(int groupId, int userId, UserNotification userNotificationData, long topicNotificationId)
+        {
+            if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+                log.DebugFormat("User doesn't have any devices. PID: {0}, UID: {1}", groupId, userId);
+            else
+            {
+                bool docExists = false;
+                foreach (UserDevice device in userNotificationData.devices)
+                {
+                    string udid = device.Udid;
+                    if (string.IsNullOrEmpty(udid))
+                    {
+                        log.ErrorFormat("device UDID invalid: UDID: {0} PID: {1}, UID: {2}", device.Udid, groupId, userId);
+                        continue;
+                    }
+
+                    // get device data
+                    DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(groupId, udid, ref docExists);
+                    if (deviceNotificationData == null)
+                    {
+                        log.ErrorFormat("device notification data not found group: {0}, UID: {1}, UDID: {2}", groupId, userId, device.Udid);
+                        continue;
+                    }
+
+                    // get device subscription
+                    var subscribedTopics = deviceNotificationData.SubscribedTopics.First(x => x.Id == topicNotificationId);
+                    if (subscribedTopics == null)
+                    {
+                        log.ErrorFormat("device notification data had no subscription to topic. group: {0}, UID: {1}, UDID: {2}", groupId, userId, device.Udid);
+                        continue;
+                    }
+
+                    // unsubscribe device 
+                    List<UnSubscribe> unsubscibeList = new List<UnSubscribe>()
+                    {
+                        new UnSubscribe()
+                        {
+                            SubscriptionArn = subscribedTopics.ExternalId
+                        }
+                    };
+
+                    unsubscibeList = NotificationAdapter.UnSubscribeToAnnouncement(groupId, unsubscibeList);
+                    if (unsubscibeList == null ||
+                        unsubscibeList.Count == 0 ||
+                        !unsubscibeList.First().Success
+                        || !deviceNotificationData.SubscribedTopics.Remove(subscribedTopics)
+                        || !DAL.NotificationDal.SetDeviceNotificationData(groupId, udid, deviceNotificationData))
+                    {
+                        log.ErrorFormat("error removing topic from device subscribed. group: {0}, UID: {1}, UDID: {2}", groupId, userId, device.Udid);
+                        continue;
+                    }
+                    else
+                        log.DebugFormat("Successfully unsubscribed device from topic group: {0}, UID: {1}, UDID: {2}", groupId, userId, device.Udid);
+                }
+            }
+        }
+
     }
 }

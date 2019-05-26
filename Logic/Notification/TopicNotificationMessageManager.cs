@@ -169,7 +169,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                // get announcements                
+                // get topicNotificationMessages                
                 DataTable topicNotificationMessageDT = NotificationDal.GetTopicNotificationMessages(groupId, topicNotificationId);
                 if (topicNotificationMessageDT?.Rows.Count > 0)
                 {
@@ -179,26 +179,14 @@ namespace Core.Notification
                     {
                         topicNotificationMessageIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
                     }
+                    response.TotalItems = topicNotificationMessageIds.Count;
 
                     // paging
                     topicNotificationMessageIds = topicNotificationMessageIds.Skip(pageSize * pageIndex).Take(pageSize).ToList();
-                    TopicNotificationMessage topicNotificationMessage = null;
-
-                    foreach (long item in topicNotificationMessageIds)
+                    if (topicNotificationMessageIds.Count > 0)
                     {
-                        topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(item);
-                        if(topicNotificationMessage !=null)
-                        {
-                            response.Objects.Add(topicNotificationMessage);
-
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Failed to get topicNotificationMessage {0}", item);
-                        }
+                        response.Objects = NotificationDal.GetTopicNotificationMessagesCB(topicNotificationMessageIds);
                     }
-
-                    response.TotalItems = topicNotificationMessageIds.Count;
                 }
 
                 response.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
