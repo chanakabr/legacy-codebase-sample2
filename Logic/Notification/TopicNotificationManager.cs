@@ -507,10 +507,18 @@ namespace Core.Notification
                 }
             }
         }
-        
+
         internal static TopicNotification GetTopicNotificationById(long topicNotificationId)
         {
-            throw new NotImplementedException();
+            TopicNotification topicNotification = null;
+
+            var topics = NotificationDal.GetTopicsNotificationsCB(new List<long>() { topicNotificationId });
+            if (topics != null & topics.Count > 0)
+            {
+                topicNotification = topics[0];
+            }
+
+            return topicNotification;
         }
 
         private static void HandleUnsubscribeSms(int groupId, int userId, long topicNotificationId)

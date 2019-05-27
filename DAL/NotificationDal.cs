@@ -2857,6 +2857,16 @@ namespace DAL
             return UtilsDal.Execute("Get_TopicNotifications", parameters, MESSAGE_BOX_CONNECTION);
         }
 
+        public static DataTable GetTopicNotification(long id)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@id", id }
+            };
+
+            return UtilsDal.Execute("Get_TopicNotification", parameters, MESSAGE_BOX_CONNECTION);
+        }
+
         public static bool UpdateTopicNotification(long id, int groupId, string topicName, long userId)
         {
             var parameters = new Dictionary<string, object>()

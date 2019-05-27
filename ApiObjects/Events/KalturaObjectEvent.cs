@@ -27,8 +27,8 @@ namespace ApiObjects
             }
         }
 
-        public KalturaObjectEvent(string userIp, int groupId = 0, CoreObject coreObject = null, string type = null) 
-            : base(groupId, userIp)
+        public KalturaObjectEvent(int groupId = 0, CoreObject coreObject = null, string type = null) 
+            : base(groupId)
         {
             this.Object = coreObject;
             this.type = type;

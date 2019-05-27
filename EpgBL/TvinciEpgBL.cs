@@ -1018,8 +1018,8 @@ namespace EpgBL
 
                 var channelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelId.ToString() };
 
-                var endDateRange = new ESRange(false, "end_date", eRangeComp.GTE, endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
-                var startDateRange = new ESRange(false, "start_date", eRangeComp.LTE, startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+                var endDateRange = new ESRange(false, "end_date", eRangeComp.LTE, endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+                var startDateRange = new ESRange(false, "start_date", eRangeComp.GTE, startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
 
                 var filterCompositeType = new FilterCompositeType(CutWith.AND);
                 filterCompositeType.AddChild(endDateRange);
@@ -1032,6 +1032,7 @@ namespace EpgBL
 
                 query.ReturnFields.Clear();
                 query.AddReturnField("document_id");
+                query.AddReturnField("epg_id");
 
                 // get the epg document ids from elasticsearch
                 var searchQuery = query.ToString();
@@ -1041,8 +1042,18 @@ namespace EpgBL
                 JObject json = JObject.Parse(searchResult);
                 var hits = (json["hits"]["hits"] as JArray);
 
-                var documentIds = hits.Select(hit => hit["document_id"].Value<string>()).ToList();
-
+                List<string> documentIds;
+                // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
+                var isNewEpgIngest = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EPG_INGEST_V2);
+                if (isNewEpgIngest)
+                {
+                    documentIds = hits.Select(hit => ESUtils.ExtractValueFromToken<string>(hit["fields"], "document_id")).ToList();
+                }
+                else
+                {
+                    var epgIds = hits.Select(hit => ESUtils.ExtractValueFromToken<long>(hit["fields"], "epg_id")).ToList();
+                    documentIds = epgIds.Select(epgId=> GetEpgCBKey(m_nGroupID, epgId)).ToList();
+                }
                 result = GetEpgChannelProgrammeObjects(documentIds);
             }
             catch (Exception ex)

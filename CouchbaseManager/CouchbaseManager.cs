@@ -373,7 +373,7 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.ClientFailure:
                     {
                         log.Debug("CouchBase : ClientFailure detected. " +
-                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : +" +
+                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
                             "it will be reinitialized later.");
 
                         // remove bucket
