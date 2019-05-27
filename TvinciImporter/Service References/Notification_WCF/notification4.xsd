@@ -109,4 +109,11 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eEngagementType" nillable="true" type="tns:eEngagementType" />
+  <xs:simpleType name="TopicNotificationSubscriptionTriggerType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="StartDate" />
+      <xs:enumeration value="EndDate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="TopicNotificationSubscriptionTriggerType" nillable="true" type="tns:TopicNotificationSubscriptionTriggerType" />
 </xs:schema>

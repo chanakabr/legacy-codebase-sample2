@@ -482,12 +482,16 @@ namespace TvinciImporter.Notification_WCF {
         System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification> UpdateTopicNotificationAsync(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/AddTopicNotificationMessageResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationDateTrigger))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationSubscriptionTrigger))]
         ApiObjects.Notification.TopicNotificationMessage AddTopicNotificationMessage(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/AddTopicNotificationMessageResponse")]
         System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> AddTopicNotificationMessageAsync(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/UpdateTopicNotificationMessageResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationDateTrigger))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationSubscriptionTrigger))]
         ApiObjects.Notification.TopicNotificationMessage UpdateTopicNotificationMessage(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/UpdateTopicNotificationMessageResponse")]
