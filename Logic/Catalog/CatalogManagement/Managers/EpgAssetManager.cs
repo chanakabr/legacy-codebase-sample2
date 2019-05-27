@@ -728,15 +728,18 @@ namespace Core.Catalog.CatalogManagement
                 epgTagsToUpdate = new List<Tags>();
             }
 
-            List<Tags> excluded = oldTagsAsset != null && oldTagsAsset.Count > 0 ?
-                                    oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
-                                    catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
-                                    catalogGroupCache.AssetStructsMapById.ContainsKey(catalogGroupCache.ProgramAssetStructId) &&
-                                    catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.
-                                    ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
-                                    !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : null;
+            if (catalogGroupCache.ProgramAssetStructId == 0 || oldTagsAsset == null || oldTagsAsset.Count == 0)
+            {
+                return epgTagsToUpdate;
+            }
 
-            if (excluded != null && excluded.Count > 0)
+            List<Tags> excluded = oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
+                                                          catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
+                                                          catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
+                                                            .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
+                                                          !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList();
+
+            if (excluded.Count > 0)
             {
                 epgTagsToUpdate.AddRange(excluded);
             }
