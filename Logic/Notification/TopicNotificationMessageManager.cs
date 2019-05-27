@@ -96,7 +96,7 @@ namespace Core.Notification
             if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != startTime)
             {
                 log.ErrorFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}", 
-                    groupId, topicNotificationMessage.TopicNotificationId, triggerTime, startTime;
+                    groupId, topicNotificationMessage.TopicNotificationId, triggerTime, startTime);
                 return false;
             }
 
