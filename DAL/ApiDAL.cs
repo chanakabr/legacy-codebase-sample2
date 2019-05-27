@@ -5548,6 +5548,7 @@ namespace DAL
                 var adapaterId = sp.ExecuteReturnValue<int>();
                 MergeIngestProfileAdapaterSettings(groupId, adapaterId, userId, profileToAdd.Settings);
                 return adapaterId;
+
             }
             catch (Exception ex)
             {
