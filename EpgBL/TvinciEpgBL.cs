@@ -1032,6 +1032,7 @@ namespace EpgBL
 
                 query.ReturnFields.Clear();
                 query.AddReturnField("document_id");
+                query.AddReturnField("epg_id");
 
                 // get the epg document ids from elasticsearch
                 var searchQuery = query.ToString();
@@ -1041,8 +1042,20 @@ namespace EpgBL
                 JObject json = JObject.Parse(searchResult);
                 var hits = (json["hits"]["hits"] as JArray);
 
-                var documentIds = hits.Select(hit => hit["document_id"].Value<string>()).ToList();
+                List<string> documentIds;
+                var epgIds = hits.Select(hit => hit["epg_id"].Value<long>()).ToList();
 
+                
+                // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
+                var isNewEpgIngest = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EPG_INGEST_V2);
+                if (isNewEpgIngest)
+                {
+                    documentIds = hits.Select(hit => hit["document_id"].Value<string>()).ToList();
+                }
+                else
+                {
+                    documentIds = epgIds.Select(epgId=> GetEpgCBKey(m_nGroupID, epgId)).ToList();
+                }
                 result = GetEpgChannelProgrammeObjects(documentIds);
             }
             catch (Exception ex)
