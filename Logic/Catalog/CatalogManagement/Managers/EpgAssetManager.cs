@@ -751,7 +751,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 return epgTagsToUpdate;
             }
-
+            
             List<Tags> excluded = oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
                                                           catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
                                                           catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
