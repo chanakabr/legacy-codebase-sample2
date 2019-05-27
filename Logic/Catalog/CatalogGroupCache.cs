@@ -74,12 +74,8 @@ namespace Core.Catalog
             get
             {
                 if (programAssetStructId == 0)
-                { 
-                    var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
-                    if (programAssetStruct != null)
-                    {
-                        programAssetStructId = programAssetStruct.Id;
-                    }
+                {
+                    SetProgramAssetStructId();
                 }
 
                 return programAssetStructId;
@@ -113,14 +109,10 @@ namespace Core.Catalog
             {
                 foreach (LanguageObj langauge in languages)
                 {
-                    if (!LanguageMapByCode.ContainsKey(langauge.Code))
+                    if (!LanguageMapByCode.ContainsKey(langauge.Code) && !LanguageMapById.ContainsKey(langauge.ID))
                     {
                         LanguageMapByCode.Add(langauge.Code, langauge);
-
-                        if (!LanguageMapById.ContainsKey(langauge.ID))
-                        {
-                            LanguageMapById.Add(langauge.ID, langauge);
-                        }
+                        LanguageMapById.Add(langauge.ID, langauge);
                     }
                 }
             }
@@ -131,14 +123,10 @@ namespace Core.Catalog
             {
                 foreach (AssetStruct assetStruct in assetStructs)
                 {
-                    if (!AssetStructsMapBySystemName.ContainsKey(assetStruct.SystemName))
+                    if (!AssetStructsMapBySystemName.ContainsKey(assetStruct.SystemName) && !AssetStructsMapById.ContainsKey(assetStruct.Id))
                     {
                         AssetStructsMapBySystemName.Add(assetStruct.SystemName, assetStruct);
-
-                        if (!AssetStructsMapById.ContainsKey(assetStruct.Id))
-                        {
-                            AssetStructsMapById.Add(assetStruct.Id, assetStruct);
-                        }
+                        AssetStructsMapById.Add(assetStruct.Id, assetStruct);
                     }
                 }
             }
@@ -149,30 +137,21 @@ namespace Core.Catalog
             {
                 foreach (Topic topic in topics)
                 {
-                    if (!TopicsMapById.ContainsKey(topic.Id))
-                    {
-                        TopicsMapById.Add(topic.Id, topic);
-                    }
-
                     if (!TopicsMapBySystemNameAndByType.ContainsKey(topic.SystemName))
                     {
                         TopicsMapBySystemNameAndByType.Add(topic.SystemName, new Dictionary<string, Topic>((StringComparer.OrdinalIgnoreCase)));
                     }
 
-                    if (!TopicsMapBySystemNameAndByType[topic.SystemName].ContainsKey(topic.Type.ToString()))
+                    if (!TopicsMapById.ContainsKey(topic.Id) && !TopicsMapBySystemNameAndByType[topic.SystemName].ContainsKey(topic.Type.ToString()))
                     {
+                        TopicsMapById.Add(topic.Id, topic);
                         TopicsMapBySystemNameAndByType[topic.SystemName].Add(topic.Type.ToString(), topic);
                     }
                 }
             }
 
             SetCatalogGroupCacheDefaults(groupId, this);
-
-            var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
-            if (programAssetStruct != null)
-            {
-                programAssetStructId = programAssetStruct.Id;
-            }
+            SetProgramAssetStructId();
         }
 
         public bool IsValid()
@@ -198,6 +177,29 @@ namespace Core.Catalog
             catalogGroupCache.SearchRecommendationEngineEnrichments = searchRecommendationEngineEnrichments;
             catalogGroupCache.IsGeoAvailabilityWindowingEnabled = isGeoAvailabilityEnabled;
             catalogGroupCache.IsAssetUserRuleEnabled = isAssetUserRuleEnabled;
+        }
+
+        private void SetProgramAssetStructId()
+        {
+            var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+            if (programAssetStruct != null)
+            {
+                programAssetStructId = programAssetStruct.Id;
+            }
+        }
+
+        public long GetRealAssetStructId(long assetStructId, out bool isProgramAssetStruct)
+        {
+            var realAssetStructId = assetStructId;
+            isProgramAssetStruct = false;
+
+            if (ProgramAssetStructId != 0 && (assetStructId == 0 || assetStructId == ProgramAssetStructId))
+            {
+                realAssetStructId = ProgramAssetStructId;
+                isProgramAssetStruct = true;
+            }
+
+            return realAssetStructId;
         }
     }
 }
