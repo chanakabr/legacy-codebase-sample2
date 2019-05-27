@@ -186,5 +186,22 @@ namespace WS_Notification
         [OperationContract]
         ApiObjects.Response.Status SetMailNotificationsAdapterConfiguration(string wsUserName, string wsSPassword, int adapterId);
 
+        [OperationContract]
+        List<TopicNotification> GetGroupTopicNotifications(int groupId, bool onlyType);
+
+        [OperationContract]
+        TopicNotification AddTopicNotification(int groupId, TopicNotification topicNotification, long userId);
+
+        [OperationContract]
+        TopicNotification UpdateTopicNotification(int groupId, TopicNotification topicNotification, long userId);
+
+        [OperationContract]
+        TopicNotificationMessage AddTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessage, long userId);
+
+        [OperationContract]
+        TopicNotificationMessage UpdateTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessage, long userId);
+
+        [OperationContract]
+        List<TopicNotificationMessage> GetTopicNotificationMessages(int groupId, long topicNotificationId, int pageSize, int pageIndex);
     }
 }
