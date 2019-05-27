@@ -1,17 +1,14 @@
-﻿using Newtonsoft.Json;
-using System;
-
+﻿using System.Runtime.Serialization;
 namespace ApiObjects.Notification
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
+    [KnownType(typeof(SubscriptionSubscribeReference))]
     public abstract class SubscribeReference
     {
-        [JsonProperty("Type")]
+        [DataMember]
         public SubscribeReferenceType Type { get; protected set; }
 
         public abstract string GetSubscribtionReferenceId();
-
     }
 
     public enum SubscribeReferenceType

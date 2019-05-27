@@ -24,6 +24,7 @@ namespace Core.Notification
 
             try
             {
+                topicNotification.GroupId = groupId;
                 string topicName = topicNotification.Name;
 
                 // create Amazon topic 
@@ -203,7 +204,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static GenericListResponse<TopicNotification> List(int groupId, SubscribeReference subscribeReference)
+        public static GenericListResponse<TopicNotification> List(int groupId, SubscribeReference subscribeReference, bool onlyType = false)
         {
             //TODO ANAT
             GenericListResponse<TopicNotification> response = new GenericListResponse<TopicNotification>();
@@ -212,8 +213,17 @@ namespace Core.Notification
             List<TopicNotification> topics = null;
             if (NotificationCache.TryGetTopicNotifications(groupId, subscribeReference, ref topics))
             {
-                //2. filter by SubscribeReference (SubId) to new Object !!!
-                response.Objects.Add(topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId()));
+                if (onlyType)
+                {
+                    response.Objects = topics;
+                }
+                else
+                {
+                    //2. filter by SubscribeReference (SubId) to new Object !!!
+                    response.Objects.Add(topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId()));
+                }
+
+                response.SetStatus(eResponseStatus.OK);
             }
 
             return response;
