@@ -711,25 +711,22 @@ namespace Core.Catalog.CatalogManagement
                 epgMetasToUpdate = new List<Metas>();
             }
 
-            var programAssetStruct = catalogGroupCache.ProgramAssetStruct;
-            if (programAssetStruct == null)
+            if (catalogGroupCache.ProgramAssetStructId == 0 || oldMetasAsset == null || oldMetasAsset.Count == 0)
             {
                 return epgMetasToUpdate;
             }
 
-            List<Metas> excluded =
-                oldMetasAsset != null && oldMetasAsset.Count > 0 ?
-                    oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
-                                             catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
-                                             programAssetStruct.AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
-                                             !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList() : null;
-
-
-            if (excluded != null && excluded.Count > 0)
+            List<Metas> excluded = oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
+                                                            catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
+                                                            catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
+                                                                .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
+                                                            !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList();
+            
+            if (excluded.Count > 0)
             {
                 // get all program asset struct topic systemNames and types mapping
                 Dictionary<string, string> programStructTopicSystemNamesToType =
-                    catalogGroupCache.TopicsMapById.Where(x => programAssetStruct.AssetStructMetas.ContainsKey(x.Key))
+                    catalogGroupCache.TopicsMapById.Where(x => catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(x.Key))
                                                    .ToDictionary(x => x.Value.SystemName, x => x.Value.Type.ToString());
                 // set Metas original m_sType
                 foreach (Metas meta in excluded)
@@ -749,21 +746,19 @@ namespace Core.Catalog.CatalogManagement
             {
                 epgTagsToUpdate = new List<Tags>();
             }
-
-            var programAssetStruct = catalogGroupCache.ProgramAssetStruct;
-            if (programAssetStruct == null)
+            
+            if (catalogGroupCache.ProgramAssetStructId == 0 || oldTagsAsset == null || oldTagsAsset.Count == 0)
             {
                 return epgTagsToUpdate;
             }
 
-            List<Tags> excluded =
-                oldTagsAsset != null && oldTagsAsset.Count > 0 ?
-                    oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
-                                            catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
-                                            programAssetStruct.AssetStructMetas.ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
-                                            !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList() : null;
+            List<Tags> excluded = oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
+                                                          catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
+                                                          catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
+                                                            .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
+                                                          !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList();
 
-            if (excluded != null && excluded.Count > 0)
+            if (excluded.Count > 0)
             {
                 epgTagsToUpdate.AddRange(excluded);
             }
@@ -834,13 +829,13 @@ namespace Core.Catalog.CatalogManagement
             Status status = null;
             epgMetas = null;
             epgTagsIds = null;
-
-            var programAssetStruct = catalogGroupCache.ProgramAssetStruct;
-            if (programAssetStruct == null)
+            
+            if (catalogGroupCache.ProgramAssetStructId == 0)
             {
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
             }
 
+            AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId];
             string mainCode = catalogGroupCache.DefaultLanguage.Code;
 
             if (epgAsset.Metas != null && epgAsset.Metas.Count > 0)

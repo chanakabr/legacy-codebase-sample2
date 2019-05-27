@@ -1318,22 +1318,33 @@ namespace Core.Catalog.CatalogManagement
 
                 if (ids != null && ids.Count > 0)
                 {
-                    response.Objects = ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => catalogGroupCache.AssetStructsMapById[x]).ToList();
-                    if (ids.Contains(0) && catalogGroupCache.ProgramAssetStruct != null)
-                    {
-                        var programAssetStruct = catalogGroupCache.ProgramAssetStruct;
-                        programAssetStruct.Id = 0;
-                        response.Objects.Add(programAssetStruct);
-                    }
+                    response.Objects.AddRange(ids.Where(x => catalogGroupCache.AssetStructsMapById.ContainsKey(x)).Select(x => new AssetStruct(catalogGroupCache.AssetStructsMapById[x])));
                 }
                 else
                 {
-                    response.Objects = catalogGroupCache.AssetStructsMapById.Values.ToList();
-                    int programAssetStructIndex = response.Objects.FindIndex(x => x.IsProgramAssetStruct);
-                    if (programAssetStructIndex > -1)
+                    response.Objects.AddRange(catalogGroupCache.AssetStructsMapById.Values.Select(x => new AssetStruct(x)));
+                }
+
+                var programAssetStructIndex = -1;
+                // if need to add ProgramAssetStruct
+                if (ids == null || ids.Count == 0 || ids.Contains(0))
+                {
+                    programAssetStructIndex = response.Objects.FindIndex(x => x.IsProgramAssetStruct);
+                    if (programAssetStructIndex == -1)
                     {
-                        response.Objects[programAssetStructIndex].Id = 0;
+                        bool isProgramStruct;
+                        var programAssetStructId = catalogGroupCache.GetRealAssetStructId(0, out isProgramStruct);
+                        if (isProgramStruct)
+                        {
+                            response.Objects.Add(new AssetStruct(catalogGroupCache.AssetStructsMapById[programAssetStructId]));
+                            programAssetStructIndex = response.Objects.Count - 1;
+                        }
                     }
+                }
+
+                if (programAssetStructIndex > -1)
+                {
+                    response.Objects[programAssetStructIndex].Id = 0;
                 }
 
                 if (isProtected.HasValue)
@@ -1365,7 +1376,7 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
 
-                    response.Objects = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).ToList();
+                    response.Objects.AddRange(catalogGroupCache.AssetStructsMapById.Values.Where(x => x.MetaIds.Contains(topicId)).Select(x => new AssetStruct(x)));
 
                     int programAssetStructIndex = response.Objects.FindIndex(x => x.IsProgramAssetStruct);
                     if (programAssetStructIndex > -1)
@@ -1539,10 +1550,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     assetStruct = new AssetStruct(catalogGroupCache.AssetStructsMapById[id]);
-                    if (assetStruct.IsPredefined.HasValue &&
-                        assetStruct.IsPredefined.Value &&
-                        assetStructToUpdate.SystemName != null &&
-                        assetStruct.SystemName != assetStructToUpdate.SystemName)
+                    if (assetStruct.IsPredefined.HasValue && assetStruct.IsPredefined.Value &&
+                        assetStructToUpdate.SystemName != null && assetStruct.SystemName != assetStructToUpdate.SystemName)
                     {
                         result.SetStatus(eResponseStatus.CanNotChangePredefinedAssetStructSystemName, eResponseStatus.CanNotChangePredefinedAssetStructSystemName.ToString());
                         return result;
@@ -1810,7 +1819,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
+                bool isProgramStruct;
+                assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out isProgramStruct);
 
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
@@ -1818,7 +1828,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
-                    response.Object = catalogGroupCache.AssetStructsMapById[assetStructId];
+                    response.Object = new AssetStruct(catalogGroupCache.AssetStructsMapById[assetStructId]);
                     response.SetStatus(eResponseStatus.OK);
                 }
 
