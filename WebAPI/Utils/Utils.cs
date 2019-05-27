@@ -76,7 +76,10 @@ namespace WebAPI.Utils
                 }
             }
 
-            return ip.Trim();
+            var clientIp = ip.Trim();
+            HttpContext.Current.Items.Add(RequestParser.USER_IP, clientIp);
+            
+            return clientIp;
         }
 
         public static string Generate32LengthGuid()
