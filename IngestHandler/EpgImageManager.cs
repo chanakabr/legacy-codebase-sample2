@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
+using ApiObjects.Epg;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
@@ -15,12 +16,14 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
@@ -74,7 +77,98 @@ namespace IngestHandler
             return nRet;
         }
 
-        // DO NOT DELETE
+
+        // TODO: Arthur - Implement download pic for multiple pictures
+        public static async Task<IEnumerable<GenericResponse<EpgPicture>>> UploadEPGPictures(int groupID, IEnumerable<EpgPicture> pics)
+        {
+            var results = pics.Select(p => new GenericResponse<EpgPicture>(Status.Ok, p));
+            if (results.Any(p => string.IsNullOrEmpty(p.Object.Url)))
+            {
+                var picsResultsWIthoutUrl = results.Where(p => string.IsNullOrEmpty(p.Object.Url));
+                log.Error($"Some picture were sent withour Url. pics:[{string.Join(",", picsResultsWIthoutUrl.Select(r => r.Object))}], setting their Id to 0");
+                foreach (var picResult in picsResultsWIthoutUrl)
+                {
+                    picResult.SetStatus(eResponseStatus.ImageUrlRequired);
+                }
+            }
+
+            var validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
+
+            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            {
+                var originalMaxConcurrentConnections = ServicePointManager.DefaultConnectionLimit;
+                ServicePointManager.DefaultConnectionLimit = 10; // TODO: Arthur - Take from TCM ? 
+                var imageServerRequests = validPicturesToUpload.Select(pic =>
+                {
+                    var msg = new HttpRequestMessage(HttpMethod.Head, pic.Object.Url);
+                    var request = _HttpClient.SendAsync(msg);
+                    request.ContinueWith(async requestTask =>
+                    {
+                        var response = await requestTask;
+                        log.Debug($"Img validation status:[{response.StatusCode}] url HEAD url:[{pic.Object.Url}]");
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            pic.SetStatus(eResponseStatus.InvalidUrlForImage);
+                            log.Error($"UploadEPGPictures Uri HEAD check failed with code:[{response.StatusCode}], pic:[{pic}]");
+                        }
+                    });
+                    return request;
+                });
+
+                await Task.WhenAll(imageServerRequests);
+                ServicePointManager.DefaultConnectionLimit = originalMaxConcurrentConnections;
+            }
+
+            validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
+            foreach (var pic in validPicturesToUpload)
+            {
+                if (pic.Object.RatioId <= 0) { pic.Object.RatioId = ImageUtils.GetGroupDefaultEpgRatio(groupID); }
+
+                var picName = getPictureFileName(pic.Object.Url);
+                picName = string.Format("{0}_{1}_{2}", pic.Object.ChannelId, pic.Object.RatioId, picName);
+                pic.Object.PicName = picName;
+            }
+
+            var existingPicsDict = GetExistingPicIds(groupID, validPicturesToUpload);
+
+            foreach (var existingPic in existingPicsDict)
+            {
+                var existingPics = validPicturesToUpload.Where(p => p.Object.PicName == existingPic.Key);
+                foreach (var pic in existingPics)
+                {
+                    pic.Object.PicID = existingPic.Value;
+                }
+            }
+
+            var picsToInsert = validPicturesToUpload.Where(p => p.Object.PicID <= 0);
+
+            foreach (var picResult in picsToInsert)
+            {
+                var pic = picResult.Object;
+                var picId = CatalogDAL.InsertEPGPic(groupID, pic.ProgramName, pic.PicName, pic.BaseUrl, pic.ImageTypeId);
+                pic.PicID = picId;
+                SendImageDataToImageUploadQueue(pic.Url, groupID, pic.Version, pic.PicID, pic.BaseUrl, eMediaType.EPG);
+
+            }
+
+            return results;
+        }
+
+        private static Dictionary<string, int> GetExistingPicIds(int groupID, IEnumerable<GenericResponse<EpgPicture>> validPicturesToUpload)
+        {
+            var picNames = validPicturesToUpload.Select(p => p.Object.PicName).ToList();
+            var existingPicsTbl = CatalogDAL.GetEpgPicturesByName(groupID, picNames);
+            var existingPicsDict = new Dictionary<string, int>();
+            foreach (DataRow row in existingPicsTbl.Rows)
+            {
+                var picName = ODBCWrapper.Utils.GetSafeStr(row, "DESCRIPTION");
+                var picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                existingPicsDict[picName] = picId;
+            }
+
+            return existingPicsDict;
+        }
+
         public static int DownloadEPGPic(string sThumb, string sName, int nGroupID, int nEPGSchedID, int nChannelID, long ratioID = 0, long imageTypeId = 0)
         {
             int picId = 0;

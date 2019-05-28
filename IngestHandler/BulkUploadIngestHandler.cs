@@ -83,7 +83,6 @@ namespace IngestHandler
         {
             try
             {
-
                 _Logger.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
                 _EpgBL = new TvinciEpgBL(serviceEvent.GroupId);
                 _EventData = serviceEvent;
@@ -101,8 +100,9 @@ namespace IngestHandler
 
                 _Results = GetProgramAssetResults();
                 AddEpgCBObjects(_Results);
-                var programsToIngest = _Results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
 
+                var programsToIngest = _Results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
+                await UploadEpgImages(programsToIngest);
                 var minStartDate = programsToIngest.Min(p => p.StartDate);
                 var maxEndDate = programsToIngest.Max(p => p.EndDate);
                 var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
@@ -120,6 +120,7 @@ namespace IngestHandler
                 UpdateClonedIndex(finalEpgState, crudOperations.ItemsToDelete);
 
                 var indexIsValid = ValidateClonedIndex(finalEpgState);
+                _Logger.Debug($"Index validation done with result:[{indexIsValid}]");
 
                 if (indexIsValid)
                 {
@@ -135,8 +136,8 @@ namespace IngestHandler
                         UpdateClonedIndex(edgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
                     }
 
-                    InvalidateEpgAssets(finalEpgState.Concat(edgeProgramsToUpdate));
 
+                    InvalidateEpgAssets(finalEpgState.Concat(edgeProgramsToUpdate));
                 }
                 else
                 {
@@ -164,15 +165,24 @@ namespace IngestHandler
             return;
         }
 
+        private async Task UploadEpgImages(List<EpgProgramBulkUploadObject> programsToIngest)
+        {
+            var pics = programsToIngest.SelectMany(p => p.EpgCbObjects).SelectMany(p => p.pictures);
+            var results = await EpgImageManager.UploadEPGPictures(_EventData.GroupId, pics);
+        }
+
         public static void InvalidateEpgAssets(IEnumerable<EpgProgramBulkUploadObject> programs)
         {
             foreach (var prog in programs)
             {
                 string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetType.PROGRAM.ToString(), (long)prog.EpgId);
+
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     _Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", prog.EpgId, eAssetType.PROGRAM.ToString(), invalidationKey);
                 }
+
+                _Logger.Debug($"SetInvalidationKey done with result:[{invalidationKey}]");
             }
         }
 
@@ -250,7 +260,7 @@ namespace IngestHandler
             epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem);
             epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem);
 
-            UploadEpgItemImages(parsedProg.icon, epgItem, bulkUploadResultItem);
+            PrepareEpgItemImages(parsedProg.icon, epgItem, bulkUploadResultItem);
 
             return epgItem;
         }
@@ -290,14 +300,15 @@ namespace IngestHandler
             }
         }
 
-        private void UploadEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
+        private void PrepareEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
         {
+            epgItem.pictures = epgItem.pictures ?? new List<EpgPicture>();
             var result = new List<EpgPicture>();
             foreach (var icon in icons)
             {
                 var epgPicture = new EpgPicture();
                 var imgUrl = icon.src;
-                long ratio = 0;
+                long ratioId = 0;
                 long imageTypeId = 0;
 
 
@@ -306,34 +317,45 @@ namespace IngestHandler
                     if (_GroupRatioNamesToImageTypes.TryGetValue(icon.ratio, out var imgType))
                     {
                         imageTypeId = imgType.Id;
-                        ratio = imgType.RatioId.Value;
+                        ratioId = imgType.RatioId.Value;
                     }
 
                 }
                 else
                 {
-                    ratio = long.Parse(_NonOpcGroupRatios.FirstOrDefault(r => r.Value == icon.ratio).Key);
+                    ratioId = long.Parse(_NonOpcGroupRatios.FirstOrDefault(r => r.Value == icon.ratio).Key);
                 }
 
-                if (!string.IsNullOrEmpty(imgUrl))
-                {
-                    int picId = EpgImageManager.DownloadEPGPic(imgUrl, epgItem.Name, epgItem.GroupID, 0, epgItem.ChannelID, ratio, imageTypeId);
-                    if (picId != 0)
-                    {
-                        var baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", picId);
-                        if (baseURl != null && baseURl != DBNull.Value)
-                        {
-                            epgPicture.Url = baseURl.ToString();
-                            epgPicture.PicID = picId;
-                            epgPicture.Ratio = icon.ratio;
-                            epgPicture.ImageTypeId = imageTypeId;
-                        }
-                    }
-                    else
-                    {
-                        bulkUploadResultItem.AddWarning((int)IngestWarnings.FailedDownloadPic, "Failed to download Epg picture");
-                    }
-                }
+
+                epgPicture.Url = imgUrl;
+                epgPicture.PicID = -1;
+                epgPicture.Ratio = icon.ratio;
+                epgPicture.RatioId = (int)ratioId;
+                epgPicture.ImageTypeId = imageTypeId;
+                epgPicture.ProgramName = epgItem.Name;
+                epgPicture.ChannelId = epgItem.ChannelID;
+                epgItem.pictures.Add(epgPicture);
+
+                //if (!string.IsNullOrEmpty(imgUrl))
+                //{
+                //    int picId = EpgImageManager.DownloadEPGPic(imgUrl, epgItem.Name, epgItem.GroupID, 0, epgItem.ChannelID, ratioId, imageTypeId);
+                //    if (picId != 0)
+                //    {
+                //        var baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", picId);
+                //        if (baseURl != null && baseURl != DBNull.Value)
+                //        {
+                //            epgPicture.Url = baseURl.ToString();
+                //            epgPicture.PicID = picId;
+                //            epgPicture.Ratio = icon.ratio;
+                //            epgPicture.ImageTypeId = imageTypeId;
+                //            epgItem.pictures.Add(epgPicture);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        bulkUploadResultItem.AddWarning((int)IngestWarnings.FailedDownloadPic, "Failed to download Epg picture");
+                //    }
+                //}
             }
 
 
