@@ -228,6 +228,11 @@ namespace Core.Notification
 
                 response.SetStatus(eResponseStatus.OK);
             }
+            else
+            {
+                response.Objects = new List<TopicNotification>();
+                response.SetStatus(eResponseStatus.OK);
+            }
 
             return response;
         }
