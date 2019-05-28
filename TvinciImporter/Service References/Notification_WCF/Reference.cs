@@ -460,6 +460,48 @@ namespace TvinciImporter.Notification_WCF {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetMailNotificationsAdapterConfiguration", ReplyAction="http://tempuri.org/INotificationService/SetMailNotificationsAdapterConfigurationR" +
             "esponse")]
         System.Threading.Tasks.Task<ApiObjects.Response.Status> SetMailNotificationsAdapterConfigurationAsync(string wsUserName, string wsSPassword, int adapterId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetGroupTopicNotifications", ReplyAction="http://tempuri.org/INotificationService/GetGroupTopicNotificationsResponse")]
+        ApiObjects.Notification.TopicNotification[] GetGroupTopicNotifications(int groupId, bool onlyType);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetGroupTopicNotifications", ReplyAction="http://tempuri.org/INotificationService/GetGroupTopicNotificationsResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification[]> GetGroupTopicNotificationsAsync(int groupId, bool onlyType);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddTopicNotification", ReplyAction="http://tempuri.org/INotificationService/AddTopicNotificationResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.SubscriptionSubscribeReference))]
+        ApiObjects.Notification.TopicNotification AddTopicNotification(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddTopicNotification", ReplyAction="http://tempuri.org/INotificationService/AddTopicNotificationResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification> AddTopicNotificationAsync(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateTopicNotification", ReplyAction="http://tempuri.org/INotificationService/UpdateTopicNotificationResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.SubscriptionSubscribeReference))]
+        ApiObjects.Notification.TopicNotification UpdateTopicNotification(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateTopicNotification", ReplyAction="http://tempuri.org/INotificationService/UpdateTopicNotificationResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification> UpdateTopicNotificationAsync(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/AddTopicNotificationMessageResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationDateTrigger))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationSubscriptionTrigger))]
+        ApiObjects.Notification.TopicNotificationMessage AddTopicNotificationMessage(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/AddTopicNotificationMessageResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> AddTopicNotificationMessageAsync(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/UpdateTopicNotificationMessageResponse")]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationDateTrigger))]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Notification.TopicNotificationSubscriptionTrigger))]
+        ApiObjects.Notification.TopicNotificationMessage UpdateTopicNotificationMessage(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/UpdateTopicNotificationMessageResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> UpdateTopicNotificationMessageAsync(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetTopicNotificationMessages", ReplyAction="http://tempuri.org/INotificationService/GetTopicNotificationMessagesResponse")]
+        ApiObjects.Notification.TopicNotificationMessage[] GetTopicNotificationMessages(int groupId, long topicNotificationId, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetTopicNotificationMessages", ReplyAction="http://tempuri.org/INotificationService/GetTopicNotificationMessagesResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage[]> GetTopicNotificationMessagesAsync(int groupId, long topicNotificationId, int pageSize, int pageIndex);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -935,6 +977,54 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Threading.Tasks.Task<ApiObjects.Response.Status> SetMailNotificationsAdapterConfigurationAsync(string wsUserName, string wsSPassword, int adapterId) {
             return base.Channel.SetMailNotificationsAdapterConfigurationAsync(wsUserName, wsSPassword, adapterId);
+        }
+        
+        public ApiObjects.Notification.TopicNotification[] GetGroupTopicNotifications(int groupId, bool onlyType) {
+            return base.Channel.GetGroupTopicNotifications(groupId, onlyType);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification[]> GetGroupTopicNotificationsAsync(int groupId, bool onlyType) {
+            return base.Channel.GetGroupTopicNotificationsAsync(groupId, onlyType);
+        }
+        
+        public ApiObjects.Notification.TopicNotification AddTopicNotification(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId) {
+            return base.Channel.AddTopicNotification(groupId, topicNotification, userId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification> AddTopicNotificationAsync(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId) {
+            return base.Channel.AddTopicNotificationAsync(groupId, topicNotification, userId);
+        }
+        
+        public ApiObjects.Notification.TopicNotification UpdateTopicNotification(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId) {
+            return base.Channel.UpdateTopicNotification(groupId, topicNotification, userId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotification> UpdateTopicNotificationAsync(int groupId, ApiObjects.Notification.TopicNotification topicNotification, long userId) {
+            return base.Channel.UpdateTopicNotificationAsync(groupId, topicNotification, userId);
+        }
+        
+        public ApiObjects.Notification.TopicNotificationMessage AddTopicNotificationMessage(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId) {
+            return base.Channel.AddTopicNotificationMessage(groupId, topicNotificationMessage, userId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> AddTopicNotificationMessageAsync(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId) {
+            return base.Channel.AddTopicNotificationMessageAsync(groupId, topicNotificationMessage, userId);
+        }
+        
+        public ApiObjects.Notification.TopicNotificationMessage UpdateTopicNotificationMessage(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId) {
+            return base.Channel.UpdateTopicNotificationMessage(groupId, topicNotificationMessage, userId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> UpdateTopicNotificationMessageAsync(int groupId, ApiObjects.Notification.TopicNotificationMessage topicNotificationMessage, long userId) {
+            return base.Channel.UpdateTopicNotificationMessageAsync(groupId, topicNotificationMessage, userId);
+        }
+        
+        public ApiObjects.Notification.TopicNotificationMessage[] GetTopicNotificationMessages(int groupId, long topicNotificationId, int pageSize, int pageIndex) {
+            return base.Channel.GetTopicNotificationMessages(groupId, topicNotificationId, pageSize, pageIndex);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage[]> GetTopicNotificationMessagesAsync(int groupId, long topicNotificationId, int pageSize, int pageIndex) {
+            return base.Channel.GetTopicNotificationMessagesAsync(groupId, topicNotificationId, pageSize, pageIndex);
         }
     }
 }

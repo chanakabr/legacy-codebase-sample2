@@ -1,13 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System.Runtime.Serialization;
 
 namespace ApiObjects.Notification
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
     public class SubscriptionSubscribeReference : SubscribeReference
     {
-        [JsonProperty("SubscriptionId")]
+        [DataMember]
         public long SubscriptionId { get; set; }
 
         public SubscriptionSubscribeReference()

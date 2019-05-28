@@ -1292,12 +1292,12 @@ namespace Core.Notification
             return result;
         }
 
-        public static GenericListResponse<TopicNotification> GetTopicNotifications(int groupId, SubscribeReference subscribeReference)
+        public static GenericListResponse<TopicNotification> GetTopicNotifications(int groupId, SubscribeReference subscribeReference, bool onlyType = false)
         {
             GenericListResponse<TopicNotification> result = new GenericListResponse<TopicNotification>();
             try
             {
-                result = TopicNotificationManager.List(groupId, subscribeReference);
+                result = TopicNotificationManager.List(groupId, subscribeReference, onlyType);
             }
             catch (Exception ex)
             {
