@@ -1247,5 +1247,144 @@ namespace WS_Notification
 
             return response;
         }
+
+        public List<TopicNotification> GetGroupTopicNotifications(int groupId, bool onlyType)
+        {
+            List<TopicNotification> response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {
+                    SubscriptionSubscribeReference subscribeReference = new SubscriptionSubscribeReference();
+                    var res = Core.Notification.Module.GetTopicNotifications(groupId, subscribeReference, true);
+                    if (res.HasObjects())
+                    {
+                        response = res.Objects;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        public TopicNotification AddTopicNotification(int groupId, TopicNotification topicNotification, long userId)
+        {
+            TopicNotification response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {                    
+                    var res = Core.Notification.Module.AddTopicNotification(groupId, topicNotification, userId);
+                    if (res.Object != null)
+                    {
+                        response = res.Object;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        public TopicNotification UpdateTopicNotification(int groupId, TopicNotification topicNotification, long userId)
+        {
+            TopicNotification response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {
+                    var res = Core.Notification.Module.UpdateTopicNotification(groupId, topicNotification, userId);
+                    if (res.Object != null)
+                    {
+                        response = res.Object;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        public TopicNotificationMessage AddTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessage, long userId)
+        {
+            TopicNotificationMessage response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {
+                    var res = Core.Notification.Module.AddTopicNotificationMessage(groupId, topicNotificationMessage, userId);
+                    if (res.Object != null)
+                    {
+                        response = res.Object;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        public TopicNotificationMessage UpdateTopicNotificationMessage(int groupId, TopicNotificationMessage topicNotificationMessage, long userId)
+        {
+            TopicNotificationMessage response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {
+                    var res = Core.Notification.Module.UpdateTopicNotificationMessage(groupId, topicNotificationMessage, userId);
+                    if (res.Object != null)
+                    {
+                        response = res.Object;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        public List<TopicNotificationMessage> GetTopicNotificationMessages(int groupId, long topicNotificationId, int pageSize, int pageIndex)
+        {
+            List<TopicNotificationMessage> response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {
+                    var res = Core.Notification.Module.GetTopicNotificationMessages(groupId, topicNotificationId, pageSize, pageIndex);
+                    if (res.HasObjects())
+                    {
+                        response = res.Objects;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
     }
 }
