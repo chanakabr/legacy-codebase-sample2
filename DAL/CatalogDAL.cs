@@ -3928,6 +3928,16 @@ namespace Tvinci.Core.DAL
             return picId;
         }
 
+        public static DataTable GetEpgPicturesByName(int groupID, List<string> picNames)
+        {
+            var sp = new StoredProcedure("Get_EPGPicturesByNames");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddIDListParameter("@PicNames", picNames, "STR");
+            var resp = sp.ExecuteDataSet();
+            return resp.Tables[0];
+        }
+
         public static int InsertPic(int groupId, string name, string description, string baseUrl, int ratioId, int assetId, eAssetImageType assetImageType)
         {
             int picId = 0;
@@ -4600,7 +4610,7 @@ namespace Tvinci.Core.DAL
 
             return sp.ExecuteReturnValue<int>() == 1;
         }
-        
+
         public static DataSet GetAssetStructsByGroupId(int groupId)
         {
             StoredProcedure sp = new StoredProcedure("GetAssetStructsByGroupId");
