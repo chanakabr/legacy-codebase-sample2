@@ -188,7 +188,7 @@ namespace WS_Notification
 
         [OperationContract]
         List<TopicNotification> GetGroupTopicNotifications(int groupId, bool onlyType);
-
+        
         [OperationContract]
         TopicNotification AddTopicNotification(int groupId, TopicNotification topicNotification, long userId);
 
@@ -203,5 +203,8 @@ namespace WS_Notification
 
         [OperationContract]
         List<TopicNotificationMessage> GetTopicNotificationMessages(int groupId, long topicNotificationId, int pageSize, int pageIndex);
+
+        [OperationContract]
+        TopicNotification GetTopicNotification(int groupId, long topicNotificationId);
     }
 }

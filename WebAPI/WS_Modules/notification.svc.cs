@@ -1386,5 +1386,29 @@ namespace WS_Notification
 
             return response;
         }
+
+        public TopicNotification GetTopicNotification(int groupId, long topicNotificationId)
+        {
+            TopicNotification response = null;
+
+            try
+            {
+                if (groupId != 0)
+                {
+                    var res = Core.Notification.Module.GetTopicNotification(topicNotificationId);
+                    if (res.Object != null)
+                    {
+                        response = res.Object;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
     }
 }
