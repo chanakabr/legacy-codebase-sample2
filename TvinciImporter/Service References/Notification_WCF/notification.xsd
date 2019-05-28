@@ -1056,4 +1056,19 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetTopicNotification">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="topicNotificationId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotificationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q86="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetTopicNotificationResult" nillable="true" type="q86:TopicNotification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

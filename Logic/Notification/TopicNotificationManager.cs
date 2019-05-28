@@ -125,6 +125,9 @@ namespace Core.Notification
                         log.ErrorFormat("Error while saving topicNotification. groupId: {0}, topicNotificationId:{1}", topicNotification.GroupId, topicNotification.Id);
                     }
 
+                    response.Object = currentTopicNotification;
+                    response.SetStatus(eResponseStatus.OK);
+
                     string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
@@ -518,17 +521,18 @@ namespace Core.Notification
             }
         }
 
-        internal static TopicNotification GetTopicNotificationById(long topicNotificationId)
+        public static GenericResponse<TopicNotification> GetTopicNotificationById(long topicNotificationId)
         {
-            TopicNotification topicNotification = null;
+            GenericResponse<TopicNotification> response = new GenericResponse<TopicNotification>();
 
             var topics = NotificationDal.GetTopicsNotificationsCB(new List<long>() { topicNotificationId });
-            if (topics != null & topics.Count > 0)
+            if (topics?.Count > 0)
             {
-                topicNotification = topics[0];
+                response.Object = topics[0];
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
-            return topicNotification;
+            return response;
         }
 
         private static void HandleUnsubscribeSms(int groupId, int userId, long topicNotificationId)

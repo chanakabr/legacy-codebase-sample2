@@ -84,13 +84,14 @@ namespace Core.Notification
             }
 
             // get topic notification
-            TopicNotification topicNotification = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
-            if (topicNotification == null)
+            TopicNotification topicNotification = null;
+            GenericResponse<TopicNotification> response = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
+            if (response == null  || !response.IsOkStatusCode())
             {
                 log.ErrorFormat("topic notification was not found. grogroupIdup: {0} topicNotificationId: {1}", groupId, topicNotificationMessage.TopicNotificationId);
                 return false;
             }
-
+            topicNotification = response.Object;
             // validate start time 
             var triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
             if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != startTime)

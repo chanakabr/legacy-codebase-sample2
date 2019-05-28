@@ -291,5 +291,22 @@ namespace TvinciImporter
 
             return topicMessages;
         }
+
+        public static TopicNotification GetTopicNotification(int groupId, long topicNotificationId)
+        {
+            TopicNotification topic = null;
+            try
+            {
+                //Call Notifications WCF service                
+                Notification_WCF.NotificationServiceClient service = CreateNotificationServiceClient(groupId);
+                topic = service.GetTopicNotification(groupId, topicNotificationId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception (GetTopicNotification) - groupId:{0}. ex:{1}", groupId, ex);
+            }
+
+            return topic;
+        }
     }
 }
