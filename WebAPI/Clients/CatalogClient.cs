@@ -407,14 +407,9 @@ namespace WebAPI.Clients
                             MediaObj oldMediaObj = new MediaObj(groupId, assetToConvert as MediaAsset);
                             asset = Mapper.Map<KalturaMediaAsset>(oldMediaObj);
                         }
-                        else if (assetToConvert.AssetType == eAssetTypes.EPG)
+                        else
                         {
                             asset = Mapper.Map<KalturaAsset>(assetToConvert);
-                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);                            
-                        }
-                        else // nvpr
-                        {
-                            asset = Mapper.Map<KalturaRecordingAsset>(assetToConvert);
                             asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);
                         }
 
