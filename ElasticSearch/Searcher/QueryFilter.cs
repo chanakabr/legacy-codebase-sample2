@@ -254,6 +254,11 @@ namespace ElasticSearch.Searcher
             if (this.IsEmpty())
                 return string.Empty;
 
+            // remove duplications
+            var distinctValue = Value.Distinct().ToList();
+            this.Value.Clear();
+            this.Value.AddRange(distinctValue);
+
             StringBuilder sb = new StringBuilder();
 
             if (isNot)
