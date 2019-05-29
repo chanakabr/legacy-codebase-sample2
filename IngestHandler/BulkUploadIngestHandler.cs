@@ -175,7 +175,7 @@ namespace IngestHandler
         {
             foreach (var prog in programs)
             {
-                string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetType.PROGRAM.ToString(), (long)prog.EpgId);
+                string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), (long)prog.EpgId);
 
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
