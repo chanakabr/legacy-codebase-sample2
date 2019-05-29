@@ -322,6 +322,7 @@ namespace Core.Notification
                         topicNotificationMessageIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
                     }
 
+                    topicNotificationMessageIds = topicNotificationMessageIds.OrderByDescending(x => x).ToList();                    
                     response.TotalItems = topicNotificationMessageIds.Count;
 
                     // paging

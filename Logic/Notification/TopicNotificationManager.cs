@@ -242,7 +242,7 @@ namespace Core.Notification
                     //2. filter by SubscribeReference (SubId) to new Object !!!
                     response.Objects.Add(topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId()));
                 }
-
+                response.Objects = response.Objects.OrderByDescending(x => x.Id).ToList();
                 response.SetStatus(eResponseStatus.OK);
             }
             else
