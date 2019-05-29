@@ -456,6 +456,24 @@ namespace CouchbaseManager
             }
         }
 
+        private IOperationResult<T> HandleNodeUnavailable<T>(string key, Couchbase.Core.IBucket bucket, IOperationResult<T> getResult, string cbDescription)
+        {
+            // for node unavailable on regular of ephemeral buckets - try to get from replica
+            if (getResult.Status == Couchbase.IO.ResponseStatus.NodeUnavailable && 
+                (bucket.BucketType == Couchbase.Core.Buckets.BucketTypeEnum.Couchbase ||
+                bucket.BucketType == Couchbase.Core.Buckets.BucketTypeEnum.Ephemeral))
+            {
+                log.ErrorFormat("CouchbaseManager..Get failed because of Node Unavailable. Trying GetFromReplica. Bucket = {0} , Key = {1}", bucketName, key);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    getResult = bucket.GetFromReplica<T>(key);
+                }
+            }
+
+            return getResult;
+        }
+
         private static List<IDocument<string>> ObjectsToJson<T>(List<IDocument<T>> objs)
         {
             if (objs == null) { return new List<IDocument<string>>(); }
@@ -1030,6 +1048,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         HandleException(key, getResult);
@@ -1072,6 +1092,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
@@ -1112,6 +1134,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
                     
@@ -1191,6 +1215,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
@@ -1239,6 +1265,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
@@ -1322,6 +1350,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
@@ -1363,7 +1393,9 @@ namespace CouchbaseManager
                 }
 
                 if (getResult != null)
-                {  
+                {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
@@ -1450,6 +1482,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
@@ -1493,6 +1527,8 @@ namespace CouchbaseManager
 
                 if (getResult != null)
                 {
+                    getResult = HandleNodeUnavailable(key, bucket, getResult, cbDescription);
+
                     if (getResult.Exception != null && getResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         HandleException(key, getResult);
 
