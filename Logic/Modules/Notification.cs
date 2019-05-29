@@ -1403,5 +1403,19 @@ namespace Core.Notification
             }
             return result;
         }
+
+        public static GenericResponse<TopicNotificationMessage> GetTopicNotificationMessage(long topicNotificationMessageId)
+        {
+            GenericResponse<TopicNotificationMessage> result = new GenericResponse<TopicNotificationMessage>();
+            try
+            {
+                result = TopicNotificationMessageManager.GetTopicNotificationMessageById(topicNotificationMessageId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in GetTopicNotification", ex);
+            }
+            return result;
+        }
     }
 }

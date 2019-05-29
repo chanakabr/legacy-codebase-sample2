@@ -411,5 +411,22 @@ namespace Core.Notification
 
             return triggerTime;
         }
+
+        public static GenericResponse<TopicNotificationMessage> GetTopicNotificationMessageById(long topicNotificationMessageId)
+        {
+            GenericResponse<TopicNotificationMessage> response = new GenericResponse<TopicNotificationMessage>();
+
+            TopicNotificationMessage topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(topicNotificationMessageId);
+            if (topicNotificationMessage == null)
+            {
+                //log.ErrorFormat("TopicNotificationMessage wasn't found. {0}", logData);
+                return response;
+            }
+
+            response.Object = topicNotificationMessage;
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
+        }
     }
 }
