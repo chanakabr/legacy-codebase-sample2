@@ -68,17 +68,17 @@ namespace Core.Catalog
 
         public bool IsAssetUserRuleEnabled { get; set; }
 
-        private AssetStruct programAssetStruct;
-        public AssetStruct ProgramAssetStruct
+        private long programAssetStructId;
+        public long ProgramAssetStructId
         {
             get
             {
-                if (programAssetStruct == null)
+                if (programAssetStructId == 0)
                 {
-                    programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+                    SetProgramAssetStructId();
                 }
 
-                return programAssetStruct;
+                return programAssetStructId;
             }
         }
 
@@ -91,7 +91,7 @@ namespace Core.Catalog
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
             TopicsMapBySystemNameAndByType = new Dictionary<string, Dictionary<string, Topic>>(StringComparer.OrdinalIgnoreCase);
             TopicsMapById = new Dictionary<long, Topic>();
-            programAssetStruct = null;
+            programAssetStructId = 0;
         }
 
         // TODO Lior - move all language related properties in this class to seperate cache or invalidate catalogGroupCache when adding\updating languages (doesn't exist at the moment)
@@ -151,7 +151,7 @@ namespace Core.Catalog
             }
 
             SetCatalogGroupCacheDefaults(groupId, this);
-            programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+            SetProgramAssetStructId();
         }
 
         public bool IsValid()
@@ -178,18 +178,27 @@ namespace Core.Catalog
             catalogGroupCache.IsGeoAvailabilityWindowingEnabled = isGeoAvailabilityEnabled;
             catalogGroupCache.IsAssetUserRuleEnabled = isAssetUserRuleEnabled;
         }
-       
+
+        private void SetProgramAssetStructId()
+        {
+            var programAssetStruct = AssetStructsMapById.Values.FirstOrDefault(x => x.IsProgramAssetStruct);
+            if (programAssetStruct != null)
+            {
+                programAssetStructId = programAssetStruct.Id;
+            }
+        }
+
         public long GetRealAssetStructId(long assetStructId, out bool isProgramAssetStruct)
         {
             var realAssetStructId = assetStructId;
             isProgramAssetStruct = false;
 
-            if (ProgramAssetStruct != null && (assetStructId == 0 || assetStructId == ProgramAssetStruct.Id))
+            if (ProgramAssetStructId != 0 && (assetStructId == 0 || assetStructId == ProgramAssetStructId))
             {
-                realAssetStructId = ProgramAssetStruct.Id;
+                realAssetStructId = ProgramAssetStructId;
                 isProgramAssetStruct = true;
             }
-            
+
             return realAssetStructId;
         }
     }

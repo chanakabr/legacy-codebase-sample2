@@ -1292,12 +1292,12 @@ namespace Core.Notification
             return result;
         }
 
-        public static GenericListResponse<TopicNotification> GetTopicNotifications(int groupId, SubscribeReference subscribeReference)
+        public static GenericListResponse<TopicNotification> GetTopicNotifications(int groupId, SubscribeReference subscribeReference, bool onlyType = false)
         {
             GenericListResponse<TopicNotification> result = new GenericListResponse<TopicNotification>();
             try
             {
-                result = TopicNotificationManager.List(groupId, subscribeReference);
+                result = TopicNotificationManager.List(groupId, subscribeReference, onlyType);
             }
             catch (Exception ex)
             {
@@ -1386,6 +1386,34 @@ namespace Core.Notification
             catch (Exception ex)
             {
                 log.Error("Exception in GetTopicNotificationMessagaes", ex);
+            }
+            return result;
+        }
+
+        public static GenericResponse<TopicNotification> GetTopicNotification(long topicNotificationId)
+        {
+            GenericResponse<TopicNotification> result = new GenericResponse<TopicNotification>();
+            try
+            {
+                result = TopicNotificationManager.GetTopicNotificationById(topicNotificationId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in GetTopicNotification", ex);
+            }
+            return result;
+        }
+
+        public static GenericResponse<TopicNotificationMessage> GetTopicNotificationMessage(long topicNotificationMessageId)
+        {
+            GenericResponse<TopicNotificationMessage> result = new GenericResponse<TopicNotificationMessage>();
+            try
+            {
+                result = TopicNotificationMessageManager.GetTopicNotificationMessageById(topicNotificationMessageId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in GetTopicNotification", ex);
             }
             return result;
         }

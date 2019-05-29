@@ -7,6 +7,8 @@ using EventBus.Abstraction;
 using KLogMonitor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Polly;
+using Polly.Retry;
 
 namespace EventBus.RabbitMQ
 {
@@ -63,8 +65,10 @@ namespace EventBus.RabbitMQ
 
                 services.AddSingleton<IRabbitMQPersistentConnection>(RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration());
                 ConfigureRabbitMQEventBus(services, configuration, _AllServiceHandlers);
+
                 var isHealthy = HealthCheck(services);
                 if (!isHealthy) { throw new Exception("Health check returned errors, service will not start"); }
+                _Logger.Info($"Health check passed. Starting consumers.");
 
                 services.AddHostedService<KalturaEventBusRabbitMQConsumerService>();
             });
@@ -74,29 +78,43 @@ namespace EventBus.RabbitMQ
 
         private static bool HealthCheck(IServiceCollection services)
         {
+            var retryCount = 3;
+            var policy = Policy.Handle<Exception>()
+            .WaitAndRetry(retryCount, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (ex, time, attempt, ctx) =>
+            {
+                _Logger.Warn($"Health check failed attempt:[{attempt}/{retryCount}]", ex);
+            });
+
             _Logger.Info($"Starting health check.");
             _Logger.Info($"Checking couchbase connection...");
-            var cb = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
-            var cbIsSuccess = cb.Set<string>($"HealthCheckDoc_{_EntryAssembly.GetName()}", "", 1);
-            if (!cbIsSuccess)
+
+            var cbIsSuccess = false;
+            var sqlIsSuccess = false;
+            policy.Execute(() =>
             {
-                _Logger.Error("Could not get document from couchbase");
-                return false;
-            }
+                var cb = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
+                cbIsSuccess = cb.Set($"HealthCheckDoc_{_EntryAssembly.GetName()}", "", 1);
+                if (!cbIsSuccess)
+                {
+                    throw new Exception("Could not get document from couchbase");
+                }
+            });
+
 
             _Logger.Info($"Checking SQL DB connection...");
-            var q = new ODBCWrapper.SelectQuery();
-            q += "select 1";
-            var sqlIsSuccess = q.Execute();
-            if (!sqlIsSuccess)
+
+            policy.Execute(() =>
             {
-                _Logger.Error("Could not query SQL DB");
-                return false;
-            }
+                var q = new ODBCWrapper.SelectQuery();
+                q += "select 1";
+                sqlIsSuccess = q.Execute();
+                if (!sqlIsSuccess)
+                {
+                    throw new Exception("Could not query SQL DB");
+                }
+            });
 
-
-            _Logger.Info($"Health check passed.");
-            return true;
+            return (cbIsSuccess && sqlIsSuccess);
 
         }
 

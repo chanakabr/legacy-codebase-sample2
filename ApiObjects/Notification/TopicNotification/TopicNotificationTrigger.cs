@@ -1,23 +1,21 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace ApiObjects.Notification
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
+    [KnownType(typeof(TopicNotificationDateTrigger))]
+    [KnownType(typeof(TopicNotificationSubscriptionTrigger))]    
     public abstract class TopicNotificationTrigger
     {
-        [JsonProperty("Type")]
+        [DataMember]
         public TopicNotificationTriggerType Type { get; set; }       
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
     public class TopicNotificationDateTrigger : TopicNotificationTrigger
     {
-        [JsonProperty("Date")]
+        [DataMember]
         public DateTime Date { get; set; }
 
         public TopicNotificationDateTrigger()
@@ -31,14 +29,13 @@ namespace ApiObjects.Notification
         }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
     public class TopicNotificationSubscriptionTrigger : TopicNotificationTrigger
     {
-        [JsonProperty("Offset")]
+        [DataMember]
         public long Offset { get; set; }
 
-        [JsonProperty("TriggerType")]
+        [DataMember]
         public TopicNotificationSubscriptionTriggerType TriggerType { get; set; }
 
 

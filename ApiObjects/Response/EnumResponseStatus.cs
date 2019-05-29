@@ -187,7 +187,7 @@ namespace ApiObjects.Response
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
         NetworkRuleBlock = 3080,
-
+        SubscriptionDoesNotExist = 3081,
         #endregion
 
         #region Catalog 4000 - 4999
@@ -281,6 +281,8 @@ namespace ApiObjects.Response
         InvalidBulkUploadStructure = 4086,
         RelatedEntitiesExceedLimitation = 4087,
         AccountEpgIngestVersionDoesNotSupportBulk = 4088,
+        ImageUrlRequired = 4089,
+
         #endregion
 
         #region Api 5000 - 5999

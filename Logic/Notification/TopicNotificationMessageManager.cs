@@ -6,7 +6,6 @@ using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -52,7 +51,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (!AddTopicNotificationMessageToQueue(topicNotificationMessage, topicNotification))
+                if (AddTopicNotificationMessageToQueue(topicNotificationMessage, topicNotification))
                 {
                     response.Object = topicNotificationMessage;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -84,13 +83,14 @@ namespace Core.Notification
             }
 
             // get topic notification
-            TopicNotification topicNotification = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
-            if (topicNotification == null)
+            TopicNotification topicNotification = null;
+            GenericResponse<TopicNotification> response = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
+            if (response == null  || !response.IsOkStatusCode())
             {
                 log.ErrorFormat("topic notification was not found. grogroupIdup: {0} topicNotificationId: {1}", groupId, topicNotificationMessage.TopicNotificationId);
                 return false;
             }
-
+            topicNotification = response.Object;
             // validate start time 
             var triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
             if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != startTime)
@@ -237,8 +237,13 @@ namespace Core.Notification
                 // Save TopicNotificationAtCB                    
                 if (!NotificationDal.SaveTopicNotificationMessageCB(currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage))
                 {
-                    log.ErrorFormat("Error while saving topicNotificationMessage. groupId: {0}, topicNotificationMessageId:{1}", currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage.Id);
+                    log.ErrorFormat("Error while saving SaveTopicNotificationMessageCB. groupId: {0}, topicNotificationMessageId:{1}", currentTopicNotificationMessage.GroupId, currentTopicNotificationMessage.Id);
+                    response.SetStatus(eResponseStatus.Error);
+                    return response;
                 }
+
+                response.Object = currentTopicNotificationMessage;
+                response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
@@ -409,6 +414,23 @@ namespace Core.Notification
             }
 
             return triggerTime;
+        }
+
+        public static GenericResponse<TopicNotificationMessage> GetTopicNotificationMessageById(long topicNotificationMessageId)
+        {
+            GenericResponse<TopicNotificationMessage> response = new GenericResponse<TopicNotificationMessage>();
+
+            TopicNotificationMessage topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(topicNotificationMessageId);
+            if (topicNotificationMessage == null)
+            {
+                //log.ErrorFormat("TopicNotificationMessage wasn't found. {0}", logData);
+                return response;
+            }
+
+            response.Object = topicNotificationMessage;
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            return response;
         }
     }
 }

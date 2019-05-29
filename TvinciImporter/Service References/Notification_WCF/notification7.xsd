@@ -239,7 +239,7 @@
       <xs:element minOccurs="0" name="Enabled" type="xs:boolean" />
       <xs:element minOccurs="0" name="ImageUrl" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="IncludeMail" type="xs:boolean" />
-      <xs:element minOccurs="0" name="IncludeSMS" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IncludeSms" type="xs:boolean" />
       <xs:element minOccurs="0" name="MailSubject" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="MailTemplate" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
@@ -513,4 +513,134 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="PushMessage" nillable="true" type="tns:PushMessage" />
+  <xs:complexType name="ArrayOfTopicNotification">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="TopicNotification" nillable="true" type="tns:TopicNotification" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfTopicNotification" nillable="true" type="tns:ArrayOfTopicNotification" />
+  <xs:complexType name="TopicNotification">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="Id" type="xs:long" />
+      <xs:element minOccurs="0" name="MailExternalId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PushExternalId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SubscribeReference" nillable="true" type="tns:SubscribeReference" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TopicNotification" nillable="true" type="tns:TopicNotification" />
+  <xs:complexType name="SubscribeReference">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Type" type="tns:SubscribeReferenceType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SubscribeReference" nillable="true" type="tns:SubscribeReference" />
+  <xs:simpleType name="SubscribeReferenceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Subscription" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SubscribeReferenceType" nillable="true" type="tns:SubscribeReferenceType" />
+  <xs:complexType name="SubscriptionSubscribeReference">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:SubscribeReference">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="SubscriptionId" type="xs:long" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="SubscriptionSubscribeReference" nillable="true" type="tns:SubscriptionSubscribeReference" />
+  <xs:complexType name="TopicNotificationMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Dispatchers" nillable="true" type="tns:ArrayOfTopicNotificationDispatcher" />
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="Id" type="xs:long" />
+      <xs:element minOccurs="0" name="ImageUrl" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TopicNotificationId" type="xs:long" />
+      <xs:element minOccurs="0" name="Trigger" nillable="true" type="tns:TopicNotificationTrigger" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TopicNotificationMessage" nillable="true" type="tns:TopicNotificationMessage" />
+  <xs:complexType name="ArrayOfTopicNotificationDispatcher">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="TopicNotificationDispatcher" nillable="true" type="tns:TopicNotificationDispatcher" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfTopicNotificationDispatcher" nillable="true" type="tns:ArrayOfTopicNotificationDispatcher" />
+  <xs:complexType name="TopicNotificationDispatcher">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Type" type="tns:TopicNotificationDispatcherType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TopicNotificationDispatcher" nillable="true" type="tns:TopicNotificationDispatcher" />
+  <xs:simpleType name="TopicNotificationDispatcherType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Mail" />
+      <xs:enumeration value="Sms" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="TopicNotificationDispatcherType" nillable="true" type="tns:TopicNotificationDispatcherType" />
+  <xs:complexType name="TopicNotificationSmsDispatcher">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:TopicNotificationDispatcher">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="TopicNotificationSmsDispatcher" nillable="true" type="tns:TopicNotificationSmsDispatcher" />
+  <xs:complexType name="TopicNotificationMailDispatcher">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:TopicNotificationDispatcher">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="BodyTemplate" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="SubjectTemplate" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="TopicNotificationMailDispatcher" nillable="true" type="tns:TopicNotificationMailDispatcher" />
+  <xs:complexType name="TopicNotificationTrigger">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Type" type="tns:TopicNotificationTriggerType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="TopicNotificationTrigger" nillable="true" type="tns:TopicNotificationTrigger" />
+  <xs:simpleType name="TopicNotificationTriggerType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Date" />
+      <xs:enumeration value="Subscription" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="TopicNotificationTriggerType" nillable="true" type="tns:TopicNotificationTriggerType" />
+  <xs:complexType name="TopicNotificationDateTrigger">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:TopicNotificationTrigger">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Date" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="TopicNotificationDateTrigger" nillable="true" type="tns:TopicNotificationDateTrigger" />
+  <xs:complexType name="TopicNotificationSubscriptionTrigger">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:TopicNotificationTrigger">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Offset" type="xs:long" />
+          <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="TriggerType" type="q24:TopicNotificationSubscriptionTriggerType" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="TopicNotificationSubscriptionTrigger" nillable="true" type="tns:TopicNotificationSubscriptionTrigger" />
+  <xs:complexType name="ArrayOfTopicNotificationMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="TopicNotificationMessage" nillable="true" type="tns:TopicNotificationMessage" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfTopicNotificationMessage" nillable="true" type="tns:ArrayOfTopicNotificationMessage" />
 </xs:schema>

@@ -11,11 +11,13 @@
   <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
   <xs:complexType name="OrderObj">
     <xs:sequence>
+      <xs:element minOccurs="0" name="isSlidingWindowFromRestApi" type="xs:boolean" />
       <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
       <xs:element minOccurs="0" name="m_bIsSlidingWindowField" type="xs:boolean" />
       <xs:element minOccurs="0" name="m_eOrderBy" type="tns:OrderBy" />
       <xs:element minOccurs="0" name="m_eOrderDir" type="tns:OrderDir" />
       <xs:element minOccurs="0" name="m_sOrderValue" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="shouldPadString" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OrderObj" nillable="true" type="tns:OrderObj" />

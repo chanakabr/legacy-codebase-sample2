@@ -1,20 +1,17 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Runtime.Serialization;
 
 namespace ApiObjects.Notification
 {
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
+    [KnownType(typeof(TopicNotificationSmsDispatcher))]
+    [KnownType(typeof(TopicNotificationMailDispatcher))]
     public abstract class TopicNotificationDispatcher
     {
-        [JsonProperty("Type")]
+        [DataMember]
         public TopicNotificationDispatcherType Type { get; set; }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
     public class TopicNotificationSmsDispatcher : TopicNotificationDispatcher
     {
         public TopicNotificationSmsDispatcher()
@@ -23,14 +20,13 @@ namespace ApiObjects.Notification
         }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    [DataContract]
     public class TopicNotificationMailDispatcher : TopicNotificationDispatcher
     {
-        [JsonProperty("BodyTemplate")]
+        [DataMember]
         public string BodyTemplate { get; set; }
 
-        [JsonProperty("SubjectTemplate")]
+        [DataMember]
         public string SubjectTemplate { get; set; }
 
 

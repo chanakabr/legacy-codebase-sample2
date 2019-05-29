@@ -960,4 +960,130 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetGroupTopicNotifications">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="onlyType" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetGroupTopicNotificationsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q76="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetGroupTopicNotificationsResult" nillable="true" type="q76:ArrayOfTopicNotification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddTopicNotification">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q77="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="topicNotification" nillable="true" type="q77:TopicNotification" />
+        <xs:element minOccurs="0" name="userId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddTopicNotificationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q78="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="AddTopicNotificationResult" nillable="true" type="q78:TopicNotification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateTopicNotification">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q79="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="topicNotification" nillable="true" type="q79:TopicNotification" />
+        <xs:element minOccurs="0" name="userId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateTopicNotificationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q80="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="UpdateTopicNotificationResult" nillable="true" type="q80:TopicNotification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddTopicNotificationMessage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q81="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="topicNotificationMessage" nillable="true" type="q81:TopicNotificationMessage" />
+        <xs:element minOccurs="0" name="userId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AddTopicNotificationMessageResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q82="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="AddTopicNotificationMessageResult" nillable="true" type="q82:TopicNotificationMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateTopicNotificationMessage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q83="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="topicNotificationMessage" nillable="true" type="q83:TopicNotificationMessage" />
+        <xs:element minOccurs="0" name="userId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateTopicNotificationMessageResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q84="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="UpdateTopicNotificationMessageResult" nillable="true" type="q84:TopicNotificationMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotificationMessages">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="topicNotificationId" type="xs:long" />
+        <xs:element minOccurs="0" name="pageSize" type="xs:int" />
+        <xs:element minOccurs="0" name="pageIndex" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotificationMessagesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q85="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetTopicNotificationMessagesResult" nillable="true" type="q85:ArrayOfTopicNotificationMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotification">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="topicNotificationId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotificationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q86="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetTopicNotificationResult" nillable="true" type="q86:TopicNotification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotificationMessage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="topicNotificationMessageId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetTopicNotificationMessageResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q87="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetTopicNotificationMessageResult" nillable="true" type="q87:TopicNotificationMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>
