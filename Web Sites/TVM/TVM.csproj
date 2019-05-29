@@ -460,6 +460,10 @@
     <Content Include="adm_time_shifted_tv_settings.aspx" />
     <Content Include="adm_topics.aspx" />
     <Content Include="adm_topics_new.aspx" />
+    <Content Include="adm_topic_notification_message.aspx" />
+    <Content Include="adm_topic_notification.aspx" />
+    <Content Include="adm_topic_notification_message_new.aspx" />
+    <Content Include="adm_topic_notification_new.aspx" />
     <Content Include="adm_tvc_ads.aspx" />
     <Content Include="adm_tvc_footer.aspx" />
     <Content Include="adm_tvc_init.aspx" />
@@ -4082,6 +4086,34 @@
     </Compile>
     <Compile Include="adm_topics_new.aspx.designer.cs">
       <DependentUpon>adm_topics_new.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="adm_topic_notification_message.aspx.cs">
+      <DependentUpon>adm_topic_notification_message.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="adm_topic_notification_message.aspx.designer.cs">
+      <DependentUpon>adm_topic_notification_message.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="adm_topic_notification.aspx.cs">
+      <DependentUpon>adm_topic_notification.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="adm_topic_notification.aspx.designer.cs">
+      <DependentUpon>adm_topic_notification.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="adm_topic_notification_message_new.aspx.cs">
+      <DependentUpon>adm_topic_notification_message_new.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="adm_topic_notification_message_new.aspx.designer.cs">
+      <DependentUpon>adm_topic_notification_message_new.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="adm_topic_notification_new.aspx.cs">
+      <DependentUpon>adm_topic_notification_new.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="adm_topic_notification_new.aspx.designer.cs">
+      <DependentUpon>adm_topic_notification_new.aspx</DependentUpon>
     </Compile>
     <Compile Include="adm_tvc_ads.aspx.cs">
       <DependentUpon>adm_tvc_ads.aspx</DependentUpon>
