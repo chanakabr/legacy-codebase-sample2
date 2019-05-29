@@ -355,4 +355,50 @@ namespace Core.Catalog
             return false;
         }
     }
+
+    public class RecordingAsset : EpgAsset
+    {
+        public string RecordingId { get; set; }
+        public RecordingType? RecordingType { get; set; }
+
+        public RecordingAsset()
+            : base()
+        {
+            AssetType = eAssetTypes.NPVR;
+        }
+
+        public RecordingAsset(EpgAsset item)
+            : base()
+        {
+            AssetType = eAssetTypes.NPVR;
+
+            EpgIdentifier = item.EpgIdentifier;
+            EpgChannelId = item.EpgChannelId;
+            RelatedMediaId = item.RelatedMediaId;
+            Crid = item.Crid;
+            LinearAssetId = item.LinearAssetId;
+            CdvrEnabled = item.CdvrEnabled;
+            CatchUpEnabled = item.CatchUpEnabled;
+            StartOverEnabled = item.StartOverEnabled;
+            TrickPlayEnabled = item.TrickPlayEnabled;
+            Status = item.Status;
+            IsActive = item.IsActive;
+            GroupId = item.GroupId;
+            LikeCounter = item.LikeCounter;
+            PicId = item.PicId;
+            PicUrl = item.PicUrl;
+            FaceBookObjectId = item.FaceBookObjectId;
+            CreateDate = item.CreateDate;
+            Description = item.Description;
+            DescriptionsWithLanguages = item.DescriptionsWithLanguages;
+            Id = item.Id;
+            Images = item.Images;
+            Metas = item.Metas;
+            Name = item.Name;
+            RelatedEntities = item.RelatedEntities;
+            Tags = item.Tags;
+            UpdateDate = item.UpdateDate;
+            RelatedMediaId = item.RelatedMediaId;
+        }
+    }
 }
