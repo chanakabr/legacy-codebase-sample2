@@ -9353,6 +9353,26 @@
             Code
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.ViewLifeCycle">
+            <summary>
+            View Life Cycle
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.CollectionStartDate">
+            <summary>
+            Collection Start Date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.CollectionEndDate">
+            <summary>
+            Collection End Date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.CreateAndUpdateDate">
+            <summary>
+            Create And Updat eDate
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
             <summary>
             Compensation request parameters

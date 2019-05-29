@@ -22,6 +22,7 @@ using ApiObjects.Pricing;
 using Core.ConditionalAccess.Modules;
 using AutoMapper.Configuration;
 using TVinciShared;
+using ApiLogic.ConditionalAccess.Modules;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -161,6 +162,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             cfg.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
+
+            cfg.CreateMap<CollectionPurchase, KalturaCollectionEntitlement>()
+              //.IncludeBase<Purchase, KalturaEntitlement>()
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseId))
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses))
+              .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.viewLifeCycle))
+              .ForMember(dest => dest.CollectionStartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.collectionStartDate)))
+              .ForMember(dest => dest.CollectionEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.collectionEndDate)))
+              .ForMember(dest => dest.CreateAndUpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.createAndUpdateDate)));
 
             // cfg.CreateMap<Entitlement, KalturaEntitlement>()
             //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
