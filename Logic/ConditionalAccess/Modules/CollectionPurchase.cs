@@ -45,7 +45,7 @@ namespace ApiLogic.ConditionalAccess.Modules
                                                                      deviceName, maxNumberOfUses,
                                                                      viewLifeCycle, billingTransactionId,
                                                                      collectionStartDate, collectionEndDate, createAndUpdateDate, houseHoldId, billingGuid);
-            return purchaseId < 1;
+            return purchaseId > 0;
         }
 
         protected override bool DoUpdate()
