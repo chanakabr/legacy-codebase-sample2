@@ -187,7 +187,7 @@ namespace ApiObjects.Response
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
         NetworkRuleBlock = 3080,
-
+        SubscriptionDoesNotExist = 3081,
         #endregion
 
         #region Catalog 4000 - 4999
