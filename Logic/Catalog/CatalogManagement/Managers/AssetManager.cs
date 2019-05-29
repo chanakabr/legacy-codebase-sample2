@@ -2662,8 +2662,35 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    int totalAmountOfDistinctAssets = GetTotalAmountOfDistinctAssets(assets);
-                    List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
+                    List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = new List<KeyValuePair<eAssetTypes, long>>();
+                    HashSet<string> items = new HashSet<string>();
+
+                    Dictionary<string, RecordingSearchResult> recordingsMap = new Dictionary<string, RecordingSearchResult>();
+
+                    foreach (var item in assets)
+                    {
+                        eAssetTypes assetType = item.AssetType;
+                        string assetId = item.AssetId;
+
+                        if (item.AssetType == eAssetTypes.NPVR)
+                        {
+                            RecordingSearchResult rsr = (RecordingSearchResult)item;
+                            recordingsMap.Add(item.AssetId, rsr);
+                            assetId = rsr.EpgId;
+                            assetType = eAssetTypes.EPG;
+                        }
+
+                        string key = string.Format("{0}_{1}", assetType.ToString(), assetId);
+
+                        if (!items.Contains(key))
+                        {
+                            items.Add(key);
+                            assetsToRetrieve.Add(new KeyValuePair<eAssetTypes, long>(assetType, long.Parse(assetId)));
+                        }
+                    }
+
+                    int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
+
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
@@ -2682,9 +2709,34 @@ namespace Core.Catalog.CatalogManagement
                     Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
                     foreach (BaseObject baseAsset in assets)
                     {
-                        if (!isAllowedToViewInactiveAssets || Math.Abs((baseAsset.m_dUpdateDate - mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)].UpdateDate.Value).TotalSeconds) <= 1)
+                        bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
+
+                        Asset asset = null;
+                        if (!isNpvr)
                         {
-                            result.Objects.Add(mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)]);
+                            asset = mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)];
+                        }
+                        else if (recordingsMap.ContainsKey(baseAsset.AssetId))
+                        {
+                            asset = mappedAssets[string.Format(keyFormat, eAssetTypes.EPG.ToString(), recordingsMap[baseAsset.AssetId].EpgId)];
+                        }
+
+                        if (!isAllowedToViewInactiveAssets
+                            || isNpvr
+                            || Math.Abs((baseAsset.m_dUpdateDate - asset.UpdateDate.Value).TotalSeconds) <= 1)
+                        {
+                            if (isNpvr)
+                            {
+                                RecordingAsset recordingAsset = new RecordingAsset((EpgAsset)asset);
+                                recordingAsset.RecordingId = baseAsset.AssetId;
+                                recordingAsset.RecordingType = recordingsMap[baseAsset.AssetId].RecordingType;
+
+                                result.Objects.Add(recordingAsset);
+                            }
+                            else
+                            {
+                                result.Objects.Add(asset);
+                            }
                         }
                         else
                         {
