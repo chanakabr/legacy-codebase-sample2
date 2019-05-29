@@ -240,9 +240,17 @@ namespace Core.Notification
                 else
                 {
                     //2. filter by SubscribeReference (SubId) to new Object !!!
-                    response.Objects.Add(topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId()));
+                    TopicNotification topic = topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId());
+                    if (topic != null)
+                    {
+                        response.Objects.Add(topic);
+                    }
                 }
-                response.Objects = response.Objects.OrderByDescending(x => x.Id).ToList();
+                if (response.Objects != null)
+                {
+                    response.Objects = response.Objects.OrderByDescending(x => x.Id).ToList();
+                }
+
                 response.SetStatus(eResponseStatus.OK);
             }
             else
