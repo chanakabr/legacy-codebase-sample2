@@ -206,5 +206,8 @@ namespace WS_Notification
 
         [OperationContract]
         TopicNotification GetTopicNotification(int groupId, long topicNotificationId);
+
+        [OperationContract]
+        TopicNotificationMessage GetTopicNotificationMessage(int groupId, long topicNotificationMessageId);
     }
 }
