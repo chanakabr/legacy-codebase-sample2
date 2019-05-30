@@ -153,7 +153,7 @@ public partial class adm_topic_notification_message : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Topic Notofication Messages");
+        Response.Write(PageUtils.GetPreHeader() + ": Topic Notification Messages");
     }
 
     public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
