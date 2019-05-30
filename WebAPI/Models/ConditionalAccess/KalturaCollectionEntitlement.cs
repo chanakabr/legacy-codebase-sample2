@@ -10,60 +10,6 @@ namespace WebAPI.Models.ConditionalAccess
 {
     public partial class KalturaCollectionEntitlement : KalturaEntitlement
     {
-        /// <summary>
-        /// View Life Cycle
-        /// </summary>
-        [DataMember(Name = "viewLifeCycle")]
-        [JsonProperty("viewLifeCycle")]
-        [XmlElement(ElementName = "viewLifeCycle")]
-        public int ViewLifeCycle { get; set; }
 
-        /// <summary>
-        /// Collection Start Date
-        /// </summary>
-        [DataMember(Name = "collectionStartDate")]
-        [JsonProperty("collectionStartDate")]
-        [XmlElement(ElementName = "collectionStartDate")]
-        public long CollectionStartDate { get; set; }
-
-        /// <summary>
-        /// Collection End Date
-        /// </summary>
-        [DataMember(Name = "collectionEndDate")]
-        [JsonProperty("collectionEndDate")]
-        [XmlElement(ElementName = "collectionEndDate")]
-        public long CollectionEndDate { get; set; }
-
-        /// <summary>
-        /// Create And Updat eDate
-        /// </summary>
-        [DataMember(Name = "createAndUpdateDate")]
-        [JsonProperty("createAndUpdateDate")]
-        [XmlElement(ElementName = "createAndUpdateDate")]
-        public long CreateAndUpdateDate { get; set; }
-
-        /// <summary>
-        /// Price
-        /// </summary>
-        [DataMember(Name = "price")]
-        [JsonProperty("price")]
-        [XmlElement(ElementName = "price")]
-        public double Price { get; internal set; }
-
-        /// <summary>
-        /// Currency
-        /// </summary>
-        [DataMember(Name = "currency")]
-        [JsonProperty("currency")]
-        [XmlElement(ElementName = "currency")]
-        public string Currency { get; internal set; }
-
-        /// <summary>
-        /// TransactionId
-        /// </summary>
-        [DataMember(Name = "transactionId")]
-        [JsonProperty("transactionId")]
-        [XmlElement(ElementName = "transactionId")]
-        public string TransactionId { get; internal set; }
     }
 }
