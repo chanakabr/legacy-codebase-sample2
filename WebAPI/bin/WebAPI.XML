@@ -9373,6 +9373,21 @@
             Create And Updat eDate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.Price">
+            <summary>
+            Price
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.Currency">
+            <summary>
+            Currency
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCollectionEntitlement.TransactionId">
+            <summary>
+            TransactionId
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
             <summary>
             Compensation request parameters

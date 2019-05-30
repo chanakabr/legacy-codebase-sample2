@@ -41,5 +41,29 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("createAndUpdateDate")]
         [XmlElement(ElementName = "createAndUpdateDate")]
         public long CreateAndUpdateDate { get; set; }
+
+        /// <summary>
+        /// Price
+        /// </summary>
+        [DataMember(Name = "price")]
+        [JsonProperty("price")]
+        [XmlElement(ElementName = "price")]
+        public double Price { get; internal set; }
+
+        /// <summary>
+        /// Currency
+        /// </summary>
+        [DataMember(Name = "currency")]
+        [JsonProperty("currency")]
+        [XmlElement(ElementName = "currency")]
+        public string Currency { get; internal set; }
+
+        /// <summary>
+        /// TransactionId
+        /// </summary>
+        [DataMember(Name = "transactionId")]
+        [JsonProperty("transactionId")]
+        [XmlElement(ElementName = "transactionId")]
+        public string TransactionId { get; internal set; }
     }
 }

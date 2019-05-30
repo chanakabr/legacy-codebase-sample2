@@ -164,10 +164,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
 
             cfg.CreateMap<CollectionPurchase, KalturaCollectionEntitlement>()
-              //.IncludeBase<Purchase, KalturaEntitlement>()
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseId))
               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses))
+              .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.price))
+              .ForMember(dest => dest.Currency, opt => opt.MapFrom(src => src.currency))
+              .ForMember(dest => dest.TransactionId, opt => opt.MapFrom(src => src.billingTransactionId))
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.viewLifeCycle))
               .ForMember(dest => dest.CollectionStartDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.collectionStartDate)))
               .ForMember(dest => dest.CollectionEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.collectionEndDate)))
