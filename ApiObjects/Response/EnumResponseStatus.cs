@@ -281,6 +281,7 @@ namespace ApiObjects.Response
         InvalidBulkUploadStructure = 4086,
         RelatedEntitiesExceedLimitation = 4087,
         AccountEpgIngestVersionDoesNotSupportBulk = 4088,
+		ImageUrlRequired = 4089,
         #endregion
 
         #region Api 5000 - 5999

@@ -10,14 +10,16 @@ namespace ApiObjects.Epg
     [Serializable]
     [DataContract]
     public class EpgPicture
-    {      
+    {
         [DataMember]
-        public Int32 PicWidth { set; get; }
+        public int PicWidth { set; get; }
+
         [DataMember]
-        public Int32 PicHeight { set; get; }
+        public int PicHeight { set; get; }
+
         [DataMember]
         public string Ratio { set; get; }
-      
+
         [DataMember(IsRequired = false)]
         public int PicID { set; get; }
 
@@ -31,13 +33,28 @@ namespace ApiObjects.Epg
         public string Id { set; get; }
 
         [DataMember]
-        public Int32 Version { set; get; }
+        public int Version { set; get; }
 
         [DataMember]
-        public bool IsProgramImage{ set; get; }
+        public bool IsProgramImage { set; get; }
 
         [DataMember]
         public long ImageTypeId { set; get; }
+
+        [XmlIgnore]
+        public int ChannelId { get; set; }
+
+        [XmlIgnore]
+        public int EpgProgramId { get; set; }
+
+        [XmlIgnore]
+        public string PicName { get; set; }
+
+        [XmlIgnore]
+        public string ProgramName { get; set; }
+
+        [XmlIgnore]
+        public string BaseUrl { get; set; }
 
         public EpgPicture()
         {
@@ -49,7 +66,7 @@ namespace ApiObjects.Epg
             RatioId = 0;
         }
 
-        public void Initialize(Int32 picWidth, Int32 picHeight, string ratio, string url)
+        public void Initialize(int picWidth, int picHeight, string ratio, string url)
         {
             this.PicHeight = picHeight;
             this.PicWidth = picWidth;
@@ -58,11 +75,15 @@ namespace ApiObjects.Epg
 
         }
 
-        public void Initialize(Int32 picWidth, Int32 picHeight, string ratio, string url, int picID)
+        public void Initialize(int picWidth, int picHeight, string ratio, string url, int picID)
         {
             Initialize(picWidth, picHeight, ratio, url);
             this.PicID = picID;
         }
 
+        public override string ToString()
+        {
+            return $"{{id:{Id}, url:{Url}, channelId:[{ChannelId}], programId:{EpgProgramId}}}";
+        }
     }
 }
