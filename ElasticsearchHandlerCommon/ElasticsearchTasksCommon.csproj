@@ -66,27 +66,27 @@
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
       <Name>ApiLogic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\DAL\DAL.csproj">
+    <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj">
+    <ProjectReference Include="..\..\TvmCore\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj">
+    <ProjectReference Include="..\..\TvmCore\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>

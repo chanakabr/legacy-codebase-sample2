@@ -63,11 +63,11 @@
       <Project>{27C6F3ED-B660-466A-9415-DE2D43E58FF0}</Project>
       <Name>ApiLogic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\DAL\DAL.csproj">
+    <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
       <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>

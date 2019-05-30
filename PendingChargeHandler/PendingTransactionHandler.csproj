@@ -46,7 +46,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="TCMClient">
-      <HintPath>..\..\Core\External\TCMClient.dll</HintPath>
+      <HintPath>..\..\TvmCore\External\TCMClient.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -65,19 +65,19 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\Logger\Logger.csproj">
+    <ProjectReference Include="..\..\TvmCore\Logger\Logger.csproj">
       <Project>{1418df28-913f-4595-8839-e2c22da1c269}</Project>
       <Name>Logger</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj">
+    <ProjectReference Include="..\..\TvmCore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
