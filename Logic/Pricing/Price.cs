@@ -19,6 +19,14 @@ namespace Core.Pricing
             countryId = 0;
         }
 
+        public Price(Price item)
+        {
+            m_dPrice = item.m_dPrice;
+            m_oCurrency = new Currency(item.m_oCurrency);
+            countryId = item.countryId;
+
+        }
+
         public void InitializeByCD3(string sCurrencyCode3, double dP)
         {
             m_oCurrency.InitializeByCode3(sCurrencyCode3);

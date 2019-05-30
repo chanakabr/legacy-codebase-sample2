@@ -28,6 +28,16 @@ namespace Core.Pricing
             this.m_bIsDefault = isDefault;
         }
 
+        public Currency(Currency currency)
+        {
+            this.m_nCurrencyID = currency.m_nCurrencyID;
+            this.m_sCurrencyName = currency.m_sCurrencyName;
+            this.m_sCurrencyCD2 = currency.m_sCurrencyCD2;
+            this.m_sCurrencySign = currency.m_sCurrencySign;
+            this.m_sCurrencyCD3 = currency.m_sCurrencyCD3;
+            this.m_bIsDefault = currency.m_bIsDefault;
+        }
+
         public void InitializeById(Int32 nID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = null;

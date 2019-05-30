@@ -1830,10 +1830,15 @@ namespace Core.Pricing
                     // filter by currency 
                     if (!currencyCode.Trim().Equals("*"))
                     {
-                        pc.Prices = pc.Prices != null ? pc.Prices.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
+                        var n = new PriceDetails(pc);
+                        n.Prices = pc.Prices != null ? pc.Prices.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
+                        response.PriceCodes.Add(n);
+                    }
+                    else
+                    {
+                        response.PriceCodes.Add(pc);
                     }
 
-                    response.PriceCodes.Add(pc);
                 }
 
                 response.PriceCodes.OrderBy(pc => pc.Name);
