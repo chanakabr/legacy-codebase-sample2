@@ -79,7 +79,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.purchaseId))
               .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
-              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.Id))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
