@@ -1,0 +1,8 @@
+
+env:
+  internalPort: 443
+  internalProtocol: https
+
+tcm:
+  appId: 5bf8cf60
+  appSecret: 5aaa99331c18f6bad4adeef93ab770c2
