@@ -107,6 +107,9 @@ namespace AdapterControllers.PlaybackAdapter {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string UdidField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UserIdField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -217,6 +220,19 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((object.ReferenceEquals(this.UdidField, value) != true)) {
                     this.UdidField = value;
                     this.RaisePropertyChanged("Udid");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string UserId {
+            get {
+                return this.UserIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UserIdField, value) != true)) {
+                    this.UserIdField = value;
+                    this.RaisePropertyChanged("UserId");
                 }
             }
         }
