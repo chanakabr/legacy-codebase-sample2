@@ -12,7 +12,7 @@ spec:
     - port: {{ .Values.env.internalPort }}
       targetPort: {{ .Values.env.internalPort }}
       protocol: TCP
-      name: http
+      name: {{ .Values.env.internalProtocol }}
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -62,7 +62,7 @@ spec:
                   name: kaltura-environment
                   key: tcm.appSecret
           ports:
-            - name: http
+            - name: {{ .Values.env.internalProtocol }}
               containerPort: {{ .Values.env.internalPort }}
               protocol: TCP
           livenessProbe:
