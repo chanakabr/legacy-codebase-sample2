@@ -12,7 +12,7 @@ spec:
     - port: {{ .Values.env.internalPort }}
       targetPort: {{ .Values.env.internalPort }}
       protocol: TCP
-      name: https
+      name: http
   selector:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -47,11 +47,20 @@ spec:
             - name: TCM_SECTION
               value: {{ .Values.env.tag }}
             - name: TCM_URL
-              value: "{{ .Values.env.internalProtocol }}://tcm"
+              valueFrom:
+                configMapKeyRef:
+                  name: kaltura-environment
+                  key: tcm.url
             - name: TCM_APP_ID
-              value: {{ .Values.tcm.appId }}
+              valueFrom:
+                configMapKeyRef:
+                  name: kaltura-environment
+                  key: tcm.appId
             - name: TCM_APP_SECRET
-              value: {{ .Values.tcm.appSecret }}
+              valueFrom:
+                configMapKeyRef:
+                  name: kaltura-environment
+                  key: tcm.appSecret
           ports:
             - name: http
               containerPort: {{ .Values.env.internalPort }}
@@ -68,4 +77,5 @@ spec:
         type: RollingUpdate
         maxUnavailable: 1
       nodeSelector:
-        kaltura.role: core
+        kaltura.role: api
+		nodeSelector: beta.kubernetes.io/os: windows
