@@ -78,4 +78,4 @@ spec:
         maxUnavailable: 1
       nodeSelector:
         kaltura.role: api
-		nodeSelector: beta.kubernetes.io/os: windows
+        beta.kubernetes.io/os: windows
