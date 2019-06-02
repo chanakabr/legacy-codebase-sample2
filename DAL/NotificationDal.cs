@@ -2910,6 +2910,16 @@ namespace DAL
             return UtilsDal.ExecuteReturnValue<long>("Insert_TopicNotificationMessage", parameters, MESSAGE_BOX_CONNECTION);
         }
 
+        public static bool UpdateTopicNotificationMessage(long id, int sendStatus, long sendDate)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@id", id }, { "@sendStatus", sendStatus }, { "@sendDate", sendDate }
+            };
+
+            return UtilsDal.ExecuteReturnValue<int>("Update_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;
+        }
+
         public static TopicNotificationMessage GetTopicNotificationMessageCB(long topicNotificationMeesageId)
         {
             string key = GetTopicNotificationMessageKey(topicNotificationMeesageId);
@@ -2960,6 +2970,7 @@ namespace DAL
         {
             return string.Format("topic_notification_message:{0}", id);
         }
+
         
         #endregion TopicNotification & TopicNotificationMessage
     }

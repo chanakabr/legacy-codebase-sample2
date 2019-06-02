@@ -197,14 +197,11 @@ namespace Core.Notification
 
             log.DebugFormat("Successfully sent topic notification message: Id: {0}", messageId);
 
-            // TODO:  - update message sent - after all types (mail / push / sms) sent successfully or just 1? 
-
             topicNotificationMessage.Status = TopicNotificationMessageStatus.Sent;
+            topicNotificationMessage.SendDate = DateUtils.GetUtcUnixTimestampNow();
             DAL.NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage);
-            //DAL.NotificationDal.updateTopicNotificationMessage();
+            DAL.NotificationDal.UpdateTopicNotificationMessage(topicNotificationMessage.Id, (int)topicNotificationMessage.Status, topicNotificationMessage.SendDate);
 
-            //DAL.NotificationDal.Update_MessageAnnouncementSent(messageId, groupId, (int)eAnnouncementStatus.Sent);
-            //DAL.NotificationDal.Update_MessageAnnouncementResultMessageId(messageId, groupId, resultMsgIds);
             return true;
         }
 
