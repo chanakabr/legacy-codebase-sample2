@@ -2910,11 +2910,11 @@ namespace DAL
             return UtilsDal.ExecuteReturnValue<long>("Insert_TopicNotificationMessage", parameters, MESSAGE_BOX_CONNECTION);
         }
 
-        public static bool UpdateTopicNotificationMessage(long id, int sendStatus, long sendDate)
+        public static bool UpdateTopicNotificationMessage(long id, int sendStatus)
         {
             var parameters = new Dictionary<string, object>()
             {
-                { "@id", id }, { "@sendStatus", sendStatus }, { "@sendDate", sendDate }
+                { "@id", id }, { "@sendStatus", sendStatus }
             };
 
             return UtilsDal.ExecuteReturnValue<int>("Update_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;

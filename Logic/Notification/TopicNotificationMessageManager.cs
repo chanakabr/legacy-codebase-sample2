@@ -43,6 +43,8 @@ namespace Core.Notification
                     return response;
                 }
 
+                topicNotificationMessage.SendDate = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
+
                 // Save TopicNotificationAtCB                    
                 if (!NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage))
                 {
@@ -50,9 +52,8 @@ namespace Core.Notification
                     response.SetStatus(eResponseStatus.Error, "fail insert TopicNotificationMessage to CB");
                     return response;
                 }
-                long triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
 
-                if (AddTopicNotificationMessageToQueue(groupId, topicNotificationMessage.Id, triggerTime))
+                if (AddTopicNotificationMessageToQueue(groupId, topicNotificationMessage.Id, topicNotificationMessage.SendDate))
                 {
                     response.Object = topicNotificationMessage;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -94,17 +95,14 @@ namespace Core.Notification
             TopicNotification topicNotification = response.Object;
 
             // validate send time 
-            var triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
-            if (triggerTime <= 0 || triggerTime != sendTime)
+            if (sendTime != topicNotificationMessage.SendDate)
             {
-                log.ErrorFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}",
-                    groupId, topicNotificationMessage.TopicNotificationId, triggerTime, sendTime);
+                log.DebugFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}",
+                    groupId, topicNotificationMessage.TopicNotificationId, topicNotificationMessage.SendDate, sendTime);
 
-                return false;
+                return true;
             }
 
-            List<string> topicExternalIds = new List<string>();
-            List<string> queueNames = new List<string>();
             bool includeMail = false;
             string mailTemplate = string.Empty;
             string mailSubject = string.Empty;
@@ -199,9 +197,8 @@ namespace Core.Notification
             log.DebugFormat("Successfully sent topic notification message: Id: {0}", messageId);
 
             topicNotificationMessage.Status = TopicNotificationMessageStatus.Sent;
-            topicNotificationMessage.SendDate = DateUtils.GetUtcUnixTimestampNow();
             DAL.NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage);
-            DAL.NotificationDal.UpdateTopicNotificationMessage(topicNotificationMessage.Id, (int)topicNotificationMessage.Status, topicNotificationMessage.SendDate);
+            DAL.NotificationDal.UpdateTopicNotificationMessage(topicNotificationMessage.Id, (int)topicNotificationMessage.Status);
 
             return true;
         }
