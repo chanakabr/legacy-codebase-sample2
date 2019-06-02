@@ -1154,4 +1154,10 @@ namespace ApiObjects
         MessageAnnoncement = 0,
         TopicNotificationMessage = 1
     }
+
+    public enum TopicNotificationMessageStatus
+    {
+        Pending = 0,
+        Sent = 1,
+    }
 }

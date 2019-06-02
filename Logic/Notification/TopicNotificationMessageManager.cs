@@ -73,37 +73,36 @@ namespace Core.Notification
             return response;
         }
 
-        public static bool Send(int groupId, long startTime, int messageId)
+        public static bool Send(int groupId, long sendTime, int messageId)
         {
             // get message announcements
             TopicNotificationMessage topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(messageId);
             if (topicNotificationMessage == null)
             {
                 log.ErrorFormat("topic notification message was not found. groupId: {0} messageId: {1}", groupId, messageId);
-                return false;
+                return true;
             }
 
             // get topic notification
-            TopicNotification topicNotification = null;
             GenericResponse<TopicNotification> response = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
-            if (response == null  || !response.IsOkStatusCode())
+            if (!response.HasObject())
             {
                 log.ErrorFormat("topic notification was not found. grogroupIdup: {0} topicNotificationId: {1}", groupId, topicNotificationMessage.TopicNotificationId);
-                return false;
+                return true;
             }
-            topicNotification = response.Object;
-            // validate start time 
+
+            TopicNotification topicNotification = response.Object;
+            
+            // validate send time 
             var triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
-            if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != startTime)
+            if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != sendTime)
             {
                 log.ErrorFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}", 
-                    groupId, topicNotificationMessage.TopicNotificationId, triggerTime, startTime);
+                    groupId, topicNotificationMessage.TopicNotificationId, triggerTime, sendTime);
+
                 return false;
             }
 
-            //long currentTimeSec = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-            string singleTopicExternalId = string.Empty;
-            string singleQueueName = string.Empty;
             List<string> topicExternalIds = new List<string>();
             List<string> queueNames = new List<string>();
             bool includeMail = false;
@@ -199,7 +198,12 @@ namespace Core.Notification
 
             log.DebugFormat("Successfully sent topic notification message: Id: {0}", messageId);
 
-            // TODO:  - update message sent
+            // TODO:  - update message sent - after all types (mail / push / sms) sent successfully or just 1? 
+
+            topicNotificationMessage.Status = TopicNotificationMessageStatus.Sent;
+            DAL.NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage);
+            //DAL.NotificationDal.updateTopicNotificationMessage();
+
             //DAL.NotificationDal.Update_MessageAnnouncementSent(messageId, groupId, (int)eAnnouncementStatus.Sent);
             //DAL.NotificationDal.Update_MessageAnnouncementResultMessageId(messageId, groupId, resultMsgIds);
             return true;
@@ -228,11 +232,33 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (currentTopicNotificationMessage.Trigger.Equals(topicNotificationMessageToUpdate.Trigger))
+                if (currentTopicNotificationMessage.Status == TopicNotificationMessageStatus.Sent)
+                {
+                    log.ErrorFormat("Cannot update sent message. {0}", logData);
+                    response.SetStatus(eResponseStatus.Error, "Cannot update sent message");
+                    return response;
+                }
+
+                if (!currentTopicNotificationMessage.Trigger.Equals(topicNotificationMessageToUpdate.Trigger))
                 {
                     log.ErrorFormat("Wrong topic notification trigger. {0}", logData);
                     response.SetStatus(eResponseStatus.WrongTopicNotificationTrigger);
                     return response;
+                }
+
+                if (topicNotificationMessageToUpdate.Message != null)
+                {
+                    currentTopicNotificationMessage.Message = topicNotificationMessageToUpdate.Message;
+                }
+
+                if (topicNotificationMessageToUpdate.ImageUrl != null)
+                {
+                    currentTopicNotificationMessage.ImageUrl = topicNotificationMessageToUpdate.ImageUrl;
+                }
+
+                if (topicNotificationMessageToUpdate.Dispatchers != null)
+                {
+                    currentTopicNotificationMessage.Dispatchers = topicNotificationMessageToUpdate.Dispatchers;
                 }
 
                 // Save TopicNotificationAtCB                    
