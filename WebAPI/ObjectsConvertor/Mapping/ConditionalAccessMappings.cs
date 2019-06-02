@@ -22,6 +22,7 @@ using ApiObjects.Pricing;
 using Core.ConditionalAccess.Modules;
 using AutoMapper.Configuration;
 using TVinciShared;
+using ApiLogic.ConditionalAccess.Modules;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -72,7 +73,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId));
-            
+
+            cfg.CreateMap<CollectionPurchase, KalturaCollectionEntitlement>()
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
+              .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.purchaseId))
+              .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+              .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+              .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
+              .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses));
+
             cfg.CreateMap<Entitlement, KalturaPpvEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
                .ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))

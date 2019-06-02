@@ -410,7 +410,7 @@ namespace WebAPI.Clients
                         else
                         {
                             asset = Mapper.Map<KalturaAsset>(assetToConvert);
-                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);                            
+                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);
                         }
 
                         result.Objects.Add(asset);

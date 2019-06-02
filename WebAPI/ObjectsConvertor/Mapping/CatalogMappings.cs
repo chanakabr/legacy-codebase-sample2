@@ -592,6 +592,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled));
 
+            cfg.CreateMap<RecordingAsset, KalturaRecordingAsset>()
+                .IncludeBase<EpgAsset, KalturaProgramAsset>()
+                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType))
+                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId));
+
             // Asset to KalturaAsset
             cfg.CreateMap<Asset, KalturaAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

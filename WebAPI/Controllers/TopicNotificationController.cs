@@ -29,6 +29,7 @@ namespace WebAPI.Controllers
         /// <param name="topicNotification">The topic notification to add</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionDoesNotExist)]
         static public KalturaTopicNotification Add(KalturaTopicNotification topicNotification)
         {
             try
@@ -54,7 +55,7 @@ namespace WebAPI.Controllers
         /// <param name="topicNotification">The topic notification to update</param>
         [Action("update")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.TopicNotificationNotFound)]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]        
         static public KalturaTopicNotification Update(int id, KalturaTopicNotification topicNotification)
         {
             try
