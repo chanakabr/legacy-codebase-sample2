@@ -517,6 +517,12 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetTopicNotificationMessage", ReplyAction="http://tempuri.org/INotificationService/GetTopicNotificationMessageResponse")]
         System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> GetTopicNotificationMessageAsync(int groupId, long topicNotificationMessageId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/HandleSubsciptionUpdate", ReplyAction="http://tempuri.org/INotificationService/HandleSubsciptionUpdateResponse")]
+        ApiObjects.Response.Status HandleSubsciptionUpdate(int groupId, long subsciptionId, long userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/HandleSubsciptionUpdate", ReplyAction="http://tempuri.org/INotificationService/HandleSubsciptionUpdateResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> HandleSubsciptionUpdateAsync(int groupId, long subsciptionId, long userId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1056,6 +1062,14 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Threading.Tasks.Task<ApiObjects.Notification.TopicNotificationMessage> GetTopicNotificationMessageAsync(int groupId, long topicNotificationMessageId) {
             return base.Channel.GetTopicNotificationMessageAsync(groupId, topicNotificationMessageId);
+        }
+        
+        public ApiObjects.Response.Status HandleSubsciptionUpdate(int groupId, long subsciptionId, long userId) {
+            return base.Channel.HandleSubsciptionUpdate(groupId, subsciptionId, userId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> HandleSubsciptionUpdateAsync(int groupId, long subsciptionId, long userId) {
+            return base.Channel.HandleSubsciptionUpdateAsync(groupId, subsciptionId, userId);
         }
     }
 }

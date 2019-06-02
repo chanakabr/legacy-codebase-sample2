@@ -1417,5 +1417,21 @@ namespace Core.Notification
             }
             return result;
         }
+
+        public static Status HandleSubsciptionUpdate(int groupId, long subscriptionId, long userId)
+        {
+            Status response = null;
+
+            try
+            {
+                response = TopicNotificationManager.HandleSubsciptionUpdate(groupId, subscriptionId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in HandleSubsciptionUpdate", ex);
+            }
+
+            return response;
+        }
     }
 }

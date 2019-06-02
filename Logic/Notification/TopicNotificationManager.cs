@@ -58,13 +58,13 @@ namespace Core.Notification
                 }
 
                 long subscriptionId = 0;
-                if (topicNotification.SubscribeReference != null 
-                    && (topicNotification.SubscribeReference as SubscriptionSubscribeReference) != null 
-                    && ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId > 0 )
+                if (topicNotification.SubscribeReference != null
+                    && (topicNotification.SubscribeReference as SubscriptionSubscribeReference) != null
+                    && ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId > 0)
                 {
                     subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
                     Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
-                    if(subscription == null)
+                    if (subscription == null)
                     {
                         log.DebugFormat("failed to create TopicNotification groupID = {0}, TopicNotification Name = {1}. SubscriptionDoesNotExist: {2}", topicNotification.GroupId, topicName, subscriptionId);
                         response.SetStatus(eResponseStatus.SubscriptionDoesNotExist, "fail create TopicNotification");
@@ -657,5 +657,81 @@ namespace Core.Notification
             }
         }
 
+        internal static Status HandleSubsciptionUpdate(int groupId, long subscriptionId, long userId)
+        {
+            Status response = null;
+
+            var subscription = Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+            if (subscription == null)
+            {
+                log.ErrorFormat("failed to HandleSubsciptionUpdate groupId = {0}, subsciptionId= {1}. SubscriptionDoesNotExist", groupId, subscriptionId);
+                response = new Status((int)eResponseStatus.SubscriptionDoesNotExist);
+                return response;
+            }
+
+            var topicNotifications = List(groupId, new SubscriptionSubscribeReference() { SubscriptionId = subscriptionId });
+            if (!topicNotifications.HasObjects())
+            {
+                log.ErrorFormat("failed to HandleSubsciptionUpdate. No topic notification found for groupId = {0}, subsciptionId= {1}. SubscriptionDoesNotExist", groupId, subscriptionId);
+                response = new Status((int)eResponseStatus.TopicNotificationNotFound);
+                return response;
+            }
+
+            var topicMessages = TopicNotificationMessageManager.List(groupId, topicNotifications.Objects[0].Id, 1000, 0);
+            if (!topicMessages.HasObjects())
+            {
+                log.ErrorFormat("failed to HandleSubsciptionUpdate. No topic message found for groupId = {0}, subsciptionId= {1}. SubscriptionDoesNotExist", groupId, subscriptionId);
+                response = new Status((int)eResponseStatus.TopicNotificationMessageNotFound);
+                return response;
+            }
+
+            var subscriptionTopicMessages = topicMessages.Objects.Where(x => x.Trigger.Type == TopicNotificationTriggerType.Subscription);
+            if (subscriptionTopicMessages == null)
+            {
+                log.ErrorFormat("failed to HandleSubsciptionUpdate. topic message without Subscription trigger. groupId = {0}, subsciptionId= {1}. SubscriptionDoesNotExist", groupId, subscriptionId);
+                response = new Status((int)eResponseStatus.TopicNotificationMessageNotFound);
+                return response;
+            }
+
+            TopicNotificationSubscriptionTrigger trigger;
+            foreach (var item in subscriptionTopicMessages)
+            {
+                trigger = item.Trigger as TopicNotificationSubscriptionTrigger;
+                if (trigger == null)
+                {
+                    continue;
+                }
+
+                long triggerTime = 0;
+                if (trigger.TriggerType == ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate)
+                {
+                    triggerTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(subscription.m_dStartDate.AddSeconds(trigger.Offset));
+                }
+                else
+                {
+                    triggerTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(subscription.m_dEndDate.AddSeconds(trigger.Offset));
+                }
+
+                if (triggerTime != item.SendDate)
+                {
+                    //new msg
+                    item.SendDate = triggerTime;
+                    TopicNotificationMessageManager.AddTopicNotificationMessageToQueue(groupId, item.Id, triggerTime);
+
+
+                    GenericResponse<TopicNotificationMessage> result = TopicNotificationMessageManager.Add(groupId, null, userId);
+                    if (result.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("failed to HandleSubsciptionUpdate.  failed to create new message. groupId = {0}, subsciptionId= {1}. SubscriptionDoesNotExist", groupId, subscriptionId);
+                        return result.Status;
+                    }
+                }
+            
+
+            
+            }
+
+            return response = new Status((int)eResponseStatus.OK);
+        }
     }
 }
