@@ -74,13 +74,13 @@ namespace Core.Notification
             return response;
         }
 
-        public static bool Send(int groupId, long sendTime, int messageId)
+        public static bool Send(int groupId, long sendTime, int topicNotificationMessageId)
         {
             // get message announcements
-            TopicNotificationMessage topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(messageId);
+            TopicNotificationMessage topicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(topicNotificationMessageId);
             if (topicNotificationMessage == null)
             {
-                log.ErrorFormat("topic notification message was not found. groupId: {0} messageId: {1}", groupId, messageId);
+                log.ErrorFormat("topic notification message was not found. groupId: {0} messageId: {1}", groupId, topicNotificationMessageId);
                 return true;
             }
 
@@ -88,7 +88,7 @@ namespace Core.Notification
             GenericResponse<TopicNotification> response = TopicNotificationManager.GetTopicNotificationById(topicNotificationMessage.TopicNotificationId);
             if (!response.HasObject())
             {
-                log.ErrorFormat("topic notification was not found. grogroupIdup: {0} topicNotificationId: {1}", groupId, topicNotificationMessage.TopicNotificationId);
+                log.ErrorFormat("topic notification was not found. groupId: {0} topicNotificationId: {1}", groupId, topicNotificationMessage.TopicNotificationId);
                 return true;
             }
 
@@ -112,7 +112,7 @@ namespace Core.Notification
             {
                 includeSms = topicNotificationMessage.Dispatchers.Count(d => d.Type == TopicNotificationDispatcherType.Sms) > 0;
 
-                var dispatcher = topicNotificationMessage.Dispatchers.First(d => d.Type == TopicNotificationDispatcherType.Mail);
+                var dispatcher = topicNotificationMessage.Dispatchers.FirstOrDefault(d => d.Type == TopicNotificationDispatcherType.Mail);
                 if (dispatcher != null)
                 {
                     TopicNotificationMailDispatcher mailDispatcher = (TopicNotificationMailDispatcher)dispatcher;
@@ -148,11 +148,11 @@ namespace Core.Notification
                 {
                     if (!MailNotificationAdapterClient.PublishToAnnouncement(groupId, topicNotification.MailExternalId, mailSubject, null, mailTemplate))
                     {
-                        log.ErrorFormat("failed to send topic notification message to mail adapter. annoucementId = {0}", topicNotification.Id);
+                        log.ErrorFormat("failed to send topic notification message to mail adapter. topicNotificationId = {0}", topicNotification.Id);
                     }
                     else
                     {
-                        log.DebugFormat("Successfully sent topic notification message to mail. announcementId: {0}", topicNotification.Id);
+                        log.DebugFormat("Successfully sent topic notification message to mail. topicNotificationId: {0}", topicNotification.Id);
 
                         // TODO: update system external result ?? 
                     }
@@ -166,7 +166,7 @@ namespace Core.Notification
                 string sound = string.Empty;
                 string category = string.Empty;
 
-                var messageTemplate = NotificationCache.Instance().GetMessageTemplates(groupId).First(x => x.TemplateType == MessageTemplateType.Reminder);
+                var messageTemplate = NotificationCache.Instance().GetMessageTemplates(groupId).FirstOrDefault(x => x.TemplateType == MessageTemplateType.Reminder);
 
                 if (messageTemplate != null)
                 {
@@ -186,15 +186,15 @@ namespace Core.Notification
                     });
                 if (string.IsNullOrEmpty(resultMsgId))
                 {
-                    log.ErrorFormat("failed to send SMS/push with topic notification message to adapter. topicNotificationMessageId = {0}", topicNotificationMessage.Id);
+                    log.ErrorFormat("failed to send SMS/push with topic notification message to adapter. topicNotificationMessageId = {0}", topicNotificationMessageId);
                 }
                 else
                 {
-                    log.DebugFormat("Successfully sent SMS/push with topic notification message to adapter. topicNotificationMessageId = {0}", topicNotificationMessage.Id);
+                    log.DebugFormat("Successfully sent SMS/push with topic notification message to adapter. topicNotificationMessageId = {0}", topicNotificationMessageId);
                 }
             }
 
-            log.DebugFormat("Successfully sent topic notification message: Id: {0}", messageId);
+            log.DebugFormat("Finished sending topic notification message: Id: {0}", topicNotificationMessageId);
 
             topicNotificationMessage.Status = TopicNotificationMessageStatus.Sent;
             DAL.NotificationDal.SaveTopicNotificationMessageCB(groupId, topicNotificationMessage);
