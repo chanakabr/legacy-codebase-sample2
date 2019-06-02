@@ -290,7 +290,7 @@ namespace Core.Notification
             // get user announcement
             DbAnnouncement userDbAnnouncement = null;
             if (announcements != null)
-                userDbAnnouncement = announcements.FirstOrDefault(ann => ann.FollowPhrase == followData.FollowPhrase);
+                userDbAnnouncement = announcements.FirstOrDefault(ann => ann.FollowPhrase.ToLower() == followData.FollowPhrase.ToLower());
 
             if (userDbAnnouncement == null)
             {

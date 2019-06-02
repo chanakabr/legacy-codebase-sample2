@@ -191,17 +191,17 @@
     <None Include="Service References\PlaybackAdapter\AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\PlaybackAdapter\Service1.wsdl" />
-    <None Include="Service References\PlaybackAdapter\Service4.xsd">
+    <None Include="Service References\PlaybackAdapter\Service.wsdl" />
+    <None Include="Service References\PlaybackAdapter\Service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\PlaybackAdapter\Service41.xsd">
+    <None Include="Service References\PlaybackAdapter\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\PlaybackAdapter\Service42.xsd">
+    <None Include="Service References\PlaybackAdapter\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\PlaybackAdapter\Service43.xsd">
+    <None Include="Service References\PlaybackAdapter\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RecommendationEngineAdapter\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource">
@@ -327,10 +327,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\PlaybackAdapter\Service1.disco" />
+    <None Include="Service References\cdvrAdap\Service2.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\cdvrAdap\Service2.disco" />
+    <None Include="Service References\PlaybackAdapter\Service.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

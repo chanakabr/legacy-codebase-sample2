@@ -282,28 +282,28 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Notification_WCF\notification.xsd">
+    <None Include="Service References\Notification_WCF\notification8.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification1.xsd">
+    <None Include="Service References\Notification_WCF\notification81.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification2.xsd">
+    <None Include="Service References\Notification_WCF\notification82.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification3.xsd">
+    <None Include="Service References\Notification_WCF\notification83.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification4.xsd">
+    <None Include="Service References\Notification_WCF\notification84.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification5.xsd">
+    <None Include="Service References\Notification_WCF\notification85.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification6.xsd">
+    <None Include="Service References\Notification_WCF\notification86.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notification_WCF\notification7.xsd">
+    <None Include="Service References\Notification_WCF\notification87.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notification_WCF\NotificationService12.wsdl" />
@@ -619,7 +619,7 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
-    <None Include="Service References\Notification_WCF\notification.disco" />
+    <None Include="Service References\Notification_WCF\notification11.disco" />
     <None Include="Service References\Notification_WCF\NotificationService12.disco" />
     <None Include="Web References\WS_ConditionalAccess\module.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />

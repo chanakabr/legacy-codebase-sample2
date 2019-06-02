@@ -1024,6 +1024,7 @@ namespace EpgBL
                 var filterCompositeType = new FilterCompositeType(CutWith.AND);
                 filterCompositeType.AddChild(endDateRange);
                 filterCompositeType.AddChild(startDateRange);
+                filterCompositeType.AddChild(channelTerm);
 
                 query.Filter = new QueryFilter()
                 {

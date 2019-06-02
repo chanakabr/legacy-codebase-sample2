@@ -19,5 +19,7 @@ namespace ApiObjects.Notification
         public List<TopicNotificationDispatcher> Dispatchers { get; set; }
 
         public TopicNotificationMessageStatus Status { get; set; }
+
+        public long SendDate { get; set; }
     }
 }

@@ -132,7 +132,8 @@ namespace AdapterControllers
                     Udid = udid,
                     TimeStamp = unixTimestamp,
                     Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))),
-                    AdapterData = playbackAdapterData.ToArray()
+                    AdapterData = playbackAdapterData.ToArray(),
+                    UserId = userId
                 };
 
                 PlaybackAdapter.PlaybackAdapterResponse adapterResponse = GetAdapterPlaybackContext(adapterClient, contextOption);

@@ -4,6 +4,7 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Notification.Adapters;
+using Core.Pricing;
 using DAL;
 using KLogMonitor;
 using System;
@@ -54,6 +55,22 @@ namespace Core.Notification
                     }
 
                     topicNotification.MailExternalId = mailExternalId;
+                }
+
+                long subscriptionId = 0;
+                if (topicNotification.SubscribeReference != null 
+                    && (topicNotification.SubscribeReference as SubscriptionSubscribeReference) != null 
+                    && ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId > 0 )
+                {
+                    subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
+                    Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                    if(subscription == null)
+                    {
+                        log.DebugFormat("failed to create TopicNotification groupID = {0}, TopicNotification Name = {1}. SubscriptionDoesNotExist: {2}", topicNotification.GroupId, topicName, subscriptionId);
+                        response.SetStatus(eResponseStatus.SubscriptionDoesNotExist, "fail create TopicNotification");
+                        return response;
+                    }
+
                 }
 
                 // create DB topicNotification
@@ -223,9 +240,22 @@ namespace Core.Notification
                 else
                 {
                     //2. filter by SubscribeReference (SubId) to new Object !!!
-                    response.Objects.Add(topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId()));
+                    TopicNotification topic = topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == subscribeReference.GetSubscribtionReferenceId());
+                    if (topic != null)
+                    {
+                        response.Objects.Add(topic);
+                    }
+                }
+                if (response.Objects != null)
+                {
+                    response.Objects = response.Objects.OrderByDescending(x => x.Id).ToList();
                 }
 
+                response.SetStatus(eResponseStatus.OK);
+            }
+            else
+            {
+                response.Objects = new List<TopicNotification>();
                 response.SetStatus(eResponseStatus.OK);
             }
 
