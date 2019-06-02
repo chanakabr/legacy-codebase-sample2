@@ -878,6 +878,7 @@
     <Compile Include="Models\Notification\KalturaSubscribeReference.cs" />
     <Compile Include="Models\Notification\KalturaTopicNotification.cs" />
     <Compile Include="Models\Notification\KalturaTopicNotificationFilter.cs" />
+    <Compile Include="Models\Notification\KalturaTopicNotificationMessageStatus.cs" />
     <Compile Include="Models\Notification\KalturaTopicNotificationMessage.cs" />
     <Compile Include="Models\Notification\KalturaTopicNotificationMessageFilter.cs" />
     <Compile Include="Models\Notification\KalturaTrigger.cs" />

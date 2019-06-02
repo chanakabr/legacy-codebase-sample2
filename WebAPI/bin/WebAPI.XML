@@ -11553,6 +11553,11 @@
             Topic notification message dispatchers
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessage.Status">
+            <summary>
+            Message status
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaTopicNotificationMessageListResponse.Objects">
             <summary>
             Topic notification messages

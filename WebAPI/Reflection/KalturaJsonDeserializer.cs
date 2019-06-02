@@ -7609,6 +7609,16 @@ namespace WebAPI.Models.Notifications
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaTopicNotificationMessage(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -7655,6 +7665,19 @@ namespace WebAPI.Models.Notifications
                     else if (parameters["dispatchers"] is IList)
                     {
                         Dispatchers = buildList(typeof(KalturaDispatcher), parameters["dispatchers"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        StatusSchemaProperty.Validate("status", parameters["status"]);
+                    }
+                    Status = (KalturaAnnouncementStatus) Enum.Parse(typeof(KalturaAnnouncementStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAnnouncementStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaAnnouncementStatus)));
                     }
                 }
             }

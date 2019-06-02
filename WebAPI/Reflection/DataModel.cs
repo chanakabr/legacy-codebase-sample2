@@ -5994,6 +5994,8 @@ namespace WebAPI.Reflection
                             return "imageUrl";
                         case "Message":
                             return "message";
+                        case "Status":
+                            return "status";
                         case "TopicNotificationId":
                             return "topicNotificationId";
                         case "Trigger":

@@ -433,7 +433,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.TopicNotificationId, opt => opt.MapFrom(src => src.TopicNotificationId))
                 .ForMember(dest => dest.Trigger, opt => opt.MapFrom(src => src.Trigger))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl));
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertTopicNotificationStatus(src.Status)));
 
             cfg.CreateMap<KalturaTopicNotificationMessage, TopicNotificationMessage>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1045,6 +1046,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown subscription trigger type");
                     break;
+            }
+
+            return result;
+        }
+
+        public static KalturaTopicNotificationMessageStatus ConvertTopicNotificationStatus(TopicNotificationMessageStatus status)
+        {
+            KalturaTopicNotificationMessageStatus result;
+            switch (status)
+            {
+                case TopicNotificationMessageStatus.Pending:
+                    result = KalturaTopicNotificationMessageStatus.PENDING;
+                    break;
+                case TopicNotificationMessageStatus.Sent:
+                    result = KalturaTopicNotificationMessageStatus.SENT;
+                    break;
+               
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown status Type");
             }
 
             return result;

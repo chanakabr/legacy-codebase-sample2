@@ -62,6 +62,15 @@ namespace WebAPI.Models.Notifications
         [XmlArray(ElementName = "dispatchers", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaDispatcher> Dispatchers { get; set; }
+
+        /// <summary>
+        /// Message status
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty(PropertyName = "status")]
+        [XmlElement(ElementName = "status")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaAnnouncementStatus Status { get; set; }
     }
 
     public partial class KalturaTopicNotificationMessageListResponse : KalturaListResponse

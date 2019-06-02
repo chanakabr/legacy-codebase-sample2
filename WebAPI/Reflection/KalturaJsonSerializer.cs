@@ -6438,6 +6438,7 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
             }
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaAnnouncementStatus), Status) + "\"");
             ret.Add("topicNotificationId", "\"topicNotificationId\": " + TopicNotificationId);
             if(Trigger != null)
             {
@@ -6467,6 +6468,7 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaAnnouncementStatus), Status) + "" + "</status>");
             ret.Add("topicNotificationId", "<topicNotificationId>" + TopicNotificationId + "</topicNotificationId>");
             if(Trigger != null)
             {
