@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using WebAPI.Filters;
 using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
@@ -51,7 +52,10 @@ namespace WebAPI.EventNotifications
                 action = ConvertKalturaAction(actionEvent.Action);
             }
 
+
+
             string systemName = objectEvent.GetSystemName();
+            var userIp = HttpContext.Current.Items[RequestParser.USER_IP]?.ToString();
 
             KalturaNotification eventWrapper = new KalturaNotification()
             {
@@ -60,7 +64,7 @@ namespace WebAPI.EventNotifications
                 eventObjectType = destination.Name,
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
-                UserIp = Utils.Utils.GetClientIP()
+                UserIp = userIp
             };
 
             return eventWrapper;

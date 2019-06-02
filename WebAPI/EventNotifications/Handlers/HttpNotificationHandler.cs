@@ -16,6 +16,7 @@ using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using WebAPI.Managers;
+using WebAPI.Filters;
 
 namespace WebAPI.EventNotifications
 {
@@ -42,7 +43,7 @@ namespace WebAPI.EventNotifications
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
                     partnerId = kalturaEvent.PartnerId,
-                    UserIp = Utils.Utils.GetClientIP()
+                    UserIp = HttpContext.Current.Items[RequestParser.USER_IP]?.ToString()
                 }
             );
         }
