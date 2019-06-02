@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
-  <xs:import schemaLocation="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Core.Notification" />
-  <xs:import schemaLocation="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:import schemaLocation="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:import schemaLocation="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Core.Notification" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
   <xs:element name="AddNotificationRequest">
     <xs:complexType>
       <xs:sequence>
@@ -1083,6 +1083,22 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q87="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetTopicNotificationMessageResult" nillable="true" type="q87:TopicNotificationMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HandleSubsciptionUpdate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="subsciptionId" type="xs:long" />
+        <xs:element minOccurs="0" name="userId" type="xs:long" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="HandleSubsciptionUpdateResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q88="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="HandleSubsciptionUpdateResult" nillable="true" type="q88:Status" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

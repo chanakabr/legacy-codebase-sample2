@@ -188,7 +188,7 @@ namespace TvinciImporter
                 service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
 
             return service;
-        }
+        }        
 
         public static TopicNotification[] GetGroupTopicNotifications(int groupId)
         {
@@ -320,10 +320,27 @@ namespace TvinciImporter
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception (GetTopicNotification) - groupId:{0}. ex:{1}", groupId, ex);
+                log.ErrorFormat("Exception (GetTopicNotificationMessage) - groupId:{0}. ex:{1}", groupId, ex);
             }
 
             return topic;
+        }
+
+        public static Status HandleSubsciptionUpdate(int groupId, long subsciptionId, long userId)
+        {
+            Status status = null;
+            try
+            {
+                //Call Notifications WCF service                
+                Notification_WCF.NotificationServiceClient service = CreateNotificationServiceClient(groupId);
+                status = service.HandleSubsciptionUpdate(groupId, subsciptionId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception (HandleSubsciptionUpdate) - groupId:{0}. ex:{1}", groupId, ex);
+            }
+
+            return status;
         }
     }
 }

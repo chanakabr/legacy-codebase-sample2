@@ -50,8 +50,9 @@ namespace Core.Notification
                     response.SetStatus(eResponseStatus.Error, "fail insert TopicNotificationMessage to CB");
                     return response;
                 }
+                long triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
 
-                if (AddTopicNotificationMessageToQueue(topicNotificationMessage, topicNotification))
+                if (AddTopicNotificationMessageToQueue(groupId, topicNotificationMessage.Id, triggerTime))
                 {
                     response.Object = topicNotificationMessage;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -91,12 +92,12 @@ namespace Core.Notification
             }
 
             TopicNotification topicNotification = response.Object;
-            
+
             // validate send time 
             var triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
-            if (!triggerTime.HasValue || DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime) != sendTime)
+            if (triggerTime <= 0 || triggerTime != sendTime)
             {
-                log.ErrorFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}", 
+                log.ErrorFormat("topic notification message was not sent due to wrong trigger time. groupId: {0} messageId: {1}, triggerTime: {2}, sent time: {3}",
                     groupId, topicNotificationMessage.TopicNotificationId, triggerTime, sendTime);
 
                 return false;
@@ -348,7 +349,7 @@ namespace Core.Notification
                         topicNotificationMessageIds.Add(ODBCWrapper.Utils.GetLongSafeVal(row, "id"));
                     }
 
-                    topicNotificationMessageIds = topicNotificationMessageIds.OrderByDescending(x => x).ToList();                    
+                    topicNotificationMessageIds = topicNotificationMessageIds.OrderByDescending(x => x).ToList();
                     response.TotalItems = topicNotificationMessageIds.Count;
 
                     // paging
@@ -369,46 +370,43 @@ namespace Core.Notification
             return response;
         }
 
-        private static bool AddTopicNotificationMessageToQueue(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
+        public static bool AddTopicNotificationMessageToQueue(int groupId, long topicNotificationMessageId, long sendDate)
         {
             bool result = false;
-            DateTime? triggerTime = GetTopicNotificationTriggerTime(topicNotificationMessage, topicNotification);
 
-            if (triggerTime.HasValue)
+            QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
+            ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
+                groupId,
+                sendDate,
+                (int)topicNotificationMessageId, MessageAnnouncementRequestType.TopicNotificationMessage)
             {
-                QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
-                ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
-                    topicNotificationMessage.GroupId,
-                    DateUtils.DateTimeToUtcUnixTimestampSeconds(triggerTime.Value),
-                    (int)topicNotificationMessage.Id, MessageAnnouncementRequestType.TopicNotificationMessage)
-                {
-                    ETA = triggerTime
-                };
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(sendDate)
+            };
 
-                if (queue.Enqueue(messageAnnouncementData, AnnouncementManager.ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS))
-                {
-                    log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
-                    result = true;
-                }
-                else
-                {
-                    log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
-                }
+            if (queue.Enqueue(messageAnnouncementData, AnnouncementManager.ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS))
+            {
+                log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
+                result = true;
             }
+            else
+            {
+                log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
+            }
+
 
             return result;
         }
 
-        private static DateTime? GetTopicNotificationTriggerTime(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
+        private static long GetTopicNotificationTriggerTime(TopicNotificationMessage topicNotificationMessage, TopicNotification topicNotification)
         {
-            DateTime? triggerTime = null;
+            long triggerTime = 0;
 
             if (topicNotificationMessage.Trigger != null)
             {
                 switch (topicNotificationMessage.Trigger.Type)
                 {
                     case TopicNotificationTriggerType.Date:
-                        triggerTime = ((TopicNotificationDateTrigger)topicNotificationMessage.Trigger).Date;
+                        triggerTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(((TopicNotificationDateTrigger)topicNotificationMessage.Trigger).Date);
                         break;
                     case TopicNotificationTriggerType.Subscription:
                         {
@@ -424,10 +422,10 @@ namespace Core.Notification
                                 switch (trigger.TriggerType)
                                 {
                                     case ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate:
-                                        triggerTime = subscription.m_dStartDate.AddSeconds(trigger.Offset);
+                                        triggerTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(subscription.m_dStartDate.AddSeconds(trigger.Offset));
                                         break;
                                     case ApiObjects.TopicNotificationSubscriptionTriggerType.EndDate:
-                                        triggerTime = subscription.m_dEndDate.AddSeconds(trigger.Offset);
+                                        triggerTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(subscription.m_dEndDate.AddSeconds(trigger.Offset));
                                         break;
                                     default:
                                         break;

@@ -19,19 +19,19 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost/tvpapi_rest/WS_Modules/notification.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="notification8.xsd" MetadataType="Schema" ID="fccbfca5-aa37-4e44-b80a-6e36d907f73a" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd0" />
-    <MetadataFile FileName="NotificationService3.wsdl" MetadataType="Wsdl" ID="26dff844-00de-4fc6-b7c5-358bb1e83927" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?wsdl" />
-    <MetadataFile FileName="notification11.disco" MetadataType="Disco" ID="bca0d330-1538-4b4b-ba2c-1d6fb466455c" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?disco" />
-    <MetadataFile FileName="notification81.xsd" MetadataType="Schema" ID="bcec5a89-7cee-41bc-98ca-7e4d304251cb" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd7" />
-    <MetadataFile FileName="notification82.xsd" MetadataType="Schema" ID="cd87ee23-b91d-4909-8d6a-dcceb8c4eae6" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd6" />
-    <MetadataFile FileName="notification83.xsd" MetadataType="Schema" ID="f73c79f2-7ee1-4420-bd44-94f343500bf3" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd5" />
-    <MetadataFile FileName="notification84.xsd" MetadataType="Schema" ID="4ee35164-85aa-496b-a444-d55cb128d03a" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd4" />
-    <MetadataFile FileName="notification85.xsd" MetadataType="Schema" ID="121f83ed-924d-47ff-a9e9-1edc787908d7" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd3" />
-    <MetadataFile FileName="notification86.xsd" MetadataType="Schema" ID="afba628e-bc68-44e8-8ef5-4424e90d64dd" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd2" />
-    <MetadataFile FileName="notification87.xsd" MetadataType="Schema" ID="0cac9634-fae5-48d4-a8d7-e82b77a9895b" SourceId="1" SourceUrl="http://34.249.122.223:8080/v5_2_3/WS_Modules/notification.svc?xsd=xsd1" />
+    <MetadataFile FileName="notification.disco" MetadataType="Disco" ID="16f4d1b4-628e-499a-be74-d479fd451288" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?disco" />
+    <MetadataFile FileName="notification.xsd" MetadataType="Schema" ID="22b92864-469e-4cab-adaa-616b62e84bbb" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd0" />
+    <MetadataFile FileName="notification1.xsd" MetadataType="Schema" ID="0b9e06a7-261c-48b6-8d2a-147f41166baa" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd5" />
+    <MetadataFile FileName="notification2.xsd" MetadataType="Schema" ID="b3c008b6-c347-4ef7-a717-36b9857012c7" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd4" />
+    <MetadataFile FileName="notification3.xsd" MetadataType="Schema" ID="34e4d40b-7f1a-4aa3-b6ff-9e78d075b68d" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd7" />
+    <MetadataFile FileName="notification4.xsd" MetadataType="Schema" ID="71f6cbe4-a1b3-45fa-8565-9678dbef6b55" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd6" />
+    <MetadataFile FileName="notification5.xsd" MetadataType="Schema" ID="698727fd-3389-4d86-b82e-b35d3ae01041" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd1" />
+    <MetadataFile FileName="NotificationService3.wsdl" MetadataType="Wsdl" ID="0cccecb8-1704-4e1d-b98f-23efb96559c0" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?wsdl" />
+    <MetadataFile FileName="notification6.xsd" MetadataType="Schema" ID="64e7a8b1-6d2e-4e84-992d-424beab3b3b9" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd3" />
+    <MetadataFile FileName="notification7.xsd" MetadataType="Schema" ID="68b8d7bd-8b00-4144-af79-c1e1ba6b4ed3" SourceId="1" SourceUrl="http://localhost/tvpapi_rest/WS_Modules/notification.svc?xsd=xsd2" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
