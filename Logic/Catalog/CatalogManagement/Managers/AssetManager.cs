@@ -156,12 +156,6 @@ namespace Core.Catalog.CatalogManagement
             MediaAsset result = null;
             CatalogGroupCache catalogGroupCache = null;
 
-            if (tables.Count < 6)
-            {
-                log.WarnFormat("CreateMediaAssetFromDataSet didn't receive dataset with 6 or more tables");
-                return result;
-            }
-
             if(!tables.ContainsKey(TABLE_NAME_BASIC))
             {
                 log.WarnFormat("CreateMediaAsset didn't basic table. assetId {0}", id);
@@ -1543,14 +1537,7 @@ namespace Core.Catalog.CatalogManagement
                             geoAvailability[mediaId].Add(row);
                         }
                     }
-                }
-
-                // relatedEntities table
-                EnumerableRowCollection<DataRow> relatedEntities = new DataTable().AsEnumerable();
-                if (ds.Tables.Count > 7 && ds.Tables[7]?.Rows?.Count > 0)
-                {
-                    relatedEntities = ds.Tables[7].AsEnumerable();
-                }
+                }                
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
@@ -1592,7 +1579,7 @@ namespace Core.Catalog.CatalogManagement
                                 {
                                     tables.Add(TABLE_NAME_TAGS, ds.Tables[2].Clone());
                                 }
-                            }                            
+                            }                          
 
                             if (assetUpdateDate.Any())
                             {
@@ -1607,22 +1594,7 @@ namespace Core.Catalog.CatalogManagement
                                 {
                                     tables.Add(TABLE_NAME_UPDATE_DATE, ds.Tables[5].Clone());
                                 }
-                            }
-
-                            if (relatedEntities.Any())
-                            {
-                                EnumerableRowCollection<DataRow> assetRelatedEntities = (from row in relatedEntities
-                                                                                         where (Int64)row["ASSET_ID"] == id
-                                                                                         select row);
-                                if (assetRelatedEntities != null && assetRelatedEntities.Any())
-                                {
-                                    tables.Add(TABLE_NAME_RELATED_ENTITIES, assetRelatedEntities.CopyToDataTable());
-                                }
-                                else
-                                {
-                                    tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[7].Clone());
-                                }
-                            }
+                            }                            
 
                             MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
                             if (mediaAsset != null)
