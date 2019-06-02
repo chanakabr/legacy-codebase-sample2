@@ -415,7 +415,7 @@ namespace Core.Notification
                             }
                             if (subscriptionId > 0)
                             {
-                                Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                                Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);                                
                                 switch (trigger.TriggerType)
                                 {
                                     case ApiObjects.TopicNotificationSubscriptionTriggerType.StartDate:

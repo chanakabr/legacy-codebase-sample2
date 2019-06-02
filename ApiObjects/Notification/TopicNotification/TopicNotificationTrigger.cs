@@ -23,8 +23,14 @@ namespace ApiObjects.Notification
             Type = TopicNotificationTriggerType.Date;
         }
 
-        public bool Equals(TopicNotificationDateTrigger other)
+        public override bool Equals(object obj)
         {
+            var other = obj as TopicNotificationDateTrigger;
+            if (other == null)
+            {
+                return false;
+            }
+
             return this.Type == other.Type && this.Date == other.Date;
         }
     }
@@ -44,12 +50,16 @@ namespace ApiObjects.Notification
             Type = TopicNotificationTriggerType.Subscription;
         }
 
-        public bool Equals(TopicNotificationSubscriptionTrigger other)
+        public override bool Equals(object obj)
         {
-            return this.Type == other.Type 
-                && this.Offset == other.Offset
-                && this.TriggerType == other.TriggerType;
-        }
+            var other = obj as TopicNotificationSubscriptionTrigger;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return this.Type == other.Type  && this.Offset == other.Offset && this.TriggerType == other.TriggerType;
+        }        
     }
 
     public enum TopicNotificationTriggerType

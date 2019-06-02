@@ -70,7 +70,6 @@ namespace Core.Notification
                         response.SetStatus(eResponseStatus.SubscriptionDoesNotExist, "fail create TopicNotification");
                         return response;
                     }
-
                 }
 
                 // create DB topicNotification
