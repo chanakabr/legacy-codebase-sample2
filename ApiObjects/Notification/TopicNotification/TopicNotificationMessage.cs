@@ -17,5 +17,7 @@ namespace ApiObjects.Notification
         public TopicNotificationTrigger Trigger { get; set; }
 
         public List<TopicNotificationDispatcher> Dispatchers { get; set; }
+
+        public long SendDate { get; set; }
     }
 }
