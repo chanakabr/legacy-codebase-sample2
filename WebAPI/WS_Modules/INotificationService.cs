@@ -209,5 +209,8 @@ namespace WS_Notification
 
         [OperationContract]
         TopicNotificationMessage GetTopicNotificationMessage(int groupId, long topicNotificationMessageId);
+
+        [OperationContract]
+        Status HandleSubsciptionUpdate(int groupId, long subsciptionId, long userId);
     }
 }
