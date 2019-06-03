@@ -1305,16 +1305,15 @@ namespace Core.ConditionalAccess
                             bool canPurchaseAddOn = false;
 
                             // get all setsIds for this addon 
-                            List<long> addOnSetIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+                            var addOnSetIds = subscription.GetSubscriptionSetIdsToPriority();
 
                             // check if one of the subscription are base in this unified cycle 
                             if (baseSubscriptions != null)
                             {
                                 foreach (Subscription baseSubscription in baseSubscriptions)
                                 {
-                                    List<long> baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
-
-                                    if (baseSetIds.Count(x => addOnSetIds.Contains(x)) > 0)
+                                    var baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority();
+                                    if (baseSetIds.Count(x => addOnSetIds.ContainsKey(x.Key)) > 0)
                                     {
                                         canPurchaseAddOn = true;
                                         break;
@@ -1350,10 +1349,12 @@ namespace Core.ConditionalAccess
                 log.DebugFormat("stop renew process due to no subs to renew");
                 return true;
             }
+
             if (removeSubscriptionCodes.Count > 0) // remove all not relevant subscriptions
             {
                 subscriptions.RemoveAll(x => removeSubscriptionCodes.Contains(x.m_SubscriptionCode));
             }
+
             #endregion
 
             Utils.GetMultiSubscriptionUsageModule(renewSubscriptioDetails, userIp, subscriptions, cas, ref unifiedBillingCycle, (int)householdId, groupId);
