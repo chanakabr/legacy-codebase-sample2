@@ -233,12 +233,25 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (!currentTopicNotificationMessage.Trigger.Equals(topicNotificationMessageToUpdate.Trigger))
+                if(currentTopicNotificationMessage.Trigger.Type != topicNotificationMessageToUpdate.Trigger.Type)
                 {
                     log.ErrorFormat("Wrong topic notification trigger. {0}", logData);
                     response.SetStatus(eResponseStatus.WrongTopicNotificationTrigger);
                     return response;
                 }
+
+                if(currentTopicNotificationMessage.Trigger is TopicNotificationSubscriptionTrigger)
+                {
+                    if(((TopicNotificationSubscriptionTrigger)currentTopicNotificationMessage.Trigger).TriggerType != ((TopicNotificationSubscriptionTrigger)topicNotificationMessageToUpdate.Trigger).TriggerType)
+                    {
+                        log.ErrorFormat("Wrong topic notification trigger values. {0}", logData);
+                        response.SetStatus(eResponseStatus.WrongTopicNotificationTrigger);
+                        return response;
+                    }
+                }
+
+                currentTopicNotificationMessage.Trigger = topicNotificationMessageToUpdate.Trigger;
+
 
                 if (topicNotificationMessageToUpdate.Message != null)
                 {
