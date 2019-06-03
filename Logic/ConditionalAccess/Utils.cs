@@ -8673,50 +8673,59 @@ namespace Core.ConditionalAccess
             return new Tuple<Dictionary<string, SubscriptionSet>, bool>(result, res);
         }
 
-        internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, Subscription subscription)
+        internal static ApiObjects.Response.Status CanPurchaseAddOn(int groupId, long householdId, Subscription subscription, List<Subscription> baseSubscriptionsInUnified = null,
+                                                                    DateTime? endDate = null)
         {
-            ApiObjects.Response.Status Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            var status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             try
             {
                 List<long> setIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
-                DomainEntitlements domainEntitlements = null;
 
                 // get all base set containing this add on 
                 List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
                 if (!TryGetSubscriptionSets(groupId, setIds, ref subscriptionSets))
                 {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionSetDoesNotExist, "No Sets found");
-                    return Status;
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionSetDoesNotExist, "No Sets found");
+                    return status;
                 }
 
-                if (subscriptionSets != null && subscriptionSets.Count() > 0)
+                if (subscriptionSets != null && subscriptionSets.Count > 0)
                 {
                     List<DependencySet> dependencySet = subscriptionSets.Where(x => x.Type == SubscriptionSetType.Dependency).Select(x => (DependencySet)x).ToList();
 
-                    //if (dependencySet == null || dependencySet.Count == 0) -- nedd to ask Chen !!! 
-                    //{
-                    //    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
-                    //    return response;
-                    //}
-
                     // get all base subscription id 
+                    DomainEntitlements domainEntitlements = null;
                     if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)householdId, null, ref domainEntitlements))
                     {
                         // get all household with base subscription
-                        if (domainEntitlements.DomainBundleEntitlements == null || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null
-                            || domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() == 0)
+                        if (domainEntitlements.DomainBundleEntitlements == null ||
+                            domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null ||
+                            domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count == 0)
                         {
-                            Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
-                            return Status;
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
+                            return status;
                         }
-                        List<long> subscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)).ToList();
+
+                        List<long> subscriptionIds = new List<long>();
+                        if (endDate.HasValue)
+                        {
+                            subscriptionIds.AddRange(domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Where(x => x.Value.dtEndDate > endDate.Value.AddSeconds(1)).Select(x => long.Parse(x.Key)));
+                            if (baseSubscriptionsInUnified != null)
+                            {
+                                subscriptionIds.AddRange(baseSubscriptionsInUnified.Select(x => long.Parse(x.m_SubscriptionCode)));
+                            }
+                        }
+                        else
+                        {
+                            subscriptionIds.AddRange(domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)));
+                        }
 
                         // try to find if one of this base subscription id is a base in the sets above
-                        if (dependencySet.Where(x => subscriptionIds.Contains(x.BaseSubscriptionId)).Count() == 0)
+                        if (dependencySet.Count(x => subscriptionIds.Contains(x.BaseSubscriptionId)) == 0)
                         {
-                            Status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
-                            return Status;
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
+                            return status;
                         }
                     }
                 }
@@ -8726,12 +8735,13 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("CanPurchaseAddOn  SubscriptionCode: {0}, groupId: {1} setsIds: {2},  ex: {3}",
                     subscription != null ? string.Join(",", subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList()) : string.Empty,
                     groupId, householdId, ex);
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                return Status;
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return status;
             }
-            return Status;
+
+            return status;
         }
-        
+
         /// update unified billing cycle (if exsits) with new paymentGatewayId
         /// get group unified billing cycle - and see if any document exsits for this domain 
         internal static void HandleDomainUnifiedBillingCycle(int groupId, long householdId, int maxUsageModuleLifeCycle, long? endDate = null)

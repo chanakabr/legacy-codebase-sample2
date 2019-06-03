@@ -118,11 +118,20 @@ namespace Core.Users
             {
                 string key = LayeredCacheKeys.GetUserKey(userId, groupId);
                 User userToGet = null;
-                if (!LayeredCache.Instance.Get<User>(key, ref userToGet, GetUser, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } }, groupId,
-                                                    LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME, 
-                                                    new List<string>() {
-                                                        LayeredCacheKeys.GetUserInvalidationKey(userId.ToString()),
-                                                        LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString()) }))
+                if (!LayeredCache.Instance.Get<User>(key, 
+                                                     ref userToGet, 
+                                                     GetUser, 
+                                                     new Dictionary<string, object>()
+                                                     {
+                                                         { "groupId", groupId },
+                                                         { "userId", userId } }, 
+                                                     groupId,
+                                                     LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME,
+                                                     new List<string>()
+                                                     {
+                                                         LayeredCacheKeys.GetUserInvalidationKey(userId.ToString()),
+                                                         LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString())
+                                                     }))
                 {
                     log.DebugFormat("GetUser - Couldn't get userId {0}", userId);
                 }
