@@ -8641,7 +8641,7 @@ namespace Core.ConditionalAccess
                             domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null ||
                             domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count == 0)
                         {
-                            status.Set(eResponseStatus.MissingBasePackage);
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
                             return status;
                         }
 
@@ -8662,7 +8662,7 @@ namespace Core.ConditionalAccess
                         // try to find if one of this base subscription id is a base in the sets above
                         if (dependencySet.Count(x => subscriptionIds.Contains(x.BaseSubscriptionId)) == 0)
                         {
-                            status.Set(eResponseStatus.MissingBasePackage);
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
                             return status;
                         }
                     }
