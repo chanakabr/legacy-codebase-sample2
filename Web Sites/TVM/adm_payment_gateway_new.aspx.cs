@@ -45,9 +45,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                     }
                     else
                     {
-                        log.Debug("DBManipulator -> DoTheWork -> billing_connection (started)");
                         Int32 nID = DBManipulator.DoTheWork("billing_connection");
-                        log.Debug("DBManipulator -> DoTheWork -> billing_connection (finished)");
 
                         // set adapter configuration
                         TVM.Billing.module billing = new TVM.Billing.module();
@@ -59,6 +57,10 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                         string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
                         if (sWSURL != "")
                             billing.Url = sWSURL;
+
+                        log.Debug("billing.url is: " + billing.Url);
+                        log.Debug("sWSURL is: " + sWSURL);
+
                         try
                         {
                             TVM.Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);
