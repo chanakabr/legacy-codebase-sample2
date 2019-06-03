@@ -1288,50 +1288,58 @@ namespace Core.ConditionalAccess
             #endregion
 
             #region check addon subscriptions
-            List<string> removeSubscriptionCodes = new List<string>();
-            List<Subscription> baseSubscriptions = subscriptions.Where(x => x.Type == SubscriptionType.Base).ToList();
-            foreach (Subscription subscription in (subscriptions.Where(x => x.Type == SubscriptionType.AddOn).ToList()))
+
+            var removeSubscriptionCodes = new HashSet<string>();
+            var subscriptionsMapping = subscriptions.GroupBy(x => x.Type).ToDictionary(x => x.Key, x => x.ToList());
+            if (subscriptionsMapping.ContainsKey(SubscriptionType.AddOn))
             {
-                if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
+                foreach (Subscription subscription in subscriptionsMapping[SubscriptionType.AddOn])
                 {
-                    ApiObjects.Response.Status status = Utils.CanPurchaseAddOn(groupId, householdId, subscription);
-
-                    if (status.Code != (int)eResponseStatus.OK)
+                    if (subscription.SubscriptionSetIdsToPriority != null && subscription.SubscriptionSetIdsToPriority.Count > 0)
                     {
-                        // check mabye this add on have base subscription in this unified billing cycle 
-                        bool canPurchaseAddOn = false;
-                        
-                        // get all setsIds for this addon 
-                        List<long> addOnSetIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
-                        
-                        // check if one of the subscription are base in this unified cycle 
-                        foreach (Subscription baseSubscription in baseSubscriptions)
+                        var baseSubscriptions = subscriptionsMapping.ContainsKey(SubscriptionType.Base) ? subscriptionsMapping[SubscriptionType.Base] : null;
+                        var purchaseAddOnStatus = Utils.CanPurchaseAddOn(groupId, householdId, subscription, baseSubscriptions, processEndDate);
+                        if (!purchaseAddOnStatus.IsOkStatusCode())
                         {
-                            List<long> baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+                            // check mabye this add on have base subscription in this unified billing cycle 
+                            bool canPurchaseAddOn = false;
 
-                            if (baseSetIds.Where(x => addOnSetIds.Contains(x)).Count() > 0)
+                            // get all setsIds for this addon 
+                            List<long> addOnSetIds = subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
+
+                            // check if one of the subscription are base in this unified cycle 
+                            if (baseSubscriptions != null)
                             {
-                                canPurchaseAddOn = true;
-                            }
-                        }
+                                foreach (Subscription baseSubscription in baseSubscriptions)
+                                {
+                                    List<long> baseSetIds = baseSubscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList();
 
-                        if (!canPurchaseAddOn)
-                        {
-                            // change is recurring to false and call event handle- this renew subscription failed!
-                            RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.FirstOrDefault(x => x.ProductId == subscription.m_SubscriptionCode);
-
-                            if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, 
-                                rsDetail, 0, "AddOn with no BaseSubscription valid", 
-                                string.Empty, nextEndDate))
-                            {
-                                // save all SubscriptionCode to remove from subscription list 
-                                removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
-
-                                // remove this renewDetails (it's an AddOn)
-                                renewSubscriptioDetails.Remove(rsDetail);
+                                    if (baseSetIds.Count(x => addOnSetIds.Contains(x)) > 0)
+                                    {
+                                        canPurchaseAddOn = true;
+                                        break;
+                                    }
+                                }
                             }
 
-                            log.DebugFormat("stoping renew add-on subscription id: {0}, code = {1}, message = {2}", subscription.m_SubscriptionCode, status.Code, status.Message);
+                            if (!canPurchaseAddOn)
+                            {
+                                // change is recurring to false and call event handle- this renew subscription failed!
+                                RenewSubscriptionDetails rsDetail = renewSubscriptioDetails.FirstOrDefault(x => x.ProductId == subscription.m_SubscriptionCode);
+
+                                if (HandleRenewUnifiedSubscriptionFailed(cas, groupId, paymentgatewayId, householdId, subscription, rsDetail, 0, "AddOn with no BaseSubscription valid",
+                                                                         string.Empty, nextEndDate))
+                                {
+                                    // save all SubscriptionCode to remove from subscription list 
+                                    removeSubscriptionCodes.Add(subscription.m_SubscriptionCode);
+
+                                    // remove this renewDetails (it's an AddOn)
+                                    renewSubscriptioDetails.Remove(rsDetail);
+                                }
+
+                                log.DebugFormat("stoping renew add-on subscription id: {0}, code = {1}, message = {2}",
+                                                subscription.m_SubscriptionCode, purchaseAddOnStatus.Code, purchaseAddOnStatus.Message);
+                            }
                         }
                     }
                 }
