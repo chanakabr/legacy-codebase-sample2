@@ -45,7 +45,9 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                     }
                     else
                     {
+                        log.Debug("DBManipulator -> DoTheWork -> billing_connection (started)");
                         Int32 nID = DBManipulator.DoTheWork("billing_connection");
+                        log.Debug("DBManipulator -> DoTheWork -> billing_connection (finished)");
 
                         // set adapter configuration
                         TVM.Billing.module billing = new TVM.Billing.module();
