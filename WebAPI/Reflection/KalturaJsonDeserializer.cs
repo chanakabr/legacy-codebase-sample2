@@ -7476,12 +7476,29 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaSubscriptionSubscribeReference
     {
+        private static RuntimeSchemePropertyAttribute SubscriptionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionSubscribeReference")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         public KalturaSubscriptionSubscribeReference(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("subscriptionId") && parameters["subscriptionId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        SubscriptionIdSchemaProperty.Validate("subscriptionId", parameters["subscriptionId"]);
+                    }
                     SubscriptionId = (Int64) Convert.ChangeType(parameters["subscriptionId"], typeof(Int64));
                 }
             }
