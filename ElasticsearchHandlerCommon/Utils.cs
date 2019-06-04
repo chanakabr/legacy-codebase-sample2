@@ -510,7 +510,7 @@ namespace ElasticsearchTasksCommon
                 groupMedias.AddParameter("@MediaID", nMediaID);
 
                 // increase timeout: default is 30. Stored procedure might take longer than that if there are too many media.
-                groupMedias.SetTimeout(90);
+                groupMedias.SetTimeout(ApplicationConfiguration.ElasticSearchHandlerConfiguration.GetGroupMediaTimeout.IntValue);
 
                 Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => groupMedias.ExecuteDataSet());
                 tDS.Wait();
