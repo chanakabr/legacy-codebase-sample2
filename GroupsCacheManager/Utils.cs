@@ -15,20 +15,16 @@ namespace GroupsCacheManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static Group BuildGroup(int nGroupID, bool bUseRAM)
+        public static Group BuildGroup(int groupId, bool bUseRAM)
         {
             Group group = null;
             try
             {
-                System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace();
-                DateTime dNow = DateTime.UtcNow;
-
-                group = ChannelRepository.BuildGroup(nGroupID);
-
+                group = ChannelRepository.BuildGroup(groupId);
             }
             catch (Exception ex)
             {
-                log.Error("BuildGroup - " + string.Format("failed nGroupIDwith nGroupID={0}, ex={1}", nGroupID, ex.Message), ex);
+                log.ErrorFormat("BuildGroup - failed build group with group id={0}, ex={1}", groupId, ex);
             }
 
             return group;

@@ -1213,12 +1213,11 @@ namespace ElasticSearch.Common
             }
 
             string res = string.Empty;
+            string httpResponse = string.Empty;
+            string requestGuid = Guid.NewGuid().ToString();
+
             try
             {
-                string requestGuid = Guid.NewGuid().ToString();
-
-                log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}",
-                    requestGuid, url, parameters);
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
@@ -1234,7 +1233,7 @@ namespace ElasticSearch.Common
                     try
                     {
                         sr = new StreamReader(webResponse.GetResponseStream());
-                        res = sr.ReadToEnd();
+                        httpResponse = sr.ReadToEnd();
                     }
                     finally
                     {
@@ -1245,12 +1244,12 @@ namespace ElasticSearch.Common
             }
             catch (WebException ex)
             {
+                log.Error("Error in SendPostHttpReq WebException", ex);
                 StreamReader errorStream = null;
                 try
                 {
                     errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    res = errorStream.ReadToEnd();
-                    log.Error(string.Format("Error - SendPostHttpReq exception: {0}; error={1} to:{2}", ex.Message, res, url), ex);
+                    httpResponse = errorStream.ReadToEnd();
                 }
                 finally
                 {
@@ -1266,11 +1265,14 @@ namespace ElasticSearch.Common
             if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
             {
                 string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                res = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
+                httpResponse = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
 
+            log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, response = {3}",
+                requestGuid, url, parameters, httpResponse);
+
             status = nStatusCode;
-            return res;
+            return httpResponse;
         }
 
         public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, bool isFirstTry)
