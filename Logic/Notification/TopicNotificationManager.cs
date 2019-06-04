@@ -62,6 +62,19 @@ namespace Core.Notification
                     && (topicNotification.SubscribeReference as SubscriptionSubscribeReference) != null
                     && ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId > 0)
                 {
+                    // make sure no topic notification created with this Subscription
+                    List<TopicNotification> topics = null;
+                    if (NotificationCache.TryGetTopicNotifications(groupId, topicNotification.SubscribeReference, ref topics))
+                    {
+                        TopicNotification topic = topics.FirstOrDefault(x => x.SubscribeReference.GetSubscribtionReferenceId() == topicNotification.SubscribeReference.GetSubscribtionReferenceId());
+                        if (topic != null)
+                        {
+                            log.DebugFormat("failed to create TopicNotification groupID = {0}, TopicNotification Name = {1}. topicNotificationAlreadyExist: {2}", topicNotification.GroupId, topicName, topic.Id);
+                            response.SetStatus(eResponseStatus.Error, "fail create TopicNotification. topic notification already exist with the subscriptionid ");
+                            return response;
+                        }
+                    }
+
                     subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
                     Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
                     if (subscription == null)
