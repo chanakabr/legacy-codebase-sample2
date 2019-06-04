@@ -168,12 +168,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region insert medias
 
+            log.DebugFormat("Start GetGroupMediasTotal for group {0}", groupId);
+
             // Get ALL media in group
             Dictionary<int, Dictionary<int, Media>> groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
 
             if (groupMedias != null)
             {
-                log.Debug("Info - " + string.Format("Start indexing medias. total medias={0}", groupMedias.Count));
+                log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
                 List<ESBulkRequestObj<int>> bulkList = new List<ESBulkRequestObj<int>>();
 
                 // For each media
