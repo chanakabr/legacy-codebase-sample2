@@ -365,7 +365,8 @@ namespace APILogic
                 else
                 {
                     var currentIdsRange = programIds.GetRange(startIndex, numberOfIds);
-                    
+                    log.DebugFormat("retryCount = {0} start: {1}, numberOfIds, {2}, number of Ids: {3}", retrisCount, startIndex, numberOfIds, currentIdsRange.Count);
+
                     // get programs from catalog by ids (only the calculated range of program ids)
                     programs = GetProgramsByIds(currentIdsRange, groupId);
                 }
@@ -428,6 +429,7 @@ namespace APILogic
                 else
                 {
                     var currentIdsRange = programIds.GetRange(startIndex, numberOfIds);
+                    log.DebugFormat("retryCount = {0} start: {1}, numberOfIds, {2}, number of Ids: {3}", retrisCount, startIndex, numberOfIds, currentIdsRange.Count);
 
                     // get programs from catalog by ids (only the calculated range of program ids)
                     programs = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, id)).ToList(), true); 
@@ -479,7 +481,7 @@ namespace APILogic
             int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
 
             // calculate the number of ids to export 
-            int numberOfIds = startIndex + maxAssetsPerTask <= mediaIds.Count ? maxAssetsPerTask : mediaIds.Count - startIndex; 
+            int numberOfIds = startIndex + maxAssetsPerTask <= mediaIds.Count ? maxAssetsPerTask : mediaIds.Count - startIndex;
 
             try
             {
@@ -491,7 +493,7 @@ namespace APILogic
                 else
                 {
                     var currentIdsRange = mediaIds.GetRange(startIndex, numberOfIds);
-                    log.WarnFormat("start: {0}, numberOfIds, {1}, number of medias: {2}", startIndex, numberOfIds, currentIdsRange.Count);
+                    log.DebugFormat("retryCount = {0} start: {1}, numberOfIds, {2}, number of medias: {3}", retrisCount, startIndex, numberOfIds, currentIdsRange.Count);
                     // get medias from catalog by ids (only the calculated range of media ids)
                     medias = GetMediaByIds(currentIdsRange, groupId);
                     log.WarnFormat("requested: {0}, returned: {1}", currentIdsRange.Count, medias.Length);
@@ -556,7 +558,7 @@ namespace APILogic
                 else
                 {
                     var currentIdsRange = mediaIds.GetRange(startIndex, numberOfIds);
-                    log.WarnFormat("start: {0}, numberOfIds, {1}, number of medias: {2}", startIndex, numberOfIds, currentIdsRange.Count);
+                    log.DebugFormat("retryCount = {0} start: {1}, numberOfIds, {2}, number of medias: {3}", retrisCount, startIndex, numberOfIds, currentIdsRange.Count);
                     // get medias from catalog by ids (only the calculated range of media ids)
                     assets = AssetManager.GetAssets(groupId, currentIdsRange.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), false); 
                     log.WarnFormat("requested: {0}, returned: {1}", currentIdsRange.Count, assets.Count);
