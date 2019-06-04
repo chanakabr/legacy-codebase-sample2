@@ -399,7 +399,7 @@ namespace APILogic
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    return DoExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount+1);
                 }
                 else
                 {
@@ -462,7 +462,7 @@ namespace APILogic
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoOpcExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    return DoOpcExportUpdatedEpgJob(groupId, taskId, programIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount+1);
                 }
                 else
                 {
@@ -527,7 +527,7 @@ namespace APILogic
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount+1);
                 }
                 else
                 {
@@ -591,7 +591,7 @@ namespace APILogic
                 // if not exceeded retries limit - try again
                 if (retrisCount < innerTaskRetriesLimit)
                 {
-                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount++);
+                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount+1);
                 }
                 else
                 {
