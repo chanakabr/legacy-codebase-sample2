@@ -106,12 +106,14 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter options</param>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaTopicNotificationListResponse List(KalturaTopicNotificationFilter filter = null)
+        static public KalturaTopicNotificationListResponse List(KalturaTopicNotificationFilter filter)
         {
             KalturaTopicNotificationListResponse response = null;
 
             if (filter == null)
-                filter = new KalturaTopicNotificationFilter();
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "filter");
+            }
 
             try
             {
