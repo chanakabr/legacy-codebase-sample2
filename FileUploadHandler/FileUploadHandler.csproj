@@ -76,7 +76,7 @@
     <Compile Include="UploadFileRequest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj">
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
