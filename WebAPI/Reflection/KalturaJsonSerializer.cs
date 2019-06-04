@@ -13543,6 +13543,10 @@ namespace WebAPI.Models.API
                 propertyValue = AssetApplied.ToJson(currentVersion, omitObsolete);
                 ret.Add("assetApplied", "\"assetApplied\": " + propertyValue);
             }
+            if(AssetRuleIdEqual.HasValue)
+            {
+                ret.Add("assetRuleIdEqual", "\"assetRuleIdEqual\": " + AssetRuleIdEqual);
+            }
             ret.Add("conditionsContainType", "\"conditionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "\"");
             return ret;
         }
@@ -13561,6 +13565,10 @@ namespace WebAPI.Models.API
             {
                 propertyValue = AssetApplied.ToXml(currentVersion, omitObsolete);
                 ret.Add("assetApplied", "<assetApplied>" + propertyValue + "</assetApplied>");
+            }
+            if(AssetRuleIdEqual.HasValue)
+            {
+                ret.Add("assetRuleIdEqual", "<assetRuleIdEqual>" + AssetRuleIdEqual + "</assetRuleIdEqual>");
             }
             ret.Add("conditionsContainType", "<conditionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "" + "</conditionsContainType>");
             return ret;

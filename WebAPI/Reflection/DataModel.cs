@@ -582,6 +582,8 @@ namespace WebAPI.Reflection
                             return "actionsContainType";
                         case "AssetApplied":
                             return "assetApplied";
+                        case "AssetRuleIdEqual":
+                            return "assetRuleIdEqual";
                         case "ConditionsContainType":
                             return "conditionsContainType";
                     }

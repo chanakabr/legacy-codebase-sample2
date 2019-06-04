@@ -5487,6 +5487,11 @@
             Indicates which asset rule list to return by this KalturaRuleActionType.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaAssetRuleFilter.AssetRuleIdEqual">
+            <summary>
+            Asset rule id
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaCondition">
             <summary>
             Condition

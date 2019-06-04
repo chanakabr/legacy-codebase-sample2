@@ -14302,10 +14302,23 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetRuleFilter
     {
+        private static RuntimeSchemePropertyAttribute AssetRuleIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRuleFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+        };
         public KalturaAssetRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("conditionsContainType") && parameters["conditionsContainType"] != null)
                 {
                     ConditionsContainType = (KalturaRuleConditionType) Enum.Parse(typeof(KalturaRuleConditionType), parameters["conditionsContainType"].ToString(), true);
@@ -14334,6 +14347,14 @@ namespace WebAPI.Models.API
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
                     }
+                }
+                if (parameters.ContainsKey("assetRuleIdEqual") && parameters["assetRuleIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetRuleIdEqualSchemaProperty.Validate("assetRuleIdEqual", parameters["assetRuleIdEqual"]);
+                    }
+                    AssetRuleIdEqual = (Int64) Convert.ChangeType(parameters["assetRuleIdEqual"], typeof(Int64));
                 }
             }
         }
