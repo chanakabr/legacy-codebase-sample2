@@ -12,11 +12,12 @@ namespace ConfigurationManager
         public NumericConfigurationValue NumberOfShards;
         public NumericConfigurationValue NumberOfReplicas;
         public NumericConfigurationValue ChannelStartDateDays;
+        public NumericConfigurationValue GetGroupMediaTimeout;
 
         public ElasticSearchHandlerConfiguration(string key) : base(key)
         {
             // if this is a sub-configuration value, the second consturctor should be used, sending "this" as a parent
-            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size", this) 
+            BulkSize = new ConfigurationManager.NumericConfigurationValue("bulk_size", this)
             {
                 // Since this is a remote tasks configuration value, it should be empty on phoenix, which is the component that is validated
                 ShouldAllowEmpty = true,
@@ -46,6 +47,14 @@ namespace ConfigurationManager
                 DefaultValue = 30,
                 OriginalKey = "Channel_StartDate_Days",
                 Description = "Used in EPG Channel updater (when getting programs by channel Ids and dates)"
+            };
+
+            GetGroupMediaTimeout = new NumericConfigurationValue("get_group_media_timeout", this)
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 90,
+                Description =
+                    "When running Get_GroupMedias_ml stored procedure, how much time (in seconds) should code wait until receiving timeout exception"
             };
         }
     }
