@@ -109,23 +109,23 @@ namespace Core.Catalog.Response
             : base()
         {
             AssetId = mediaAsset.Id.ToString();
-            m_sName = string.Copy(mediaAsset.Name);
-            Name = mediaAsset.NamesWithLanguages.ToArray();
-            m_sDescription = string.Copy(mediaAsset.Description);
-            Description = mediaAsset.DescriptionsWithLanguages.ToArray();
-            EntryId = string.Copy(mediaAsset.EntryId);
-            CoGuid = string.Copy(mediaAsset.CoGuid);
+            m_sName = mediaAsset.Name;
+            Name = mediaAsset.NamesWithLanguages != null ? mediaAsset.NamesWithLanguages.ToArray() : new LanguageContainer[] { };
+            m_sDescription = mediaAsset.Description;
+            Description = mediaAsset.DescriptionsWithLanguages != null ? mediaAsset.DescriptionsWithLanguages.ToArray() : new LanguageContainer[] { };
+            EntryId = mediaAsset.EntryId;
+            CoGuid = mediaAsset.CoGuid;
             m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
             m_dCreationDate = mediaAsset.CreateDate.Value;
-            m_dFinalDate = mediaAsset.FinalEndDate.HasValue ? mediaAsset.FinalEndDate.Value : DateTime.MaxValue;                        
-            m_dStartDate = mediaAsset.StartDate.HasValue ? mediaAsset.StartDate.Value : DateTime.MinValue;
-            m_dEndDate = mediaAsset.EndDate.HasValue ? mediaAsset.EndDate.Value : DateTime.MaxValue;
-            m_dCatalogStartDate = mediaAsset.CatalogStartDate.HasValue ? mediaAsset.CatalogStartDate.Value : DateTime.MinValue;
+            m_dFinalDate = mediaAsset.FinalEndDate ?? DateTime.MaxValue;                        
+            m_dStartDate = mediaAsset.StartDate ?? DateTime.MinValue;
+            m_dEndDate = mediaAsset.EndDate ?? DateTime.MaxValue;
+            m_dCatalogStartDate = mediaAsset.CatalogStartDate ?? DateTime.MinValue;
             AssetType = eAssetTypes.MEDIA;
-            IsActive = mediaAsset.IsActive.HasValue ? mediaAsset.IsActive.Value : false;
-            m_dUpdateDate = mediaAsset.UpdateDate.HasValue ? mediaAsset.UpdateDate.Value : DateTime.MinValue;
-            m_lMetas = new List<Metas>(mediaAsset.Metas);
-            m_lTags = new List<Tags>(mediaAsset.Tags);
+            IsActive = mediaAsset.IsActive ?? false;
+            m_dUpdateDate = mediaAsset.UpdateDate ?? DateTime.MinValue;
+            m_lMetas = mediaAsset.Metas != null ? new List<Metas>(mediaAsset.Metas) : new List<Metas>();
+            m_lTags = mediaAsset.Tags != null ? new List<Tags>(mediaAsset.Tags) : new List<Tags>();
             GeoblockRule = mediaAsset.GeoBlockRuleId.HasValue ? TvmRuleManager.GetGeoBlockRuleName(groupId, mediaAsset.GeoBlockRuleId.Value) : null;
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? TvmRuleManager.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
