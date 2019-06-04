@@ -12,6 +12,7 @@ namespace ConfigurationManager
         public NumericConfigurationValue NumberOfShards;
         public NumericConfigurationValue NumberOfReplicas;
         public NumericConfigurationValue ChannelStartDateDays;
+        public NumericConfigurationValue GetGroupMediaTimeout;
 
         public ElasticSearchHandlerConfiguration(string key) : base(key)
         {
@@ -46,6 +47,14 @@ namespace ConfigurationManager
                 DefaultValue = 30,
                 OriginalKey = "Channel_StartDate_Days",
                 Description = "Used in EPG Channel updater (when getting programs by channel Ids and dates)"
+            };
+
+            GetGroupMediaTimeout = new NumericConfigurationValue("get_group_media_timeout", this)
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 90,
+                Description =
+                    "When running Get_GroupMedias_ml stored procedure, how much time (in seconds) should code wait until receiving timeout exception"
             };
         }
     }
