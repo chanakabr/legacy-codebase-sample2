@@ -60,3 +60,4 @@ spec:
         maxUnavailable: 1
       nodeSelector:
         kaltura.role: core
+        beta.kubernetes.io/os: linux
