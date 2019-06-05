@@ -73,8 +73,8 @@ namespace WebAPI
                 actionString = actionEvent.Action.ToString();
             }
 
-            log.DebugFormat("Start consume Notification object action event for: partnerId = {0}, type = {1}, action = {2}",
-                objectEvent.PartnerId, objectEvent.Type, actionString);
+            log.DebugFormat("Start consume Notification object action event for: partnerId = {0}, type = {1}, action = {2}, timing = {3}",
+                objectEvent.PartnerId, objectEvent.Type, actionString, actionEvent?.Time);
             
             #region Get notification definitions
 
@@ -113,9 +113,13 @@ namespace WebAPI
             }
             else
             {
+                log.DebugFormat("Found Couchbase configuration for object action event: partnerId = {0}, type = {1}, action = {2}, timing = {3}",
+                        objectEvent.PartnerId, objectEvent.Type, actionString, actionEvent?.Time);
+
                 // first we take the general definition of the action, according to system's name
                 if (generalNotification != null && generalNotification.Actions != null)
                 {
+
                     foreach (var action in generalNotification.Actions)
                     {
                         actions[action.SystemName] = action;

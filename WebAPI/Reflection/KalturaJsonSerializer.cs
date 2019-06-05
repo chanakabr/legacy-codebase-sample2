@@ -6438,6 +6438,7 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
             }
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaAnnouncementStatus), Status) + "\"");
             ret.Add("topicNotificationId", "\"topicNotificationId\": " + TopicNotificationId);
             if(Trigger != null)
             {
@@ -6467,6 +6468,7 @@ namespace WebAPI.Models.Notifications
             {
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaAnnouncementStatus), Status) + "" + "</status>");
             ret.Add("topicNotificationId", "<topicNotificationId>" + TopicNotificationId + "</topicNotificationId>");
             if(Trigger != null)
             {
@@ -13541,6 +13543,10 @@ namespace WebAPI.Models.API
                 propertyValue = AssetApplied.ToJson(currentVersion, omitObsolete);
                 ret.Add("assetApplied", "\"assetApplied\": " + propertyValue);
             }
+            if(AssetRuleIdEqual.HasValue)
+            {
+                ret.Add("assetRuleIdEqual", "\"assetRuleIdEqual\": " + AssetRuleIdEqual);
+            }
             ret.Add("conditionsContainType", "\"conditionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "\"");
             return ret;
         }
@@ -13559,6 +13565,10 @@ namespace WebAPI.Models.API
             {
                 propertyValue = AssetApplied.ToXml(currentVersion, omitObsolete);
                 ret.Add("assetApplied", "<assetApplied>" + propertyValue + "</assetApplied>");
+            }
+            if(AssetRuleIdEqual.HasValue)
+            {
+                ret.Add("assetRuleIdEqual", "<assetRuleIdEqual>" + AssetRuleIdEqual + "</assetRuleIdEqual>");
             }
             ret.Add("conditionsContainType", "<conditionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleConditionType), ConditionsContainType) + "" + "</conditionsContainType>");
             return ret;

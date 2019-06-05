@@ -51,6 +51,15 @@ namespace WebAPI.Models.API
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaRuleActionType? ActionsContainType { get; set; }
 
+        /// <summary>
+        /// Asset rule id
+        /// </summary>
+        [DataMember(Name = "assetRuleIdEqual")]
+        [JsonProperty("assetRuleIdEqual")]
+        [XmlElement(ElementName = "assetRuleIdEqual", IsNullable = true)]
+        [SchemeProperty(MinLong = 1)]
+        public long? AssetRuleIdEqual { get; set; }
+
         protected override void Init()
         {
             base.Init();
@@ -81,10 +90,10 @@ namespace WebAPI.Models.API
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.actionsContainType");
             }
-            
+
+            long assetId;
             if (AssetApplied != null)
-            {
-                long assetId;
+            {            
                 if (!long.TryParse(AssetApplied.Id, out assetId))
                 {
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.assetApplied.id");
@@ -93,6 +102,19 @@ namespace WebAPI.Models.API
                 if (!KalturaAssetType.epg.Equals(AssetApplied.Type) && !KalturaAssetType.media.Equals(AssetApplied.Type))
                 {
                     throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetRuleFilter.assetApplied.type");
+                }
+            }
+
+            if (AssetRuleIdEqual.HasValue)
+            {
+                if (AssetApplied != null && !long.TryParse(AssetApplied.Id, out assetId))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetRuleFilter.assetRuleIdEqual", "KalturaAssetRuleFilter.assetApplied.id");
+                }
+
+                if (ActionsContainType.HasValue)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetRuleFilter.assetRuleIdEqual", "KalturaAssetRuleFilter.actionsContainType");
                 }
             }
         }

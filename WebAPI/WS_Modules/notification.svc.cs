@@ -1433,5 +1433,23 @@ namespace WS_Notification
             return response;
         }
 
+        public Status HandleSubsciptionUpdate(int groupId, long subsciptionId, long userId)
+        {
+            Status response = null;
+
+            try
+            {
+                if (groupId != 0 && subsciptionId > 0)
+                {
+                    response  = Core.Notification.Module.HandleSubsciptionUpdate(groupId, subsciptionId, userId);                    
+                }
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
     }
 }
