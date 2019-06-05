@@ -1269,6 +1269,7 @@ namespace Core.Notification
             GenericResponse<TopicNotification> result = new GenericResponse<TopicNotification>();
             try
             {
+                topicNotification.GroupId = groupId;
                 result = TopicNotificationManager.Update(groupId, topicNotification, userId);
             }
             catch (Exception ex)
