@@ -582,6 +582,8 @@ namespace WebAPI.Reflection
                             return "actionsContainType";
                         case "AssetApplied":
                             return "assetApplied";
+                        case "AssetRuleIdEqual":
+                            return "assetRuleIdEqual";
                         case "ConditionsContainType":
                             return "conditionsContainType";
                     }
@@ -17146,8 +17148,6 @@ namespace WebAPI.Reflection
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaTopicNotificationFilter),
                             });

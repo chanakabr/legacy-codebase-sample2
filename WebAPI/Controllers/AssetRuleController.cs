@@ -43,7 +43,21 @@ namespace WebAPI.Controllers
             {
                 filter.Validate();
 
-                response = ClientsManager.ApiClient().GetAssetRules(groupId, filter);
+                if (filter.AssetRuleIdEqual.HasValue)
+                {
+                    var assetRule = ClientsManager.ApiClient().GetAssetRule(groupId, filter.AssetRuleIdEqual.Value);
+                    if (assetRule != null)
+                    {
+                        response = new KalturaAssetRuleListResponse();
+                        response.Objects = new List<KalturaAssetRule>();
+                        response.Objects.Add(assetRule);
+                        response.TotalCount = 1;
+                    }
+                }
+                else
+                {
+                    response = ClientsManager.ApiClient().GetAssetRules(groupId, filter);
+                }
             }
             catch (ClientException ex)
             {
