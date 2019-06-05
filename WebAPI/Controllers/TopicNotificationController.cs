@@ -36,6 +36,16 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+                
+                if (string.IsNullOrEmpty(topicNotification.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+                }
+
+                if (topicNotification.SubscribeReference == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "subscribeReference");
+                }
 
                 return ClientsManager.NotificationClient().AddTopicNotification(groupId, topicNotification, userId);
             }
