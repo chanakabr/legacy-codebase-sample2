@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -28,6 +29,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -45,6 +47,20 @@ namespace WebAPI.Models.Notifications
         [JsonProperty(PropertyName = "subscribeReference")]
         [XmlElement(ElementName = "subscribeReference")]
         public KalturaSubscribeReference SubscribeReference { get; set; }
+
+        internal void Validate()
+        {
+            if (string.IsNullOrEmpty(Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.name");
+            }
+
+            if (SubscribeReference == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.subscribeReference");
+            }
+        }
+
     }
 
     public partial class KalturaTopicNotificationListResponse : KalturaListResponse

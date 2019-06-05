@@ -36,6 +36,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+                topicNotification.Validate();
 
                 return ClientsManager.NotificationClient().AddTopicNotification(groupId, topicNotification, userId);
             }
@@ -62,6 +63,8 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+
+                topicNotification.Validate();
 
                 topicNotification.Id = id;
 
