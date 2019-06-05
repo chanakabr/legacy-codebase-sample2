@@ -1,3 +1,10 @@
+{{- $chartName := .Chart.Name -}}
+{{- $chartAppVersion := .Chart.AppVersion -}}
+{{- $releaseName := .Release.Name -}}
+{{- $envTag := .Values.env.tag -}}
+{{- $envRepository := .Values.env.repository -}}
+
+
 {{- range .Values.handlers }}
 ---
 apiVersion: apps/v1
@@ -13,22 +20,22 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Name }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/instance: {{ $releaseName }}
   template:
     metadata:
       labels:
         app.kubernetes.io/name: {{ .Name }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/instance: {{ $releaseName }}
     spec:
       containers:
         - name: {{ .Name }}
-          image: "{{ required "Value env.repository is required!" .Values.env.repository }}/{{ required "Value env.tag is required!" .Values.env.tag }}-{{ .Chart.Name }}:{{ .Chart.AppVersion }}"
+          image: "{{ $envRepository }}/{{ $envTag }}-{{ $chartName }}:{{ $chartAppVersion }}"
           imagePullPolicy: Always
           env:
             - name: RUN_TASK
               value: {{ .task }}
             - name: TCM_SECTION
-              value: {{ .Values.env.tag }}
+              value: {{ $envTag }}
             - name: TCM_URL
               valueFrom:
                 configMapKeyRef:
@@ -51,14 +58,13 @@ spec:
         kaltura.role: core
 
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Name }}
-  namespace: default
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
+    apiVersion: apps/v1beta1
     kind: Deployment
     name: {{ .Name }}
   minReplicas: 2
@@ -67,7 +73,5 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 80
+      targetAverageUtilization: 80
 {{- end }}
