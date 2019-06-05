@@ -1,6 +1,7 @@
 {{- $chartName := .Chart.Name -}}
 {{- $chartAppVersion := .Chart.AppVersion -}}
 {{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
 {{- $envTag := .Values.env.tag -}}
 {{- $envRepository := .Values.env.repository -}}
 
@@ -14,7 +15,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Name }}
     app.kubernetes.io/instance: {{ .Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ $releaseService }}
 spec:
   replicas: 2
   selector:
