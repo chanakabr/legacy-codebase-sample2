@@ -4,7 +4,7 @@ metadata:
   name: remote-tasks-dummy
 data:
   dummy: |
-	none
+    none
 
 {{- $chartName := .Chart.Name -}}
 {{- $chartAppVersion := .Chart.AppVersion -}}
@@ -64,7 +64,7 @@ spec:
         maxUnavailable: 1
       nodeSelector:
         kaltura.role: core
-		
+
 ---
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
