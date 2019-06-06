@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28917.181
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{0CA87022-0FDC-4F36-8806-689B3A94FCA0}"
 EndProject
@@ -86,6 +86,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageManagerCore", "..\TvmCore\ImageManagerCore\ImageManagerCore.csproj", "{145E19BB-EA2E-430A-8CA6-707877D53D02}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadQueue", "..\TvmCore\FTPUploadQueue\UploadQueue.csproj", "{8E6BE280-9DCC-42D2-84C2-1A56812AE704}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthCheck", "HealthCheck\HealthCheck.csproj", "{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -707,6 +709,22 @@ Global
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Release|x86.ActiveCfg = Release|Any CPU
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704}.Release|x86.Build.0 = Release|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Basic|x86.Build.0 = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Debug|x86.Build.0 = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Local|x86.ActiveCfg = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Local|x86.Build.0 = Debug|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Release|x86.ActiveCfg = Release|Any CPU
+		{E3AFF68A-9CEE-4D42-8DAC-47F3BCDAF906}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
