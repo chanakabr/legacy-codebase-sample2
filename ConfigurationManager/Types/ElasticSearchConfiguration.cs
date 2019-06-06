@@ -18,7 +18,7 @@ namespace ConfigurationManager
         {
             URL = new StringConfigurationValue("url", this)
             {
-                DefaultValue = "http://elasticsearch-new:9200",
+                DefaultValue = "http://elasticsearch_storm:9200",
                 OriginalKey = "ES_URL",
             };
             URLV1 = new StringConfigurationValue("url_v1", this)
@@ -28,7 +28,7 @@ namespace ConfigurationManager
             };
             URLV2 = new StringConfigurationValue("url_v2", this)
             {
-                DefaultValue = "http://elasticsearch-new:9200",
+                DefaultValue = "http://elasticsearch_storm:9200",
                 OriginalKey = "ES_URL_V2",
             };
             MaxNGram = new NumericConfigurationValue("max_ngram", this)
