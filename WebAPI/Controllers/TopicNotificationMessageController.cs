@@ -36,9 +36,9 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
-                if (!string.IsNullOrEmpty(topicNotificationMessage.Message))
+                if (string.IsNullOrEmpty(topicNotificationMessage.Message))
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.name");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.message");
                 }
                 
                 return ClientsManager.NotificationClient().AddTopicNotificationMessage(groupId, topicNotificationMessage, userId);
