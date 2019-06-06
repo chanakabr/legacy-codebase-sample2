@@ -7640,6 +7640,17 @@ namespace WebAPI.Models.Notifications
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute TopicNotificationIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
         {
             ReadOnly = true,
@@ -7674,6 +7685,10 @@ namespace WebAPI.Models.Notifications
                 }
                 if (parameters.ContainsKey("topicNotificationId") && parameters["topicNotificationId"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        TopicNotificationIdSchemaProperty.Validate("topicNotificationId", parameters["topicNotificationId"]);
+                    }
                     TopicNotificationId = (Int64) Convert.ChangeType(parameters["topicNotificationId"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("trigger") && parameters["trigger"] != null)

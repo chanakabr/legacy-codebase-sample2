@@ -47,20 +47,6 @@ namespace WebAPI.Models.Notifications
         [JsonProperty(PropertyName = "subscribeReference")]
         [XmlElement(ElementName = "subscribeReference")]
         public KalturaSubscribeReference SubscribeReference { get; set; }
-
-        internal void Validate()
-        {
-            if (string.IsNullOrEmpty(Name))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.name");
-            }
-
-            if (SubscribeReference == null)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.subscribeReference");
-            }
-        }
-
     }
 
     public partial class KalturaTopicNotificationListResponse : KalturaListResponse

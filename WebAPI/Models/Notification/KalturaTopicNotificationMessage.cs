@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -36,7 +37,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "imageUrl")]
         [JsonProperty(PropertyName = "imageUrl")]
         [XmlElement(ElementName = "imageUrl")]
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; }        
 
         /// <summary>
         /// Topic notification ID
@@ -44,6 +45,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "topicNotificationId")]
         [JsonProperty(PropertyName = "topicNotificationId")]
         [XmlElement(ElementName = "topicNotificationId")]
+        [SchemeProperty(MinInteger = 1)]
         public long TopicNotificationId { get; set; }
 
         /// <summary>

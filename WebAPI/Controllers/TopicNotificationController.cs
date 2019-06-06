@@ -37,7 +37,15 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
-                topicNotification.Validate(); 
+                if (!string.IsNullOrEmpty(topicNotification.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.name");
+                }
+
+                if (topicNotification.SubscribeReference == null)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.subscribeReference");
+                }
 
                 return ClientsManager.NotificationClient().AddTopicNotification(groupId, topicNotification, userId);
             }
@@ -65,7 +73,10 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
-                topicNotification.Validate();
+                if (topicNotification.Name == string.Empty)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.name");
+                }
 
                 topicNotification.Id = id;
 
