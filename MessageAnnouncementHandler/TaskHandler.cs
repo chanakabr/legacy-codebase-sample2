@@ -28,8 +28,15 @@ namespace MessageAnnouncementHandler
 
                 MessageAnnouncementRequest request = JsonConvert.DeserializeObject<MessageAnnouncementRequest>(data);
 
-                bool success = Core.Notification.Module.SendMessageAnnouncement(request.GroupId, request.StartTime, request.MessageAnnouncementId);
-
+                bool success = false;
+                if (!request.Type.HasValue || request.Type == ApiObjects.MessageAnnouncementRequestType.MessageAnnoncement)
+                {
+                    success = Core.Notification.Module.SendMessageAnnouncement(request.GroupId, request.StartTime, request.MessageAnnouncementId);
+                }
+                else if (request.Type == ApiObjects.MessageAnnouncementRequestType.TopicNotificationMessage)
+                {
+                    success = Core.Notification.TopicNotificationMessageManager.Send(request.GroupId, request.StartTime, request.MessageAnnouncementId);
+                }
                 if (!success)
                     throw new Exception(string.Format("Announcement did not finish successfully. data: {0}", data));
                 else
