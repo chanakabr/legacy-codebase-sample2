@@ -25,6 +25,7 @@ namespace Core.Notification
 
             try
             {
+                topicNotificationMessage.GroupId = groupId;
                 // validate topicNotificationMessage.TopicNotificationId                
                 TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationMessage.TopicNotificationId);
                 if (topicNotification == null)
@@ -210,6 +211,8 @@ namespace Core.Notification
 
             try
             {
+                topicNotificationMessageToUpdate.GroupId = groupId;
+
                 // get currnt TopicNotificationMessage
                 TopicNotificationMessage currentTopicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(topicNotificationMessageToUpdate.Id);
                 if (currentTopicNotificationMessage == null)

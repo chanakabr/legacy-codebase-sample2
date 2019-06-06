@@ -119,15 +119,15 @@ namespace Core.Notification
             return response;
         }
 
-        public static GenericResponse<TopicNotification> Update(int groupId, TopicNotification topicNotification, long userId)
+        public static GenericResponse<TopicNotification> Update(int groupId, TopicNotification topicNotificationToUpdate, long userId)
         {
             GenericResponse<TopicNotification> response = new GenericResponse<TopicNotification>();
-            string logData = string.Format("groupId: {0}, topicNotificationId: {1}", groupId, topicNotification.Id);
+            string logData = string.Format("groupId: {0}, topicNotificationId: {1}", groupId, topicNotificationToUpdate.Id);
 
             try
             {
                 // get currnt topicNotification
-                TopicNotification currentTopicNotification = NotificationDal.GetTopicNotificationCB(topicNotification.Id);
+                TopicNotification currentTopicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationToUpdate.Id);
                 if (currentTopicNotification == null)
                 {
                     log.ErrorFormat("TopicNotification wasn't found. {0}", logData);
@@ -135,29 +135,36 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (!currentTopicNotification.Name.Equals(topicNotification.Name) || !currentTopicNotification.Description.Equals(topicNotification.Description))
+                if (!currentTopicNotification.Name.Equals(topicNotificationToUpdate.Name) || !currentTopicNotification.Description.Equals(topicNotificationToUpdate.Description))
                 {
                     // update DB topicNotification
-                    if (!NotificationDal.UpdateTopicNotification(topicNotification.Id, topicNotification.GroupId, topicNotification.Name, userId))
+                    if (!NotificationDal.UpdateTopicNotification(topicNotificationToUpdate.Id, topicNotificationToUpdate.GroupId, topicNotificationToUpdate.Name, userId))
                     {
-                        log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotification.GroupId, topicNotification.Name);
+                        log.DebugFormat("failed to update TopicNotification to DB groupID = {0}, topicName {1}", topicNotificationToUpdate.GroupId, topicNotificationToUpdate.Name);
                         response.SetStatus(eResponseStatus.Error, "fail update TopicNotification to DB");
                         return response;
                     }
 
-                    currentTopicNotification.Name = topicNotification.Name;
-                    currentTopicNotification.Description = topicNotification.Description;
+                    if (topicNotificationToUpdate.Name != null)
+                    {
+                        currentTopicNotification.Name = topicNotificationToUpdate.Name;
+                    }
+
+                    if (topicNotificationToUpdate.Description != null)
+                    {
+                        currentTopicNotification.Description = topicNotificationToUpdate.Description;
+                    }
 
                     // Save TopicNotificationAtCB                    
-                    if (!NotificationDal.SaveTopicNotificationCB(topicNotification.GroupId, currentTopicNotification))
+                    if (!NotificationDal.SaveTopicNotificationCB(topicNotificationToUpdate.GroupId, currentTopicNotification))
                     {
-                        log.ErrorFormat("Error while saving topicNotification. groupId: {0}, topicNotificationId:{1}", topicNotification.GroupId, topicNotification.Id);
+                        log.ErrorFormat("Error while saving topicNotification. groupId: {0}, topicNotificationId:{1}", topicNotificationToUpdate.GroupId, topicNotificationToUpdate.Id);
                     }
 
                     response.Object = currentTopicNotification;
                     response.SetStatus(eResponseStatus.OK);
 
-                    string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotification.SubscribeReference.Type);
+                    string invalidationKey = LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)topicNotificationToUpdate.SubscribeReference.Type);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on topic notifications key = {0}", invalidationKey);
@@ -166,7 +173,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Update TopicNotification failed groupId = {0}, ex = {1}", topicNotification.GroupId, ex);
+                log.ErrorFormat("Update TopicNotification failed groupId = {0}, ex = {1}", topicNotificationToUpdate.GroupId, ex);
                 return response;
             }
 
