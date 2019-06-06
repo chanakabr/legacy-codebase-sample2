@@ -3,7 +3,8 @@ kind: ConfigMap
 metadata:
   name: remote-tasks-dummy
 data:
-  dummy: true
+  dummy: |
+	none
 
 {{- $chartName := .Chart.Name -}}
 {{- $chartAppVersion := .Chart.AppVersion -}}
@@ -63,5 +64,22 @@ spec:
         maxUnavailable: 1
       nodeSelector:
         kaltura.role: core
-
+		
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: {{ .name }}
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 80
 {{- end }}
