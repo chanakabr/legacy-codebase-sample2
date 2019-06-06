@@ -11,6 +11,7 @@ namespace ConfigurationManager
         public StringConfigurationValue WatchHistoryStaleMode;
         public NumericConfigurationValue HitCacheTimeInMinutes;
         public BooleanConfigurationValue ShouldUseHitCache;
+        public BooleanConfigurationValue ShouldAddUserIPToStats;
         public BooleanConfigurationValue ShouldUseSearchCache;
         public NumericConfigurationValue CurrentRequestDaysOffset;
         public NumericConfigurationValue UpdateEPGPackage;
@@ -43,6 +44,11 @@ namespace ConfigurationManager
                 DefaultValue = false,
                 ShouldAllowEmpty = true,
                 OriginalKey = "Use_Search_Cache"
+            };
+            ShouldAddUserIPToStats = new BooleanConfigurationValue("should_add_user_ip_to_stats", this)
+            {
+                DefaultValue = false,
+                OriginalKey = "should_add_user_ip_to_stats"
             };
             CurrentRequestDaysOffset = new NumericConfigurationValue("CURRENT_REQUEST_DAYS_OFFSET", this)
             {

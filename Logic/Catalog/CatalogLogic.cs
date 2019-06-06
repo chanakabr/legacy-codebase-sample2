@@ -9519,20 +9519,30 @@ namespace Core.Catalog
             return usersWatchHistory;
         }
 
-
         public static void WriteNewWatcherMediaActionLog(int nWatcherID, string sSessionID, int nBillingTypeID, int nOwnerGroupID, int nQualityID, int nFormatID, int nMediaID, int nMediaFileID, int nGroupID,
-                                                        int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID)
+                                                        int nCDNID, int nActionID, int nCountryID, int nPlayerID, int nLoc, int nBrowser, int nPlatform, string sSiteGUID, string sUDID, string userIP)
         {
             try
             {
+                object[] obj = null;
+                
                 // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
-                string infoToLog = string.Join(",", new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
-                                                                        nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID });
-                newWatcherMediaActionLog.Info(infoToLog);
+                if (ApplicationConfiguration.CatalogLogicConfiguration.ShouldAddUserIPToStats.Value)
+                {
+                    obj = new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
+                                                                        nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID, userIP };
+                }
+                else
+                {
+                    obj = new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
+                                                                        nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID };
+                }
+
+                newWatcherMediaActionLog.Info(string.Join(",", obj));
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in WriteNewWatcherMediaActionLog, nWatcherID: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, actionID: {4}, userId: {5}",
+                log.Error(string.Format("Error in WriteNewWatcherMediaActionLog, mediaID: {0}, mediaFileID: {1}, groupID: {2}, actionID: {3}, userId: {4}",
                                          nMediaID, nMediaFileID, nGroupID, nActionID, sSiteGUID), ex);
             }
         }
