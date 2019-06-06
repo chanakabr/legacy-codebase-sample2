@@ -3227,6 +3227,10 @@ namespace Core.Catalog
                             foreach (long id in ids)
                             {
                                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                                if (doesGroupUsesTemplates)
+                                {
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetType.MEDIA.ToString(), id));
+                                }
                             }
                         }
                         break;
