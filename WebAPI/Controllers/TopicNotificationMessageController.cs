@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
 
                 if (string.IsNullOrEmpty(topicNotificationMessage.Message))
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotification.message");
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotificationMessage.message");
                 }
                 
                 return ClientsManager.NotificationClient().AddTopicNotificationMessage(groupId, topicNotificationMessage, userId);
