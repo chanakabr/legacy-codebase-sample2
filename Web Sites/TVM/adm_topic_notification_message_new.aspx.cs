@@ -174,7 +174,7 @@ public partial class adm_topic_notification_message_new : System.Web.UI.Page
 
         drLongTextField = new DataRecordLongTextField("ltr", true, 60, 4);
         drLongTextField.setFiledName("image_url");
-        drLongTextField.Initialize("Image URL", "adm_table_header_nbg", "FormInput", "image_url", true);
+        drLongTextField.Initialize("Image URL", "adm_table_header_nbg", "FormInput", "image_url", false);
         if (topicNotificationMessage != null)
         {
             drLongTextField.SetValue(topicNotificationMessage.ImageUrl);
