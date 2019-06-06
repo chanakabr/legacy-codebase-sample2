@@ -5,8 +5,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "TopicNotificationMassege_Add",
-      "service": "TopicNotificationMassege",
+      "name": "TopicNotificationMessage_Add",
+      "service": "TopicNotificationMessage",
       "action": "Add",
       "type": "Action"
     },
@@ -15,8 +15,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "TopicNotificationMassege_Update",
-      "service": "TopicNotificationMassege",
+      "name": "TopicNotificationMessage_Update",
+      "service": "TopicNotificationMessage",
       "action": "Update",
       "type": "Action"
     },
@@ -25,8 +25,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "TopicNotificationMassege_Delete",
-      "service": "TopicNotificationMassege",
+      "name": "TopicNotificationMessage_Delete",
+      "service": "TopicNotificationMessage",
       "action": "Delete",
       "type": "Action"
     },
@@ -35,8 +35,8 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "TopicNotificationMassege_List",
-      "service": "TopicNotificationMassege",
+      "name": "TopicNotificationMessage_List",
+      "service": "TopicNotificationMessage",
       "action": "List",
       "type": "Action"
     }
