@@ -1303,6 +1303,20 @@ namespace Core.ConditionalAccess
                     return null;
                 }
 
+                if (subscription.PreSaleDate.HasValue)
+                {
+                    if (subscription.PreSaleDate.Value > DateTime.UtcNow)
+                    {
+                        theReason = PriceReason.NotForPurchase;
+                        return null;
+                    }
+                }
+                else if (subscription.m_dStartDate > DateTime.UtcNow)
+                {
+                    theReason = PriceReason.NotForPurchase;
+                    return null;
+                }
+
                 if (subscription.m_dEndDate < DateTime.UtcNow)
                 {
                     theReason = PriceReason.NotForPurchase;
