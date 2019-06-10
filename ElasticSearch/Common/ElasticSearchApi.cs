@@ -13,6 +13,7 @@ using System.Reflection;
 using ConfigurationManager;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
+using ElasticSearch.Searcher;
 
 namespace ElasticSearch.Common
 {
@@ -495,6 +496,61 @@ namespace ElasticSearch.Common
 
         }
 
+        /// <summary>
+        /// Get a list of indcies using _cluser/state api
+        /// </summary>
+        /// <param name="pathQuery">
+        /// query path always starts with metadata.indices. and continiues with whatever is sent in this param.
+        /// i.e: if you like to seah for indices of group 203 use "203*" or "203_epg_*" for all epg indices.
+        /// default values is set to * and will return all indices in elasticsearch
+        /// </param>
+        /// <returns></returns>
+        public List<ESIndex> ListIndices(string indexQueryPattern = "*")
+        {
+            // cannot hold dots '.' because its part of the filter_path argument sent to elasticsearch
+            if (indexQueryPattern.Contains('.')) { throw new ArgumentException("value cannot hold '.' charecters", "indexQueryPattern"); }
+
+            var url = $"{baseUrl}/_cluster/state?filter_path=metadata.indices.{indexQueryPattern}.aliases";
+            var status = 0;
+            log.Debug($"Elasticsearch ListIndices > request GET:[{url}]");
+            var ret = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+            #region example response
+            // Example Response (depending on the pathQuery for example pathQuery=metadata.indices.198_epg_*.aliases)
+            //{
+            //  "metadata": {
+            //    "indices": {
+            //      "198_epg_v2_20190610_11484": {
+            //        "aliases": [
+            //          "198_epg",
+            //          "198_epg_v2_20190610"
+            //        ]
+            //      },
+            //      "198_epg_v2_20190613_11484": {
+            //        "aliases": []
+            //      }
+            //    }
+            //  }
+            //}
+            #endregion
+
+            log.Debug($"Elasticsearch ListIndices > response:[{ret}]");
+            if (status != 200)
+            {
+                log.Error($"Error getting ListIndices, status:[{status}], msg:[{ret}]");
+                throw new Exception($"Error getting ListIndices, status:[{status}]");
+            }
+
+            var clustureStats = JObject.Parse(ret);
+            var indices = clustureStats.SelectToken("metadata.indices")
+                .Children<JProperty>()
+                .Select(p => new ESIndex
+                {
+                    Name = p.Name,
+                    Aliases = p.Value["aliases"].ToObject<IEnumerable<string>>(),
+                }).ToList();
+
+            return indices;
+        }
 
         public bool AddAlias(string index, string alias)
         {
