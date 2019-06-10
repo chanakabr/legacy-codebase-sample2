@@ -1302,12 +1302,6 @@ namespace Core.ConditionalAccess
                     return null;
                 }
 
-                if (subscription.m_dEndDate < DateTime.UtcNow)
-                {
-                    theReason = PriceReason.NotForPurchase;
-                    return null;
-                }
-
                 bool isGeoCommerceBlock = false;
                 if (!string.IsNullOrEmpty(ip))
                 {
