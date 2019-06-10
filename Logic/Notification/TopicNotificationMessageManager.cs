@@ -28,7 +28,7 @@ namespace Core.Notification
                 topicNotificationMessage.GroupId = groupId;
                 // validate topicNotificationMessage.TopicNotificationId                
                 TopicNotification topicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationMessage.TopicNotificationId);
-                if (topicNotification == null)
+                if (topicNotification == null || topicNotification.GroupId != groupId)
                 {
                     log.DebugFormat("failed to insert topicNotificationMessage to DB groupID = {0}, TopicNotificationId does not exist= {1}", groupId, topicNotificationMessage.TopicNotificationId);
                     response.SetStatus(eResponseStatus.TopicNotificationNotFound);
@@ -215,7 +215,7 @@ namespace Core.Notification
 
                 // get currnt TopicNotificationMessage
                 TopicNotificationMessage currentTopicNotificationMessage = NotificationDal.GetTopicNotificationMessageCB(topicNotificationMessageToUpdate.Id);
-                if (currentTopicNotificationMessage == null)
+                if (currentTopicNotificationMessage == null || currentTopicNotificationMessage.GroupId != groupId)
                 {
                     log.ErrorFormat("TopicNotificationMessage wasn't found. {0}", logData);
                     response.SetStatus(eResponseStatus.TopicNotificationMessageNotFound);

@@ -21,18 +21,7 @@ namespace ApiObjects.Notification
         public TopicNotificationDateTrigger()
         {
             Type = TopicNotificationTriggerType.Date;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as TopicNotificationDateTrigger;
-            if (other == null)
-            {
-                return false;
-            }
-
-            return this.Type == other.Type && this.Date == other.Date;
-        }
+        }       
     }
 
     [DataContract]
@@ -48,24 +37,12 @@ namespace ApiObjects.Notification
         public TopicNotificationSubscriptionTrigger()
         {
             Type = TopicNotificationTriggerType.Subscription;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as TopicNotificationSubscriptionTrigger;
-            if (other == null)
-            {
-                return false;
-            }
-
-            return this.Type == other.Type  && this.Offset == other.Offset && this.TriggerType == other.TriggerType;
-        }        
+        }            
     }
 
     public enum TopicNotificationTriggerType
     {
         Date = 0,
         Subscription = 1
-
     }
 }

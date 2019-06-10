@@ -128,7 +128,7 @@ namespace Core.Notification
             {
                 // get currnt topicNotification
                 TopicNotification currentTopicNotification = NotificationDal.GetTopicNotificationCB(topicNotificationToUpdate.Id);
-                if (currentTopicNotification == null)
+                if (currentTopicNotification == null || currentTopicNotification.GroupId != groupId)
                 {
                     log.ErrorFormat("TopicNotification wasn't found. {0}", logData);
                     response.SetStatus(eResponseStatus.TopicNotificationNotFound);
