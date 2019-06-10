@@ -6,6 +6,7 @@
 		RabbitError = 100,
 		MSSQLError = 200,
 		CBError = 300,
+		ESError = 400,
 
 	}
 }
