@@ -75,6 +75,7 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaTopicNotificationMessage.Message");
                 }
 
+                topicNotificationMessage.Id = id;
                 return ClientsManager.NotificationClient().UpdateTopicNotificationMessage(groupId, id, topicNotificationMessage, userId);
             }
 
