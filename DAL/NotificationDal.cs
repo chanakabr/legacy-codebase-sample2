@@ -2917,7 +2917,7 @@ namespace DAL
                 { "@id", id }, { "@sendStatus", sendStatus }
             };
 
-            return UtilsDal.ExecuteReturnValue<int>("Update_TopicNotification", parameters, MESSAGE_BOX_CONNECTION) > 0;
+            return UtilsDal.ExecuteReturnValue<int>("Update_TopicNotificationMessage", parameters, MESSAGE_BOX_CONNECTION) > 0;
         }
 
         public static TopicNotificationMessage GetTopicNotificationMessageCB(long topicNotificationMeesageId)
