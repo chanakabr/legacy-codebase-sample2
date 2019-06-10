@@ -389,7 +389,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaDateTrigger, TopicNotificationDateTrigger>()
                .IncludeBase<KalturaTrigger, TopicNotificationTrigger>()
-                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.Date)));
+               .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.Date)))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => TopicNotificationTriggerType.Date))
+                ;
 
             cfg.CreateMap<TopicNotificationTrigger, KalturaTrigger>();
 
@@ -399,13 +401,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaSubscriptionTrigger, TopicNotificationSubscriptionTrigger>()
                .IncludeBase<KalturaTrigger, TopicNotificationTrigger>()
-                 .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.Offset))
-                 .ForMember(dest => dest.TriggerType, opt => opt.MapFrom(src => ConvertSubscriptionTriggerType(src.Type)));
+               .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.Offset))
+               .ForMember(dest => dest.TriggerType, opt => opt.MapFrom(src => ConvertSubscriptionTriggerType(src.Type)))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => TopicNotificationTriggerType.Subscription))
+               ;
 
             cfg.CreateMap<TopicNotificationSubscriptionTrigger, KalturaSubscriptionTrigger>()
               .IncludeBase<TopicNotificationTrigger, KalturaTrigger>()
                 .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.Offset))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSubscriptionTriggerType(src.TriggerType)));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSubscriptionTriggerType(src.TriggerType)))
+                ;
 
             cfg.CreateMap<KalturaDispatcher, TopicNotificationDispatcher>();
 
