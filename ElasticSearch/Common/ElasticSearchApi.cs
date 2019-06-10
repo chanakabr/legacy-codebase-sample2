@@ -452,7 +452,7 @@ namespace ElasticSearch.Common
             }
         }
 
-        #endregion     
+        #endregion
 
         public List<string> GetAliases(string sIndex)
         {
@@ -1400,6 +1400,22 @@ namespace ElasticSearch.Common
 
         }
 
+        #endregion
+
+        #region HealthCheck
+        public bool HealthCheck()
+        {
+            var url = $"{baseUrl}/{"_cluster/health"}";
+            var status = 0;
+            var ret = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+            log.Info($"Elasticsearch HealthCheck > response:[{ret}]");
+            if (status != 200)
+            {
+                return false;
+            }
+
+            return true;
+        }
         #endregion
 
         public class ESAssetDocument
