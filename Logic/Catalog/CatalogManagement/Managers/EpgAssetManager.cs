@@ -424,6 +424,9 @@ namespace Core.Catalog.CatalogManagement
                         // update Epg metas and tags 
                         RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
+                        // invalidate asset
+                        AssetManager.InvalidateAsset(eAssetTypes.EPG, epgAsset.Id);
+
                         // UpdateIndex
                         bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id });
                         if (!indexingResult)

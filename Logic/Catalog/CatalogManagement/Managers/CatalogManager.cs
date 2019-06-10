@@ -753,7 +753,7 @@ namespace Core.Catalog.CatalogManagement
             // take only asset that need to be updated                    
             if (topic.Type == MetaType.Tag)
             {
-                var tag = mediaAsset.Tags.Where(x => x.m_oTagMeta.m_sName == topic.SystemName).FirstOrDefault();
+                var tag = mediaAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                 if (tag != null && tag.m_lValues != null && tag.m_lValues.Count > 0)
                 {
                     connectingMetaValue = tag.m_lValues[0];
@@ -761,7 +761,7 @@ namespace Core.Catalog.CatalogManagement
             }
             else
             {
-                Metas meta = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sName == topic.SystemName).FirstOrDefault();
+                Metas meta = mediaAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                 if (meta != null)
                 {
                     connectingMetaValue = meta.m_sValue;
@@ -1029,8 +1029,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        internal static void UpdateChildAssetsMetaInherited(int groupId, CatalogGroupCache catalogGroupCache, long userId, AssetStruct currentAssetStruct,
-            Asset newAsset, Asset currentAsset)
+        internal static void UpdateChildAssetsMetaInherited(int groupId, CatalogGroupCache catalogGroupCache, long userId, AssetStruct currentAssetStruct, Asset newAsset, Asset currentAsset)
         {
             List<AssetStruct> connectedAssetStructs = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.ParentId.HasValue && x.ParentId.Value == currentAssetStruct.Id).ToList();
             // Get connected AssetStructs (children)
@@ -1080,16 +1079,17 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
+                            // TODO SHIR - ASK IRA ABOUT INVALIDATION HERE
                             AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)newAsset.Id);
 
-                            QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-
-                            InheritanceParentUpdate data = new InheritanceParentUpdate()
+                            var data = new InheritanceParentUpdate()
                             {
                                 AssetId = newAsset.Id,
                                 TopicsIds = topicsForAssetUpdate.Select(x => x.Id).ToList()
                             };
-                            InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
+
+                            var queue = new GenericCeleryQueue();
+                            var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
                             bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                             if (!enqueueSuccessful)
                             {
@@ -1220,9 +1220,8 @@ namespace Core.Catalog.CatalogManagement
                 foreach (AssetStruct connectedAssetStruct in connectedAssetStructs)
                 {
                     // Get only inheritedTopics and filtered with ProtectFromIngest false
-                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(
-                        x => (x.IsInherited.HasValue && x.IsInherited.Value) && (!x.ProtectFromIngest.HasValue || x.ProtectFromIngest.Value == false))
-                        .ToList();
+                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(x => (x.IsInherited.HasValue && x.IsInherited.Value) && 
+                                                                                                                        (!x.ProtectFromIngest.HasValue || x.ProtectFromIngest.Value == false)).ToList();
                     if (inheritedTopics != null && inheritedTopics.Count > 0)
                     {
                         List<long> inheritedTopicsToRemove = inheritedTopics.Select(x => x.MetaId).Where(x => metaIds.Contains(x) || tagIds.Contains(x)).ToList();
