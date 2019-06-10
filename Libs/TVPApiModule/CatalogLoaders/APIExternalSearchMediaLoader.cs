@@ -137,8 +137,10 @@ namespace TVPApiModule.CatalogLoaders
 
                 GetAssets(cacheKey, response, out medias, out epgs, out recordings);
 
-                // add extraData to tags only for EPG                
-                Util.UpdateEPGAndRecordingTags(epgs, recordings, response.searchResults);
+                // add extraData to tags only for EPG           
+                Util.UpdateProgramsTags(epgs, eAssetTypes.EPG, response.searchResults);
+                Util.UpdateProgramsTags(recordings, eAssetTypes.NPVR, response.searchResults);
+                //Util.UpdateEPGAndRecordingTags(epgs, recordings, response.searchResults);
 
                 result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs, recordings); // Gets one list including both medias and epgds, ordered by Catalog order
             }

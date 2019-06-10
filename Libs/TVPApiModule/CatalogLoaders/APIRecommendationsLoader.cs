@@ -137,15 +137,12 @@ namespace TVPApiModule.CatalogLoaders
             if (response.searchResults != null && response.searchResults.Count > 0)
             {
                 CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
-
-                List<MediaObj> medias;
-                List<ProgramObj> epgs;
-                List<ProgramObj> recordings;
-
-                GetAssets(cacheKey, response, out medias, out epgs, out recordings);
+                
+                GetAssets(cacheKey, response, out List<MediaObj> medias, out List<ProgramObj> epgs, out List<ProgramObj> recordings);
 
                 // add extraData to tags only for EPG
-                Util.UpdateEPGAndRecordingTags(epgs, recordings, response.searchResults);
+                Util.UpdateProgramsTags(epgs, eAssetTypes.EPG, response.searchResults);
+                Util.UpdateProgramsTags(recordings, eAssetTypes.NPVR, response.searchResults);
 
                 result.Assets = OrderAndCompleteResults(response.searchResults, medias, epgs, recordings); // Gets one list including both medias and epgds, ordered by Catalog order
             }
