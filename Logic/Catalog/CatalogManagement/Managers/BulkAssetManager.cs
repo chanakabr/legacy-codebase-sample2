@@ -27,8 +27,8 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, MediaAsset mediaAsset, long userId, Dictionary<long, Image> images,
-                                                                   Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia, bool isFromIngest = false)
+        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, MediaAsset mediaAsset, long userId, Dictionary<long, Image> images, 
+            Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia, bool isFromIngest = false, HashSet<long> topicIdsToRemove = null)
         {
             GenericListResponse<Status> response = new GenericListResponse<Status>();
             try
@@ -51,13 +51,18 @@ namespace Core.Catalog.CatalogManagement
 
                     if (needToEraseMedia)
                     {
-                        if (AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, userId))
+                        if (!(isCleared = AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, userId)))
                         {
-                            isCleared = true;
+                            log.DebugFormat("UpsertMediaAsset - ClearAsset faild for media id: {0}", mediaAsset.Id);
                         }
-                        else
+                    }
+
+                    if (isFromIngest && topicIdsToRemove != null && topicIdsToRemove.Count > 0)
+                    {
+                        var removeTopicsResponse = AssetManager.RemoveTopicsFromAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, topicIdsToRemove, userId, isFromIngest);
+                        if (!removeTopicsResponse.IsOkStatusCode())
                         {
-                            // TODO - SET SOME ERROR
+                            response.Objects.Add(removeTopicsResponse);
                         }
                     }
 
@@ -69,7 +74,7 @@ namespace Core.Catalog.CatalogManagement
                         return response;
                     }
                     mediaAsset.Id = updateAsset.Object.Id;
-                    response.Objects = UpsertMediaAssetImagesAndFiles(groupId, true, mediaAsset.Id, images, needToEraseMedia, assetFiles, dateFormat, userId);
+                    response.Objects.AddRange(UpsertMediaAssetImagesAndFiles(groupId, true, mediaAsset.Id, images, needToEraseMedia, assetFiles, dateFormat, userId));
                 }
 
                 if (!isFromIngest)
