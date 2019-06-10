@@ -186,6 +186,7 @@ namespace WebAPI.Managers.Models
         OneOfArgumentsCannotBeEmpty = 500081,
         PropertyIsOpcSupported = 500082,
         TypeNotSupported = 500083,
-        FormatNotSupported = 500084
+        FormatNotSupported = 500084,
+        GroupMissMatch = 500085
     }
 }

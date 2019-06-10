@@ -26,15 +26,20 @@ namespace WebAPI.Controllers
         [SchemeArgument("session", RequiresPermission = true)]
         static public KalturaSession Get(string session = null)
         {
-            KS ks;
+            KS ks, ksFromRequest = KS.GetFromRequest();
 
             if (session != null)
             {
                 ks = KS.ParseKS(session);
+
+                if (ks.GroupId != ksFromRequest.GroupId)
+                {
+                    throw new ForbiddenException(ForbiddenException.GROUP_MISS_MATCH);
+                }
             }
             else
             {
-                ks = KS.GetFromRequest();
+                ks = ksFromRequest;
             }
 
             var payload = KSUtils.ExtractKSPayload(ks);
