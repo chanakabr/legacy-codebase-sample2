@@ -322,7 +322,7 @@ namespace Core.Api.Managers
                         {
                             double totalOffset = CalcTotalOfssetForCountry(groupId, action, country);
                             actionKsqlFilter = string.Format("(and {0} end_date <= '{1}' allowed_countries != '{2}')", ksqlFilter, -1 * totalOffset, country);
-                            isAllowed = true;
+                            isAllowed = false;
                         }
                         else if (action.Type == RuleActionType.Block)
                         {
