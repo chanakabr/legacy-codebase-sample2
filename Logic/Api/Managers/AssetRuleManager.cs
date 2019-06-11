@@ -1,11 +1,8 @@
 ﻿using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
-using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
 using ApiObjects.Rules;
-using ApiObjects.SearchObjects;
-using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog;
@@ -19,9 +16,7 @@ using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper;
-using ScheduledTasks;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -42,6 +37,7 @@ namespace Core.Api.Managers
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HashSet<int> AssetRuleActionsTypes = new HashSet<int>(Enum.GetValues(typeof(RuleActionType)).Cast<int>());
 
         #region Remote Task Methods
 
@@ -558,7 +554,8 @@ namespace Core.Api.Managers
             try
             {
                 List<AssetRule> allAssetRules = new List<AssetRule>();
-                string allAssetRulesKey = LayeredCacheKeys.GetAllAssetRulesKey(groupId, (int)assetRuleConditionType);
+                
+                string allAssetRulesKey = LayeredCacheKeys.GetAllAssetRulesKey(groupId, (int)assetRuleConditionType, ruleActionType.HasValue ? (int)ruleActionType.Value : (int?)null);
                 string allAssetRulesInvalidationKey = groupId != 0 ? 
                     LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(groupId)
                         : LayeredCacheKeys.GetAllAssetRulesInvalidationKey();
@@ -569,7 +566,8 @@ namespace Core.Api.Managers
                                                                 new Dictionary<string, object>()
                                                                 {
                                                                     { "assetRuleConditionType", assetRuleConditionType },
-                                                                    { "groupId", groupId }
+                                                                    { "groupId", groupId },
+                                                                    { "ruleActionType", ruleActionType },
                                                                 },
                                                                 groupId,
                                                                 LayeredCacheConfigNames.GET_ALL_ASSET_RULES,
@@ -580,13 +578,7 @@ namespace Core.Api.Managers
                 }
                 
                 response.Objects = allAssetRules;
-
-                if (ruleActionType.HasValue)
-                {
-                    allAssetRules = allAssetRules.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
-                    response.Objects = allAssetRules;
-                }
-
+                
                 if (slimAsset != null)
                 {
                     List<AssetRule> assetRulesByAsset = new List<AssetRule>();
@@ -1043,13 +1035,14 @@ namespace Core.Api.Managers
 
             try
             {
-                if (funcParams != null && funcParams.Count == 2)
+                if (funcParams != null)
                 {
-                    if (funcParams.ContainsKey("assetRuleConditionType") && funcParams.ContainsKey("groupId"))
+                    if (funcParams.ContainsKey("assetRuleConditionType") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("ruleActionType"))
                     {
                         RuleConditionType? assetRuleConditionType = funcParams["assetRuleConditionType"] as RuleConditionType?;
                         int? groupId = funcParams["groupId"] as int?;
-                        
+                        RuleActionType? ruleActionType = funcParams["ruleActionType"] as RuleActionType?;
+
                         if (assetRuleConditionType.HasValue && groupId.HasValue)
                         {
                             List<AssetRule> allAssetRulesDB = new List<AssetRule>();
@@ -1079,13 +1072,16 @@ namespace Core.Api.Managers
                                 var rulesTypes = ApiDAL.GetAssetRuleTypeCB(filteredAssetRules.Select(x => x.Id));
                                 if (rulesTypes != null && rulesTypes.Count > 0)
                                 {
-                                    ruleIds = new List<long>(rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType)).Select(x => x.Id));
+                                    ruleIds = new List<long>(rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType) &&
+                                                                                   x.ActionTypeIdIn == null ? true : 
+                                                                                        ruleActionType.HasValue ? x.ActionTypeIdIn.Contains((int)ruleActionType) : true &&
+                                                                                        x.ActionTypeIdIn.All(y => AssetRuleActionsTypes.Contains(y)))
+                                                                       .Select(x => x.Id));
                                 }
 
                                 if (ruleIds != null)
                                 {
                                     var assetRulesCB = ApiDAL.GetAssetRulesCB(ruleIds);
-
                                     if (assetRulesCB != null && assetRulesCB.Count > 0)
                                     {
                                         allAssetRules = assetRulesCB;

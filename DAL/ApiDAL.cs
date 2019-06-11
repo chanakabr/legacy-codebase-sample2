@@ -4675,7 +4675,8 @@ namespace DAL
                 AssetRuleTypeMapping assetRuleTypeMapping = new AssetRuleTypeMapping()
                 {
                     Id = assetRule.Id,
-                    TypeIdIn = new List<int>(assetRule.Conditions.Select(x => (int)x.Type))
+                    TypeIdIn = new List<int>(assetRule.Conditions.Select(x => (int)x.Type)),
+                    ActionTypeIdIn = new HashSet<int>(assetRule.Actions.Select(x => (int)x.Type))
                 };
 
                 string assetRuleTypeKey = GetAssetRuleTypeKey(assetRule.Id);
