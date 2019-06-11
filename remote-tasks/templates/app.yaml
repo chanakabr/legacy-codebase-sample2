@@ -5,38 +5,39 @@
 {{- $releaseService := .Release.Service -}}
 {{- $envTag := .Values.env.tag -}}
 {{- $envRepository := .Values.env.repository -}}
+{{- $firstHandler := (first .Values.handlers).name -}}
 
-{{- range $index, $handler: = .Values.handlers }}
-{{ if eq $index 0 }}
+{{- range .Values.handlers }}
+{{ if not (eq $firstHandler .name) }}
 ---
 {{ end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $handler.name }}
+  name: {{ .name }}
   labels:
-    app.kubernetes.io/name: {{ $handler.name }}
-    app.kubernetes.io/instance: {{ $handler.name }}
+    app.kubernetes.io/name: {{ .name }}
+    app.kubernetes.io/instance: {{ .name }}
     app.kubernetes.io/managed-by: {{ $releaseService }}
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ $handler.name }}
+      app.kubernetes.io/name: {{ .name }}
       app.kubernetes.io/instance: {{ $releaseName }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ $handler.name }}
+        app.kubernetes.io/name: {{ .name }}
         app.kubernetes.io/instance: {{ $releaseName }}
     spec:
       containers:
-        - name: {{ $handler.name }}
+        - name: {{ .name }}
           image: "{{ $envRepository }}/{{ $envTag }}-{{ $chartName }}:{{ $chartAppVersion }}"
           imagePullPolicy: Always
           env:
             - name: RUN_TASK
-              value: {{ $handler.task }}
+              value: {{ .task }}
             - name: TCM_SECTION
               value: {{ $envTag }}
             - name: TCM_URL
@@ -64,12 +65,12 @@ spec:
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ $handler.name }}
+  name: {{ .name }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1beta1
     kind: Deployment
-    name: {{ $handler.name }}
+    name: {{ .name }}
   minReplicas: 2
   maxReplicas: 30
   metrics:
