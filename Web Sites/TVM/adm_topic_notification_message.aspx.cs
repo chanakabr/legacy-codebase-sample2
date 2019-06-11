@@ -119,7 +119,7 @@ public partial class adm_topic_notification_message : System.Web.UI.Page
                     DataRow dr = dt.NewRow();
                     dr["ID"] = item.Id;
                     dr["Message"] = item.Message;
-                    dr["status"] = "pending";
+                    dr["status"] = item.Status == 0 ? "pending" : "sent";
                     dr["TopicNotificationId"] = item.TopicNotificationId;
                     dt.Rows.Add(dr);
                 }
