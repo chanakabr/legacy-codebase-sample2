@@ -157,11 +157,24 @@ namespace DAL
                     if (serializeToString)
                     {
                         var cbValues = cbManager.GetValues<string>(keys, true);
-
                         if (cbValues != null)
                         {
+                            var objectsList = new List<T>();
                             log.DebugFormat("successfully GetObjectListFromCB. number of tries: {0}/{1}. key {2}", numOfTries, NUM_OF_TRIES, string.Join(", ", keys));
-                            return new List<T>(cbValues.Select(x => JsonConvert.DeserializeObject<T>(cbValues[x.Key], jsonSerializerSettings)));
+
+                            foreach (var cbValue in cbValues)
+                            {
+                                try
+                                {
+                                    objectsList.Add(JsonConvert.DeserializeObject<T>(cbValue.Value, jsonSerializerSettings));
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.Error(string.Format("Error while trying to DeserializeObject. key: {0}, value: {1}.", cbValue.Key, cbValue.Value), ex);
+                                }
+                            }
+
+                            return objectsList;
                         }
                     }
                     else
