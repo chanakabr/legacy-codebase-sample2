@@ -1081,7 +1081,6 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
-                            // TODO SHIR - ASK IRA ABOUT INVALIDATION HERE
                             AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)newAsset.Id);
 
                             var data = new InheritanceParentUpdate()
