@@ -1,62 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using SimpleInjector;
-using SimpleInjector.Integration.Wcf;
 using KLogMonitor;
 using System.Reflection;
 namespace Core.Catalog
 {
+    // TODO: Arthur: This was a class that was using simpleInjector
+    // as part of preperation for net core conversion this will be a shim for a static service provider .. 
+    // we will replace all calls to this with a service provider by net core when it will be implemented
     public static class Bootstrapper
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        private static Container container;
-        private static bool isInitialized = false;
-        private static object syncRoot = new Object();
-
+        
         public static void Bootstrap()
         {
-            try
-            {
-                if (!isInitialized)
-                {
-                    lock (syncRoot)
-                    {
-                        if (!isInitialized)
-                        {
-                            // Create the container
-
-                            container = new Container();
-                            Type searcherType = typeof(ElasticsearchWrapper); // old code: Type.GetType(Utils.GetWSURL("media_searcher"));
-
-                            // Register your types, for instance:
-                            container.Register(typeof(ISearcher), searcherType);
-
-                            // Register the container to the SimpleInjectorServiceHostFactory.
-                            SimpleInjectorServiceHostFactory.SetContainer(container);
-
-                            container.Verify();
-                            isInitialized = true;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Catalog - " + String.Concat("Ex Msg: ", ex.Message, " Ex Type: ", ex.GetType().Name, " ST: ", ex.StackTrace), ex);
-            }
+            // See TODO Comment above...
         }
         
-        public static T GetInstance<T>() where T : class
+        public static ISearcher GetInstance<T>() where T : ISearcher
         {
-            Bootstrap();
-            return container.GetInstance<T>();
-        }
-
-        public static IEnumerable<T> GetAllInstances<T>() where T : class
-        {
-            Bootstrap();
-            return container.GetAllInstances<T>();
+            return new ElasticsearchWrapper();
         }
     }
 }
