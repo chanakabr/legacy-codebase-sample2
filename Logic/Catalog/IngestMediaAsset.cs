@@ -460,6 +460,7 @@ namespace Core.Catalog
     {
         [XmlElement("meta")]
         public List<IngestSlimMeta> Metas { get; set; }
+        private const string One = "1";
 
         public Status Validate(MetaType metaType, CatalogGroupCache cache, ref HashSet<long> topicIdsToRemove, ref List<Metas> metas)
         {
@@ -488,8 +489,8 @@ namespace Core.Catalog
                     {
                         return new Status((int)eResponseStatus.NameRequired, string.Format("media.structure.{0}.meta value cannot be empty", metaTypeName));
                     }
-
-                    var metaValue = metaType != MetaType.Bool ? meta.Value : meta.Value.Equals(IngestMedia.TRUE) ? "1" : "0";
+                    
+                    var metaValue = metaType != MetaType.Bool || One.Equals(meta.Value) ? meta.Value : IngestMedia.TRUE.Equals(meta.Value) ? One : "0";
                     metas.Add(new Metas(new TagMeta(meta.Name, metaTypeName), metaValue));
                 }
             }
