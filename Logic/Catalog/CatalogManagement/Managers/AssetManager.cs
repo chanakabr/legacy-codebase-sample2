@@ -413,7 +413,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
-                                                           ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDoc)
+                                                          ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDoc, bool isFromIngest)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
@@ -424,7 +424,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, asset.Metas, asset.Tags, assetStructMetaIds, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                 ref assetCatalogStartDate, ref assetFinalEndDate);
+                                                                 ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -482,7 +482,7 @@ namespace Core.Catalog.CatalogManagement
             List<RelatedEntities> relatedEntitiesToAdd = asset.RelatedEntities != null && currentAssetMetasAndTags != null ? asset.RelatedEntities.Where(x => !currentAssetMetasAndTags.Contains(x.TagMeta.m_sName)).ToList() : new List<RelatedEntities>();
 
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToAdd, tagsToAdd, assetStructMetaIds, ref metasXmlDocToAdd, ref tagsXmlDocToAdd,
-                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -499,7 +499,7 @@ namespace Core.Catalog.CatalogManagement
             List<RelatedEntities> relatedEntitiesToUpdate = asset.RelatedEntities != null && currentAssetMetasAndTags != null ? asset.RelatedEntities.Where(x => currentAssetMetasAndTags.Contains(x.TagMeta.m_sName)).ToList() : new List<RelatedEntities>();
 
             result = ValidateMediaAssetMetasAndTagsNamesAndTypes(groupId, catalogGroupCache, metasToUpdate, tagsToUpdate, assetStructMetaIds, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate,
-                                                                    ref assetCatalogStartDate, ref assetFinalEndDate);
+                                                                    ref assetCatalogStartDate, ref assetFinalEndDate, isFromIngest);
             if (result.Code != (int)eResponseStatus.OK)
             {
                 return result;
@@ -540,7 +540,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateMediaAssetMetasAndTagsNamesAndTypes(int groupId, CatalogGroupCache catalogGroupCache, List<Metas> metas, List<Tags> tags, HashSet<long> assetStructMetaIds,
                                                                           ref XmlDocument metasXmlDoc, ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate,
-                                                                          ref DateTime? assetFinalEndDate)
+                                                                          ref DateTime? assetFinalEndDate, bool isFromIngest)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<string> tempHashSet = new HashSet<string>();
@@ -551,35 +551,41 @@ namespace Core.Catalog.CatalogManagement
                 metasXmlDoc.AppendChild(rootNode);
                 foreach (Metas meta in metas)
                 {
+                    var metaName = meta.m_oTagMeta.m_sName.Trim();
+
                     // validate duplicates do not exist
-                    if (tempHashSet.Contains(meta.m_oTagMeta.m_sName))
+                    if (tempHashSet.Contains(metaName))
                     {
-                        result.Message = string.Format("Duplicate meta sent, meta name: {0}", meta.m_oTagMeta.m_sName);
+                        result.Message = string.Format("Duplicate meta sent, meta name: {0}", metaName);
                         return result;
                     }
 
-                    tempHashSet.Add(meta.m_oTagMeta.m_sName);
+                    tempHashSet.Add(metaName);
 
                     // validate meta exists on group
-                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(meta.m_oTagMeta.m_sName)
-                        || !catalogGroupCache.TopicsMapBySystemNameAndByType[meta.m_oTagMeta.m_sName].ContainsKey(meta.m_oTagMeta.m_sType))
+                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(metaName)
+                        || !catalogGroupCache.TopicsMapBySystemNameAndByType[metaName].ContainsKey(meta.m_oTagMeta.m_sType))
                     {
-                        result.Message = string.Format("meta: {0} does not exist for group", meta.m_oTagMeta.m_sName);
+                        if (isFromIngest) { continue; }
+                        
+                        result.Message = string.Format("meta: {0} does not exist for group", metaName);
                         return result;
                     }
 
                     // validate meta exists on asset struct
-                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemNameAndByType[meta.m_oTagMeta.m_sName][meta.m_oTagMeta.m_sType].Id))
+                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemNameAndByType[metaName][meta.m_oTagMeta.m_sType].Id))
                     {
-                        result.Message = string.Format("meta: {0} is not part of assetStruct", meta.m_oTagMeta.m_sName);
+                        if (isFromIngest) { continue; }
+
+                        result.Message = string.Format("meta: {0} is not part of assetStruct", metaName);
                         return result;
                     }
 
-                    Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[meta.m_oTagMeta.m_sName][meta.m_oTagMeta.m_sType];
+                    Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[metaName][meta.m_oTagMeta.m_sType];
                     // validate correct type was sent
                     if (topic.Type.ToString().ToLower() != meta.m_oTagMeta.m_sType.ToLower())
                     {
-                        result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), meta.m_oTagMeta.m_sName));
+                        result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), metaName));
                         return result;
                     }
 
@@ -601,35 +607,41 @@ namespace Core.Catalog.CatalogManagement
                 tagsXmlDoc.AppendChild(rootNode);
                 foreach (Tags tag in tags)
                 {
+                    var tagName = tag.m_oTagMeta.m_sName.Trim();
+
                     // validate duplicates do not exist
-                    if (tempHashSet.Contains(tag.m_oTagMeta.m_sName))
+                    if (tempHashSet.Contains(tagName))
                     {
-                        result.Message = string.Format("Duplicate tag sent, tag name: {0}", tag.m_oTagMeta.m_sName);
+                        result.Message = string.Format("Duplicate tag sent, tag name: {0}", tagName);
                         return result;
                     }
 
-                    tempHashSet.Add(tag.m_oTagMeta.m_sName);
+                    tempHashSet.Add(tagName);
 
                     // validate tag exists on group
-                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(tag.m_oTagMeta.m_sName)
-                        || !catalogGroupCache.TopicsMapBySystemNameAndByType[tag.m_oTagMeta.m_sName].ContainsKey(tag.m_oTagMeta.m_sType))
+                    if (!catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(tagName)
+                        || !catalogGroupCache.TopicsMapBySystemNameAndByType[tagName].ContainsKey(tag.m_oTagMeta.m_sType))
                     {
-                        result.Message = string.Format("tag: {0} does not exist for group", tag.m_oTagMeta.m_sName);
+                        if (isFromIngest) { continue; }
+
+                        result.Message = string.Format("tag: {0} does not exist for group", tagName);
                         return result;
                     }
 
                     // validate tag exists on asset struct
-                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemNameAndByType[tag.m_oTagMeta.m_sName][tag.m_oTagMeta.m_sType].Id))
+                    if (!assetStructMetaIds.Contains(catalogGroupCache.TopicsMapBySystemNameAndByType[tagName][tag.m_oTagMeta.m_sType].Id))
                     {
-                        result.Message = string.Format("tag: {0} is not part of assetStruct", tag.m_oTagMeta.m_sName);
+                        if (isFromIngest) { continue; }
+
+                        result.Message = string.Format("tag: {0} is not part of assetStruct", tagName);
                         return result;
                     }
 
-                    Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[tag.m_oTagMeta.m_sName][tag.m_oTagMeta.m_sType];
+                    Topic topic = catalogGroupCache.TopicsMapBySystemNameAndByType[tagName][tag.m_oTagMeta.m_sType];
                     // validate correct type was sent
                     if (topic.Type != MetaType.Tag || topic.Type.ToString().ToLower() != tag.m_oTagMeta.m_sType.ToLower())
                     {
-                        result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), tag.m_oTagMeta.m_sName));
+                        result = new Status((int)eResponseStatus.InvalidMetaType, string.Format("{0} was sent for meta: {1}", eResponseStatus.InvalidMetaType.ToString(), tagName));
                         return result;
                     }
 
@@ -762,7 +774,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                                ref assetCatalogStartDate, ref assetFinalEndDate, ref relatedEntitiesXmlDoc);
+                                                                                ref assetCatalogStartDate, ref assetFinalEndDate, ref relatedEntitiesXmlDoc, isFromIngest);
 
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
@@ -809,7 +821,7 @@ namespace Core.Catalog.CatalogManagement
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
                         }
                     }
-
+                    
                     CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, assetToAdd, null);
                 }
             }
@@ -1147,11 +1159,11 @@ namespace Core.Catalog.CatalogManagement
                     assetStruct = catalogGroupCache.AssetStructsMapById[currentAsset.MediaType.m_nTypeID];
                 }
 
-                HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName).ToList(), StringComparer.OrdinalIgnoreCase);
-                currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName).ToList());
+                HashSet<string> currentAssetMetasAndTags = new HashSet<string>(currentAsset.Metas.Select(x => x.m_oTagMeta.m_sName), StringComparer.OrdinalIgnoreCase);
+                currentAssetMetasAndTags.UnionWith(currentAsset.Tags.Select(x => x.m_oTagMeta.m_sName));
                 if (currentAsset.RelatedEntities != null)
                 {
-                    currentAssetMetasAndTags.UnionWith(currentAsset.RelatedEntities.Select(x => x.TagMeta.m_sName).ToList());
+                    currentAssetMetasAndTags.UnionWith(currentAsset.RelatedEntities.Select(x => x.TagMeta.m_sName));
                 }
 
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
@@ -1164,7 +1176,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Update asset catalogStartDate and finalEndDate
-                assetToUpdate.CatalogStartDate = assetCatalogStartDate;
+                assetToUpdate.CatalogStartDate = assetCatalogStartDate ?? assetToUpdate.CatalogStartDate;
                 assetToUpdate.FinalEndDate = assetFinalEndDate ?? assetToUpdate.FinalEndDate;
 
                 // Add Name meta values (for languages that are not default), Name can only be updated
@@ -1207,7 +1219,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
-                if (!isForMigration && result != null && result.Status != null && result.Status.Code == (int)eResponseStatus.OK && result.Object != null && result.Object.Id > 0 && !isLinear)
+                if (!isForMigration && result != null && result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
                     if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
                     {
@@ -1216,7 +1228,7 @@ namespace Core.Catalog.CatalogManagement
                         if (updateDS != null)
                         {
                             status = BuildTableDicAfterUpdateMediaAsset(updateDS, assetToUpdate.Id, out tables);
-                            if (status.Code != (int)eResponseStatus.OK)
+                            if (!status.IsOkStatusCode())
                             {
                                 result.SetStatus(status);
                                 return result;
@@ -1284,13 +1296,12 @@ namespace Core.Catalog.CatalogManagement
 
             if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
             {
-                AssetInheritancePolicy assetInheritancePolicy = mediaAsset.InheritancePolicy.HasValue ? mediaAsset.InheritancePolicy.Value : AssetInheritancePolicy.Enable;
+                AssetInheritancePolicy assetInheritancePolicy = mediaAsset.InheritancePolicy ?? AssetInheritancePolicy.Enable;
                 UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetStruct, assetInheritancePolicy, mediaAsset);
             }
         }
 
-        private static DataSet UpdateAssetInheritancePolicy(int groupId, long userId, CatalogGroupCache catalogGroupCache, AssetStruct assetStruct, AssetInheritancePolicy inheritancePolicy,
-            Asset asset)
+        private static DataSet UpdateAssetInheritancePolicy(int groupId, long userId, CatalogGroupCache catalogGroupCache, AssetStruct assetStruct, AssetInheritancePolicy inheritancePolicy, Asset asset)
         {
             DataSet ds = null;
             if (inheritancePolicy == AssetInheritancePolicy.Enable)
@@ -1793,7 +1804,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static Status ValidateTopicIdsToRemove(CatalogGroupCache catalogGroupCache, HashSet<long> topicIds)
+        private static Status ValidateBasicTopicIdsToRemove(CatalogGroupCache catalogGroupCache, HashSet<long> topicIds)
         {
             Status result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             if (topicIds != null && topicIds.Count > 0 && catalogGroupCache.TopicsMapBySystemNameAndByType != null && catalogGroupCache.TopicsMapBySystemNameAndByType.Count > 0)
@@ -2540,6 +2551,33 @@ namespace Core.Catalog.CatalogManagement
             return new Status((int)eResponseStatus.OK);
         }
 
+        private static Status ValidateNoneExistingTopicIdsToRemove(MediaAsset mediaAsset, HashSet<long> topicIds, CatalogGroupCache catalogGroupCache)
+        {
+            var result = Status.Ok;
+
+            List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                                        && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                                                                        .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
+            existingTopicsIds.AddRange(mediaAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
+                                                            && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                                                            .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList());
+            if (mediaAsset.RelatedEntities != null)
+            {
+                existingTopicsIds.AddRange(mediaAsset.RelatedEntities.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.TagMeta.m_sName)
+                                                                && catalogGroupCache.TopicsMapBySystemNameAndByType[x.TagMeta.m_sName].ContainsKey(x.TagMeta.m_sType))
+                                                                .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.TagMeta.m_sName][x.TagMeta.m_sType].Id).ToList());
+            }
+
+            List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
+            if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+            {
+                result.Set(eResponseStatus.MetaIdsDoesNotExistOnAsset, 
+                           string.Format("{0} for the following Meta Ids: {1}", eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Public Methods
@@ -3024,15 +3062,15 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status RemoveTopicsFromAsset(int groupId, long id, eAssetTypes assetType, HashSet<long> topicIds, long userId)
+        public static Status RemoveTopicsFromAsset(int groupId, long id, eAssetTypes assetType, HashSet<long> topicIds, long userId, bool isFromIngest = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
                 // validate that asset exist
                 // isAllowedToViewInactiveAssets = true because only operator can remove topics from asset 
-                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, true);
-                if (assets == null || assets.Count != 1)
+                var currentAsset = AssetManager.GetAsset(groupId, id, assetType, true);
+                if (!currentAsset.HasObject())
                 {
                     result = new Status((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
@@ -3046,8 +3084,8 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // validate not trying to remove basic topicIds    
-                Status validateBasicTopicsResult = ValidateTopicIdsToRemove(catalogGroupCache, topicIds);
-                if (validateBasicTopicsResult.Code != (int)eResponseStatus.OK)
+                var validateBasicTopicsResult = ValidateBasicTopicIdsToRemove(catalogGroupCache, topicIds);
+                if (!validateBasicTopicsResult.IsOkStatusCode())
                 {
                     result = validateBasicTopicsResult;
                     return result;
@@ -3056,21 +3094,15 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
-                        result = EpgAssetManager.RemoveTopicsFromProgram(groupId, topicIds, userId, catalogGroupCache, assets[0]);
+                        result = EpgAssetManager.RemoveTopicsFromProgram(groupId, topicIds, userId, catalogGroupCache, currentAsset.Object);
                         break;
                     case eAssetTypes.MEDIA:
-                        result = RemoveTopicsFromMediaAsset(groupId, id, topicIds, userId, catalogGroupCache, assets[0]);
+                        result = RemoveTopicsFromMediaAsset(groupId, id, topicIds, userId, catalogGroupCache, currentAsset.Object as MediaAsset, isFromIngest);
                         break;
                     case eAssetTypes.NPVR:
                     case eAssetTypes.UNKNOWN:
                     default:
                         break;
-                }
-
-                if (result.IsOkStatusCode())
-                {
-                    // invalidate asset
-                    InvalidateAsset(assetType, id);
                 }
             }
             catch (Exception ex)
@@ -3079,45 +3111,30 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-
         }
 
-        public static Status RemoveTopicsFromMediaAsset(int groupId, long id, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, Asset asset)
+        private static Status RemoveTopicsFromMediaAsset(int groupId, long id, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, MediaAsset mediaAsset, bool isFromIngest)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
             try
             {
                 int dbAssetType = 0;
+                
                 // validate topicsIds exist on asset
-                MediaAsset mediaAsset = asset as MediaAsset;
                 if (mediaAsset != null)
                 {
-                    List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
-                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
-                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
-                    existingTopicsIds.AddRange(mediaAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
-                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
-                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList());
-                    if (mediaAsset.RelatedEntities != null)
+                    if (!isFromIngest)
                     {
-                        existingTopicsIds.AddRange(mediaAsset.RelatedEntities.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.TagMeta.m_sName)
-                                                                        && catalogGroupCache.TopicsMapBySystemNameAndByType[x.TagMeta.m_sName].ContainsKey(x.TagMeta.m_sType))
-                                                                        .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.TagMeta.m_sName][x.TagMeta.m_sType].Id).ToList());
+                        result = ValidateNoneExistingTopicIdsToRemove(mediaAsset, topicIds, catalogGroupCache);
+                        if (!result.IsOkStatusCode()) { return result; }
                     }
 
-                    List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
-                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
-                    {
-                        result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, string.Format("{0} for the following Meta Ids: {1}",
-                                                    eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
-                        return result;
-                    }
-
-                    List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.Tag
+                    List<long> tagIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == MetaType.Tag
                                                                               && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
-                    List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != ApiObjects.MetaType.Tag && x.Value.Type != ApiObjects.MetaType.ReleatedEntity
-                                                                              && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();                    
-                    List<long> releatedEntityIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == ApiObjects.MetaType.ReleatedEntity
+                    List<long> metaIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type != MetaType.Tag && x.Value.Type != MetaType.ReleatedEntity
+                                                                              && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
+                    List<long> releatedEntityIds = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && x.Value.Type == MetaType.ReleatedEntity
                                                                               && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName)).Select(x => x.Key).ToList();
 
                     if (CatalogDAL.RemoveMetasAndTagsFromAsset(groupId, id, dbAssetType, metaIds, tagIds, userId, releatedEntityIds))
@@ -3129,6 +3146,7 @@ namespace Core.Catalog.CatalogManagement
 
                         // invalidate asset
                         InvalidateAsset(eAssetTypes.MEDIA, id);
+
                         //Get updated Asset
                         var assetResponse = AssetManager.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);
                         if (assetResponse != null && assetResponse.HasObject() && assetResponse.Object is MediaAsset)
@@ -3137,12 +3155,16 @@ namespace Core.Catalog.CatalogManagement
                             UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetResponse.Object as MediaAsset);
                         }
 
-                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        result.Set(eResponseStatus.OK);
+
                         // UpdateIndex
-                        bool indexingResult = IndexManager.UpsertMedia(groupId, id);
-                        if (!indexingResult)
+                        if (!isFromIngest)
                         {
-                            log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", id, eAssetTypes.MEDIA.ToString(), groupId);
+                            bool indexingResult = IndexManager.UpsertMedia(groupId, id);
+                            if (!indexingResult)
+                            {
+                                log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", id, eAssetTypes.MEDIA.ToString(), groupId);
+                            }
                         }
                     }
                     else

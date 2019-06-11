@@ -68,7 +68,7 @@ namespace ApiObjects.Response
 
         public bool IsOkStatusCode()
         {
-            return Status != null && Status.IsOkStatusCode() == true;
+            return Status != null && Status.IsOkStatusCode();
         }
 
         public bool HasObject()

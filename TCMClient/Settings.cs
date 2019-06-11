@@ -149,7 +149,18 @@ namespace TCMClient
         /// <typeparam name="T">Value type</typeparam>
         /// <param name="key">Key</param>
         /// <returns></returns>
-        public T GetValue<T>(string key, bool exactCase = false)
+        public T GetValue<T>(string key)
+        {
+            return GetValue<T>(key, false);
+        }
+
+        /// <summary>
+        /// Returns the value from settings
+        /// </summary>
+        /// <typeparam name="T">Value type</typeparam>
+        /// <param name="key">Key</param>
+        /// <returns></returns>
+        public T GetValue<T>(string key, bool exactCase)
         {
             try
             {
