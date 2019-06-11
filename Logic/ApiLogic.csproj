@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
+    <!--<Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
       <HintPath>..\External\ComponentSpace.SAML2.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
-    </Reference>
+    </Reference>-->
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PerceptiveMCAPI, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\External\PerceptiveMCAPI.dll</HintPath>
