@@ -195,7 +195,7 @@ public partial class adm_topic_notification_message_new : System.Web.UI.Page
             TopicNotificationMailDispatcher tnmd = null;
             if (topicNotificationMessage != null && topicNotificationMessage.Dispatchers != null)
             {
-                var tnmdObject = topicNotificationMessage.Dispatchers.First(x => x.Type == TopicNotificationDispatcherType.Mail);
+                var tnmdObject = topicNotificationMessage.Dispatchers.FirstOrDefault(x => x.Type == TopicNotificationDispatcherType.Mail);
                 tnmd = tnmdObject != null ? (TopicNotificationMailDispatcher)tnmdObject : null;
             }
 
@@ -224,7 +224,7 @@ public partial class adm_topic_notification_message_new : System.Web.UI.Page
             TopicNotificationSmsDispatcher tnsd = null;
             if (topicNotificationMessage != null && topicNotificationMessage.Dispatchers != null)
             {
-                var tsndObject = topicNotificationMessage.Dispatchers.First(x => x.Type == TopicNotificationDispatcherType.Sms);
+                var tsndObject = topicNotificationMessage.Dispatchers.FirstOrDefault(x => x.Type == TopicNotificationDispatcherType.Sms);
                 tnsd = tsndObject != null ? (TopicNotificationSmsDispatcher)tsndObject : null;
             }
 
