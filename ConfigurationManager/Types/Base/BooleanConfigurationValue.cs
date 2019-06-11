@@ -39,7 +39,11 @@ namespace ConfigurationManager
             if (isEmpty)
             {
                 this.ObjectValue = false;
-                LogError("Empty/null value for boolean value", ConfigurationValidationErrorLevel.Failure);
+
+                if (!ShouldAllowEmpty)
+                {
+                    LogError("Empty/null value for boolean value", ConfigurationValidationErrorLevel.Failure);
+                }
             }
         }
 
