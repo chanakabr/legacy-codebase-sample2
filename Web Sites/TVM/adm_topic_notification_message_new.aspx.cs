@@ -384,7 +384,7 @@ public partial class adm_topic_notification_message_new : System.Web.UI.Page
                                     mail.SubjectTemplate = sVal;
                                     break;
                                 case "include_sms":
-                                    if (sVal == "1")
+                                    if (sVal == "1" || sVal.ToLower() == "on")
                                         sms = new TopicNotificationSmsDispatcher();
                                     break;
                                 default:
