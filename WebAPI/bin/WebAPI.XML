@@ -16692,15 +16692,6 @@
             Summary description for Service1
             </summary>
         </member>
-        <member name="F:WS_Users.OSaml.form1">
-            <summary>
-            form1 control.
-            </summary>
-            <remarks>
-            Auto-generated field.
-            To modify move field declaration from designer file to code-behind file.
-            </remarks>
-        </member>
         <member name="F:WS_Users.SSO.form1">
             <summary>
             form1 control.

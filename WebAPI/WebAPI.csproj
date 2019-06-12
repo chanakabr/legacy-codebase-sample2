@@ -319,7 +319,6 @@
     <Content Include="WS_Modules\social.asmx" />
     <Content Include="WS_Modules\pricing.asmx" />
     <Content Include="WS_Modules\Users\OAuth.aspx" />
-    <Content Include="WS_Modules\Users\OSaml.aspx" />
     <Content Include="WS_Modules\Users\SSO.aspx" />
     <Content Include="ws_notification_service.svc" />
     <Content Include="ws_users_module.asmx" />
@@ -1733,13 +1732,6 @@
     <Compile Include="WS_Modules\Users\OAuth.aspx.cs">
       <DependentUpon>OAuth.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Users\OSaml.aspx.cs">
-      <DependentUpon>OSaml.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Users\OSaml.aspx.designer.cs">
-      <DependentUpon>OSaml.aspx</DependentUpon>
     </Compile>
     <Compile Include="WS_Modules\Users\SSO.aspx.cs">
       <DependentUpon>SSO.aspx</DependentUpon>

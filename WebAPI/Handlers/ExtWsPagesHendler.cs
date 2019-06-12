@@ -111,12 +111,6 @@ namespace WebAPI
                         OAuth_page.ProcessRequest(context);
                         break;
 
-                    case "~/osaml.aspx":
-                        Page OSaml_page = new OSaml();
-                        OSaml_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
-                        OSaml_page.ProcessRequest(context);
-                        break;
-
                     case "~/sso.aspx":
                         Page SSO_page = new SSO();
                         SSO_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
