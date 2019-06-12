@@ -283,7 +283,7 @@ namespace Core.Users
             if (userData == null) { return null; }
             var user = new SSOAdapaterUser();
 
-            user.Id = (int)userData.Id;
+            user.Id = int.Parse(userData.m_sSiteGUID);
             user.ExternalId = userData.m_oBasicData.m_CoGuid;
             user.HouseholdID = userData.m_domianID;
             user.IsHouseholdMaster = userData.m_isDomainMaster;

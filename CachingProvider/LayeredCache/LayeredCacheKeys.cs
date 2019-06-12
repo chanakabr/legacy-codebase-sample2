@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCacheKeys
     {
-
         #region Constant Keys
 
         public const string GET_CURRENCIES_KEY = "currencies";
@@ -463,8 +461,13 @@ namespace CachingProvider.LayeredCache
             return string.Format("discounts_groupId_{0}", groupId);
         }
 
-        public static string GetAllAssetRulesKey(int groupId, int conditionType)
+        public static string GetAllAssetRulesKey(int groupId, int conditionType, int? actionType)
         {
+            if (actionType.HasValue)
+            {
+                return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}_actionType_{2}", groupId, conditionType, actionType.Value);
+            }
+
             return string.Format("all_asset_rules_groupId_{0}_conditionType_{1}", groupId, conditionType);
         }
 

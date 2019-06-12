@@ -40,5 +40,8 @@ namespace ApiObjects.Rules
 
         [JsonProperty("TypeIdIn")]
         public List<int> TypeIdIn { get; set; }
+
+        [JsonProperty("ActionTypeIdIn")]
+        public HashSet<int> ActionTypeIdIn { get; set; }
     }
 }
