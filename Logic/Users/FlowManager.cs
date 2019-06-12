@@ -183,35 +183,6 @@ namespace Core.Users
             return passed;
         }
 
-        public static bool SubscribeToNewsLetter(ref UserResponseObject userResponse, KalturaBaseUsers user, UserDynamicData dynamicData, User userBo, List<KeyValuePair> keyValueList)
-        {
-            bool passed = false;
-
-            try
-            {
-                bool shouldSubscribe = ((KalturaUsers)user).ShouldSubscribeNewsLetter;
-                if (((KalturaUsers)user).ShouldSubscribeNewsLetter)
-                {
-                    // init
-                    user.InitSubscribeToNewsLetter(ref userResponse, ref dynamicData, ref userBo, ref shouldSubscribe);
-
-                    // pre
-                    user.PreSubscribeToNewsLetter(ref userResponse, ref dynamicData, ref userBo, ref shouldSubscribe, ref keyValueList);
-
-                    // mid
-                    passed = user.MidSubscribeToNewsLetter(ref userResponse, dynamicData, userBo, ref shouldSubscribe);
-
-                    // post
-                    user.PostSubscribeToNewsLetter(ref userResponse, passed, ref dynamicData, ref userBo, ref keyValueList);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            return passed;
-        }
-
         public static UserResponseObject GetUserData(KalturaBaseUsers user, string siteGuid, List<KeyValuePair> keyValueList, string userIP)
         {
             UserResponseObject userResponse = new UserResponseObject();

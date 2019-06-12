@@ -60,12 +60,6 @@ namespace Core.Users
                 userResponse.Initialize(ResponseStatus.OK, newUser);
             }
 
-            string sNewsLetter = sDynamicData.GetValByKey("newsletter");
-            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true") && m_newsLetterImpl != null && !m_newsLetterImpl.IsUserSubscribed(newUser))
-            {
-                m_newsLetterImpl.Subscribe(userResponse.m_user);
-            }
-
             //Send Wellcome Email
             if (m_mailImpl != null)
             {

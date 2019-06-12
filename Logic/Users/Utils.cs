@@ -262,16 +262,6 @@ namespace Core.Users
             }
         }
 
-        static public BaseNewsLetterImpl GetBaseImpl(string apiKey, string listID, int implID)
-        {
-            BaseNewsLetterImpl retVal = null;
-            if (implID == 1)
-            {
-                retVal = new MCNewsLetterImpl(apiKey, listID);
-            }
-            return retVal;
-        }
-
         static public Country[] GetCountryList()
         {
             Country[] ret = null;
