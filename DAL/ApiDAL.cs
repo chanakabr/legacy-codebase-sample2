@@ -5495,19 +5495,27 @@ namespace DAL
             if (partnerConfig.MainLanguage.HasValue)
                 sp.AddParameter("@mainLanguage", partnerConfig.MainLanguage);
             sp.AddParameter("@secondaryLanguagesExist", partnerConfig.SecondaryLanguages != null && partnerConfig.SecondaryLanguages.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter<int>("@secondaryLanguages", partnerConfig.SecondaryLanguages, "Id");
+            if (partnerConfig.SecondaryLanguages?.Count > 0)
+            {
+                sp.AddIDListParameter<int>("@secondaryLanguages", partnerConfig.SecondaryLanguages, "Id");
+            }
             if (partnerConfig.DeleteMediaPolicy.HasValue)
                 sp.AddParameter("@deleteMediaPolicy", partnerConfig.DeleteMediaPolicy.Value);
             if (partnerConfig.MainCurrency.HasValue)
                 sp.AddParameter("@mainCurrency", partnerConfig.MainCurrency);
             sp.AddParameter("@secondaryCurrencysExist", partnerConfig.SecondaryCurrencies != null && partnerConfig.SecondaryCurrencies.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencies, "Id");            
+            if (partnerConfig.SecondaryCurrencies?.Count > 0)
+            {
+                sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencies, "Id");
+            }
             if (partnerConfig.DowngradePolicy.HasValue)
                 sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
             sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
             sp.AddParameter("@dateFormat", partnerConfig.DateFormat);            
             if (partnerConfig.HouseholdLimitationModule.HasValue)
-                sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);            
+                sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);
+            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
+            sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
