@@ -89,8 +89,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UploadQueue", "..\Core\FTPU
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "helm", "helm", "{F9B1706E-B32E-48CB-A338-FD64C8BFC505}"
 	ProjectSection(SolutionItems) = preProject
-		remote-tasks\templates\app.yaml = remote-tasks\templates\app.yaml
+		remote-tasks\templates\autoscaling.yaml = remote-tasks\templates\autoscaling.yaml
 		remote-tasks\Chart.yaml = remote-tasks\Chart.yaml
+		remote-tasks\templates\deployment.yaml = remote-tasks\templates\deployment.yaml
 		remote-tasks\templates\NOTES.txt = remote-tasks\templates\NOTES.txt
 		remote-tasks\values.yaml = remote-tasks\values.yaml
 	EndProjectSection

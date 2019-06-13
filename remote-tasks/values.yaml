@@ -3,5 +3,3 @@ handlers:
     task: IngestTransformationHandler
   - name: ingest-handler
     task: IngestHandler
-  - name: ftp-bulk-upload-api-proxy
-    task: FtpApiServer
