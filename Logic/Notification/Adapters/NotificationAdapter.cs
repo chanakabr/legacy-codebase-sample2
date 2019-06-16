@@ -188,7 +188,7 @@ namespace Core.Notification.Adapters
                         if (string.IsNullOrEmpty(messageId))
                             log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
                         else
-                            log.DebugFormat("successfully published announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
+                            log.DebugFormat("successfully published announcement. announcement external ID: {0}, messageId: {1}", externalAnnouncementId, messageId);
                     }
                 }
                 catch (Exception ex)
