@@ -68,6 +68,7 @@ namespace ConfigurationManager
         public static StringConfigurationValue CatalogSignatureKey;
         public static HarmonicProviderConfiguration HarmonicProviderConfiguration;
         public static RabbitConfiguration RabbitConfiguration;
+        public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
         public static RoleIdsConfiguration RoleIdsConfiguration;
         public static StringConfigurationValue ExcludePsDllImplementation;
         public static NumericConfigurationValue DomainCacheDocTimeout;
@@ -371,6 +372,7 @@ namespace ConfigurationManager
             };
             HarmonicProviderConfiguration = new HarmonicProviderConfiguration("harmonic_provider_configuration");
             RabbitConfiguration = new RabbitConfiguration("rabbit_configuration");
+            CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
             RoleIdsConfiguration = new RoleIdsConfiguration("role_ids");
             ExcludePsDllImplementation = new StringConfigurationValue("EXCLUDE_PS_DLL_IMPLEMENTATION")
             {
@@ -640,6 +642,7 @@ namespace ConfigurationManager
                     CatalogSignatureKey,
                     HarmonicProviderConfiguration,
                     RabbitConfiguration,
+                    CouchbaseClientConfiguration,
                     RoleIdsConfiguration,
                     ExcludePsDllImplementation,
                     DomainCacheDocTimeout,
