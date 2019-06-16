@@ -641,7 +641,7 @@ namespace Core.Catalog
                             //add is default lang values
                             LanguageObj language = group.GetLangauges().Where(x => x.IsDefault).FirstOrDefault();
                             if (language != null)
-                                tagLangContainerList.Add(new LanguageContainer() { LanguageCode = language.Code, Value = tagValue });
+                                tagLangContainerList.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = tagValue });
 
                             if (tagLangs != null && tagLangs.Rows.Count > 0)
                             {
@@ -987,12 +987,12 @@ namespace Core.Catalog
                         oMediaObj.Name = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "NAME");
                         if (oMediaObj.Name != null && oMediaObj.Name.Length > 0)
                         {
-                            oMediaObj.m_sName = oMediaObj.Name[0].Value;
+                            oMediaObj.m_sName = oMediaObj.Name[0].m_sValue;
                         }
                         oMediaObj.Description = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "DESCRIPTION");
                         if (oMediaObj.Description != null && oMediaObj.Description.Length > 0)
                         {
-                            oMediaObj.m_sDescription = oMediaObj.Description[0].Value;
+                            oMediaObj.m_sDescription = oMediaObj.Description[0].m_sValue;
                         }
 
                         oMediaObj.m_oMediaType = new MediaType();
@@ -1137,7 +1137,7 @@ namespace Core.Catalog
                     {
                         language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
                         if (language != null)
-                            langContainers.Add(new LanguageContainer() { LanguageCode = language.Code, Value = value });
+                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
                     }
                 }
             }
@@ -1146,7 +1146,7 @@ namespace Core.Catalog
             language = groupLanguages.Where(x => x.IsDefault).FirstOrDefault();
             value = Utils.GetStrSafeVal(mediaRow, columnName);
             if (language != null)
-                langContainers.Add(new LanguageContainer() { LanguageCode = language.Code, Value = value });
+                langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
 
             return langContainers.ToArray();
         }
@@ -1169,7 +1169,7 @@ namespace Core.Catalog
                     {
                         language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
                         if (language != null)
-                            langContainers.Add(new LanguageContainer() { LanguageCode = language.Code, Value = value });
+                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
                     }
                 }
             }
@@ -2467,34 +2467,34 @@ namespace Core.Catalog
                 if (!isMainLanguage && languageId > 0)
                 {
                     string languageCode = catalogGroupCache.LanguageMapById[languageId].Code;
-                    if (mediaAsset.NamesWithLanguages.Any(x => x.LanguageCode == languageCode))
+                    if (mediaAsset.NamesWithLanguages.Any(x => x.m_sLanguageCode3 == languageCode))
                     {
-                        mediaSearchRequest.m_sName = mediaAsset.NamesWithLanguages.Where(x => x.LanguageCode == languageCode).First().Value;
+                        mediaSearchRequest.m_sName = mediaAsset.NamesWithLanguages.Where(x => x.m_sLanguageCode3 == languageCode).First().m_sValue;
                     }
 
                     foreach (KeyValue metas in mediaSearchRequest.m_lMetas)
                     {
-                        if (mediaAsset.Metas.Any(x => x.m_oTagMeta.m_sName == metas.m_sKey && x.Value != null && x.Value.Any(y => y.LanguageCode == languageCode)))
+                        if (mediaAsset.Metas.Any(x => x.m_oTagMeta.m_sName == metas.m_sKey && x.Value != null && x.Value.Any(y => y.m_sLanguageCode3 == languageCode)))
                         {
-                            metas.m_sValue = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sName == metas.m_sKey).First().Value.Where(y => y.LanguageCode == languageCode).First().Value;
+                            metas.m_sValue = mediaAsset.Metas.Where(x => x.m_oTagMeta.m_sName == metas.m_sKey).First().Value.Where(y => y.m_sLanguageCode3 == languageCode).First().m_sValue;
                         }
                     }
 
                     List<KeyValue> translatedTags = new List<KeyValue>();
                     foreach (string tagName in mediaSearchRequest.m_lTags.Select(x => x.m_sKey).Distinct())
                     {
-                        if (mediaAsset.Tags.Any(x => x.m_oTagMeta.m_sName == tagName && x.Values != null && x.Values.Any(y => y.Any(z => z.LanguageCode == languageCode))))
+                        if (mediaAsset.Tags.Any(x => x.m_oTagMeta.m_sName == tagName && x.Values != null && x.Values.Any(y => y.Any(z => z.m_sLanguageCode3 == languageCode))))
                         {
-                            List<Tags> mediaAssetTranslatedTags = mediaAsset.Tags.Where(x => x.m_oTagMeta.m_sName == tagName && x.Values != null && x.Values.Any(y => y.Any(z => z.LanguageCode == languageCode))).ToList();
+                            List<Tags> mediaAssetTranslatedTags = mediaAsset.Tags.Where(x => x.m_oTagMeta.m_sName == tagName && x.Values != null && x.Values.Any(y => y.Any(z => z.m_sLanguageCode3 == languageCode))).ToList();
                             foreach (Tags tagsTranslation in mediaAssetTranslatedTags)
                             {
                                 if (tagsTranslation.Values != null && tagsTranslation.Values.Count > 0)
                                 {
                                     foreach (LanguageContainer[] langContainerArray in tagsTranslation.Values)
                                     {
-                                        if (langContainerArray != null && langContainerArray.Any(x => x.LanguageCode == languageCode))
+                                        if (langContainerArray != null && langContainerArray.Any(x => x.m_sLanguageCode3 == languageCode))
                                         {
-                                            translatedTags.AddRange(langContainerArray.Where(x => x.LanguageCode == languageCode).Select(y => new KeyValue(tagName, y.Value)).ToList());
+                                            translatedTags.AddRange(langContainerArray.Where(x => x.m_sLanguageCode3 == languageCode).Select(y => new KeyValue(tagName, y.m_sValue)).ToList());
                                         }
                                     }
                                 }

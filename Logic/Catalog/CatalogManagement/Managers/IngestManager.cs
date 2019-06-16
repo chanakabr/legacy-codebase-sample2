@@ -282,13 +282,13 @@ namespace Core.Catalog.CatalogManagement
                 {
                     var tagKey = translation.Item1;
                     var language = translation.Item2;
-                    if (tagsTranslations[tagKey].Translations.ContainsKey(language.LanguageCode))
+                    if (tagsTranslations[tagKey].Translations.ContainsKey(language.m_sLanguageCode3))
                     {
-                        tagsTranslations[tagKey].Translations[language.LanguageCode].Value = language.Value;
+                        tagsTranslations[tagKey].Translations[language.m_sLanguageCode3].m_sValue = language.m_sValue;
                     }
                     else
                     {
-                        tagsTranslations[tagKey].Translations.Add(language.LanguageCode, language);
+                        tagsTranslations[tagKey].Translations.Add(language.m_sLanguageCode3, language);
                     }
                 }
             }
@@ -348,9 +348,9 @@ namespace Core.Catalog.CatalogManagement
         {
             oldTagValue.TagsInOtherLanguages.ForEach(x =>
             {
-                if (!tag.Translations.ContainsKey(x.LanguageCode))
+                if (!tag.Translations.ContainsKey(x.m_sLanguageCode3))
                 {
-                    tag.Translations.Add(x.LanguageCode, x);
+                    tag.Translations.Add(x.m_sLanguageCode3, x);
                 }
             });
 

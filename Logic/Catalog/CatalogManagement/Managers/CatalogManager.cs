@@ -1474,7 +1474,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in assetStructToadd.NamesInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -1652,7 +1652,7 @@ namespace Core.Catalog.CatalogManagement
                     languageCodeToName = new List<KeyValuePair<string, string>>();
                     foreach (LanguageContainer language in assetStructToUpdate.NamesInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -1968,7 +1968,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in topicToAdd.NamesInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -2039,7 +2039,7 @@ namespace Core.Catalog.CatalogManagement
                     languageCodeToName = new List<KeyValuePair<string, string>>();
                     foreach (LanguageContainer language in topicToUpdate.NamesInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -2356,7 +2356,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in tag.TagsInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -2436,7 +2436,7 @@ namespace Core.Catalog.CatalogManagement
                     languageCodeToName = new List<KeyValuePair<string, string>>();
                     foreach (LanguageContainer language in tagToUpdate.TagsInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -2489,10 +2489,10 @@ namespace Core.Catalog.CatalogManagement
                         foreach (var pair in languageCodeToName)
                         {
                             string originalValue = string.Empty;
-                            var tagInOtherLanguage = result.Object.TagsInOtherLanguages.FirstOrDefault(t => t.LanguageCode == pair.Key);
+                            var tagInOtherLanguage = result.Object.TagsInOtherLanguages.FirstOrDefault(t => t.m_sLanguageCode3 == pair.Key);
                             if (tagInOtherLanguage != null)
                             {
-                                originalValue = tagInOtherLanguage.Value;
+                                originalValue = tagInOtherLanguage.m_sValue;
                             }
 
                             PartialTagIndexUpdate(groupId, topic.SystemName, pair.Value, originalValue, pair.Key, mediaIds, epgIds);

@@ -70,12 +70,12 @@ namespace ApiObjects.SearchObjects
                 if (this.TagsInOtherLanguages == null || this.TagsInOtherLanguages.Count < other.TagsInOtherLanguages.Count)
                     return true;
 
-                Dictionary<string, string> otherTagsInOtherLanguages = other.TagsInOtherLanguages.ToDictionary(x => x.LanguageCode, x => x.Value.ToLower());
+                Dictionary<string, string> otherTagsInOtherLanguages = other.TagsInOtherLanguages.ToDictionary(x => x.m_sLanguageCode3, x => x.m_sValue.ToLower());
 
                 foreach (var currTagInOtherLang in this.TagsInOtherLanguages)
                 {
-                   if (otherTagsInOtherLanguages.ContainsKey(currTagInOtherLang.LanguageCode) &&
-                       !otherTagsInOtherLanguages[currTagInOtherLang.LanguageCode].Equals(currTagInOtherLang.Value.ToLower()))
+                   if (otherTagsInOtherLanguages.ContainsKey(currTagInOtherLang.m_sLanguageCode3) &&
+                       !otherTagsInOtherLanguages[currTagInOtherLang.m_sLanguageCode3].Equals(currTagInOtherLang.m_sValue.ToLower()))
                         return true;
                 }
             }

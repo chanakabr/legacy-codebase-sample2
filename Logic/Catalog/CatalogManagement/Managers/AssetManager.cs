@@ -950,9 +950,9 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (LanguageContainer language in meta.Value)
                 {
-                    if (LanguageMapByCode.ContainsKey(language.LanguageCode))
+                    if (LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                     {
-                        AddTopicLanguageValueToXml(metasXmlDoc, rootNode, topicId, LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                        AddTopicLanguageValueToXml(metasXmlDoc, rootNode, topicId, LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue);
                     }
                 }
             }
@@ -1048,9 +1048,9 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (LanguageContainer language in asset.NamesWithLanguages)
                         {
-                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                             {
-                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue);
                             }
                         }
                     }
@@ -1062,9 +1062,9 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (LanguageContainer language in asset.DescriptionsWithLanguages)
                         {
-                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                             {
-                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue);
                             }
                         }
                     }
@@ -1454,7 +1454,7 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 Dictionary<long, List<LanguageContainer>> topicTags = topicIdToTag[topic.Id];
                                 List<LanguageContainer> defaultLanguageValues = topicTags.SelectMany(x => x.Value.Where(y => y.IsDefault)).ToList();
-                                List<string> defaultValues = defaultLanguageValues.Select(x => x.Value).ToList();
+                                List<string> defaultValues = defaultLanguageValues.Select(x => x.m_sValue).ToList();
                                 List<LanguageContainer[]> tagLanguages = topicIdToTag[topic.Id].Select(x => x.Value.Select(y => y).ToArray()).ToList();
                                 tags.Add(new Tags(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValues, tagLanguages));
                             }
@@ -1464,7 +1464,7 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
                                 IEnumerable<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).Value;
+                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).m_sValue;
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
                                     topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x);
@@ -1708,21 +1708,21 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, HashSet<string>> tags = new Dictionary<string, HashSet<string>>();
                 if (!language.IsDefault)
                 {
-                    if (mediaAsset.NamesWithLanguages.Count(x => x.LanguageCode == language.Code) == 1)
+                    if (mediaAsset.NamesWithLanguages.Count(x => x.m_sLanguageCode3 == language.Code) == 1)
                     {
-                        var nameWithLanguages = mediaAsset.NamesWithLanguages.FirstOrDefault(x => x.LanguageCode == language.Code);
+                        var nameWithLanguages = mediaAsset.NamesWithLanguages.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
                         if (nameWithLanguages != null)
                         {
-                            name = nameWithLanguages.Value;
+                            name = nameWithLanguages.m_sValue;
                         }
                     }
 
-                    if (mediaAsset.DescriptionsWithLanguages.Count(x => x.LanguageCode == language.Code) == 1)
+                    if (mediaAsset.DescriptionsWithLanguages.Count(x => x.m_sLanguageCode3 == language.Code) == 1)
                     {
-                        var descriptionWithLanguages = mediaAsset.DescriptionsWithLanguages.FirstOrDefault(x => x.LanguageCode == language.Code);
+                        var descriptionWithLanguages = mediaAsset.DescriptionsWithLanguages.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
                         if (descriptionWithLanguages != null)
                         {
-                            description = descriptionWithLanguages.Value;
+                            description = descriptionWithLanguages.m_sValue;
                         }
                     }
                 }
@@ -1748,8 +1748,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.LanguageCode == language.Code) == 1).ToList();
-                        metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.LanguageCode == language.Code).Select(y => y.Value).First());
+                        List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.m_sLanguageCode3 == language.Code) == 1).ToList();
+                        metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.m_sLanguageCode3 == language.Code).Select(y => y.m_sValue).First());
                     }
                 }
 
@@ -1762,8 +1762,8 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         tags = mediaAsset.Tags.Where(x => x.Values != null).ToDictionary(x => x.m_oTagMeta.m_sName,
-                                                                                        x => new HashSet<string>(x.Values.SelectMany(y => y.Where(z => z.LanguageCode == language.Code)
-                                                                                                                                        .Select(z => z.Value)).ToList(), StringComparer.OrdinalIgnoreCase));
+                                                                                        x => new HashSet<string>(x.Values.SelectMany(y => y.Where(z => z.m_sLanguageCode3 == language.Code)
+                                                                                                                                        .Select(z => z.m_sValue)).ToList(), StringComparer.OrdinalIgnoreCase));
                     }
                 }
 
