@@ -478,13 +478,8 @@ namespace Core.Catalog
                     var topic = cache.TopicsMapBySystemNameAndByType[meta.Name][metaTypeName];
                     if (!topicIdsToRemove.Contains(topic.Id)) { topicIdsToRemove.Add(topic.Id); }
                 }
-                else
+                else if (!removeTopic)
                 {
-                    if (removeTopic)
-                    {
-                        return new Status((int)eResponseStatus.NameRequired, string.Format("media.structure.{0}.meta value cannot be empty", metaTypeName));
-                    }
-                    
                     var metaValue = metaType != MetaType.Bool || One.Equals(meta.Value) ? meta.Value : IngestMedia.TRUE.Equals(meta.Value) ? One : "0";
                     metas.Add(new Metas(new TagMeta(meta.Name, metaTypeName), metaValue));
                 }
