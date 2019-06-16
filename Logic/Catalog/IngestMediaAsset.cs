@@ -260,14 +260,7 @@ namespace Core.Catalog
                     status.Set((int)eResponseStatus.Error, string.Format("languageCode: {0} has been sent more than once", ingestLanguageValue.LangCode));
                     return status;
                 }
-
-                //Validate Values
-                if (string.IsNullOrEmpty(ingestLanguageValue.Text))
-                {
-                    status.Set((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                    return status;
-                }
-
+                
                 if (!cache.LanguageMapByCode.ContainsKey(ingestLanguageValue.LangCode))
                 {
                     status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
@@ -442,22 +435,6 @@ namespace Core.Catalog
 
             return Status.Ok;
         }
-        
-        private Status ValidateMetaTagValue(HashSet<string> currentValues, string newValue, string metaTagName, string LangCode, string parameterName)
-        {
-            if (currentValues.Contains(newValue))
-            {
-                return new Status((int)eResponseStatus.Error, 
-                                  string.Format("For meta: {0} the value: {1} has been sent more than once in language: {2}", metaTagName, newValue, LangCode));
-            }
-
-            if (string.IsNullOrEmpty(newValue))
-            {
-                return new Status((int)eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-            }
-
-            return new Status((int)eResponseStatus.OK);
-        }
     }
 
     public class IngestBaseMeta
@@ -568,8 +545,9 @@ namespace Core.Catalog
                         }
 
                         validMetaStrings.Add(new Metas(new TagMeta(stringMeta.Name, currMetaType),
-                                                stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(cache.DefaultLanguage.Code)).Text,
-                                                stringMeta.Values.Where(x => !x.LangCode.Equals(cache.DefaultLanguage.Code)).Select(x => new LanguageContainer(x.LangCode, x.Text))));
+                                             stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(cache.DefaultLanguage.Code)).Text,
+                                             stringMeta.Values.Where(x => !x.LangCode.Equals(cache.DefaultLanguage.Code) && !string.IsNullOrEmpty(x.Text))
+                                                              .Select(x => new LanguageContainer(x.LangCode, x.Text))));
                     }
                 }
             }
@@ -659,11 +637,7 @@ namespace Core.Catalog
                     }
                     
                     // if lang is not main 
-                    if (string.IsNullOrEmpty(languageValue.Text))
-                    {
-                        response.SetStatus(eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
-                        return response;
-                    }
+                    if (string.IsNullOrEmpty(languageValue.Text)) { continue; }
 
                     // add default value
                     if (cache.DefaultLanguage.Code.Equals(languageValue.LangCode))
