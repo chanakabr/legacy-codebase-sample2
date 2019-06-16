@@ -2306,8 +2306,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         {
                             new LanguageContainer()
                             {
-                                LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
-                                Value = tag.Value
+                                m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(),
+                                m_sValue = tag.Value
                             }
                         };
 
@@ -2356,8 +2356,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     {
                         new LanguageContainer()
                         {
-                            LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(),
-                            Value = meta.Value
+                            m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(),
+                            m_sValue = meta.Value
                         }
                     };
 
