@@ -520,7 +520,7 @@ namespace Core.Social
 
         public static T Deserialize<T>(string sObject)
         {
-            T response = default;
+            T response = default(T);
             try
             {
                 response = JsonConvert.DeserializeObject<T>(sObject);

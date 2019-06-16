@@ -23,7 +23,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Services" />
+    <!--<Reference Include="System.Web.Services" />-->
     <Reference Include="System.configuration" />
     
     <Reference Include="System.ServiceModel" />
@@ -73,16 +73,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Update="Web References\AdyenPayAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Update="Web References\AdyenRecAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -111,6 +101,7 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
+    <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj" />
     <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj" />
     <ProjectReference Include="..\Synchronizer\Synchronizer.csproj" />
@@ -304,43 +295,6 @@
     <None Include="Service References\SSOAdapaterService\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\AdyenPayAPI\BalanceCheckResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\DirectDebitResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\FundTransferResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\ModificationResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\Payment.wsdl" />
-    <None Include="Web References\AdyenPayAPI\PaymentResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\AdyenRecAPI\DisableResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenRecAPI\Recurring.wsdl" />
-    <None Include="Web References\AdyenRecAPI\RecurringDetailsResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenRecAPI\RecurringResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenRecAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\AdyenRecAPI\StoreTokenResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\OSSAdapterService\configuration91.svcinfo" />
@@ -456,6 +410,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Catalog\Request\MediaBookmarkData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
   <!-- This is a workaround that will allow TVM website project to build, if you read this an 
