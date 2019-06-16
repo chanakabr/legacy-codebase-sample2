@@ -23,7 +23,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://ca.tvinci.com/")]
@@ -320,7 +320,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://34.249.122.223:8030/CAS_v5_0_1/ws_cas_module.asmx";
+            this.Url = "http://localhost:2626/tvpapi_rest/ws_cas_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -6779,7 +6779,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserTaskType {
@@ -6789,7 +6789,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6834,7 +6834,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6867,7 +6867,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6912,7 +6912,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6969,7 +6969,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum RecordingType {
@@ -6986,7 +6986,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SeriesRecording))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7079,7 +7079,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7112,7 +7112,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum SeriesOrderBy {
@@ -7128,7 +7128,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum OrderDir {
@@ -7144,7 +7144,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7213,7 +7213,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7258,7 +7258,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7276,6 +7276,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private bool m_bIsSlidingWindowFieldField;
         
         private bool isSlidingWindowFromRestApiField;
+        
+        private bool shouldPadStringField;
         
         /// <remarks/>
         public OrderBy m_eOrderBy {
@@ -7336,10 +7338,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.isSlidingWindowFromRestApiField = value;
             }
         }
+        
+        /// <remarks/>
+        public bool shouldPadString {
+            get {
+                return this.shouldPadStringField;
+            }
+            set {
+                this.shouldPadStringField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum OrderBy {
@@ -7385,7 +7397,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7430,7 +7442,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7467,7 +7479,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private string cridField;
         
-        private string externalDomainRecordingIdField;
+        private bool isExternalRecordingField;
+        
+        private bool isProtectedField;
+        
+        private string userIdField;
         
         /// <remarks/>
         public Status Status {
@@ -7622,18 +7638,38 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string ExternalDomainRecordingId {
+        public bool isExternalRecording {
             get {
-                return this.externalDomainRecordingIdField;
+                return this.isExternalRecordingField;
             }
             set {
-                this.externalDomainRecordingIdField = value;
+                this.isExternalRecordingField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsProtected {
+            get {
+                return this.isProtectedField;
+            }
+            set {
+                this.isProtectedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UserId {
+            get {
+                return this.userIdField;
+            }
+            set {
+                this.userIdField = value;
             }
         }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum TstvRecordingStatus {
@@ -7673,7 +7709,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7706,7 +7742,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7811,7 +7847,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7844,7 +7880,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7877,7 +7913,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7910,7 +7946,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7943,7 +7979,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7976,7 +8012,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -8021,7 +8057,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/eAssetTypes1")]
     public enum eAssetTypes {
@@ -8040,18 +8076,28 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class MediaFileItemPricesContainer {
         
+        private string m_sProductCodeField;
+        
         private int m_nMediaFileIDField;
         
         private ItemPriceContainer[] m_oItemPricesField;
         
-        private string m_sProductCodeField;
+        /// <remarks/>
+        public string m_sProductCode {
+            get {
+                return this.m_sProductCodeField;
+            }
+            set {
+                this.m_sProductCodeField = value;
+            }
+        }
         
         /// <remarks/>
         public int m_nMediaFileID {
@@ -8072,123 +8118,53 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.m_oItemPricesField = value;
             }
         }
-        
-        /// <remarks/>
-        public string m_sProductCode {
-            get {
-                return this.m_sProductCodeField;
-            }
-            set {
-                this.m_sProductCodeField = value;
-            }
-        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class ItemPriceContainer {
         
-        private string m_sPPVModuleCodeField;
-        
-        private bool m_bSubscriptionOnlyField;
-        
-        private Price m_oPriceField;
-        
-        private Price m_oFullPriceField;
-        
-        private PriceReason m_PriceReasonField;
-        
-        private Subscription m_relevantSubField;
-        
         private Collection m_relevantColField;
-        
-        private PrePaidModule m_relevantPPField;
-        
-        private LanguageContainer[] m_oPPVDescriptionField;
-        
-        private CouponsStatus m_couponStatusField;
-        
-        private string m_sFirstDeviceNameFoundField;
-        
-        private bool m_bCancelWindowField;
-        
-        private string m_sPurchasedBySiteGuidField;
-        
-        private int m_lPurchasedMediaFileIDField;
-        
-        private int[] m_lRelatedMediaFileIDsField;
-        
-        private System.Nullable<System.DateTime> m_dtStartDateField;
         
         private System.Nullable<System.DateTime> m_dtEndDateField;
         
         private System.Nullable<System.DateTime> m_dtDiscountEndDateField;
         
+        private string m_sFirstDeviceNameFoundField;
+        
+        private Price m_oFullPriceField;
+        
+        private bool m_bCancelWindowField;
+        
+        private bool m_bSubscriptionOnlyField;
+        
+        private LanguageContainer[] m_oPPVDescriptionField;
+        
+        private string m_sPPVModuleCodeField;
+        
+        private PrePaidModule m_relevantPPField;
+        
+        private Price m_oPriceField;
+        
+        private int m_lPurchasedMediaFileIDField;
+        
+        private string m_sPurchasedBySiteGuidField;
+        
+        private int[] m_lRelatedMediaFileIDsField;
+        
+        private System.Nullable<System.DateTime> m_dtStartDateField;
+        
+        private Subscription m_relevantSubField;
+        
         private string m_sProductCodeField;
         
-        /// <remarks/>
-        public string m_sPPVModuleCode {
-            get {
-                return this.m_sPPVModuleCodeField;
-            }
-            set {
-                this.m_sPPVModuleCodeField = value;
-            }
-        }
+        private PriceReason m_PriceReasonField;
         
-        /// <remarks/>
-        public bool m_bSubscriptionOnly {
-            get {
-                return this.m_bSubscriptionOnlyField;
-            }
-            set {
-                this.m_bSubscriptionOnlyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrice {
-            get {
-                return this.m_oPriceField;
-            }
-            set {
-                this.m_oPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oFullPrice {
-            get {
-                return this.m_oFullPriceField;
-            }
-            set {
-                this.m_oFullPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceReason m_PriceReason {
-            get {
-                return this.m_PriceReasonField;
-            }
-            set {
-                this.m_PriceReasonField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Subscription m_relevantSub {
-            get {
-                return this.m_relevantSubField;
-            }
-            set {
-                this.m_relevantSubField = value;
-            }
-        }
+        private CouponsStatus m_couponStatusField;
         
         /// <remarks/>
         public Collection m_relevantCol {
@@ -8197,97 +8173,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_relevantColField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PrePaidModule m_relevantPP {
-            get {
-                return this.m_relevantPPField;
-            }
-            set {
-                this.m_relevantPPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer[] m_oPPVDescription {
-            get {
-                return this.m_oPPVDescriptionField;
-            }
-            set {
-                this.m_oPPVDescriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CouponsStatus m_couponStatus {
-            get {
-                return this.m_couponStatusField;
-            }
-            set {
-                this.m_couponStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sFirstDeviceNameFound {
-            get {
-                return this.m_sFirstDeviceNameFoundField;
-            }
-            set {
-                this.m_sFirstDeviceNameFoundField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bCancelWindow {
-            get {
-                return this.m_bCancelWindowField;
-            }
-            set {
-                this.m_bCancelWindowField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedBySiteGuid {
-            get {
-                return this.m_sPurchasedBySiteGuidField;
-            }
-            set {
-                this.m_sPurchasedBySiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_lPurchasedMediaFileID {
-            get {
-                return this.m_lPurchasedMediaFileIDField;
-            }
-            set {
-                this.m_lPurchasedMediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int[] m_lRelatedMediaFileIDs {
-            get {
-                return this.m_lRelatedMediaFileIDsField;
-            }
-            set {
-                this.m_lRelatedMediaFileIDsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> m_dtStartDate {
-            get {
-                return this.m_dtStartDateField;
-            }
-            set {
-                this.m_dtStartDateField = value;
             }
         }
         
@@ -8314,6 +8199,137 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
+        public string m_sFirstDeviceNameFound {
+            get {
+                return this.m_sFirstDeviceNameFoundField;
+            }
+            set {
+                this.m_sFirstDeviceNameFoundField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oFullPrice {
+            get {
+                return this.m_oFullPriceField;
+            }
+            set {
+                this.m_oFullPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bCancelWindow {
+            get {
+                return this.m_bCancelWindowField;
+            }
+            set {
+                this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bSubscriptionOnly {
+            get {
+                return this.m_bSubscriptionOnlyField;
+            }
+            set {
+                this.m_bSubscriptionOnlyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] m_oPPVDescription {
+            get {
+                return this.m_oPPVDescriptionField;
+            }
+            set {
+                this.m_oPPVDescriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPPVModuleCode {
+            get {
+                return this.m_sPPVModuleCodeField;
+            }
+            set {
+                this.m_sPPVModuleCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PrePaidModule m_relevantPP {
+            get {
+                return this.m_relevantPPField;
+            }
+            set {
+                this.m_relevantPPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrice {
+            get {
+                return this.m_oPriceField;
+            }
+            set {
+                this.m_oPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_lPurchasedMediaFileID {
+            get {
+                return this.m_lPurchasedMediaFileIDField;
+            }
+            set {
+                this.m_lPurchasedMediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPurchasedBySiteGuid {
+            get {
+                return this.m_sPurchasedBySiteGuidField;
+            }
+            set {
+                this.m_sPurchasedBySiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] m_lRelatedMediaFileIDs {
+            get {
+                return this.m_lRelatedMediaFileIDsField;
+            }
+            set {
+                this.m_lRelatedMediaFileIDsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> m_dtStartDate {
+            get {
+                return this.m_dtStartDateField;
+            }
+            set {
+                this.m_dtStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Subscription m_relevantSub {
+            get {
+                return this.m_relevantSubField;
+            }
+            set {
+                this.m_relevantSubField = value;
+            }
+        }
+        
+        /// <remarks/>
         public string m_sProductCode {
             get {
                 return this.m_sProductCodeField;
@@ -8322,260 +8338,61 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.m_sProductCodeField = value;
             }
         }
+        
+        /// <remarks/>
+        public PriceReason m_PriceReason {
+            get {
+                return this.m_PriceReasonField;
+            }
+            set {
+                this.m_PriceReasonField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CouponsStatus m_couponStatus {
+            get {
+                return this.m_couponStatusField;
+            }
+            set {
+                this.m_couponStatusField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Price {
-        
-        private double m_dPriceField;
-        
-        private Currency m_oCurrencyField;
-        
-        private int countryIdField;
-        
-        /// <remarks/>
-        public double m_dPrice {
-            get {
-                return this.m_dPriceField;
-            }
-            set {
-                this.m_dPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Currency m_oCurrency {
-            get {
-                return this.m_oCurrencyField;
-            }
-            set {
-                this.m_oCurrencyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int countryId {
-            get {
-                return this.countryIdField;
-            }
-            set {
-                this.countryIdField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Currency {
-        
-        private string m_sCurrencyCD3Field;
-        
-        private string m_sCurrencyCD2Field;
-        
-        private string m_sCurrencySignField;
-        
-        private string m_sCurrencyNameField;
-        
-        private int m_nCurrencyIDField;
-        
-        private bool m_bIsDefaultField;
-        
-        /// <remarks/>
-        public string m_sCurrencyCD3 {
-            get {
-                return this.m_sCurrencyCD3Field;
-            }
-            set {
-                this.m_sCurrencyCD3Field = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sCurrencyCD2 {
-            get {
-                return this.m_sCurrencyCD2Field;
-            }
-            set {
-                this.m_sCurrencyCD2Field = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sCurrencySign {
-            get {
-                return this.m_sCurrencySignField;
-            }
-            set {
-                this.m_sCurrencySignField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sCurrencyName {
-            get {
-                return this.m_sCurrencyNameField;
-            }
-            set {
-                this.m_sCurrencyNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nCurrencyID {
-            get {
-                return this.m_nCurrencyIDField;
-            }
-            set {
-                this.m_nCurrencyIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsDefault {
-            get {
-                return this.m_bIsDefaultField;
-            }
-            set {
-                this.m_bIsDefaultField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum PriceReason {
-        
-        /// <remarks/>
-        PPVPurchased,
-        
-        /// <remarks/>
-        Free,
-        
-        /// <remarks/>
-        ForPurchaseSubscriptionOnly,
-        
-        /// <remarks/>
-        SubscriptionPurchased,
-        
-        /// <remarks/>
-        ForPurchase,
-        
-        /// <remarks/>
-        UnKnown,
-        
-        /// <remarks/>
-        SubscriptionPurchasedWrongCurrency,
-        
-        /// <remarks/>
-        PrePaidPurchased,
-        
-        /// <remarks/>
-        GeoCommerceBlocked,
-        
-        /// <remarks/>
-        EntitledToPreviewModule,
-        
-        /// <remarks/>
-        FirstDeviceLimitation,
-        
-        /// <remarks/>
-        CollectionPurchased,
-        
-        /// <remarks/>
-        UserSuspended,
-        
-        /// <remarks/>
-        NotForPurchase,
-        
-        /// <remarks/>
-        InvalidCurrency,
-        
-        /// <remarks/>
-        CurrencyNotDefinedOnPriceCode,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Subscription : PPVModule {
-        
-        private BundleCodeContainer[] m_sCodesField;
+    public partial class Collection : PPVModule {
         
         private System.DateTime m_dStartDateField;
         
         private System.DateTime m_dEndDateField;
         
-        private int[] m_sFileTypesField;
-        
-        private bool m_bIsRecurringField;
-        
-        private int m_nNumberOfRecPeriodsField;
-        
-        private PriceCode m_oSubscriptionPriceCodeField;
-        
-        private DiscountModule m_oExtDisountModuleField;
+        private BundleCodeContainer[] m_sCodesField;
         
         private LanguageContainer[] m_sNameField;
         
-        private UsageModule m_oSubscriptionUsageModuleField;
-        
-        private int m_fictivicMediaIDField;
-        
-        private long m_PriorityField;
+        private string m_CollectionCodeField;
         
         private string m_ProductCodeField;
         
-        private string m_SubscriptionCodeField;
+        private UsageModule m_oCollectionUsageModuleField;
         
-        private UsageModule[] m_MultiSubscriptionUsageModuleField;
+        private PriceCode m_oCollectionPriceCodeField;
         
-        private int n_GeoCommerceIDField;
+        private int[] m_sFileTypesField;
         
-        private bool m_bIsInfiniteRecurringField;
+        private DiscountModule m_oExtDisountModuleField;
         
-        private UserType[] m_UserTypesField;
-        
-        private PreviewModule m_oPreviewModuleField;
-        
-        private int m_nDomainLimitationModuleField;
-        
-        private ServiceObject[] m_lServicesField;
-        
-        private int m_GracePeriodMinutesField;
-        
-        private bool blockCancellationField;
-        
-        private KeyValuePair[] subscriptionSetIdsToPriorityField;
+        private int m_fictivicMediaIDField;
         
         private SubscriptionCouponGroup[] couponsGroupsField;
         
         private KeyValuePairOfVerificationPaymentGatewayString[] externalProductCodesField;
-        
-        private SubscriptionType typeField;
-        
-        /// <remarks/>
-        public BundleCodeContainer[] m_sCodes {
-            get {
-                return this.m_sCodesField;
-            }
-            set {
-                this.m_sCodesField = value;
-            }
-        }
         
         /// <remarks/>
         public System.DateTime m_dStartDate {
@@ -8598,52 +8415,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public int[] m_sFileTypes {
+        public BundleCodeContainer[] m_sCodes {
             get {
-                return this.m_sFileTypesField;
+                return this.m_sCodesField;
             }
             set {
-                this.m_sFileTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsRecurring {
-            get {
-                return this.m_bIsRecurringField;
-            }
-            set {
-                this.m_bIsRecurringField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nNumberOfRecPeriods {
-            get {
-                return this.m_nNumberOfRecPeriodsField;
-            }
-            set {
-                this.m_nNumberOfRecPeriodsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceCode m_oSubscriptionPriceCode {
-            get {
-                return this.m_oSubscriptionPriceCodeField;
-            }
-            set {
-                this.m_oSubscriptionPriceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public DiscountModule m_oExtDisountModule {
-            get {
-                return this.m_oExtDisountModuleField;
-            }
-            set {
-                this.m_oExtDisountModuleField = value;
+                this.m_sCodesField = value;
             }
         }
         
@@ -8658,32 +8435,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public UsageModule m_oSubscriptionUsageModule {
+        public string m_CollectionCode {
             get {
-                return this.m_oSubscriptionUsageModuleField;
+                return this.m_CollectionCodeField;
             }
             set {
-                this.m_oSubscriptionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_fictivicMediaID {
-            get {
-                return this.m_fictivicMediaIDField;
-            }
-            set {
-                this.m_fictivicMediaIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long m_Priority {
-            get {
-                return this.m_PriorityField;
-            }
-            set {
-                this.m_PriorityField = value;
+                this.m_CollectionCodeField = value;
             }
         }
         
@@ -8698,113 +8455,52 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string m_SubscriptionCode {
+        public UsageModule m_oCollectionUsageModule {
             get {
-                return this.m_SubscriptionCodeField;
+                return this.m_oCollectionUsageModuleField;
             }
             set {
-                this.m_SubscriptionCodeField = value;
+                this.m_oCollectionUsageModuleField = value;
             }
         }
         
         /// <remarks/>
-        public UsageModule[] m_MultiSubscriptionUsageModule {
+        public PriceCode m_oCollectionPriceCode {
             get {
-                return this.m_MultiSubscriptionUsageModuleField;
+                return this.m_oCollectionPriceCodeField;
             }
             set {
-                this.m_MultiSubscriptionUsageModuleField = value;
+                this.m_oCollectionPriceCodeField = value;
             }
         }
         
         /// <remarks/>
-        public int n_GeoCommerceID {
+        public int[] m_sFileTypes {
             get {
-                return this.n_GeoCommerceIDField;
+                return this.m_sFileTypesField;
             }
             set {
-                this.n_GeoCommerceIDField = value;
+                this.m_sFileTypesField = value;
             }
         }
         
         /// <remarks/>
-        public bool m_bIsInfiniteRecurring {
+        public DiscountModule m_oExtDisountModule {
             get {
-                return this.m_bIsInfiniteRecurringField;
+                return this.m_oExtDisountModuleField;
             }
             set {
-                this.m_bIsInfiniteRecurringField = value;
+                this.m_oExtDisountModuleField = value;
             }
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public UserType[] m_UserTypes {
+        public int m_fictivicMediaID {
             get {
-                return this.m_UserTypesField;
+                return this.m_fictivicMediaIDField;
             }
             set {
-                this.m_UserTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PreviewModule m_oPreviewModule {
-            get {
-                return this.m_oPreviewModuleField;
-            }
-            set {
-                this.m_oPreviewModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nDomainLimitationModule {
-            get {
-                return this.m_nDomainLimitationModuleField;
-            }
-            set {
-                this.m_nDomainLimitationModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ServiceObject[] m_lServices {
-            get {
-                return this.m_lServicesField;
-            }
-            set {
-                this.m_lServicesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_GracePeriodMinutes {
-            get {
-                return this.m_GracePeriodMinutesField;
-            }
-            set {
-                this.m_GracePeriodMinutesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool BlockCancellation {
-            get {
-                return this.blockCancellationField;
-            }
-            set {
-                this.blockCancellationField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public KeyValuePair[] SubscriptionSetIdsToPriority {
-            get {
-                return this.subscriptionSetIdsToPriorityField;
-            }
-            set {
-                this.subscriptionSetIdsToPriorityField = value;
+                this.m_fictivicMediaIDField = value;
             }
         }
         
@@ -8828,20 +8524,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.externalProductCodesField = value;
             }
         }
-        
-        /// <remarks/>
-        public SubscriptionType Type {
-            get {
-                return this.typeField;
-            }
-            set {
-                this.typeField = value;
-            }
-        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -8874,65 +8560,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PriceCode {
-        
-        private string m_sCodeField;
-        
-        private Price m_oPriseField;
-        
-        private int m_nObjectIDField;
-        
-        private LanguageContainer[] m_sDescriptionField;
-        
-        /// <remarks/>
-        public string m_sCode {
-            get {
-                return this.m_sCodeField;
-            }
-            set {
-                this.m_sCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrise {
-            get {
-                return this.m_oPriseField;
-            }
-            set {
-                this.m_oPriseField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nObjectID {
-            get {
-                return this.m_nObjectIDField;
-            }
-            set {
-                this.m_nObjectIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer[] m_sDescription {
-            get {
-                return this.m_sDescriptionField;
-            }
-            set {
-                this.m_sDescriptionField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -8977,24 +8605,431 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UsageModule {
+        
+        private int m_coupon_idField;
+        
+        private int m_tsMaxUsageModuleLifeCycleField;
+        
+        private int m_nObjectIDField;
+        
+        private bool m_bIsOfflinePlayBackField;
+        
+        private bool m_bWaiverField;
+        
+        private int m_nMaxNumberOfViewsField;
+        
+        private string m_sVirtualNameField;
+        
+        private int m_tsViewLifeCycleField;
+        
+        private int m_nWaiverPeriodField;
+        
+        private int m_is_renewField;
+        
+        private int m_pricing_idField;
+        
+        private int m_num_of_rec_periodsField;
+        
+        private int m_ext_discount_idField;
+        
+        private int m_internal_discount_idField;
+        
+        private int m_typeField;
+        
+        private int m_subscription_onlyField;
+        
+        private int m_device_limit_idField;
+        
+        /// <remarks/>
+        public int m_coupon_id {
+            get {
+                return this.m_coupon_idField;
+            }
+            set {
+                this.m_coupon_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsMaxUsageModuleLifeCycle {
+            get {
+                return this.m_tsMaxUsageModuleLifeCycleField;
+            }
+            set {
+                this.m_tsMaxUsageModuleLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nObjectID {
+            get {
+                return this.m_nObjectIDField;
+            }
+            set {
+                this.m_nObjectIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsOfflinePlayBack {
+            get {
+                return this.m_bIsOfflinePlayBackField;
+            }
+            set {
+                this.m_bIsOfflinePlayBackField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bWaiver {
+            get {
+                return this.m_bWaiverField;
+            }
+            set {
+                this.m_bWaiverField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxNumberOfViews {
+            get {
+                return this.m_nMaxNumberOfViewsField;
+            }
+            set {
+                this.m_nMaxNumberOfViewsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sVirtualName {
+            get {
+                return this.m_sVirtualNameField;
+            }
+            set {
+                this.m_sVirtualNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsViewLifeCycle {
+            get {
+                return this.m_tsViewLifeCycleField;
+            }
+            set {
+                this.m_tsViewLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nWaiverPeriod {
+            get {
+                return this.m_nWaiverPeriodField;
+            }
+            set {
+                this.m_nWaiverPeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_is_renew {
+            get {
+                return this.m_is_renewField;
+            }
+            set {
+                this.m_is_renewField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_pricing_id {
+            get {
+                return this.m_pricing_idField;
+            }
+            set {
+                this.m_pricing_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_num_of_rec_periods {
+            get {
+                return this.m_num_of_rec_periodsField;
+            }
+            set {
+                this.m_num_of_rec_periodsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_ext_discount_id {
+            get {
+                return this.m_ext_discount_idField;
+            }
+            set {
+                this.m_ext_discount_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_internal_discount_id {
+            get {
+                return this.m_internal_discount_idField;
+            }
+            set {
+                this.m_internal_discount_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_type {
+            get {
+                return this.m_typeField;
+            }
+            set {
+                this.m_typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_subscription_only {
+            get {
+                return this.m_subscription_onlyField;
+            }
+            set {
+                this.m_subscription_onlyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_device_limit_id {
+            get {
+                return this.m_device_limit_idField;
+            }
+            set {
+                this.m_device_limit_idField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PriceCode {
+        
+        private LanguageContainer[] m_sDescriptionField;
+        
+        private int m_nObjectIDField;
+        
+        private string m_sCodeField;
+        
+        private Price m_oPriseField;
+        
+        /// <remarks/>
+        public LanguageContainer[] m_sDescription {
+            get {
+                return this.m_sDescriptionField;
+            }
+            set {
+                this.m_sDescriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nObjectID {
+            get {
+                return this.m_nObjectIDField;
+            }
+            set {
+                this.m_nObjectIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCode {
+            get {
+                return this.m_sCodeField;
+            }
+            set {
+                this.m_sCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrise {
+            get {
+                return this.m_oPriseField;
+            }
+            set {
+                this.m_oPriseField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Price {
+        
+        private double m_dPriceField;
+        
+        private Currency m_oCurrencyField;
+        
+        private int countryIdField;
+        
+        /// <remarks/>
+        public double m_dPrice {
+            get {
+                return this.m_dPriceField;
+            }
+            set {
+                this.m_dPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Currency m_oCurrency {
+            get {
+                return this.m_oCurrencyField;
+            }
+            set {
+                this.m_oCurrencyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int countryId {
+            get {
+                return this.countryIdField;
+            }
+            set {
+                this.countryIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Currency {
+        
+        private string m_sCurrencyCD2Field;
+        
+        private bool m_bIsDefaultField;
+        
+        private string m_sCurrencyNameField;
+        
+        private string m_sCurrencySignField;
+        
+        private int m_nCurrencyIDField;
+        
+        private string m_sCurrencyCD3Field;
+        
+        /// <remarks/>
+        public string m_sCurrencyCD2 {
+            get {
+                return this.m_sCurrencyCD2Field;
+            }
+            set {
+                this.m_sCurrencyCD2Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsDefault {
+            get {
+                return this.m_bIsDefaultField;
+            }
+            set {
+                this.m_bIsDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCurrencyName {
+            get {
+                return this.m_sCurrencyNameField;
+            }
+            set {
+                this.m_sCurrencyNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCurrencySign {
+            get {
+                return this.m_sCurrencySignField;
+            }
+            set {
+                this.m_sCurrencySignField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nCurrencyID {
+            get {
+                return this.m_nCurrencyIDField;
+            }
+            set {
+                this.m_nCurrencyIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCurrencyCD3 {
+            get {
+                return this.m_sCurrencyCD3Field;
+            }
+            set {
+                this.m_sCurrencyCD3Field = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DiscountModule : PriceCode {
         
-        private double m_dPercentField;
+        private System.DateTime m_dEndDateField;
         
-        private RelationTypes m_eTheRelationTypeField;
+        private double m_dPercentField;
         
         private System.DateTime m_dStartDateField;
         
-        private System.DateTime m_dEndDateField;
+        private RelationTypes m_eTheRelationTypeField;
         
         private WhenAlgo m_oWhenAlgoField;
         
         private string aliasField;
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
         
         /// <remarks/>
         public double m_dPercent {
@@ -9003,16 +9038,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_dPercentField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public RelationTypes m_eTheRelationType {
-            get {
-                return this.m_eTheRelationTypeField;
-            }
-            set {
-                this.m_eTheRelationTypeField = value;
             }
         }
         
@@ -9027,12 +9052,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public System.DateTime m_dEndDate {
+        public RelationTypes m_eTheRelationType {
             get {
-                return this.m_dEndDateField;
+                return this.m_eTheRelationTypeField;
             }
             set {
-                this.m_dEndDateField = value;
+                this.m_eTheRelationTypeField = value;
             }
         }
         
@@ -9058,7 +9083,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum RelationTypes {
@@ -9071,7 +9096,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -9104,7 +9129,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum WhenAlgoType {
@@ -9117,410 +9142,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class UsageModule {
-        
-        private int m_nObjectIDField;
-        
-        private string m_sVirtualNameField;
-        
-        private int m_nMaxNumberOfViewsField;
-        
-        private int m_tsViewLifeCycleField;
-        
-        private int m_tsMaxUsageModuleLifeCycleField;
-        
-        private int m_ext_discount_idField;
-        
-        private int m_internal_discount_idField;
-        
-        private int m_pricing_idField;
-        
-        private int m_coupon_idField;
-        
-        private int m_typeField;
-        
-        private int m_subscription_onlyField;
-        
-        private int m_is_renewField;
-        
-        private int m_num_of_rec_periodsField;
-        
-        private int m_device_limit_idField;
-        
-        private bool m_bWaiverField;
-        
-        private int m_nWaiverPeriodField;
-        
-        private bool m_bIsOfflinePlayBackField;
-        
-        /// <remarks/>
-        public int m_nObjectID {
-            get {
-                return this.m_nObjectIDField;
-            }
-            set {
-                this.m_nObjectIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sVirtualName {
-            get {
-                return this.m_sVirtualNameField;
-            }
-            set {
-                this.m_sVirtualNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxNumberOfViews {
-            get {
-                return this.m_nMaxNumberOfViewsField;
-            }
-            set {
-                this.m_nMaxNumberOfViewsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsViewLifeCycle {
-            get {
-                return this.m_tsViewLifeCycleField;
-            }
-            set {
-                this.m_tsViewLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsMaxUsageModuleLifeCycle {
-            get {
-                return this.m_tsMaxUsageModuleLifeCycleField;
-            }
-            set {
-                this.m_tsMaxUsageModuleLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_ext_discount_id {
-            get {
-                return this.m_ext_discount_idField;
-            }
-            set {
-                this.m_ext_discount_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_internal_discount_id {
-            get {
-                return this.m_internal_discount_idField;
-            }
-            set {
-                this.m_internal_discount_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_pricing_id {
-            get {
-                return this.m_pricing_idField;
-            }
-            set {
-                this.m_pricing_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_coupon_id {
-            get {
-                return this.m_coupon_idField;
-            }
-            set {
-                this.m_coupon_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_type {
-            get {
-                return this.m_typeField;
-            }
-            set {
-                this.m_typeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_subscription_only {
-            get {
-                return this.m_subscription_onlyField;
-            }
-            set {
-                this.m_subscription_onlyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_is_renew {
-            get {
-                return this.m_is_renewField;
-            }
-            set {
-                this.m_is_renewField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_num_of_rec_periods {
-            get {
-                return this.m_num_of_rec_periodsField;
-            }
-            set {
-                this.m_num_of_rec_periodsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_device_limit_id {
-            get {
-                return this.m_device_limit_idField;
-            }
-            set {
-                this.m_device_limit_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bWaiver {
-            get {
-                return this.m_bWaiverField;
-            }
-            set {
-                this.m_bWaiverField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nWaiverPeriod {
-            get {
-                return this.m_nWaiverPeriodField;
-            }
-            set {
-                this.m_nWaiverPeriodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsOfflinePlayBack {
-            get {
-                return this.m_bIsOfflinePlayBackField;
-            }
-            set {
-                this.m_bIsOfflinePlayBackField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class UserType {
-        
-        private System.Nullable<int> idField;
-        
-        private string descriptionField;
-        
-        private bool isDefaultField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Description {
-            get {
-                return this.descriptionField;
-            }
-            set {
-                this.descriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PreviewModule {
-        
-        private long m_nIDField;
-        
-        private string m_sNameField;
-        
-        private int m_tsFullLifeCycleField;
-        
-        private int m_tsNonRenewPeriodField;
-        
-        private string aliasField;
-        
-        /// <remarks/>
-        public long m_nID {
-            get {
-                return this.m_nIDField;
-            }
-            set {
-                this.m_nIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                this.m_sNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsFullLifeCycle {
-            get {
-                return this.m_tsFullLifeCycleField;
-            }
-            set {
-                this.m_tsFullLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsNonRenewPeriod {
-            get {
-                return this.m_tsNonRenewPeriodField;
-            }
-            set {
-                this.m_tsNonRenewPeriodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string alias {
-            get {
-                return this.aliasField;
-            }
-            set {
-                this.aliasField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(NpvrServiceObject))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ServiceObject {
-        
-        private long idField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        public long ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class NpvrServiceObject : ServiceObject {
-        
-        private long quotaField;
-        
-        /// <remarks/>
-        public long Quota {
-            get {
-                return this.quotaField;
-            }
-            set {
-                this.quotaField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class SubscriptionCouponGroup : CouponsGroup {
         
-        private System.Nullable<System.DateTime> startDateField;
-        
         private System.Nullable<System.DateTime> endDateField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> startDate {
-            get {
-                return this.startDateField;
-            }
-            set {
-                this.startDateField = value;
-            }
-        }
+        private System.Nullable<System.DateTime> startDateField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
@@ -9532,62 +9163,53 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.endDateField = value;
             }
         }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> startDate {
+            get {
+                return this.startDateField;
+            }
+            set {
+                this.startDateField = value;
+            }
+        }
     }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SubscriptionCouponGroup))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class CouponsGroup {
         
-        private DiscountModule m_oDiscountCodeField;
-        
-        private string m_sDiscountCodeField;
-        
         private LanguageContainer[] m_sDescriptionField;
         
-        private System.DateTime m_dStartDateField;
-        
         private System.DateTime m_dEndDateField;
-        
-        private int m_nMaxUseCountForCouponField;
         
         private string m_sGroupCodeField;
         
         private string m_sGroupNameField;
         
-        private int m_nFinancialEntityIDField;
+        private System.DateTime m_dStartDateField;
+        
+        private int m_nMaxUseCountForCouponField;
         
         private int m_nMaxRecurringUsesCountForCouponField;
+        
+        private int maxDomainUsesField;
+        
+        private string m_sDiscountCodeField;
+        
+        private DiscountModule m_oDiscountCodeField;
+        
+        private int m_nFinancialEntityIDField;
         
         private string aliasField;
         
         private CouponGroupType couponGroupTypeField;
-        
-        private int maxDomainUsesField;
-        
-        /// <remarks/>
-        public DiscountModule m_oDiscountCode {
-            get {
-                return this.m_oDiscountCodeField;
-            }
-            set {
-                this.m_oDiscountCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDiscountCode {
-            get {
-                return this.m_sDiscountCodeField;
-            }
-            set {
-                this.m_sDiscountCodeField = value;
-            }
-        }
         
         /// <remarks/>
         public LanguageContainer[] m_sDescription {
@@ -9600,32 +9222,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public System.DateTime m_dStartDate {
-            get {
-                return this.m_dStartDateField;
-            }
-            set {
-                this.m_dStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
         public System.DateTime m_dEndDate {
             get {
                 return this.m_dEndDateField;
             }
             set {
                 this.m_dEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxUseCountForCoupon {
-            get {
-                return this.m_nMaxUseCountForCouponField;
-            }
-            set {
-                this.m_nMaxUseCountForCouponField = value;
             }
         }
         
@@ -9650,12 +9252,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public int m_nFinancialEntityID {
+        public System.DateTime m_dStartDate {
             get {
-                return this.m_nFinancialEntityIDField;
+                return this.m_dStartDateField;
             }
             set {
-                this.m_nFinancialEntityIDField = value;
+                this.m_dStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxUseCountForCoupon {
+            get {
+                return this.m_nMaxUseCountForCouponField;
+            }
+            set {
+                this.m_nMaxUseCountForCouponField = value;
             }
         }
         
@@ -9666,6 +9278,46 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_nMaxRecurringUsesCountForCouponField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int maxDomainUses {
+            get {
+                return this.maxDomainUsesField;
+            }
+            set {
+                this.maxDomainUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDiscountCode {
+            get {
+                return this.m_sDiscountCodeField;
+            }
+            set {
+                this.m_sDiscountCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DiscountModule m_oDiscountCode {
+            get {
+                return this.m_oDiscountCodeField;
+            }
+            set {
+                this.m_oDiscountCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nFinancialEntityID {
+            get {
+                return this.m_nFinancialEntityIDField;
+            }
+            set {
+                this.m_nFinancialEntityIDField = value;
             }
         }
         
@@ -9688,20 +9340,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.couponGroupTypeField = value;
             }
         }
-        
-        /// <remarks/>
-        public int maxDomainUses {
-            get {
-                return this.maxDomainUsesField;
-            }
-            set {
-                this.maxDomainUsesField = value;
-            }
-        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum CouponGroupType {
@@ -9714,7 +9356,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -9723,50 +9365,34 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum SubscriptionType {
-        
-        /// <remarks/>
-        NotApplicable,
-        
-        /// <remarks/>
-        Base,
-        
-        /// <remarks/>
-        AddOn,
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Collection))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Subscription))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(Collection))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class PPVModule {
         
-        private PriceCode m_oPriceCodeField;
-        
-        private UsageModule m_oUsageModuleField;
+        private CouponsGroup m_oCouponsGroupField;
         
         private DiscountModule m_oDiscountModuleField;
-        
-        private CouponsGroup m_oCouponsGroupField;
         
         private LanguageContainer[] m_sDescriptionField;
         
         private string m_sObjectCodeField;
         
-        private string m_sObjectVirtualNameField;
+        private int[] m_relatedFileTypesField;
         
         private bool m_bSubscriptionOnlyField;
         
-        private int[] m_relatedFileTypesField;
+        private string m_sObjectVirtualNameField;
+        
+        private PriceCode m_oPriceCodeField;
         
         private string m_Product_CodeField;
+        
+        private UsageModule m_oUsageModuleField;
         
         private bool m_bFirstDeviceLimitationField;
         
@@ -9777,22 +9403,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private string adsParamField;
         
         /// <remarks/>
-        public PriceCode m_oPriceCode {
+        public CouponsGroup m_oCouponsGroup {
             get {
-                return this.m_oPriceCodeField;
+                return this.m_oCouponsGroupField;
             }
             set {
-                this.m_oPriceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UsageModule m_oUsageModule {
-            get {
-                return this.m_oUsageModuleField;
-            }
-            set {
-                this.m_oUsageModuleField = value;
+                this.m_oCouponsGroupField = value;
             }
         }
         
@@ -9803,16 +9419,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_oDiscountModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CouponsGroup m_oCouponsGroup {
-            get {
-                return this.m_oCouponsGroupField;
-            }
-            set {
-                this.m_oCouponsGroupField = value;
             }
         }
         
@@ -9837,12 +9443,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string m_sObjectVirtualName {
+        public int[] m_relatedFileTypes {
             get {
-                return this.m_sObjectVirtualNameField;
+                return this.m_relatedFileTypesField;
             }
             set {
-                this.m_sObjectVirtualNameField = value;
+                this.m_relatedFileTypesField = value;
             }
         }
         
@@ -9857,12 +9463,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public int[] m_relatedFileTypes {
+        public string m_sObjectVirtualName {
             get {
-                return this.m_relatedFileTypesField;
+                return this.m_sObjectVirtualNameField;
             }
             set {
-                this.m_relatedFileTypesField = value;
+                this.m_sObjectVirtualNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceCode m_oPriceCode {
+            get {
+                return this.m_oPriceCodeField;
+            }
+            set {
+                this.m_oPriceCodeField = value;
             }
         }
         
@@ -9873,6 +9489,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.m_Product_CodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UsageModule m_oUsageModule {
+            get {
+                return this.m_oUsageModuleField;
+            }
+            set {
+                this.m_oUsageModuleField = value;
             }
         }
         
@@ -9919,7 +9545,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum AdsPolicy {
@@ -9932,46 +9558,84 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Collection : PPVModule {
+    public partial class Subscription : PPVModule {
         
-        private BundleCodeContainer[] m_sCodesField;
+        private bool m_bIsInfiniteRecurringField;
+        
+        private bool m_bIsRecurringField;
         
         private System.DateTime m_dStartDateField;
         
         private System.DateTime m_dEndDateField;
         
-        private int[] m_sFileTypesField;
-        
-        private PriceCode m_oCollectionPriceCodeField;
-        
-        private DiscountModule m_oExtDisountModuleField;
-        
-        private LanguageContainer[] m_sNameField;
-        
-        private UsageModule m_oCollectionUsageModuleField;
-        
         private int m_fictivicMediaIDField;
+        
+        private UsageModule[] m_MultiSubscriptionUsageModuleField;
+        
+        private int m_nDomainLimitationModuleField;
+        
+        private int m_nNumberOfRecPeriodsField;
+        
+        private PreviewModule m_oPreviewModuleField;
+        
+        private PriceCode m_oSubscriptionPriceCodeField;
+        
+        private UsageModule m_oSubscriptionUsageModuleField;
+        
+        private long m_PriorityField;
         
         private string m_ProductCodeField;
         
-        private string m_CollectionCodeField;
+        private BundleCodeContainer[] m_sCodesField;
+        
+        private int[] m_sFileTypesField;
+        
+        private LanguageContainer[] m_sNameField;
+        
+        private int m_GracePeriodMinutesField;
+        
+        private string m_SubscriptionCodeField;
+        
+        private UserType[] m_UserTypesField;
+        
+        private bool blockCancellationField;
+        
+        private DiscountModule m_oExtDisountModuleField;
+        
+        private int n_GeoCommerceIDField;
+        
+        private ServiceObject[] m_lServicesField;
+        
+        private KeyValuePair[] subscriptionSetIdsToPriorityField;
         
         private SubscriptionCouponGroup[] couponsGroupsField;
         
         private KeyValuePairOfVerificationPaymentGatewayString[] externalProductCodesField;
         
+        private SubscriptionType typeField;
+        
         /// <remarks/>
-        public BundleCodeContainer[] m_sCodes {
+        public bool m_bIsInfiniteRecurring {
             get {
-                return this.m_sCodesField;
+                return this.m_bIsInfiniteRecurringField;
             }
             set {
-                this.m_sCodesField = value;
+                this.m_bIsInfiniteRecurringField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsRecurring {
+            get {
+                return this.m_bIsRecurringField;
+            }
+            set {
+                this.m_bIsRecurringField = value;
             }
         }
         
@@ -9996,62 +9660,82 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public int[] m_sFileTypes {
-            get {
-                return this.m_sFileTypesField;
-            }
-            set {
-                this.m_sFileTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceCode m_oCollectionPriceCode {
-            get {
-                return this.m_oCollectionPriceCodeField;
-            }
-            set {
-                this.m_oCollectionPriceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public DiscountModule m_oExtDisountModule {
-            get {
-                return this.m_oExtDisountModuleField;
-            }
-            set {
-                this.m_oExtDisountModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer[] m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                this.m_sNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UsageModule m_oCollectionUsageModule {
-            get {
-                return this.m_oCollectionUsageModuleField;
-            }
-            set {
-                this.m_oCollectionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
         public int m_fictivicMediaID {
             get {
                 return this.m_fictivicMediaIDField;
             }
             set {
                 this.m_fictivicMediaIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UsageModule[] m_MultiSubscriptionUsageModule {
+            get {
+                return this.m_MultiSubscriptionUsageModuleField;
+            }
+            set {
+                this.m_MultiSubscriptionUsageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nDomainLimitationModule {
+            get {
+                return this.m_nDomainLimitationModuleField;
+            }
+            set {
+                this.m_nDomainLimitationModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nNumberOfRecPeriods {
+            get {
+                return this.m_nNumberOfRecPeriodsField;
+            }
+            set {
+                this.m_nNumberOfRecPeriodsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PreviewModule m_oPreviewModule {
+            get {
+                return this.m_oPreviewModuleField;
+            }
+            set {
+                this.m_oPreviewModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceCode m_oSubscriptionPriceCode {
+            get {
+                return this.m_oSubscriptionPriceCodeField;
+            }
+            set {
+                this.m_oSubscriptionPriceCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UsageModule m_oSubscriptionUsageModule {
+            get {
+                return this.m_oSubscriptionUsageModuleField;
+            }
+            set {
+                this.m_oSubscriptionUsageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long m_Priority {
+            get {
+                return this.m_PriorityField;
+            }
+            set {
+                this.m_PriorityField = value;
             }
         }
         
@@ -10066,12 +9750,113 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string m_CollectionCode {
+        public BundleCodeContainer[] m_sCodes {
             get {
-                return this.m_CollectionCodeField;
+                return this.m_sCodesField;
             }
             set {
-                this.m_CollectionCodeField = value;
+                this.m_sCodesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] m_sFileTypes {
+            get {
+                return this.m_sFileTypesField;
+            }
+            set {
+                this.m_sFileTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                this.m_sNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_GracePeriodMinutes {
+            get {
+                return this.m_GracePeriodMinutesField;
+            }
+            set {
+                this.m_GracePeriodMinutesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_SubscriptionCode {
+            get {
+                return this.m_SubscriptionCodeField;
+            }
+            set {
+                this.m_SubscriptionCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public UserType[] m_UserTypes {
+            get {
+                return this.m_UserTypesField;
+            }
+            set {
+                this.m_UserTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool BlockCancellation {
+            get {
+                return this.blockCancellationField;
+            }
+            set {
+                this.blockCancellationField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DiscountModule m_oExtDisountModule {
+            get {
+                return this.m_oExtDisountModuleField;
+            }
+            set {
+                this.m_oExtDisountModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int n_GeoCommerceID {
+            get {
+                return this.n_GeoCommerceIDField;
+            }
+            set {
+                this.n_GeoCommerceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ServiceObject[] m_lServices {
+            get {
+                return this.m_lServicesField;
+            }
+            set {
+                this.m_lServicesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public KeyValuePair[] SubscriptionSetIdsToPriority {
+            get {
+                return this.subscriptionSetIdsToPriorityField;
+            }
+            set {
+                this.subscriptionSetIdsToPriorityField = value;
             }
         }
         
@@ -10095,10 +9880,206 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.externalProductCodesField = value;
             }
         }
+        
+        /// <remarks/>
+        public SubscriptionType Type {
+            get {
+                return this.typeField;
+            }
+            set {
+                this.typeField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PreviewModule {
+        
+        private long m_nIDField;
+        
+        private int m_tsFullLifeCycleField;
+        
+        private string m_sNameField;
+        
+        private int m_tsNonRenewPeriodField;
+        
+        private string aliasField;
+        
+        /// <remarks/>
+        public long m_nID {
+            get {
+                return this.m_nIDField;
+            }
+            set {
+                this.m_nIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsFullLifeCycle {
+            get {
+                return this.m_tsFullLifeCycleField;
+            }
+            set {
+                this.m_tsFullLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                this.m_sNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsNonRenewPeriod {
+            get {
+                return this.m_tsNonRenewPeriodField;
+            }
+            set {
+                this.m_tsNonRenewPeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UserType {
+        
+        private System.Nullable<int> idField;
+        
+        private string descriptionField;
+        
+        private bool isDefaultField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Description {
+            get {
+                return this.descriptionField;
+            }
+            set {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(NpvrServiceObject))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class ServiceObject {
+        
+        private long idField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        public long ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class NpvrServiceObject : ServiceObject {
+        
+        private long quotaField;
+        
+        /// <remarks/>
+        public long Quota {
+            get {
+                return this.quotaField;
+            }
+            set {
+                this.quotaField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum SubscriptionType {
+        
+        /// <remarks/>
+        NotApplicable,
+        
+        /// <remarks/>
+        Base,
+        
+        /// <remarks/>
+        AddOn,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10215,7 +10196,62 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum PriceReason {
+        
+        /// <remarks/>
+        PPVPurchased,
+        
+        /// <remarks/>
+        Free,
+        
+        /// <remarks/>
+        ForPurchaseSubscriptionOnly,
+        
+        /// <remarks/>
+        SubscriptionPurchased,
+        
+        /// <remarks/>
+        ForPurchase,
+        
+        /// <remarks/>
+        UnKnown,
+        
+        /// <remarks/>
+        SubscriptionPurchasedWrongCurrency,
+        
+        /// <remarks/>
+        PrePaidPurchased,
+        
+        /// <remarks/>
+        GeoCommerceBlocked,
+        
+        /// <remarks/>
+        EntitledToPreviewModule,
+        
+        /// <remarks/>
+        FirstDeviceLimitation,
+        
+        /// <remarks/>
+        CollectionPurchased,
+        
+        /// <remarks/>
+        UserSuspended,
+        
+        /// <remarks/>
+        NotForPurchase,
+        
+        /// <remarks/>
+        InvalidCurrency,
+        
+        /// <remarks/>
+        CurrencyNotDefinedOnPriceCode,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum CouponsStatus {
@@ -10240,7 +10276,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10273,7 +10309,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10319,7 +10355,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(TransactionResponse))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10364,7 +10400,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10493,7 +10529,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10791,7 +10827,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum eTransactionType {
@@ -10807,7 +10843,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum ePaymentMethod {
@@ -10859,7 +10895,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10904,7 +10940,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10937,7 +10973,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -10970,7 +11006,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum DrmSchemeName {
@@ -10999,7 +11035,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11032,7 +11068,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11041,7 +11077,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11074,7 +11110,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11095,7 +11131,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11141,7 +11177,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesRecordingByNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesBySeriesIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRAlreadyWatchedCommand))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11235,7 +11271,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11244,7 +11280,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11253,7 +11289,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11262,7 +11298,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11271,7 +11307,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11280,7 +11316,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11301,7 +11337,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11310,7 +11346,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11319,7 +11355,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11340,7 +11376,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11469,7 +11505,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum PlayContextType {
@@ -11491,7 +11527,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11548,7 +11584,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum NPVRRecordingStatus {
@@ -11567,7 +11603,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11648,7 +11684,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11669,7 +11705,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11714,7 +11750,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11795,7 +11831,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingItemsType {
@@ -11820,7 +11856,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11853,7 +11889,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -11934,7 +11970,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12003,7 +12039,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12036,7 +12072,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum PrePaidResponseStatus {
@@ -12070,7 +12106,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12103,30 +12139,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class BillingResponse {
         
-        private BillingResponseStatus m_oStatusField;
-        
         private string m_sRecieptCodeField;
-        
-        private string m_sStatusDescriptionField;
         
         private string m_sExternalReceiptCodeField;
         
-        /// <remarks/>
-        public BillingResponseStatus m_oStatus {
-            get {
-                return this.m_oStatusField;
-            }
-            set {
-                this.m_oStatusField = value;
-            }
-        }
+        private BillingResponseStatus m_oStatusField;
+        
+        private string m_sStatusDescriptionField;
         
         /// <remarks/>
         public string m_sRecieptCode {
@@ -12139,16 +12165,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public string m_sStatusDescription {
-            get {
-                return this.m_sStatusDescriptionField;
-            }
-            set {
-                this.m_sStatusDescriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
         public string m_sExternalReceiptCode {
             get {
                 return this.m_sExternalReceiptCodeField;
@@ -12157,10 +12173,30 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.m_sExternalReceiptCodeField = value;
             }
         }
+        
+        /// <remarks/>
+        public BillingResponseStatus m_oStatus {
+            get {
+                return this.m_oStatusField;
+            }
+            set {
+                this.m_oStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sStatusDescription {
+            get {
+                return this.m_sStatusDescriptionField;
+            }
+            set {
+                this.m_sStatusDescriptionField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingResponseStatus {
@@ -12200,7 +12236,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12233,7 +12269,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12244,9 +12280,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private Price m_oPriceField;
         
-        private PriceReason m_PriceReasonField;
-        
         private System.Nullable<long> endDateField;
+        
+        private PriceReason m_PriceReasonField;
         
         /// <remarks/>
         public string m_sSubscriptionCode {
@@ -12269,16 +12305,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public PriceReason m_PriceReason {
-            get {
-                return this.m_PriceReasonField;
-            }
-            set {
-                this.m_PriceReasonField = value;
-            }
-        }
-        
-        /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<long> endDate {
             get {
@@ -12288,10 +12314,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.endDateField = value;
             }
         }
+        
+        /// <remarks/>
+        public PriceReason m_PriceReason {
+            get {
+                return this.m_PriceReasonField;
+            }
+            set {
+                this.m_PriceReasonField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12336,7 +12372,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12381,7 +12417,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12414,7 +12450,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12447,7 +12483,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12468,7 +12504,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12501,26 +12537,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class BillingTransactionsResponse {
         
-        private BillingTransactionContainer[] m_TransactionsField;
-        
         private int m_nTransactionsCountField;
         
-        /// <remarks/>
-        public BillingTransactionContainer[] m_Transactions {
-            get {
-                return this.m_TransactionsField;
-            }
-            set {
-                this.m_TransactionsField = value;
-            }
-        }
+        private BillingTransactionContainer[] m_TransactionsField;
         
         /// <remarks/>
         public int m_nTransactionsCount {
@@ -12531,28 +12557,26 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.m_nTransactionsCountField = value;
             }
         }
+        
+        /// <remarks/>
+        public BillingTransactionContainer[] m_Transactions {
+            get {
+                return this.m_TransactionsField;
+            }
+            set {
+                this.m_TransactionsField = value;
+            }
+        }
     }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(TransactionHistoryContainer))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class BillingTransactionContainer {
-        
-        private string m_sRecieptCodeField;
-        
-        private string m_sPurchasedItemNameField;
-        
-        private string m_sPurchasedItemCodeField;
-        
-        private BillingItemsType m_eItemTypeField;
-        
-        private BillingAction m_eBillingActionField;
-        
-        private Price m_PriceField;
         
         private System.DateTime m_dtActionDateField;
         
@@ -12560,9 +12584,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.DateTime m_dtEndDateField;
         
-        private ePaymentMethod m_ePaymentMethodField;
+        private BillingAction m_eBillingActionField;
         
-        private string m_sPaymentMethodExtraDetailsField;
+        private BillingItemsType m_eItemTypeField;
         
         private bool m_bIsRecurringField;
         
@@ -12570,69 +12594,23 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private int m_nPurchaseIDField;
         
+        private string m_sPurchasedItemNameField;
+        
+        private string m_sPurchasedItemCodeField;
+        
+        private string m_sRecieptCodeField;
+        
         private string m_sRemarksField;
+        
+        private string m_sPaymentMethodExtraDetailsField;
+        
+        private Price m_PriceField;
+        
+        private string externalTransactionIdField;
         
         private BillingPriceType billingPriceTypeField;
         
-        /// <remarks/>
-        public string m_sRecieptCode {
-            get {
-                return this.m_sRecieptCodeField;
-            }
-            set {
-                this.m_sRecieptCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedItemName {
-            get {
-                return this.m_sPurchasedItemNameField;
-            }
-            set {
-                this.m_sPurchasedItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedItemCode {
-            get {
-                return this.m_sPurchasedItemCodeField;
-            }
-            set {
-                this.m_sPurchasedItemCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingItemsType m_eItemType {
-            get {
-                return this.m_eItemTypeField;
-            }
-            set {
-                this.m_eItemTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingAction m_eBillingAction {
-            get {
-                return this.m_eBillingActionField;
-            }
-            set {
-                this.m_eBillingActionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_Price {
-            get {
-                return this.m_PriceField;
-            }
-            set {
-                this.m_PriceField = value;
-            }
-        }
+        private ePaymentMethod m_ePaymentMethodField;
         
         /// <remarks/>
         public System.DateTime m_dtActionDate {
@@ -12665,22 +12643,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public ePaymentMethod m_ePaymentMethod {
+        public BillingAction m_eBillingAction {
             get {
-                return this.m_ePaymentMethodField;
+                return this.m_eBillingActionField;
             }
             set {
-                this.m_ePaymentMethodField = value;
+                this.m_eBillingActionField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sPaymentMethodExtraDetails {
+        public BillingItemsType m_eItemType {
             get {
-                return this.m_sPaymentMethodExtraDetailsField;
+                return this.m_eItemTypeField;
             }
             set {
-                this.m_sPaymentMethodExtraDetailsField = value;
+                this.m_eItemTypeField = value;
             }
         }
         
@@ -12715,12 +12693,72 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
+        public string m_sPurchasedItemName {
+            get {
+                return this.m_sPurchasedItemNameField;
+            }
+            set {
+                this.m_sPurchasedItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPurchasedItemCode {
+            get {
+                return this.m_sPurchasedItemCodeField;
+            }
+            set {
+                this.m_sPurchasedItemCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sRecieptCode {
+            get {
+                return this.m_sRecieptCodeField;
+            }
+            set {
+                this.m_sRecieptCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
         public string m_sRemarks {
             get {
                 return this.m_sRemarksField;
             }
             set {
                 this.m_sRemarksField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPaymentMethodExtraDetails {
+            get {
+                return this.m_sPaymentMethodExtraDetailsField;
+            }
+            set {
+                this.m_sPaymentMethodExtraDetailsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_Price {
+            get {
+                return this.m_PriceField;
+            }
+            set {
+                this.m_PriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ExternalTransactionId {
+            get {
+                return this.externalTransactionIdField;
+            }
+            set {
+                this.externalTransactionIdField = value;
             }
         }
         
@@ -12733,10 +12771,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.billingPriceTypeField = value;
             }
         }
+        
+        /// <remarks/>
+        public ePaymentMethod m_ePaymentMethod {
+            get {
+                return this.m_ePaymentMethodField;
+            }
+            set {
+                this.m_ePaymentMethodField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingAction {
@@ -12761,7 +12809,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum BillingPriceType {
@@ -12774,7 +12822,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12807,7 +12855,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12840,7 +12888,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12873,7 +12921,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12906,7 +12954,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -12951,7 +12999,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13080,7 +13128,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13318,7 +13366,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13339,7 +13387,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13372,7 +13420,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13478,7 +13526,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum CampaignActionResult {
@@ -13491,7 +13539,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13548,7 +13596,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13581,7 +13629,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13758,7 +13806,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13791,7 +13839,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13884,7 +13932,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum CompensationType {
@@ -13897,7 +13945,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -13930,7 +13978,196 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DevicePlayData {
+        
+        private string uDIDField;
+        
+        private int assetIdField;
+        
+        private int userIdField;
+        
+        private string playTypeField;
+        
+        private string assetActionField;
+        
+        private long timeStampField;
+        
+        private long createdAtField;
+        
+        private int[] mediaConcurrencyRuleIdsField;
+        
+        private long[] assetMediaConcurrencyRuleIdsField;
+        
+        private long[] assetEpgConcurrencyRuleIdsField;
+        
+        private int deviceFamilyIdField;
+        
+        private string npvrIdField;
+        
+        private long programIdField;
+        
+        private int domainIdField;
+        
+        private string playCycleKeyField;
+        
+        /// <remarks/>
+        public string UDID {
+            get {
+                return this.uDIDField;
+            }
+            set {
+                this.uDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int AssetId {
+            get {
+                return this.assetIdField;
+            }
+            set {
+                this.assetIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int UserId {
+            get {
+                return this.userIdField;
+            }
+            set {
+                this.userIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string playType {
+            get {
+                return this.playTypeField;
+            }
+            set {
+                this.playTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string AssetAction {
+            get {
+                return this.assetActionField;
+            }
+            set {
+                this.assetActionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long TimeStamp {
+            get {
+                return this.timeStampField;
+            }
+            set {
+                this.timeStampField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreatedAt {
+            get {
+                return this.createdAtField;
+            }
+            set {
+                this.createdAtField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] MediaConcurrencyRuleIds {
+            get {
+                return this.mediaConcurrencyRuleIdsField;
+            }
+            set {
+                this.mediaConcurrencyRuleIdsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long[] AssetMediaConcurrencyRuleIds {
+            get {
+                return this.assetMediaConcurrencyRuleIdsField;
+            }
+            set {
+                this.assetMediaConcurrencyRuleIdsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long[] AssetEpgConcurrencyRuleIds {
+            get {
+                return this.assetEpgConcurrencyRuleIdsField;
+            }
+            set {
+                this.assetEpgConcurrencyRuleIdsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int DeviceFamilyId {
+            get {
+                return this.deviceFamilyIdField;
+            }
+            set {
+                this.deviceFamilyIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string NpvrId {
+            get {
+                return this.npvrIdField;
+            }
+            set {
+                this.npvrIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long ProgramId {
+            get {
+                return this.programIdField;
+            }
+            set {
+                this.programIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int DomainId {
+            get {
+                return this.domainIdField;
+            }
+            set {
+                this.domainIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PlayCycleKey {
+            get {
+                return this.playCycleKeyField;
+            }
+            set {
+                this.playCycleKeyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -14097,7 +14334,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum StreamerType {
@@ -14119,7 +14356,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -14131,6 +14368,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private MediaFile[] filesField;
         
         private Status statusField;
+        
+        private DevicePlayData concurrencyDataField;
         
         /// <remarks/>
         public int AssetId {
@@ -14161,10 +14400,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.statusField = value;
             }
         }
+        
+        /// <remarks/>
+        public DevicePlayData ConcurrencyData {
+            get {
+                return this.concurrencyDataField;
+            }
+            set {
+                this.concurrencyDataField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -14222,7 +14471,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UrlType {
@@ -14235,7 +14484,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
@@ -14260,7 +14509,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum TransactionHistoryOrderBy {
@@ -14273,7 +14522,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum ChangeSubscriptionStatus {
@@ -14307,7 +14556,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum EntitlementOrderBy {
@@ -14320,7 +14569,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum eAction {
@@ -14342,14 +14591,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         Rebase,
+        
+        /// <remarks/>
+        GeoUpdate,
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void HandleUserTaskCompletedEventHandler(object sender, HandleUserTaskCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class HandleUserTaskCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14371,11 +14623,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void DistributeRecordingWithDomainIdsCompletedEventHandler(object sender, DistributeRecordingWithDomainIdsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DistributeRecordingWithDomainIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14397,11 +14649,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSeriesIdAndSeasonNumberByEpgIdCompletedEventHandler(object sender, GetSeriesIdAndSeasonNumberByEpgIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSeriesIdAndSeasonNumberByEpgIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14423,11 +14675,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainSearchableRecordingsCompletedEventHandler(object sender, GetDomainSearchableRecordingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainSearchableRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14449,11 +14701,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void BulkRecoveryForRenewSubscriptionsCompletedEventHandler(object sender, BulkRecoveryForRenewSubscriptionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BulkRecoveryForRenewSubscriptionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14475,11 +14727,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetRecordingByDomainRecordingIdCompletedEventHandler(object sender, GetRecordingByDomainRecordingIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetRecordingByDomainRecordingIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14501,11 +14753,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetPlaybackContextCompletedEventHandler(object sender, GetPlaybackContextCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPlaybackContextCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14527,11 +14779,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SwapSubscriptionCompletedEventHandler(object sender, SwapSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SwapSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14553,11 +14805,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetPlayManifestCompletedEventHandler(object sender, GetPlayManifestCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPlayManifestCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14579,11 +14831,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GiftCardReminderCompletedEventHandler(object sender, GiftCardReminderCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GiftCardReminderCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14605,11 +14857,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void AddCompensationCompletedEventHandler(object sender, AddCompensationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddCompensationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14631,11 +14883,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void DeleteCompensationCompletedEventHandler(object sender, DeleteCompensationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteCompensationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14657,11 +14909,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCompensationCompletedEventHandler(object sender, GetCompensationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCompensationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14683,11 +14935,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserPermittedItemsCompletedEventHandler(object sender, GetUserPermittedItemsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserPermittedItemsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14709,11 +14961,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainPermittedItemsCompletedEventHandler(object sender, GetDomainPermittedItemsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainPermittedItemsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14735,11 +14987,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserExpiredItemsCompletedEventHandler(object sender, GetUserExpiredItemsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserExpiredItemsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14761,11 +15013,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserCAStatusCompletedEventHandler(object sender, GetUserCAStatusCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserCAStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14787,11 +15039,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetLicensedLinkCompletedEventHandler(object sender, GetLicensedLinkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetLicensedLinkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14813,11 +15065,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetEPGLicensedLinkCompletedEventHandler(object sender, GetEPGLicensedLinkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetEPGLicensedLinkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14839,11 +15091,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetLicensedLinkWithCouponCompletedEventHandler(object sender, GetLicensedLinkWithCouponCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetLicensedLinkWithCouponCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14865,11 +15117,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ActivateCampaignCompletedEventHandler(object sender, ActivateCampaignCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ActivateCampaignCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14891,11 +15143,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ActivateCampaignWithInfoCompletedEventHandler(object sender, ActivateCampaignWithInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ActivateCampaignWithInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14917,11 +15169,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainPermittedSubscriptionsCompletedEventHandler(object sender, GetDomainPermittedSubscriptionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainPermittedSubscriptionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14943,11 +15195,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserPermittedSubscriptionsCompletedEventHandler(object sender, GetUserPermittedSubscriptionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserPermittedSubscriptionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14969,11 +15221,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainPermittedCollectionsCompletedEventHandler(object sender, GetDomainPermittedCollectionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainPermittedCollectionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -14995,11 +15247,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserPermittedCollectionsCompletedEventHandler(object sender, GetUserPermittedCollectionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserPermittedCollectionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15021,11 +15273,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserExpiredSubscriptionsCompletedEventHandler(object sender, GetUserExpiredSubscriptionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserExpiredSubscriptionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15047,11 +15299,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserExpiredCollectionsCompletedEventHandler(object sender, GetUserExpiredCollectionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserExpiredCollectionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15073,11 +15325,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void IsPermittedItemCompletedEventHandler(object sender, IsPermittedItemCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class IsPermittedItemCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15099,11 +15351,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void IsPermittedSubscriptionCompletedEventHandler(object sender, IsPermittedSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class IsPermittedSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15133,11 +15385,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUsersBillingHistoryCompletedEventHandler(object sender, GetUsersBillingHistoryCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUsersBillingHistoryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15159,11 +15411,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainTransactionsHistoryCompletedEventHandler(object sender, GetDomainTransactionsHistoryCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainTransactionsHistoryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15185,11 +15437,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainsBillingHistoryCompletedEventHandler(object sender, GetDomainsBillingHistoryCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainsBillingHistoryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15211,11 +15463,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserBillingHistoryCompletedEventHandler(object sender, GetUserBillingHistoryCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserBillingHistoryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15237,11 +15489,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RenewCancledSubscriptionCompletedEventHandler(object sender, RenewCancledSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RenewCancledSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15263,11 +15515,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CancelSubscriptionCompletedEventHandler(object sender, CancelSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CancelSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15289,11 +15541,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CancelSubscriptionRenewalCompletedEventHandler(object sender, CancelSubscriptionRenewalCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CancelSubscriptionRenewalCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15315,11 +15567,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ChangeSubscriptionDatesCompletedEventHandler(object sender, ChangeSubscriptionDatesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ChangeSubscriptionDatesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15341,11 +15593,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesExCompletedEventHandler(object sender, GetItemsPricesExCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesExCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15367,11 +15619,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesWithCouponsExCompletedEventHandler(object sender, GetItemsPricesWithCouponsExCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesWithCouponsExCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15393,11 +15645,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesCompletedEventHandler(object sender, GetItemsPricesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15419,11 +15671,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesByIPCompletedEventHandler(object sender, GetItemsPricesByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15445,11 +15697,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesWithCouponsCompletedEventHandler(object sender, GetItemsPricesWithCouponsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesWithCouponsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15471,11 +15723,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesWithCouponsByIPCompletedEventHandler(object sender, GetItemsPricesWithCouponsByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesWithCouponsByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15497,11 +15749,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesCompletedEventHandler(object sender, GetSubscriptionsPricesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15523,11 +15775,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCollectionsPricesCompletedEventHandler(object sender, GetCollectionsPricesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCollectionsPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15549,11 +15801,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesByIPCompletedEventHandler(object sender, GetSubscriptionsPricesByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15575,11 +15827,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetPrePaidPricesCompletedEventHandler(object sender, GetPrePaidPricesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPrePaidPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15601,11 +15853,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesWithCouponCompletedEventHandler(object sender, GetSubscriptionsPricesWithCouponCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesWithCouponCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15627,11 +15879,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCollectionsPricesWithCouponCompletedEventHandler(object sender, GetCollectionsPricesWithCouponCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCollectionsPricesWithCouponCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15653,11 +15905,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesWithCouponByIPCompletedEventHandler(object sender, GetSubscriptionsPricesWithCouponByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesWithCouponByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15679,11 +15931,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesSTCompletedEventHandler(object sender, GetSubscriptionsPricesSTCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesSTCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15705,11 +15957,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCollectionsPricesSTCompletedEventHandler(object sender, GetCollectionsPricesSTCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCollectionsPricesSTCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15731,11 +15983,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesSTByIPCompletedEventHandler(object sender, GetSubscriptionsPricesSTByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesSTByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15757,11 +16009,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetPrePaidPricesSTCompletedEventHandler(object sender, GetPrePaidPricesSTCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPrePaidPricesSTCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15783,11 +16035,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesSTWithCouponCompletedEventHandler(object sender, GetSubscriptionsPricesSTWithCouponCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesSTWithCouponCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15809,11 +16061,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCollectionsPricesSTWithCouponCompletedEventHandler(object sender, GetCollectionsPricesSTWithCouponCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCollectionsPricesSTWithCouponCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15835,11 +16087,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetSubscriptionsPricesSTWithCouponByIPCompletedEventHandler(object sender, GetSubscriptionsPricesSTWithCouponByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSubscriptionsPricesSTWithCouponByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15861,11 +16113,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesSTCompletedEventHandler(object sender, GetItemsPricesSTCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesSTCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15887,11 +16139,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemsPricesSTByIPCompletedEventHandler(object sender, GetItemsPricesSTByIPCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemsPricesSTByIPCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15913,11 +16165,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void Cellular_ChargeUserForSubscriptionCompletedEventHandler(object sender, Cellular_ChargeUserForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class Cellular_ChargeUserForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15939,11 +16191,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_DummyChargeUserForSubscriptionCompletedEventHandler(object sender, CC_DummyChargeUserForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_DummyChargeUserForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15965,11 +16217,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_DummyChargeUserForCollectionCompletedEventHandler(object sender, CC_DummyChargeUserForCollectionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_DummyChargeUserForCollectionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -15991,11 +16243,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_ChargeUserForPrePaidCompletedEventHandler(object sender, CC_ChargeUserForPrePaidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_ChargeUserForPrePaidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16017,11 +16269,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_DummyChargeUserForPrePaidCompletedEventHandler(object sender, CC_DummyChargeUserForPrePaidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_DummyChargeUserForPrePaidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16043,11 +16295,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_DummyChargeUserForMediaFileCompletedEventHandler(object sender, CC_DummyChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_DummyChargeUserForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16069,11 +16321,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_ChargeUserForMediaFileCompletedEventHandler(object sender, CC_ChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_ChargeUserForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16095,11 +16347,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_ChargeUserForSubscriptionCompletedEventHandler(object sender, CC_ChargeUserForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_ChargeUserForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16121,11 +16373,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CC_ChargeUserForCollectionCompletedEventHandler(object sender, CC_ChargeUserForCollectionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_ChargeUserForCollectionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16147,11 +16399,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void PU_GetPPVPopupPaymentMethodURLCompletedEventHandler(object sender, PU_GetPPVPopupPaymentMethodURLCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PU_GetPPVPopupPaymentMethodURLCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16173,11 +16425,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void AD_GetCustomDataIDCompletedEventHandler(object sender, AD_GetCustomDataIDCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AD_GetCustomDataIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16199,11 +16451,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCustomDataIDCompletedEventHandler(object sender, GetCustomDataIDCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCustomDataIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16225,11 +16477,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void PU_GetSubscriptionPopupPaymentMethodURLCompletedEventHandler(object sender, PU_GetSubscriptionPopupPaymentMethodURLCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PU_GetSubscriptionPopupPaymentMethodURLCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16251,11 +16503,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SMS_ChargeUserForMediaFileCompletedEventHandler(object sender, SMS_ChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SMS_ChargeUserForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16277,11 +16529,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SMS_ChargeUserForSubscriptionCompletedEventHandler(object sender, SMS_ChargeUserForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SMS_ChargeUserForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16303,11 +16555,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SMS_CheckCodeForMediaFileCompletedEventHandler(object sender, SMS_CheckCodeForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SMS_CheckCodeForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16329,11 +16581,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SMS_CheckCodeForSubscriptionCompletedEventHandler(object sender, SMS_CheckCodeForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SMS_CheckCodeForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16355,11 +16607,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void PP_ChargeUserForMediaFileCompletedEventHandler(object sender, PP_ChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PP_ChargeUserForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16381,11 +16633,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void PP_ChargeUserForSubscriptionCompletedEventHandler(object sender, PP_ChargeUserForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PP_ChargeUserForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16407,11 +16659,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserPrePaidStatusCompletedEventHandler(object sender, GetUserPrePaidStatusCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserPrePaidStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16433,11 +16685,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserPrePaidHistoryCompletedEventHandler(object sender, GetUserPrePaidHistoryCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserPrePaidHistoryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16459,11 +16711,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetItemLeftViewLifeCycleCompletedEventHandler(object sender, GetItemLeftViewLifeCycleCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetItemLeftViewLifeCycleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16485,11 +16737,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetEntitlementCompletedEventHandler(object sender, GetEntitlementCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetEntitlementCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16511,11 +16763,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void InApp_ChargeUserForMediaFileCompletedEventHandler(object sender, InApp_ChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InApp_ChargeUserForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16537,11 +16789,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void InApp_ChargeUserForSubscriptionCompletedEventHandler(object sender, InApp_ChargeUserForSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InApp_ChargeUserForSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16563,11 +16815,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetGoogleSignatureCompletedEventHandler(object sender, GetGoogleSignatureCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetGoogleSignatureCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16589,11 +16841,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void Cellular_ChargeUserForMediaFileCompletedEventHandler(object sender, Cellular_ChargeUserForMediaFileCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class Cellular_ChargeUserForMediaFileCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16615,11 +16867,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ChangeSubscriptionCompletedEventHandler(object sender, ChangeSubscriptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ChangeSubscriptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16641,11 +16893,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CancelServiceNowCompletedEventHandler(object sender, CancelServiceNowCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CancelServiceNowCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16667,11 +16919,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CancelTransactionCompletedEventHandler(object sender, CancelTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CancelTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16693,11 +16945,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void WaiverTransactionCompletedEventHandler(object sender, WaiverTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class WaiverTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16719,11 +16971,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetLicensedLinksCompletedEventHandler(object sender, GetLicensedLinksCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetLicensedLinksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16745,11 +16997,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetNPVRResponseCompletedEventHandler(object sender, GetNPVRResponseCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetNPVRResponseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16771,11 +17023,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainServicesCompletedEventHandler(object sender, GetDomainServicesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainServicesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16797,11 +17049,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserSubscriptionsCompletedEventHandler(object sender, GetUserSubscriptionsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserSubscriptionsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16823,11 +17075,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void PurchaseCompletedEventHandler(object sender, PurchaseCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PurchaseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16849,11 +17101,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ProcessReceiptCompletedEventHandler(object sender, ProcessReceiptCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ProcessReceiptCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16875,11 +17127,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GrantEntitlementsCompletedEventHandler(object sender, GrantEntitlementsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GrantEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16901,11 +17153,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void UpdatePendingTransactionCompletedEventHandler(object sender, UpdatePendingTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdatePendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16927,11 +17179,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16953,11 +17205,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserEntitlementsCompletedEventHandler(object sender, GetUserEntitlementsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -16979,11 +17231,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainEntitlementsCompletedEventHandler(object sender, GetDomainEntitlementsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17005,11 +17257,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RenewCompletedEventHandler(object sender, RenewCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RenewCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17031,11 +17283,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetAssetPricesCompletedEventHandler(object sender, GetAssetPricesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetAssetPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17057,11 +17309,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ReconcileEntitlementsCompletedEventHandler(object sender, ReconcileEntitlementsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ReconcileEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17083,11 +17335,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserBundlesCompletedEventHandler(object sender, GetUserBundlesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserBundlesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17109,11 +17361,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetUserPurchasedAssetsCompletedEventHandler(object sender, GetUserPurchasedAssetsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetUserPurchasedAssetsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17135,11 +17387,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetPurchaseSessionIDCompletedEventHandler(object sender, GetPurchaseSessionIDCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPurchaseSessionIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17161,11 +17413,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RecordTransactionCompletedEventHandler(object sender, RecordTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RecordTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17187,11 +17439,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void UpdateRecordedTransactionCompletedEventHandler(object sender, UpdateRecordedTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdateRecordedTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17213,11 +17465,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetCDVRAdaptersCompletedEventHandler(object sender, GetCDVRAdaptersCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetCDVRAdaptersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17239,11 +17491,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void DeleteCDVRAdapterCompletedEventHandler(object sender, DeleteCDVRAdapterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteCDVRAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17265,11 +17517,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void InsertCDVRAdapterCompletedEventHandler(object sender, InsertCDVRAdapterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InsertCDVRAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17291,11 +17543,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GenerateCDVRSharedSecretCompletedEventHandler(object sender, GenerateCDVRSharedSecretCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GenerateCDVRSharedSecretCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17317,11 +17569,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SetCDVRAdapterCompletedEventHandler(object sender, SetCDVRAdapterCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetCDVRAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17343,11 +17595,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SendCDVRAdapterConfigurationCompletedEventHandler(object sender, SendCDVRAdapterConfigurationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SendCDVRAdapterConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17369,11 +17621,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RecordCompletedEventHandler(object sender, RecordCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17395,11 +17647,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CancelRecordCompletedEventHandler(object sender, CancelRecordCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CancelRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17421,11 +17673,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void DeleteRecordCompletedEventHandler(object sender, DeleteRecordCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17447,11 +17699,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CancelSeriesRecordCompletedEventHandler(object sender, CancelSeriesRecordCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CancelSeriesRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17473,11 +17725,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void DeleteSeriesRecordCompletedEventHandler(object sender, DeleteSeriesRecordCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteSeriesRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17499,11 +17751,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RecordRetryCompletedEventHandler(object sender, RecordRetryCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RecordRetryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17525,11 +17777,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void QueryRecordsCompletedEventHandler(object sender, QueryRecordsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class QueryRecordsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17551,11 +17803,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetRecordingStatusCompletedEventHandler(object sender, GetRecordingStatusCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetRecordingStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17577,11 +17829,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void SearchDomainRecordingsCompletedEventHandler(object sender, SearchDomainRecordingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SearchDomainRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17603,11 +17855,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetRecordingByIDCompletedEventHandler(object sender, GetRecordingByIDCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetRecordingByIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17629,11 +17881,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void IngestRecordingCompletedEventHandler(object sender, IngestRecordingCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class IngestRecordingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17655,11 +17907,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RecoverRecordingMessagesCompletedEventHandler(object sender, RecoverRecordingMessagesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RecoverRecordingMessagesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17681,11 +17933,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetDomainQuotaCompletedEventHandler(object sender, GetDomainQuotaCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDomainQuotaCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17707,11 +17959,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RemovePaymentMethodHouseholdPaymentGatewayCompletedEventHandler(object sender, RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17733,11 +17985,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void ProtectRecordCompletedEventHandler(object sender, ProtectRecordCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ProtectRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17759,11 +18011,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CleanupRecordingsCompletedEventHandler(object sender, CleanupRecordingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CleanupRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17785,11 +18037,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void HandleRecordingsLifetimeCompletedEventHandler(object sender, HandleRecordingsLifetimeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class HandleRecordingsLifetimeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17811,11 +18063,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void HandleRecordingsScheduledTasksCompletedEventHandler(object sender, HandleRecordingsScheduledTasksCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class HandleRecordingsScheduledTasksCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17837,11 +18089,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void HandleDomainQuotaByRecordingCompletedEventHandler(object sender, HandleDomainQuotaByRecordingCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class HandleDomainQuotaByRecordingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17863,11 +18115,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void HandleFirstFollowerRecordingCompletedEventHandler(object sender, HandleFirstFollowerRecordingCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class HandleFirstFollowerRecordingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17889,11 +18141,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetFollowSeriesCompletedEventHandler(object sender, GetFollowSeriesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetFollowSeriesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17915,11 +18167,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void RecordSeasonOrSeriesCompletedEventHandler(object sender, RecordSeasonOrSeriesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RecordSeasonOrSeriesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17941,11 +18193,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void DistributeRecordingCompletedEventHandler(object sender, DistributeRecordingCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DistributeRecordingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17967,11 +18219,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CompleteDomainSeriesRecordingsCompletedEventHandler(object sender, CompleteDomainSeriesRecordingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CompleteDomainSeriesRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -17993,11 +18245,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void GetRecordingLicensedLinkCompletedEventHandler(object sender, GetRecordingLicensedLinkCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetRecordingLicensedLinkCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -18019,11 +18271,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     public delegate void CheckRecordingDuplicateCridsCompletedEventHandler(object sender, CheckRecordingDuplicateCridsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.2556.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CheckRecordingDuplicateCridsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
