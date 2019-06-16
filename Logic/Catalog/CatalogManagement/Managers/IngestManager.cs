@@ -247,11 +247,13 @@ namespace Core.Catalog.CatalogManagement
         private static void AddTagsToTranslations(List<Tags> tags, int mediaId, bool isMediaExists, ref Dictionary<string, TagsTranslations> tagsTranslations)
         {
             var slimTags = new List<Tuple<string, string, LanguageContainer[]>>();
-            var otherLanguagesIndex = 0;
             foreach (var tag in tags)
             {
-                var translations = tag.Values != null && tag.Values.Count > 0 && tag.Values.Count > otherLanguagesIndex ? tag.Values[otherLanguagesIndex++] : null;
-                slimTags.AddRange(tag.m_lValues.Select(x => new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, x, translations)));
+                for (int i = 0; i < tag.m_lValues.Count; i++)
+                {
+                    var translations = tag.Values != null && tag.Values.Count > i ? tag.Values[i] : null;
+                    slimTags.Add(new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, tag.m_lValues[i], translations));
+                }
             }
 
             var existingTagsTranslations = new List<Tuple<string, LanguageContainer>>();
