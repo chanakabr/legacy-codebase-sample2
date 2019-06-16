@@ -26,10 +26,6 @@ namespace Core.Catalog.CatalogManagement
         #region Consts
 
         // ERRORS
-        private const string MISSING_EXTERNAL_IDENTIFIER = "External identifier is missing ";
-        
-        
-        
         private const string WATCH_PERMISSION_RULE_NOT_RECOGNIZED = "Watch permission rule not recognized";
         
         private const string PLAYERS_RULE_NOT_RECOGNIZED = "Players rule not recognized ";
@@ -73,21 +69,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 IngestMedia media = feedResponse.Object.Export.MediaList[i];
                 ingestResponse.AssetsStatus.Add(IngestAssetStatus.Default);
-
-                // check media.CoGuid
-                if (string.IsNullOrEmpty(media.CoGuid))
-                {
-                    ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
-                    ingestResponse.Set(string.Empty, "Missing co_guid", "FAILED", 0);
-                    log.ErrorFormat("Error import mediaIndex{0}, ErrorMessage:{1}", i, ingestResponse.Description);
-                    continue;
-                }
-
+                
                 try
                 {
-                    int mediaId = BulkAssetManager.GetMediaIdByCoGuid(groupId, media.CoGuid);
+                    int mediaId;
                     List<Metas> currMetas = new List<Metas>();
-                    if (media.Validate(groupId, cache, ref ingestResponse, i, mediaId, out HashSet<long> topicIdsToRemove, ref currMetas, out List<Tags> currTags))
+                    if (media.Validate(groupId, cache, ref ingestResponse, i, out mediaId, out HashSet<long> topicIdsToRemove, ref currMetas, out List<Tags> currTags))
                     {
                         if (media.Action.Equals(IngestMedia.DELETE_ACTION))
                         {
@@ -100,6 +87,7 @@ namespace Core.Catalog.CatalogManagement
                             MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currTags, currMetas, ref topicIdsToRemove);
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
+                            media.Erase = media.Erase.ToLower().Trim();
 
                             var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
                             if (!upsertStatus.IsOkStatusCode())

@@ -7,6 +7,7 @@ using System;
 using ApiObjects;
 using ApiObjects.Catalog;
 using APILogic.Api.Managers;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Catalog
 {
@@ -30,7 +31,8 @@ namespace Core.Catalog
         public const string DELETE_ACTION = "delete";
         public const string INSERT_ACTION = "insert";
         public const string UPDATE_ACTION = "update";
-        
+
+        private const string MISSING_EXTERNAL_IDENTIFIER = "External identifier is missing ";
         private const string MISSING_ENTRY_ID = "entry_id is missing";
         private const string MISSING_ACTION = "action is missing";
         private const string CANNOT_BE_EMPTY = "{0} cannot be empty";
@@ -66,12 +68,21 @@ namespace Core.Catalog
             this.Erase = "false";
         }
 
-        public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, int mediaId, out HashSet<long> topicIdsToRemove, ref List<Metas> metas, out List<Tags> tags)
+        // TODO SHIR - go over all validation again to check that i do it the same as it is in non-opc account
+        public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, out int mediaId, out HashSet<long> topicIdsToRemove, ref List<Metas> metas, out List<Tags> tags)
         {
+            mediaId = 0;
             topicIdsToRemove = null;
             tags = null;
-            var isInsertAction = mediaId == 0;
-
+            
+            // check media.CoGuid
+            if (string.IsNullOrEmpty(this.CoGuid))
+            {
+                response.AssetsStatus[index].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
+                response.AddError("Missing co_guid");
+                return false;
+            }
+            
             if (string.IsNullOrEmpty(this.EntryId))
             {
                 response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingEntryId, MISSING_ENTRY_ID));
@@ -81,9 +92,21 @@ namespace Core.Catalog
             {
                 response.AssetsStatus[index].Warnings.Add(new Status((int)IngestWarnings.MissingAction, MISSING_ACTION));
             }
+            this.Action = this.Action.Trim().ToLower();
+
+            mediaId = BulkAssetManager.GetMediaIdByCoGuid(groupId, this.CoGuid);
+            var isInsertAction = mediaId == 0;
+
+            this.IsActive = this.IsActive.Trim().ToLower();
+            if (isInsertAction && !TRUE.Equals(this.IsActive) && !FALSE.Equals(this.IsActive))
+            {
+                response.AddError("media.IsActive cannot be empty");
+                response.AssetsStatus[index].Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
+                return false;
+            }
 
             if (DELETE_ACTION.Equals(this.Action)) { return true; }
-
+            
             if (this.Basic == null)
             {
                 string errMsg = string.Format(CANNOT_BE_EMPTY, "media.Basic");
@@ -124,13 +147,8 @@ namespace Core.Catalog
                 response.AssetsStatus[index].Status = structureValidationStatus;
                 return false;
             }
-
-            if (isInsertAction && !TRUE.Equals(this.IsActive) && !FALSE.Equals(this.IsActive))
-            {
-                response.AddError("media.IsActive cannot be empty");
-                response.AssetsStatus[index].Status.Set((int)eResponseStatus.NameRequired, "media.IsActive cannot be empty");
-                return false;
-            }
+            
+            
             
             return true;
         }
@@ -522,7 +540,9 @@ namespace Core.Catalog
                     stringMeta.Name = stringMeta.Name.Trim();
                     var currMetaType = multilingualStringMetaType;
 
-                    if (!cache.TopicsMapBySystemNameAndByType.ContainsKey(stringMeta.Name) ||
+                    if (stringMeta.Values == null ||
+                        stringMeta.Values.Count == 0 ||
+                        !cache.TopicsMapBySystemNameAndByType.ContainsKey(stringMeta.Name) ||
                         (!cache.TopicsMapBySystemNameAndByType[stringMeta.Name].ContainsKey(multilingualStringMetaType) &&
                             !cache.TopicsMapBySystemNameAndByType[stringMeta.Name].ContainsKey(stringMetaType)))
                     {
@@ -534,7 +554,7 @@ namespace Core.Catalog
                     }
 
                     // check if need to add or remove meta from asset
-                    if (topicIdsToRemove != null && (stringMeta.Values == null || stringMeta.Values.Count == 0))
+                    if (topicIdsToRemove != null && stringMeta.Values.Any(x => cache.DefaultLanguage.Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
                     {
                         var topic = cache.TopicsMapBySystemNameAndByType[stringMeta.Name][currMetaType];
                         if (!topicIdsToRemove.Contains(topic.Id)) { topicIdsToRemove.Add(topic.Id); }
@@ -578,26 +598,33 @@ namespace Core.Catalog
                 foreach (var metaTag in MetaTags)
                 {
                     var containersCounter = 0;
+                    
                     if (metaTag.Containers != null && metaTag.Containers.Count > 0)
                     {
                         metaTag.Name = metaTag.Name.Trim();
 
-                        if (metaTagsContainersToDefaultValue.ContainsKey(metaTag.Name))
+                        if (topicIdsToRemove != null && 
+                            metaTag.Containers.Count == 1 &&
+                            metaTag.Containers[0].Values != null &&
+                            metaTag.Containers[0].Values.Any(x => cache.DefaultLanguage.Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)) &&
+                            cache.TopicsMapBySystemNameAndByType.ContainsKey(metaTag.Name) &&
+                            cache.TopicsMapBySystemNameAndByType[metaTag.Name].ContainsKey(metaTypeTag) &&
+                            !topicIdsToRemove.Contains(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id))
                         {
-                            response.SetStatus(eResponseStatus.Error, string.Format("meta: {0} has been sent more than once.", metaTag.Name));
-                            return response;
+                            topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id);
                         }
+                        else
+                        {
+                            if (metaTagsContainersToDefaultValue.ContainsKey(metaTag.Name))
+                            {
+                                response.SetStatus(eResponseStatus.Error, string.Format("meta: {0} has been sent more than once.", metaTag.Name));
+                                return response;
+                            }
 
-                        metaTagsToContainers.AddRange(metaTag.Containers.Select(y => new Tuple<string, List<IngestLanguageValue>, int>(metaTag.Name, y.Values, containersCounter++)));
-                        metaTagsContainersToDefaultValue.Add(metaTag.Name, new Dictionary<int, string>());
-                        metaTagsContainersToOtherValue.Add(metaTag.Name, new Dictionary<int, Dictionary<string, string>>());
-                    }
-                    else if (topicIdsToRemove != null &&
-                             cache.TopicsMapBySystemNameAndByType.ContainsKey(metaTag.Name) &&
-                             cache.TopicsMapBySystemNameAndByType[metaTag.Name].ContainsKey(metaTypeTag) &&
-                             !topicIdsToRemove.Contains(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id))
-                    {
-                        topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id);
+                            metaTagsToContainers.AddRange(metaTag.Containers.Select(y => new Tuple<string, List<IngestLanguageValue>, int>(metaTag.Name, y.Values, containersCounter++)));
+                            metaTagsContainersToDefaultValue.Add(metaTag.Name, new Dictionary<int, string>());
+                            metaTagsContainersToOtherValue.Add(metaTag.Name, new Dictionary<int, Dictionary<string, string>>());
+                        }
                     }
                 }
 
@@ -630,7 +657,8 @@ namespace Core.Catalog
                         response.SetStatus(eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", languageValue.LangCode));
                         return response;
                     }
-
+                    
+                    // if lang is not main 
                     if (string.IsNullOrEmpty(languageValue.Text))
                     {
                         response.SetStatus(eResponseStatus.NameRequired, parameterName + ".value.text cannot be empty");
