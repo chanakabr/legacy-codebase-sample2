@@ -26,7 +26,7 @@ namespace ApiObjects
             }
             else
             {
-                this.Translations = translations.ToDictionary(x => x.LanguageCode, y => y);
+                this.Translations = translations.ToDictionary(x => x.m_sLanguageCode3, y => y);
             }
             
             this.AssetsToInvalidate = new List<KeyValuePair<int, bool>>() { new KeyValuePair<int, bool>(mediaId, isMediaExists) } ;
