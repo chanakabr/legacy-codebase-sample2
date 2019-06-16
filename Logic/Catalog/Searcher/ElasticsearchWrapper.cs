@@ -3074,9 +3074,9 @@ namespace Core.Catalog
             {
                 int languageId = 0;
 
-                if (group.LanguageMapByCode.ContainsKey(languageContainer.LanguageCode))
+                if (group.LanguageMapByCode.ContainsKey(languageContainer.m_sLanguageCode3))
                 {
-                    languageId = group.LanguageMapByCode[languageContainer.LanguageCode].ID;
+                    languageId = group.LanguageMapByCode[languageContainer.m_sLanguageCode3].ID;
 
                     if (languageId > 0)
                     {
@@ -3087,7 +3087,7 @@ namespace Core.Catalog
                             tagId = tag.tagId,
                             topicId = tag.topicId,
                             updateDate = tag.updateDate,
-                            value = languageContainer.Value
+                            value = languageContainer.m_sValue
                         });
                     }
                 }

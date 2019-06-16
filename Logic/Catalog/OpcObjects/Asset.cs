@@ -321,12 +321,12 @@ namespace Core.Catalog
                         string language = null;
                         if (!languageContainer.IsDefault)
                         {
-                            language = languageContainer.LanguageCode;
+                            language = languageContainer.m_sLanguageCode3;
                         }
                         var metaColumnName = ExcelColumn.GetFullColumnName(meta.m_oTagMeta.m_sName, language);
-                        if (!string.IsNullOrEmpty(languageContainer.Value))
+                        if (!string.IsNullOrEmpty(languageContainer.m_sValue))
                         {
-                            excelValues.TryAdd(metaColumnName, languageContainer.Value);
+                            excelValues.TryAdd(metaColumnName, languageContainer.m_sValue);
                         }
                     }
                 }
@@ -355,8 +355,8 @@ namespace Core.Catalog
                 {
                     if (!valueInOtherLang.IsDefault)
                     {
-                        var excelColumn = ExcelColumn.GetFullColumnName(systemName, valueInOtherLang.LanguageCode);
-                        multilingualExcelValues.Add(excelColumn, valueInOtherLang.Value);
+                        var excelColumn = ExcelColumn.GetFullColumnName(systemName, valueInOtherLang.m_sLanguageCode3);
+                        multilingualExcelValues.Add(excelColumn, valueInOtherLang.m_sValue);
                     }
                 }
             }

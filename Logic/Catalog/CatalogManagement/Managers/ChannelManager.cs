@@ -826,7 +826,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in channelToAdd.NamesInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -835,7 +835,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in channelToAdd.DescriptionInOtherLanguages)
                     {
-                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -1046,7 +1046,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in channelToUpdate.NamesInOtherLanguages)
                     {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
@@ -1055,7 +1055,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (LanguageContainer language in channelToUpdate.DescriptionInOtherLanguages)
                     {
-                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.LanguageCode, language.Value));
+                        languageCodeToDescription.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
                 }
 
