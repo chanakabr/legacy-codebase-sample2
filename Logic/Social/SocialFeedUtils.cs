@@ -20,7 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web.Script.Serialization;
+
 using TVinciShared;
 
 namespace Core.Social
@@ -56,8 +56,7 @@ namespace Core.Social
 
                 if (httpStatus >= 200 && httpStatus < 300)
                 {
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    FacebookResp parsedResp = serializer.Deserialize<FacebookResp>(fbRespStr);
+                    FacebookResp parsedResp = JsonConvert.DeserializeObject<FacebookResp>(fbRespStr);
 
                     while (parsedResp.data.Count < numOfPosts)
                     {
@@ -80,8 +79,7 @@ namespace Core.Social
             {
                 int nStatus = 0;
                 string fbRespStr = Utils.SendGetHttpReq(nextPageUrl, ref nStatus, string.Empty, string.Empty);
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                return serializer.Deserialize<FacebookResp>(fbRespStr);
+                return JsonConvert.DeserializeObject<FacebookResp>(fbRespStr);
             }
 
             static public string GetFacebookAppAccessToken(int groupId)
@@ -289,7 +287,6 @@ namespace Core.Social
         private static List<SocialFeedItem> ParsePlatformResponse(object socialPlatformResp, eSocialPlatform platform)
         {
             ISocialFeed feed;
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
             switch (platform)
             {
                 case eSocialPlatform.Facebook:
@@ -300,7 +297,7 @@ namespace Core.Social
                     break;
 
                 case eSocialPlatform.Twitter:
-                    feed = serializer.Deserialize<TweeterResp>((string)socialPlatformResp);
+                    feed = JsonConvert.DeserializeObject<TweeterResp>((string)socialPlatformResp);
                     break;
                 default:
                     return null;
@@ -312,7 +309,6 @@ namespace Core.Social
         private static List<SocialFeedItem> ParsePlatformResp(object socialPlatformResp, eSocialPlatform platform)
         {
             ISocialFeed feed;
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
             switch (platform)
             {
                 case eSocialPlatform.Facebook:
@@ -329,7 +325,7 @@ namespace Core.Social
                     break;
 
                 case eSocialPlatform.Twitter:
-                    feed = serializer.Deserialize<TweeterResp>((string)socialPlatformResp);
+                    feed = JsonConvert.DeserializeObject<TweeterResp>((string)socialPlatformResp);
                     break;
                 default:
                     return null;

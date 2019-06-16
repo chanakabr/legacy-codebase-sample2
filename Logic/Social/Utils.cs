@@ -4,6 +4,7 @@ using ApiObjects.Statistics;
 using ConfigurationManager;
 using Core.Users;
 using KLogMonitor;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ using System.Security.Cryptography;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Web.Script.Serialization;
+
 
 namespace Core.Social
 {
@@ -519,11 +520,10 @@ namespace Core.Social
 
         public static T Deserialize<T>(string sObject)
         {
-            T response = default(T);
+            T response = default;
             try
             {
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                response = serializer.Deserialize<T>(sObject);
+                response = JsonConvert.DeserializeObject<T>(sObject);
             }
             catch
             {
@@ -691,8 +691,7 @@ namespace Core.Social
                 }
                 interestDict[item.category].Add(item.name);
             }
-            JavaScriptSerializer ser = new JavaScriptSerializer();
-            return ser.Serialize(interestDict);
+            return JsonConvert.SerializeObject(interestDict);
         }
 
         public static UserBasicData GetFBBasicData(FBUser fbUser, string sEncryptToken, string sPic)
