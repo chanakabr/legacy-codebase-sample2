@@ -99,6 +99,7 @@ namespace WebAPI.Controllers
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
+                HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid, priviliges), User = response };
@@ -168,6 +169,7 @@ namespace WebAPI.Controllers
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
+                HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid, priviliges), User = response };
