@@ -10,6 +10,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
 using CachingProvider.LayeredCache;
+using APILogic.SSOAdapaterService;
 
 namespace APILogic.Users
 {
@@ -60,6 +61,21 @@ namespace APILogic.Users
             }
 
             return response;
+        }
+
+        internal static ServiceClient GetSSOAdapterServiceClient(string adapterUrl)
+        {
+            _Logger.Debug($"Constructing SSOAdapterService Client with url:[{adapterUrl}]");
+            var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
+            adapterClient.Endpoint.EndpointBehaviors.Add(addRequestIdToHeadersBehaviour);
+            if (!string.IsNullOrEmpty(adapterUrl))
+            {
+                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapterUrl);
+            }
+
+            return adapterClient;
         }
 
         private static Tuple<IEnumerable<SSOAdapter>, bool> GetSSOAdapaterByGroupId(Dictionary<string, object> arg)
@@ -124,7 +140,8 @@ namespace APILogic.Users
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(adapterDetails.GroupId));
 
                 _Logger.Debug($"Adapter cache cleared, sending new configuration to SSOAdapater:[{response.SSOAdapter.Id}]");
-                var adapterClient = new SSOAdapaterService.ServiceClient(string.Empty, response.SSOAdapter.AdapterUrl);
+
+                var adapterClient = GetSSOAdapterServiceClient(response.SSOAdapter.AdapterUrl);
                 Core.Users.KalturaHttpSSOUser.SetAdapaterConfiguration(adapterClient, response.SSOAdapter);
 
             }
