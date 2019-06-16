@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Web References\tikle\**" />
+    <EmbeddedResource Remove="Web References\tikle\**" />
+    <None Remove="Web References\tikle\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.3.101.9" />
     <PackageReference Include="LinqToTwitter" Version="4.2.1" />
     <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
@@ -68,11 +74,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
     <Compile Update="Web References\AdyenRecAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Update="Web References\tikle\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -335,32 +336,6 @@
     <None Include="Web References\AdyenRecAPI\StoreTokenResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\tikle\Cinema.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\City.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\Movie.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\MovieOnVision.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\PurchaseResponseInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\tikle\Response.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\service.disco" />
-    <None Include="Web References\tikle\service.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\OSSAdapterService\configuration91.svcinfo" />

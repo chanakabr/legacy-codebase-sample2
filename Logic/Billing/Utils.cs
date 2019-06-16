@@ -473,11 +473,6 @@ namespace Core.Billing
                         p_oCreditCard = new TvinciCreditCard(nGroupID);
                         break;
                     }
-                case 5:
-                    {
-                        p_oCreditCard = new TikleCreditCard(nGroupID);
-                        break;
-                    }
                 case 600:
                     {
                         p_oCreditCard = new AdyenCreditCard(nGroupID);
@@ -1550,10 +1545,6 @@ namespace Core.Billing
             if (nImplID == 3)
             {
                 t = new _999SMS(nGroupID);
-            }
-            if (nImplID == 6)
-            {
-                t = new Core.Billing.TikleSMS(nGroupID);
             }
         }
 
