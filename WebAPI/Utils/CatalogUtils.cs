@@ -778,7 +778,7 @@ namespace WebAPI.Utils
                             if (!asset.Tags.ContainsKey(extraData.Key))
                             {
                                 asset.Tags.Add(extraData.Key, new KalturaMultilingualStringValueArray());
-                                LanguageContainer lc = new LanguageContainer() { LanguageCode = WebAPI.Utils.Utils.GetDefaultLanguage(), Value = extraData.Value };
+                                LanguageContainer lc = new LanguageContainer() { m_sLanguageCode3 = WebAPI.Utils.Utils.GetDefaultLanguage(), m_sValue = extraData.Value };
                                 asset.Tags[extraData.Key].Objects.Add(new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(new LanguageContainer[1] { lc }) });
                             }
                         }
