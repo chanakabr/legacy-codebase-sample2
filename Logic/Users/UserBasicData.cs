@@ -153,6 +153,7 @@ namespace Core.Users
             UpdateDate = updateDate;
 
             m_State = new State();
+            m_State.m_Country = new Country();
 
             if (nStateID != 0)
             {
