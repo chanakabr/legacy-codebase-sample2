@@ -478,13 +478,8 @@ namespace Core.Catalog
                     var topic = cache.TopicsMapBySystemNameAndByType[meta.Name][metaTypeName];
                     if (!topicIdsToRemove.Contains(topic.Id)) { topicIdsToRemove.Add(topic.Id); }
                 }
-                else
+                else if (!removeTopic)
                 {
-                    if (removeTopic)
-                    {
-                        return new Status((int)eResponseStatus.NameRequired, string.Format("media.structure.{0}.meta value cannot be empty", metaTypeName));
-                    }
-                    
                     var metaValue = metaType != MetaType.Bool || One.Equals(meta.Value) ? meta.Value : IngestMedia.TRUE.Equals(meta.Value) ? One : "0";
                     metas.Add(new Metas(new TagMeta(meta.Name, metaTypeName), metaValue));
                 }
@@ -581,15 +576,20 @@ namespace Core.Catalog
                     {
                         metaTag.Name = metaTag.Name.Trim();
 
-                        if (topicIdsToRemove != null && 
-                            metaTag.Containers.Count == 1 &&
-                            metaTag.Containers[0].Values != null &&
-                            metaTag.Containers[0].Values.Any(x => cache.DefaultLanguage.Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)) &&
-                            cache.TopicsMapBySystemNameAndByType.ContainsKey(metaTag.Name) &&
-                            cache.TopicsMapBySystemNameAndByType[metaTag.Name].ContainsKey(metaTypeTag) &&
-                            !topicIdsToRemove.Contains(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id))
+                        if (!cache.TopicsMapBySystemNameAndByType.ContainsKey(metaTag.Name) ||
+                            !cache.TopicsMapBySystemNameAndByType[metaTag.Name].ContainsKey(metaTypeTag))
                         {
-                            topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id);
+                            continue;
+                        }
+
+                        if (metaTag.Containers.Count == 1 &&
+                            metaTag.Containers[0].Values != null &&
+                            metaTag.Containers[0].Values.Any(x => cache.DefaultLanguage.Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
+                        {
+                            if (topicIdsToRemove != null && !topicIdsToRemove.Contains(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id))
+                            {
+                                topicIdsToRemove.Add(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id);
+                            }
                         }
                         else
                         {
