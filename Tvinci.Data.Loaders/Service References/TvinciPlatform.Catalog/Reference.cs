@@ -8769,9 +8769,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         private bool IsDefaultk__BackingFieldField;
         
-        private string LanguageCodek__BackingFieldField;
+        private string m_sLanguageCode3k__BackingFieldField;
         
-        private string Valuek__BackingFieldField;
+        private string m_sValuek__BackingFieldField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -8796,28 +8796,28 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<LanguageCode>k__BackingField", IsRequired=true)]
-        public string LanguageCodek__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<m_sLanguageCode3>k__BackingField", IsRequired=true)]
+        public string m_sLanguageCode3k__BackingField {
             get {
-                return this.LanguageCodek__BackingFieldField;
+                return this.m_sLanguageCode3k__BackingFieldField;
             }
             set {
-                if ((object.ReferenceEquals(this.LanguageCodek__BackingFieldField, value) != true)) {
-                    this.LanguageCodek__BackingFieldField = value;
-                    this.RaisePropertyChanged("LanguageCodek__BackingField");
+                if ((object.ReferenceEquals(this.m_sLanguageCode3k__BackingFieldField, value) != true)) {
+                    this.m_sLanguageCode3k__BackingFieldField = value;
+                    this.RaisePropertyChanged("m_sLanguageCode3k__BackingField");
                 }
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<Value>k__BackingField", IsRequired=true)]
-        public string Valuek__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<m_sValue>k__BackingField", IsRequired=true)]
+        public string m_sValuek__BackingField {
             get {
-                return this.Valuek__BackingFieldField;
+                return this.m_sValuek__BackingFieldField;
             }
             set {
-                if ((object.ReferenceEquals(this.Valuek__BackingFieldField, value) != true)) {
-                    this.Valuek__BackingFieldField = value;
-                    this.RaisePropertyChanged("Valuek__BackingField");
+                if ((object.ReferenceEquals(this.m_sValuek__BackingFieldField, value) != true)) {
+                    this.m_sValuek__BackingFieldField = value;
+                    this.RaisePropertyChanged("m_sValuek__BackingField");
                 }
             }
         }

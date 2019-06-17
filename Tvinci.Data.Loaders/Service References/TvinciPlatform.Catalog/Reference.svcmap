@@ -21,32 +21,32 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://34.249.122.223:8030/Catalog_V5_2_2/service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service2040.xsd" MetadataType="Schema" ID="5bc99630-d8dc-48b7-b2c9-229e68e578b4" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd13" />
-    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="997af572-3952-4f8a-aec7-ee27211d2626" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?wsdl" />
-    <MetadataFile FileName="service2041.xsd" MetadataType="Schema" ID="6c226f52-1dca-4f92-be1c-d1779f121119" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd7" />
-    <MetadataFile FileName="service2042.xsd" MetadataType="Schema" ID="b36baf36-a2b7-4906-9030-3c48cb5318c8" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd10" />
-    <MetadataFile FileName="service2043.xsd" MetadataType="Schema" ID="101882f5-0c3d-4c82-82ab-00fa66602891" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd15" />
-    <MetadataFile FileName="service2044.xsd" MetadataType="Schema" ID="5cae6f72-1413-46dc-a035-aa912e6baefd" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd17" />
-    <MetadataFile FileName="service2045.xsd" MetadataType="Schema" ID="f2a9a0d5-bee2-4eda-a085-b60e75dd1093" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd18" />
-    <MetadataFile FileName="service2046.xsd" MetadataType="Schema" ID="60b732bc-84d6-46d5-917c-18fb813c19fa" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd5" />
-    <MetadataFile FileName="service2047.xsd" MetadataType="Schema" ID="26db75da-6f36-41aa-b445-197668f95f7e" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd6" />
-    <MetadataFile FileName="service2048.xsd" MetadataType="Schema" ID="2fa68d3a-d297-44ee-9a64-84a4ae139581" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd2" />
-    <MetadataFile FileName="service2049.xsd" MetadataType="Schema" ID="f3c38e02-7c16-45e9-9fa1-3393a2f63e99" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd16" />
-    <MetadataFile FileName="service2050.xsd" MetadataType="Schema" ID="5b4a4c17-27fe-4e56-a4d8-7b41b766e16e" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd3" />
-    <MetadataFile FileName="service2051.xsd" MetadataType="Schema" ID="73cfe3f5-eef5-42b7-a966-a011bc2544e0" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd14" />
-    <MetadataFile FileName="service2.disco" MetadataType="Disco" ID="03e9ebbf-15f6-4caa-b640-a9c024209b78" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?disco" />
-    <MetadataFile FileName="service2052.xsd" MetadataType="Schema" ID="798467d7-c518-4ba6-b5db-731175ff0b20" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd1" />
-    <MetadataFile FileName="service2053.xsd" MetadataType="Schema" ID="4e4224e7-b4fc-497a-bf3c-c82793159621" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd9" />
-    <MetadataFile FileName="service2054.xsd" MetadataType="Schema" ID="baa745f1-e7c9-407d-a752-b1433d48ff58" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd12" />
-    <MetadataFile FileName="service2055.xsd" MetadataType="Schema" ID="3fddc031-7585-4a8a-a8e7-7f9fc4dffd17" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd19" />
-    <MetadataFile FileName="service2056.xsd" MetadataType="Schema" ID="7bbb5b9f-3f94-47ba-b48e-c45e3e1bbe9d" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd8" />
-    <MetadataFile FileName="service2057.xsd" MetadataType="Schema" ID="90d620e3-2a92-4f1b-9714-b5f17704a0a5" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd4" />
-    <MetadataFile FileName="service2058.xsd" MetadataType="Schema" ID="49d40c92-30b4-4c27-ba04-4be7fde4d264" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd0" />
-    <MetadataFile FileName="service4.wsdl" MetadataType="Wsdl" ID="025cfa0c-05b0-4af1-a4a0-416243c645bd" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?wsdl=wsdl0" />
-    <MetadataFile FileName="service2059.xsd" MetadataType="Schema" ID="8c304ae3-551c-48f0-8cb4-585b15ac8f86" SourceId="1" SourceUrl="http://34.249.122.223:8030/CATALOG_v5_2_2/service.svc?xsd=xsd11" />
+    <MetadataFile FileName="ws_catalog_service.xsd" MetadataType="Schema" ID="18fb4e1c-2daa-46e4-a222-868d47f83190" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd19" />
+    <MetadataFile FileName="ws_catalog_service1.xsd" MetadataType="Schema" ID="198719ce-bbdc-4439-9f3c-226283750468" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd1" />
+    <MetadataFile FileName="ws_catalog_service2.xsd" MetadataType="Schema" ID="05bafb58-f406-48cd-875c-a358354509e8" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd0" />
+    <MetadataFile FileName="ws_catalog_service3.xsd" MetadataType="Schema" ID="9bd1c314-0496-4f99-878f-4f8b1f4701e5" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd3" />
+    <MetadataFile FileName="ws_catalog_service4.xsd" MetadataType="Schema" ID="73f370ac-9943-4d44-abff-0819dba669e1" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd2" />
+    <MetadataFile FileName="ws_catalog_service5.xsd" MetadataType="Schema" ID="4995443e-c6fc-455b-8f3a-3aa21da78c16" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd5" />
+    <MetadataFile FileName="ws_catalog_service6.xsd" MetadataType="Schema" ID="5d02c6e4-ae5b-4716-8c35-7905383dda81" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd4" />
+    <MetadataFile FileName="ws_catalog_service7.xsd" MetadataType="Schema" ID="afe0c099-9632-4dcc-b085-6946f3f8531a" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd7" />
+    <MetadataFile FileName="ws_catalog_service8.xsd" MetadataType="Schema" ID="97ef010a-af87-4341-b802-e87e88031eb3" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd6" />
+    <MetadataFile FileName="ws_catalog_service9.xsd" MetadataType="Schema" ID="6cd5feda-dde8-4a4f-a910-78df129b65fe" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd9" />
+    <MetadataFile FileName="ws_catalog_service10.xsd" MetadataType="Schema" ID="119da3f6-190a-4a66-a7a2-da4ee7f24e2f" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd8" />
+    <MetadataFile FileName="ws_catalog_service11.xsd" MetadataType="Schema" ID="17769e78-66b0-4679-964d-f4704de4e809" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd16" />
+    <MetadataFile FileName="ws_catalog_service12.xsd" MetadataType="Schema" ID="c551c76f-fd0a-482b-b1c6-4a9cc61c508f" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd17" />
+    <MetadataFile FileName="ws_catalog_service13.xsd" MetadataType="Schema" ID="c444c4b0-54dc-4eb1-ad21-7c34a13872f3" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd13" />
+    <MetadataFile FileName="ws_catalog_service14.xsd" MetadataType="Schema" ID="72baac59-a496-4e46-824e-cc7eea0139c4" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd14" />
+    <MetadataFile FileName="ws_catalog_service.disco" MetadataType="Disco" ID="228305ea-d633-444e-9714-6335637de0af" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?disco" />
+    <MetadataFile FileName="ws_catalog_service15.xsd" MetadataType="Schema" ID="399a6550-b103-4db0-a4f6-3993df6f694e" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd12" />
+    <MetadataFile FileName="ws_catalog_service16.xsd" MetadataType="Schema" ID="0da95021-e203-4644-8e3d-84462dcf772b" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd10" />
+    <MetadataFile FileName="ws_catalog_service1.wsdl" MetadataType="Wsdl" ID="bd380c58-5f23-4f61-a9ff-a46ab706b53f" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?wsdl=wsdl0" />
+    <MetadataFile FileName="Service3.wsdl" MetadataType="Wsdl" ID="a5a4eb0e-80ff-4d0b-915a-42f1f3e9f268" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?wsdl" />
+    <MetadataFile FileName="ws_catalog_service17.xsd" MetadataType="Schema" ID="d1e7affa-481f-46ed-857e-688245ea49db" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd18" />
+    <MetadataFile FileName="ws_catalog_service18.xsd" MetadataType="Schema" ID="b68aa143-f8f9-4c3f-b882-3dcfcb37f785" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd15" />
+    <MetadataFile FileName="ws_catalog_service19.xsd" MetadataType="Schema" ID="f694237e-e16e-4d1f-82dc-5f794a2b4f7a" SourceId="1" SourceUrl="http://localhost:2626/tvpapi_rest/ws_catalog_service.svc?xsd=xsd11" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

@@ -8567,29 +8567,29 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class LanguageContainer {
         
-        private string languageCodeField;
+        private string m_sLanguageCode3Field;
         
-        private string valueField;
+        private string m_sValueField;
         
         private bool isDefaultField;
         
         /// <remarks/>
-        public string LanguageCode {
+        public string m_sLanguageCode3 {
             get {
-                return this.languageCodeField;
+                return this.m_sLanguageCode3Field;
             }
             set {
-                this.languageCodeField = value;
+                this.m_sLanguageCode3Field = value;
             }
         }
         
         /// <remarks/>
-        public string Value {
+        public string m_sValue {
             get {
-                return this.valueField;
+                return this.m_sValueField;
             }
             set {
-                this.valueField = value;
+                this.m_sValueField = value;
             }
         }
         
