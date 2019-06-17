@@ -8767,11 +8767,14 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
-        private bool IsDefaultk__BackingFieldField;
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsDefaultField;
         
-        private string m_sLanguageCode3k__BackingFieldField;
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageCode3Field;
         
-        private string m_sValuek__BackingFieldField;
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sValueField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -8783,41 +8786,41 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<IsDefault>k__BackingField", IsRequired=true)]
-        public bool IsDefaultk__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsDefault {
             get {
-                return this.IsDefaultk__BackingFieldField;
+                return this.IsDefaultField;
             }
             set {
-                if ((this.IsDefaultk__BackingFieldField.Equals(value) != true)) {
-                    this.IsDefaultk__BackingFieldField = value;
-                    this.RaisePropertyChanged("IsDefaultk__BackingField");
+                if ((this.IsDefaultField.Equals(value) != true)) {
+                    this.IsDefaultField = value;
+                    this.RaisePropertyChanged("IsDefault");
                 }
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<m_sLanguageCode3>k__BackingField", IsRequired=true)]
-        public string m_sLanguageCode3k__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sLanguageCode3 {
             get {
-                return this.m_sLanguageCode3k__BackingFieldField;
+                return this.m_sLanguageCode3Field;
             }
             set {
-                if ((object.ReferenceEquals(this.m_sLanguageCode3k__BackingFieldField, value) != true)) {
-                    this.m_sLanguageCode3k__BackingFieldField = value;
-                    this.RaisePropertyChanged("m_sLanguageCode3k__BackingField");
+                if ((object.ReferenceEquals(this.m_sLanguageCode3Field, value) != true)) {
+                    this.m_sLanguageCode3Field = value;
+                    this.RaisePropertyChanged("m_sLanguageCode3");
                 }
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<m_sValue>k__BackingField", IsRequired=true)]
-        public string m_sValuek__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sValue {
             get {
-                return this.m_sValuek__BackingFieldField;
+                return this.m_sValueField;
             }
             set {
-                if ((object.ReferenceEquals(this.m_sValuek__BackingFieldField, value) != true)) {
-                    this.m_sValuek__BackingFieldField = value;
-                    this.RaisePropertyChanged("m_sValuek__BackingField");
+                if ((object.ReferenceEquals(this.m_sValueField, value) != true)) {
+                    this.m_sValueField = value;
+                    this.RaisePropertyChanged("m_sValue");
                 }
             }
         }
