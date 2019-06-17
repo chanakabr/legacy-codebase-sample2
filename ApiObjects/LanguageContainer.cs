@@ -7,6 +7,7 @@ using System.Text;
 namespace ApiObjects
 {
     [Serializable]
+    [DataContract]
     public class LanguageContainer : IEquatable<LanguageContainer>
     {
         [DataMember]
