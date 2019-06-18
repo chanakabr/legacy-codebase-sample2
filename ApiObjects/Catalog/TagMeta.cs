@@ -92,12 +92,12 @@ namespace ApiObjects.Catalog
                 Dictionary<string, string> languageContainerDic = new Dictionary<string, string>();
                 foreach (LanguageContainer lc in Value)
                 {
-                    languageContainerDic.Add(lc.LanguageCode, lc.Value);
+                    languageContainerDic.Add(lc.m_sLanguageCode3, lc.m_sValue);
                 }
 
                 foreach (LanguageContainer lc in other.Value)
                 {
-                    if (!languageContainerDic.ContainsKey(lc.LanguageCode) || !languageContainerDic[lc.LanguageCode].Equals(lc.Value))
+                    if (!languageContainerDic.ContainsKey(lc.m_sLanguageCode3) || !languageContainerDic[lc.m_sLanguageCode3].Equals(lc.m_sValue))
                         return false;
                 }
             }

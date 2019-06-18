@@ -26,10 +26,6 @@ namespace Core.Catalog.CatalogManagement
         #region Consts
 
         // ERRORS
-        private const string MISSING_EXTERNAL_IDENTIFIER = "External identifier is missing ";
-        
-        
-        
         private const string WATCH_PERMISSION_RULE_NOT_RECOGNIZED = "Watch permission rule not recognized";
         
         private const string PLAYERS_RULE_NOT_RECOGNIZED = "Players rule not recognized ";
@@ -73,21 +69,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 IngestMedia media = feedResponse.Object.Export.MediaList[i];
                 ingestResponse.AssetsStatus.Add(IngestAssetStatus.Default);
-
-                // check media.CoGuid
-                if (string.IsNullOrEmpty(media.CoGuid))
-                {
-                    ingestResponse.AssetsStatus[i].Status.Set((int)eResponseStatus.MissingExternalIdentifier, MISSING_EXTERNAL_IDENTIFIER);
-                    ingestResponse.Set(string.Empty, "Missing co_guid", "FAILED", 0);
-                    log.ErrorFormat("Error import mediaIndex{0}, ErrorMessage:{1}", i, ingestResponse.Description);
-                    continue;
-                }
-
+                
                 try
                 {
-                    int mediaId = BulkAssetManager.GetMediaIdByCoGuid(groupId, media.CoGuid);
+                    int mediaId;
                     List<Metas> currMetas = new List<Metas>();
-                    if (media.Validate(groupId, cache, ref ingestResponse, i, mediaId, out HashSet<long> topicIdsToRemove, ref currMetas, out List<Tags> currTags))
+                    if (media.Validate(groupId, cache, ref ingestResponse, i, out mediaId, out HashSet<long> topicIdsToRemove, ref currMetas, out List<Tags> currTags))
                     {
                         if (media.Action.Equals(IngestMedia.DELETE_ACTION))
                         {
@@ -100,6 +87,7 @@ namespace Core.Catalog.CatalogManagement
                             MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currTags, currMetas, ref topicIdsToRemove);
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
+                            media.Erase = media.Erase.ToLower().Trim();
 
                             var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
                             if (!upsertStatus.IsOkStatusCode())
@@ -259,11 +247,13 @@ namespace Core.Catalog.CatalogManagement
         private static void AddTagsToTranslations(List<Tags> tags, int mediaId, bool isMediaExists, ref Dictionary<string, TagsTranslations> tagsTranslations)
         {
             var slimTags = new List<Tuple<string, string, LanguageContainer[]>>();
-            var otherLanguagesIndex = 0;
             foreach (var tag in tags)
             {
-                var translations = tag.Values != null && tag.Values.Count > 0 && tag.Values.Count > otherLanguagesIndex ? tag.Values[otherLanguagesIndex++] : null;
-                slimTags.AddRange(tag.m_lValues.Select(x => new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, x, translations)));
+                for (int i = 0; i < tag.m_lValues.Count; i++)
+                {
+                    var translations = tag.Values != null && tag.Values.Count > i ? tag.Values[i] : null;
+                    slimTags.Add(new Tuple<string, string, LanguageContainer[]>(tag.m_oTagMeta.m_sName, tag.m_lValues[i], translations));
+                }
             }
 
             var existingTagsTranslations = new List<Tuple<string, LanguageContainer>>();
@@ -294,13 +284,13 @@ namespace Core.Catalog.CatalogManagement
                 {
                     var tagKey = translation.Item1;
                     var language = translation.Item2;
-                    if (tagsTranslations[tagKey].Translations.ContainsKey(language.LanguageCode))
+                    if (tagsTranslations[tagKey].Translations.ContainsKey(language.m_sLanguageCode3))
                     {
-                        tagsTranslations[tagKey].Translations[language.LanguageCode].Value = language.Value;
+                        tagsTranslations[tagKey].Translations[language.m_sLanguageCode3].m_sValue = language.m_sValue;
                     }
                     else
                     {
-                        tagsTranslations[tagKey].Translations.Add(language.LanguageCode, language);
+                        tagsTranslations[tagKey].Translations.Add(language.m_sLanguageCode3, language);
                     }
                 }
             }
@@ -360,9 +350,9 @@ namespace Core.Catalog.CatalogManagement
         {
             oldTagValue.TagsInOtherLanguages.ForEach(x =>
             {
-                if (!tag.Translations.ContainsKey(x.LanguageCode))
+                if (!tag.Translations.ContainsKey(x.m_sLanguageCode3))
                 {
-                    tag.Translations.Add(x.LanguageCode, x);
+                    tag.Translations.Add(x.m_sLanguageCode3, x);
                 }
             });
 
