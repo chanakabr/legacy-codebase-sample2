@@ -27,12 +27,12 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: kaltura-environment
-                  key: opc.githubClientId
+                  key: phoenix-docs.githubClientId
             - name: GITHUB_CLIENT_SECRET
               valueFrom:
                 configMapKeyRef:
                   name: kaltura-environment
-                  key: opc.githubClientSecret
+                  key: phoenix-docs.githubClientSecret
           ports:
             - name: http
               containerPort: 80
