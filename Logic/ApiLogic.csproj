@@ -57,11 +57,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Update="Service References\PaymentGWAdapter\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -195,31 +190,6 @@
     <None Include="Service References\MailNotificationsAdapterService\Service54.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.ConfigurationResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.PaymentMethodResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.TransactionResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service.wsdl" />
-    <None Include="Service References\PaymentGWAdapter\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\AmazonSnsAdapter\configuration91.svcinfo" />
@@ -262,21 +232,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\AmazonSnsAdapter\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
