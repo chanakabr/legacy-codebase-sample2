@@ -51,7 +51,7 @@ namespace WebAPI.Models.General
             List<LanguageContainer> tempValuesList = values != null ? new List<LanguageContainer>(values) : new List<LanguageContainer>();
 
             if (!string.IsNullOrEmpty(GroupDefaultLanguageCode) &&
-                !tempValuesList.Any(x => x.LanguageCode == GroupDefaultLanguageCode))
+                !tempValuesList.Any(x => x.m_sLanguageCode3 == GroupDefaultLanguageCode))
             {
                 tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, defaultLanguageValue, true));
             }

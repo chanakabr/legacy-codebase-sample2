@@ -453,6 +453,55 @@ namespace WebAPI.Managers
             return roleIds;
         }
 
+        public static bool IsManagerAllowedAction(List<long> roleIds)
+        {
+            // check role's hierarchy 
+            var ks = KS.GetFromRequest();
+
+            bool isManager = GetRoleIds(ks).
+              Any(ur => ur == MANAGER_ROLE_ID);
+
+            if (isManager)
+            {
+                bool isAboveManager = roleIds.Any(x => x > MANAGER_ROLE_ID);
+                return !isAboveManager;
+            }
+
+            return true;
+        }
+
+        public static bool IsManagerAllowedDeleteAction()
+        {
+            // check role's hierarchy 
+            var ks = KS.GetFromRequest();
+            string originalUserId = string.IsNullOrEmpty(ks.OriginalUserId) ? ks.UserId : ks.OriginalUserId;
+
+            if (ks.UserId != "0")
+            {
+                if (originalUserId != ks.UserId)
+                {
+                    // get original user's roles
+                    var userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, originalUserId);
+
+                    bool isManager = userRoleIds.Any(ur => ur == MANAGER_ROLE_ID);
+
+                    if (isManager)
+                    {
+                        userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+
+                        bool isAboveManager = userRoleIds.Any(x => x > MANAGER_ROLE_ID);
+                        return !isAboveManager;
+                    }
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         #endregion
 
     }
