@@ -23,7 +23,6 @@ namespace Core.Billing
         public AdyenCreditCard(int groupID)
             : base(groupID)
         {
-            var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
             var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
             var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
 
@@ -31,11 +30,11 @@ namespace Core.Billing
             var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
 
             _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
-            _RecurringPaymentClient.Endpoint.EndpointBehaviors.Add(addRequestIdToHeadersBehaviour);
+            _RecurringPaymentClient.ConfigureServiceClient();
 
 
             _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
-            _PaymentClient.Endpoint.EndpointBehaviors.Add(addRequestIdToHeadersBehaviour);
+            _PaymentClient.ConfigureServiceClient();
         }
 
 

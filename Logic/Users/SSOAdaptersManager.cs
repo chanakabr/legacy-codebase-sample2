@@ -11,6 +11,7 @@ using System.Reflection;
 using ApiObjects;
 using CachingProvider.LayeredCache;
 using APILogic.SSOAdapaterService;
+using Core;
 
 namespace APILogic.Users
 {
@@ -66,10 +67,9 @@ namespace APILogic.Users
         internal static ServiceClient GetSSOAdapterServiceClient(string adapterUrl)
         {
             _Logger.Debug($"Constructing SSOAdapterService Client with url:[{adapterUrl}]");
-            var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
-            adapterClient.Endpoint.EndpointBehaviors.Add(addRequestIdToHeadersBehaviour);
+            adapterClient.ConfigureServiceClient();
             if (!string.IsNullOrEmpty(adapterUrl))
             {
                 adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapterUrl);

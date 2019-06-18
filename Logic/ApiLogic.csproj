@@ -57,11 +57,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Update="Service References\OSSAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Update="Service References\PaymentGWAdapter\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -200,42 +195,6 @@
     <None Include="Service References\MailNotificationsAdapterService\Service54.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.EntitlementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.HouseholdPaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service.wsdl" />
-    <None Include="Service References\OSSAdapterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service1.wsdl" />
-    <None Include="Service References\OSSAdapterService\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service11.wsdl" />
-    <None Include="Service References\OSSAdapterService\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service41.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service42.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service43.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -261,27 +220,6 @@
     <None Include="Service References\PaymentGWAdapter\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Service11.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\AmazonSnsAdapter\configuration91.svcinfo" />
@@ -361,6 +299,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Catalog\Request\MediaBookmarkData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />

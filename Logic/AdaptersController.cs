@@ -11,6 +11,8 @@ using CouchbaseManager;
 using System.Threading;
 using Synchronizer;
 using Core.Api;
+using Core;
+using APILogic.OSSAdapterService;
 
 namespace ApiLogic
 {
@@ -20,43 +22,30 @@ namespace ApiLogic
     public class AdaptersController
     {
         #region Consts
-
         protected const string PARAMETER_OSS_ADAPTER = "ossAdapter";
         protected const string PARAMETER_GROUP_ID = "groupId";
-
         #endregion
 
         #region Static Data Members
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         private static Dictionary<int, AdaptersController> instances;
-
-        /// <summary>
-        /// Locker for the entire class
-        /// </summary>
         private static readonly object generalLocker = new object();
-
         private static readonly Random random;
-
         #endregion
 
         #region Normal Data Members
-
         private int ossAdapterId;
-
         private CouchbaseSynchronizer configurationSynchronizer;
-
+        private readonly ServiceClient _OSSAdapterClient;
         #endregion
 
         #region Getter
-
         /// <summary>
         /// Gets the singleton instance of the adapter controller which is relevant for the given oss adapter Id
         /// </summary>
         /// <param name="ossAdapterId"></param>
         /// <returns></returns>
-        public static AdaptersController GetInstance(int ossAdapterId)
+        public static AdaptersController GetInstance(int ossAdapterId, string adapterUrl)
         {
             if (!instances.ContainsKey(ossAdapterId))
             {
@@ -64,34 +53,42 @@ namespace ApiLogic
                 {
                     if (!instances.ContainsKey(ossAdapterId))
                     {
-                        instances[ossAdapterId] = new AdaptersController();
+                        instances[ossAdapterId] = new AdaptersController(adapterUrl);
                     }
                 }
             }
 
             return instances[ossAdapterId];
         }
-
         #endregion
 
         #region Ctors
-
         static AdaptersController()
         {
             instances = new Dictionary<int, AdaptersController>();
             random = new Random();
         }
 
-        private AdaptersController()
+        private AdaptersController(string adapterUrl)
         {
             configurationSynchronizer = new CouchbaseSynchronizer(100);
             configurationSynchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
+
+            _OSSAdapterClient = GetOSSAdapaterServiceClient(adapterUrl);
+
+            
         }
 
+        public static ServiceClient GetOSSAdapaterServiceClient(string adapterUrl)
+        {
+            var behvaiour = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(behvaiour, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+            return adapterClient;
+        }
         #endregion
 
         #region Methods
-
         public APILogic.OSSAdapterService.HouseholdPaymentGatewayResponse GetHouseholdPaymentGatewaySettings(HouseholdBillingRequest request)
         {
             APILogic.OSSAdapterService.HouseholdPaymentGatewayResponse adapterResponse = null;
@@ -108,11 +105,9 @@ namespace ApiLogic
 
                 this.ossAdapterId = request.OSSAdapter.ID;
 
-                APILogic.OSSAdapterService.ServiceClient adapterClient = new APILogic.OSSAdapterService.ServiceClient(string.Empty, request.OSSAdapter.AdapterUrl);
-
                 if (!string.IsNullOrEmpty(request.OSSAdapter.AdapterUrl))
                 {
-                    adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.OSSAdapter.AdapterUrl);
+                    _OSSAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.OSSAdapter.AdapterUrl);
                 }
 
                 //set unixTimestamp
@@ -124,8 +119,8 @@ namespace ApiLogic
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter Transact
-                    adapterResponse = adapterClient.GetHouseholdPaymentGatewaySettings(request.HouseholdId.ToString(), request.UserIP, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.OSSAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    adapterResponse = _OSSAdapterClient.GetHouseholdPaymentGatewaySettingsAsync(request.HouseholdId.ToString(), request.UserIP, unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.OSSAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))).ExecuteAndWait();
                 }
 
                 LogAdapterResponse(adapterResponse, "GetHouseholdPaymentGatewaySettings");
@@ -146,8 +141,8 @@ namespace ApiLogic
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter Transact - after it is configured
-                        adapterResponse = adapterClient.GetHouseholdPaymentGatewaySettings(request.HouseholdId.ToString(), request.UserIP, unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.OSSAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        adapterResponse = _OSSAdapterClient.GetHouseholdPaymentGatewaySettingsAsync(request.HouseholdId.ToString(), request.UserIP, unixTimestamp,
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.OSSAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))).ExecuteAndWait();
                     }
 
                     LogAdapterResponse(adapterResponse, "GetHouseholdPaymentGatewaySettings");
@@ -241,8 +236,6 @@ namespace ApiLogic
 
             if (ossAdapter != null && !string.IsNullOrEmpty(ossAdapter.AdapterUrl))
             {
-                APILogic.OSSAdapterService.ServiceClient client = new APILogic.OSSAdapterService.ServiceClient(string.Empty, ossAdapter.AdapterUrl);
-
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
@@ -259,15 +252,17 @@ namespace ApiLogic
                     {
                         //call Adapter SetConfiguration
                         adapterResponse =
-                            client.SetConfiguration(this.ossAdapterId,
-                            ossAdapter.Settings != null ? ossAdapter.Settings.Select(setting => new APILogic.OSSAdapterService.KeyValue()
-                            {
-                                Key = setting.key,
-                                Value = setting.value
-                            }).ToArray() : null,
-                            groupId,
-                            unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            _OSSAdapterClient.SetConfigurationAsync(
+                                this.ossAdapterId,
+                                ossAdapter.Settings != null ? ossAdapter.Settings.Select(setting => new APILogic.OSSAdapterService.KeyValue()
+                                {
+                                    Key = setting.key,
+                                    Value = setting.value
+                                }).ToArray() : null,
+                                groupId,
+                                unixTimestamp,
+                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                            ).ExecuteAndWait();
                     }
 
                     log.DebugFormat("OSS adapter Result AdapterStatus = {0}", adapterResponse);
@@ -310,11 +305,10 @@ namespace ApiLogic
             {
                 this.ossAdapterId = ossAdapter.ID;
 
-                APILogic.OSSAdapterService.ServiceClient adapterClient = new APILogic.OSSAdapterService.ServiceClient(string.Empty, ossAdapter.AdapterUrl);
 
                 if (!string.IsNullOrEmpty(ossAdapter.AdapterUrl))
                 {
-                    adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(ossAdapter.AdapterUrl);
+                    _OSSAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(ossAdapter.AdapterUrl);
                 }
 
                 //set unixTimestamp
@@ -326,8 +320,8 @@ namespace ApiLogic
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call adapter
-                    adapterResponse = adapterClient.GetEntitlements(userId, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    adapterResponse = _OSSAdapterClient.GetEntitlementsAsync(userId, unixTimestamp,
+                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))).ExecuteAndWait();
                 }
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)OSSAdapterStatus.NoConfigurationFound)
@@ -346,8 +340,8 @@ namespace ApiLogic
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter - after it is configured
-                        adapterResponse = adapterClient.GetEntitlements(userId, unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        adapterResponse = _OSSAdapterClient.GetEntitlementsAsync(userId, unixTimestamp,
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))).ExecuteAndWait();
                     }
                 }
             }
