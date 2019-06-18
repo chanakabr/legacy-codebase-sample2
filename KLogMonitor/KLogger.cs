@@ -22,7 +22,7 @@ namespace KLogMonitor
         private static ILoggerRepository _LogRepository;
         private readonly List<LogEvent> _Logs;
 
-        public static readonly LogicalThreadContextProperties LogContextData = LogicalThreadContext.Properties;
+        public static LogicalThreadContextProperties LogContextData => LogicalThreadContext.Properties;
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
