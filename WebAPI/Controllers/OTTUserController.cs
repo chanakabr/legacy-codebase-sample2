@@ -281,6 +281,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (!RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleIds");
+                }
+
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
             }
             catch (ClientExternalException ex)
@@ -636,6 +644,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (!RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleIds");
+                }
+
                 response = ClientsManager.UsersClient().SetUserData(groupId, id, user);
             }
             catch (ClientException ex)
@@ -704,6 +720,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (!RolesManager.IsManagerAllowedDeleteAction())
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleIds");
+                }
+
                 // call client
                 response = ClientsManager.UsersClient().DeleteUser(groupId, userId);
             }
