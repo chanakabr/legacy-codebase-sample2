@@ -1196,9 +1196,7 @@ namespace Core.Catalog
                     }
 
                     string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                    log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                    
                     if (httpStatus == STATUS_OK)
                     {
                         #region Process ElasticSearch result
