@@ -685,6 +685,17 @@ namespace WebAPI.Controllers
 
             try
             {
+                List<long> roleToAdd = new List<long>();
+                roleToAdd.Add(roleId);
+                
+                if (!RolesManager.IsManagerAllowedUpdateAction(userId, roleToAdd))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleIds");
+                }
+
                 // call client
                 response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, roleId);
             }
