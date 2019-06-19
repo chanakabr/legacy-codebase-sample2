@@ -79,7 +79,7 @@ namespace TCMClient
             set => m_URL = value;
         }
 
-        [ConfigurationProperty("Application", IsRequired = true)]
+        [ConfigurationProperty("Application", IsRequired = false)]
         public string Application
         {
             get
