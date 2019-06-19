@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "IngestHandler": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "TCM_URL": "http://52.19.149.208:8080",
+        "TCM_APP": "REMOTE_TASKS_v5_2_2"
+      }
+    }
+  }
+}
