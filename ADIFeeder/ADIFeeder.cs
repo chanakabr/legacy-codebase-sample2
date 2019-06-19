@@ -660,7 +660,7 @@ namespace ADIFeeder
             string adProvider;
             if (!isPutAdDetails)
                 return new FileStruct(assetID, fileURL, durationInSec, cdn, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
-            adProvider = ConfigurationManager.AppSettings["ADIFeederDefaultAdProvider"];
+            adProvider = System.Configuration.ConfigurationManager.AppSettings["ADIFeederDefaultAdProvider"];
             if (adProvider == null)
                 adProvider = string.Empty;
             return new FileStruct(assetID, fileURL, durationInSec, cdn, adProvider, adProvider, adProvider, adProvider, breakpoints, overlaypoints, pCode);
