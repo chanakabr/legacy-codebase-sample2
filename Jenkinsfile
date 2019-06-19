@@ -11,7 +11,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build("core:$BRANCH_NAME", "-t kaltura/core:$version -f NetCore.Dockerfile . --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$BITBUCKET_TOKEN .")
+                    docker.build("core:$BRANCH_NAME", "-f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$BITBUCKET_TOKEN .")
                 }
             }
         }
