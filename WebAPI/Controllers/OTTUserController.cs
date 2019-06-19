@@ -281,7 +281,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
+                if (!string.IsNullOrEmpty(user.RoleIds) && !RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
                                                        Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
