@@ -948,7 +948,7 @@ namespace Core.Api.Managers
 
             long convertedIp;
             APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
-            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.Headers);
+            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.GetHeaders());
 
             ConditionScope conditionScope = new ConditionScope()
             {

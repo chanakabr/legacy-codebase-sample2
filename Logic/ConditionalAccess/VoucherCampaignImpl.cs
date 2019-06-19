@@ -125,7 +125,7 @@ namespace Core.ConditionalAccess
             t.SetMailServer(m_mailServer, m_mailUser, m_mailPass, sFirstName, mailFromAdd);
 
             TVinciShared.MailTemplateEngine mt = new TVinciShared.MailTemplateEngine();
-            string sFilePath = HttpContext.Current.Server.MapPath("");
+            string sFilePath = HttpContext.Current.ServerMapPath("");
             sFilePath += "/mailTemplates/" + mailTemplate;
             mt.Init(sFilePath);
             mt.Replace("NAME", vri.m_receipentName);

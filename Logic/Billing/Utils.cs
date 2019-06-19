@@ -17,6 +17,12 @@ using ApiObjects;
 using Core.Pricing;
 using Core.Users;
 using ConfigurationManager;
+using TVinciShared;
+
+#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Http;
+#endif
+
 
 namespace Core.Billing
 {
@@ -2079,7 +2085,7 @@ namespace Core.Billing
 
         public static string GetRequestFormSafeVal(HttpRequest req, string sKey)
         {
-            if (req != null && req.Form != null && req.Form[sKey] != null)
+            if (req != null && req.GetForm()?.Get(sKey) != null)
                 return req.Form[sKey];
             return string.Empty;
         }
@@ -2146,16 +2152,18 @@ namespace Core.Billing
             return result;
         }
 
-        public static string GetRequestParamsSafeVal(HttpRequest request, string key)
-        {
-            string res = string.Empty;
-            if (request != null && request.Params != null && request.Params.AllKeys != null && request.Params.AllKeys.Length > 0)
-            {
-                res = request.Params[key];
-            }
+        // This is not in use in REST solution, todo: make sure its not in use in remote tasks and tvm
+        // Request.Params not available in .net core
+        //public static string GetRequestParamsSafeVal(HttpRequest request, string key)
+        //{
+        //    string res = string.Empty;
+        //    if (request != null && request.Params != null && request.Params.AllKeys != null && request.Params.AllKeys.Length > 0)
+        //    {
+        //        res = request.Params[key];
+        //    }
 
-            return res ?? string.Empty;
-        }
+        //    return res ?? string.Empty;
+        //}
 
         public static string GetDateEmailFormat(int groupId)
         {

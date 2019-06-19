@@ -927,21 +927,22 @@ namespace Core.Social
             return id;
         }
 
-        #region create client to WCF service
+        // Removed as it is not in use and not supported by .net core
+        //#region create client to WCF service
 
-        internal static class BindingFactory
-        {
-            internal static Binding CreateInstance()
-            {
-                WSHttpBinding binding = new WSHttpBinding();
-                binding.Security.Mode = SecurityMode.None;
-                binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
-                binding.UseDefaultWebProxy = true;
-                return binding;
-            }
+        //internal static class BindingFactory
+        //{
+        //    internal static Binding CreateInstance()
+        //    {
+        //        WSHttpBinding binding = new WSHttpBinding();
+        //        binding.Security.Mode = SecurityMode.None;
+        //        binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
+        //        binding.UseDefaultWebProxy = true;
+        //        return binding;
+        //    }
 
-        }
-        #endregion
+        //}
+        //#endregion
 
         internal static DataTable InitSocialPrivacySettings()
         {
