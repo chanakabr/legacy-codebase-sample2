@@ -8,14 +8,14 @@ namespace ServiceExtensions
 {
     public class ClientMessageInspector : IClientMessageInspector
     {
-        public void AfterReceiveReply(ref System.ServiceModel.Channels.Message reply, object correlationState)
+        public void AfterReceiveReply(ref Message reply, object correlationState)
         {
             // Implement this method to inspect/modify messages after a message
             // is received but prior to passing it back to the client 
             //Console.WriteLine("AfterReceiveReply called");
         }
 
-        public object BeforeSendRequest(ref System.ServiceModel.Channels.Message request, IClientChannel channel)
+        public object BeforeSendRequest(ref Message request, IClientChannel channel)
         {
             // Implement this method to inspect/modify messages before they 
             // are sent to the service

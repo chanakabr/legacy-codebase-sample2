@@ -69,6 +69,11 @@ namespace TVinciShared
             return req.Form;
         }
 
+        public static NameValueCollection GetHeaders(this HttpRequest req)
+        {
+            return req.Headers;
+        }
+
         public static string GetForwardedForHeader(this HttpRequest req)
         {
             return req.ServerVariables["HTTP_X_FORWARDED_FOR"];
@@ -190,7 +195,17 @@ namespace TVinciShared
                 retVal.Add(formVal.Key, formVal.Value);
             }
             return retVal;
+        }
 
+        public static NameValueCollection GetHeaders(this HttpRequest req)
+        {
+            var headerVals = req.Headers.Select(f => new KeyValuePair<string, string>(f.Key, f.Value.ToString()));
+            var retVal = new NameValueCollection();
+            foreach (var formVal in headerVals)
+            {
+                retVal.Add(formVal.Key, formVal.Value);
+            }
+            return retVal;
         }
 
         public static IFormFileCollection GetFiles(this HttpRequest req)
