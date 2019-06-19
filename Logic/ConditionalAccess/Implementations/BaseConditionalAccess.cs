@@ -5554,8 +5554,8 @@ namespace Core.ConditionalAccess
                         if (theReason == PriceReason.ForPurchase || theReason == PriceReason.EntitledToPreviewModule)
                         {
                             if (price != null && price.m_dPrice == dPrice && price.m_oCurrency.m_sCurrencyCD3 == sCurrency)
-                            {
-                                if (price.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
+                            {                                
+                                if (price.m_dPrice != 0  || !string.IsNullOrEmpty(sCouponCode ) || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
                                     if (!string.IsNullOrEmpty(sCampaignCode))
                                     {
