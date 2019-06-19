@@ -700,16 +700,16 @@ namespace Core.ConditionalAccess
                     permittedSubscriptions = subscriptionsResponse.Subscriptions.ToList();
                 }
 
-                if (npvrCheck)
+                if (npvrCheck && permittedSubscriptions != null)
                 {
-                    if (permittedSubscriptions.Select(x => x.m_lServices != null && x.m_lServices.Select(y => y.ID == (long)eService.NPVR).Count() > 0).Count() > 0)
-                    {
+                    if (permittedSubscriptions.Count(x => x.m_lServices != null && x.m_lServices.Count(y => y.ID == (long)eService.NPVR) > 0) > 0)
+                    { 
                         status = new Status((int)eResponseStatus.ServiceAlreadyExists, eResponseStatus.ServiceAlreadyExists.ToString());
                         return status;
                     }
                 }
 
-                if (ApplicationConfiguration.ShouldSubscriptionOverlapConsiderDLM.Value && dlmCheck)
+                if (ApplicationConfiguration.ShouldSubscriptionOverlapConsiderDLM.Value && dlmCheck && permittedSubscriptions != null)
                 {
                     if (permittedSubscriptions.Select(x => x.m_nDomainLimitationModule > 0).Count() > 0)
                     {
