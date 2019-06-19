@@ -152,15 +152,18 @@ namespace Core.Users
             CreateDate = createDate;
             UpdateDate = updateDate;
 
+            m_State = new State();
+            m_State.m_Country = new Country();
+
             if (nStateID != 0)
             {
-                m_State = new State();
                 res = m_State.Initialize(nStateID);
             }
 
+            m_Country = new Country();
+
             if (nCountryID != 0)
             {
-                m_Country = new Country();
                 bool res2 = m_Country.Initialize(nCountryID);
                 res = res && res2;
             }

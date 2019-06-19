@@ -408,6 +408,8 @@ namespace Core.Users
             {
                 if (shouldGoToDb)
                 {
+                    this.GroupId = nGroupID;
+
                     result = m_oBasicData.Initialize(nUserID, nGroupID);
 
                     if (!result)
@@ -447,6 +449,8 @@ namespace Core.Users
                     m_nSSOOperatorID = user.m_nSSOOperatorID;
                     m_isDomainMaster = user.m_isDomainMaster;
                     m_eSuspendState = user.m_eSuspendState;
+                    this.GroupId = nGroupID;
+
                     result = true;
                 }
 
