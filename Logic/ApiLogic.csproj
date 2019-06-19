@@ -37,19 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Service References\DmsService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\MailNotificationsAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\CDNTokenizers\CDNTokenizers.csproj" />
     <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj" />
     <ProjectReference Include="..\ADIFeeder\ADIFeeder.csproj" />
@@ -89,78 +76,6 @@
     <ProjectReference Include="..\IngestTransformationAdapterClient\IngestTransformationAdapterClient.csproj" />
     <ProjectReference Include="..\RestAdaptersCommon\RestAdaptersCommon.csproj" />
     <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Service References\DmsService\Service11.wsdl" />
-    <None Include="Service References\DmsService\Service44.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service45.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service46.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service47.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementListResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service1.wsdl" />
-    <None Include="Service References\MailNotificationsAdapterService\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service51.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service52.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service53.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service54.xsd">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\Service11.disco" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Catalog\Request\MediaBookmarkData.cs" />
