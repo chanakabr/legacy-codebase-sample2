@@ -282,6 +282,12 @@ namespace WebAPI.Clients
                 {
                     KalturaAssetListResponse assetListResponse = null;
                     bool opcAccount = Utils.Utils.DoesGroupUsesTemplates(groupId);
+                    if (!isAllowedToViewInactiveAssets)
+                    {
+                        Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                        isAllowedToViewInactiveAssets = requestVersion.CompareTo(opcMergeVersion) < 0;
+                    }
+
                     if (isAllowedToViewInactiveAssets)
                     {
                         if (opcAccount)

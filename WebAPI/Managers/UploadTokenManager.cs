@@ -78,21 +78,42 @@ namespace WebAPI.Managers
                 log.ErrorFormat("GetUploadToken: failed to get UploadToken from CB, key = {0}", uploadTokenCbKey);
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "upload-token", id);
             }
+            else
+            {
+                log.DebugFormat("GetUploadToken: FileUrl: {0}, FileSize: {1}, UploadTokenId: {2}", cbUploadToken.FileUrl, cbUploadToken.FileSize, cbUploadToken.UploadTokenId);
+            }
 
             return cbUploadToken;
         }
 
         internal static KalturaUploadToken UploadUploadToken(string id, string path, int groupId)
         {
+            log.DebugFormat("UploadUploadToken function params -> Id: {0}, Path: {1}, GroupId: {2}", id, path, groupId);
+
             UploadToken cbUploadToken = GetUploadToken(id, groupId);
+
             FileInfo fileInfo = new FileInfo(path);
+            if (fileInfo == null)
+            {
+                log.Error("UploadUploadToken: Failed to create file info, Path: " + path);
+                throw new InternalServerErrorException();
+            }
+
             cbUploadToken.FileSize = fileInfo.Length;
             
             var saveFileResponse = FileHandler.Instance.SaveFile(id, fileInfo, "KalturaUploadToken");
+            if (saveFileResponse == null)
+            {
+                log.Error("UploadUploadToken: Failed to get saveFileResponse");
+                throw new InternalServerErrorException();
+            }
+
             if (!saveFileResponse.HasObject())
             {
                 throw new ClientException(saveFileResponse.Status.Code, saveFileResponse.Status.Message);
             }
+
+            log.DebugFormat("UploadUploadToken save file response -> Object: {0}", saveFileResponse.Object);
 
             cbUploadToken.FileUrl = saveFileResponse.Object;
             cbUploadToken.Status = KalturaUploadTokenStatus.FULL_UPLOAD;
