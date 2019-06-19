@@ -47,11 +47,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Update="Service References\EngagementAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Update="Service References\MailNotificationsAdapterService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -146,25 +141,6 @@
     <None Include="Service References\DmsService\Service47.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.EngagementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service1.wsdl" />
-    <None Include="Service References\EngagementAdapterService\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service31.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service32.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -216,21 +192,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\AmazonSnsAdapter\Service.disco" />
   </ItemGroup>
   <ItemGroup>
@@ -254,9 +215,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Catalog\Request\MediaBookmarkData.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />

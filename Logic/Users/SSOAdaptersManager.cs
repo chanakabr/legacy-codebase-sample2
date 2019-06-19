@@ -70,10 +70,6 @@ namespace APILogic.Users
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
             adapterClient.ConfigureServiceClient();
-            if (!string.IsNullOrEmpty(adapterUrl))
-            {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapterUrl);
-            }
 
             return adapterClient;
         }
