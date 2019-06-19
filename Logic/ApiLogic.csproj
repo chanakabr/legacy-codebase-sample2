@@ -37,11 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Service References\AmazonSnsAdapter\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Update="Service References\DmsService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -97,37 +92,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.AnnouncementSubscriptionData.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.DeviceAppRegistration.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.DeviceAppRegistrationAnnouncementResult.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.UnSubscribe.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.WSEndPointPublishDataResult.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service1.wsdl" />
-    <None Include="Service References\AmazonSnsAdapter\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service51.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service52.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service53.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service54.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\DmsService\Service11.wsdl" />
     <None Include="Service References\DmsService\Service44.xsd">
       <SubType>Designer</SubType>
@@ -168,18 +132,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\DmsService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -190,9 +142,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\Service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
