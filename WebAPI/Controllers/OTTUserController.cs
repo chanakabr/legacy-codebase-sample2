@@ -693,7 +693,7 @@ namespace WebAPI.Controllers
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
                                                        Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
                                                        "KalturaOTTUser",
-                                                       "roleIds");
+                                                       "roleId");
                 }
 
                 // call client
@@ -733,10 +733,7 @@ namespace WebAPI.Controllers
             {
                 if (!RolesManager.IsManagerAllowedDeleteAction())
                 {
-                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
-                                                       "KalturaOTTUser",
-                                                       "roleIds");
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
                 // call client
