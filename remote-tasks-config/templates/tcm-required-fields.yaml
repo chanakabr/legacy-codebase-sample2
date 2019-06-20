@@ -9,7 +9,7 @@ metadata:
 data:
   required-fields.yaml: |
     - path: Version
-      regex: [0-9]{3,}
+      regex: '^{{.Chart.Version | replace "." "" }}$'
     - path: couchbase_client_config/Servers
     - path: couchbase_client_config/BucketConfigs/Cache/bucketName
       regex: .+
