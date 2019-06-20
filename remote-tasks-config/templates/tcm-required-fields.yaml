@@ -17,17 +17,9 @@ data:
       regex: .+
     - path: couchbase_client_config/BucketConfigs/OTT_Apps/bucketName
       regex: .+
-    - path: couchbase_client_config/BucketConfigs/media_hit/bucketName
-      regex: .+
     - path: couchbase_client_config/BucketConfigs/MediaMarks/bucketName
       regex: .+
-    - path: couchbase_client_config/BucketConfigs/statistics/bucketName
-      regex: .+
-    - path: couchbase_client_config/BucketConfigs/GroupsCache/bucketName
-      regex: .+
     - path: couchbase_client_config/BucketConfigs/scheduled_tasks/bucketName
-      regex: .+
-    - path: couchbase_client_config/BucketConfigs/domain_concurrency/bucketName
       regex: .+
     - path: couchbase_client_config/BucketConfigs/epg_channels_schedule/bucketName
       regex: .+
