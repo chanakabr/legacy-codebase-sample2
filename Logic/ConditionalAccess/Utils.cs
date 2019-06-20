@@ -1611,13 +1611,16 @@ namespace Core.ConditionalAccess
                 {
                     if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                     {
-                        DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
-                        if (discountModule != null)
+                        if (businessModuleRule.Actions[0].Type == RuleActionType.ApplyDiscountModuleRule)
                         {
-                            var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
-                            if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                            DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
+                            if (discountModule != null)
                             {
-                                lowestPrice = tempPrice;
+                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                                {
+                                    lowestPrice = tempPrice;
+                                }
                             }
                         }
                     }
