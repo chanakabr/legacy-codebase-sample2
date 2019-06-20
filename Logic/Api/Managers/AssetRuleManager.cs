@@ -42,6 +42,8 @@ namespace Core.Api.Managers
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        internal static readonly HashSet<int> RuleActionsTypes = new HashSet<int>(Enum.GetValues(typeof(RuleActionType)).Cast<int>());
+        internal static readonly HashSet<RuleConditionType> RuleConditionTypes = new HashSet<RuleConditionType>(Enum.GetValues(typeof(RuleConditionType)).Cast<RuleConditionType>());
 
         #region Remote Task Methods
 

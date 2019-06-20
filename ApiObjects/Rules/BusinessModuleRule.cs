@@ -45,5 +45,17 @@ namespace ApiObjects.Rules
         }
 
     }
-}
 
+    [Serializable]
+    public class BusinessModuleRuleType
+    {
+        [JsonProperty("BusinessModuleRuleId")]
+        public long BusinessModuleRuleId { get; set; }
+
+        [JsonProperty("ConditionsTypeIdIn")]
+        public HashSet<RuleConditionType> ConditionsTypeIdIn { get; set; }
+
+        [JsonProperty("ActionsTypeIdIn")]
+        public HashSet<int> ActionsTypeIdIn { get; set; }
+    }
+}

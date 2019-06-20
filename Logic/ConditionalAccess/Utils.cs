@@ -1604,7 +1604,7 @@ namespace Core.ConditionalAccess
             };
 
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
-            if (businessModuleRules != null && businessModuleRules.HasObjects())
+            if (businessModuleRules.HasObjects())
             {
                 log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
                 foreach (var businessModuleRule in businessModuleRules.Objects)
