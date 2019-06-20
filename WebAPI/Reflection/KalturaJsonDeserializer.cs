@@ -14093,6 +14093,15 @@ namespace WebAPI.Models.API
                 {
                     SegmentIdsApplied = (String) Convert.ChangeType(parameters["segmentIdsApplied"], typeof(String));
                 }
+                if (parameters.ContainsKey("actionsContainType") && parameters["actionsContainType"] != null)
+                {
+                    ActionsContainType = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["actionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleActionType), ActionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
+                    }
+                }
             }
         }
     }

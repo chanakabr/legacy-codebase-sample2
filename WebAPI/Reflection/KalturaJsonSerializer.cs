@@ -13294,6 +13294,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "\"actionsContainType\": " + "\"" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "\"");
+            }
             if(BusinessModuleIdApplied.HasValue)
             {
                 ret.Add("businessModuleIdApplied", "\"businessModuleIdApplied\": " + BusinessModuleIdApplied);
@@ -13315,6 +13319,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(ActionsContainType.HasValue)
+            {
+                ret.Add("actionsContainType", "<actionsContainType>" + "" + Enum.GetName(typeof(KalturaRuleActionType), ActionsContainType) + "" + "</actionsContainType>");
+            }
             if(BusinessModuleIdApplied.HasValue)
             {
                 ret.Add("businessModuleIdApplied", "<businessModuleIdApplied>" + BusinessModuleIdApplied + "</businessModuleIdApplied>");
