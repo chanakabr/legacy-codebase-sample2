@@ -95,10 +95,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "helm", "helm", "{F9B1706E-B
 		remote-tasks\Chart.yaml = remote-tasks\Chart.yaml
 		remote-tasks\templates\deployment.yaml = remote-tasks\templates\deployment.yaml
 		remote-tasks\templates\NOTES.txt = remote-tasks\templates\NOTES.txt
+		remote-tasks\templates\validate-tcm-job.yaml = remote-tasks\templates\validate-tcm-job.yaml
 		remote-tasks\values.yaml = remote-tasks\values.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "HealthCheck\HealthCheck.csproj", "{10B6D5FD-D5A5-4A79-A679-BFF7D979F739}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "helm-config", "helm-config", "{C14FD89F-8A8D-422D-AEBC-5B291C1BFE53}"
+	ProjectSection(SolutionItems) = preProject
+		remote-tasks-config\Chart.yaml = remote-tasks-config\Chart.yaml
+		remote-tasks-config\templates\NOTES.txt = remote-tasks-config\templates\NOTES.txt
+		remote-tasks-config\templates\tcm-required-fields.yaml = remote-tasks-config\templates\tcm-required-fields.yaml
+		remote-tasks-config\values.yaml = remote-tasks-config\values.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -778,6 +787,7 @@ Global
 		{145E19BB-EA2E-430A-8CA6-707877D53D02} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 		{8E6BE280-9DCC-42D2-84C2-1A56812AE704} = {0CA87022-0FDC-4F36-8806-689B3A94FCA0}
 		{F9B1706E-B32E-48CB-A338-FD64C8BFC505} = {E14A6182-EC50-4EE1-B5B0-6603EEFDA595}
+		{C14FD89F-8A8D-422D-AEBC-5B291C1BFE53} = {E14A6182-EC50-4EE1-B5B0-6603EEFDA595}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40B1C766-E53F-4A55-9434-E4001604AA8F}
