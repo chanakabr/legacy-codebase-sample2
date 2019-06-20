@@ -11,7 +11,6 @@ RUN apk --update add bash
 
 ARG BRANCH=master
 ARG BITBUCKET_TOKEN
-ARG API_VERSION
 
 ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvmcore/get/${BRANCH}.zip TvmCore.zip
 
