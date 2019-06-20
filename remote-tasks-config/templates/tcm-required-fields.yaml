@@ -34,10 +34,10 @@ data:
     - path: database_configuration
     - path: rabbit_configuration/default/hostName
       regex: .+
-	  validateHostname: true
+      validateHostname: true
     - path: rabbit_configuration/event_bus/hostName
       regex: .+
-	  validateHostname: true
+      validateHostname: true
     - path: rabbit_configuration/social_feed/exchange
       regex: .+
     - path: rabbit_configuration/professional_services/exchange
