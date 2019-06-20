@@ -1611,7 +1611,7 @@ namespace Core.ConditionalAccess
                 {
                     if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                     {
-                        DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)businessModuleRule.Actions[0].DiscountModuleId, countryCode, currencyCode);
+                        DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
                         if (discountModule != null)
                         {
                             var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);

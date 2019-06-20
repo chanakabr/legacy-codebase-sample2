@@ -19,7 +19,7 @@ namespace ApiObjects.Rules
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<ApplyDiscountModuleRuleAction> Actions { get; set; }
+        public List<BusinessModuleRuleAction> Actions { get; set; }
 
         [JsonProperty()]
         public long CreateDate { get; set; }
