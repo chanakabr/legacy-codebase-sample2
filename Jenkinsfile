@@ -6,10 +6,11 @@ pipeline {
 
     stages { 
         stage('Build') {
-            withCredentials([usernamePassword(credentialsId: 'bitbucket', usernameVariable: 'USERNAME', passwordVariable: 'TOKEN')]) {
-                steps {
-                    script {
-                        docker.build("core:$BUILD_NUMBER", "-f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$USERNAME:TOKEN .")
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'bitbucket', usernameVariable: 'USERNAME', passwordVariable: 'TOKEN')]) {
+					    echo "$BUILD_NUMBER, $BRANCH_NAME"
+                        //docker.build("core:$BUILD_NUMBER", "-f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$USERNAME:TOKEN .")
                     }
                 }
             }
