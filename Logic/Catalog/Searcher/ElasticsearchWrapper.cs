@@ -1196,9 +1196,7 @@ namespace Core.Catalog
                     }
 
                     string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                    log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                    
                     if (httpStatus == STATUS_OK)
                     {
                         #region Process ElasticSearch result
@@ -2220,9 +2218,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2309,9 +2305,7 @@ namespace Core.Catalog
 
                 // Perform search
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2417,9 +2411,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result

@@ -895,38 +895,66 @@ namespace AdapterControllers.CDVR
 
         private static void ReportCDVRAdapterError(int adapterId, string url, Exception ex, string action, bool throwException = true)
         {
-            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
-            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR adapter";
+            string cdvrAdapter = "C-DVR adapter";
 
-            log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
-                adapterId,
-                url,
-                action,
-                ex);
-            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
-
-            if (throwException)
+            if (HttpContext.Current?.Items != null)
             {
-                throw ex;
+                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.Contains(Constants.TOPIC))
+                {
+                    var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+                    HttpContext.Current.Items[Constants.TOPIC] = cdvrAdapter;
+
+                    log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
+                        adapterId,
+                        url,
+                        action,
+                        ex);
+                    HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+
+                    if (throwException)
+                    {
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    HttpContext.Current.Items.Add(Constants.TOPIC, cdvrAdapter);
+                    log.DebugFormat("ReportCDVRAdapterError added {0} to HttpContext.Current.Items. Adapter identifier: {1}, Adapter URL: {2}, Adapter Api: {3}",
+                        Constants.TOPIC, adapterId, url, action, ex);
+                }
             }
         }
 
         private static void ReportCDVRProviderFailure(int adapterId, string action, string inputParameters, int errorCode, string providerCode,
             string providerMessage, int failReason)
         {
-            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
-            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR provider";
+            string cdvrProvider = "C-DVR provider";
 
-            log.ErrorFormat("Adapter was accessed successfully, but returned an error. " +
-                "Adapter identifier: {0}, Adapter Api: {1}. Input parameters: {2}. Error code: {3}, Provider Code: {4}, Provider Message: {5}, Fail Reason: {6}",
-                adapterId,
-                action,
-                inputParameters,
-                errorCode,
-                providerCode,
-                providerMessage,
-                failReason);
-            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+            if (HttpContext.Current?.Items != null)
+            {
+                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.Contains(Constants.TOPIC))
+                {
+                    var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+                    HttpContext.Current.Items[Constants.TOPIC] = cdvrProvider;
+
+                    log.ErrorFormat("Adapter was accessed successfully, but returned an error. " +
+                        "Adapter identifier: {0}, Adapter Api: {1}. Input parameters: {2}. Error code: {3}, Provider Code: {4}, Provider Message: {5}, Fail Reason: {6}",
+                        adapterId,
+                        action,
+                        inputParameters,
+                        errorCode,
+                        providerCode,
+                        providerMessage,
+                        failReason);
+                    HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+                }
+                else
+                {
+                    HttpContext.Current.Items.Add(Constants.TOPIC, cdvrProvider);
+                    log.DebugFormat("ReportCDVRProviderFailure added {0} to HttpContext.Current.Items. Adapter identifier: {1}, Adapter Api: {2},  Input parameters: {3}",
+                       Constants.TOPIC, adapterId, action, inputParameters);
+                }
+            }
         }
 
         #endregion

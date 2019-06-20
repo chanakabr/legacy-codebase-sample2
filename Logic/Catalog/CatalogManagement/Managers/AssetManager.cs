@@ -2554,7 +2554,7 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateNoneExistingTopicIdsToRemove(MediaAsset mediaAsset, HashSet<long> topicIds, CatalogGroupCache catalogGroupCache)
         {
             var result = Status.Ok;
-
+            
             List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                         && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
                                                                         .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
@@ -2576,6 +2576,50 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+        
+        private static void RemoveNoneExistingTopicIds(HashSet<long> topicIds, Asset asset, CatalogGroupCache catalogGroupCache)
+        {
+            List<long> topicsToRemove = new List<long>();
+            foreach (var topicId in topicIds)
+            {
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                {
+                    topicsToRemove.Add(topicId);
+                    continue;
+                }
+
+                var topic = catalogGroupCache.TopicsMapById[topicId];
+
+                if (topic.Type == MetaType.Tag)
+                {
+                    if (!asset.Tags.Any(x => x.m_oTagMeta.m_sName.Equals(topic.SystemName) && x.m_oTagMeta.m_sType.Equals(topic.Type.ToString())))
+                    {
+                        topicsToRemove.Add(topicId);
+                    }
+                    continue;
+                }
+
+                if (topic.Type == MetaType.ReleatedEntity)
+                {
+                    if (!asset.RelatedEntities.Any(x => x.TagMeta.m_sName.Equals(topic.SystemName) && x.TagMeta.m_sType.Equals(topic.Type.ToString())))
+                    {
+                        topicsToRemove.Add(topicId);
+                    }
+                    continue;
+                }
+
+                // all other metaTypes
+                if (!asset.Metas.Any(x => x.m_oTagMeta.m_sName.Equals(topic.SystemName) && x.m_oTagMeta.m_sType.Equals(topic.Type.ToString())))
+                {
+                    topicsToRemove.Add(topicId);
+                }
+            }
+
+            foreach (var topicToRemove in topicsToRemove)
+            {
+                topicIds.Remove(topicToRemove);
+            }
         }
 
         #endregion
@@ -3091,6 +3135,16 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (isFromIngest)
+                {
+                    RemoveNoneExistingTopicIds(topicIds, currentAsset.Object, catalogGroupCache);
+                    if (topicIds.Count == 0)
+                    {
+                        result.Set(eResponseStatus.OK);
+                        return result;
+                    }
+                }
+
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
@@ -3112,7 +3166,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         private static Status RemoveTopicsFromMediaAsset(int groupId, long id, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, MediaAsset mediaAsset, bool isFromIngest)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
