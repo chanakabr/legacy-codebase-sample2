@@ -9,9 +9,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'bitbucket', usernameVariable: 'USERNAME', passwordVariable: 'TOKEN')]) {
-						env.BITBUCKET_TOKEN = "$USERNAME:$TOKEN"
+                        docker.build("core:$BUILD_NUMBER", "--build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$USERNAME:$TOKEN .")
                     }
-					docker.build("core:$BUILD_NUMBER", "-f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$BITBUCKET_TOKEN .")
                 }
             }
         }
