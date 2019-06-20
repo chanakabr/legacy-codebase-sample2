@@ -24,7 +24,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                deploy('tcm', "$version")
+                deploy('remote-tasks', "$version")
             }
         }
     }
