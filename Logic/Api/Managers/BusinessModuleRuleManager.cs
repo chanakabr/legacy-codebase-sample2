@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Api;
+using Core.Api.Managers;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -25,7 +26,6 @@ namespace APILogic.Api.Managers
         private const string BUSINESS_MODULE_RULE_FAILED_UPDATE = "failed to update business module rule";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
 
         internal static Status DeleteBusinessModuleRule(int groupId, long businessModuleRuleId)
         {
@@ -153,15 +153,13 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, int pageIndex = 0, int pageSize = 0)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, RuleActionType? ruleActionType = null, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<BusinessModuleRule> response = new GenericListResponse<BusinessModuleRule>();
 
             try
             {
-                List<BusinessModuleRule> allBusinessModuleRules = GetAllBusinessModuleRules(groupId);
-
-                List<BusinessModuleRule> filteredRules = new List<BusinessModuleRule>();
+                List<BusinessModuleRule> allBusinessModuleRules = GetAllBusinessModuleRules(groupId, ruleActionType);
 
                 if (allBusinessModuleRules != null && allBusinessModuleRules.Count > 0)
                 {
@@ -178,12 +176,12 @@ namespace APILogic.Api.Managers
                     {
                         if (rule.Evaluate(filter))
                         {
-                            filteredRules.Add(rule);
+                            response.Objects.Add(rule);
                         }
                     }
                 }
-                response.Objects = pageSize > 0 ? filteredRules.Skip(pageIndex * pageSize).Take(pageSize).ToList() : filteredRules;
-
+                
+                response.Objects = pageSize > 0 ? response.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList() : response.Objects;
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -195,7 +193,7 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        public static List<BusinessModuleRule> GetAllBusinessModuleRules(int groupId)
+        public static List<BusinessModuleRule> GetAllBusinessModuleRules(int groupId, RuleActionType? ruleActionType = null)
         {
             List<BusinessModuleRule> allBusinessModuleRules = null;
 
@@ -213,36 +211,59 @@ namespace APILogic.Api.Managers
                 log.ErrorFormat("GetAllBusinessModuleRules - GetAllBusinessModuleRulesDB - Failed get data from cache. groupId: {0}", groupId);
             }
 
-            if (ruleIds.Count > 0)
+            if (ruleIds.Count == 0) { return allBusinessModuleRules; }
+            
+            var validRuleIds = GetValidRuleIds(ruleIds, ruleActionType);
+            if (validRuleIds.Count == 0) { return allBusinessModuleRules; }
+            
+            Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+            Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+            foreach (long ruleId in validRuleIds)
             {
-                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
-                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+                string businessModuleRuleKey = LayeredCacheKeys.GetBusinessModuleRuleKey(ruleId);
+                keysToOriginalValueMap.Add(businessModuleRuleKey, ruleId.ToString());
+                invalidationKeysMap.Add(businessModuleRuleKey, new List<string>() { LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId) });
+            }
 
-                foreach (long ruleId in ruleIds)
+            Dictionary<string, BusinessModuleRule> fullBusinessModuleRules = null;
+
+            if (LayeredCache.Instance.GetValues<BusinessModuleRule>(keysToOriginalValueMap,
+                                                               ref fullBusinessModuleRules,
+                                                               GetBusinessModuleRulesCB,
+                                                               new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
+                                                               groupId,
+                                                               LayeredCacheConfigNames.GET_BUSINESS_MODULE_RULE,
+                                                               invalidationKeysMap))
+            {
+                if (fullBusinessModuleRules != null && fullBusinessModuleRules.Count > 0)
                 {
-                    string businessModuleRuleKey = LayeredCacheKeys.GetBusinessModuleRuleKey(ruleId);
-                    keysToOriginalValueMap.Add(businessModuleRuleKey, ruleId.ToString());
-                    invalidationKeysMap.Add(businessModuleRuleKey, new List<string>() { LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(ruleId) });
-                }
-
-                Dictionary<string, BusinessModuleRule> fullBusinessModuleRules = null;
-
-                if (LayeredCache.Instance.GetValues<BusinessModuleRule>(keysToOriginalValueMap,
-                                                                   ref fullBusinessModuleRules,
-                                                                   GetBusinessModuleRulesCB,
-                                                                   new Dictionary<string, object>() { { "ruleIds", keysToOriginalValueMap.Values.ToList() } },
-                                                                   groupId,
-                                                                   LayeredCacheConfigNames.GET_BUSINESS_MODULE_RULE,
-                                                                   invalidationKeysMap))
-                {
-                    if (fullBusinessModuleRules != null && fullBusinessModuleRules.Count > 0)
-                    {
-                        allBusinessModuleRules = fullBusinessModuleRules.Values.ToList();
-                    }
+                    allBusinessModuleRules = fullBusinessModuleRules.Values.ToList();
                 }
             }
 
             return allBusinessModuleRules;
+        }
+
+        private static List<long> GetValidRuleIds(List<long> ruleIds, RuleActionType? ruleActionType)
+        {
+            var validRuleIds = new List<long>();
+
+            var rulesTypes = ApiDAL.GetBusinessModuleRuleTypeCB(ruleIds);
+            if (rulesTypes != null && rulesTypes.Count > 0)
+            {
+                foreach (var rulesType in rulesTypes)
+                {
+                    if (rulesType.ConditionsTypeIdIn.All(x => AssetRuleManager.RuleConditionTypes.Contains(x)) &&
+                        rulesType.ActionsTypeIdIn.All(x => AssetRuleManager.RuleActionsTypes.Contains(x)) &&
+                        (ruleActionType.HasValue ? rulesType.ActionsTypeIdIn.Contains((int)ruleActionType) : true))
+                    {
+                        validRuleIds.Add(rulesType.BusinessModuleRuleId);
+                    }
+                }
+            }
+
+            return validRuleIds;
         }
 
         private static Tuple<Dictionary<string, BusinessModuleRule>, bool> GetBusinessModuleRulesCB(Dictionary<string, object> funcParams)
@@ -279,7 +300,6 @@ namespace APILogic.Api.Managers
             return new Tuple<Dictionary<string, BusinessModuleRule>, bool>(result, true);
         }
         
-
         private static Tuple<List<long>, bool> GetAllBusinessModuleRulesDB(Dictionary<string, object> funcParams)
         {
             List<long> businessModuleRuleIds = new List<long>();
@@ -327,6 +347,4 @@ namespace APILogic.Api.Managers
             }
         }
     }
-
-    
 }

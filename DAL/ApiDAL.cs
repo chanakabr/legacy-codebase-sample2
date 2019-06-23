@@ -5263,6 +5263,11 @@ namespace DAL
             return string.Format("business_module_rule:{0}", businessModuleRuleId);
         }
 
+        private static string GetBusinessModuleRuleTypeKey(long businessModuleRuleId)
+        {
+            return string.Format("business_module_rule_type:{0}", businessModuleRuleId);
+        }
+
         public static BusinessModuleRule GetBusinessModuleRuleCB(long businessModuleRuleId)
         {
             string key = GetBusinessModuleRuleKey(businessModuleRuleId);
@@ -5274,8 +5279,19 @@ namespace DAL
         {
             if (businessModuleRule != null && businessModuleRule.Id > 0)
             {
-                string key = GetBusinessModuleRuleKey(businessModuleRule.Id);
-                return UtilsDal.SaveObjectInCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, key, businessModuleRule);
+                var businessModuleRuleType = new BusinessModuleRuleType()
+                {
+                    BusinessModuleRuleId = businessModuleRule.Id,
+                    ConditionsTypeIdIn = new HashSet<RuleConditionType>(businessModuleRule.Conditions.Select(x => x.Type)),
+                    ActionsTypeIdIn = new HashSet<int>(businessModuleRule.Actions.Select(x => (int)x.Type))
+                };
+
+                string businessModuleRuleTypeKey = GetBusinessModuleRuleTypeKey(businessModuleRule.Id);
+                if (UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, businessModuleRuleTypeKey, businessModuleRuleType))
+                {
+                    string key = GetBusinessModuleRuleKey(businessModuleRule.Id);
+                    return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, businessModuleRule);
+                }
             }
 
             return false;
@@ -5283,8 +5299,10 @@ namespace DAL
 
         public static bool DeleteBusinessModuleRuleCB(int groupId, long businessModuleRuleId)
         {
-            string key = GetBusinessModuleRuleKey(businessModuleRuleId);
-            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+            string businessModuleRuleKey = GetBusinessModuleRuleKey(businessModuleRuleId);
+            string businessModuleRuleTypeKey = GetBusinessModuleRuleTypeKey(businessModuleRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, businessModuleRuleKey) &&
+                   UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, businessModuleRuleTypeKey);
         }
 
         public static List<BusinessModuleRule> GetBusinessModuleRulesCB(IEnumerable<long> businessModuleRuleIds)
@@ -5367,8 +5385,19 @@ namespace DAL
             return dt;
         }
 
+        public static List<BusinessModuleRuleType> GetBusinessModuleRuleTypeCB(List<long> businessModuleRuleIds)
+        {
+            List<string> businessModuleRuleTypeKeys = new List<string>();
+            foreach (var businessModuleRuleId in businessModuleRuleIds)
+            {
+                businessModuleRuleTypeKeys.Add(GetBusinessModuleRuleTypeKey(businessModuleRuleId));
+            }
+
+            return UtilsDal.GetObjectListFromCB<BusinessModuleRuleType>(eCouchbaseBucket.OTT_APPS, businessModuleRuleTypeKeys);
+        }
+
         #endregion
-     
+
         public static List<PlaybackProfile> GetPlaybackAdapters(int groupId)
         {
             List<PlaybackProfile> res = new List<PlaybackProfile>();
