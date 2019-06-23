@@ -1838,26 +1838,83 @@ namespace Core.Catalog
         public List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection,
             DateTime? startDate = null, DateTime? endDate = null)
         {
+            assetIds = assetIds.Distinct().ToList();
+
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
-
-            //Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
-            //Dictionary<string, int> cacheResults = new Dictionary<string, int>();
-
             ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary =
                 new ConcurrentDictionary<string, List<StatisticsAggregationResult>>();
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
 
-            //Dictionary<string, object> funcParams = new Dictionary<string, object>();
-            //funcParams.Add("groupId", groupId);
-            //funcParams.Add("startDate", startDate);
-            //funcParams.Add("endDate", endDate);
-            //funcParams.Add("orderDirection", orderDirection);
+            // we will use layered cache for asset stats for non-rating values and only if we don't have dates in filter
+            if (startDate == null && endDate == null && orderBy != OrderBy.RATING)
+            {
+                Dictionary<string, int> sortValues = SortAssetsByStatsLayeredCache(assetIds, groupId, orderBy, orderDirection);
 
-            //bool cacheSuccess =
-            //    LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref cacheResults, SortAssetsByStatsInner, null, groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME);
+                ConcurrentDictionary<string, int> innerDictionary = new ConcurrentDictionary<string, int>();
 
+                foreach (var sortValue in sortValues)
+                {
+                    innerDictionary[sortValue.Key] = sortValue.Value;
+                }
+
+                countsAggregationsDictionary["stats"] = innerDictionary;
+            }
+            else
+            {
+                GetAssetStatsValuesFromElasticSearch(assetIds, groupId, orderBy, startDate, endDate, ratingsAggregationsDictionary, countsAggregationsDictionary);
+            }
+
+            #region Process Aggregations
+
+            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
+            sortedList = new List<long>();
+            alreadyContainedIds = new HashSet<long>();
+
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            {
+                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
+            }
+            // If it is not ratings - just use count
+            else
+            {
+                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
+            }
+
+            #endregion
+
+            if (sortedList == null)
+            {
+                sortedList = new List<long>();
+            }
+
+            // Add all ids that don't have stats
+            foreach (var currentId in assetIds)
+            {
+                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
+                {
+                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
+                    {
+                        sortedList.Insert(0, currentId);
+                    }
+                    else
+                    {
+                        sortedList.Add(currentId);
+                    }
+                }
+            }
+
+            return sortedList;
+        }
+
+        private void GetAssetStatsValuesFromElasticSearch(List<long> assetIds, int groupId, OrderBy orderBy, 
+            DateTime? startDate, DateTime? endDate, 
+            ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary, 
+            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary)
+        {
             #region Define Aggregation Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
@@ -2024,39 +2081,45 @@ namespace Core.Catalog
 
                         if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                         {
-                            // Parse string into dictionary
-                            var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
-
-                            // Run on partial dictionary and merge into main dictionary
-                            foreach (var mainPart in partialDictionary)
+                            if (ratingsAggregationsDictionary != null)
                             {
-                                if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
-                                {
-                                    ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationResult>();
-                                }
+                                // Parse string into dictionary
+                                var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
 
-                                foreach (var singleResult in mainPart.Value)
+                                // Run on partial dictionary and merge into main dictionary
+                                foreach (var mainPart in partialDictionary)
                                 {
-                                    ratingsAggregationsDictionary[mainPart.Key].Add(singleResult);
+                                    if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
+                                    {
+                                        ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationResult>();
+                                    }
+
+                                    foreach (var singleResult in mainPart.Value)
+                                    {
+                                        ratingsAggregationsDictionary[mainPart.Key].Add(singleResult);
+                                    }
                                 }
                             }
                         }
                         else
                         {
-                            // Parse string into dictionary
-                            var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
-
-                            // Run on partial dictionary and merge into main dictionary
-                            foreach (var mainPart in partialDictionary)
+                            if (countsAggregationsDictionary != null)
                             {
-                                if (!countsAggregationsDictionary.ContainsKey(mainPart.Key))
-                                {
-                                    countsAggregationsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
-                                }
+                                // Parse string into dictionary
+                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
 
-                                foreach (var singleResult in mainPart.Value)
+                                // Run on partial dictionary and merge into main dictionary
+                                foreach (var mainPart in partialDictionary)
                                 {
-                                    countsAggregationsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                    if (!countsAggregationsDictionary.ContainsKey(mainPart.Key))
+                                    {
+                                        countsAggregationsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
+                                    }
+
+                                    foreach (var singleResult in mainPart.Value)
+                                    {
+                                        countsAggregationsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                    }
                                 }
                             }
                         }
@@ -2080,68 +2143,80 @@ namespace Core.Catalog
             }
 
             #endregion
+        }
 
-            #region Process Aggregations
+        private Tuple<Dictionary<string, int>, bool> SortAssetsByStatsDelegate(Dictionary<string, object> funcParams)
+        {
+            var countsAggregationsDictionary = new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
+            var result = new Dictionary<string, int>();
+            bool success = true;
+            List<long> assetIds = new List<long>();
+            int groupId = 0;
+            OrderBy orderBy = OrderBy.NONE;
 
-            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
-            sortedList = new List<long>();
-            alreadyContainedIds = new HashSet<long>();
-
-            // Ratings is a special case, because it is not based on count, but on average instead
-            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            try
             {
-                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
-            }
-            // If it is not ratings - just use count
-            else
-            {
-                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
-            }
-
-            #endregion
-
-            if (sortedList == null)
-            {
-                sortedList = new List<long>();
-            }
-
-            // Add all ids that don't have stats
-            foreach (var currentId in assetIds)
-            {
-                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
+                // extract func params
+                if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("orderBy") && funcParams.ContainsKey("orderBy"))
                 {
-                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
+                    groupId = Convert.ToInt32(funcParams["groupId"]);
+                    orderBy = (OrderBy)funcParams["orderBy"];
+                }
+
+                // if we don't have missing keys - all ids should be sent
+                if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                {
+                    assetIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
+                }
+                else if (funcParams.ContainsKey("assetIds"))
+                {
+                    assetIds = (List<long>)funcParams["assetIds"];
+                }
+
+                GetAssetStatsValuesFromElasticSearch(assetIds, groupId, orderBy, null, null, null, countsAggregationsDictionary);
+
+                var statsDictionary = countsAggregationsDictionary["stats"];
+
+                // fill dictionary of asset-id..stats-value (if it doesn't exist in ES, fill it with a 0)
+                foreach (var assetId in assetIds)
+                {
+                    string dictionaryKey = LayeredCacheKeys.GetAssetStatsSortKey(assetId.ToString(), orderBy.ToString());
+
+                    if (!statsDictionary.ContainsKey(assetId.ToString()))
                     {
-                        sortedList.Insert(0, currentId);
+                        result[dictionaryKey] = 0;
                     }
                     else
                     {
-                        sortedList.Add(currentId);
+                        result[dictionaryKey] = statsDictionary[assetId.ToString()];
                     }
                 }
             }
-
-            return sortedList;
-        }
-
-        private Tuple<Dictionary<string, int>, bool> SortAssetsByStatsInner(Dictionary<string, object> funcParams)
-        {
-            Dictionary<string, int> result = new Dictionary<string, int>();
-            bool success = true;
-
-            int groupId = 0;
-            DateTime? startDate = null;
-            DateTime? endDate = null;
-            OrderBy orderBy = OrderBy.NONE;
+            catch (Exception ex)
+            {
+                success = false;
+                log.ErrorFormat("Error when trying to sort assets by stats. group Id = {0}, ex = {1}", groupId, ex);
+            }
 
             return new Tuple<Dictionary<string, int>, bool>(result, success);
         }
 
-        private void SortAssetsByStatsInner(List<long> assetIds, int groupId, OrderBy orderBy, DateTime? startDate, DateTime? endDate, ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary, ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary)
+        private Dictionary<string, int> SortAssetsByStatsLayeredCache(List<long> assetIds, int groupId, OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
         {
-        }
+            Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
+            Dictionary<string, int> cacheResults = new Dictionary<string, int>();
 
+            Dictionary<string, object> funcParams = new Dictionary<string, object>();
+            funcParams.Add("groupId", groupId);
+            funcParams.Add("orderBy", orderBy);
+            funcParams.Add("assetIds", assetIds);
+
+            bool cacheSuccess =
+                LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref cacheResults, SortAssetsByStatsDelegate, funcParams, groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME);
+
+            return cacheResults;
+        }
+        
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
