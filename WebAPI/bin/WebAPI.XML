@@ -6644,6 +6644,16 @@
             List of permission items associated with the permission
             </summary>       
         </member>
+        <member name="P:WebAPI.Models.API.KalturaPermission.DependsOnPermissionNames">
+            <summary>
+            Comma separated permissions names from type SPECIAL_FEATURE
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPermission.Type">
+            <summary>
+            Comma separated permissions names from type SPECIAL_FEATURE
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
             <summary>
             Permission item identifier

@@ -297,7 +297,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
               .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)))
-              .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup));
+              .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPermissionType.GROUP))
+              .ForMember(dest => dest.DependsOnPermissionNames, opt => opt.MapFrom(src => src.DependsOnPermissionNames))
+              ;
+            /*
+            cfg.CreateMap<KalturaGroupPermission, GroupPermission>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
+             .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)))
+             .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup))
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPermissionType.GROUP))
+             .ForMember(dest => dest.DependsOnPermissionNames, opt => opt.MapFrom(src => src.DependsOnPermissionNames))
+             ;
+             */
 
             cfg.CreateMap<Role, KalturaUserRole>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

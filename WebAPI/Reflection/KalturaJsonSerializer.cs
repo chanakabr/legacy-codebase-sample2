@@ -16186,6 +16186,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(DependsOnPermissionNames != null)
+            {
+                ret.Add("dependsOnPermissionNames", "\"dependsOnPermissionNames\": " + "\"" + EscapeJson(DependsOnPermissionNames) + "\"");
+            }
             if(FriendlyName != null)
             {
                 ret.Add("friendlyName", "\"friendlyName\": " + "\"" + EscapeJson(FriendlyName) + "\"");
@@ -16198,6 +16202,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
+            ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaPermissionType), Type) + "\"");
             return ret;
         }
         
@@ -16207,6 +16212,10 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(DependsOnPermissionNames != null)
+            {
+                ret.Add("dependsOnPermissionNames", "<dependsOnPermissionNames>" + EscapeXml(DependsOnPermissionNames) + "</dependsOnPermissionNames>");
+            }
             if(FriendlyName != null)
             {
                 ret.Add("friendlyName", "<friendlyName>" + EscapeXml(FriendlyName) + "</friendlyName>");
@@ -16219,6 +16228,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaPermissionType), Type) + "" + "</type>");
             return ret;
         }
     }

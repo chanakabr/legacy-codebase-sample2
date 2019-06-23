@@ -16630,6 +16630,19 @@ namespace WebAPI.Models.API
                 {
                     FriendlyName = (String) Convert.ChangeType(parameters["friendlyName"], typeof(String));
                 }
+                if (parameters.ContainsKey("dependsOnPermissionNames") && parameters["dependsOnPermissionNames"] != null)
+                {
+                    DependsOnPermissionNames = (String) Convert.ChangeType(parameters["dependsOnPermissionNames"], typeof(String));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    Type = (KalturaPermissionType) Enum.Parse(typeof(KalturaPermissionType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPermissionType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaPermissionType)));
+                    }
+                }
             }
         }
     }

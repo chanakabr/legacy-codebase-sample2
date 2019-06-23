@@ -42,5 +42,28 @@ namespace WebAPI.Models.API
         /// List of permission items associated with the permission
         /// </summary>       
         internal List<KalturaPermissionItem> PermissionItems { get; set; }
+
+        /// <summary>
+        /// Comma separated permissions names from type SPECIAL_FEATURE
+        /// </summary>
+        [DataMember(Name = "dependsOnPermissionNames")]
+        [JsonProperty("dependsOnPermissionNames")]
+        [XmlElement(ElementName = "dependsOnPermissionNames")]
+        public string DependsOnPermissionNames { get; set; }
+
+        /// <summary>
+        /// Comma separated permissions names from type SPECIAL_FEATURE
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement(ElementName = "type")]
+        public KalturaPermissionType Type { get; set; }
+    }
+
+    public enum KalturaPermissionType
+    {
+        NORMAL,
+        GROUP,
+        SPECIAL_FEATURE
     }
 }

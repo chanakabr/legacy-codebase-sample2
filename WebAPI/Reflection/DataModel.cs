@@ -4032,12 +4032,16 @@ namespace WebAPI.Reflection
                 case "KalturaPermission":
                     switch(property.Name)
                     {
+                        case "DependsOnPermissionNames":
+                            return "dependsOnPermissionNames";
                         case "FriendlyName":
                             return "friendlyName";
                         case "Id":
                             return "id";
                         case "Name":
                             return "name";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
