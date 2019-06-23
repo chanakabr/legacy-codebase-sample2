@@ -246,6 +246,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Images":
                             return "images";
+                        case "IndexStatus":
+                            return "indexStatus";
                         case "MediaFiles":
                             return "mediaFiles";
                         case "Metas":

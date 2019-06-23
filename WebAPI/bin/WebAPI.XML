@@ -8165,6 +8165,11 @@
             External identifier for the asset
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.IndexStatus">
+            <summary>
+             The media asset index status
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBundleFilter.IdEqual">
              <summary>
             Bundle Id. 

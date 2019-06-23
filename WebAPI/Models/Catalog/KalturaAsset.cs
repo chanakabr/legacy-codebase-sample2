@@ -10,6 +10,7 @@ using System.Xml.Serialization;
 using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -199,6 +200,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "externalId")]
         [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
+
+        /// <summary>
+        ///  The media asset index status
+        /// </summary>
+        [DataMember(Name = "indexStatus")]
+        [JsonProperty("indexStatus")]
+        [XmlElement(ElementName = "indexStatus", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, ReadOnly = true)]        
+        public KalturaAssetIndexStatus? IndexStatus { get; set; }
 
         #endregion
 

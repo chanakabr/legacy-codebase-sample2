@@ -9150,6 +9150,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute IndexStatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaAsset(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -9299,6 +9309,19 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
+                if (parameters.ContainsKey("indexStatus") && parameters["indexStatus"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IndexStatusSchemaProperty.Validate("indexStatus", parameters["indexStatus"]);
+                    }
+                    IndexStatus = (KalturaAssetIndexStatus) Enum.Parse(typeof(KalturaAssetIndexStatus), parameters["indexStatus"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetIndexStatus), IndexStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", IndexStatus, typeof(KalturaAssetIndexStatus)));
+                    }
                 }
             }
         }

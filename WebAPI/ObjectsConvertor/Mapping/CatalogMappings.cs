@@ -610,7 +610,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.Tags)))
                 .ForMember(dest => dest.RelatedEntities, opt => opt.MapFrom(src => BuildRelatedEntitiesDictionary(src.RelatedEntities)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
-                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid));
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
+                .ForMember(dest => dest.IndexStatus, opt => opt.MapFrom(src => src.IndexStatus))
+                ;
 
             //MediaAsset to KalturaMediaAsset
             cfg.CreateMap<MediaAsset, KalturaMediaAsset>()
@@ -660,6 +662,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.TrickPlayEnabled));
             //TODO ANAT - ASK LIOR ABOUT IMAGES (WHY WE ARE NOT MAPPING THEM HERE INSTED OF OUTSIDE THE MAPPING)
             //.ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Epg.EPG_PICTURES));
+
+            cfg.CreateMap<AssetIndexStatus, KalturaAssetIndexStatus>()
+                .ConvertUsing(syncStatus =>
+                {
+                    switch (syncStatus)
+                    {
+                        case AssetIndexStatus.Ok:
+                            return KalturaAssetIndexStatus.Ok;
+                        case AssetIndexStatus.Deleted:
+                            return KalturaAssetIndexStatus.Deleted;
+                        case AssetIndexStatus.NotUpdated:
+                            return KalturaAssetIndexStatus.NotUpdated;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown SyncStatus value : {0}", syncStatus.ToString()));
+                    }
+                });
+
 
             #endregion
 

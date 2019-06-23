@@ -8405,6 +8405,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("createDate", "\"createDate\": " + CreateDate);
             propertyValue = Description.ToCustomJson(currentVersion, omitObsolete, "description");
@@ -8444,6 +8445,10 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = "[" + String.Join(", ", Images.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("images", "\"images\": " + propertyValue);
+            }
+            if(IndexStatus.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaAsset", "IndexStatus", requestType.Value)))
+            {
+                ret.Add("indexStatus", "\"indexStatus\": " + "\"" + Enum.GetName(typeof(KalturaAssetIndexStatus), IndexStatus) + "\"");
             }
             if(MediaFiles != null)
             {
@@ -8492,6 +8497,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             ret.Add("description", Description.ToCustomXml(currentVersion, omitObsolete, "description"));
@@ -8527,6 +8533,10 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = Images.Count > 0 ? "<item>" + String.Join("</item><item>", Images.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("images", "<images>" + propertyValue + "</images>");
+            }
+            if(IndexStatus.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaAsset", "IndexStatus", requestType.Value)))
+            {
+                ret.Add("indexStatus", "<indexStatus>" + "" + Enum.GetName(typeof(KalturaAssetIndexStatus), IndexStatus) + "" + "</indexStatus>");
             }
             if(MediaFiles != null)
             {
@@ -11393,6 +11403,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(BufferCatchUp.HasValue)
             {
@@ -11449,6 +11460,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(BufferCatchUp.HasValue)
             {
@@ -11535,6 +11547,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue)
             {
@@ -11596,6 +11609,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue)
             {
@@ -12621,6 +12635,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(CatchUpEnabled.HasValue)
             {
@@ -12666,6 +12681,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(CatchUpEnabled.HasValue)
             {
@@ -12779,6 +12795,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(RecordingId != null)
             {
@@ -12796,6 +12813,7 @@ namespace WebAPI.Models.Catalog
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;
 
             if(RecordingId != null)
             {
