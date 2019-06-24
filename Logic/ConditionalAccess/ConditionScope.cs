@@ -36,7 +36,7 @@ namespace APILogic.ConditionalAccess
         public int GroupId { get; set; }
 
         public long RuleId { get; set; }
-
+        
         public List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId)
         {
             List<BusinessModuleRule> allBusinessModuleRules = BusinessModuleRuleManager.GetAllBusinessModuleRules(groupId);
@@ -167,6 +167,5 @@ namespace APILogic.ConditionalAccess
 
             return new Tuple<List<BusinessModuleRule>, bool>(BusinessModuleRulesByAsset, BusinessModuleRulesByAsset != null);
         }
-
     }
 }

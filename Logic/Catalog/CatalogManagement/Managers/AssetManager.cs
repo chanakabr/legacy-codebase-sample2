@@ -330,14 +330,14 @@ namespace Core.Catalog.CatalogManagement
                 if (ds == null || ds.Tables == null || ds.Tables.Count < 7)
                 {
                     log.WarnFormat("CreateMediaAssets didn't receive dataset with 7 or more tables");
-                    return null;
+                    return result;
                 }
 
                 // Basic details table
                 if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count <= 0)
                 {
                     log.WarnFormat("CreateMediaAssets - basic details table is not valid");
-                    return null;
+                    return result;
                 }
 
                 result = new List<MediaAsset>();
@@ -370,6 +370,7 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages);
                         if (mediaAsset != null)
                         {
+                            mediaAsset.IndexStatus = AssetIndexStatus.Ok;
                             result.Add(mediaAsset);
                         }
                     }
@@ -678,6 +679,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<MediaAsset> mediaAssets = new List<MediaAsset>();
+                    List<long> missingAssetIds = null;
+
                     if (ids != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         CatalogGroupCache catalogGroupCache;
@@ -689,14 +692,35 @@ namespace Core.Catalog.CatalogManagement
                         {
                             DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isAllowedToViewInactiveAssets.Value);                            
                             mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+
+                            if(isAllowedToViewInactiveAssets.Value && mediaAssets?.Count != ids.Count)
+                            {
+                                if(mediaAssets == null)
+                                {
+                                    mediaAssets = new List<MediaAsset>();
+                                }
+                                // get missing asset Ids
+                                missingAssetIds = ids.Where(i => !mediaAssets.Any(e => i == e.Id)).ToList();
+                            }
                         }
 
-                        res = (mediaAssets != null && mediaAssets.Count() == ids.Count()) || !isAllowedToViewInactiveAssets.Value;
+                        res = true;
                     }
 
                     if (res)
                     {
                         result = mediaAssets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), x.Id), x => x);
+
+                        if(missingAssetIds?.Count > 0)
+                        {
+                            foreach (var missingAssetId in missingAssetIds)
+                            {
+                                result.TryAdd(LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), missingAssetId),
+                                    new MediaAsset() { Id = missingAssetId, IndexStatus = AssetIndexStatus.Deleted, AssetType = eAssetTypes.MEDIA });
+
+                                log.DebugFormat("Get Deleted MediaAsset {0}, groupId {1}", missingAssetId, groupId);
+                            }
+                        }
                     }
                 }
             }
@@ -2739,25 +2763,19 @@ namespace Core.Catalog.CatalogManagement
                         if (!items.Contains(key))
                         {
                             items.Add(key);
-                            assetsToRetrieve.Add(new KeyValuePair<eAssetTypes, long>(assetType, long.Parse(assetId)));
+                            assetsToRetrieve.Add(new KeyValuePair<eAssetTypes, long>(assetType, long.Parse(assetId)));                            
                         }
                     }
 
                     int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
 
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
+
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
                         result.SetStatus(eResponseStatus.OK);
                         return result;
-                    }
-                    else if (isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count != totalAmountOfDistinctAssets))
-                    {
-                        log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
-                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
-                        result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem);
-                        return result;
-                    }
+                    }                   
 
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
@@ -2773,6 +2791,12 @@ namespace Core.Catalog.CatalogManagement
                         else if (recordingsMap.ContainsKey(baseAsset.AssetId))
                         {
                             asset = mappedAssets[string.Format(keyFormat, eAssetTypes.EPG.ToString(), recordingsMap[baseAsset.AssetId].EpgId)];
+                        }
+
+                        if(asset.IndexStatus == AssetIndexStatus.Deleted)
+                        {
+                            result.Objects.Add(asset);
+                            continue;
                         }
 
                         if (!isAllowedToViewInactiveAssets
@@ -2794,9 +2818,9 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            result.SetStatus(eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}",
-                                                                                                eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString(), baseAsset.AssetId));
-                            return result;
+                            asset.IndexStatus = AssetIndexStatus.NotUpdated;
+                            result.Objects.Add(asset);
+                            log.DebugFormat("Get NotUpdated Asset {0}, groupId {1}", asset.Id, groupId);
                         }
                     }
 
