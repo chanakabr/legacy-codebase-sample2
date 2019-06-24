@@ -8750,6 +8750,15 @@ namespace WebAPI.Reflection
                 case "permission":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("permission", "add", false);
+                            return PermissionController.Add((KalturaPermission) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("permission", "delete", false);
+                            PermissionController.Delete((long) methodParams[0]);
+                            return null;
+                            
                         case "getcurrentpermissions":
                             RolesManager.ValidateActionPermitted("permission", "getCurrentPermissions", false);
                             return PermissionController.GetCurrentPermissions();
@@ -15536,6 +15545,21 @@ namespace WebAPI.Reflection
                 case "permission":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("permission", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPermission),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "getcurrentpermissions":
                             return ret;
                             

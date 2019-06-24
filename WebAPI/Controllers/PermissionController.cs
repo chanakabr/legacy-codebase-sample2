@@ -84,36 +84,58 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Adds new permission
-        ///// </summary>
-        ///// <param name="permission">Permission to insert</param>
-        ///// <remarks></remarks>
-        //[Action("add")]
-        //[ApiAuthorize]
-        //static public KalturaPermission Add(KalturaPermission permission)
-        //{
-        //    KalturaPermission response = null;
+        /// <summary>
+        /// Adds new permission
+        /// </summary>
+        /// <param name="permission">Permission to insert</param>
+        /// <remarks></remarks>
+        [Action("add")]
+        [ApiAuthorize]
+        static public KalturaPermission Add(KalturaPermission permission)
+        {
+            KalturaPermission response = null;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().AddPermission(groupId, permission);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.ApiClient().AddPermission(groupId, permission);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    if (response == null)
-        //    {
-        //        throw new InternalServerErrorException();
-        //    }
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
+
+        /// <summary>
+        /// Deletes an existing permission
+        /// </summary>
+        /// <param name="id">Permission ID to delete</param>
+        /// <remarks></remarks>
+        [Action("delete")]
+        [ApiAuthorize]
+        static public void Delete(long id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                ClientsManager.ApiClient().DeletePermission(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
 
         ///// <summary>
         ///// Adds permission item to permission

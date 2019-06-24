@@ -41,6 +41,7 @@ namespace WebAPI.Models.API
         /// <summary>
         /// List of permission items associated with the permission
         /// </summary>       
+        [SchemeProperty(ReadOnly = true)]
         internal List<KalturaPermissionItem> PermissionItems { get; set; }
 
         /// <summary>
@@ -49,6 +50,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "dependsOnPermissionNames")]
         [JsonProperty("dependsOnPermissionNames")]
         [XmlElement(ElementName = "dependsOnPermissionNames")]
+        [SchemeProperty(ReadOnly = true)]
         public string DependsOnPermissionNames { get; set; }
 
         /// <summary>

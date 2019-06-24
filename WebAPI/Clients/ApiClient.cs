@@ -2597,8 +2597,6 @@ namespace WebAPI.Clients
             KalturaPermission addedPermission = new KalturaPermission();
             PermissionResponse response = null;
 
-
-
             ePermissionType type;
             string usersGroup = null;
 
@@ -2644,6 +2642,12 @@ namespace WebAPI.Clients
             addedPermission = AutoMapper.Mapper.Map<KalturaPermission>(response.Permission);
 
             return addedPermission;
+        }
+
+        internal void DeletePermission(int groupId, long id)
+        {
+            Func<Status> deletePermissionFunc = () => Core.Api.Module.DeletePermission(groupId, id);
+            ClientUtils.GetResponseStatusFromWS(deletePermissionFunc);
         }
 
         internal bool AddPermissionToRole(int groupId, long roleId, long permissionId)
