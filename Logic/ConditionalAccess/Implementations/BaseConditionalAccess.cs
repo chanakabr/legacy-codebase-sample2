@@ -5556,8 +5556,8 @@ namespace Core.ConditionalAccess
                         if (theReason == PriceReason.ForPurchase || theReason == PriceReason.EntitledToPreviewModule)
                         {
                             if (price != null && price.m_dPrice == dPrice && price.m_oCurrency.m_sCurrencyCD3 == sCurrency)
-                            {
-                                if (price.m_dPrice != 0 || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
+                            {                                
+                                if (price.m_dPrice != 0  || !string.IsNullOrEmpty(sCouponCode ) || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
                                     if (!string.IsNullOrEmpty(sCampaignCode))
                                     {
@@ -7457,8 +7457,8 @@ namespace Core.ConditionalAccess
                         Int32 nNameLangLength = theSub.m_sName.Length;
                         for (int j = 0; j < nNameLangLength; j++)
                         {
-                            string sLang = theSub.m_sName[j].LanguageCode;
-                            string sVal = theSub.m_sName[j].Value;
+                            string sLang = theSub.m_sName[j].m_sLanguageCode3;
+                            string sVal = theSub.m_sName[j].m_sValue;
 
                             if (sLang == sMainLangCode)
                             {
@@ -8905,8 +8905,8 @@ namespace Core.ConditionalAccess
                             Int32 nNameLangLength = theSub.m_sName.Length;
                             for (int j = 0; j < nNameLangLength; j++)
                             {
-                                string sLang = theSub.m_sName[j].LanguageCode;
-                                string sVal = theSub.m_sName[j].LanguageCode;
+                                string sLang = theSub.m_sName[j].m_sLanguageCode3;
+                                string sVal = theSub.m_sName[j].m_sLanguageCode3;
                                 if (sLang == sMainLangCode)
                                     pphc.m_sPurchasedItemName = sVal;
                             }

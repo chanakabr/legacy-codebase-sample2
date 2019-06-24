@@ -14,7 +14,7 @@ namespace KLogMonitor
     public class KMonitor : IDisposable
     {
         private static readonly ILog _Logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        public static readonly LogicalThreadContextProperties LogContextData = LogicalThreadContext.Properties;
+        public static LogicalThreadContextProperties LogContextData => LogicalThreadContext.Properties;
         private bool _Disposed = false;
 
         public static string UniqueStaticId { get; set; }

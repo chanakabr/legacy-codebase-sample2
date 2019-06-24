@@ -511,12 +511,29 @@ namespace Core.Catalog.CatalogManagement
                             if (epgCbList != null && epgCbList.Count > 0)
                             {
                                 EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, groupEpgPicturesSizes, groupId.Value);
+                                epgAsset.IndexStatus = AssetIndexStatus.Ok;
                                 string epgAssetKey = LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), epgAsset.Id);
                                 epgAssets.Add(epgAssetKey, epgAsset);
                             }
                         }
 
-                        res = epgAssets.Count == epgIds.Count;
+                        if (epgAssets.Count != epgIds.Count)
+                        {
+                            List<long> missingAssetIds = epgIds.Where(i => !epgAssets.Values.Any(e => i == e.Id)).ToList();
+
+                            if (missingAssetIds?.Count > 0)
+                            {
+                                foreach (var missingAssetId in missingAssetIds)
+                                {
+                                    epgAssets.TryAdd(LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), missingAssetId),
+                                        new EpgAsset() { Id = missingAssetId, IndexStatus = AssetIndexStatus.Deleted, AssetType = eAssetTypes.EPG });
+
+                                    log.DebugFormat("Get Deleted EpgAsset {0}, groupId {1}", missingAssetId, groupId);
+                                }
+                            }
+                        }
+
+                        res = true;
                     }
                 }
             }
@@ -991,27 +1008,27 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (var otherLanguageMeta in meta.Value)
                     {
-                        if (needToValidateMetas && !allNames.ContainsKey(otherLanguageMeta.LanguageCode))
+                        if (needToValidateMetas && !allNames.ContainsKey(otherLanguageMeta.m_sLanguageCode3))
                         {
-                            return new Status((int)eResponseStatus.Error, string.Format(INVALID_LANGUAGE, otherLanguageMeta.LanguageCode));
+                            return new Status((int)eResponseStatus.Error, string.Format(INVALID_LANGUAGE, otherLanguageMeta.m_sLanguageCode3));
                         }
 
-                        if (!epgMetas.ContainsKey(otherLanguageMeta.LanguageCode))
+                        if (!epgMetas.ContainsKey(otherLanguageMeta.m_sLanguageCode3))
                         {
-                            epgMetas.Add(otherLanguageMeta.LanguageCode, new Dictionary<string, List<string>>());
+                            epgMetas.Add(otherLanguageMeta.m_sLanguageCode3, new Dictionary<string, List<string>>());
                         }
 
-                        if (epgMetas[otherLanguageMeta.LanguageCode].ContainsKey(meta.m_oTagMeta.m_sName))
+                        if (epgMetas[otherLanguageMeta.m_sLanguageCode3].ContainsKey(meta.m_oTagMeta.m_sName))
                         {
-                            if (!epgMetas[otherLanguageMeta.LanguageCode][meta.m_oTagMeta.m_sName].Contains(otherLanguageMeta.Value))
+                            if (!epgMetas[otherLanguageMeta.m_sLanguageCode3][meta.m_oTagMeta.m_sName].Contains(otherLanguageMeta.m_sValue))
 
                             {
-                                epgMetas[otherLanguageMeta.LanguageCode][meta.m_oTagMeta.m_sName].Add(otherLanguageMeta.Value);
+                                epgMetas[otherLanguageMeta.m_sLanguageCode3][meta.m_oTagMeta.m_sName].Add(otherLanguageMeta.m_sValue);
                             }
                         }
                         else
                         {
-                            epgMetas[otherLanguageMeta.LanguageCode].Add(meta.m_oTagMeta.m_sName, new List<string>() { otherLanguageMeta.Value });
+                            epgMetas[otherLanguageMeta.m_sLanguageCode3].Add(meta.m_oTagMeta.m_sName, new List<string>() { otherLanguageMeta.m_sValue });
                         }
                     }
                 }
@@ -1273,23 +1290,23 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 foreach (var otherTagsValue in otherTagsValues)
                                 {
-                                    if (languageCodes.ContainsKey(otherTagsValue.LanguageCode) && !string.IsNullOrEmpty(otherTagsValue.Value))
+                                    if (languageCodes.ContainsKey(otherTagsValue.m_sLanguageCode3) && !string.IsNullOrEmpty(otherTagsValue.m_sValue))
                                     {
-                                        if (!epgTags.ContainsKey(otherTagsValue.LanguageCode))
+                                        if (!epgTags.ContainsKey(otherTagsValue.m_sLanguageCode3))
                                         {
-                                            epgTags.Add(otherTagsValue.LanguageCode, new Dictionary<string, List<string>>());
+                                            epgTags.Add(otherTagsValue.m_sLanguageCode3, new Dictionary<string, List<string>>());
                                         }
 
-                                        if (epgTags[otherTagsValue.LanguageCode].ContainsKey(tags.m_oTagMeta.m_sName))
+                                        if (epgTags[otherTagsValue.m_sLanguageCode3].ContainsKey(tags.m_oTagMeta.m_sName))
                                         {
-                                            if (!epgTags[otherTagsValue.LanguageCode][tags.m_oTagMeta.m_sName].Contains(otherTagsValue.Value))
+                                            if (!epgTags[otherTagsValue.m_sLanguageCode3][tags.m_oTagMeta.m_sName].Contains(otherTagsValue.m_sValue))
                                             {
-                                                epgTags[otherTagsValue.LanguageCode][tags.m_oTagMeta.m_sName].Add(otherTagsValue.Value);
+                                                epgTags[otherTagsValue.m_sLanguageCode3][tags.m_oTagMeta.m_sName].Add(otherTagsValue.m_sValue);
                                             }
                                         }
                                         else
                                         {
-                                            epgTags[otherTagsValue.LanguageCode].Add(tags.m_oTagMeta.m_sName, new List<string>() { otherTagsValue.Value });
+                                            epgTags[otherTagsValue.m_sLanguageCode3].Add(tags.m_oTagMeta.m_sName, new List<string>() { otherTagsValue.m_sValue });
                                         }
                                     }
                                 }
@@ -1340,27 +1357,27 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (validateSystemTopic)
                         {
-                            if (epgNames != null && !epgNames.ContainsKey(language.LanguageCode))
+                            if (epgNames != null && !epgNames.ContainsKey(language.m_sLanguageCode3))
                             {
-                                topicValues.SetStatus(eResponseStatus.Error, string.Format(INVALID_LANGUAGE, language.LanguageCode));
+                                topicValues.SetStatus(eResponseStatus.Error, string.Format(INVALID_LANGUAGE, language.m_sLanguageCode3));
                                 return topicValues;
                             }
-                            else if (!catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                            else if (!catalogGroupCache.LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                             {
-                                var errorMsg = string.Format("language: {0} is not part of group supported languages", language.LanguageCode);
+                                var errorMsg = string.Format("language: {0} is not part of group supported languages", language.m_sLanguageCode3);
                                 topicValues.SetStatus(eResponseStatus.GroupDoesNotContainLanguage, errorMsg);
                                 return topicValues;
                             }
 
-                            if (topicValues.Object.ContainsKey(language.LanguageCode))
+                            if (topicValues.Object.ContainsKey(language.m_sLanguageCode3))
                             {
-                                var errorMsg = string.Format(DUPLICATE_VALUE, "language code", language.LanguageCode, topicSystemName);
+                                var errorMsg = string.Format(DUPLICATE_VALUE, "language code", language.m_sLanguageCode3, topicSystemName);
                                 topicValues.SetStatus(eResponseStatus.Error, errorMsg);
                                 return topicValues;
                             }
                         }
 
-                        topicValues.Object.Add(language.LanguageCode, language.Value);
+                        topicValues.Object.Add(language.m_sLanguageCode3, language.m_sValue);
                     }
                 }
             }

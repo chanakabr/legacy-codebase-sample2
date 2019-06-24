@@ -7,15 +7,16 @@ using System.Text;
 namespace ApiObjects
 {
     [Serializable]
+    [DataContract]
     public class LanguageContainer : IEquatable<LanguageContainer>
     {
         [DataMember]
         [JsonProperty("LanguageCode")]
-        public string LanguageCode { get; set; }
+        public string m_sLanguageCode3 { get; set; }
 
         [DataMember]
         [JsonProperty("Value")]
-        public string Value { get; set; }
+        public string m_sValue { get; set; }
 
         [DataMember]
         [JsonProperty("IsDefault")]
@@ -23,29 +24,29 @@ namespace ApiObjects
 
         public LanguageContainer()
         {
-            this.LanguageCode = string.Empty;
-            this.Value = string.Empty;
+            this.m_sLanguageCode3 = string.Empty;
+            this.m_sValue = string.Empty;
             this.IsDefault = false;
         }
 
         public LanguageContainer(string languageCode, string value)
         {
-            this.LanguageCode = languageCode;
-            this.Value = value;
+            this.m_sLanguageCode3 = languageCode;
+            this.m_sValue = value;
             this.IsDefault = false;
         }
 
         public LanguageContainer(string languageCode, string value, bool isDefault)
         {
-            this.LanguageCode = languageCode;
-            this.Value = value;
+            this.m_sLanguageCode3 = languageCode;
+            this.m_sValue = value;
             this.IsDefault = isDefault;
         }
 
         public void Initialize(string languageCode, string value)
         {
-            this.LanguageCode = languageCode;
-            this.Value = value;
+            this.m_sLanguageCode3 = languageCode;
+            this.m_sValue = value;
             this.IsDefault = false;
         }
 
@@ -54,8 +55,8 @@ namespace ApiObjects
             if (other == null)
                 return false;
 
-            return LanguageCode.Equals(other.LanguageCode) &&
-                Value.Equals(other.Value) &&
+            return m_sLanguageCode3.Equals(other.m_sLanguageCode3) &&
+                m_sValue.Equals(other.m_sValue) &&
                 IsDefault == other.IsDefault;
         }
 
@@ -65,8 +66,8 @@ namespace ApiObjects
         /// <returns></returns>
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(string.Format("Language Code: {0}, ", LanguageCode));
-            sb.AppendFormat("Value: {0}, ", Value);
+            StringBuilder sb = new StringBuilder(string.Format("Language Code: {0}, ", m_sLanguageCode3));
+            sb.AppendFormat("Value: {0}, ", m_sValue);
             sb.AppendFormat("Is Default: {0}.", IsDefault);
             return sb.ToString();
         }
@@ -76,8 +77,8 @@ namespace ApiObjects
     {
         public bool Equals(LanguageContainer lc1, LanguageContainer lc2)
         {
-            return lc1.LanguageCode.Equals(lc2.LanguageCode) &&
-                   lc1.Value.Equals(lc2.Value) &&
+            return lc1.m_sLanguageCode3.Equals(lc2.m_sLanguageCode3) &&
+                   lc1.m_sValue.Equals(lc2.m_sValue) &&
                    lc1.IsDefault == lc2.IsDefault;
         }
 

@@ -205,7 +205,7 @@ namespace Core.Catalog
             StringBuilder sb = new StringBuilder(string.Format("Id: {0}, ", Id));
             sb.AppendFormat("Name: {0},", Name);
             sb.AppendFormat("NamesInOtherLanguages: {0}, ", NamesInOtherLanguages != null && NamesInOtherLanguages.Count > 0 ?
-                                                            string.Join(",", NamesInOtherLanguages.Select(x => string.Format("languageCode: {0}, value: {1}", x.LanguageCode, x.Value)).ToList()) : string.Empty);
+                                                            string.Join(",", NamesInOtherLanguages.Select(x => string.Format("languageCode: {0}, value: {1}", x.m_sLanguageCode3, x.m_sValue)).ToList()) : string.Empty);
             sb.AppendFormat("SystemName: {0}, ", SystemName);
             sb.AppendFormat("MetaIds: {0}, ", MetaIds != null ? string.Join(",", MetaIds) : string.Empty);
             sb.AppendFormat("IsPredefined: {0}, ", IsPredefined.HasValue ? IsPredefined.Value.ToString() : string.Empty);

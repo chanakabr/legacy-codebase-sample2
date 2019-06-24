@@ -330,14 +330,14 @@ namespace Core.Catalog.CatalogManagement
                 if (ds == null || ds.Tables == null || ds.Tables.Count < 7)
                 {
                     log.WarnFormat("CreateMediaAssets didn't receive dataset with 7 or more tables");
-                    return null;
+                    return result;
                 }
 
                 // Basic details table
                 if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count <= 0)
                 {
                     log.WarnFormat("CreateMediaAssets - basic details table is not valid");
-                    return null;
+                    return result;
                 }
 
                 result = new List<MediaAsset>();
@@ -370,6 +370,7 @@ namespace Core.Catalog.CatalogManagement
                         MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages);
                         if (mediaAsset != null)
                         {
+                            mediaAsset.IndexStatus = AssetIndexStatus.Ok;
                             result.Add(mediaAsset);
                         }
                     }
@@ -678,6 +679,8 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     List<MediaAsset> mediaAssets = new List<MediaAsset>();
+                    List<long> missingAssetIds = null;
+
                     if (ids != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         CatalogGroupCache catalogGroupCache;
@@ -689,14 +692,35 @@ namespace Core.Catalog.CatalogManagement
                         {
                             DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isAllowedToViewInactiveAssets.Value);                            
                             mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+
+                            if(isAllowedToViewInactiveAssets.Value && mediaAssets?.Count != ids.Count)
+                            {
+                                if(mediaAssets == null)
+                                {
+                                    mediaAssets = new List<MediaAsset>();
+                                }
+                                // get missing asset Ids
+                                missingAssetIds = ids.Where(i => !mediaAssets.Any(e => i == e.Id)).ToList();
+                            }
                         }
 
-                        res = (mediaAssets != null && mediaAssets.Count() == ids.Count()) || !isAllowedToViewInactiveAssets.Value;
+                        res = true;
                     }
 
                     if (res)
                     {
                         result = mediaAssets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), x.Id), x => x);
+
+                        if(missingAssetIds?.Count > 0)
+                        {
+                            foreach (var missingAssetId in missingAssetIds)
+                            {
+                                result.TryAdd(LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), missingAssetId),
+                                    new MediaAsset() { Id = missingAssetId, IndexStatus = AssetIndexStatus.Deleted, AssetType = eAssetTypes.MEDIA });
+
+                                log.DebugFormat("Get Deleted MediaAsset {0}, groupId {1}", missingAssetId, groupId);
+                            }
+                        }
                     }
                 }
             }
@@ -950,9 +974,9 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (LanguageContainer language in meta.Value)
                 {
-                    if (LanguageMapByCode.ContainsKey(language.LanguageCode))
+                    if (LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                     {
-                        AddTopicLanguageValueToXml(metasXmlDoc, rootNode, topicId, LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                        AddTopicLanguageValueToXml(metasXmlDoc, rootNode, topicId, LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue);
                     }
                 }
             }
@@ -1048,9 +1072,9 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (LanguageContainer language in asset.NamesWithLanguages)
                         {
-                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                             {
-                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue);
                             }
                         }
                     }
@@ -1062,9 +1086,9 @@ namespace Core.Catalog.CatalogManagement
                     {
                         foreach (LanguageContainer language in asset.DescriptionsWithLanguages)
                         {
-                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.LanguageCode))
+                            if (catalogGroupCache.LanguageMapByCode.ContainsKey(language.m_sLanguageCode3))
                             {
-                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.LanguageCode].ID, language.Value);
+                                AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.LanguageMapByCode[language.m_sLanguageCode3].ID, language.m_sValue);
                             }
                         }
                     }
@@ -1454,7 +1478,7 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 Dictionary<long, List<LanguageContainer>> topicTags = topicIdToTag[topic.Id];
                                 List<LanguageContainer> defaultLanguageValues = topicTags.SelectMany(x => x.Value.Where(y => y.IsDefault)).ToList();
-                                List<string> defaultValues = defaultLanguageValues.Select(x => x.Value).ToList();
+                                List<string> defaultValues = defaultLanguageValues.Select(x => x.m_sValue).ToList();
                                 List<LanguageContainer[]> tagLanguages = topicIdToTag[topic.Id].Select(x => x.Value.Select(y => y).ToArray()).ToList();
                                 tags.Add(new Tags(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValues, tagLanguages));
                             }
@@ -1464,7 +1488,7 @@ namespace Core.Catalog.CatalogManagement
                             if (topicIdToMeta.ContainsKey(topic.Id))
                             {
                                 IEnumerable<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).Value;
+                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).m_sValue;
                                 if (topic.Type == MetaType.MultilingualString)
                                 {
                                     topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x);
@@ -1708,21 +1732,21 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, HashSet<string>> tags = new Dictionary<string, HashSet<string>>();
                 if (!language.IsDefault)
                 {
-                    if (mediaAsset.NamesWithLanguages.Count(x => x.LanguageCode == language.Code) == 1)
+                    if (mediaAsset.NamesWithLanguages.Count(x => x.m_sLanguageCode3 == language.Code) == 1)
                     {
-                        var nameWithLanguages = mediaAsset.NamesWithLanguages.FirstOrDefault(x => x.LanguageCode == language.Code);
+                        var nameWithLanguages = mediaAsset.NamesWithLanguages.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
                         if (nameWithLanguages != null)
                         {
-                            name = nameWithLanguages.Value;
+                            name = nameWithLanguages.m_sValue;
                         }
                     }
 
-                    if (mediaAsset.DescriptionsWithLanguages.Count(x => x.LanguageCode == language.Code) == 1)
+                    if (mediaAsset.DescriptionsWithLanguages.Count(x => x.m_sLanguageCode3 == language.Code) == 1)
                     {
-                        var descriptionWithLanguages = mediaAsset.DescriptionsWithLanguages.FirstOrDefault(x => x.LanguageCode == language.Code);
+                        var descriptionWithLanguages = mediaAsset.DescriptionsWithLanguages.FirstOrDefault(x => x.m_sLanguageCode3 == language.Code);
                         if (descriptionWithLanguages != null)
                         {
-                            description = descriptionWithLanguages.Value;
+                            description = descriptionWithLanguages.m_sValue;
                         }
                     }
                 }
@@ -1748,8 +1772,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                     else
                     {
-                        List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.LanguageCode == language.Code) == 1).ToList();
-                        metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.LanguageCode == language.Code).Select(y => y.Value).First());
+                        List<Metas> languageMetas = mediaAsset.Metas.Where(x => x.Value != null && x.Value.Count(y => y.m_sLanguageCode3 == language.Code) == 1).ToList();
+                        metas = languageMetas.ToDictionary(x => x.m_oTagMeta.m_sName, x => x.Value.Where(y => y.m_sLanguageCode3 == language.Code).Select(y => y.m_sValue).First());
                     }
                 }
 
@@ -1762,8 +1786,8 @@ namespace Core.Catalog.CatalogManagement
                     else
                     {
                         tags = mediaAsset.Tags.Where(x => x.Values != null).ToDictionary(x => x.m_oTagMeta.m_sName,
-                                                                                        x => new HashSet<string>(x.Values.SelectMany(y => y.Where(z => z.LanguageCode == language.Code)
-                                                                                                                                        .Select(z => z.Value)).ToList(), StringComparer.OrdinalIgnoreCase));
+                                                                                        x => new HashSet<string>(x.Values.SelectMany(y => y.Where(z => z.m_sLanguageCode3 == language.Code)
+                                                                                                                                        .Select(z => z.m_sValue)).ToList(), StringComparer.OrdinalIgnoreCase));
                     }
                 }
 
@@ -2554,7 +2578,7 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateNoneExistingTopicIdsToRemove(MediaAsset mediaAsset, HashSet<long> topicIds, CatalogGroupCache catalogGroupCache)
         {
             var result = Status.Ok;
-
+            
             List<long> existingTopicsIds = mediaAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                         && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
                                                                         .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
@@ -2576,6 +2600,50 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+        
+        private static void RemoveNoneExistingTopicIds(HashSet<long> topicIds, Asset asset, CatalogGroupCache catalogGroupCache)
+        {
+            List<long> topicsToRemove = new List<long>();
+            foreach (var topicId in topicIds)
+            {
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(topicId))
+                {
+                    topicsToRemove.Add(topicId);
+                    continue;
+                }
+
+                var topic = catalogGroupCache.TopicsMapById[topicId];
+
+                if (topic.Type == MetaType.Tag)
+                {
+                    if (!asset.Tags.Any(x => x.m_oTagMeta.m_sName.Equals(topic.SystemName) && x.m_oTagMeta.m_sType.Equals(topic.Type.ToString())))
+                    {
+                        topicsToRemove.Add(topicId);
+                    }
+                    continue;
+                }
+
+                if (topic.Type == MetaType.ReleatedEntity)
+                {
+                    if (!asset.RelatedEntities.Any(x => x.TagMeta.m_sName.Equals(topic.SystemName) && x.TagMeta.m_sType.Equals(topic.Type.ToString())))
+                    {
+                        topicsToRemove.Add(topicId);
+                    }
+                    continue;
+                }
+
+                // all other metaTypes
+                if (!asset.Metas.Any(x => x.m_oTagMeta.m_sName.Equals(topic.SystemName) && x.m_oTagMeta.m_sType.Equals(topic.Type.ToString())))
+                {
+                    topicsToRemove.Add(topicId);
+                }
+            }
+
+            foreach (var topicToRemove in topicsToRemove)
+            {
+                topicIds.Remove(topicToRemove);
+            }
         }
 
         #endregion
@@ -2695,25 +2763,19 @@ namespace Core.Catalog.CatalogManagement
                         if (!items.Contains(key))
                         {
                             items.Add(key);
-                            assetsToRetrieve.Add(new KeyValuePair<eAssetTypes, long>(assetType, long.Parse(assetId)));
+                            assetsToRetrieve.Add(new KeyValuePair<eAssetTypes, long>(assetType, long.Parse(assetId)));                            
                         }
                     }
 
                     int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
 
                     List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
+
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
                         result.SetStatus(eResponseStatus.OK);
                         return result;
-                    }
-                    else if (isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count != totalAmountOfDistinctAssets))
-                    {
-                        log.ErrorFormat("Failed getting assets from GetAssets, for groupId: {0}, assets: {1}", groupId,
-                                        assets != null ? string.Join(",", assets.Select(x => string.Format("{0}_{1}", x.AssetType.ToString(), x.AssetId)).ToList()) : string.Empty);
-                        result.SetStatus(eResponseStatus.ElasticSearchReturnedDeleteItem);
-                        return result;
-                    }
+                    }                   
 
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     Dictionary<string, Asset> mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
@@ -2729,6 +2791,12 @@ namespace Core.Catalog.CatalogManagement
                         else if (recordingsMap.ContainsKey(baseAsset.AssetId))
                         {
                             asset = mappedAssets[string.Format(keyFormat, eAssetTypes.EPG.ToString(), recordingsMap[baseAsset.AssetId].EpgId)];
+                        }
+
+                        if(asset.IndexStatus == AssetIndexStatus.Deleted)
+                        {
+                            result.Objects.Add(asset);
+                            continue;
                         }
 
                         if (!isAllowedToViewInactiveAssets
@@ -2750,9 +2818,9 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            result.SetStatus(eResponseStatus.ElasticSearchReturnedUnupdatedItem, string.Format("{0}, itemId: {1}",
-                                                                                                eResponseStatus.ElasticSearchReturnedUnupdatedItem.ToString(), baseAsset.AssetId));
-                            return result;
+                            asset.IndexStatus = AssetIndexStatus.NotUpdated;
+                            result.Objects.Add(asset);
+                            log.DebugFormat("Get NotUpdated Asset {0}, groupId {1}", asset.Id, groupId);
                         }
                     }
 
@@ -3091,6 +3159,16 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if (isFromIngest)
+                {
+                    RemoveNoneExistingTopicIds(topicIds, currentAsset.Object, catalogGroupCache);
+                    if (topicIds.Count == 0)
+                    {
+                        result.Set(eResponseStatus.OK);
+                        return result;
+                    }
+                }
+
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
@@ -3112,7 +3190,7 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
-
+        
         private static Status RemoveTopicsFromMediaAsset(int groupId, long id, HashSet<long> topicIds, long userId, CatalogGroupCache catalogGroupCache, MediaAsset mediaAsset, bool isFromIngest)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

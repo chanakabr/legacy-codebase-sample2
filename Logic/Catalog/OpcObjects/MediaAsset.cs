@@ -335,15 +335,15 @@ namespace Core.Catalog
                 var defaultIndex = meta.Value.FindIndex(x => x.IsDefault);
                 if (defaultIndex != -1)
                 {
-                    var value = meta.Value[defaultIndex].Value;
+                    var value = meta.Value[defaultIndex].m_sValue;
                     if (currMeta.m_oTagMeta != null && currMeta.m_oTagMeta.m_sType.Equals(MetaType.Bool.ToString()))
                     {
                         bool boolValue = bool.Parse(value);
                         value = boolValue ? "1" : "0";
                     }
 
-                    meta.Value[defaultIndex].Value = value;
-                    currMeta.m_sValue = meta.Value[defaultIndex].Value;
+                    meta.Value[defaultIndex].m_sValue = value;
+                    currMeta.m_sValue = meta.Value[defaultIndex].m_sValue;
                 }
 
                 currMeta.Value = meta.Value.ToArray();

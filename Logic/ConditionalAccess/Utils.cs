@@ -1624,20 +1624,23 @@ namespace Core.ConditionalAccess
             };
 
             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
-            if (businessModuleRules != null && businessModuleRules.HasObjects())
+            if (businessModuleRules.HasObjects())
             {
                 log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
                 foreach (var businessModuleRule in businessModuleRules.Objects)
                 {
                     if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                     {
-                        DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)businessModuleRule.Actions[0].DiscountModuleId, countryCode, currencyCode);
-                        if (discountModule != null)
+                        if (businessModuleRule.Actions[0].Type == RuleActionType.ApplyDiscountModuleRule)
                         {
-                            var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
-                            if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                            DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
+                            if (discountModule != null)
                             {
-                                lowestPrice = tempPrice;
+                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                                if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
+                                {
+                                    lowestPrice = tempPrice;
+                                }
                             }
                         }
                     }
@@ -3190,8 +3193,8 @@ namespace Core.ConditionalAccess
 
 
                         var pp_description = (from descValue in pp.m_sDescription
-                                              where descValue.LanguageCode == sLanguageCode
-                                              select descValue.Value.ToString()).FirstOrDefault();
+                                              where descValue.m_sLanguageCode3 == sLanguageCode
+                                              select descValue.m_sValue.ToString()).FirstOrDefault();
 
                         ClaimObj = new InAppItemObject(pp.m_sObjectVirtualName, pp_description.ToString(), dChargePrice.ToString(), sCurrencyCode, nCustomDataID.ToString(), MY_SELLER_ID, 60, "Google", "google/payments/inapp/item/v1", 0);
 
@@ -3217,8 +3220,8 @@ namespace Core.ConditionalAccess
 
 
                         var sp_description = (from descValue in sp.m_sDescription
-                                              where descValue.LanguageCode == sLanguageCode
-                                              select descValue.Value.ToString()).FirstOrDefault();
+                                              where descValue.m_sLanguageCode3 == sLanguageCode
+                                              select descValue.m_sValue.ToString()).FirstOrDefault();
 
 
                         string sNumberOfRecPeriods = sp.m_nNumberOfRecPeriods == 0 ? null : sp.m_nNumberOfRecPeriods.ToString();

@@ -71,7 +71,7 @@ namespace Core.Pricing
 
         public override CouponsGroup GetCouponGroupData(string sCouponGroupID)
         {
-            CouponsGroup tmp = null;
+            CouponsGroup tmp = new CouponsGroup();
             Int32 nCouponGroupID = 0;
 
             Int32.TryParse(sCouponGroupID, out nCouponGroupID);
