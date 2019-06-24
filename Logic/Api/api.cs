@@ -11138,9 +11138,9 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, RuleActionType? ruleActionType)
         {
-            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, ruleActionType);
         }
 
         #region PlaybackProfiles

@@ -511,12 +511,29 @@ namespace Core.Catalog.CatalogManagement
                             if (epgCbList != null && epgCbList.Count > 0)
                             {
                                 EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, groupEpgPicturesSizes, groupId.Value);
+                                epgAsset.IndexStatus = AssetIndexStatus.Ok;
                                 string epgAssetKey = LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), epgAsset.Id);
                                 epgAssets.Add(epgAssetKey, epgAsset);
                             }
                         }
 
-                        res = epgAssets.Count == epgIds.Count;
+                        if (epgAssets.Count != epgIds.Count)
+                        {
+                            List<long> missingAssetIds = epgIds.Where(i => !epgAssets.Values.Any(e => i == e.Id)).ToList();
+
+                            if (missingAssetIds?.Count > 0)
+                            {
+                                foreach (var missingAssetId in missingAssetIds)
+                                {
+                                    epgAssets.TryAdd(LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), missingAssetId),
+                                        new EpgAsset() { Id = missingAssetId, IndexStatus = AssetIndexStatus.Deleted, AssetType = eAssetTypes.EPG });
+
+                                    log.DebugFormat("Get Deleted EpgAsset {0}, groupId {1}", missingAssetId, groupId);
+                                }
+                            }
+                        }
+
+                        res = true;
                     }
                 }
             }

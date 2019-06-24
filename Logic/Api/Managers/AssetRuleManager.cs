@@ -37,7 +37,8 @@ namespace Core.Api.Managers
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HashSet<int> AssetRuleActionsTypes = new HashSet<int>(Enum.GetValues(typeof(RuleActionType)).Cast<int>());
+        internal static readonly HashSet<int> RuleActionsTypes = new HashSet<int>(Enum.GetValues(typeof(RuleActionType)).Cast<int>());
+        internal static readonly HashSet<RuleConditionType> RuleConditionTypes = new HashSet<RuleConditionType>(Enum.GetValues(typeof(RuleConditionType)).Cast<RuleConditionType>());
 
         #region Remote Task Methods
 
@@ -1075,7 +1076,7 @@ namespace Core.Api.Managers
                                     ruleIds = rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType) &&
                                                                                    (x.ActionTypeIdIn == null ? true :
                                                                                         ruleActionType.HasValue ? x.ActionTypeIdIn.Contains((int)ruleActionType) : true &&
-                                                                                        x.ActionTypeIdIn.All(y => AssetRuleActionsTypes.Contains(y))))
+                                                                                        x.ActionTypeIdIn.All(y => RuleActionsTypes.Contains(y))))
                                                                        .Select(x => x.Id).ToList();
                                 }
 

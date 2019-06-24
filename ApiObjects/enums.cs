@@ -1161,4 +1161,11 @@ namespace ApiObjects
         Pending = 0,
         Sent = 1,
     }
+
+    public enum AssetIndexStatus
+    {
+        Ok = 0,
+        Deleted = 1,
+        NotUpdated = 2
+    }
 }
