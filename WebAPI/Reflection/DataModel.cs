@@ -1102,8 +1102,6 @@ namespace WebAPI.Reflection
                 case "KalturaBusinessModuleRuleFilter":
                     switch(property.Name)
                     {
-                        case "ActionsContainType":
-                            return "actionsContainType";
                         case "BusinessModuleIdApplied":
                             return "businessModuleIdApplied";
                         case "BusinessModuleTypeApplied":
