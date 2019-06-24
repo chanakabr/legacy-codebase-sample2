@@ -1482,6 +1482,11 @@ namespace Core.Api
             return Core.Api.api.AddPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
         }
 
+        public static Status DeletePermission(int groupId, long id)
+        {
+            return Core.Api.api.DeletePermission(groupId, id);
+        }
+
         public static Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
             return Core.Api.api.AddPermissionToRole(groupId, roleId, permissionId);

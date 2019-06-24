@@ -8511,6 +8511,11 @@ namespace Core.Api
             return response;
         }
 
+        internal static Status DeletePermission(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
         public static ApiObjects.Response.Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
