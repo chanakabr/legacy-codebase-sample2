@@ -4409,39 +4409,6 @@ namespace Core.Catalog
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
         }
 
-        private static Tuple<AssetStatsResult, bool> GetAssetStats(Dictionary<string, object> funcParams)
-        {
-            AssetStatsResult result = null;
-            bool success = false;
-
-            try
-            {
-                if (funcParams != null &&
-                    funcParams.ContainsKey("assetId") && funcParams.ContainsKey("statsType") &&
-                    funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
-                {
-                    int assetId = Convert.ToInt32(funcParams["assetId"]);
-                    int groupId = Convert.ToInt32(funcParams["groupId"]);
-                    StatsType statsType = (StatsType)funcParams["statsType"];
-                    Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
-                    
-                    GetDataForGetAssetStatsFromES(groupId, new List<int>() { assetId }, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
-
-                    if (mapping.ContainsKey(assetId))
-                    {
-                        result = mapping[assetId];
-                        success = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error when getting asset stats result. ex = {0}", ex);
-            }
-
-            return new Tuple<AssetStatsResult, bool>(result, success);
-        }
-
         private static Tuple<Dictionary<string, AssetStatsResult>, bool> GetAssetsStats(Dictionary<string, object> funcParams)
         {
             Dictionary<string, AssetStatsResult> result = null;

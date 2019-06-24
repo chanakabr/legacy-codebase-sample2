@@ -1850,12 +1850,11 @@ namespace Core.Catalog
             // we will use layered cache for asset stats for non-rating values and only if we don't have dates in filter
             if (startDate == null && endDate == null && orderBy != OrderBy.RATING)
             {
-                Dictionary<string, int> sortValues = SortAssetsByStatsLayeredCache(assetIds, groupId, orderBy, orderDirection);
-
+                Dictionary<string, int> sortValues = SortAssetsByStatsWithLayeredCache(assetIds, groupId, orderBy, orderDirection);
                 ConcurrentDictionary<string, int> innerDictionary = new ConcurrentDictionary<string, int>();
-
                 foreach (var sortValue in sortValues)
                 {
+                    // we don't check if the key exists since the SortAssetsByStatsWithLayeredCache function returns a value for all passed assetIds
                     innerDictionary[sortValue.Key] = sortValue.Value;
                 }
 
@@ -2156,8 +2155,8 @@ namespace Core.Catalog
 
             try
             {
-                // extract func params
-                if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("orderBy") && funcParams.ContainsKey("orderBy"))
+                // extract from funcParams
+                if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("orderBy"))
                 {
                     groupId = Convert.ToInt32(funcParams["groupId"]);
                     orderBy = (OrderBy)funcParams["orderBy"];
@@ -2201,20 +2200,32 @@ namespace Core.Catalog
             return new Tuple<Dictionary<string, int>, bool>(result, success);
         }
 
-        private Dictionary<string, int> SortAssetsByStatsLayeredCache(List<long> assetIds, int groupId, OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
+        private Dictionary<string, int> SortAssetsByStatsWithLayeredCache(List<long> assetIds, int groupId, OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
         {
-            Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
-            Dictionary<string, int> cacheResults = new Dictionary<string, int>();
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            if (assetIds != null && assetIds.Count > 0)
+            {
+                try
+                {
+                    Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>();
+                    funcParams.Add("groupId", groupId);
+                    funcParams.Add("orderBy", orderBy);
+                    funcParams.Add("assetIds", assetIds);
 
-            Dictionary<string, object> funcParams = new Dictionary<string, object>();
-            funcParams.Add("groupId", groupId);
-            funcParams.Add("orderBy", orderBy);
-            funcParams.Add("assetIds", assetIds);
+                    if (!LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref result, SortAssetsByStatsDelegate, funcParams,
+                                                                groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME))
+                    {
+                        log.ErrorFormat("Failed getting asset stats from cache, ids: {0}:", assetIds.Count < 100 ? string.Join(",", assetIds) : string.Join(",", assetIds.Take(100)));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed SortAssetsByStatsLayeredCache", ex);
+                }
+            }
 
-            bool cacheSuccess =
-                LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref cacheResults, SortAssetsByStatsDelegate, funcParams, groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME);
-
-            return cacheResults;
+            return result;
         }
         
         /// <summary>
