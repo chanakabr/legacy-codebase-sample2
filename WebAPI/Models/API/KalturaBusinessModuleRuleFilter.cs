@@ -49,8 +49,15 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "segmentIdsApplied", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string SegmentIdsApplied { get; set; }
-        
-        
+
+        /// <summary>
+        /// Indicates which business module rule list to return by their action.
+        /// </summary>
+        [DataMember(Name = "actionsContainType")]
+        [JsonProperty("actionsContainType")]
+        [XmlElement(ElementName = "actionsContainType")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaRuleActionType? ActionsContainType { get; set; }
 
         public override KalturaBusinessModuleOrderBy GetDefaultOrderByValue()
         {
