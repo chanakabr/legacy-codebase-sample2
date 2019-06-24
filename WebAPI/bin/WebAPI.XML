@@ -5240,6 +5240,11 @@
             Comma separated segment IDs the rules applied on
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaBusinessModuleRuleFilter.ActionsContainType">
+            <summary>
+            Indicates which business module rule list to return by their action.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaPlaybackProfile">
             <summary>
             Playback profile
@@ -8163,6 +8168,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExternalId">
             <summary>
             External identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.IndexStatus">
+            <summary>
+             The media asset index status
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBundleFilter.IdEqual">

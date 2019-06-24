@@ -998,12 +998,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
                 .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId));
 
+            cfg.CreateMap<KalturaBusinessModuleRuleAction, BusinessModuleRuleAction>()
+               .IncludeBase<KalturaRuleAction, RuleAction>();
+
+            cfg.CreateMap<BusinessModuleRuleAction, KalturaBusinessModuleRuleAction>()
+                .IncludeBase<RuleAction, KalturaRuleAction>();
+
             cfg.CreateMap<KalturaApplyDiscountModuleAction, ApplyDiscountModuleRuleAction>()
-                .IncludeBase<KalturaRuleAction, RuleAction>()
+                .IncludeBase<KalturaBusinessModuleRuleAction, BusinessModuleRuleAction>()
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId));
 
             cfg.CreateMap<ApplyDiscountModuleRuleAction, KalturaApplyDiscountModuleAction>()
-                .IncludeBase<RuleAction, KalturaRuleAction>()
+                .IncludeBase<BusinessModuleRuleAction, KalturaBusinessModuleRuleAction>()
                 .ForMember(dest => dest.DiscountModuleId, opt => opt.MapFrom(src => src.DiscountModuleId));
 
             cfg.CreateMap<KalturaAssetUserRuleAction, AssetUserRuleAction>()

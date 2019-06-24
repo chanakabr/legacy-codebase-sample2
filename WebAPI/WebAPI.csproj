@@ -783,6 +783,9 @@
     <Content Include="Permissions\controllers\topicnotificationmassege.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Permissions\objects\kalturaasset.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml">
       <SubType>Designer</SubType>
     </None>
@@ -864,6 +867,7 @@
     <Compile Include="Models\API\KalturaDRMProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaPermissionListResponse.cs" />
     <Compile Include="Models\API\KalturaPlaybackProfileFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetIndexStatus.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInheritancePolicy.cs" />
     <Compile Include="Models\Catalog\KalturaRelatedEntity.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBumpersPlaybackPluginData.cs" />

@@ -99,6 +99,7 @@ namespace WebAPI.Controllers
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
+                HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid, priviliges), User = response };
@@ -168,6 +169,7 @@ namespace WebAPI.Controllers
             if (tmp != null)
             {
                 priviliges = (Dictionary<string, string>)tmp;
+                HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
 
             return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid, priviliges), User = response };
@@ -279,6 +281,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (!string.IsNullOrEmpty(user.RoleIds) && !RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleIds");
+                }
+
                 response = ClientsManager.UsersClient().SignUp(partnerId, user, password);
             }
             catch (ClientExternalException ex)
@@ -634,6 +644,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (!RolesManager.IsManagerAllowedUpdateAction(id, user.GetRoleIds()))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleIds");
+                }
+
                 response = ClientsManager.UsersClient().SetUserData(groupId, id, user);
             }
             catch (ClientException ex)
@@ -667,6 +685,17 @@ namespace WebAPI.Controllers
 
             try
             {
+                List<long> roleToAdd = new List<long>();
+                roleToAdd.Add(roleId);
+                
+                if (!RolesManager.IsManagerAllowedUpdateAction(userId, roleToAdd))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleId");
+                }
+
                 // call client
                 response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, roleId);
             }
@@ -702,6 +731,11 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (!RolesManager.IsManagerAllowedDeleteAction())
+                {
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
+                }
+
                 // call client
                 response = ClientsManager.UsersClient().DeleteUser(groupId, userId);
             }

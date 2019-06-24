@@ -173,7 +173,12 @@ namespace WebAPI.Models.ConditionalAccess
     }
 
     [Serializable]
-    public partial class KalturaApplyDiscountModuleAction : KalturaRuleAction
+    public abstract partial class KalturaBusinessModuleRuleAction : KalturaRuleAction
+    {
+    }
+
+    [Serializable]
+    public partial class KalturaApplyDiscountModuleAction : KalturaBusinessModuleRuleAction
     {
         /// <summary>
         /// Discount module ID

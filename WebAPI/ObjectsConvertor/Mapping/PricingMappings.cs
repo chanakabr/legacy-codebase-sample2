@@ -117,8 +117,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // LanguageContainer to TranslationContainer
             cfg.CreateMap<LanguageContainer, KalturaTranslationToken>()
-               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.LanguageCode))
-               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.m_sValue));
 
             // BundleCodeContainer to SlimChannel
             cfg.CreateMap<BundleCodeContainer, KalturaBaseChannel>()

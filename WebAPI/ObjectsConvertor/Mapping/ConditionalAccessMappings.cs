@@ -475,7 +475,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))                          
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString(): string.Empty))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
-              .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)));
+              .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
+              .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0));
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
               .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))

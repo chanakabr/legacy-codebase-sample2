@@ -319,9 +319,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "phoenix", "phoenix", "{EEFF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "phoenix-doc", "phoenix-doc", "{49B94D77-9B91-4BCC-9FBA-6466B6340504}"
 	ProjectSection(SolutionItems) = preProject
-		phoenix-doc\templates\app.yaml = phoenix-doc\templates\app.yaml
 		phoenix-doc\Chart.yaml = phoenix-doc\Chart.yaml
+		phoenix-doc\templates\deployment.yaml = phoenix-doc\templates\deployment.yaml
 		phoenix-doc\templates\NOTES.txt = phoenix-doc\templates\NOTES.txt
+		phoenix-doc\templates\service.yaml = phoenix-doc\templates\service.yaml
 		phoenix-doc\values.yaml = phoenix-doc\values.yaml
 	EndProjectSection
 EndProject
@@ -952,7 +953,7 @@ Global
 		{49B94D77-9B91-4BCC-9FBA-6466B6340504} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal
