@@ -868,6 +868,8 @@
     <Compile Include="Models\Catalog\KalturaRelatedEntity.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBumpersPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCaptionPlaybackPluginData.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCloudRecordingFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCloudSeriesRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
     <Compile Include="Models\General\KalturaApiPriviligesPermissionItem.cs" />

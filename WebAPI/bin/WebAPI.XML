@@ -9233,6 +9233,26 @@
             Format
             </summary>
         </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCloudRecordingFilter">
+            <summary>
+            Filtering cloud external recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCloudRecordingFilter.AdapterData">
+            <summary>
+            Adapter Data
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCloudSeriesRecordingFilter">
+            <summary>
+            Cloud series filtering recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCloudSeriesRecordingFilter.AdapterData">
+            <summary>
+            Adapter Data
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaExternalRecordingFilter">
             <summary>
             Filtering external recordings

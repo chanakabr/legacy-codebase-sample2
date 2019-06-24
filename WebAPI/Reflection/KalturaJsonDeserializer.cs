@@ -421,6 +421,12 @@ namespace WebAPI.Reflection
                 case "KalturaClientConfiguration":
                     return new KalturaClientConfiguration(parameters);
                     
+                case "KalturaCloudRecordingFilter":
+                    return new KalturaCloudRecordingFilter(parameters);
+                    
+                case "KalturaCloudSeriesRecordingFilter":
+                    return new KalturaCloudSeriesRecordingFilter(parameters);
+                    
                 case "KalturaCollection":
                     return new KalturaCollection(parameters);
                     
@@ -2715,6 +2721,32 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Objects = buildList(typeof(KalturaCDVRAdapterProfile), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaCloudRecordingFilter
+    {
+        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaCloudSeriesRecordingFilter
+    {
+        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
                 }
             }
         }
