@@ -16,7 +16,9 @@ using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
+using CachingHelpers;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
@@ -14044,6 +14046,91 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, adapterId={1}", m_nGroupID, adapterID), ex);
             }
+            return response;
+        }
+
+        internal RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, string adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
+        {
+            RecordingResponse response = new RecordingResponse();
+
+            try
+            {
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId);
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}, recordingStatuses: {2}", domainId, userId, recordingStatuses);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                var adapterResponse = adapterController.SearchCloudRecordings(adapterId, groupId, userId, domainId, adapterData, recordingStatuses, pageIndex, pageSize);
+
+                response.Recordings = adapterResponse.Recordings;
+                response.TotalItems = adapterResponse.Recordings.Count;
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at SearchCloudRecordings. ");
+                sb.Append(String.Concat("userId: ", userId));
+                sb.Append(String.Concat("domainID: ", domainId));
+                sb.Append(", RecordingStatuses: ");
+                foreach (int recordingStatus in recordingStatuses)
+                {
+                    sb.Append(String.Concat(recordingStatus, ", "));
+                }
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return response;
+        }
+
+        internal SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, string adapterData)
+        {
+            SeriesResponse response = new SeriesResponse();
+
+            try
+            {
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId);
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+                var adapterResponse = adapterController.SearchCloudSeriesRecordings(adapterId, groupId, userId, domainId, adapterData);
+
+                response.SeriesRecordings = adapterResponse.SeriesRecordings;
+                response.TotalItems = adapterResponse.SeriesRecordings.Count;
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at SearchCloudSeriesRecordings. ");
+                sb.Append(String.Concat("userId: ", userId));
+                sb.Append(String.Concat("domainID: ", domainId));
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
             return response;
         }
 
