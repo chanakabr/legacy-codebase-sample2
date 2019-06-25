@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
 using Catalog.Response;
 using ConfigurationManager;
 using Core.Catalog.Cache;
@@ -1096,8 +1097,18 @@ namespace Core.Catalog
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
-                queryParser.PageSize = 0;
-                queryParser.GetAllDocuments = true;
+
+                int maxStatSortResult = ApplicationConfiguration.ElasticSearchConfiguration.MaxStatSortResults.IntValue;
+
+                if (maxStatSortResult > 0)
+                {
+                    queryParser.PageSize = maxStatSortResult;
+                }
+                else
+                {
+                    queryParser.PageSize = 0;
+                    queryParser.GetAllDocuments = true;
+                }
 
                 if (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                 {
@@ -1196,9 +1207,7 @@ namespace Core.Catalog
                     }
 
                     string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                    log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                    
                     if (httpStatus == STATUS_OK)
                     {
                         #region Process ElasticSearch result
@@ -1832,10 +1841,22 @@ namespace Core.Catalog
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
 
+            //Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
+            //Dictionary<string, int> cacheResults = new Dictionary<string, int>();
+
             ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary =
                 new ConcurrentDictionary<string, List<StatisticsAggregationResult>>();
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
+
+            //Dictionary<string, object> funcParams = new Dictionary<string, object>();
+            //funcParams.Add("groupId", groupId);
+            //funcParams.Add("startDate", startDate);
+            //funcParams.Add("endDate", endDate);
+            //funcParams.Add("orderDirection", orderDirection);
+
+            //bool cacheSuccess =
+            //    LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref cacheResults, SortAssetsByStatsInner, null, groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME);
 
             #region Define Aggregation Query
 
@@ -1974,18 +1995,18 @@ namespace Core.Catalog
 
             #region Split call of aggregations query to pieces
 
-            int aggregationssSize = 5000;
+            int aggregationsSize = ApplicationConfiguration.ElasticSearchConfiguration.StatSortBulkSize.IntValue;
 
             //Start MultiThread Call
             List<Task> tasks = new List<Task>();
 
             // Split the request to small pieces, to avoid timeout exceptions
-            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationssSize)
+            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationsSize)
             {
                 idsTerm.Value.Clear();
 
                 // Convert partial Ids to strings
-                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(aggregationssSize).Select(id => id.ToString()));
+                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(aggregationsSize).Select(id => id.ToString()));
 
                 string aggregationsRequestBody = filteredQuery.ToString();
 
@@ -1996,53 +2017,52 @@ namespace Core.Catalog
                     ContextData contextData = new ContextData();
                     // Create a task for the search and merge of partial aggregations
                     Task task = Task.Run(() =>
+                    {
+                        contextData.Load();
+                        // Get aggregations results
+                        string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsRequestBody);
+
+                        if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                         {
-                            contextData.Load();
-                            // Get aggregations results
-                            string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsRequestBody);
+                            // Parse string into dictionary
+                            var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
 
-                            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+                            // Run on partial dictionary and merge into main dictionary
+                            foreach (var mainPart in partialDictionary)
                             {
-                                // Parse string into dictionary
-                                var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
-
-                                // Run on partial dictionary and merge into main dictionary
-                                foreach (var mainPart in partialDictionary)
+                                if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
                                 {
-                                    if (!ratingsAggregationsDictionary.ContainsKey(mainPart.Key))
-                                    {
-                                        ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationResult>();
-                                    }
+                                    ratingsAggregationsDictionary[mainPart.Key] = new List<StatisticsAggregationResult>();
+                                }
 
-                                    foreach (var singleResult in mainPart.Value)
-                                    {
-                                        ratingsAggregationsDictionary[mainPart.Key].Add(singleResult);
-                                    }
+                                foreach (var singleResult in mainPart.Value)
+                                {
+                                    ratingsAggregationsDictionary[mainPart.Key].Add(singleResult);
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            // Parse string into dictionary
+                            var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
+
+                            // Run on partial dictionary and merge into main dictionary
+                            foreach (var mainPart in partialDictionary)
                             {
-                                // Parse string into dictionary
-                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
-
-                                // Run on partial dictionary and merge into main dictionary
-                                foreach (var mainPart in partialDictionary)
+                                if (!countsAggregationsDictionary.ContainsKey(mainPart.Key))
                                 {
-                                    if (!countsAggregationsDictionary.ContainsKey(mainPart.Key))
-                                    {
-                                        countsAggregationsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
-                                    }
+                                    countsAggregationsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
+                                }
 
-                                    foreach (var singleResult in mainPart.Value)
-                                    {
-                                        countsAggregationsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
-                                    }
+                                foreach (var singleResult in mainPart.Value)
+                                {
+                                    countsAggregationsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
                                 }
                             }
-                        });
+                        }
+                    });
 
                     tasks.Add(task);
-
                 }
                 catch (Exception ex)
                 {
@@ -2058,7 +2078,6 @@ namespace Core.Catalog
             {
                 log.ErrorFormat("Error in SortAssetsByStats (WAIT ALL), Exception: {0}", ex);
             }
-
 
             #endregion
 
@@ -2104,6 +2123,23 @@ namespace Core.Catalog
             }
 
             return sortedList;
+        }
+
+        private Tuple<Dictionary<string, int>, bool> SortAssetsByStatsInner(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            bool success = true;
+
+            int groupId = 0;
+            DateTime? startDate = null;
+            DateTime? endDate = null;
+            OrderBy orderBy = OrderBy.NONE;
+
+            return new Tuple<Dictionary<string, int>, bool>(result, success);
+        }
+
+        private void SortAssetsByStatsInner(List<long> assetIds, int groupId, OrderBy orderBy, DateTime? startDate, DateTime? endDate, ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary, ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary)
+        {
         }
 
         /// <summary>
@@ -2220,9 +2256,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2309,9 +2343,7 @@ namespace Core.Catalog
 
                 // Perform search
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2417,9 +2449,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result

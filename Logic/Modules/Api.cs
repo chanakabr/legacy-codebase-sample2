@@ -2225,9 +2225,9 @@ namespace Core.Api
             return Core.Api.api.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, APILogic.ConditionalAccess.ConditionScope filter)
+        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, APILogic.ConditionalAccess.ConditionScope filter, RuleActionType? ruleActionType)
         {
-            return Core.Api.api.GetBusinessModuleRules(groupId, filter);
+            return Core.Api.api.GetBusinessModuleRules(groupId, filter, ruleActionType);
         }
 
         public static GenericListResponse<PlaybackProfile> GetPlaybackProfiles(int groupId)
