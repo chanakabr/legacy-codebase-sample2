@@ -8511,9 +8511,21 @@ namespace Core.Api
             return response;
         }
 
-        internal static Status DeletePermission(int groupId, long id)
+        internal static Status DeletePermission(long id)
         {
-            throw new NotImplementedException();
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                if (ApiDAL.DeletePermission((int)id))
+                {
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in DeletePermission", ex);
+            }
+            return result;
         }
 
         public static ApiObjects.Response.Status AddPermissionToRole(int groupId, long roleId, long permissionId)
