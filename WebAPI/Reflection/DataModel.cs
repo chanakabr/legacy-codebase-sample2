@@ -1351,6 +1351,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCloudRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
+                    }
+                    break;
+                    
+                case "KalturaCloudSeriesRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
+                    }
+                    break;
+                    
                 case "KalturaCollection":
                     switch(property.Name)
                     {

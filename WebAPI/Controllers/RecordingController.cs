@@ -187,20 +187,32 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter() {StatusIn = string.Empty};
                 }
 
-                filter.Validate();
-
-                Dictionary<string, string> metaDataFilter = null;
-                var externalFilter = filter as KalturaExternalRecordingFilter;
-                if (externalFilter != null && externalFilter.MetaData != null)
-                {
-                    metaDataFilter =
-                        externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
-                }
-
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId,
-                    filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
-                    pager.getPageIndex(), pager.PageSize, filter.OrderBy, metaDataFilter);
+                var cloudFilter = filter as KalturaCloudRecordingFilter;
+                if (cloudFilter == null)
+                {
+                    filter.Validate();
+
+                    Dictionary<string, string> metaDataFilter = null;
+                    var externalFilter = filter as KalturaExternalRecordingFilter;
+                    if (externalFilter != null && externalFilter.MetaData != null)
+                    {
+                        metaDataFilter =
+                            externalFilter.MetaData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
+                    }
+
+                    response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId,
+                        filter.ConvertStatusIn(), filter.Ksql, filter.GetExternalRecordingIds(),
+                        pager.getPageIndex(), pager.PageSize, filter.OrderBy, metaDataFilter);
+                }
+                else
+                {
+                    cloudFilter.Validate();
+
+                    response = ClientsManager.ConditionalAccessClient().SearchCloudRecordings(groupId, userId, domainId,
+                        cloudFilter.AdapterData, cloudFilter.ConvertStatusIn(),
+                        pager.getPageIndex(), pager.PageSize);
+                }
             }
             catch (ClientException ex)
             {
@@ -209,7 +221,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
 
         /// <summary>        
         /// Cancel a previously requested recording. Cancel recording can be called for recording in status Scheduled or Recording Only 

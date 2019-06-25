@@ -1062,6 +1062,62 @@ namespace WebAPI.Models.ConditionalAccess
             return ret;
         }
     }
+    public partial class KalturaCloudRecordingFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCloudSeriesRecordingFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AdapterData != null)
+            {
+                ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaCollectionEntitlement
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
