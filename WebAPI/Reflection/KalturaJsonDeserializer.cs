@@ -364,6 +364,9 @@ namespace WebAPI.Reflection
                 case "KalturaBusinessModuleRule":
                     return new KalturaBusinessModuleRule(parameters);
                     
+                case "KalturaBusinessModuleRuleAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBusinessModuleRuleFilter":
                     return new KalturaBusinessModuleRuleFilter(parameters);
                     
@@ -2580,6 +2583,12 @@ namespace WebAPI.Models.ConditionalAccess
                     StreamerType = (String) Convert.ChangeType(parameters["streamertype"], typeof(String));
                 }
             }
+        }
+    }
+    public partial class KalturaBusinessModuleRuleAction
+    {
+        public KalturaBusinessModuleRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaCaptionPlaybackPluginData
@@ -14601,11 +14610,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaApplyDiscountModuleAction>(typeof(KalturaApplyDiscountModuleAction), (JArray) parameters["actions"]);
+                        Actions = buildList<KalturaBusinessModuleRuleAction>(typeof(KalturaBusinessModuleRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaApplyDiscountModuleAction), parameters["actions"] as object[]);
+                        Actions = buildList(typeof(KalturaBusinessModuleRuleAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
@@ -14649,6 +14658,15 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("segmentIdsApplied") && parameters["segmentIdsApplied"] != null)
                 {
                     SegmentIdsApplied = (String) Convert.ChangeType(parameters["segmentIdsApplied"], typeof(String));
+                }
+                if (parameters.ContainsKey("actionsContainType") && parameters["actionsContainType"] != null)
+                {
+                    ActionsContainType = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["actionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleActionType), ActionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
+                    }
                 }
             }
         }
