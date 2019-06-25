@@ -364,6 +364,9 @@ namespace WebAPI.Reflection
                 case "KalturaBusinessModuleRule":
                     return new KalturaBusinessModuleRule(parameters);
                     
+                case "KalturaBusinessModuleRuleAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaBusinessModuleRuleFilter":
                     return new KalturaBusinessModuleRuleFilter(parameters);
                     
@@ -420,6 +423,12 @@ namespace WebAPI.Reflection
                     
                 case "KalturaClientConfiguration":
                     return new KalturaClientConfiguration(parameters);
+                    
+                case "KalturaCloudRecordingFilter":
+                    return new KalturaCloudRecordingFilter(parameters);
+                    
+                case "KalturaCloudSeriesRecordingFilter":
+                    return new KalturaCloudSeriesRecordingFilter(parameters);
                     
                 case "KalturaCollection":
                     return new KalturaCollection(parameters);
@@ -2576,6 +2585,12 @@ namespace WebAPI.Models.ConditionalAccess
             }
         }
     }
+    public partial class KalturaBusinessModuleRuleAction
+    {
+        public KalturaBusinessModuleRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaCaptionPlaybackPluginData
     {
         public KalturaCaptionPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
@@ -2715,6 +2730,32 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Objects = buildList(typeof(KalturaCDVRAdapterProfile), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaCloudRecordingFilter
+    {
+        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaCloudSeriesRecordingFilter
+    {
+        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
                 }
             }
         }
@@ -9150,6 +9191,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute IndexStatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaAsset(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -9299,6 +9350,19 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
                     ExternalId = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                }
+                if (parameters.ContainsKey("indexStatus") && parameters["indexStatus"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IndexStatusSchemaProperty.Validate("indexStatus", parameters["indexStatus"]);
+                    }
+                    IndexStatus = (KalturaAssetIndexStatus) Enum.Parse(typeof(KalturaAssetIndexStatus), parameters["indexStatus"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAssetIndexStatus), IndexStatus))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", IndexStatus, typeof(KalturaAssetIndexStatus)));
+                    }
                 }
             }
         }
@@ -14546,11 +14610,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaApplyDiscountModuleAction>(typeof(KalturaApplyDiscountModuleAction), (JArray) parameters["actions"]);
+                        Actions = buildList<KalturaBusinessModuleRuleAction>(typeof(KalturaBusinessModuleRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaApplyDiscountModuleAction), parameters["actions"] as object[]);
+                        Actions = buildList(typeof(KalturaBusinessModuleRuleAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
@@ -14594,6 +14658,15 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("segmentIdsApplied") && parameters["segmentIdsApplied"] != null)
                 {
                     SegmentIdsApplied = (String) Convert.ChangeType(parameters["segmentIdsApplied"], typeof(String));
+                }
+                if (parameters.ContainsKey("actionsContainType") && parameters["actionsContainType"] != null)
+                {
+                    ActionsContainType = (KalturaRuleActionType) Enum.Parse(typeof(KalturaRuleActionType), parameters["actionsContainType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaRuleActionType), ActionsContainType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ActionsContainType, typeof(KalturaRuleActionType)));
+                    }
                 }
             }
         }

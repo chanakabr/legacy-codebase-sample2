@@ -458,13 +458,11 @@ namespace WebAPI.Managers
             // check role's hierarchy 
             var ks = KS.GetFromRequest();
 
-            bool isManager = GetRoleIds(ks).
-              Any(ur => ur == MANAGER_ROLE_ID);
+            bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
 
-            if (isManager)
+            if (isManager && roleIds.Any(x => x > MANAGER_ROLE_ID))
             {
-                bool isAboveManager = roleIds.Any(x => x > MANAGER_ROLE_ID);
-                return !isAboveManager;
+                return false;
             }
 
             return true;
@@ -483,14 +481,14 @@ namespace WebAPI.Managers
                     // get original user's roles
                     var userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, originalUserId);
 
-                    bool isManager = userRoleIds.Any(ur => ur == MANAGER_ROLE_ID);
-
-                    if (isManager)
+                    if(userRoleIds.Any(ur => ur == MANAGER_ROLE_ID))
                     {
                         userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
 
-                        bool isAboveManager = userRoleIds.Any(x => x > MANAGER_ROLE_ID);
-                        return !isAboveManager;
+                        if(userRoleIds?.Count> 0&& userRoleIds.Any(x => x > MANAGER_ROLE_ID))
+                        {
+                            return false;
+                        }
                     }
                 }
 
@@ -500,6 +498,31 @@ namespace WebAPI.Managers
             {
                 return false;
             }
+        }
+
+
+        public static bool IsManagerAllowedUpdateAction(string userId, List<long> roleIds)
+        {
+            // check role's hierarchy 
+            var ks = KS.GetFromRequest();
+
+            bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
+            if (isManager)
+            {
+                List<long> userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, userId);
+
+                if (userRoleIds.Any(x => x > MANAGER_ROLE_ID))
+                {
+                    return false;
+                }
+
+                if (roleIds != null && roleIds.Any(x => x > MANAGER_ROLE_ID))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         #endregion

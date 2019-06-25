@@ -1391,6 +1391,71 @@ namespace WebAPI.Clients
             return recording;
         }
 
+        internal KalturaRecordingListResponse SearchCloudRecordings(int groupId, string userId, long domainId, string adapterData, List<KalturaRecordingStatus> recordingStatuses, int pageIndex, int? pageSize)
+        {
+            KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
+            RecordingResponse response = null;
+
+            if (recordingStatuses == null || recordingStatuses.Count == 0)
+            {
+                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.SCHEDULED, KalturaRecordingStatus.RECORDING, KalturaRecordingStatus.RECORDED, KalturaRecordingStatus.CANCELED, KalturaRecordingStatus.FAILED };
+            }
+
+            List<TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.ConditionalAccess.Module.SearchCloudRecordings(groupId, userId, domainId, adapterData, convertedRecordingStatuses.ToArray(), pageIndex, pageSize.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Recordings != null && response.Recordings.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                result.Objects = Mapper.Map<List<KalturaRecording>>(response.Recordings);
+            }
+
+            return result;
+        }
+
+        internal KalturaSeriesRecordingListResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, string adapterData)
+        {
+            KalturaSeriesRecordingListResponse result = new KalturaSeriesRecordingListResponse() { TotalCount = 0 };
+            SeriesResponse response = null;
+
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            {
+                response = Core.ConditionalAccess.Module.SearchCloudSeriesRecordings(groupId, userId, domainId, adapterData);
+            }
+            if (response.SeriesRecordings != null && response.SeriesRecordings.Count > 0)
+            {
+                result.TotalCount = response.TotalItems;
+                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaSeriesRecording>>(response.SeriesRecordings);
+            }
+
+            return result;
+        }
+
         internal KalturaRecordingListResponse SearchRecordings(int groupId, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter, HashSet<string> externalRecordingIds,
                                                                 int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy, Dictionary<string, string> metaData)
         {

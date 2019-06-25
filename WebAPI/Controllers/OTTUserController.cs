@@ -644,7 +644,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
+                if (!RolesManager.IsManagerAllowedUpdateAction(id, user.GetRoleIds()))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
                                                        Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
@@ -685,6 +685,17 @@ namespace WebAPI.Controllers
 
             try
             {
+                List<long> roleToAdd = new List<long>();
+                roleToAdd.Add(roleId);
+                
+                if (!RolesManager.IsManagerAllowedUpdateAction(userId, roleToAdd))
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
+                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       "KalturaOTTUser",
+                                                       "roleId");
+                }
+
                 // call client
                 response = ClientsManager.UsersClient().AddRoleToUser(groupId, userId, roleId);
             }
@@ -722,10 +733,7 @@ namespace WebAPI.Controllers
             {
                 if (!RolesManager.IsManagerAllowedDeleteAction())
                 {
-                    throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
-                                                       "KalturaOTTUser",
-                                                       "roleIds");
+                    throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
                 // call client

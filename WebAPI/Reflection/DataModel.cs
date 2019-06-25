@@ -246,6 +246,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Images":
                             return "images";
+                        case "IndexStatus":
+                            return "indexStatus";
                         case "MediaFiles":
                             return "mediaFiles";
                         case "Metas":
@@ -1102,6 +1104,8 @@ namespace WebAPI.Reflection
                 case "KalturaBusinessModuleRuleFilter":
                     switch(property.Name)
                     {
+                        case "ActionsContainType":
+                            return "actionsContainType";
                         case "BusinessModuleIdApplied":
                             return "businessModuleIdApplied";
                         case "BusinessModuleTypeApplied":
@@ -1344,6 +1348,22 @@ namespace WebAPI.Reflection
                             return "apiVersion";
                         case "ClientTag":
                             return "clientTag";
+                    }
+                    break;
+                    
+                case "KalturaCloudRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
+                    }
+                    break;
+                    
+                case "KalturaCloudSeriesRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
                     }
                     break;
                     

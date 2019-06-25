@@ -18,7 +18,6 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public partial class KalturaRecordingFilter : KalturaFilter<KalturaRecordingOrderBy>
     {
-
         /// <summary>
         /// Recording Statuses
         /// </summary>

@@ -383,32 +383,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaRecording, Recording>()
                 .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.RecordingStatus,
-                    opt => opt.ResolveUsing(src => ConvertKalturaRecordingStatus(src.Status)))
+                .ForMember(dest => dest.RecordingStatus, opt => opt.ResolveUsing(src => ConvertKalturaRecordingStatus(src.Status)))
                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
                 .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
                 .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsProtected))
-                .ForMember(dest => dest.CreateDate,
-                    opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate,
-                    opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)))
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
             
             // Recording to KalturaRecording
             cfg.CreateMap<Recording, KalturaRecording>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Status,
-                    opt => opt.ResolveUsing(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
+                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertRecordingType(src.Type)))
-                .ForMember(dest => dest.IsProtected,
-                    opt => opt.MapFrom(src => IsRecordingProtected(src.ProtectedUntilDate)))
+                .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => IsRecordingProtected(src.ProtectedUntilDate)))
                 .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
-                .ForMember(dest => dest.CreateDate,
-                    opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
-                .ForMember(dest => dest.UpdateDate,
-                    opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
-            
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)));
+
             // KalturaExternalRecording to ExternalRecording
             cfg.CreateMap<KalturaExternalRecording, ExternalRecording>()
                 .IncludeBase<KalturaRecording, Recording>()
@@ -482,7 +475,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))                          
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString(): string.Empty))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
-              .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)));
+              .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
+              .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0));
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
               .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))

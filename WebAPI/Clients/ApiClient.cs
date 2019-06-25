@@ -4046,8 +4046,11 @@ namespace WebAPI.Clients
         {
             KalturaBusinessModuleRuleListResponse result = new KalturaBusinessModuleRuleListResponse();
 
+            var ruleActionType = filter.ActionsContainType.HasValue ? Mapper.Map<RuleActionType?>(filter.ActionsContainType.Value) : null;
+            var conditionScopeFilter = AutoMapper.Mapper.Map<APILogic.ConditionalAccess.ConditionScope>(filter);
+
             Func<GenericListResponse<BusinessModuleRule>> getBusinessModuleRulesFunc = () =>
-               Core.Api.Module.GetBusinessModuleRules(groupId, AutoMapper.Mapper.Map<APILogic.ConditionalAccess.ConditionScope>(filter));
+               Core.Api.Module.GetBusinessModuleRules(groupId, conditionScopeFilter, ruleActionType);
 
             KalturaGenericListResponse<KalturaBusinessModuleRule> response =
                 ClientUtils.GetResponseListFromWS<KalturaBusinessModuleRule, BusinessModuleRule>(getBusinessModuleRulesFunc);
