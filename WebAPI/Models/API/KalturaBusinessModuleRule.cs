@@ -32,7 +32,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "actions")]
         [JsonProperty("actions")]
         [XmlElement(ElementName = "actions")]
-        public List<KalturaApplyDiscountModuleAction> Actions { get; set; }
+        public List<KalturaBusinessModuleRuleAction> Actions { get; set; }
 
         /// <summary>
         /// Create date of the rule

@@ -21,7 +21,8 @@ namespace WebAPI.Models.ConditionalAccess
         APPLY_DISCOUNT_MODULE,
         APPLY_PLAYBACK_ADAPTER,
         FILTER,
-        ASSET_LIFE_CYCLE_TRANSITION
+        ASSET_LIFE_CYCLE_TRANSITION,
+        APPLY_FREE_PLAYBACK
     }
     
     [Serializable]
@@ -289,6 +290,21 @@ namespace WebAPI.Models.ConditionalAccess
             base.Init();
             this.Type = KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION;
             this.AssetLifeCycleRuleTransitionType = KalturaAssetLifeCycleRuleTransitionType.BUSINESS_MODEL;
+        }
+    }
+
+    [Serializable]
+    public partial class KalturaApplyFreePlaybackAction : KalturaBusinessModuleRuleAction
+    {
+        public KalturaApplyFreePlaybackAction()
+        {
+            this.Type = KalturaRuleActionType.APPLY_FREE_PLAYBACK;
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleActionType.APPLY_FREE_PLAYBACK;
         }
     }
 }
