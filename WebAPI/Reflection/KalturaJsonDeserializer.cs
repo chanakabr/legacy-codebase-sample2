@@ -88,6 +88,9 @@ namespace WebAPI.Reflection
                 case "KalturaApplyDiscountModuleAction":
                     return new KalturaApplyDiscountModuleAction(parameters);
                     
+                case "KalturaApplyFreePlaybackAction":
+                    return new KalturaApplyFreePlaybackAction(parameters);
+                    
                 case "KalturaApplyPlaybackAdapterAction":
                     return new KalturaApplyPlaybackAdapterAction(parameters);
                     
@@ -237,6 +240,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetStructMetaListResponse":
                     return new KalturaAssetStructMetaListResponse(parameters);
+                    
+                case "KalturaAssetSubscriptionCondition":
+                    return new KalturaAssetSubscriptionCondition(parameters);
                     
                 case "KalturaAssetUserRule":
                     return new KalturaAssetUserRule(parameters);
@@ -423,6 +429,12 @@ namespace WebAPI.Reflection
                     
                 case "KalturaClientConfiguration":
                     return new KalturaClientConfiguration(parameters);
+                    
+                case "KalturaCloudRecordingFilter":
+                    return new KalturaCloudRecordingFilter(parameters);
+                    
+                case "KalturaCloudSeriesRecordingFilter":
+                    return new KalturaCloudSeriesRecordingFilter(parameters);
                     
                 case "KalturaCollection":
                     return new KalturaCollection(parameters);
@@ -1543,6 +1555,9 @@ namespace WebAPI.Reflection
                 case "KalturaSubscription":
                     return new KalturaSubscription(parameters);
                     
+                case "KalturaSubscriptionCondition":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaSubscriptionDependencySet":
                     return new KalturaSubscriptionDependencySet(parameters);
                     
@@ -1720,6 +1735,9 @@ namespace WebAPI.Reflection
                 case "KalturaUserRole":
                     return new KalturaUserRole(parameters);
                     
+                case "KalturaUserRoleCondition":
+                    return new KalturaUserRoleCondition(parameters);
+                    
                 case "KalturaUserRoleFilter":
                     return new KalturaUserRoleFilter(parameters);
                     
@@ -1737,6 +1755,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUserSocialActionResponse":
                     return new KalturaUserSocialActionResponse(parameters);
+                    
+                case "KalturaUserSubscriptionCondition":
+                    return new KalturaUserSubscriptionCondition(parameters);
                     
                 case "KalturaValue":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -1862,6 +1883,12 @@ namespace WebAPI.Models.ConditionalAccess
                     DiscountModuleId = (Int64) Convert.ChangeType(parameters["discountModuleId"], typeof(Int64));
                 }
             }
+        }
+    }
+    public partial class KalturaApplyFreePlaybackAction
+    {
+        public KalturaApplyFreePlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaApplyPlaybackAdapterAction
@@ -2724,6 +2751,32 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Objects = buildList(typeof(KalturaCDVRAdapterProfile), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaCloudRecordingFilter
+    {
+        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaCloudSeriesRecordingFilter
+    {
+        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("adapterData") && parameters["adapterData"] != null)
+                {
+                    AdapterData = (String) Convert.ChangeType(parameters["adapterData"], typeof(String));
                 }
             }
         }
@@ -14440,6 +14493,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaAssetSubscriptionCondition
+    {
+        public KalturaAssetSubscriptionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaAssetUserRule
     {
         public KalturaAssetUserRule(Dictionary<string, object> parameters = null) : base(parameters)
@@ -14578,11 +14637,11 @@ namespace WebAPI.Models.API
                 {
                     if (parameters["actions"] is JArray)
                     {
-                        Actions = buildList<KalturaApplyDiscountModuleAction>(typeof(KalturaApplyDiscountModuleAction), (JArray) parameters["actions"]);
+                        Actions = buildList<KalturaBusinessModuleRuleAction>(typeof(KalturaBusinessModuleRuleAction), (JArray) parameters["actions"]);
                     }
                     else if (parameters["actions"] is IList)
                     {
-                        Actions = buildList(typeof(KalturaApplyDiscountModuleAction), parameters["actions"] as object[]);
+                        Actions = buildList(typeof(KalturaBusinessModuleRuleAction), parameters["actions"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
@@ -17510,6 +17569,36 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaSubscriptionCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaSubscriptionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    }
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaTimeShiftedTvPartnerSettings
     {
         private static RuntimeSchemePropertyAttribute PaddingBeforeProgramStartsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
@@ -18032,6 +18121,36 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaUserRoleCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserRoleCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaUserRoleCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdInSchemaProperty.Validate("idIn", parameters["idIn"]);
+                    }
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaUserRoleFilter
     {
         public KalturaUserRoleFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -18078,6 +18197,12 @@ namespace WebAPI.Models.API
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaUserSubscriptionCondition
+    {
+        public KalturaUserSubscriptionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
 }

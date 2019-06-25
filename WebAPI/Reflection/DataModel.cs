@@ -1351,6 +1351,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCloudRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
+                    }
+                    break;
+                    
+                case "KalturaCloudSeriesRecordingFilter":
+                    switch(property.Name)
+                    {
+                        case "AdapterData":
+                            return "adapterData";
+                    }
+                    break;
+                    
                 case "KalturaCollection":
                     switch(property.Name)
                     {
@@ -5709,6 +5725,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSubscriptionCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaSubscriptionDependencySet":
                     switch(property.Name)
                     {
@@ -6384,6 +6408,14 @@ namespace WebAPI.Reflection
                             return "permissionNames";
                         case "Permissions":
                             return "permissions";
+                    }
+                    break;
+                    
+                case "KalturaUserRoleCondition":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
                     }
                     break;
                     

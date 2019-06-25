@@ -23,7 +23,10 @@ namespace WebAPI.Models.API
         SEGMENTS,
         DATE,
         OR,
-        HEADER
+        HEADER,
+        USER_SUBSCRIPTION,
+        ASSET_SUBSCRIPTION,
+        USER_ROLE
     }
     
     /// <summary>
@@ -425,6 +428,79 @@ namespace WebAPI.Models.API
             if (string.IsNullOrEmpty(Value))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHeaderCondition.value");
+            }
+        }
+    }
+    
+    public abstract partial class KalturaSubscriptionCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Comma separated subscription IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSubscriptionCondition.idIn");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// UserSubscription Condition - indicates which users this rule is applied on by their subscriptions
+    /// </summary>
+    public partial class KalturaUserSubscriptionCondition : KalturaSubscriptionCondition
+    {
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.USER_SUBSCRIPTION;
+        }
+    }
+
+    /// <summary>
+    /// AssetSubscription Condition - indicates which assets this rule is applied on by their subscriptions
+    /// </summary>
+    public partial class KalturaAssetSubscriptionCondition : KalturaSubscriptionCondition
+    {
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.ASSET_SUBSCRIPTION;
+        }
+    }
+    
+    /// <summary>
+    /// UserRole Condition - indicates which users this rule is applied on by their roles
+    /// </summary>
+    public partial class KalturaUserRoleCondition : KalturaCondition
+    {
+        /// <summary>
+        /// Comma separated user role IDs list
+        /// </summary>
+        [DataMember(Name = "idIn")]
+        [JsonProperty("idIn")]
+        [XmlElement(ElementName = "idIn")]
+        [SchemeProperty(DynamicMinInt = 0)]
+        public string IdIn { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.USER_ROLE;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.IdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUserRoleCondition.idIn");
             }
         }
     }

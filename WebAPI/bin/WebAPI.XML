@@ -5646,6 +5646,31 @@
             Header value
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaSubscriptionCondition.IdIn">
+            <summary>
+            Comma separated subscription IDs list
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaUserSubscriptionCondition">
+            <summary>
+            UserSubscription Condition - indicates which users this rule is applied on by their subscriptions
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaAssetSubscriptionCondition">
+            <summary>
+            AssetSubscription Condition - indicates which assets this rule is applied on by their subscriptions
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaUserRoleCondition">
+            <summary>
+            UserRole Condition - indicates which users this rule is applied on by their roles
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserRoleCondition.IdIn">
+            <summary>
+            Comma separated user role IDs list
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaAssetUserRuleFilter">
             <summary>
             Asset user rule filter
@@ -9265,6 +9290,26 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaCaptionPlaybackPluginData.Format">
             <summary>
             Format
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCloudRecordingFilter">
+            <summary>
+            Filtering cloud external recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCloudRecordingFilter.AdapterData">
+            <summary>
+            Adapter Data
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCloudSeriesRecordingFilter">
+            <summary>
+            Cloud series filtering recordings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCloudSeriesRecordingFilter.AdapterData">
+            <summary>
+            Adapter Data
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaExternalRecordingFilter">

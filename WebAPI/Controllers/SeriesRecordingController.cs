@@ -14,10 +14,10 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [Service("seriesRecording")]    
+    [Service("seriesRecording")]
     public class SeriesRecordingController : IKalturaController
     {
-       
+
         /// <summary>        
         /// Cancel a previously requested series recording. Cancel series recording can be called for recording in status Scheduled or Recording Only 
         /// </summary>
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);                
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 response = ClientsManager.ConditionalAccessClient().CancelSeriesRecord(groupId, userId, domainId, id);
             }
             catch (ClientException ex)
@@ -165,7 +165,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-              
+
         /// <summary>        
         /// Delete Season recording epgs that was recorded as part of series
         /// </summary>
@@ -194,7 +194,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                
+
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().DeleteSeriesRecord(groupId, userId, domainId, id, 0, seasonNumber);
             }
@@ -205,48 +205,56 @@ namespace WebAPI.Controllers
             return response;
         }
 
-           /// <summary>
-           /// Return a list of series recordings for the household with optional filter by status and KSQL.
-           /// </summary>
-           /// <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
-           /// <returns></returns>
-           /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
-           [Action("list")]
+        /// <summary>
+        /// Return a list of series recordings for the household with optional filter by status and KSQL.
+        /// </summary>
+        /// <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
+        [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-           static public KalturaSeriesRecordingListResponse List(KalturaSeriesRecordingFilter filter = null)
-           {
-               KalturaSeriesRecordingListResponse response = null;
+        static public KalturaSeriesRecordingListResponse List(KalturaSeriesRecordingFilter filter = null)
+        {
+            KalturaSeriesRecordingListResponse response = null;
 
-               try
-               {
-                   int groupId = KS.GetFromRequest().GroupId;
-                   string userId = KS.GetFromRequest().UserId;
-                   long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                   if (filter == null)
-                   {
-                       filter = new KalturaSeriesRecordingFilter();
-                   }
-                   
-                   // call client                
-                   response = ClientsManager.ConditionalAccessClient().GetFollowSeries(groupId, userId, domainId, filter.OrderBy);
-               }
-               catch (ClientException ex)
-               {
-                   ErrorUtils.HandleClientException(ex);
-               }
-               return response;
-           }
+                if (filter == null)
+                {
+                    filter = new KalturaSeriesRecordingFilter();
+                }
+
+                // call client                
+                var cloudFilter = filter as KalturaCloudSeriesRecordingFilter;
+                if (cloudFilter == null)
+                {
+                    response = ClientsManager.ConditionalAccessClient().GetFollowSeries(groupId, userId, domainId, filter.OrderBy);
+                }
+                else
+                {
+                    response = ClientsManager.ConditionalAccessClient().SearchCloudSeriesRecordings(groupId, userId, domainId, cloudFilter.AdapterData);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
 
 
         /// <summary>
         /// Issue a record request for a complete season or series
         /// </summary>
-           /// <param name="recording">SeriesRecording Object</param>
+        /// <param name="recording">SeriesRecording Object</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
         /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
