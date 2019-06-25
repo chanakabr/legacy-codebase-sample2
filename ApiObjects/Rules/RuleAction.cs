@@ -182,4 +182,14 @@ namespace ApiObjects.Rules
             TransitionType = AssetLifeCycleRuleTransitionType.BusinessModel;
         }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ApplyFreePlaybackAction : BusinessModuleRuleAction
+    {
+        public ApplyFreePlaybackAction()
+        {
+            Type = RuleActionType.ApplyFreePlayback;
+        }
+    }
 }

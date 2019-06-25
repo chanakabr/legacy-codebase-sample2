@@ -44,5 +44,10 @@ namespace Core.Pricing
             m_oCurrency.InitializeByCode2(sCurrencyCode2);
             m_dPrice = dP;
         }
+
+        public bool IsFree()
+        {
+            return m_dPrice == 0.0;
+        }
     }
 }
