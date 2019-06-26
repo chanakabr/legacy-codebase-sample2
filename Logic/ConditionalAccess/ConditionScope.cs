@@ -1,5 +1,6 @@
 ﻿using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Api;
@@ -13,61 +14,31 @@ using System.Threading.Tasks;
 
 namespace APILogic.ConditionalAccess
 {
-    public class ConditionScope : IConditionScope, IBusinessModuleConditionScope, ISegmentsConditionScope, IDateConditionScope, IHeaderConditionScope, IIpRangeConditionScope, IAssetConditionScope
+    public class ConditionScope : IConditionScope, 
+                                  IBusinessModuleConditionScope, 
+                                  ISegmentsConditionScope, 
+                                  IDateConditionScope, 
+                                  IHeaderConditionScope, 
+                                  IIpRangeConditionScope, 
+                                  IAssetConditionScope, 
+                                  IUserRoleConditionScope,
+                                  IUserSubscriptionConditionScope,
+                                  IAssetSubscriptionConditionScope
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public long BusinessModuleId { get; set; }
-
-        public eTransactionType? BusinessModuleType { get; set; }
-
-        public bool FilterByDate { get; set; }
-
-        public bool FilterBySegments { get; set; }
-
-        public List<long> SegmentIds { get; set; }
-
-        public Dictionary<string, string> Headers { get; set; }
-
-        public long Ip { get; set; }
-
-        public long MediaId { get; set; }
-
-        public int GroupId { get; set; }
-
         public long RuleId { get; set; }
-        
-        public List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId)
-        {
-            List<BusinessModuleRule> allBusinessModuleRules = BusinessModuleRuleManager.GetAllBusinessModuleRules(groupId);
-            List<BusinessModuleRule> businessRulesByMedia = new List<BusinessModuleRule>();
-
-            string businessModuleRulesByMediaKey = LayeredCacheKeys.GetBusinessModuleRulesRulesByMediaKey(mediaId);
-            string mediaInvalidationKey = LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId);
-            string allBusinessModuleRulesInvalidationKey = LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId);
-
-            if (!LayeredCache.Instance.Get<List<BusinessModuleRule>>(businessModuleRulesByMediaKey,
-                                                            ref businessRulesByMedia,
-                                                            GetBusinessModuleRulesByMedia,
-                                                            new Dictionary<string, object>()
-                                                            {
-                                                                        { "allBusinessModuleRules", allBusinessModuleRules },
-                                                                        { "mediaId", mediaId },
-                                                                        { "groupId", groupId }
-                                                            },
-                                                            groupId,
-                                                            LayeredCacheConfigNames.GET_ASSET_RULES_BY_ASSET,
-                                                            new List<string>()
-                                                            {
-                                                                        allBusinessModuleRulesInvalidationKey,
-                                                                        mediaInvalidationKey
-                                                            }))
-            {
-                log.ErrorFormat("GetBusinessModuleRulesByMediaId - Failed get data from cache. groupId: {0}", groupId);
-            }
-
-            return businessRulesByMedia;
-        }
+        public long BusinessModuleId { get; set; }
+        public eTransactionType? BusinessModuleType { get; set; }
+        public List<long> SegmentIds { get; set; }
+        public bool FilterBySegments { get; set; }
+        public bool FilterByDate { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
+        public long Ip { get; set; }
+        public long MediaId { get; set; }
+        public int GroupId { get; set; }
+        public string UserId { get; set; }
+        public List<int> UserSubscriptions { get; set; }
 
         public override string ToString()
         {
@@ -107,9 +78,61 @@ namespace APILogic.ConditionalAccess
                 sb.AppendFormat("Ip: {0}; ", Ip);
             }
 
+            if (MediaId > 0)
+            {
+                sb.AppendFormat("MediaId: {0}; ", MediaId);
+            }
+
+            if (GroupId > 0)
+            {
+                sb.AppendFormat("GroupId: {0}; ", GroupId);
+            }
+
+            if (!string.IsNullOrEmpty(UserId))
+            {
+                sb.AppendFormat("UserId: {0}; ", UserId);
+            }
+            
+            if (UserSubscriptions != null)
+            {
+                sb.AppendFormat("UserSubscriptions: {0}; ", string.Join(", ", UserSubscriptions));
+            }
+
             return sb.ToString();
         }
+        
+        public List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId)
+        {
+            List<BusinessModuleRule> allBusinessModuleRules = BusinessModuleRuleManager.GetAllBusinessModuleRules(groupId);
+            List<BusinessModuleRule> businessRulesByMedia = new List<BusinessModuleRule>();
 
+            string businessModuleRulesByMediaKey = LayeredCacheKeys.GetBusinessModuleRulesRulesByMediaKey(mediaId);
+            string mediaInvalidationKey = LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId);
+            string allBusinessModuleRulesInvalidationKey = LayeredCacheKeys.GetAllBusinessModuleRulesGroupInvalidationKey(groupId);
+
+            if (!LayeredCache.Instance.Get<List<BusinessModuleRule>>(businessModuleRulesByMediaKey,
+                                                            ref businessRulesByMedia,
+                                                            GetBusinessModuleRulesByMedia,
+                                                            new Dictionary<string, object>()
+                                                            {
+                                                                        { "allBusinessModuleRules", allBusinessModuleRules },
+                                                                        { "mediaId", mediaId },
+                                                                        { "groupId", groupId }
+                                                            },
+                                                            groupId,
+                                                            LayeredCacheConfigNames.GET_ASSET_RULES_BY_ASSET,
+                                                            new List<string>()
+                                                            {
+                                                                        allBusinessModuleRulesInvalidationKey,
+                                                                        mediaInvalidationKey
+                                                            }))
+            {
+                log.ErrorFormat("GetBusinessModuleRulesByMediaId - Failed get data from cache. groupId: {0}", groupId);
+            }
+
+            return businessRulesByMedia;
+        }
+        
         private static Tuple<List<BusinessModuleRule>, bool> GetBusinessModuleRulesByMedia(Dictionary<string, object> funcParams)
         {
             List<BusinessModuleRule> BusinessModuleRulesByAsset = new List<BusinessModuleRule>();
@@ -166,6 +189,37 @@ namespace APILogic.ConditionalAccess
             }
 
             return new Tuple<List<BusinessModuleRule>, bool>(BusinessModuleRulesByAsset, BusinessModuleRulesByAsset != null);
+        }
+
+        public List<long> GetUserRoleIds(int groupId, string userId)
+        {
+            var longIdsResponse = Core.Users.Module.GetUserRoleIds(groupId, userId);
+            if (longIdsResponse != null) { return longIdsResponse.Ids; }
+
+            return null;
+        }
+        
+        public bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds)
+        {
+            var subscriptionsChannels = Core.Pricing.Module.GetSubscriptionsData(groupId, subscriptionIds.Select(x => x.ToString()).ToArray(), string.Empty, string.Empty, string.Empty);
+            if (subscriptionsChannels == null || subscriptionsChannels.Subscriptions == null) { return false; }
+
+            HashSet<int> channelsIds = new HashSet<int>();
+            foreach (var channelSubscription in subscriptionsChannels.Subscriptions)
+            {
+                foreach (var item in channelSubscription.m_sCodes)
+                {
+                    if (int.TryParse(item.m_sCode, out int subscriptionId) && !channelsIds.Contains(subscriptionId))
+                    {
+                        channelsIds.Add(subscriptionId);
+                    }
+                }
+            }
+
+            if (channelsIds.Count == 0) { return false; }
+
+            List<int> validChannelIds = Core.ConditionalAccess.Utils.ValidateMediaContainedInChannels((int)mediaId, groupId, channelsIds);
+            return validChannelIds != null && validChannelIds.Count > 0;
         }
     }
 }

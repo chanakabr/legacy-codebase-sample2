@@ -94,6 +94,7 @@ namespace Core.ConditionalAccess
                                     {
                                         //shouldCheckEntitlement is already false
                                         //bIsOfflinePlayback is already false so no need to assign 
+                                        // TODO SHIR - DONT FORGET TO ADD END_DATE TO Utils.GetFreeItemLeftLifeCycle IN GetEntitlement
                                         Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
                                     }
                                     // if the user has the NPVR service then check entitlements, otherwise he isn't entitled
@@ -107,6 +108,7 @@ namespace Core.ConditionalAccess
                             {
                                 //shouldCheckEntitlement is already false
                                 //bIsOfflinePlayback is already false so no need to assign 
+                                // TODO SHIR - DONT FORGET TO ADD END_DATE TO Utils.GetFreeItemLeftLifeCycle IN GetEntitlement
                                 Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
                             }
                         }
@@ -127,7 +129,7 @@ namespace Core.ConditionalAccess
                             {
                                 if (cachedEntitlementResults.IsFree)
                                 {
-                                    Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
+                                    Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle, cachedEntitlementResults.EntitlementEndDate);
                                     response.ViewLifeCycle = strViewLifeCycle;
                                     response.FullLifeCycle = strFullLifeCycle;
                                 }
@@ -195,7 +197,7 @@ namespace Core.ConditionalAccess
                             // If the item is free
                             if (Utils.IsFreeItem(objPrice))
                             {
-                                Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
+                                Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle, objPrice.m_oItemPrices[0].m_dtEndDate);
                             }
                             else if (Utils.IsItemPurchased(objPrice))
                             // Item is not free and also not user is not suspended
