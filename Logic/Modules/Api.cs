@@ -1475,17 +1475,7 @@ namespace Core.Api
         public static PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
             return Core.Api.api.GetUserPermissions(groupId, userId);
-        }
-
-        public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            return Core.Api.api.AddPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
-        }
-
-        public static Status DeletePermission(int groupId, long id)
-        {
-            return Core.Api.api.DeletePermission(id);
-        }
+        }      
 
         public static Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -2314,5 +2304,32 @@ namespace Core.Api
             return result;
         }
 
+        public static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        {
+            GenericResponse<Permission> result = new GenericResponse<Permission>();
+            try
+            {
+                result =  api.AddPermission(groupId, permission);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in AddPermission", ex);
+            }
+            return result;
+        }
+
+        public static Status DeletePermission(int groupId, long id)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                result = api.DeletePermission(groupId, id);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in DeletePermission", ex);
+            }
+            return result;
+        }
     }
 }

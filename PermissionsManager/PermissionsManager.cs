@@ -275,7 +275,7 @@ namespace PermissionsManager
                         {
                             if (!alreadyExistingPermissions.Contains(sourceName))
                             {
-                                int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup, friendlyName);
+                                int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup, friendlyName, string.Empty);
 
                                 permissionsDictionary[sourceName] = newId;
                                 alreadyExistingPermissions.Add(sourceName);
@@ -1241,7 +1241,7 @@ namespace PermissionsManager
                     if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name))
                     {
                         // if not, it is new and should be added
-                        int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup, permission.FriendlyName);
+                        int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup, permission.FriendlyName, string.Empty);
                         permission.Id = newId;
 
                         log.InfoFormat("!! INSERT !! Permissions - id {0} name {1}", permission.Id, permission.Name);

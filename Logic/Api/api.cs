@@ -2296,7 +2296,7 @@ namespace Core.Api
 
             }
             return res;
-        }
+        }        
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -8488,45 +8488,28 @@ namespace Core.Api
             return response;
         }
 
-        public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            PermissionResponse response = new PermissionResponse()
-            {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+        //public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
+        //{
+        //    PermissionResponse response = new PermissionResponse()
+        //    {
+        //        Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+        //    };
 
-            try
-            {
-                response.Permission = DAL.ApiDAL.InsertPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
-                if (response.Permission != null)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while adding permission. group id = {0}", groupId), ex);
-            }
+        //    try
+        //    {
+        //        response.Permission = DAL.ApiDAL.InsertPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
+        //        if (response.Permission != null)
+        //        {
+        //            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(string.Format("Error while adding permission. group id = {0}", groupId), ex);
+        //    }
 
-            return response;
-        }
-
-        internal static Status DeletePermission(long id)
-        {
-            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            try
-            {
-                if (ApiDAL.DeletePermission((int)id))
-                {
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception in DeletePermission", ex);
-            }
-            return result;
-        }
+        //    return response;
+        //}        
 
         public static ApiObjects.Response.Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -11880,6 +11863,91 @@ namespace Core.Api
             }
 
             return assetResponse.Object;
+        }
+
+        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        {
+            GenericResponse<Permission> response = new GenericResponse<Permission>();
+
+            try
+            {
+                permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName,
+                    permission.DependsOnPermissionNames, groupId);
+                if (permission.Id > 0)
+                {
+                    response.Object = permission;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "failed to insert new permission");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddPermission failed groupId = {0}, permissionName: {1} ex = {2}", groupId, permission.Name, ex);
+                return response;
+            }
+
+            return response;
+        }
+
+        internal static Permission GetPermission(int groupId, long id)
+        {
+            Permission permission = null;
+
+            try
+            {
+                DataTable dt = ApiDAL.GetPermission(groupId, id);
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permission = new Permission()
+                    {
+                        GroupId = groupId,
+                        DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DEPENDS_ON_PERMISSION_NAMES"),
+                        FriendlyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FRIENDLY_NAME"),
+                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID")
+                    };
+                }
+                else
+                {
+                    log.ErrorFormat("No permissionId found {0}, groupId: {1}", id, groupId);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("GetPermission Failed. permissionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+            }
+
+            return permission;
+        }
+
+        internal static Status DeletePermission(int groupId, long id)
+        {
+            try
+            {
+                Permission permission = GetPermission(groupId, id);
+                if(permission == null)
+                {
+                    log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.PermissionNotFound);
+                }
+
+                // delete topicNotification from DB
+                if (!ApiDAL.DeletePermission(id))
+                {
+                    log.ErrorFormat("Error while trying to delete Permission. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("DeletePermission Failed. permissionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+                return new Status((int)eResponseStatus.Error); ;
+            }
+
+            return new Status((int)eResponseStatus.OK);
         }
     }
 }

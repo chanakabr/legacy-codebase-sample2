@@ -3332,46 +3332,46 @@ namespace DAL
 
         }
         
-        public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            Permission permission = new Permission();
-            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
-            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
+        //public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
+        //{
+        //    Permission permission = new Permission();
+        //    Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+        //    Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Permission");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@type", (int)type);
-                sp.AddParameter("@users_group", usersGroup);
-                sp.AddParameter("@updater_id", updaterId);
-                sp.AddIDListParameter<long>("@permission_item_ids", permissionItemsIds, "ID");
+        //    try
+        //    {
+        //        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Permission");
+        //        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //        sp.AddParameter("@group_id", groupId);
+        //        sp.AddParameter("@name", name);
+        //        sp.AddParameter("@type", (int)type);
+        //        sp.AddParameter("@users_group", usersGroup);
+        //        sp.AddParameter("@updater_id", updaterId);
+        //        sp.AddIDListParameter<long>("@permission_item_ids", permissionItemsIds, "ID");
 
-                DataSet ds = sp.ExecuteDataSet();
+        //        DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    DataTable permissionsTable = ds.Tables[0];
-                    DataTable permissionItemsTable = ds.Tables[1];
+        //        if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+        //        {
+        //            DataTable permissionsTable = ds.Tables[0];
+        //            DataTable permissionItemsTable = ds.Tables[1];
 
-                    permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
+        //            permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
 
-                    rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
+        //            rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
 
-                    if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null && rolesPermissions[0].Count > 0)
-                        permission = rolesPermissions[0][0];
-                }
-            }
-            catch (Exception ex)
-            {
-                permission = null;
-                log.Error(string.Format("Error while inserting new permission to DB, group id = {0}", groupId), ex);
-            }
+        //            if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null && rolesPermissions[0].Count > 0)
+        //                permission = rolesPermissions[0][0];
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        permission = null;
+        //        log.Error(string.Format("Error while inserting new permission to DB, group id = {0}", groupId), ex);
+        //    }
 
-            return permission;
-        }
+        //    return permission;
+        //}
 
         public static int InsertRolePermission(int groupId, long roleId, long permissionId)
         {
@@ -4869,21 +4869,19 @@ namespace DAL
             return result;
         }
 
-        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName)
+        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName, string dependsOnPermissionNames, int groupId = 0)
         {
-            int result = 0;
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId }
+                ,{ "@name", name }
+                ,{ "@type", type }
+                ,{ "@usersGroup", usersGroup }
+                ,{ "@friendlyName", friendlyName }
+                ,{ "@dependsOnPermissionNames", dependsOnPermissionNames }
+            };
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Permission");
-            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@groupId", 0);
-            storedProcedure.AddParameter("@name", name);
-            storedProcedure.AddParameter("@type", type);
-            storedProcedure.AddParameter("@usersGroup", usersGroup);
-            storedProcedure.AddParameter("@friendlyName", friendlyName);
-
-            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
-            return result;
+            return UtilsDal.ExecuteReturnValue<int>("Insert_Permission", parameters, "MAIN_CONNECTION_STRING");
         }
 
         public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName)
@@ -4908,7 +4906,7 @@ namespace DAL
             return result;
         }
 
-        public static bool DeletePermission(int id)
+        public static bool DeletePermission(long id)
         {
             bool result = false;
 
@@ -5690,6 +5688,18 @@ namespace DAL
                 log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, externalId: {1}, ex:{2} ", groupId, externalId , ex);
                 throw;
             }
+        }
+
+        public static DataTable GetPermission(int groupId, long id)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId }
+                ,{ "@id", id }
+
+            };
+
+            return UtilsDal.Execute("Get_PermissionById", parameters);
         }
     }
 }
