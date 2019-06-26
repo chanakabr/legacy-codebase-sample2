@@ -17,6 +17,21 @@ namespace Core.ConditionalAccess
         [JsonProperty("DomainBundleEntitlements")]
         internal BundleEntitlements DomainBundleEntitlements { get; set; }
 
+        public List<int> DomainSubscriptionsIds
+        {
+            get
+            {
+                if (DomainBundleEntitlements != null &&
+                    DomainBundleEntitlements.SubscriptionsData != null &&
+                    DomainBundleEntitlements.SubscriptionsData.Count > 0)
+                {
+                    return new List<int>(DomainBundleEntitlements.SubscriptionsData.Keys);
+                }
+
+                return null;
+            }
+        }
+
         /// <summary>
         /// represents all the domain entitlements
         /// </summary>        
@@ -25,6 +40,7 @@ namespace Core.ConditionalAccess
             DomainPpvEntitlements = new PPVEntitlements();
             DomainBundleEntitlements = new BundleEntitlements();
         }
+
 
         /// <summary>
         ///  represents the domain ppv entitlements object
@@ -100,5 +116,4 @@ namespace Core.ConditionalAccess
             EntitledCollections = new Dictionary<string, List<Utils.UserBundlePurchase>>();
         }
     }
-
 }

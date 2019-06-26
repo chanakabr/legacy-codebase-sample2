@@ -1645,7 +1645,7 @@ namespace Core.ConditionalAccess
             }
 
             if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
-
+            
             long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
             if (couponGroupId > 0)
             {
@@ -8497,20 +8497,28 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle)
+        internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle, DateTime? endDate = null)
         {
             // Default is 2 days
             TimeSpan ts = new TimeSpan(2, 0, 0, 0);
 
             // Get the group's configuration for free view life cycle
             string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
-
             if (!string.IsNullOrEmpty(sFreeLeftView))
             {
-                DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
-                ts = dEndDate.Subtract(DateTime.UtcNow);
+                DateTime tcmEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
+                ts = tcmEndDate.Subtract(DateTime.UtcNow);
             }
 
+            if (endDate.HasValue)
+            {
+                var ts2 = endDate.Value.Subtract(DateTime.UtcNow);
+                if (ts2 < ts)
+                {
+                    ts = ts2;
+                }
+            }
+            
             p_strViewLifeCycle = ts.ToString();
             // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
             p_strFullLifeCycle = ts.ToString();

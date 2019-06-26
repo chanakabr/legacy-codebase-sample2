@@ -6707,29 +6707,26 @@ namespace Core.ConditionalAccess
                         if (!isDownloadPlayContext)
                         {
                             // check if there are any Seasonal promotion rules (free item)
-                            List<int> userSubscriptions = null;
-                            if (domainEntitlements != null && 
-                                domainEntitlements.DomainBundleEntitlements != null && 
-                                domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null &&
-                                domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count > 0)
-                            {
-                                userSubscriptions = new List<int>(domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => int.Parse(x.Key)));
-                            }
-
                             var filter = new ConditionScope()
                             {
                                 GroupId = m_nGroupID,
                                 UserId = userId,
                                 MediaId = mediaID,
                                 FilterByDate = true,
-                                UserSubscriptions = userSubscriptions
+                                UserSubscriptions = domainEntitlements != null ? domainEntitlements.DomainSubscriptionsIds : null
                             };
 
                             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(m_nGroupID, filter, RuleActionType.ApplyFreePlayback);
                             if (businessModuleRules != null && businessModuleRules.HasObjects())
                             {
+                                var maxDate = GetMaxEndDateByBusinessModuleRules(businessModuleRules.Objects);
                                 ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
                                 priceContainer[0] = GetFreeItemPriceContainer();
+                                if (maxDate > 0)
+                                {
+                                    priceContainer[0].m_dtEndDate = DateUtils.UtcUnixTimestampSecondsToDateTime(maxDate);
+                                }
+                                
                                 mf.Initialize(nMediaFileID, priceContainer);
                                 ret[i] = mf;
 
@@ -6987,6 +6984,50 @@ namespace Core.ConditionalAccess
         //        allUsersInDomain = new List<int>(0);
         //    }
         //}
+
+        private long GetMaxEndDateByBusinessModuleRules(List<BusinessModuleRule> businessModuleRules)
+        {
+            long maxDate = -1;
+            foreach (var rule in businessModuleRules)
+            {
+                var dateConditions = rule.Conditions.Where(x => x.Type == RuleConditionType.Date).Select(x => x as DateCondition).ToList();
+                foreach (var date in dateConditions)
+                {
+                    if (!date.Not)
+                    {
+                        if (!date.EndDate.HasValue)
+                        {
+                            maxDate = 0;
+                        }
+                        else if (date.EndDate.Value > maxDate)
+                        {
+                            maxDate = date.EndDate.Value;
+                        }
+                    }
+                    else if (date.EndDate.HasValue)
+                    {
+                        var dateNow = DateUtils.GetUtcUnixTimestampNow();
+                        if (dateNow < date.EndDate.Value)
+                        {
+                            maxDate = date.StartDate ?? maxDate;
+                        }
+                        else
+                        {
+                            maxDate = 0;
+                        }
+                    }
+
+                    if (maxDate == 0) { break; }
+                }
+
+                if (maxDate == 0)
+                {
+                    break;
+                }
+            }
+
+            return maxDate;
+        }
 
         private bool IsExistPPVModule(MediaFilePPVContainer[] oModules)
         {
