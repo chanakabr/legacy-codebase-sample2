@@ -12,6 +12,10 @@
     <PackageReference Include="DeepCloner" Version="0.10.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="SharpZipLib" Version="1.1.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
@@ -65,6 +69,7 @@
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
     <ProjectReference Include="..\Uploader\Uploader.csproj" />
   </ItemGroup>
   

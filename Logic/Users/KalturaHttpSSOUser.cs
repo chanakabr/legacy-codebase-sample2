@@ -16,6 +16,7 @@ using SSOAdapaterUser = APILogic.SSOAdapaterService.User;
 using SSOAdapterUserType = APILogic.SSOAdapaterService.UserType;
 using System.Web;
 using APILogic.Users;
+using TVinciShared;
 
 namespace Core.Users
 {

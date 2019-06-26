@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Web;
 using APILogic.AdyenPayAPI;
 using ApiObjects.Billing;
+using TVinciShared;
 
 namespace Core.Billing
 {

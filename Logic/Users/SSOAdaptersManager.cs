@@ -11,7 +11,7 @@ using System.Reflection;
 using ApiObjects;
 using CachingProvider.LayeredCache;
 using APILogic.SSOAdapaterService;
-using Core;
+using TVinciShared;
 
 namespace APILogic.Users
 {

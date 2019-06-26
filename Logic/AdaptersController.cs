@@ -13,6 +13,7 @@ using Synchronizer;
 using Core.Api;
 using Core;
 using APILogic.OSSAdapterService;
+using TVinciShared;
 
 namespace ApiLogic
 {

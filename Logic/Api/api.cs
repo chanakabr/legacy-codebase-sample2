@@ -44,6 +44,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
+using TVinciShared;
 
 namespace Core.Api
 {
@@ -7165,19 +7166,22 @@ namespace Core.Api
                     string signature = string.Concat(recommendationEngine.ID, recommendationEngine.Settings != null ? string.Concat(recommendationEngine.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
                         groupId, unixTimestamp);
 
-                    using (AdapterControllers.RecommendationEngineAdapter.ServiceClient client = new AdapterControllers.RecommendationEngineAdapter.ServiceClient(string.Empty, recommendationEngine.AdapterUrl))
+
+
+                    using (var client = RecommendationAdapterController.GetREAdapterServiceClient(recommendationEngine.AdapterUrl))
                     {
                         if (!string.IsNullOrEmpty(recommendationEngine.AdapterUrl))
                         {
                             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(recommendationEngine.AdapterUrl);
                         }
 
-                        AdapterControllers.RecommendationEngineAdapter.AdapterStatus adapterResponse = client.SetConfiguration(
+                        var adapterResponse = client.SetConfigurationAsync(
                             recommendationEngine.ID,
-                            recommendationEngine.Settings != null ? recommendationEngine.Settings.Select(s => new AdapterControllers.RecommendationEngineAdapter.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
+                            recommendationEngine.Settings != null ? recommendationEngine.Settings.Select(s => new AdapterControllers.RecommendationEngineAdapter.KeyValue() { Key = s.key, Value = s.value }).ToList() : null,
                             groupId,
                             unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(recommendationEngine.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(recommendationEngine.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))))
+                            .ExecuteAndWait();
 
                         if (adapterResponse != null && adapterResponse.Code == (int)OSSAdapterStatus.OK)
                         {
