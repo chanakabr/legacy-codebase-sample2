@@ -84,7 +84,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reflector", "Reflector\Refl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDNetworksVault", "..\Core\CDNetworksVault\CDNetworksVault.csproj", "{65F14E50-B281-4524-84C4-0ACA05C71FBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "..\Core\ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceExtensions", "..\Core\ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProvider", "..\Core\StreamingProvider\StreamingProvider.csproj", "{320C9FF3-DA35-42EA-A872-65B1CFE681CB}"
 EndProject
@@ -108,7 +108,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiObjects", "..\Core\ApiOb
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiLogic", "..\Core\Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADIFeeder", "..\Core\ADIFeeder\ADIFeeder.csproj", "{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADIFeeder", "..\Core\ADIFeeder\ADIFeeder.csproj", "{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpgIngest", "..\Core\EpgIngest\EpgIngest.csproj", "{13504508-227B-4099-9987-3DF3D2F8E792}"
 EndProject
@@ -307,7 +307,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestTransformationAdapter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestAdaptersCommon", "..\Core\RestAdaptersCommon\RestAdaptersCommon.csproj", "{6476E4B4-7BCD-4989-8EA3-D09AE83E4A34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CDNTokenizers", "..\Core\CDNTokenizers\CDNTokenizers.csproj", "{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDNTokenizers", "..\Core\CDNTokenizers\CDNTokenizers.csproj", "{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "phoenix", "phoenix", "{EEFF70B0-E514-43BA-9226-D177D2752082}"
 	ProjectSection(SolutionItems) = preProject
@@ -655,12 +655,12 @@ Global
 		{65F14E50-B281-4524-84C4-0ACA05C71FBC}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{65F14E50-B281-4524-84C4-0ACA05C71FBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65F14E50-B281-4524-84C4-0ACA05C71FBC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Local|Any CPU.Build.0 = Local|Any CPU
+		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Local|Any CPU.Build.0 = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -715,12 +715,12 @@ Global
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27C6F3ED-B660-466A-9415-DE2D43E58FF0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Local|Any CPU.Build.0 = Local|Any CPU
+		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Local|Any CPU.Build.0 = Release|Any CPU
 		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{0B1D4349-8059-48F7-BF8B-31FB1E7A2260}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -953,7 +953,7 @@ Global
 		{49B94D77-9B91-4BCC-9FBA-6466B6340504} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
