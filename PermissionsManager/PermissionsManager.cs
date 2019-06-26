@@ -7,7 +7,6 @@ using DAL;
 using System.Data;
 using System.Xml;
 using KLogMonitor;
-using System.Web.Hosting;
 using System.Reflection;
 using System.IO;
 using ApiObjects.Roles;
