@@ -1092,7 +1092,8 @@ namespace ApiObjects
         ApplyDiscountModuleRule,
         ApplyPlaybackAdapter,
         UserFilter,
-        AssetLifeCycleTransition
+        AssetLifeCycleTransition,
+        ApplyFreePlayback
     }
 
     public enum RuleConditionType
@@ -1105,7 +1106,10 @@ namespace ApiObjects
         Segments,
         Date,
         Or,
-        Header
+        Header,
+        UserSubscription,
+        AssetSubscription,
+        UserRole
     }
 
     public enum RuleActionTaskType

@@ -67,8 +67,7 @@ namespace Core.Catalog
             this.IsActive = "true";
             this.Erase = "false";
         }
-
-        // TODO SHIR - go over all validation again to check that i do it the same as it is in non-opc account
+        
         public bool Validate(int groupId, CatalogGroupCache cache, ref IngestResponse response, int index, out int mediaId, out HashSet<long> topicIdsToRemove, ref List<Metas> metas, out List<Tags> tags)
         {
             mediaId = 0;

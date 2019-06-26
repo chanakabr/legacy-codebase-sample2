@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,14 +15,12 @@ namespace ApiObjects.Rules
     public interface ISegmentsConditionScope : IConditionScope
     {
         List<long> SegmentIds { get; set; }
-
         bool FilterBySegments { get; set; }
     }
 
     public interface IBusinessModuleConditionScope : IConditionScope
     {
         long BusinessModuleId { get; set; }
-
         eTransactionType? BusinessModuleType { get; set; }
     }
 
@@ -43,9 +42,29 @@ namespace ApiObjects.Rules
     public interface IAssetConditionScope : IConditionScope
     {
         long MediaId { get; set; }
-
         int GroupId { get; set; }
 
         List<BusinessModuleRule> GetBusinessModuleRulesByMediaId(int groupId, long mediaId);
+    }
+
+    public interface IUserSubscriptionConditionScope : IConditionScope
+    {
+        List<int> UserSubscriptions { get; set; }
+    }
+
+    public interface IAssetSubscriptionConditionScope : IConditionScope
+    {
+        int GroupId { get; set; }
+        long MediaId { get; set; }
+
+        bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds);
+    }
+
+    public interface IUserRoleConditionScope : IConditionScope
+    {
+        string UserId { get; set; }
+        int GroupId { get; set; }
+
+        List<long> GetUserRoleIds(int groupId, string userId);
     }
 }

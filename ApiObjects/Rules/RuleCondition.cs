@@ -48,11 +48,11 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class OrCondition: AssetRuleCondition<IConditionScope>
+    public class OrCondition : AssetRuleCondition<IConditionScope>
     {
         [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
         public List<RuleCondition> Conditions { get; set; }
-        
+
         [JsonProperty("Not")]
         public bool Not { get; set; }
 
@@ -163,7 +163,7 @@ namespace ApiObjects.Rules
 
         [JsonProperty("ipTo")]
         public long IpTo { get; set; }
-        
+
         public IpRangeCondition()
         {
             this.Type = RuleConditionType.IP_RANGE;
@@ -197,7 +197,7 @@ namespace ApiObjects.Rules
 
         protected override bool DoEvaluate(IBusinessModuleConditionScope scope)
         {
-            return !scope.BusinessModuleType.HasValue || 
+            return !scope.BusinessModuleType.HasValue ||
                     (BusinessModuleType == scope.BusinessModuleType.Value && (scope.BusinessModuleId == 0 || BusinessModuleId == 0 || BusinessModuleId == scope.BusinessModuleId));
 
         }
@@ -270,10 +270,10 @@ namespace ApiObjects.Rules
     {
         [JsonProperty("Not")]
         public bool Not { get; set; }
-        
+
         [JsonProperty("key")]
         public string Key { get; set; }
-        
+
         [JsonProperty("value")]
         public string Value { get; set; }
 
@@ -296,6 +296,69 @@ namespace ApiObjects.Rules
             }
 
             return isInHeaders;
+        }
+    }
+    
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public abstract class SubscriptionCondition<T> : RuleBaseCondition<T> where T : IConditionScope
+    {
+        [JsonProperty("SubscriptionIds")]
+        public HashSet<long> SubscriptionIds { get; set; }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class UserSubscriptionCondition : SubscriptionCondition<IUserSubscriptionConditionScope>
+    {
+        public UserSubscriptionCondition()
+        {
+            this.Type = RuleConditionType.UserSubscription;
+        }
+
+        protected override bool DoEvaluate(IUserSubscriptionConditionScope scope)
+        {
+            if (scope.UserSubscriptions == null) { return true; }
+            
+            return scope.UserSubscriptions.Any(x => this.SubscriptionIds.Contains(x));
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class AssetSubscriptionCondition : SubscriptionCondition<IAssetSubscriptionConditionScope>
+    {
+        public AssetSubscriptionCondition()
+        {
+            this.Type = RuleConditionType.AssetSubscription;
+        }
+
+        protected override bool DoEvaluate(IAssetSubscriptionConditionScope scope)
+        {
+            if (scope.MediaId == 0) { return true; }
+
+            return scope.IsMediaIncludedInSubscription(scope.GroupId, scope.MediaId, this.SubscriptionIds);
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class UserRoleCondition : RuleBaseCondition<IUserRoleConditionScope>
+    {
+        [JsonProperty("RoleIds")]
+        public HashSet<long> RoleIds { get; set; }
+
+        public UserRoleCondition()
+        {
+            this.Type = RuleConditionType.UserRole;
+        }
+
+        protected override bool DoEvaluate(IUserRoleConditionScope scope)
+        {
+            if (string.IsNullOrEmpty(scope.UserId)) { return true; }
+            
+            var userRoleIds = scope.GetUserRoleIds(scope.GroupId, scope.UserId);
+            return userRoleIds != null && userRoleIds.Any(x => RoleIds.Contains(x));
         }
     }
 }
