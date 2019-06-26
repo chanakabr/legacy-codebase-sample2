@@ -505,6 +505,11 @@ namespace Core.Catalog.CatalogManagement
                 return;
             }
 
+            if(virtualAsset == null)
+            {
+                return;
+            }
+
             virtualAsset.Name = channel.m_sName;
             virtualAsset.NamesWithLanguages = channel.NamesInOtherLanguages;
             virtualAsset.Description = channel.m_sDescription;
