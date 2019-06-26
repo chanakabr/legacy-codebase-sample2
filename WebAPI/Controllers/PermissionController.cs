@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -93,26 +94,29 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaPermission Add(KalturaPermission permission)
         {
-            KalturaPermission response = null;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
+                if (string.IsNullOrEmpty(permission.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPermission.name");
+                }
+
+                if(permission.Type == KalturaPermissionType.SPECIAL_FEATURE && !string.IsNullOrEmpty(permission.DependsOnPermissionNames))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPermission.type, KalturaPermission.dependsOnPermissionNames");
+                }
+
                 // call client
-                response = ClientsManager.ApiClient().AddPermission(groupId, permission);
+                return ClientsManager.ApiClient().AddPermission(groupId, permission);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            if (response == null)
-            {
-                throw new InternalServerErrorException();
-            }
-
-            return response;
+            return null;
         }
 
         /// <summary>
@@ -122,6 +126,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PermissionNotFound)]
         static public void Delete(long id)
         {
             int groupId = KS.GetFromRequest().GroupId;

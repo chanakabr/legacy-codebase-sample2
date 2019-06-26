@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 
 namespace WebAPI.Models.General
@@ -17,6 +18,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "group")]
         [JsonProperty("group")]
         [XmlElement(ElementName = "group")]
+        [SchemeProperty(ReadOnly = true)]
         public string Group { get; set; }
     }
 }

@@ -2590,59 +2590,7 @@ namespace WebAPI.Clients
                 userRole = AutoMapper.Mapper.Map<KalturaUserRole>(response.Roles[0]);
             }
             return userRole;
-        }
-
-        internal KalturaPermission AddPermission(int groupId, KalturaPermission permission)
-        {
-            KalturaPermission addedPermission = new KalturaPermission();
-            PermissionResponse response = null;
-
-            ePermissionType type;
-            string usersGroup = null;
-
-            if (permission is KalturaGroupPermission)
-            {
-                type = ePermissionType.Group;
-                usersGroup = ((KalturaGroupPermission)permission).Group;
-            }
-            else
-            {
-                type = ePermissionType.Normal;
-            }
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    List<long> permissionItemIds = null;
-                    if (permission.PermissionItems != null)
-                    {
-                        permissionItemIds = new List<long>();
-                        permissionItemIds.AddRange(permission.PermissionItems.Select(p => p.getId()));
-                    }
-                    response = Core.Api.Module.AddPermission(groupId, permission.Name, permissionItemIds, type, usersGroup, 0);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            addedPermission = AutoMapper.Mapper.Map<KalturaPermission>(response.Permission);
-
-            return addedPermission;
-        }
+        }        
 
         internal void DeletePermission(int groupId, long id)
         {
@@ -4377,6 +4325,17 @@ namespace WebAPI.Clients
         public KalturaIngestProfile UpdateIngestProfile(int groupId, int ingestProfileId, KalturaIngestProfile ingestProfile, int userId)
         {
             return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Profiles.IngestProfileManager.UpdateIngestProfile(groupId, userId, ingestProfileId, p));
+        }
+
+        internal KalturaPermission AddPermission(int groupId, KalturaPermission permission)
+        {
+            Func<Permission, GenericResponse<Permission>> addPermissionFunc = (Permission permissionToAdd) =>
+              Core.Api.Module.AddPermission(groupId, permissionToAdd);
+
+            KalturaPermission result =
+                ClientUtils.GetResponseFromWS<KalturaPermission, Permission>(permission, addPermissionFunc);
+
+            return result;
         }
     }
 }
