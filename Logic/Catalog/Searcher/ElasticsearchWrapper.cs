@@ -2432,7 +2432,8 @@ namespace Core.Catalog
                             string epgIdentifier = asset.epg_identifier;
                             int epgIdentifierInt;
 
-                            if (int.TryParse(epgIdentifier, out epgIdentifierInt))
+                            // check if ID is a valid number
+                            if (int.TryParse(epgIdentifier, out epgIdentifierInt) && epgIdentifierInt > 0)
                             {
                                 result.Add(epgIdentifierInt);
                             }
