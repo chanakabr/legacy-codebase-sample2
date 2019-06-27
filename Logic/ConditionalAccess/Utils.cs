@@ -8502,28 +8502,34 @@ namespace Core.ConditionalAccess
         internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle, DateTime? endDate = null)
         {
             // Default is 2 days
-            TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+            TimeSpan freeTimeSpan = new TimeSpan(2, 0, 0, 0);
+            DateTime now = DateTime.UtcNow;
 
             // Get the group's configuration for free view life cycle
-            string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
-            if (!string.IsNullOrEmpty(sFreeLeftView))
+            string freeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
+            if (!string.IsNullOrEmpty(freeLeftView))
             {
-                DateTime tcmEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
-                ts = tcmEndDate.Subtract(DateTime.UtcNow);
+                DateTime tcmEndDate = Utils.GetEndDateTime(now, int.Parse(freeLeftView), true);
+                freeTimeSpan = tcmEndDate.Subtract(now);
             }
 
             if (endDate.HasValue)
             {
-                var ts2 = endDate.Value.Subtract(DateTime.UtcNow);
-                if (ts2 < ts)
+                var ts = endDate.Value.Subtract(now);
+                if (ts < freeTimeSpan)
                 {
-                    ts = ts2;
+                    freeTimeSpan = ts;
                 }
             }
-            
-            p_strViewLifeCycle = ts.ToString();
+
+            if (freeTimeSpan.TotalSeconds < 0)
+            {
+                freeTimeSpan = new TimeSpan();
+            }
+
+            p_strViewLifeCycle = freeTimeSpan.ToString();
             // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
-            p_strFullLifeCycle = ts.ToString();
+            p_strFullLifeCycle = freeTimeSpan.ToString();
         }
 
         public static bool IsFreeItem(MediaFileItemPricesContainer container)
