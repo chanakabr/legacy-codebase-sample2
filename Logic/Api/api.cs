@@ -11871,6 +11871,14 @@ namespace Core.Api
 
             try
             {
+                // Validate permissnio Name (Must be unique per group)
+                if(ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
+                {
+                    response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
+                    log.ErrorFormat("AddPermission failed. PermissionNameAlreadyInUse.groupId = {0}, permissionName: {1}", groupId, permission.Name);
+                    return response;
+                }
+
                 permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName,
                     permission.DependsOnPermissionNames, groupId);
                 if (permission.Id > 0)
