@@ -2058,6 +2058,8 @@ namespace Core.ConditionalAccess
                 dRet = dRet.AddYears(mulFactor * 5);
             else if (nVal == 100000000)
                 dRet = dRet.AddYears(mulFactor * 10);
+            else if (nVal == 999999999)
+                dRet = dRet.AddYears(mulFactor * 100);
             else
                 dRet = dRet.AddMinutes(mulFactor * nVal);
             return dRet;
