@@ -92,6 +92,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PermissionNameAlreadyInUse)]
         static public KalturaPermission Add(KalturaPermission permission)
         {
             int groupId = KS.GetFromRequest().GroupId;

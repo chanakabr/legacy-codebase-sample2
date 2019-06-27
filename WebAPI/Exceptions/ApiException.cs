@@ -297,6 +297,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EXCEL_MANDTORY_VALUE_IS_MISSING = new ClientExceptionType(eResponseStatus.ExcelMandatoryValueIsMissing, "Mandatory Value In Excel File Is Missing", "One of the mandatory values in the excel is missing");
         public static ClientExceptionType ASSET_RULE_STATUS_NOT_WRITABLE = new ClientExceptionType(eResponseStatus.AssetRuleStatusNotWritable, "Asset Rule Status Not Writable", "Cannot update or delete asset rule when in progress");
         public static ClientExceptionType Permission_Not_Found = new ClientExceptionType(eResponseStatus.PermissionNotFound, "Permission Not Found", "Permission not found");
+        public static ClientExceptionType PERMISSION_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.PermissionNameAlreadyInUse, "Permission Name Already In Use", "Permission name already in use");
 
         #endregion
 
