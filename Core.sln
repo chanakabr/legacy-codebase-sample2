@@ -93,6 +93,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationManager", "Con
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{08AB43F0-F6B4-4567-B142-6131EA8B788B}"
 	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
 		DllVersioning.Core.sh = DllVersioning.Core.sh
 		DllVersioning.ps1 = DllVersioning.ps1
 		Dockerfile = Dockerfile
