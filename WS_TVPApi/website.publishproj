@@ -47,6 +47,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     </AssemblyAttributes>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{0BA4C833-95F6-4141-BF5D-4FF2F7026E4B}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Controls\Tvinci.Web.Controls.csproj">
       <Project>{6409DA6B-D48D-43A2-9217-02B25D4ED5E3}</Project>
       <Name>Tvinci.Web.Controls</Name>
