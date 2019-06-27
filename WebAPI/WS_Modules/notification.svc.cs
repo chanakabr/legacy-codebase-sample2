@@ -64,7 +64,7 @@ namespace WS_Notification
 
             log.DebugFormat("EpgEvent - partner ID: {0}, Program IDs: {1}", partnerId, string.Join(",", programIds.ToArray()));
             if (partnerId > 0)
-                return Core.Notification.Module.HandleEpgEvent(partnerId, programIds.ConvertAll(i => (int)i));
+                return Core.Notification.Module.HandleEpgEvent(partnerId, programIds);
             else
                 HttpContext.Current.Response.StatusCode = 404;
 

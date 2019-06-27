@@ -10,6 +10,7 @@ using KLogMonitor;
 using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
@@ -135,7 +136,7 @@ namespace WS_Catalog
 
         public bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
         {
-            return Core.Catalog.Module.UpdateEpgIndex(lEpgIds, nGroupId, eAction);
+            return Core.Catalog.Module.UpdateEpgIndex(lEpgIds.Cast<ulong>().ToList(), nGroupId, eAction);
         }
 
         public bool UpdateEpgChannelIndex(List<int> lEpgChannelIds, int nGroupId, eAction eAction)
