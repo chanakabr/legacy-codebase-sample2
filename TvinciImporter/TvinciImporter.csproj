@@ -116,11 +116,6 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
-    <Compile Include="Web References\Lucene_WCF\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
     <Compile Include="Web References\WS_ConditionalAccess\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -229,17 +224,6 @@
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TvinciImporter_WS_CAS1_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://lucene.prd.tvincidns.com/v1_1/Service.svc%3fwsdl">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Lucene_WCF\</RelPath>
-      <UpdateFromURL>http://lucene.prd.tvincidns.com/v1_1/Service.svc%3fwsdl</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>TvinciImporter_Lucene_WCF_Service</CachedSettingsPropName>
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
@@ -420,18 +404,6 @@
     <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.Response1.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Web References\Lucene_WCF\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\Lucene_WCF\SearchResultsObj2.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\Lucene_WCF\Service.wsdl" />
-    <None Include="Web References\Lucene_WCF\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\Lucene_WCF\Service0.wsdl" />
     <None Include="Web References\WS_ConditionalAccess\AssetItemPriceResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
