@@ -40,7 +40,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CDNTokenizers\CDNTokenizers.csproj" />
     <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj" />
-    <ProjectReference Include="..\ADIFeeder\ADIFeeder.csproj" />
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj" />
     <ProjectReference Include="..\CachingHelpers\CachingHelpers.csproj" />
     <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
@@ -50,9 +49,10 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\EpgBL\EpgBL.csproj" />
-    <ProjectReference Include="..\EpgIngest\EpgIngest.csproj" />
+    <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj" />
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\ImageManager\ImageManager.csproj" />
     <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\M1BL\M1BL.csproj" />
@@ -68,7 +68,6 @@
     <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj" />
     <ProjectReference Include="..\Synchronizer\Synchronizer.csproj" />
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj" />
-    <ProjectReference Include="..\TvinciImporter\TvinciImporter.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />

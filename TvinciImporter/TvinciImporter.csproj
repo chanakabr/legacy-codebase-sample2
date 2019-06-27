@@ -230,13 +230,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="bin\Debug\TvinciImporter.dll.config" />
-    <None Include="obj\Debug\DesignTimeResolveAssemblyReferences.cache" />
-    <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
-    <None Include="obj\Debug\TvinciImporter.csprojResolveAssemblyReference.cache" />
-    <None Include="obj\Release\build.force" />
-    <None Include="obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
-    <None Include="obj\Release\ResolveAssemblyReference.cache" />
     <None Include="packages.config" />
     <None Include="Properties\DataSources\ApiObjects.Notification.AddMessageAnnouncementResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.AnnouncementsResponse.datasource" />
@@ -539,58 +532,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\Debug\AkamaiTokenGenerator.dll" />
-    <Content Include="bin\Debug\AkamaiTokenGenerator.pdb" />
-    <Content Include="bin\Debug\ApiObjects.dll" />
-    <Content Include="bin\Debug\CachingManager.dll" />
-    <Content Include="bin\Debug\CachingManager.pdb" />
-    <Content Include="bin\Debug\DAL.dll" />
-    <Content Include="bin\Debug\DAL.pdb" />
-    <Content Include="bin\Debug\FTPUploadQueue.dll" />
-    <Content Include="bin\Debug\FTPUploadQueue.pdb" />
-    <Content Include="bin\Debug\ICSharpCode.SharpZipLib.dll" />
-    <Content Include="bin\Debug\Interop.CUWMAuthTickets.dll" />
-    <Content Include="bin\Debug\LLNWMediaVault.dll" />
-    <Content Include="bin\Debug\LLNWMediaVault.pdb" />
-    <Content Include="bin\Debug\Logger.dll" />
-    <Content Include="bin\Debug\Logger.pdb" />
-    <Content Include="bin\Debug\ODBCWrapper.dll" />
-    <Content Include="bin\Debug\ODBCWrapper.pdb" />
-    <Content Include="bin\Debug\ScheduledTasks.dll" />
-    <Content Include="bin\Debug\ScheduledTasks.pdb" />
-    <Content Include="bin\Debug\TvinciImporter.dll" />
-    <Content Include="bin\Debug\TvinciImporter.pdb" />
-    <Content Include="bin\Debug\TVinciShared.dll" />
-    <Content Include="bin\Debug\TVinciShared.pdb" />
-    <Content Include="bin\Release\AkamaiTokenGenerator.dll" />
-    <Content Include="bin\Release\AkamaiTokenGenerator.pdb" />
-    <Content Include="bin\Release\ApiObjects.dll" />
-    <Content Include="bin\Release\ApiObjects.pdb" />
-    <Content Include="bin\Release\CachingManager.dll" />
-    <Content Include="bin\Release\CachingManager.pdb" />
-    <Content Include="bin\Release\FTPUploadQueue.dll" />
-    <Content Include="bin\Release\FTPUploadQueue.pdb" />
-    <Content Include="bin\Release\ICSharpCode.SharpZipLib.dll" />
-    <Content Include="bin\Release\Interop.CUWMAuthTickets.dll" />
-    <Content Include="bin\Release\LLNWMediaVault.dll" />
-    <Content Include="bin\Release\LLNWMediaVault.pdb" />
-    <Content Include="bin\Release\Logger.dll" />
-    <Content Include="bin\Release\Logger.XmlSerializers.dll" />
-    <Content Include="bin\Release\ODBCWrapper.dll" />
-    <Content Include="bin\Release\ScheduledTasks.dll" />
-    <Content Include="bin\Release\ScheduledTasks.pdb" />
-    <Content Include="bin\Release\TvinciImporter.dll" />
-    <Content Include="bin\Release\TvinciImporter.pdb" />
-    <Content Include="bin\Release\TVinciShared.dll" />
-    <Content Include="bin\Release\TVinciShared.pdb" />
-    <Content Include="obj\Debug\TempPE\Service References.Notification_WCF.Reference.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Web References.Lucene_WCF.Reference.cs.dll" />
-    <Content Include="obj\Debug\TvinciImporter.csproj.FileListAbsolute.txt" />
-    <Content Include="obj\Debug\TvinciImporter.dll" />
-    <Content Include="obj\Debug\TvinciImporter.pdb" />
-    <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
-    <Content Include="obj\Release\TvinciImporter.dll" />
-    <Content Include="obj\Release\TvinciImporter.pdb" />
     <None Include="Service References\Notification_WCF\notification.disco" />
     <None Include="Service References\Notification_WCF\NotificationService12.disco" />
     <None Include="Web References\WS_ConditionalAccess\module.disco" />
@@ -610,9 +551,7 @@
     <None Include="Service References\Notification_WCF\configuration.svcinfo" />
     <None Include="Service References\Notification_WCF\configuration91.svcinfo" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="obj\Release\TempPE\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\Notification_WCF\" />
     <WCFMetadataStorage Include="Service References\WSCatalog\" />
