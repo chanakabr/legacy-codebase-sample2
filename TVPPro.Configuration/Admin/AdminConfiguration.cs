@@ -41,10 +41,6 @@ namespace TVPPro.Configuration.Admin
             base.SyncFromFile(ConfigurationManager.AppSettings["Configuration.Admin"], true);
         } 
         #endregion
-
-        private void DummyMethodToLoadDll()
-        {
-            TCMClient.Settings.Instance.Init();
-        }
+        
     }
 }
