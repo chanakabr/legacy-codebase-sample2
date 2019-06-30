@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EpgBL", "..\Core\EpgBL\EpgB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GroupsCacheManager", "..\Core\GroupsCacheManager\GroupsCacheManager.csproj", "{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mailer", "..\Core\Mailer\Mailer.csproj", "{8C082DFD-81EE-4623-8BE9-32D34DED6407}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailer", "..\Core\Mailer\Mailer.csproj", "{8C082DFD-81EE-4623-8BE9-32D34DED6407}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueWrapper", "..\Core\QueueWrapper\QueueWrapper.csproj", "{E4F95CCC-2127-4A5C-90BB-D60A446BEC3B}"
 EndProject
@@ -54,13 +54,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AkamaiTokenGenerator", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LLNWMediaVault", "..\Core\LLNWMediaVault\LLNWMediaVault.csproj", "{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M1BL", "..\Core\M1BL\M1BL.csproj", "{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "M1BL", "..\Core\M1BL\M1BL.csproj", "{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleAPI", "..\Core\GoogleAPI\GoogleAPI.csproj", "{27572CCD-362B-4F99-900D-72CA3BDD1DDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoogleAPI", "..\Core\GoogleAPI\GoogleAPI.csproj", "{27572CCD-362B-4F99-900D-72CA3BDD1DDF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MCGroupRules", "..\Core\MCGroupRules\MCGroupRules.csproj", "{7A9C7A82-02FA-4B2E-9391-175CA212012D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notifiers", "..\Core\Notifiers\Notifiers.csproj", "{31A03896-6FD2-4591-AB2E-A4278C24F8DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Notifiers", "..\Core\Notifiers\Notifiers.csproj", "{31A03896-6FD2-4591-AB2E-A4278C24F8DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NPVR", "..\Core\NPVR\NPVR.csproj", "{EA7E6211-06BC-41AD-8E44-874E5660FBF1}"
 EndProject
@@ -68,7 +68,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reflector", "Reflector\Refl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceExtensions", "..\Core\ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProvider", "..\Core\StreamingProvider\StreamingProvider.csproj", "{320C9FF3-DA35-42EA-A872-65B1CFE681CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamingProvider", "..\Core\StreamingProvider\StreamingProvider.csproj", "{320C9FF3-DA35-42EA-A872-65B1CFE681CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchbaseManager", "..\Core\CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
 EndProject
@@ -100,7 +100,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationValidator", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PermissionsDeployment", "PermissionsExport\PermissionsDeployment.csproj", "{E88397BC-3769-40D1-9391-67B9D89AE6F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PermissionsManager", "..\Core\PermissionsManager\PermissionsManager.csproj", "{62A8464C-C3A9-4566-A883-59A10E9856E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PermissionsManager", "..\Core\PermissionsManager\PermissionsManager.csproj", "{62A8464C-C3A9-4566-A883-59A10E9856E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{BB5EE93A-9128-4339-8040-5EA834D2BDD1}"
 	ProjectSection(SolutionItems) = preProject
@@ -305,6 +305,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "phoenix-doc", "phoenix-doc"
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdapterClients", "AdapterClients", "{936D213B-2884-4167-A81E-057314A3B514}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.Rest", "Phoenix.Rest\Phoenix.Rest.csproj", "{6CAB992A-4E7A-4831-A771-87785AEE09CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.Context", "Phoenix.Context\Phoenix.Context.csproj", "{0BC6FB68-C60B-4921-A888-C602216ACDF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -555,12 +559,12 @@ Global
 		{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E56DA89E-EFE0-4077-AB1B-FE00389D5A02}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Basic|Any CPU.ActiveCfg = Local|Any CPU
-		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Local|Any CPU.Build.0 = Local|Any CPU
+		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Local|Any CPU.Build.0 = Release|Any CPU
 		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{D5DC1E20-5E10-4D3C-BC6F-6F596D890981}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -825,6 +829,26 @@ Global
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD7636B-71DB-494D-9DBD-4AF9538D3EDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CAB992A-4E7A-4831-A771-87785AEE09CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BC6FB68-C60B-4921-A888-C602216ACDF2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -889,7 +913,7 @@ Global
 		{49B94D77-9B91-4BCC-9FBA-6466B6340504} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
