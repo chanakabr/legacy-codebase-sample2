@@ -11957,5 +11957,37 @@ namespace Core.Api
 
             return new Status((int)eResponseStatus.OK);
         }
+
+        public static HashSet<string> GetGroupfeatures(int groupId)
+        {
+            HashSet<string> response = new HashSet<string>();
+
+            try
+            {
+                response = DAL.ApiDAL.GetGroupFeatures(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting Group features. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> response = new Dictionary<string, List<string>>();
+
+            try
+            {
+                response = DAL.ApiDAL.GetPermissionItemsToFeatures(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting Permission Items To Features. group id = {0}", groupId), ex);
+            }
+
+            return response;
+        }
     }
 }

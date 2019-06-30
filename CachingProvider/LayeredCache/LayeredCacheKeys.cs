@@ -96,6 +96,16 @@ namespace CachingProvider.LayeredCache
             return string.Format("groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
+        public static string GetPermissionItemsToFeaturesDictionaryKey(int groupId)
+        {
+            return string.Format("permissionItemsToFeaturesDictionaryKey_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupFeaturesKey(int groupId)
+        {
+            return string.Format("groupFeaturesKey_groupId_{0}", groupId);
+        }
+
         public static string GetFileCdnDataKey(int fileId)
         {
             return string.Format("fileCdnData_fileId_{0}", fileId);

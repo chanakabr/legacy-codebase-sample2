@@ -2331,5 +2331,15 @@ namespace Core.Api
             }
             return result;
         }
+
+        public static HashSet<string> GetGroupfeatures(int groupId)
+        {
+            return api.GetGroupfeatures(groupId);
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            return api.GetPermissionItemsToFeatures(groupId);
+        }
     }
 }

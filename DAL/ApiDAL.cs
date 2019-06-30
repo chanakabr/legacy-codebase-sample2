@@ -5701,5 +5701,80 @@ namespace DAL
 
             return UtilsDal.Execute("Get_PermissionById", parameters);
         }
+
+        public static HashSet<string> GetGroupFeatures(int groupId)
+        {
+            HashSet<string> features = new HashSet<string>();
+
+            try
+            {
+                // get the roles, permissions, permission items tables 
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Groupfeatures");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+
+                DataTable dt = sp.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                        if (!string.IsNullOrEmpty(name) && !features.Contains(name.ToLower()))
+                        {
+                            features.Add(name.ToLower());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while Get_Groupfeatures from DB, group id = {0}", groupId), ex);
+            }
+
+            return features;
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+
+            try
+            {
+                // get 
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PermissionItemsToFeatures");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+
+                DataTable dt = sp.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string dopn = ODBCWrapper.Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES");
+                        string service = ODBCWrapper.Utils.GetSafeStr(dr, "SERVICE");
+                        string action = ODBCWrapper.Utils.GetSafeStr(dr, "ACTION");
+                        string parameter = ODBCWrapper.Utils.GetSafeStr(dr, "PARAMETER");
+                        string type = ODBCWrapper.Utils.GetSafeStr(dr, "TYPE");
+
+                        string key = string.Format("{0}_{1}", service, action).ToLower();
+
+                        if (!result.ContainsKey(key))
+                        {
+                            result.Add(key, new List<string>());
+                        }
+
+                        result[key].Add(dopn);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while Get_PermissionItemsToFeatures from DB, group id = {0}", groupId), ex);
+            }
+
+            return result;
+        }
     }
 }

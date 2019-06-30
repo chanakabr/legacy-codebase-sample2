@@ -49,6 +49,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";        
         public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
         public const string GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID = "GetGroupPermissionItemsDictionary";
+        public const string GET_PERMISSION_ITEMS_TO_FEATURES = "GetPermissionItemsToFeaturesDictionary";
+        public const string GET_GROUP_FEATURES = "GetGroupFeatures";
         public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
         public const string GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "GroupDrmAdapter";
         public const string DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME = "DoesGroupUsesTemplates";
