@@ -2179,7 +2179,9 @@ namespace Core.Catalog
                 // fill dictionary of asset-id..stats-value (if it doesn't exist in ES, fill it with a 0)
                 foreach (var assetId in assetIds)
                 {
-                    string dictionaryKey = LayeredCacheKeys.GetAssetStatsSortKey(assetId.ToString(), orderBy.ToString());
+                    string dictionaryKey =
+                        //assetId.ToString();
+                        LayeredCacheKeys.GetAssetStatsSortKey(assetId.ToString(), orderBy.ToString());
 
                     if (!statsDictionary.ContainsKey(assetId.ToString()))
                     {
@@ -2203,20 +2205,33 @@ namespace Core.Catalog
         private Dictionary<string, int> SortAssetsByStatsWithLayeredCache(List<long> assetIds, int groupId, OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
         {
             Dictionary<string, int> result = new Dictionary<string, int>();
+            Dictionary<string, int> layeredCacheResult = new Dictionary<string, int>();
             if (assetIds != null && assetIds.Count > 0)
             {
                 try
                 {
-                    Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
+                    Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).
+                        ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
+                    Dictionary<string, List<string>> invalidationKeys = 
+                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsSortInvalidationKey() });
+
                     Dictionary<string, object> funcParams = new Dictionary<string, object>();
                     funcParams.Add("groupId", groupId);
                     funcParams.Add("orderBy", orderBy);
                     funcParams.Add("assetIds", assetIds);
 
-                    if (!LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref result, SortAssetsByStatsDelegate, funcParams,
-                                                                groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME))
+                    if (!LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref layeredCacheResult, SortAssetsByStatsDelegate, funcParams,
+                                                                groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME, invalidationKeys))
                     {
                         log.ErrorFormat("Failed getting asset stats from cache, ids: {0}:", assetIds.Count < 100 ? string.Join(",", assetIds) : string.Join(",", assetIds.Take(100)));
+                    }
+                    else
+                    {
+                        foreach (var item in layeredCacheResult)
+                        {
+                            string key = keyToOriginalValueMap[item.Key];
+                            result.Add(key, item.Value);
+                        }
                     }
                 }
                 catch (Exception ex)
