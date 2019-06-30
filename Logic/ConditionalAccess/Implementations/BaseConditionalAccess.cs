@@ -10479,10 +10479,19 @@ namespace Core.ConditionalAccess
         {
             bool result = false;
 
-            if (ip == null || string.IsNullOrEmpty(ip))
+            try
             {
-                ip = HttpContext.Current.Items["USER_IP"]?.ToString();
+                if (string.IsNullOrEmpty(ip))
+                {
+                    ip = HttpContext.Current?.Items["USER_IP"]?.ToString();
+                }
+
+                if (!string.IsNullOrEmpty(ip) && !dataDictionary.ContainsKey("ClientIp"))
+                {
+                    dataDictionary.Add("ClientIp", ip);
+                }
             }
+            catch { }
 
             try
             {
