@@ -1083,6 +1083,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyTopicNotifications_groupId_{0}_type_{1}", groupId, SubscribeReferenceType);
         }
+        
+        public static string PermissionsManagerInvalidationKey()
+        {
+            return PERMISSION_MANAGER_INVALIDATION_KEY;
+        }
 
         #endregion
 
@@ -1113,9 +1118,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
-        public static string PermissionsManagerInvalidationKey()
+        public static string GetAssetStatsSortInvalidationKey()
         {
-            return PERMISSION_MANAGER_INVALIDATION_KEY;
+            return "invalidation_key_asset_stats_sort";
         }
 
         #endregion

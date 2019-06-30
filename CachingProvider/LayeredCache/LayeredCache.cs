@@ -121,7 +121,20 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public bool GetValues<T>(Dictionary<string, string> KeyToOriginalValueMap, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="keyToOriginalValueMap"></param>
+        /// <param name="results"></param>
+        /// <param name="fillObjectsMethod"></param>
+        /// <param name="funcParameters"></param>
+        /// <param name="groupId"></param>
+        /// <param name="layeredCacheConfigName"></param>
+        /// <param name="inValidationKeysMap"></param>
+        /// <param name="shouldUseAutoNameTypeHandling"></param>
+        /// <returns></returns>
+        public bool GetValues<T>(Dictionary<string, string> keyToOriginalValueMap, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
                                     Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null,
                                     bool shouldUseAutoNameTypeHandling = false)
         {
@@ -133,8 +146,8 @@ namespace CachingProvider.LayeredCache
             try
             {
                 bool isReadAction = IsReadAction();
-                Dictionary<string, string> KeyToOriginalValueMapAfterSession = new Dictionary<string, string>(KeyToOriginalValueMap);
-                if (isReadAction && TryGetKeysFromSession<T>(KeyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
+                Dictionary<string, string> KeyToOriginalValueMapAfterSession = new Dictionary<string, string>(keyToOriginalValueMap);
+                if (isReadAction && TryGetKeysFromSession<T>(keyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
                 {
                     shouldAddSessionResults = true;
                     foreach (string key in sessionResultMapping.Keys)
@@ -201,7 +214,7 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", KeyToOriginalValueMap.Keys),
+                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", keyToOriginalValueMap.Keys),
                                         string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
