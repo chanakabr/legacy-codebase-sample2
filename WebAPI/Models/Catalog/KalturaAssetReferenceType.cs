@@ -13,6 +13,6 @@ namespace WebAPI.Models.Catalog
         media,
         epg_internal,
         epg_external,
-        nvpr
+        npvr
     }
 }

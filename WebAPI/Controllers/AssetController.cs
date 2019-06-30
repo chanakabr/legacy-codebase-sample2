@@ -418,7 +418,7 @@ namespace WebAPI.Controllers
                         response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
-                        response = GetRecording(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
+                        response = GetRecordingEPG(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
                         break;
                     case KalturaAssetReferenceType.epg_external:
                         var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
@@ -433,8 +433,8 @@ namespace WebAPI.Controllers
                         response = epgRes.Objects.First();
                         break;
 
-                    case KalturaAssetReferenceType.nvpr:
-                        response = GetRecording(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets, "Recording");
+                    case KalturaAssetReferenceType.npvr:
+                        response = GetRecordingEPG(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets, "Recording");
                         break;
 
                     default:
@@ -450,7 +450,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        private static KalturaAsset GetRecording(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets, string itemType = "Asset")
+        private static KalturaAsset GetRecordingEPG(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets, string itemType = "Asset")
         {
             var recording = RecordingController.Get(id);
             if (recording == null)
