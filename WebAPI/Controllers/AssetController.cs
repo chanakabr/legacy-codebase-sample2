@@ -1113,8 +1113,9 @@ namespace WebAPI.Controllers
             try
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
                 response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.Ksql,
-                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList, filter.GroupByOrder);
+                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList, filter.GroupByOrder, isAllowedToViewInactiveAssets);
             }
             catch (ClientException ex)
             {
