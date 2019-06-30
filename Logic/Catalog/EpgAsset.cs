@@ -399,6 +399,8 @@ namespace Core.Catalog
             Tags = item.Tags;
             UpdateDate = item.UpdateDate;
             RelatedMediaId = item.RelatedMediaId;
+            StartDate = item.StartDate;
+            EndDate = item.EndDate;
         }
     }
 }

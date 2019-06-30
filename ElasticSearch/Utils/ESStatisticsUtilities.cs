@@ -92,7 +92,6 @@ namespace ElasticSearch.Utilities
             return result;
         }
 
-
         /// <summary>
         /// Puts a new document to ES statsistics index
         /// </summary>
@@ -130,7 +129,6 @@ namespace ElasticSearch.Utilities
                 try
                 {
                     ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi(url);
-
 
                     if (esApi.IndexExists(statisticsIndex))
                     {
