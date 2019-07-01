@@ -20,9 +20,9 @@ ARG DEVELOPER_PLATFORM_BRANCH=master
 
 RUN mkdir -p /opt/kaltura
 WORKDIR /opt/kaltura
-ADD https://github.com/kaltura/xml-api-schema-openapi-converter/archive/${KALTURA_SPEC_CONVERTER_BRANCH}.tar.gz kaltura-spec-converter
-ADD https://github.com/kaltura/developer-platform/archive/${DEVELOPER_PLATFORM_BRANCH}.tar.gz developer-platform
 ADD KalturaClient.xml .
+ADD https://github.com/kaltura/xml-api-schema-openapi-converter/archive/${KALTURA_SPEC_CONVERTER_BRANCH}.tar.gz /opt/kaltura/kaltura-spec-converter
+ADD https://github.com/kaltura/developer-platform/archive/${DEVELOPER_PLATFORM_BRANCH}.tar.gz /opt/kaltura/developer-platform
 
 WORKDIR /opt/kaltura/kaltura-spec-converter
 RUN npm install
