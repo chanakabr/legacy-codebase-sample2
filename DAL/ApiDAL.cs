@@ -3180,6 +3180,7 @@ namespace DAL
                         permission.FriendlyName = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "FRIENDLY_NAME");
                         permission.GroupId = groupId;
                         permission.isExcluded = isExcluded;
+                        permission.Type = permissionType;
 
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {
@@ -5822,12 +5823,16 @@ namespace DAL
         public static void AddToPermissionItemsToFeatures(ref Dictionary<string, List<string>> result, 
             string key, string dependsOnPermissionNames)
         {
-            if (!result.ContainsKey(key))
+            if (!string.IsNullOrEmpty(dependsOnPermissionNames))
             {
-                result.Add(key, new List<string>());
-            }
 
-            result[key].Add(dependsOnPermissionNames);
+                if (!result.ContainsKey(key))
+                {
+                    result.Add(key, new List<string>());
+                }
+
+                result[key].AddRange(dependsOnPermissionNames.Split(',').ToList());
+            }
         }
     }
 }
