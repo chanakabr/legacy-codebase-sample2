@@ -3,7 +3,7 @@ FROM ubuntu as BUILDER
 WORKDIR /opt/kaltura
 
 RUN apt-get update -yqq \ 
- && apt-get install curl gnupg git-core build-essential -yqq \
+ && apt-get install curl gnupg git-core build-essential tar -yqq \
  && curl -sL https://deb.nodesource.com/setup_11.x | bash \
  && apt-get install nodejs -yqq \
  && /bin/bash -c 'chmod 777 -R /usr/lib/node_modules' \
@@ -12,17 +12,23 @@ RUN apt-get update -yqq \
  && useradd -d /home/lucy lucy \
  && /bin/bash -c 'chown -R lucy:lucy /home/lucy'
  
-USER lucy
-RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/LucyBot-Inc/documentation-generator#v4.4.0
-
 ARG KALTURA_SPEC_CONVERTER_BRANCH=master
 ARG DEVELOPER_PLATFORM_BRANCH=master
 
 RUN mkdir -p /opt/kaltura
 WORKDIR /opt/kaltura
 ADD KalturaClient.xml .
-ADD https://github.com/kaltura/xml-api-schema-openapi-converter/archive/${KALTURA_SPEC_CONVERTER_BRANCH}.tar.gz /opt/kaltura/kaltura-spec-converter/
-ADD https://github.com/kaltura/developer-platform/archive/${DEVELOPER_PLATFORM_BRANCH}.tar.gz /opt/kaltura/developer-platform/
+
+ADD https://github.com/kaltura/xml-api-schema-openapi-converter/archive/${KALTURA_SPEC_CONVERTER_BRANCH}.tar.gz .
+RUN tar -zxvf ${KALTURA_SPEC_CONVERTER_BRANCH}.tar.gz && mv xml-api-schema-openapi-converter-${KALTURA_SPEC_CONVERTER_BRANCH} kaltura-spec-converter
+
+ADD https://github.com/kaltura/developer-platform/archive/${DEVELOPER_PLATFORM_BRANCH}.tar.gz .
+RUN tar -zxvf ${DEVELOPER_PLATFORM_BRANCH}.tar.gz && mv developer-platform-${DEVELOPER_PLATFORM_BRANCH} developer-platform
+
+RUN /bin/bash -c 'chown -R lucy:lucy /opt/kaltura'
+
+USER lucy
+RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/LucyBot-Inc/documentation-generator#v4.4.0
 
 WORKDIR /opt/kaltura/kaltura-spec-converter
 RUN npm install
