@@ -726,11 +726,11 @@ namespace Core.Users
                     break;
                 case ResponseStatus.UserDoesNotExist:
                     result.Code = (int)eResponseStatus.UserDoesNotExist;
-                    result.Message = "User does not exist";
+                    result.Message = "The username or password is not correct";
                     break;
                 case ResponseStatus.WrongPasswordOrUserName:
                     result.Code = (int)eResponseStatus.WrongPasswordOrUserName;
-                    result.Message = "Wrong username or password";
+                    result.Message = "The username or password is not correct";
                     break;
                 case ResponseStatus.InsideLockTime:
                     result.Code = (int)eResponseStatus.InsideLockTime;
