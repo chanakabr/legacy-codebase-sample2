@@ -510,7 +510,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.CancelSubscriptionRenewal(nDomainId, sSubscriptionCode);
+                return t.CancelSubscriptionRenewal(nDomainId, sSubscriptionCode, string.Empty);
             }
             else
             {
@@ -1820,7 +1820,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce);
+                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, string.Empty);
             }
             else
             {

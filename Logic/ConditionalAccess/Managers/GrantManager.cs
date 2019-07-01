@@ -211,7 +211,7 @@ namespace Core.ConditionalAccess
                     };
 
                     // notify purchase
-                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
+                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, ip))
                     {
                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                     }
@@ -387,7 +387,7 @@ namespace Core.ConditionalAccess
                     };
 
                     // notify purchase
-                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, ip))
                     {
                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                     }
@@ -495,7 +495,7 @@ namespace Core.ConditionalAccess
                     };
 
                     // notify purchase
-                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
+                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, ip))
                     {
                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                     }

@@ -127,7 +127,7 @@ namespace Core.ConditionalAccess
                             {
                                 if (cachedEntitlementResults.IsFree)
                                 {
-                                    Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
+                                    Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle, cachedEntitlementResults.EntitlementEndDate);
                                     response.ViewLifeCycle = strViewLifeCycle;
                                     response.FullLifeCycle = strFullLifeCycle;
                                 }
@@ -195,7 +195,7 @@ namespace Core.ConditionalAccess
                             // If the item is free
                             if (Utils.IsFreeItem(objPrice))
                             {
-                                Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
+                                Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle, objPrice.m_oItemPrices[0].m_dtEndDate);
                             }
                             else if (Utils.IsItemPurchased(objPrice))
                             // Item is not free and also not user is not suspended
