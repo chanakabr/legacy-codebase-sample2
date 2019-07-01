@@ -4872,20 +4872,23 @@ namespace DAL
 
         public static int InsertPermission(string name, int type, string usersGroup, string friendlyName, string dependsOnPermissionNames, int groupId = 0)
         {
-            var parameters = new Dictionary<string, object>()
-            {
-                { "@groupId", groupId }
-                ,{ "@name", name }
-                ,{ "@type", type }
-                ,{ "@usersGroup", usersGroup }
-                ,{ "@friendlyName", friendlyName }
-                ,{ "@dependsOnPermissionNames", dependsOnPermissionNames }
-            };
+            int result = 0;
 
-            return UtilsDal.ExecuteReturnValue<int>("Insert_Permission", parameters, "MAIN_CONNECTION_STRING");
+            StoredProcedure storedProcedure = new StoredProcedure("Insert_Permission");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@name", name);
+            storedProcedure.AddParameter("@type", type);
+            storedProcedure.AddParameter("@usersGroup", usersGroup);
+            storedProcedure.AddParameter("@friendlyName", friendlyName);
+            storedProcedure.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
+
+            result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
+
+            return result;            
         }
 
-        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName)
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName, string dependsOnPermissionNames)
         {
             bool result = false;
 
@@ -4896,6 +4899,7 @@ namespace DAL
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
             storedProcedure.AddParameter("@friendlyName", friendlyName);
+            storedProcedure.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
 
             int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
