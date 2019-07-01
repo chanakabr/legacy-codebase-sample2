@@ -418,7 +418,7 @@ namespace WebAPI.Controllers
                         response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
-                        response = GetRecordingEPG(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
+                        response = GetAsset(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
                         break;
                     case KalturaAssetReferenceType.epg_external:
                         var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
@@ -434,7 +434,7 @@ namespace WebAPI.Controllers
                         break;
 
                     case KalturaAssetReferenceType.npvr:
-                        response = GetRecordingEPG(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets, "Recording");
+                        response = GetRecordingAsset(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
                         break;
 
                     default:
@@ -450,12 +450,45 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        private static KalturaAsset GetRecordingEPG(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets, string itemType = "Asset")
+        private static KalturaRecordingAsset GetRecordingAsset(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets)
         {
             var recording = RecordingController.Get(id);
             if (recording == null)
             {
-                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, itemType);
+                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Recoring");
+            }
+            else
+            {
+                int epgId = (int)recording.AssetId;
+
+                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                {
+                    var epgAsset = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
+                    return new KalturaRecordingAsset(epgAsset) { RecordingId = id.ToString(), RecordingType = recording.Type};
+                }
+                else
+                {
+                    var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                       0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
+
+                    // if no response - return not found status 
+                    if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                    {
+                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Recording");
+                    }
+
+                    var epgAsset = epgRes.Objects.First();
+                    return new KalturaRecordingAsset((KalturaProgramAsset)epgAsset) { RecordingId = id.ToString(), RecordingType = recording.Type };
+                }
+            }
+        }
+
+        private static KalturaAsset GetAsset(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets)
+        {
+            var recording = RecordingController.Get(id);
+            if (recording == null)
+            {
+                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
             }
             else
             {
@@ -473,7 +506,7 @@ namespace WebAPI.Controllers
                     // if no response - return not found status 
                     if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
                     {
-                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, itemType);
+                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                     }
 
                     return epgRes.Objects.First();
