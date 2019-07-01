@@ -262,7 +262,7 @@ namespace WebAPI.Managers
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string methodArgumentKey = string.Format("{0}_{1}_{2}", service, action, argument).ToLower();
-            return IsPermittedForRoles(groupId, methodArgumentKey, roleIds, out usersGroup);
+            return IsPermittedForRoles(groupId, methodArgumentKey, roleIds, out usersGroup) && IsPermittedForFeature(groupId, methodArgumentKey);
         }
 
         private static bool IsPropertyPermittedForRoles(int groupId, string type, string property, string action, List<long> roleIds, out string usersGroup)
@@ -272,7 +272,7 @@ namespace WebAPI.Managers
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string objectPropertyKey = string.Format("{0}_{1}_{2}", type, property, action).ToLower();
-            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup);
+            return IsPermittedForRoles(groupId, objectPropertyKey, roleIds, out usersGroup) && IsPermittedForFeature(groupId, objectPropertyKey);
         }
 
         private static bool IsActionPermittedForRoles(int groupId, string service, string action, List<long> roleIds, out string usersGroup)
@@ -282,7 +282,7 @@ namespace WebAPI.Managers
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
-            return IsPermittedForRoles(groupId, serviceActionKey, roleIds, out usersGroup);
+            return IsPermittedForRoles(groupId, serviceActionKey, roleIds, out usersGroup) && IsPermittedForFeature(groupId, serviceActionKey);
         }
 
         #endregion
@@ -421,6 +421,122 @@ namespace WebAPI.Managers
             // user not permitted
             if (!IsArgumentPermittedForRoles(ks.GroupId, service, action, argument, roleIds, out allowedUsersGroup))
                 throw new UnauthorizedException(UnauthorizedException.ACTION_ARGUMENT_FORBIDDEN, argument, service, action);
+        }
+
+        internal static bool IsPermittedForFeature(int groupId, string key)
+        {
+            // get group's permission items to Features schema            
+            Dictionary<string, List<string>> permissionItemsToFeaturesMap = GetPermissionItemsToFeaturesDictionary(groupId);
+
+            // if the permission for the property is not defined in the schema - return false
+            if (!permissionItemsToFeaturesMap.ContainsKey(key))
+            {
+                return true;
+            }
+
+            string groupFeatureKey = permissionItemsToFeaturesMap[key][0];
+
+            var groupFeatures = GetGroupFeatures(groupId);
+            if (groupFeatures != null && groupFeatures.Contains(groupFeatureKey.ToLower()))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static Dictionary<string, List<string>> GetPermissionItemsToFeaturesDictionary(int groupId)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            try
+            {
+                string key = LayeredCacheKeys.GetPermissionItemsToFeaturesDictionaryKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, List<string>>>(key, ref result, BuildPermissionItemsToFeaturesDictionary,
+                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                                                                LayeredCacheConfigNames.GET_PERMISSION_ITEMS_TO_FEATURES,
+                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupPermissionItemsDictionary, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<Dictionary<string, List<string>>, bool> BuildPermissionItemsToFeaturesDictionary(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        result = ClientsManager.ApiClient().GetPermissionItemsToFeatures(groupId.Value);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, List<string>>, bool>(result, result != null && result.Count > 0);
+        }
+
+        private static HashSet<string> GetGroupFeatures(int groupId)
+        {
+            HashSet<string> result = new HashSet<string>();
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupFeaturesKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.GetWithAppDomainCache<HashSet<string>>(key, ref result, BuildGroupFeatures,
+                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                                                                LayeredCacheConfigNames.GET_GROUP_FEATURES,
+                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupFeatures from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupFeatures, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+
+        }
+
+        private static Tuple<HashSet<string>, bool> BuildGroupFeatures(Dictionary<string, object> funcParams)
+        {
+            HashSet<string> result = new HashSet<string>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        result = ClientsManager.ApiClient().GetGroupFeatuers(groupId.Value);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<HashSet<string>, bool>(result, result != null && result.Count > 0);
         }
 
         #endregion

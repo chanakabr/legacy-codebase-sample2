@@ -4337,5 +4337,47 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        public HashSet<string> GetGroupFeatuers(int groupId)
+        {
+            HashSet<string> response = new HashSet<string>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetGroupfeatures(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return response;
+
+        }
+
+        public Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> response = new Dictionary<string, List<string>>();
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetPermissionItemsToFeatures(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return response;
+
+        }
     }
 }
