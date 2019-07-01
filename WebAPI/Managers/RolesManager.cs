@@ -434,12 +434,10 @@ namespace WebAPI.Managers
                 return true;
             }
 
-            string groupFeatureKey = permissionItemsToFeaturesMap[key][0];
-
             var groupFeatures = GetGroupFeatures(groupId);
-            if (groupFeatures != null && groupFeatures.Contains(groupFeatureKey.ToLower()))
+            if (groupFeatures?.Count > 0)
             {
-                return true;
+                return groupFeatures.Count(x => permissionItemsToFeaturesMap[key].Contains(x)) > 0;
             }
 
             return false;

@@ -23,7 +23,7 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Administrator"
       ],
       "excluded_permissions": [],
       "name": "Permission_Delete",
@@ -33,7 +33,7 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Administrator"
       ],
       "excluded_permissions": [],
       "name": "Permission_Add",
