@@ -11885,6 +11885,7 @@ namespace Core.Api
                 {
                     response.Object = permission;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId));
                 }
                 else
                 {
@@ -11948,6 +11949,7 @@ namespace Core.Api
                     log.ErrorFormat("Error while trying to delete Permission. groupId:{0}, id:{1}", groupId, id);
                     return new Status((int)eResponseStatus.Error); ;
                 }
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId));
             }
             catch (Exception exc)
             {
