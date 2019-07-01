@@ -64,8 +64,8 @@ namespace WebAPI.Models.API
 
     public enum KalturaPermissionType
     {
-        NORMAL,
-        GROUP,
-        SPECIAL_FEATURE
+        NORMAL = 1,
+        GROUP = 2,
+        SPECIAL_FEATURE = 3
     }
 }
