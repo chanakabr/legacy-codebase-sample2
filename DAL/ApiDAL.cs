@@ -5709,17 +5709,14 @@ namespace DAL
             try
             {
                 // get the roles, permissions, permission items tables 
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Groupfeatures");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                DataTable dt = UtilsDal.Execute("Get_Groupfeatures", parameters);
 
-                DataTable dt = sp.Execute();
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                if (dt?.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                        string name = Utils.GetSafeStr(dr, "name");
                         if (!string.IsNullOrEmpty(name) && !features.Contains(name.ToLower()))
                         {
                             features.Add(name.ToLower());
@@ -5741,14 +5738,10 @@ namespace DAL
 
             try
             {
-                // get 
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PermissionItemsToFeatures");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                DataTable dt = UtilsDal.Execute("Get_PermissionItemsToFeatures", parameters);
 
-                DataTable dt = sp.Execute();
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                if (dt?.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
