@@ -290,7 +290,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)))
+              //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)))
               .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)));
 
             cfg.CreateMap<KalturaPermission, Permission>()
@@ -3429,7 +3429,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     response = KalturaPermissionType.SPECIAL_FEATURE;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown permission type");
+                    response = KalturaPermissionType.NORMAL;
+                    break;
+
+                    //throw new ClientException((int)StatusCode.Error, "Unknown permission type");
             }
 
             return response;
