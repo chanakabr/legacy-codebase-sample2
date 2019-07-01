@@ -5743,22 +5743,71 @@ namespace DAL
 
                 if (dt?.Rows.Count > 0)
                 {
+                    string key = string.Empty;
+
                     foreach (DataRow dr in dt.Rows)
                     {
-                        string dopn = ODBCWrapper.Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES");
-                        string service = ODBCWrapper.Utils.GetSafeStr(dr, "SERVICE");
-                        string action = ODBCWrapper.Utils.GetSafeStr(dr, "ACTION");
-                        string parameter = ODBCWrapper.Utils.GetSafeStr(dr, "PARAMETER");
-                        string type = ODBCWrapper.Utils.GetSafeStr(dr, "TYPE");
+                        string dopn = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES");
+                        string service = Utils.GetSafeStr(dr, "SERVICE");
+                        string action = Utils.GetSafeStr(dr, "ACTION");
+                        string parameter = Utils.GetSafeStr(dr, "PARAMETER");
+                        string objectName = Utils.GetSafeStr(dr, "OBJECT");
+                        ePermissionItemType permissionItemType = (ePermissionItemType)Utils.GetIntSafeVal(dr, "TYPE");
 
-                        string key = string.Format("{0}_{1}", service, action).ToLower();
-
-                        if (!result.ContainsKey(key))
+                        switch (permissionItemType)
                         {
-                            result.Add(key, new List<string>());
-                        }
+                            case ePermissionItemType.Action:
+                                key = string.Format("{0}_{1}", service, action).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            case ePermissionItemType.Parameter:
+                                int actionNumeric = 0;
+                                int.TryParse(action, out actionNumeric);
 
-                        result[key].Add(dopn);
+                                if (actionNumeric > 0)
+                                {
+                                    ParameterPermissionItemAction actionEnum = (ParameterPermissionItemAction)actionNumeric;
+                                    switch (actionEnum)
+                                    {
+                                        case ParameterPermissionItemAction.READ:                                            
+                                        case ParameterPermissionItemAction.INSERT:                                            
+                                        case ParameterPermissionItemAction.UPDATE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, actionEnum).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        case ParameterPermissionItemAction.WRITE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.INSERT).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.UPDATE).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        case ParameterPermissionItemAction.USAGE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.INSERT).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.UPDATE).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.READ).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                break;
+                            case ePermissionItemType.Argument:
+                                key = string.Format("{0}_{1}_{2}", service, action, parameter).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            case ePermissionItemType.Priviliges:
+                                key = string.Format("{0}_{1}", objectName, parameter).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -5768,6 +5817,17 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static void AddToPermissionItemsToFeatures(ref Dictionary<string, List<string>> result, 
+            string key, string dependsOnPermissionNames)
+        {
+            if (!result.ContainsKey(key))
+            {
+                result.Add(key, new List<string>());
+            }
+
+            result[key].Add(dependsOnPermissionNames);
         }
     }
 }
