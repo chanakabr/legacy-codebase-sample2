@@ -23,10 +23,10 @@ namespace TVM.Billing {
     
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://Billing.tvinci.com/")]
+    [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://billing.tvinci.com/")]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
         private System.Threading.SendOrPostCallback GetBillingCutomDataOperationCompleted;
@@ -378,7 +378,7 @@ namespace TVM.Billing {
         public event ChangePaymentDetailsCompletedEventHandler ChangePaymentDetailsCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public string GetBillingCutomData(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetBillingCutomData", new object[] {
                         sWSUserName,
@@ -409,7 +409,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CC_GetUserCCDigits", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CC_GetUserCCDigits", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public string CC_GetUserCCDigits(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("CC_GetUserCCDigits", new object[] {
                         sWSUserName,
@@ -442,7 +442,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CC_DeleteUserCCDigits", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CC_DeleteUserCCDigits", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void CC_DeleteUserCCDigits(string sWSUserName, string sWSPassword, string sSiteGUID) {
             this.Invoke("CC_DeleteUserCCDigits", new object[] {
                         sWSUserName,
@@ -474,7 +474,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CC_GetClientCheckSum", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CC_GetClientCheckSum", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public string CC_GetClientCheckSum(string sWSUserName, string sWSPassword, string sUserIP, string sRandom) {
             object[] results = this.Invoke("CC_GetClientCheckSum", new object[] {
                         sWSUserName,
@@ -509,7 +509,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetClientMerchantSig", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetClientMerchantSig", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public string GetClientMerchantSig(string sWSUserName, string sWSPassword, string sParamaters) {
             object[] results = this.Invoke("GetClientMerchantSig", new object[] {
                         sWSUserName,
@@ -542,7 +542,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CC_GetPopupURL", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CC_GetPopupURL", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public string CC_GetPopupURL(string sWSUserName, string sWSPassword, double dChargePrice, string sCurrencyCode, string sItemName, string sCustomData, string sPaymentMethod, string sExtraParameters) {
             object[] results = this.Invoke("CC_GetPopupURL", new object[] {
                         sWSUserName,
@@ -585,7 +585,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetLastBillingUserInfo", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetLastBillingUserInfo", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public AdyenBillingDetail GetLastBillingUserInfo(string sWSUserName, string sWSPassword, string sSiteGUID, int nBillingMethod) {
             object[] results = this.Invoke("GetLastBillingUserInfo", new object[] {
                         sWSUserName,
@@ -620,7 +620,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetLastBillingTypeUserInfo", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetLastBillingTypeUserInfo", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public AdyenBillingDetail GetLastBillingTypeUserInfo(string sWSUserName, string sWSPassword, string sSiteGUID) {
             object[] results = this.Invoke("GetLastBillingTypeUserInfo", new object[] {
                         sWSUserName,
@@ -653,7 +653,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CC_ChargeUser", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CC_ChargeUser", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse CC_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, int nPaymentNumber, int nNumberOfPayments, string sExtraParameters, string sPaymentMethodID, string sEncryptedCVV) {
             object[] results = this.Invoke("CC_ChargeUser", new object[] {
                         sWSUserName,
@@ -704,7 +704,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/UpdatePurchaseIDInBilling", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePurchaseIDInBilling", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public bool UpdatePurchaseIDInBilling(string sWSUserName, string sWSPassword, long purchaseID, long billingRefTransactionID) {
             object[] results = this.Invoke("UpdatePurchaseIDInBilling", new object[] {
                         sWSUserName,
@@ -739,7 +739,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DD_ChargeUser", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DD_ChargeUser", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse DD_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, int nPaymentNumber, int nNumberOfPayments, string sExtraParameters, int nBillingMethod) {
             object[] results = this.Invoke("DD_ChargeUser", new object[] {
                         sWSUserName,
@@ -788,7 +788,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/InApp_ChargeUser", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InApp_ChargeUser", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public InAppBillingResponse InApp_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, int nPaymentNumber, int nNumberOfPayments, string ReceiptData) {
             object[] results = this.Invoke("InApp_ChargeUser", new object[] {
                         sWSUserName,
@@ -835,7 +835,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/InApp_ReneweInAppPurchase", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InApp_ReneweInAppPurchase", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public InAppBillingResponse InApp_ReneweInAppPurchase(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sCustomData, int nPaymentNumber, int nNumberOfPayments, int nInAppTransactionID) {
             object[] results = this.Invoke("InApp_ReneweInAppPurchase", new object[] {
                         sWSUserName,
@@ -880,7 +880,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DD_RefundUser", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DD_RefundUser", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public bool DD_RefundUser(string sWSUserName, string sWSPassword, string sPSPReference, string sSiteGuid, double dChargePrice, string sCurrencyCode, long lPurchaseID, int nType, int nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne) {
             object[] results = this.Invoke("DD_RefundUser", new object[] {
                         sWSUserName,
@@ -925,7 +925,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CC_DummyChargeUser", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CC_DummyChargeUser", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse CC_DummyChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, int nPaymentNumber, int nNumberOfPayments, string sExtraParameters) {
             object[] results = this.Invoke("CC_DummyChargeUser", new object[] {
                         sWSUserName,
@@ -972,7 +972,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SMS_SendCode", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SMS_SendCode", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse SMS_SendCode(string sWSUserName, string sWSPassword, string sSiteGUID, string sCellPhone, string sReferenceCode, string sExtraParameters) {
             object[] results = this.Invoke("SMS_SendCode", new object[] {
                         sWSUserName,
@@ -1011,7 +1011,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SMS_CheckCode", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SMS_CheckCode", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse SMS_CheckCode(string sWSUserName, string sWSPassword, string sSiteGUID, string sCellPhone, string sSMSCode, string sReferenceCode) {
             object[] results = this.Invoke("SMS_CheckCode", new object[] {
                         sWSUserName,
@@ -1050,7 +1050,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SendPurchaseMail", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SendPurchaseMail", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public bool SendPurchaseMail(string sWSUserName, string sWSPassword, string sSiteGUID, string sPaymentMethod, string sItemName, int nBillingTransID, string stotalAmount, string scurrency, string sExternalNum) {
             object[] results = this.Invoke("SendPurchaseMail", new object[] {
                         sWSUserName,
@@ -1095,7 +1095,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/Cellular_ChargeUser", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/Cellular_ChargeUser", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public BillingResponse Cellular_ChargeUser(string sWSUserName, string sWSPassword, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, int nPaymentNumber, int nNumberOfPayments, string sExtraParameters) {
             object[] results = this.Invoke("Cellular_ChargeUser", new object[] {
                         sWSUserName,
@@ -1142,7 +1142,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetPaymentGatewateSettings", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewateSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewaySettingsResponse GetPaymentGatewateSettings(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetPaymentGatewateSettings", new object[] {
                         sWSUserName,
@@ -1173,7 +1173,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGateway paymentGateway) {
             object[] results = this.Invoke("SetPaymentGateway", new object[] {
                         sWSUserName,
@@ -1208,7 +1208,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/UpdatePaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayItemResponse UpdatePaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGateway paymentGateway) {
             object[] results = this.Invoke("UpdatePaymentGateway", new object[] {
                         sWSUserName,
@@ -1243,7 +1243,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetPaymentGWSettings", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetPaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGWID, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("SetPaymentGWSettings", new object[] {
                         sWSUserName,
@@ -1278,7 +1278,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DeletePaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status DeletePaymentGateway(string sWSUserName, string sWSPassword, int paymentGwID) {
             object[] results = this.Invoke("DeletePaymentGateway", new object[] {
                         sWSUserName,
@@ -1311,7 +1311,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DeletePaymentGWSettings", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGWSettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status DeletePaymentGWSettings(string sWSUserName, string sWSPassword, int paymentGwID, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("DeletePaymentGWSettings", new object[] {
                         sWSUserName,
@@ -1346,7 +1346,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/InsertPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status InsertPaymentGateway(string sWSUserName, string sWSPassword, PaymentGateway pgw) {
             object[] results = this.Invoke("InsertPaymentGateway", new object[] {
                         sWSUserName,
@@ -1379,7 +1379,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/AddPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayItemResponse AddPaymentGateway(string sWSUserName, string sWSPassword, PaymentGateway pgw) {
             object[] results = this.Invoke("AddPaymentGateway", new object[] {
                         sWSUserName,
@@ -1412,7 +1412,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/InsertPaymentGatewaySettings", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/InsertPaymentGatewaySettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status InsertPaymentGatewaySettings(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("InsertPaymentGatewaySettings", new object[] {
                         sWSUserName,
@@ -1447,7 +1447,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/AddPaymentGatewaySettings", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddPaymentGatewaySettings", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayItemResponse AddPaymentGatewaySettings(string sWSUserName, string sWSPassword, int paymentGatewayId, PaymentGatewaySettings[] settings) {
             object[] results = this.Invoke("AddPaymentGatewaySettings", new object[] {
                         sWSUserName,
@@ -1482,7 +1482,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayResponse GetPaymentGateway(string sWSUserName, string sWSPassword) {
             object[] results = this.Invoke("GetPaymentGateway", new object[] {
                         sWSUserName,
@@ -1513,7 +1513,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetHouseholdPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetHouseholdPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGwID, string siteGuid, int householdId) {
             object[] results = this.Invoke("SetHouseholdPaymentGateway", new object[] {
                         sWSUserName,
@@ -1550,7 +1550,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DeleteHouseholdPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeleteHouseholdPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status DeleteHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, string siteGuid, int householdId) {
             object[] results = this.Invoke("DeleteHouseholdPaymentGateway", new object[] {
                         sWSUserName,
@@ -1587,7 +1587,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetHouseholdPaymentGateways", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseholdPaymentGateways", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayListResponse GetHouseholdPaymentGateways(string sWSUserName, string sWSPassword, string siteGuid, int householdId) {
             object[] results = this.Invoke("GetHouseholdPaymentGateways", new object[] {
                         sWSUserName,
@@ -1622,7 +1622,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetSelectedHouseholdPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetSelectedHouseholdPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public HouseholdPaymentGatewayResponse GetSelectedHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int householdId) {
             object[] results = this.Invoke("GetSelectedHouseholdPaymentGateway", new object[] {
                         sWSUserName,
@@ -1655,7 +1655,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetHouseholdChargeID", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetHouseholdChargeID", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetHouseholdChargeID(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string chargeID) {
             object[] results = this.Invoke("SetHouseholdChargeID", new object[] {
                         sWSUserName,
@@ -1692,7 +1692,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetHouseholdChargeID", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseholdChargeID", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayChargeIDResponse GetHouseholdChargeID(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID) {
             object[] results = this.Invoke("GetHouseholdChargeID", new object[] {
                         sWSUserName,
@@ -1727,7 +1727,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/Transact", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/Transact", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public TransactResult Transact(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentGatewayHHPaymentMethodId, string adapterData) {
             object[] results = this.Invoke("Transact", new object[] {
                         sWSUserName,
@@ -1800,7 +1800,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetPaymentGatewayConfiguration", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGatewayConfiguration", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetPaymentGatewayConfiguration(string sWSUserName, string sWSPassword, int paymentGWId) {
             object[] results = this.Invoke("SetPaymentGatewayConfiguration", new object[] {
                         sWSUserName,
@@ -1833,7 +1833,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetPaymentGatewayConfiguration", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayConfiguration", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent, KeyValuePair[] extraParams) {
             object[] results = this.Invoke("GetPaymentGatewayConfiguration", new object[] {
                         sWSUserName,
@@ -1870,7 +1870,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePendingTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public UpdatePendingResponse UpdatePendingTransaction(string sWSUserName, string sWSPassword, string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus, string externalMessage, int failReason, string signature) {
             object[] results = this.Invoke("UpdatePendingTransaction", new object[] {
                         sWSUserName,
@@ -1915,7 +1915,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/CheckPendingTransaction", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/CheckPendingTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public TransactResult CheckPendingTransaction(string sWSUserName, string sWSPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid) {
             object[] results = this.Invoke("CheckPendingTransaction", new object[] {
                         sWSUserName,
@@ -1956,7 +1956,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/VerifyReceipt", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/VerifyReceipt", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public TransactResult VerifyReceipt(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, string productCode, eTransactionType productType, int contentID, string purchaseToken, string paymentGatewayType, string billingGuid) {
             object[] results = this.Invoke("VerifyReceipt", new object[] {
                         sWSUserName,
@@ -2029,7 +2029,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/ProcessRenewal", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/ProcessRenewal", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public TransactResult ProcessRenewal(string sWSUserName, string sWSPassword, string siteGUID, long householdId, double price, string currency, string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes) {
             object[] results = this.Invoke("ProcessRenewal", new object[] {
                         sWSUserName,
@@ -2082,7 +2082,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetPaymentGatewayByBillingGuid", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayByBillingGuid", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGateway GetPaymentGatewayByBillingGuid(string sWSUserName, string sWSPassword, long householdId, string billingGuid) {
             object[] results = this.Invoke("GetPaymentGatewayByBillingGuid", new object[] {
                         sWSUserName,
@@ -2117,7 +2117,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GeneratePaymentGatewaySharedSecret", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GeneratePaymentGatewaySharedSecret", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayItemResponse GeneratePaymentGatewaySharedSecret(string sWSUserName, string sWSPassword, int paymentGatewayId) {
             object[] results = this.Invoke("GeneratePaymentGatewaySharedSecret", new object[] {
                         sWSUserName,
@@ -2150,7 +2150,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetPartnerConfiguration", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPartnerConfiguration", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetPartnerConfiguration(string sWSUserName, string sWSPassword, PartnerConfiguration partnerConfig) {
             object[] results = this.Invoke("SetPartnerConfiguration", new object[] {
                         sWSUserName,
@@ -2183,7 +2183,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/RecordTransaction", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/RecordTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public TransactResult RecordTransaction(
                     string sWSUserName, 
                     string sWSPassword, 
@@ -2301,7 +2301,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetPaymentGatewayHouseholdPaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGatewayHouseholdPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetPaymentGatewayHouseholdPaymentMethod(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string paymentMethodName, string paymentDetails, string paymentMethodExternalId) {
             object[] results = this.Invoke("SetPaymentGatewayHouseholdPaymentMethod", new object[] {
                         sWSUserName,
@@ -2342,7 +2342,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/AddPaymentMethodToPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddPaymentMethodToPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentMethodsResponse AddPaymentMethodToPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, string name, bool allowMultiInstance) {
             object[] results = this.Invoke("AddPaymentMethodToPaymentGateway", new object[] {
                         sWSUserName,
@@ -2379,7 +2379,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/UpdatePaymentGatewayPaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePaymentGatewayPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status UpdatePaymentGatewayPaymentMethod(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance) {
             object[] results = this.Invoke("UpdatePaymentGatewayPaymentMethod", new object[] {
                         sWSUserName,
@@ -2418,7 +2418,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/UpdatePaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentMethodResponse UpdatePaymentMethod(string sWSUserName, string sWSPassword, int paymentMethodId, string name, bool allowMultiInstance) {
             object[] results = this.Invoke("UpdatePaymentMethod", new object[] {
                         sWSUserName,
@@ -2455,7 +2455,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DeletePaymentGatewayPaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentGatewayPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status DeletePaymentGatewayPaymentMethod(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId) {
             object[] results = this.Invoke("DeletePaymentGatewayPaymentMethod", new object[] {
                         sWSUserName,
@@ -2490,7 +2490,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/DeletePaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/DeletePaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status DeletePaymentMethod(string sWSUserName, string sWSPassword, int paymentMethodId) {
             object[] results = this.Invoke("DeletePaymentMethod", new object[] {
                         sWSUserName,
@@ -2523,7 +2523,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/GetPaymentGatewayPaymentMethods", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayPaymentMethods", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentMethodsResponse GetPaymentGatewayPaymentMethods(string sWSUserName, string sWSPassword, int paymentGatewayId) {
             object[] results = this.Invoke("GetPaymentGatewayPaymentMethods", new object[] {
                         sWSUserName,
@@ -2556,7 +2556,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/SetPaymentMethodHouseholdPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentMethodHouseholdPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status SetPaymentMethodHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId) {
             object[] results = this.Invoke("SetPaymentMethodHouseholdPaymentGateway", new object[] {
                         sWSUserName,
@@ -2595,7 +2595,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/RemovePaymentMethodHouseholdPaymentGateway", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/RemovePaymentMethodHouseholdPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status RemovePaymentMethodHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId, bool force) {
             object[] results = this.Invoke("RemovePaymentMethodHouseholdPaymentGateway", new object[] {
                         sWSUserName,
@@ -2636,7 +2636,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/UpdateRecordedTransaction", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdateRecordedTransaction", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status UpdateRecordedTransaction(string sWSUserName, string sWSPassword, int householdId, string externalTransactionId, string paymentDetails, string paymentMethod, int paymentGatewayId, string paymentMethodExternalID) {
             object[] results = this.Invoke("UpdateRecordedTransaction", new object[] {
                         sWSUserName,
@@ -2679,7 +2679,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/AddHouseholdNewPaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddHouseholdNewPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public int AddHouseholdNewPaymentMethod(string sWSUserName, string sWSPassword, string adapterExternalIdentifier, int householdID, string paymentMethodName, string paymentDetails, string paymentMethodExternalId) {
             object[] results = this.Invoke("AddHouseholdNewPaymentMethod", new object[] {
                         sWSUserName,
@@ -2720,7 +2720,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/PaymentGatewayInvoke", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/PaymentGatewayInvoke", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentGatewayConfigurationResponse PaymentGatewayInvoke(string sWSUserName, string sWSPassword, int paymentGatewayId, string intent, KeyValuePair[] extraParams) {
             object[] results = this.Invoke("PaymentGatewayInvoke", new object[] {
                         sWSUserName,
@@ -2757,7 +2757,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/AddPaymentGatewayHouseholdPaymentMethod", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddPaymentGatewayHouseholdPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public PaymentMethodIdResponse AddPaymentGatewayHouseholdPaymentMethod(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string paymentMethodName, string paymentDetails, string paymentMethodExternalId) {
             object[] results = this.Invoke("AddPaymentGatewayHouseholdPaymentMethod", new object[] {
                         sWSUserName,
@@ -2798,7 +2798,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/AddPaymentGatewayPaymentMethodToHousehold", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddPaymentGatewayPaymentMethodToHousehold", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public HouseholdPaymentMethodResponse AddPaymentGatewayPaymentMethodToHousehold(string sWSUserName, string sWSPassword, HouseholdPaymentMethod householdPaymentMethod, int householdId) {
             object[] results = this.Invoke("AddPaymentGatewayPaymentMethodToHousehold", new object[] {
                         sWSUserName,
@@ -2833,7 +2833,7 @@ namespace TVM.Billing {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://Billing.tvinci.com/ChangePaymentDetails", RequestNamespace="http://Billing.tvinci.com/", ResponseNamespace="http://Billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/ChangePaymentDetails", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Status ChangePaymentDetails(string sWSUserName, string sWSPassword, string billingGuid, long householdId, int paymentGatewayId, int paymentMethodId) {
             object[] results = this.Invoke("ChangePaymentDetails", new object[] {
                         sWSUserName,
@@ -2891,11 +2891,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class AdyenBillingDetail {
         
         private BillingInfo billingInfoField;
@@ -2912,11 +2912,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class BillingInfo {
         
         private string expiryMonthField;
@@ -2993,11 +2993,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class HouseholdPaymentMethodResponse {
         
         private Status statusField;
@@ -3026,11 +3026,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class Status {
         
         private int codeField;
@@ -3071,11 +3071,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class KeyValuePair {
         
         private string keyField;
@@ -3104,11 +3104,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class HouseholdPaymentMethod {
         
         private int idField;
@@ -3185,11 +3185,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentMethodIdResponse {
         
         private int paymentMethodIdField;
@@ -3218,11 +3218,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentMethodResponse {
         
         private Status statusField;
@@ -3251,11 +3251,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentMethod {
         
         private int idField;
@@ -3308,11 +3308,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentMethodsResponse {
         
         private Status statusField;
@@ -3341,11 +3341,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PartnerConfiguration {
         
         private string valueField;
@@ -3374,9 +3374,9 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum PartnerConfigurationType {
         
         /// <remarks/>
@@ -3390,11 +3390,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class UpdatePendingResponse {
         
         private Status statusField;
@@ -3459,9 +3459,9 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum eTransactionType {
         
         /// <remarks/>
@@ -3475,9 +3475,9 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum eTransactionState {
         
         /// <remarks/>
@@ -3491,11 +3491,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayConfigurationResponse {
         
         private Status statusField;
@@ -3524,11 +3524,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class TransactResult {
         
         private Status statusField;
@@ -3665,11 +3665,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayChargeIDResponse {
         
         private Status responseStatusField;
@@ -3698,11 +3698,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class HouseholdPaymentGatewayResponse {
         
         private Status statusField;
@@ -3745,11 +3745,11 @@ namespace TVM.Billing {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentGatewaySelectedBy))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentGateway))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayBase {
         
         private int idField;
@@ -3802,11 +3802,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewaySelectedBy : PaymentGatewayBase {
         
         private eHouseholdPaymentGatewaySelectedBy byField;
@@ -3835,9 +3835,9 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum eHouseholdPaymentGatewaySelectedBy {
         
         /// <remarks/>
@@ -3851,11 +3851,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatwayPaymentMethods {
         
         private PaymentMethod paymentMethodField;
@@ -3884,11 +3884,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGateway : PaymentGatewayBase {
         
         private int isActiveField;
@@ -4073,11 +4073,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewaySettings {
         
         private string keyField;
@@ -4106,11 +4106,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayListResponse {
         
         private Status statusField;
@@ -4139,11 +4139,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayResponse {
         
         private Status respField;
@@ -4172,11 +4172,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayItemResponse {
         
         private Status statusField;
@@ -4205,11 +4205,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewaySettingsResponse {
         
         private Status respField;
@@ -4238,11 +4238,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class iTunesReceipt {
         
         private string original_purchase_date_pstField;
@@ -4475,11 +4475,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class InAppReceipt {
         
         private string iOSVersionField;
@@ -4568,11 +4568,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class InAppBillingResponse {
         
         private BillingResponse m_oBillingResponseField;
@@ -4601,11 +4601,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class BillingResponse {
         
         private string m_sRecieptCodeField;
@@ -4658,9 +4658,9 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.8.3761.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://Billing.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public enum BillingResponseStatus {
         
         /// <remarks/>
@@ -4698,11 +4698,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetBillingCutomDataCompletedEventHandler(object sender, GetBillingCutomDataCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetBillingCutomDataCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4724,11 +4724,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CC_GetUserCCDigitsCompletedEventHandler(object sender, CC_GetUserCCDigitsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_GetUserCCDigitsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4750,15 +4750,15 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CC_DeleteUserCCDigitsCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CC_GetClientCheckSumCompletedEventHandler(object sender, CC_GetClientCheckSumCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_GetClientCheckSumCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4780,11 +4780,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetClientMerchantSigCompletedEventHandler(object sender, GetClientMerchantSigCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetClientMerchantSigCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4806,11 +4806,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CC_GetPopupURLCompletedEventHandler(object sender, CC_GetPopupURLCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_GetPopupURLCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4832,11 +4832,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetLastBillingUserInfoCompletedEventHandler(object sender, GetLastBillingUserInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetLastBillingUserInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4858,11 +4858,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetLastBillingTypeUserInfoCompletedEventHandler(object sender, GetLastBillingTypeUserInfoCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetLastBillingTypeUserInfoCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4884,11 +4884,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CC_ChargeUserCompletedEventHandler(object sender, CC_ChargeUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_ChargeUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4910,11 +4910,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void UpdatePurchaseIDInBillingCompletedEventHandler(object sender, UpdatePurchaseIDInBillingCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdatePurchaseIDInBillingCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4936,11 +4936,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DD_ChargeUserCompletedEventHandler(object sender, DD_ChargeUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DD_ChargeUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4962,11 +4962,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void InApp_ChargeUserCompletedEventHandler(object sender, InApp_ChargeUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InApp_ChargeUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -4988,11 +4988,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void InApp_ReneweInAppPurchaseCompletedEventHandler(object sender, InApp_ReneweInAppPurchaseCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InApp_ReneweInAppPurchaseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5014,11 +5014,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DD_RefundUserCompletedEventHandler(object sender, DD_RefundUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DD_RefundUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5040,11 +5040,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CC_DummyChargeUserCompletedEventHandler(object sender, CC_DummyChargeUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CC_DummyChargeUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5066,11 +5066,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SMS_SendCodeCompletedEventHandler(object sender, SMS_SendCodeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SMS_SendCodeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5092,11 +5092,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SMS_CheckCodeCompletedEventHandler(object sender, SMS_CheckCodeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SMS_CheckCodeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5118,11 +5118,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SendPurchaseMailCompletedEventHandler(object sender, SendPurchaseMailCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SendPurchaseMailCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5144,11 +5144,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void Cellular_ChargeUserCompletedEventHandler(object sender, Cellular_ChargeUserCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class Cellular_ChargeUserCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5170,11 +5170,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetPaymentGatewateSettingsCompletedEventHandler(object sender, GetPaymentGatewateSettingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPaymentGatewateSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5196,11 +5196,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetPaymentGatewayCompletedEventHandler(object sender, SetPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5222,11 +5222,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void UpdatePaymentGatewayCompletedEventHandler(object sender, UpdatePaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdatePaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5248,11 +5248,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetPaymentGWSettingsCompletedEventHandler(object sender, SetPaymentGWSettingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetPaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5274,11 +5274,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DeletePaymentGatewayCompletedEventHandler(object sender, DeletePaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeletePaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5300,11 +5300,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DeletePaymentGWSettingsCompletedEventHandler(object sender, DeletePaymentGWSettingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeletePaymentGWSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5326,11 +5326,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void InsertPaymentGatewayCompletedEventHandler(object sender, InsertPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InsertPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5352,11 +5352,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void AddPaymentGatewayCompletedEventHandler(object sender, AddPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5378,11 +5378,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void InsertPaymentGatewaySettingsCompletedEventHandler(object sender, InsertPaymentGatewaySettingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InsertPaymentGatewaySettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5404,11 +5404,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void AddPaymentGatewaySettingsCompletedEventHandler(object sender, AddPaymentGatewaySettingsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddPaymentGatewaySettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5430,11 +5430,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetPaymentGatewayCompletedEventHandler(object sender, GetPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5456,11 +5456,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetHouseholdPaymentGatewayCompletedEventHandler(object sender, SetHouseholdPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5482,11 +5482,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DeleteHouseholdPaymentGatewayCompletedEventHandler(object sender, DeleteHouseholdPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeleteHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5508,11 +5508,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetHouseholdPaymentGatewaysCompletedEventHandler(object sender, GetHouseholdPaymentGatewaysCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetHouseholdPaymentGatewaysCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5534,11 +5534,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetSelectedHouseholdPaymentGatewayCompletedEventHandler(object sender, GetSelectedHouseholdPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetSelectedHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5560,11 +5560,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetHouseholdChargeIDCompletedEventHandler(object sender, SetHouseholdChargeIDCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetHouseholdChargeIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5586,11 +5586,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetHouseholdChargeIDCompletedEventHandler(object sender, GetHouseholdChargeIDCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetHouseholdChargeIDCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5612,11 +5612,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void TransactCompletedEventHandler(object sender, TransactCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class TransactCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5638,11 +5638,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetPaymentGatewayConfigurationCompletedEventHandler(object sender, SetPaymentGatewayConfigurationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetPaymentGatewayConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5664,11 +5664,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetPaymentGatewayConfigurationCompletedEventHandler(object sender, GetPaymentGatewayConfigurationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPaymentGatewayConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5690,11 +5690,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void UpdatePendingTransactionCompletedEventHandler(object sender, UpdatePendingTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdatePendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5716,11 +5716,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5742,11 +5742,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void VerifyReceiptCompletedEventHandler(object sender, VerifyReceiptCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class VerifyReceiptCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5768,11 +5768,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void ProcessRenewalCompletedEventHandler(object sender, ProcessRenewalCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ProcessRenewalCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5794,11 +5794,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetPaymentGatewayByBillingGuidCompletedEventHandler(object sender, GetPaymentGatewayByBillingGuidCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPaymentGatewayByBillingGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5820,11 +5820,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GeneratePaymentGatewaySharedSecretCompletedEventHandler(object sender, GeneratePaymentGatewaySharedSecretCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GeneratePaymentGatewaySharedSecretCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5846,11 +5846,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetPartnerConfigurationCompletedEventHandler(object sender, SetPartnerConfigurationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetPartnerConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5872,11 +5872,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void RecordTransactionCompletedEventHandler(object sender, RecordTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RecordTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5898,11 +5898,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetPaymentGatewayHouseholdPaymentMethodCompletedEventHandler(object sender, SetPaymentGatewayHouseholdPaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetPaymentGatewayHouseholdPaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5924,11 +5924,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void AddPaymentMethodToPaymentGatewayCompletedEventHandler(object sender, AddPaymentMethodToPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddPaymentMethodToPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5950,11 +5950,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void UpdatePaymentGatewayPaymentMethodCompletedEventHandler(object sender, UpdatePaymentGatewayPaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdatePaymentGatewayPaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -5976,11 +5976,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void UpdatePaymentMethodCompletedEventHandler(object sender, UpdatePaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdatePaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6002,11 +6002,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DeletePaymentGatewayPaymentMethodCompletedEventHandler(object sender, DeletePaymentGatewayPaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeletePaymentGatewayPaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6028,11 +6028,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void DeletePaymentMethodCompletedEventHandler(object sender, DeletePaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class DeletePaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6054,11 +6054,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void GetPaymentGatewayPaymentMethodsCompletedEventHandler(object sender, GetPaymentGatewayPaymentMethodsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPaymentGatewayPaymentMethodsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6080,11 +6080,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void SetPaymentMethodHouseholdPaymentGatewayCompletedEventHandler(object sender, SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6106,11 +6106,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void RemovePaymentMethodHouseholdPaymentGatewayCompletedEventHandler(object sender, RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6132,11 +6132,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void UpdateRecordedTransactionCompletedEventHandler(object sender, UpdateRecordedTransactionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdateRecordedTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6158,11 +6158,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void AddHouseholdNewPaymentMethodCompletedEventHandler(object sender, AddHouseholdNewPaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddHouseholdNewPaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6184,11 +6184,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void PaymentGatewayInvokeCompletedEventHandler(object sender, PaymentGatewayInvokeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PaymentGatewayInvokeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6210,11 +6210,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void AddPaymentGatewayHouseholdPaymentMethodCompletedEventHandler(object sender, AddPaymentGatewayHouseholdPaymentMethodCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddPaymentGatewayHouseholdPaymentMethodCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6236,11 +6236,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void AddPaymentGatewayPaymentMethodToHouseholdCompletedEventHandler(object sender, AddPaymentGatewayPaymentMethodToHouseholdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AddPaymentGatewayPaymentMethodToHouseholdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -6262,11 +6262,11 @@ namespace TVM.Billing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     public delegate void ChangePaymentDetailsCompletedEventHandler(object sender, ChangePaymentDetailsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ChangePaymentDetailsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {

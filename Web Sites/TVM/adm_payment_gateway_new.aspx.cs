@@ -57,6 +57,9 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                         string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
                         if (sWSURL != "")
                             billing.Url = sWSURL;
+                        
+                        log.DebugFormat("SetPaymentGatewayConfiguration sWSURL is: {0}, billing.url is: {1} ", sWSURL, billing.Url);
+
                         try
                         {
                             TVM.Billing.Status status = billing.SetPaymentGatewayConfiguration(sWSUserName, sWSPass, nID);

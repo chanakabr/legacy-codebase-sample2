@@ -4773,6 +4773,10 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
+      <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
+      <Name>CDNTokenizers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
