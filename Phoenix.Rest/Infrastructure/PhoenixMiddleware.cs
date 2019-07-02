@@ -16,7 +16,6 @@ namespace Phoenix.Rest.Infrastructure
         {
             services.AddHttpContextAccessor();
             services.AddKalturaApplicationSessionContext();
-            services.AddScoped<IPhoenixRequestContext, PhoenixRequestContext>();
             return services;
         }
 

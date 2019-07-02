@@ -13,6 +13,8 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Linq;
 using Phoenix.Rest.Helpers;
+using Newtonsoft.Json.Converters;
+using System.Collections.Generic;
 
 namespace Phoenix.Rest.Infrastructure
 {
@@ -26,23 +28,20 @@ namespace Phoenix.Rest.Infrastructure
             _Next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, IPhoenixRequestContext phoenixCtx)
+        public async Task InvokeAsync(HttpContext context)
         {
+            var phoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             var request = context.Request;
-            if (!TryGetRouteDataFromUrl(phoenixCtx, request))
+            GetRouteData(phoenixCtx, request);
+
+            if (context.Request.Method == HttpMethods.Post)
             {
-                if (!TryGetRoutDataFromQueryString(phoenixCtx, request))
-                {
-                    if (!TryGetRouteDataFromFormBody(phoenixCtx, request))
-                    {
-                        // TODO: arthur, add error response handling
-                        throw new Exception("Unknown service");
-                    }
-                };
+                await GetRequestBody(phoenixCtx, request);
             }
-
-            await GetJsonBody(phoenixCtx, request);
-
+            else
+            {
+                GetRequestBodyFromQueryString(phoenixCtx, request);
+            }
 
 
             context.Response.OnStarting(async () =>
@@ -58,7 +57,26 @@ namespace Phoenix.Rest.Infrastructure
 
         }
 
-        private bool TryGetRouteDataFromFormBody(IPhoenixRequestContext phoenixCtx, HttpRequest request)
+
+
+
+
+        private void GetRouteData(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        {
+            if (!TryGetRouteDataFromUrl(phoenixCtx, request))
+            {
+                if (!TryGetRoutDataFromQueryString(phoenixCtx, request))
+                {
+                    if (!TryGetRouteDataFromFormBody(phoenixCtx, request))
+                    {
+                        // TODO: arthur, add error response handling
+                        throw new Exception("Unknown service");
+                    }
+                };
+            }
+        }
+
+        private bool TryGetRouteDataFromFormBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
         {
             if (!request.HasFormContentType) { return false; }
 
@@ -81,7 +99,7 @@ namespace Phoenix.Rest.Infrastructure
             return false;
         }
 
-        private bool TryGetRoutDataFromQueryString(IPhoenixRequestContext phoenixCtx, HttpRequest request)
+        private bool TryGetRoutDataFromQueryString(PhoenixRequestContext phoenixCtx, HttpRequest request)
         {
             if (request.Method != HttpMethods.Get) { return false; }
             if (request.Query.TryGetValue("service", out var serviceQsVal))
@@ -103,7 +121,7 @@ namespace Phoenix.Rest.Infrastructure
             return false;
         }
 
-        private static bool TryGetRouteDataFromUrl(IPhoenixRequestContext phoenixCtx, HttpRequest request)
+        private bool TryGetRouteDataFromUrl(PhoenixRequestContext phoenixCtx, HttpRequest request)
         {
             var urlSegments = request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
@@ -119,13 +137,105 @@ namespace Phoenix.Rest.Infrastructure
             return isRoutDataFoundInUrl;
         }
 
-        private static async Task GetJsonBody(IPhoenixRequestContext phoenixCtx, HttpRequest request)
+
+        private async Task GetRequestBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
         {
+
+            if (request.HasFormContentType)
+            {
+                await ParseFormDataBody(phoenixCtx, request);
+            }
+            else if (request.ContentType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                await ParseJsonBody(phoenixCtx, request);
+            }
+            else
+            {
+                // TODO: Arthur, handle error
+                throw new Exception("Unsupported content type");
+            }
+
+
+        }
+
+        private void GetRequestBodyFromQueryString(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        {
+            var queryStringDictionary = request.Query.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
+            var nestedDictionary = GetNestedDictionary(queryStringDictionary);
+            phoenixCtx.ActionParams = nestedDictionary;
+
+        }
+
+        private async Task ParseFormDataBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        {
+            foreach (var file in request.Form.Files)
+            {
+                // TODO: Parse Kaltura OTT Files and upload
+                throw new NotImplementedException("File upload is not implementd");
+            }
+
+            if (request.Form.TryGetValue("json", out var jsonFromData))
+            {
+                var body = JObject.Parse(jsonFromData.First());
+            }
+            else
+            {
+                var queryStringDictionary = request.Form.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
+                var nestedDictionary = GetNestedDictionary(queryStringDictionary);
+                phoenixCtx.ActionParams = nestedDictionary;
+            }
+
+        }
+
+        private static async Task ParseJsonBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        {
+
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
                 var body = await JObject.LoadAsync(jsonReader);
-                phoenixCtx.RequestBody = body;
+                phoenixCtx.ActionParams = body.ToObject<Dictionary<string, object>>();
+            }
+        }
+
+        private Dictionary<string, object> GetNestedDictionary(Dictionary<string, object> tokens)
+        {
+            var result = new Dictionary<string, object>();
+
+            // group the params by prefix
+            foreach (var kv in tokens)
+            {
+                var splittedKey = kv.Key.Replace('[', '.').Replace("]", "").Split(".");
+                SetElementByPath(result, splittedKey, kv.Value);
+            }
+
+            return result;
+        }
+
+        private void SetElementByPath(Dictionary<string, object> sourceDict, IEnumerable<string> splittedKey, object valueToSet)
+        {
+            var nestedDict = sourceDict;
+            var keysStack = new Queue<string>(splittedKey);
+            while (keysStack.TryDequeue(out var key))
+            {
+                if (key == "-" && keysStack.Count == 0) { break; }
+
+                // If this is the last key in path .. then just place the value
+                if (keysStack.Count == 0)
+                {
+                    nestedDict[key] = valueToSet;
+                }
+                // if there are more keys keep creating new nested dictionaries if they dont exist
+                else
+                {
+
+                    if (!sourceDict.TryGetValue(key, out var currentDictValue))
+                    {
+                        sourceDict[key] = new Dictionary<string, object>();
+                    }
+
+                    nestedDict = nestedDict[key] as Dictionary<string, object>;
+                }
             }
         }
     }
