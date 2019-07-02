@@ -2309,7 +2309,7 @@ namespace Core.Api
             GenericResponse<Permission> result = new GenericResponse<Permission>();
             try
             {
-                result =  api.AddPermission(groupId, permission);
+                result = api.AddPermission(groupId, permission);
             }
             catch (Exception ex)
             {

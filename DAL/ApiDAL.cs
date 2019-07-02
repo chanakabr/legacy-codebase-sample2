@@ -5835,7 +5835,7 @@ namespace DAL
                     result.Add(key, new List<string>());
                 }
 
-                result[key].AddRange(dependsOnPermissionNames.Split(',').ToList());
+                result[key].AddRange(dependsOnPermissionNames.Split(',').Select(p => p.Trim().ToLower()));
             }
         }
 
