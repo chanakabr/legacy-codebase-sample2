@@ -1110,5 +1110,11 @@ namespace DAL
 
             return groupFeatures;
         }
+
+        public static Dictionary<string, int> GetIpv6PrefixToCountry()
+        {
+            // TODO SHIR- IMPLEMENT GetIpv6PrefixToCountry FROM DB
+            return new Dictionary<string, int>();
+        }
     }
 }

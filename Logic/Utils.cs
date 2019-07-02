@@ -6,6 +6,7 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Users;
+using ElasticSearch.Utilities;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -941,6 +942,50 @@ namespace APILogic
             }
 
             return new Tuple<List<LanguageObj>, bool>(languagesResult, res);
+        }
+
+        public static ApiObjects.Country GetCountryByIpv6(int groupId, string ipv6)
+        {
+            ApiObjects.Country country = null;
+
+            if (string.IsNullOrEmpty(ipv6))
+            {
+                return country;
+            }
+
+            try
+            {
+                string key = LayeredCacheKeys.GetKeyForIpv6(ipv6);
+                if (!LayeredCache.Instance.Get(key,
+                                               ref country,
+                                               IpToCountry.GetCountryByIpv6FromES,
+                                               new Dictionary<string, object>() { { "ipv6", ipv6 } },
+                                               groupId,
+                                               LayeredCacheConfigNames.COUNTRY_BY_IPV6_LAYERED_CACHE_CONFIG_NAME,
+                                               new List<string>() { LayeredCacheConfigNames.GET_COUNTRY_BY_IPV6_INVALIDATION_KEY }))
+                {
+                    log.ErrorFormat("Failed getting country by ipv6 from LayeredCache, ip: {0}, key: {1}", ipv6, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCountryByIpv6 for ip: {0}", ipv6), ex);
+            }
+
+            string debugString;
+            if (country == null || country.Id <= 0)
+            {
+                // make sure country is null when ID is not valid
+                country = null;
+                debugString = string.Format("No country found for ip {0}", ipv6);
+            }
+            else
+            {
+                debugString = string.Format("Found country with id = {0} and name = {1} for ip {2}", country.Id, country.Name, ipv6);
+            }
+            log.Debug(debugString);
+
+            return country;
         }
     }
 }
