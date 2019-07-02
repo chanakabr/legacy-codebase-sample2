@@ -1218,9 +1218,10 @@ namespace PermissionsManager
                     {
                         var filePermission = dictionaryPermissionsFromFiles[permission.Name];
 
-                        // if permission exists both in file and in DB - check if update is required                        
-                        if (permission.UsersGroup != filePermission.UsersGroup || permission.FriendlyName != filePermission.FriendlyName || 
-                            permission.DependsOnPermissionNames != filePermission.DependsOnPermissionNames)
+                        // if permission exists both in file and in DB - check if update is required
+                        if ((!(string.IsNullOrEmpty(permission.UsersGroup) && string.IsNullOrEmpty(filePermission.UsersGroup)) && permission.UsersGroup != filePermission.UsersGroup) ||
+                            (!(string.IsNullOrEmpty(permission.FriendlyName) && string.IsNullOrEmpty(filePermission.FriendlyName)) && permission.FriendlyName != filePermission.FriendlyName) ||
+                            (!(string.IsNullOrEmpty(permission.DependsOnPermissionNames) && string.IsNullOrEmpty(filePermission.DependsOnPermissionNames)) && permission.DependsOnPermissionNames != filePermission.DependsOnPermissionNames))
                         {
                             ApiDAL.UpdatePermission((int)permission.Id, filePermission.Name, (int)ePermissionType.Group, filePermission.UsersGroup, filePermission.FriendlyName, filePermission.DependsOnPermissionNames);
                             log.InfoFormat("!! UPDATE !! Permissions - id {0} name {1}", permission.Id, permission.Name);
@@ -1875,9 +1876,9 @@ namespace PermissionsManager
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
             KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
         }
-
-        #endregion
         
+        #endregion
+
         public static void TestRabbit()
         {
             InitializeLogging();
@@ -1924,5 +1925,5 @@ namespace PermissionsManager
             Task.WaitAll(tasks);
             Task.WaitAll(tasks2);
         }
-    }
+    }    
 }
