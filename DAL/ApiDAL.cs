@@ -5838,5 +5838,44 @@ namespace DAL
                 result[key].AddRange(dependsOnPermissionNames.Split(',').ToList());
             }
         }
+
+        public static List<Permission> GetPermissions(int groupId)
+        {
+            List<Permission> permissions = null;
+            Permission permission = null;
+            try
+            {
+
+                StoredProcedure sp = new StoredProcedure("Get_Permissions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataTable dt = sp.Execute();
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permissions = new List<Permission>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        permission = new Permission
+                        {
+                            Id = Utils.GetLongSafeVal(dr, "ID"),
+                            Name = Utils.GetSafeStr(dr, "NAME"),
+                            FriendlyName = Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                            GroupId = groupId,                            
+                            Type = (ePermissionType)Utils.GetIntSafeVal(dr, "TYPE"),
+                            DependsOnPermissionNames = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES")
+                        };
+
+                        permissions.Add(permission);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred in GetPermissions. groupId:{0}. ex: {1}", groupId, ex);
+            }
+
+            return permissions;
+        }
     }
 }

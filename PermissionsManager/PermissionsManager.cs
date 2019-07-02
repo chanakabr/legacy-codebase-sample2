@@ -1241,13 +1241,16 @@ namespace PermissionsManager
                 }
 
                 // run on all permissions we have in files
+
+                //Get All permission from Db
+                List<Permission> dbPermissions = ApiDAL.GetPermissions(0);
+
                 foreach (var permission in permissionsFromFiles)
                 {
                     // check if exists in DB
-                    if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name))
+                    if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name) && dbPermissions?.Count( x =>x.Name == permission.Name) == 0 )
                     {
-                        // if not, it is new and should be added
-                        //TODO anat ePermissionType.Group
+                        // if not, it is new and should be added                        
                         int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup, permission.FriendlyName, permission.DependsOnPermissionNames);
                         permission.Id = newId;
 
@@ -1530,13 +1533,23 @@ namespace PermissionsManager
                                 // if permission permission items exists in file but not in DB - add it to DB
                                 if (!permissionPermissionItemsFromDatabase.ContainsKey(permissionName))
                                 {
-                                    int permissionId = (int)dictionaryPermissionsFromDatabase[permissionName].Id;
-                                    int newPermissionPermissionItemId = 
-                                        ApiDAL.InsertPermissionPermissionItem(permissionId, (int)dbPermissionItem.Id, Convert.ToInt32(isExcluded));
+                                    if (dictionaryPermissionsFromDatabase.ContainsKey(permissionName))
+                                    {
+                                        int permissionId = (int)dictionaryPermissionsFromDatabase[permissionName].Id;
+                                        int newPermissionPermissionItemId =
+                                            ApiDAL.InsertPermissionPermissionItem(permissionId, (int)dbPermissionItem.Id, Convert.ToInt32(isExcluded));
 
-                                    log.InfoFormat("!! INSERT !! Permission Permission Item - permission id = {0} permission item id = {1} " +
-                                        "permission name = {2} permission item name = {3}",
-                                        permissionId, dbPermissionItem.Id, permissionName, dbPermissionItem.Name);
+                                        log.InfoFormat("!! INSERT !! Permission Permission Item - permission id = {0} permission item id = {1} " +
+                                            "permission name = {2} permission item name = {3}",
+                                            permissionId, dbPermissionItem.Id, permissionName, dbPermissionItem.Name);
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("Permission - permission item: trying to insert a permission permission item of " +
+                                            " a non existing permission. Either it was not defined in files " +
+                                            " or it was defomedhas no role. permission name = {0} permission item name = {1}",
+                                            permissionName, dbPermissionItem.Name);
+                                    }
                                 }
                                 else
                                 {
@@ -1876,7 +1889,7 @@ namespace PermissionsManager
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
             KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
         }
-        
+
         #endregion
 
         public static void TestRabbit()
