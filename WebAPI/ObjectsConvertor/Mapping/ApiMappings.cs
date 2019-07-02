@@ -290,14 +290,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
+              //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)))
               .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)));
+
+            cfg.CreateMap<KalturaPermission, Permission>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)));
 
             cfg.CreateMap<GroupPermission, KalturaGroupPermission>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
               .ForMember(dest => dest.PermissionItems, opt => opt.ResolveUsing(src => ConvertPermissionItems(src.PermissionItems)))
-              .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup));
+              .ForMember(dest => dest.Group, opt => opt.MapFrom(src => src.UsersGroup))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaPermissionType.GROUP))
+              .ForMember(dest => dest.DependsOnPermissionNames, opt => opt.MapFrom(src => src.DependsOnPermissionNames))
+              ;
 
             cfg.CreateMap<Role, KalturaUserRole>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -3403,5 +3413,51 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return res;
         }
 
+        private static KalturaPermissionType ConvertPermissionType(ePermissionType type)
+        {
+            KalturaPermissionType response;
+
+            switch (type)
+            {
+                case ePermissionType.Normal:
+                    response = KalturaPermissionType.NORMAL;
+                    break;
+                case ePermissionType.Group:
+                    response = KalturaPermissionType.GROUP;
+                    break;
+                case ePermissionType.SpecialFeature:
+                    response = KalturaPermissionType.SPECIAL_FEATURE;
+                    break;
+                default:
+                    response = KalturaPermissionType.NORMAL;
+                    break;
+
+                    //throw new ClientException((int)StatusCode.Error, "Unknown permission type");
+            }
+
+            return response;
+        }
+
+        private static ePermissionType ConvertPermissionType(KalturaPermissionType type)
+        {
+            ePermissionType response;
+
+            switch (type)
+            {
+                case KalturaPermissionType.NORMAL:
+                    response = ePermissionType.Normal;
+                    break;
+                case KalturaPermissionType.GROUP:
+                    response = ePermissionType.Group;
+                    break;
+                case KalturaPermissionType.SPECIAL_FEATURE:
+                    response = ePermissionType.SpecialFeature;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown permission type");
+            }
+
+            return response;
+        }
     }
 }

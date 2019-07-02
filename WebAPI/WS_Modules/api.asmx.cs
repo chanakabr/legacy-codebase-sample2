@@ -3529,28 +3529,7 @@ namespace WS_API
             {
                 Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
-        }
-
-        [WebMethod]
-        [XmlInclude(typeof(ApiActionPermissionItem))]
-        [XmlInclude(typeof(GroupPermission))]
-        public PermissionResponse AddPermission(string sWSUserName, string sWSPassword, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            int groupId = GetGroupID(sWSUserName, sWSPassword);
-            if (groupId > 0)
-            {
-                return Core.Api.Module.AddPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
-            }
-            else
-            {
-                HttpContext.Current.Response.StatusCode = 404;
-            }
-
-            return new PermissionResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-        }
+        }        
 
         [WebMethod]
         public Status AddPermissionToRole(string sWSUserName, string sWSPassword, long roleId, long permissionId)

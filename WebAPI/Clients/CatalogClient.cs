@@ -843,7 +843,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, KalturaGroupByOrder? groupByOrder)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, KalturaGroupByOrder? groupByOrder, bool isAllowedToViewInactiveAssets)
         {
             KalturaAssetCount result = new KalturaAssetCount();
 
@@ -935,7 +935,8 @@ namespace WebAPI.Clients
                 {
                     groupBy = groupBy,
                     groupByOrder = aggregationOrder
-                }
+                },
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
 
             // fire unified search request

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -84,36 +85,63 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        ///// <summary>
-        ///// Adds new permission
-        ///// </summary>
-        ///// <param name="permission">Permission to insert</param>
-        ///// <remarks></remarks>
-        //[Action("add")]
-        //[ApiAuthorize]
-        //static public KalturaPermission Add(KalturaPermission permission)
-        //{
-        //    KalturaPermission response = null;
+        /// <summary>
+        /// Adds new permission
+        /// </summary>
+        /// <param name="permission">Permission to insert</param>
+        /// <remarks></remarks>
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.PermissionNameAlreadyInUse)]
+        static public KalturaPermission Add(KalturaPermission permission)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    int groupId = KS.GetFromRequest().GroupId;
+            try
+            {
+                if (string.IsNullOrEmpty(permission.Name))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPermission.name");
+                }
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.ApiClient().AddPermission(groupId, permission);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+                if(permission.Type == KalturaPermissionType.SPECIAL_FEATURE && !string.IsNullOrEmpty(permission.DependsOnPermissionNames))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPermission.type, KalturaPermission.dependsOnPermissionNames");
+                }
 
-        //    if (response == null)
-        //    {
-        //        throw new InternalServerErrorException();
-        //    }
+                // call client
+                return ClientsManager.ApiClient().AddPermission(groupId, permission);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return null;
+        }
+
+        /// <summary>
+        /// Deletes an existing permission
+        /// </summary>
+        /// <param name="id">Permission ID to delete</param>
+        /// <remarks></remarks>
+        [Action("delete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.PermissionNotFound)]
+        static public void Delete(long id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                ClientsManager.ApiClient().DeletePermission(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
 
         ///// <summary>
         ///// Adds permission item to permission

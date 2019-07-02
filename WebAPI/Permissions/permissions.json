@@ -148,22 +148,26 @@
     {
       "name": "EXT_COLLECTIONS_VIEW",
       "users_group": "",
-      "friendly_name": "Viewing external collections"
+      "friendly_name": "Viewing external collections",
+      "depends_on_permission_names": "External Collections"
     },
     {
       "name": "EXT_COLLECTIONS_MNG",
       "users_group": "",
-      "friendly_name": "Adding, editing and deleting external collections"
+      "friendly_name": "Adding, editing and deleting external collections",
+      "depends_on_permission_names": "External Collections"
     },
     {
       "name": "USER_SEG_VIEW",
       "users_group": "",
-      "friendly_name": "Viewing user segments"
+      "friendly_name": "Viewing user segments",
+      "depends_on_permission_names": "Targeted TV"
     },
     {
       "name": "USER_SEG_MNG",
       "users_group": "",
-      "friendly_name": "Adding, editing and deleting user segments"
+      "friendly_name": "Adding, editing and deleting user segments",
+      "depends_on_permission_names": "Targeted TV"
     },
     {
       "name": "TARGET_OFFER_VIEW",

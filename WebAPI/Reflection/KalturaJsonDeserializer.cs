@@ -6831,12 +6831,28 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaGroupPermission
     {
+        private static RuntimeSchemePropertyAttribute GroupSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGroupPermission")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaGroupPermission(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("group") && parameters["group"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        GroupSchemaProperty.Validate("group", parameters["group"]);
+                    }
                     Group = (String) Convert.ChangeType(parameters["group"], typeof(String));
                 }
             }
@@ -16708,6 +16724,16 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DependsOnPermissionNamesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaPermission(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -16729,6 +16755,23 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("friendlyName") && parameters["friendlyName"] != null)
                 {
                     FriendlyName = (String) Convert.ChangeType(parameters["friendlyName"], typeof(String));
+                }
+                if (parameters.ContainsKey("dependsOnPermissionNames") && parameters["dependsOnPermissionNames"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DependsOnPermissionNamesSchemaProperty.Validate("dependsOnPermissionNames", parameters["dependsOnPermissionNames"]);
+                    }
+                    DependsOnPermissionNames = (String) Convert.ChangeType(parameters["dependsOnPermissionNames"], typeof(String));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    Type = (KalturaPermissionType) Enum.Parse(typeof(KalturaPermissionType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaPermissionType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaPermissionType)));
+                    }
                 }
             }
         }

@@ -2956,6 +2956,20 @@
             <param name="filter">Filter for permissions</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.PermissionController.Add(WebAPI.Models.API.KalturaPermission)">
+            <summary>
+            Adds new permission
+            </summary>
+            <param name="permission">Permission to insert</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.PermissionController.Delete(System.Int64)">
+            <summary>
+            Deletes an existing permission
+            </summary>
+            <param name="id">Permission ID to delete</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.PersonalAssetController.List(System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetRequest},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder})">
             <summary>
             Lists personal enriched data for given assets.
@@ -6673,6 +6687,16 @@
             <summary>
             List of permission items associated with the permission
             </summary>       
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPermission.DependsOnPermissionNames">
+            <summary>
+            Comma separated permissions names from type SPECIAL_FEATURE
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaPermission.Type">
+            <summary>
+            Comma separated permissions names from type SPECIAL_FEATURE
+            </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
             <summary>

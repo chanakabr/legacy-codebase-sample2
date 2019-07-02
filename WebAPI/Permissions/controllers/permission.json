@@ -20,6 +20,26 @@
       "service": "Permission",
       "action": "List",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Permission_Delete",
+      "service": "Permission",
+      "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "Permission_Add",
+      "service": "Permission",
+      "action": "Add",
+      "type": "Action"
     }
   ],
   "type": "Action"
