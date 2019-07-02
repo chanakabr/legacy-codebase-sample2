@@ -1,6 +1,6 @@
 apiVersion: v1
-appVersion: "@VERSION@"
+appVersion: "1.0.0"
 description: Kaltura OTT Phoenix Documentation
 name: phoenix-doc
 fullname: phoenix-doc
-version: @VERSION@
+version: 1.0.0
