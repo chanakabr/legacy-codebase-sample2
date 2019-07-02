@@ -4876,7 +4876,7 @@ namespace DAL
 
             StoredProcedure storedProcedure = new StoredProcedure("Insert_Permission");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@groupId", groupId);
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
