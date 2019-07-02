@@ -338,7 +338,8 @@ namespace ApiObjects.Response
         NoIngestProfileToInsert = 5049,
         IngestProfileIdRequired = 5060,
         AssetRuleStatusNotWritable = 5061,
-
+        PermissionNotFound = 5062,
+        PermissionNameAlreadyInUse = 5063,
         #endregion
 
         #region Billing 6000 - 6999

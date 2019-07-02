@@ -24,6 +24,12 @@ namespace ApiObjects.Roles
 
         [JsonProperty("is_excluded")]
         public bool isExcluded { get; set; }
+
+        [JsonProperty("depends_on_permission_names")]
+        public string DependsOnPermissionNames { get; set; }
+
+        [JsonProperty("type")]
+        public ePermissionType Type { get; set; }
     }
 
     public class PermissionsResponse

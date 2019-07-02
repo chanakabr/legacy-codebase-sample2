@@ -94,7 +94,6 @@ namespace Core.ConditionalAccess
                                     {
                                         //shouldCheckEntitlement is already false
                                         //bIsOfflinePlayback is already false so no need to assign 
-                                        // TODO SHIR - DONT FORGET TO ADD END_DATE TO Utils.GetFreeItemLeftLifeCycle IN GetEntitlement
                                         Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
                                     }
                                     // if the user has the NPVR service then check entitlements, otherwise he isn't entitled
@@ -108,7 +107,6 @@ namespace Core.ConditionalAccess
                             {
                                 //shouldCheckEntitlement is already false
                                 //bIsOfflinePlayback is already false so no need to assign 
-                                // TODO SHIR - DONT FORGET TO ADD END_DATE TO Utils.GetFreeItemLeftLifeCycle IN GetEntitlement
                                 Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle);
                             }
                         }
