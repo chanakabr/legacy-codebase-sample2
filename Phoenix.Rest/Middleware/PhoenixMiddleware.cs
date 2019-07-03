@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Phoenix.Context;
 using System.Linq;
 
-namespace Phoenix.Rest.Infrastructure
+namespace Phoenix.Rest.Middleware
 {
 
 

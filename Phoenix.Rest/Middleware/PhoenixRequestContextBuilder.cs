@@ -16,7 +16,7 @@ using Phoenix.Rest.Helpers;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 
-namespace Phoenix.Rest.Infrastructure
+namespace Phoenix.Rest.Middleware
 {
     public class PhoenixRequestContextBuilder
     {

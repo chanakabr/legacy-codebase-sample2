@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Phoenix.Rest.Infrastructure
+namespace Phoenix.Rest.Middleware
 {
     public class PhoenixSessionId
     {
