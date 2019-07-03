@@ -114,6 +114,8 @@ namespace Core.Api
         private const string PROFILE_NOT_EXIST = "profile doesn't exist";
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
+
+        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";        
         #endregion
 
         protected api() { }
@@ -11940,7 +11942,7 @@ namespace Core.Api
                 if(permission == null)
                 {
                     log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
-                    return new Status((int)eResponseStatus.PermissionNotFound);
+                    return new Status((int)eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
                 }
 
                 // delete topicNotification from DB
