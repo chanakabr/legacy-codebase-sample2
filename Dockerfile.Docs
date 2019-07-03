@@ -32,7 +32,7 @@ RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/L
 
 WORKDIR /opt/kaltura/kaltura-spec-converter
 RUN npm install
-RUN node refresh.js --target ott --schema /opt/kaltura/KalturaClient.xml --output ../developer-platform/ott.openapi.json
+RUN node refresh.js --novalidate --target ott --schema /opt/kaltura/KalturaClient.xml --output ../developer-platform/ott.openapi.json
 
 WORKDIR /opt/kaltura/developer-platform
 RUN npm install
