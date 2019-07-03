@@ -409,7 +409,7 @@ namespace Core.Notification
 
         private static Tuple<List<DbAnnouncement>, bool> InitializeAnnouncements(Dictionary<string, object> funcParams)
         {
-            List<DbAnnouncement> announcements = null;
+            List<DbAnnouncement> announcements = new List<DbAnnouncement>();
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
