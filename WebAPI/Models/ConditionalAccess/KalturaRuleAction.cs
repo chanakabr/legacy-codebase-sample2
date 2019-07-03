@@ -171,7 +171,13 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
-    public partial class KalturaApplyDiscountModuleAction : KalturaRuleAction
+    [Serializable]
+    public abstract partial class KalturaBusinessModuleRuleAction : KalturaRuleAction
+    {
+    }
+
+    [Serializable]
+    public partial class KalturaApplyDiscountModuleAction : KalturaBusinessModuleRuleAction
     {
         /// <summary>
         /// Discount module ID
@@ -188,6 +194,7 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
 
+    [Serializable]
     public partial class KalturaApplyPlaybackAdapterAction : KalturaAssetRuleAction
     {
         /// <summary>
@@ -204,5 +211,4 @@ namespace WebAPI.Models.ConditionalAccess
             this.Type = KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
         }
     }
-
 }

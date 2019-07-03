@@ -180,7 +180,15 @@ namespace WebAPI.Utils
                 {
                     string code, message, recordingId = string.Empty;
 
-                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, assetId, assetType, source.Id.Value,
+                    string drmAssetId = assetId;
+
+                    if (assetType == KalturaAssetType.recording)
+                    {
+                        drmAssetId = source.AssetId.ToString();
+                        recordingId = assetId;
+                    }
+
+                    string customDrmDate = ClientsManager.ApiClient().GetCustomDrmAssetLicenseData(ks.GroupId, source.DrmId, ks.UserId, drmAssetId, assetType, source.Id.Value,
                         source.ExternalId, KSUtils.ExtractKSPayload().UDID, contextDataParams.Context, recordingId, out code, out message);
 
                     // no errors
