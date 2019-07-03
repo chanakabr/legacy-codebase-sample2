@@ -43,19 +43,29 @@ RUN node scripts/resources/ott.js
 RUN node scripts/resources/support_matrix.js
 
 ARG BASE_PATH=/
+ARG ENABLE_HOMEPAGE=true
+
+ENV TARGET_API ott
+ENV ENABLE_HOMEPAGE ${ENABLE_HOMEPAGE}
+
 RUN lucybot build --prerender --destination generated/ott --basePath ${BASE_PATH}
 
-#RUN cp -a $WORKSPACE/developer-platform/generated/ott /home/dev/jenkins/$branch/generated
+
+
+
+
+
 
 
 FROM node:11
 
 ARG BASE_PATH=/
+ARG ENABLE_HOMEPAGE=true
 
 ENV TARGET_API ott
 ENV NO_SSL true
 ENV BASE_PATH ${BASE_PATH}
-ENV ENABLE_HOMEPAGE true
+ENV ENABLE_HOMEPAGE ${ENABLE_HOMEPAGE}
 ENV KALTURA_RECIPES_PORT 80
 
 RUN mkdir /opt/kaltura
