@@ -226,5 +226,15 @@ namespace WebAPI.Utils
             var abortOnError= HttpContext.Current.Items[RequestParser.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
             return abortOnError != null ? (bool)abortOnError : false;
         }
+
+        internal static string RemoveSlashesFromBase64Str(string str)
+        {
+            return str.Replace('/', '_');
+        }
+
+        internal static string ReturnSlashesToBase64Str(string str)
+        {
+            return str.Replace('_', '/');
+        }
     }
 }
