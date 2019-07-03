@@ -38,6 +38,9 @@ WORKDIR /opt/kaltura/developer-platform
 RUN npm install
 RUN mkdir -p markdown/generated
 
+ARG API_VERSION
+ENV OTT_API_VERSION ${API_VERSION}
+
 RUN node scripts/resources/client_libraries.js
 RUN node scripts/resources/ott.js
 RUN node scripts/resources/support_matrix.js
