@@ -310,6 +310,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phoenix.Context", "Phoenix.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phoenix.Rest", "Phoenix.Rest\Phoenix.Rest.csproj", "{3D274706-3E81-43DC-A560-60B5818F9F73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.Legacy", "Phoenix.Legacy\Phoenix.Legacy.csproj", "{C9C6DE80-38FF-4350-8250-38EACF68D759}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -849,6 +851,16 @@ Global
 		{3D274706-3E81-43DC-A560-60B5818F9F73}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{3D274706-3E81-43DC-A560-60B5818F9F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D274706-3E81-43DC-A560-60B5818F9F73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Local|Any CPU.Build.0 = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -913,7 +925,7 @@ Global
 		{49B94D77-9B91-4BCC-9FBA-6466B6340504} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

@@ -166,15 +166,15 @@ namespace WebAPI.App_Start
         {
             var subCode = ex.Code;
             var message = ex.Message;
-            var exceptionWrapper = WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
+            var exceptionWrapper = KalturaApiExceptionHelpers.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
 
             var exceptionContentValue = (ex.Response.Content as System.Net.Http.ObjectContent).Value;
             if (exceptionContentValue is ApiException.ExceptionPayload && (exceptionContentValue as ApiException.ExceptionPayload).code != 0)
             {
                 var payload = exceptionContentValue as WebAPI.Exceptions.ApiException.ExceptionPayload;
                 subCode = payload.code;
-                message = WrappingHandler.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
-                exceptionWrapper = WrappingHandler.prepareExceptionResponse(payload.code, message, payload.arguments);
+                message = KalturaApiExceptionHelpers.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                exceptionWrapper = KalturaApiExceptionHelpers.prepareExceptionResponse(payload.code, message, payload.arguments);
                 if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
                 {
                     HttpContext.Current.Response.StatusCode = (int)payload.failureHttpCode;
@@ -201,9 +201,9 @@ namespace WebAPI.App_Start
                 throw new RequestParserException(RequestParserException.PARTNER_INVALID);
             }
 
-            if (HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] is IEnumerable)
+            if (HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS] is IEnumerable)
             {
-                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
+                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {

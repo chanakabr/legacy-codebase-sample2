@@ -31,7 +31,7 @@ namespace WebAPI.App_Start
 
             public override double TryMatchMediaType(HttpRequestMessage request)
             {
-                if (HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] != null)
+                if (HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] != null)
                     return 1;
 
                 return 0;
@@ -59,7 +59,7 @@ namespace WebAPI.App_Start
         public override void SetDefaultContentHeaders(Type type, HttpContentHeaders headers, MediaTypeHeaderValue mediaType)
         {
             base.SetDefaultContentHeaders(type, headers, mediaType);
-            string contentType = (string)HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE];
+            string contentType = (string)HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE];
             headers.ContentType = new MediaTypeHeaderValue(contentType);
         }
 

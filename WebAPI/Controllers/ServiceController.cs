@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
 
                 // add action to log
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
@@ -147,8 +147,8 @@ namespace WebAPI.Controllers
         [Route(""), HttpPost]
         public async Task<object> _NoRoute()
         {
-            string service = (string)HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
-            string action = (string)HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
+            string service = (string)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_SERVICE];
+            string action = (string)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_ACTION];
             return await Action(service, action);
         }
 
@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.Filters.RequestParser.REQUEST_METHOD_PARAMETERS];
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
                 response = DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)

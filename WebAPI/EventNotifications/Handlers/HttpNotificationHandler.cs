@@ -43,7 +43,7 @@ namespace WebAPI.EventNotifications
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
                     partnerId = kalturaEvent.PartnerId,
-                    UserIp = HttpContext.Current.Items[RequestParser.USER_IP]?.ToString()
+                    UserIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString()
                 }
             );
         }

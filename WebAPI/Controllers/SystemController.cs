@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public long GetTime()
         {
-            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
+            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContext.REQUEST_TIME];
             return DateUtils.DateTimeToUtcUnixTimestampSeconds(serverTime);
         }
 

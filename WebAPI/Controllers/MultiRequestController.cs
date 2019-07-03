@@ -502,9 +502,9 @@ namespace WebAPI.Controllers
                                     Type propertyType;
                                     parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
                                 }
-                                RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                                RequestContext.SetContext(parameters, request[i].Service, request[i].Action);
                                 Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                                List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                                List<Object> methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parameters);
                                 response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                             }
                         }
@@ -536,7 +536,7 @@ namespace WebAPI.Controllers
                 
                 if (response is ApiException)
                 {
-                    response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
+                    response = KalturaApiExceptionHelpers.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
                 }
 
                 responses[i] = response;

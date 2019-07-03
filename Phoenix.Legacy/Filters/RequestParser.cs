@@ -34,46 +34,10 @@ using System.Text.RegularExpressions;
 using KlogMonitorHelper;
 using TVinciShared;
 using HttpMultipartParser;
-using EventManager;
+//using EventManager;
 
 namespace WebAPI.Filters
 {
-    public class RequestParserException : BadRequestException
-    {
-        public static ApiExceptionType INVALID_MULTIREQUEST_TOKEN = new ApiExceptionType(StatusCode.InvalidMultirequestToken, "Invalid multirequest token");
-
-        public static ApiExceptionType INVALID_OBJECT_TYPE = new ApiExceptionType(StatusCode.InvalidObjectType, "Invalid object type [@type@]", "type");
-        public static ApiExceptionType ABSTRACT_PARAMETER = new ApiExceptionType(StatusCode.AbstractParameter, "Abstract parameter type [@type@]", "type");
-        public static ApiExceptionType MISSING_PARAMETER = new ApiExceptionType(StatusCode.MissingParameter, StatusCode.InvalidActionParameters, "Missing parameter [@parameter@]", "parameter");
-        public static ApiExceptionType INDEX_NOT_ZERO_BASED = new ApiExceptionType(StatusCode.MultirequestIndexNotZeroBased, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, response index is not zero based");
-        public static ApiExceptionType INVALID_INDEX = new ApiExceptionType(StatusCode.MultirequestInvalidIndex, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid response index");
-        public static ApiExceptionType GENERIC_METHOD = new ApiExceptionType(StatusCode.MultirequestGenericMethod, StatusCode.InvalidService, "Invalid multirequest service, invalid service: [@service@], action: [@action@]", "service", "action");
-        public static ApiExceptionType INVALID_OPERATOR = new ApiExceptionType(StatusCode.MultirequestInvalidOperatorForConditionType, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid operator [@operator@] for condition type [@conditionType@]", "operator", "conditionType");
-        public static ApiExceptionType INVALID_CONDITION_VALUE = new ApiExceptionType(StatusCode.MultirequestInvalidConditionValue, StatusCode.InvalidMultirequestToken, "Invalid multirequest token, invalid condition value [@conditionValue@] for condition type [@conditionType@]", "conditionValue", "conditionType");
-
-        public RequestParserException()
-            : this(INVALID_MULTIREQUEST_TOKEN)
-        {
-        }
-
-        public RequestParserException(ApiExceptionType type, params object[] parameters)
-            : base(type, parameters)
-        {
-        }
-
-        public RequestParserException(ApiException ex) : base(ex)
-        {
-        }
-    }
-
-    public enum RequestType
-    {
-        READ = 1,
-        INSERT = 2,
-        UPDATE = 4,
-        WRITE = 6,
-        ALL = 7
-    }
 
     public class RequestParser : ActionFilterAttribute
     {
@@ -81,14 +45,8 @@ namespace WebAPI.Filters
 
         private const char PARAMS_PREFIX = ':';
         private const char PARAMS_NESTED_PREFIX = '.';
-        private const string CB_SECTION_NAME = "tokens";
 
         private static readonly string fileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
-
-        private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
-        private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
-
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
         private static Dictionary<string, Type> types = null;
         private static object locker = new object();
@@ -116,208 +74,13 @@ namespace WebAPI.Filters
             }
         }
 
-        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
-        public const string REQUEST_VERSION = "requestVersion";
-        public const string REQUEST_USER_ID = "user_id";
-        public const string REQUEST_GROUP_ID = "group_id";
-        public const string REQUEST_KS = "KS";
-        public const string REQUEST_LANGUAGE = "language";
-        public const string REQUEST_CURRENCY = "currency";
-        public const string REQUEST_FORMAT = "format";
-        public const string USER_IP = "USER_IP";
-
-        // same key as in REST solution KLogMonitor.Constants
-        // in-case changing this  - you must change there  as well
-        public const string REQUEST_GLOBAL_KS = "global_ks";
-
-        public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
-        public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
-        public const string REQUEST_GLOBAL_CURRENCY = "global_currency";
-        public const string REQUEST_SERVICE = "requestService";
-        public const string REQUEST_ACTION = "requestAction";
-        public const string REQUEST_TIME = "requestTime";
-        public const string REQUEST_TYPE = "requestType";
-        public const string REQUEST_SERVE_CONTENT_TYPE = "requestServeContentType";
-        public const string REQUEST_PATH_DATA = "pathData";
-        public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
-
-        public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR = "global_abort_on_error";
-
 
         public static object GetRequestPayload()
         {
-            return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
+            return HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS];
         }
 
-        public static void setRequestContext(Dictionary<string, object> requestParams, string service, string action, bool globalScope = true)
-        {
-            // ks
-            KS.ClearOnRequest();
-            if (requestParams.ContainsKey("ks") && requestParams["ks"] != null)
-            {
-                string ks;
-                if (requestParams["ks"].GetType() == typeof(JObject) || requestParams["ks"].GetType().IsSubclassOf(typeof(JObject)))
-                {
-                    ks = ((JObject)requestParams["ks"]).ToObject<string>();
-                }
-                else
-                {
-                    ks = (string)Convert.ChangeType(requestParams["ks"], typeof(string));
-                }
-
-                InitKS(ks);
-
-                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_KS] == null)
-                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_KS, ks);
-            }
-            else if (HttpContext.Current.Items[REQUEST_GLOBAL_KS] != null)
-            {
-                InitKS((string)HttpContext.Current.Items[REQUEST_GLOBAL_KS]);
-            }
-            else if (requestParams.ContainsKey("partnerId") && requestParams["partnerId"] != null)
-            {
-                HttpContext.Current.Items[Constants.GROUP_ID] = requestParams["partnerId"];
-            }
-
-            // impersonated user_id
-            HttpContext.Current.Items.Remove(REQUEST_USER_ID);
-            if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
-            {
-                object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
-                string userId;
-                if (userIdObject.GetType() == typeof(JObject) || userIdObject.GetType().IsSubclassOf(typeof(JObject)))
-                {
-                    userId = ((JObject)userIdObject).ToObject<string>();
-                }
-                else
-                {
-                    userId = (string)Convert.ChangeType(userIdObject, typeof(string));
-                }
-
-                HttpContext.Current.Items.Add(REQUEST_USER_ID, userId);
-                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID] == null)
-                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_USER_ID, userId);
-            }
-            else if (HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID] != null)
-            {
-                HttpContext.Current.Items.Add(REQUEST_USER_ID, HttpContext.Current.Items[REQUEST_GLOBAL_USER_ID]);
-            }
-
-            // language
-            HttpContext.Current.Items.Remove(REQUEST_LANGUAGE);
-            if (requestParams.ContainsKey("language") && requestParams["language"] != null)
-            {
-                string language;
-                if (requestParams["language"].GetType() == typeof(JObject) || requestParams["language"].GetType().IsSubclassOf(typeof(JObject)))
-                {
-                    language = ((JObject)requestParams["language"]).ToObject<string>();
-                }
-                else
-                {
-                    language = (string)Convert.ChangeType(requestParams["language"], typeof(string));
-                }
-
-                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, language);
-                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE] == null)
-                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_LANGUAGE, language);
-            }
-            else if (HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE] != null)
-            {
-                HttpContext.Current.Items.Add(REQUEST_LANGUAGE, HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE]);
-            }
-
-            // currency
-            HttpContext.Current.Items.Remove(REQUEST_CURRENCY);
-            if (requestParams.ContainsKey("currency") && requestParams["currency"] != null)
-            {
-                string currency;
-                if (requestParams["currency"].GetType() == typeof(JObject) || requestParams["currency"].GetType().IsSubclassOf(typeof(JObject)))
-                {
-                    currency = ((JObject)requestParams["currency"]).ToObject<string>();
-                }
-                else
-                {
-                    currency = (string)Convert.ChangeType(requestParams["currency"], typeof(string));
-                }
-
-                HttpContext.Current.Items.Add(REQUEST_CURRENCY, currency);
-                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY] == null)
-                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_CURRENCY, currency);
-            }
-            else if (HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY] != null)
-            {
-                HttpContext.Current.Items.Add(REQUEST_CURRENCY, HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY]);
-            }
-
-            // format    
-            if (HttpContext.Current.Items.Contains(REQUEST_FORMAT))
-            {
-                HttpContext.Current.Items.Remove(REQUEST_FORMAT);
-            }
-            if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[REQUEST_FORMAT]))
-            {
-                HttpContext.Current.Items.Add(REQUEST_FORMAT, HttpContext.Current.Request.QueryString[REQUEST_FORMAT]);
-            }
-
-            if (HttpContext.Current.Items[REQUEST_TYPE] != null)
-                HttpContext.Current.Items.Remove(REQUEST_TYPE);
-
-            if (action != null)
-            {
-                switch (action)
-                {
-                    case "register":
-                    case "add":
-                        HttpContext.Current.Items[REQUEST_TYPE] = RequestType.INSERT;
-                        break;
-
-                    case "update":
-                        HttpContext.Current.Items[REQUEST_TYPE] = RequestType.UPDATE;
-                        break;
-
-                    case "get":
-                    case "list":
-                        HttpContext.Current.Items[REQUEST_TYPE] = RequestType.READ;
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            // response profile
-            if (requestParams.ContainsKey("responseProfile") && requestParams["responseProfile"] != null)
-            {
-
-                //If object
-                KalturaOTTObject responseProfile = null;
-                Type type = typeof(KalturaBaseResponseProfile);
-                if (requestParams["responseProfile"] is JObject)
-                {
-                    responseProfile = Deserializer.deserialize(type,
-                        ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
-                }
-                else if (requestParams["responseProfile"] is Dictionary<string, object>)
-                {
-                    responseProfile = Deserializer.deserialize(type,
-                       ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
-                }
-
-                if (globalScope && HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] == null)
-                    HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, responseProfile);
-            }
-            else if (HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE] != null)
-            {
-                HttpContext.Current.Items.Add(REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[REQUEST_RESPONSE_PROFILE]);
-            }
-
-            if (HttpContext.Current.Items[RequestParser.USER_IP] == null)
-            {
-                HttpContext.Current.Items.Add(RequestParser.USER_IP, WebAPI.Utils.Utils.GetClientIP());
-            }
-
-            var loggingContext = new ContextData();
-            loggingContext.Load();
-        }
+        
 
         private bool Equals(byte[] source, byte[] separator, int index)
         {
@@ -405,7 +168,7 @@ namespace WebAPI.Filters
                 return;
             }
 
-            HttpContext.Current.Items[REQUEST_TIME] = DateTime.UtcNow;
+            HttpContext.Current.Items[RequestContext.REQUEST_TIME] = DateTime.UtcNow;
 
             Dictionary<string, object> formData = null;
 
@@ -480,16 +243,16 @@ namespace WebAPI.Filters
 
             if (currentController != null)
             {
-                HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
+                HttpContext.Current.Items[RequestContext.REQUEST_SERVICE] = currentController;
                 if (currentAction != null)
                 {
-                    HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
+                    HttpContext.Current.Items[RequestContext.REQUEST_ACTION] = currentAction;
                 }
             }
 
             if (pathData != null)
             {
-                HttpContext.Current.Items[REQUEST_PATH_DATA] = pathData;
+                HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] = pathData;
             }
 
             if (actionContext.Request.Method == HttpMethod.Post)
@@ -542,19 +305,19 @@ namespace WebAPI.Filters
                             if (!Version.TryParse((string)JObj["apiVersion"], out version))
                                 throw new RequestParserException(RequestParserException.INVALID_VERSION, JObj["apiVersion"]);
 
-                            HttpContext.Current.Items[REQUEST_VERSION] = version;
+                            HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
                         }
 
                         Dictionary<string, object> requestParams;
-                        if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] != null)
                         {
-                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA]);
                         }
                         else
                         {
                             requestParams = JObj.ToObject<Dictionary<string, object>>();
                         }
-                        setRequestContext(requestParams, currentController, currentAction);
+                        RequestContext.SetContext(requestParams, currentController, currentAction);
 
                         List<Object> methodParams;
                         if (currentController == "multirequest")
@@ -564,9 +327,9 @@ namespace WebAPI.Filters
                         else
                         {
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
-                            methodParams = RequestParser.buildActionArguments(methodArgs, requestParams);
+                            methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, requestParams);
                         }
-                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContext.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -606,9 +369,9 @@ namespace WebAPI.Filters
                     try
                     {
                         Dictionary<string, object> groupedParams;
-                        if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -616,7 +379,7 @@ namespace WebAPI.Filters
                             groupedParams = groupParams(formData);
                         }
 
-                        setRequestContext(groupedParams, currentController, currentAction);
+                        RequestContext.SetContext(groupedParams, currentController, currentAction);
 
                         List<Object> methodParams;
                         if (currentController == "multirequest")
@@ -626,9 +389,9 @@ namespace WebAPI.Filters
                         else
                         {
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
-                            methodParams = RequestParser.buildActionArguments(methodArgs, groupedParams);
+                            methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, groupedParams);
                         }
-                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContext.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -664,7 +427,7 @@ namespace WebAPI.Filters
                     if (!Version.TryParse(tokens["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, tokens["apiVersion"]);
 
-                    HttpContext.Current.Items[REQUEST_VERSION] = version;
+                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
                 }
                 if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
                 {
@@ -687,9 +450,9 @@ namespace WebAPI.Filters
                     try
                     {
                         Dictionary<string, object> groupedParams;
-                        if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -697,7 +460,7 @@ namespace WebAPI.Filters
                             groupedParams = groupParams(tokens);
                         }
 
-                        setRequestContext(groupedParams, currentController, currentAction);
+                        RequestContext.SetContext(groupedParams, currentController, currentAction);
 
                         List<Object> methodParams;
                         if (currentController == "multirequest")
@@ -707,9 +470,9 @@ namespace WebAPI.Filters
                         else
                         {
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
-                            methodParams = RequestParser.buildActionArguments(methodArgs, groupedParams);
+                            methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, groupedParams);
                         }
-                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContext.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -738,7 +501,7 @@ namespace WebAPI.Filters
             Dictionary<string, object> currentRequestParams;
 
             // multi request abort on error
-            HttpContext.Current.Items.Remove(MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR);
+            HttpContext.Current.Items.Remove(RequestContext.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR);
             if (requestParams.ContainsKey("abortOnError") && requestParams["abortOnError"] != null)
             {
                 bool abortOnError;
@@ -751,7 +514,7 @@ namespace WebAPI.Filters
                     abortOnError = (bool)Convert.ChangeType(requestParams["abortOnError"], typeof(bool));
                 }
 
-                HttpContext.Current.Items.Add(MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, abortOnError);
+                HttpContext.Current.Items.Add(RequestContext.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, abortOnError);
             }
 
             int requestIndex = 0;
@@ -830,205 +593,7 @@ namespace WebAPI.Filters
             return serviceArguments;
         }
 
-        public static List<object> buildActionArguments(Dictionary<string, MethodParam> methodArgs, Dictionary<string, object> reqParams)
-        {
-            List<Object> methodParams = new List<object>();
-            foreach (KeyValuePair<string, MethodParam> methodArgItem in methodArgs)
-            {
-                string name = methodArgItem.Key;
-                MethodParam methodArg = methodArgItem.Value;
-
-                if (!reqParams.ContainsKey(name) || reqParams[name] == null)
-                {
-                    if (methodArg.NewName != null && reqParams.ContainsKey(methodArg.NewName) && reqParams[methodArg.NewName] != null)
-                    {
-                        name = methodArg.NewName;
-                    }
-                    else
-                    {
-                        if (methodArg.IsOptional)
-                        {
-                            methodParams.Add(methodArg.DefaultValue);
-                            continue;
-                        }
-                        else if (methodArg.IsNullable)
-                        {
-                            methodParams.Add(null);
-                            continue;
-                        }
-
-                        throw new RequestParserException(RequestParserException.MISSING_PARAMETER, name);
-
-                    }
-                }
-
-                try
-                {
-                    object value = null;
-
-                    // If it is an enum, newtonsoft's bad "ToObject" doesn't do this easily, 
-                    // so we do it ourselves in this not so good looking way
-                    if (methodArg.IsEnum)
-                    {
-                        string paramAsString = reqParams[name].ToString();
-                        if (paramAsString != null)
-                        {
-                            value = Enum.Parse(methodArg.Type, paramAsString, true);
-
-                            if (!Enum.IsDefined(methodArg.Type, value))
-                            {
-                                throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", value, methodArg.Type));
-                            }
-                        }
-                    }
-
-                    else if (methodArg.IsKalturaObject)
-                    {
-                        Dictionary<string, object> param;
-                        string requestName = name;
-                        JObject jObject;
-
-                        if (methodArg.IsKalturaMultilingualString)
-                        {
-                            requestName = KalturaMultilingualString.GetMultilingualName(name);
-                        }
-                        if (reqParams[requestName].GetType() == typeof(JObject) || reqParams[requestName].GetType().IsSubclassOf(typeof(JObject)))
-                        {
-                            param = ((JObject)reqParams[requestName]).ToObject<Dictionary<string, object>>();
-                            jObject = (JObject)reqParams[requestName];
-                        }
-                        else
-                        {
-                            param = (Dictionary<string, object>)reqParams[requestName];
-                            jObject = new JObject();
-
-                            foreach (var item in param)
-                            {
-                                jObject[item.Key] = JToken.FromObject(item.Value);
-                            }
-                        }
-
-                        KalturaOTTObject res = Deserializer.deserialize(methodArg.Type, param);
-
-                        string service = Convert.ToString(HttpContext.Current.Items[REQUEST_SERVICE]);
-                        string action = Convert.ToString(HttpContext.Current.Items[REQUEST_ACTION]);
-                        string language = Convert.ToString(HttpContext.Current.Items[REQUEST_LANGUAGE]);
-                        string userId = Convert.ToString(HttpContext.Current.Items[REQUEST_USER_ID]);
-                        string deviceId = KSUtils.ExtractKSPayload().UDID;
-                        int groupId = Convert.ToInt32(HttpContext.Current.Items[REQUEST_GROUP_ID]);
-
-                        object ksObject = HttpContext.Current.Items[REQUEST_KS];
-                        KS ks = null;
-
-                        if (ksObject != null)
-                        {
-                            ks = ksObject as KS;
-                        }
-
-                        if (ks != null)
-                        {
-                            if (string.IsNullOrEmpty(userId))
-                            {
-                                userId = ks.UserId;
-                            }
-
-                            if (groupId <= 0)
-                            {
-                                groupId = ks.GroupId;
-                            }
-                        }
-
-
-                        res.AfterRequestParsed(service, action, language, groupId, userId, deviceId, jObject);
-
-                        value = res;
-                    }
-
-                    else if (methodArg.IsNullable) // nullable
-                    {
-                        if (methodArg.IsDateTime)
-                        {
-                            long unixTimeStamp = (long)reqParams[name];
-                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                            value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-                        }
-                        else
-                        {
-                            value = Convert.ChangeType(reqParams[name], methodArg.Type);
-                        }
-                    }
-
-                    else if (methodArg.IsList) // list
-                    {
-                        if (typeof(JArray).IsAssignableFrom(reqParams[name].GetType()))
-                        {
-                            value = KalturaOTTObject.buildList(methodArg.GenericType, (JArray)reqParams[name]);
-                        }
-                        else if (reqParams[name].GetType().IsArray)
-                        {
-                            value = KalturaOTTObject.buildList(methodArg.GenericType, reqParams[name] as object[]);
-                        }
-                    }
-
-                    else if (methodArg.IsMap) // map
-                    {
-                        Dictionary<string, object> param;
-                        if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
-                        {
-                            param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
-                        }
-                        else
-                        {
-                            param = (Dictionary<string, object>)reqParams[name];
-                        }
-                        value = KalturaOTTObject.buildDictionary(methodArg.Type, param);
-                    }
-
-                    else if (reqParams[name] != null)
-                    {
-                        if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
-                        {
-                            value = ((JObject)reqParams[name]).ToObject(methodArg.Type);
-                            if (methodArg.IsDateTime)
-                            {
-                                long unixTimeStamp = (long)value;
-                                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                                value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-                            }
-                        }
-                        else if (methodArg.IsDateTime)
-                        {
-                            long unixTimeStamp = (long)reqParams[name];
-                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                            value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
-                        }
-                        else
-                        {
-                            value = Convert.ChangeType(reqParams[name], methodArg.Type);
-                        }
-                    }
-
-                    if (methodArg.SchemeArgument != null)
-                    {
-                        methodArg.SchemeArgument.Validate(value);
-                    }
-
-                    methodParams.Add(value);
-                }
-                catch (ApiException ex)
-                {
-                    log.Error("Invalid parameter", ex);
-                    throw ex;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Invalid parameter format", ex);
-                    throw new RequestParserException(RequestParserException.INVALID_ACTION_PARAMETER, name);
-                }
-            }
-
-            return methodParams;
-        }
+        
 
         private Dictionary<string, object> groupParams(Dictionary<string, object> tokens)
         {
@@ -1117,41 +682,9 @@ namespace WebAPI.Filters
             array = tmpArr;
         }
 
-        private static void InitKS(string ksVal)
-        {
-            // the supplied ks is in KS forma (project phoenix's)
-            if (IsKsFormat(ksVal))
-            {
-                parseKS(ksVal);
-            }
-            // the supplied is in access token format (TVPAPI's)
-            else
-            {
-                GetUserDataFromCB(ksVal);
-            }
-        }
 
-        private static void GetUserDataFromCB(string ksVal)
-        {
-            // get token from CB
-            string tokenKey = string.Format(accessTokenKeyFormat, ksVal);
-            ApiToken token = cbManager.Get<ApiToken>(tokenKey, true);
 
-            if (token == null)
-            {
-                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
-            }
-
-            KS ks = KS.CreateKSFromApiToken(token, ksVal);
-
-            if (!ks.IsValid)
-            {
-                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
-            }
-
-            ks.SaveOnRequest();
-
-        }
+        
 
         private static void createErrorResponse(HttpActionContext actionContext, int errorCode, string msg)
         {
@@ -1176,16 +709,7 @@ namespace WebAPI.Filters
             }
         }
 
-        private static void parseKS(string ksVal)
-        {
-            KS ks = KS.ParseKS(ksVal);
-            ks.SaveOnRequest();
-        }
-
-        private static bool IsKsFormat(string ksVal)
-        {
-            return ksVal.Length > accessTokenLength;
-        }
+        
 
     }
 }

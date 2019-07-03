@@ -5,7 +5,7 @@ using KlogMonitorHelper;
 using KLogMonitor;
 
 
-namespace WebAPI
+namespace WebAPI.Filters
 {
     public class LoggingContextHandler : ActionFilterAttribute
     {

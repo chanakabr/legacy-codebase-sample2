@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNet.WebApi.MessageHandlers.Compression;
+﻿using Microsoft.AspNet.WebApi.MessageHandlers.Compression;
 using Microsoft.AspNet.WebApi.MessageHandlers.Compression.Compressors;
 using System;
 using System.Collections.Generic;

@@ -185,7 +185,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidToken)]
         static public void DeleteWithToken(int assetId, string token, int partnerId)
         {
-            HttpContext.Current.Items.Add(Filters.RequestParser.REQUEST_GROUP_ID, partnerId);
+            HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, partnerId);
 
             try
             {

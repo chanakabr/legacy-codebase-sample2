@@ -537,7 +537,7 @@ namespace WebAPI.Clients
 
         private DateTime getServerTime()
         {
-            return (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
+            return (DateTime)HttpContext.Current.Items[RequestContext.REQUEST_TIME];
         }
 
         [Obsolete]

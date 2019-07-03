@@ -46,8 +46,8 @@ namespace WebAPI.Managers.Scheme
             base.Validate(name, value);
 
             RequestType requiresPermission = RequestType.READ;
-            if (HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
-                requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            if (HttpContext.Current.Items[RequestContext.REQUEST_TYPE] != null)
+                requiresPermission = (RequestType)HttpContext.Current.Items[RequestContext.REQUEST_TYPE];
 
             if (!OldStandardAttribute.isCurrentRequestOldVersion())
             {
@@ -64,7 +64,7 @@ namespace WebAPI.Managers.Scheme
 
             if (RequiresPermission > 0)
             {
-                RequestType? requestType = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+                RequestType? requestType = (RequestType)HttpContext.Current.Items[RequestContext.REQUEST_TYPE];
                 if (requestType.HasValue && isA(requestType.Value, RequiresPermission))
                 {
                     RolesManager.ValidatePropertyPermitted(TypeName, parameterName, requestType.Value);

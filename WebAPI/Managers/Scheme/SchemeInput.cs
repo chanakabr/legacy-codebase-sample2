@@ -41,8 +41,8 @@ namespace WebAPI.Managers.Scheme
         internal void Validate(string name, object value)
         {
             RequestType requiresPermission = RequestType.READ;
-            if (HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
-                requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            if (HttpContext.Current.Items[RequestContext.REQUEST_TYPE] != null)
+                requiresPermission = (RequestType)HttpContext.Current.Items[RequestContext.REQUEST_TYPE];
 
             if (DynamicType != null)
             {

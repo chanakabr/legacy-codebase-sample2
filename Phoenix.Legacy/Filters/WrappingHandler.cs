@@ -18,54 +18,8 @@ using System.Runtime.Serialization;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
 
-namespace WebAPI.App_Start
+namespace WebAPI.Filters
 {
-    public partial class KalturaApiExceptionArg : KalturaOTTObject
-    {
-        /// <summary>
-        /// Argument name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        public string name { get; set; }
-
-        /// <summary>
-        /// Argument value
-        /// </summary>
-        [DataMember(Name = "value")]
-        [JsonProperty(PropertyName = "value")]
-        public string value { get; set; }
-    }
-
-
-    [DataContract(Name = "error")]
-    public partial class KalturaAPIExceptionWrapper : KalturaSerializable
-    {
-        [DataMember(Name = "error")]
-        [JsonProperty(PropertyName = "error")]
-        public KalturaAPIException error { get; set; }
-    }
-
-    public partial class KalturaAPIException : KalturaSerializable
-    {
-        [JsonProperty(PropertyName = "objectType")]
-        [DataMember(Name = "objectType")]
-        public string objectType { get { return this.GetType().Name; } set { } }
-
-        [JsonProperty(PropertyName = "code")]
-        [DataMember(Name = "code")]
-        public string code { get; set; }
-
-        [JsonProperty(PropertyName = "message")]
-        [DataMember(Name = "message")]
-        public string message { get; set; }
-
-        [JsonProperty(PropertyName = "args")]
-        [DataMember(Name = "args")]
-        public List<KalturaApiExceptionArg> args { get; set; }
-    }
-
-
     public class WrappingHandler : DelegatingHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -117,8 +71,8 @@ namespace WebAPI.App_Start
             {
                 WebAPI.Exceptions.ApiException.ExceptionPayload payload = content as WebAPI.Exceptions.ApiException.ExceptionPayload;
                 subCode = payload.code;
-                message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
-                content = prepareExceptionResponse(payload.code, message, payload.arguments);
+                message = KalturaApiExceptionHelpers.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                content = KalturaApiExceptionHelpers.prepareExceptionResponse(payload.code, message, payload.arguments);
                 if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
                 {
                     response.StatusCode = payload.failureHttpCode;
@@ -133,15 +87,15 @@ namespace WebAPI.App_Start
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 //Web API Bad Request global error
-                content = prepareExceptionResponse((int)StatusCode.BadRequest, "Bad request");
+                content = KalturaApiExceptionHelpers.prepareExceptionResponse((int)StatusCode.BadRequest, "Bad request");
                 response.StatusCode = System.Net.HttpStatusCode.OK;
-                message = HandleError("Bad Request", "");
+                message = KalturaApiExceptionHelpers.HandleError("Bad Request", "");
             }
             else
             {
-                content = prepareExceptionResponse((int)StatusCode.Error, "Unknown error");
+                content = KalturaApiExceptionHelpers.prepareExceptionResponse((int)StatusCode.Error, "Unknown error");
                 subCode = (int)StatusCode.Error;
-                message = HandleError("Unknown error", "");
+                message = KalturaApiExceptionHelpers.HandleError("Unknown error", "");
             }
 
             if (!response.Headers.Contains("X-Kaltura"))
@@ -210,23 +164,6 @@ namespace WebAPI.App_Start
                 log.WarnFormat("Could not extract action + service from request query. Original request: {0}", uri.OriginalString);
         }
 
-        public static KalturaAPIExceptionWrapper prepareExceptionResponse(int statusCode, string msg, KalturaApiExceptionArg[] arguments = null)
-        {
-            return new KalturaAPIExceptionWrapper() { error = new KalturaAPIException() { message = msg, code = statusCode.ToString(), args = arguments == null ? null : arguments.ToList() } };
-        }
-
-        public static string HandleError(string errorMsg, string stack)
-        {
-            string message = errorMsg;
-#if DEBUG
-            message = string.Concat(message, stack);
-            log.ErrorFormat("{0}", message);
-#else
-            log.ErrorFormat("{0} {1}", message, stack);
-#endif
-
-
-            return message;
-        }
+        
     }
 }
