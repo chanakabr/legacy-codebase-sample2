@@ -773,7 +773,7 @@ namespace WebAPI.Clients
             KalturaPurchaseSettings response = AutoMapper.Mapper.Map<KalturaPurchaseSettings>(webServiceResponse);
 
             return response;
-        }
+        }       
 
         [Obsolete]
         internal WebAPI.Models.API.KalturaPurchaseSettingsResponse GetDomainPurchasePinOldstandard(int groupId, int domainId)
@@ -4338,15 +4338,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public HashSet<string> GetGroupFeatuers(int groupId)
+        internal List<string> GetGroupFeatures(int groupId)
         {
-            HashSet<string> response = new HashSet<string>();
+            List<string> response = new List<string>();
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetGroupfeatures(groupId);
+                    response = Core.Api.Module.GetGroupFeatures(groupId);
                 }
             }
             catch (Exception ex)
@@ -4356,7 +4356,6 @@ namespace WebAPI.Clients
             }
 
             return response;
-
         }
 
         public Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
@@ -4378,6 +4377,6 @@ namespace WebAPI.Clients
 
             return response;
 
-        }
+        }       
     }
 }

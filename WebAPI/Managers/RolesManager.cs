@@ -1,4 +1,5 @@
-﻿using CachingProvider.LayeredCache;
+﻿using ApiObjects.Roles;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -434,7 +435,7 @@ namespace WebAPI.Managers
                 return true;
             }
 
-            var groupFeatures = GetGroupFeatures(groupId);
+            List<string> groupFeatures = ClientsManager.ApiClient().GetGroupFeatures(groupId);
             if (groupFeatures?.Count > 0)
             {
                 return groupFeatures.Count(x => permissionItemsToFeaturesMap[key].Contains(x)) > 0;
@@ -489,53 +490,8 @@ namespace WebAPI.Managers
             return new Tuple<Dictionary<string, List<string>>, bool>(result, result != null && result.Count > 0);
         }
 
-        private static HashSet<string> GetGroupFeatures(int groupId)
-        {
-            HashSet<string> result = new HashSet<string>();
+        
 
-            try
-            {
-                string key = LayeredCacheKeys.GetGroupFeaturesKey(groupId);
-                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<HashSet<string>>(key, ref result, BuildGroupFeatures,
-                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                                                                                LayeredCacheConfigNames.GET_GROUP_FEATURES,
-                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
-                                                                                                                new List<string>() { invalidationKey }))
-                {
-                    log.ErrorFormat("Failed getting GetGroupFeatures from LayeredCache, groupId: {0}, key: {1}", groupId, key);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupFeatures, groupId: {0}", groupId), ex);
-            }
-
-            return result;
-
-        }
-
-        private static Tuple<HashSet<string>, bool> BuildGroupFeatures(Dictionary<string, object> funcParams)
-        {
-            HashSet<string> result = new HashSet<string>();
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    if (groupId.HasValue)
-                    {
-                        result = ClientsManager.ApiClient().GetGroupFeatuers(groupId.Value);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<HashSet<string>, bool>(result, result != null && result.Count > 0);
-        }
 
         #endregion
 
