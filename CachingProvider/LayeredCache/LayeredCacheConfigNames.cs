@@ -50,6 +50,8 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";        
         public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
         public const string GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID = "GetGroupPermissionItemsDictionary";
+        public const string GET_PERMISSION_ITEMS_TO_FEATURES = "GetPermissionItemsToFeaturesDictionary";
+        public const string GET_GROUP_FEATURES = "GetGroupFeatures";
         public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
         public const string GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "GroupDrmAdapter";
         public const string DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME = "DoesGroupUsesTemplates";
@@ -103,6 +105,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_DOMAIN_RECORDINGS_LAYERED_CACHE_CONFIG_NAME = "GetDomainRecordingsLayeredCacheConfigName";
         public const string GET_ALL_LANGUAGE_LIST_LAYERED_CACHE_CONFIG_NAME = "GetAllLanguageList";
         public const string ASSET_STATS_CONFIG_NAME = "AssetStats";
+        public const string ASSET_STATS_SORT_CONFIG_NAME = "AssetStatsSort";
         public const string GET_BULK_UPLOADS_FROM_CACHE = "GetBulkUploadsFromCache";
         public const string GET_GROUP_LANGUAGES = "GetGroupLanguages";
         public const string GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME = "TryGetTopicNotifications";

@@ -539,7 +539,8 @@ namespace ApiObjects
     public enum ePermissionType
     {
         Normal = 1,
-        Group = 2
+        Group = 2,
+        SpecialFeature = 3
 
     }
 

@@ -526,7 +526,7 @@ namespace Core.ConditionalAccess
                 dicData.Add("BillingSettingError", billingSettingError);
             }
 
-            cas.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData);
+            cas.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData, string.Empty);
 
             // Enqueue event for subscription ends:
             EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseId, endDateUnix);
@@ -756,7 +756,7 @@ namespace Core.ConditionalAccess
                 {"SubscriptionCode", subscription.m_SubscriptionCode}
             };
 
-            cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+            cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData, string.Empty);
 
             log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
                 productId,                          // {0}
@@ -942,7 +942,7 @@ namespace Core.ConditionalAccess
 
         protected static bool HandleRenewGrantedSubscription(BaseConditionalAccess cas, int groupId, string siteguid, long purchaseId, string billingGuid,
             long productId, ref DateTime endDate, long householdId, double price, string currency, int paymentNumber, int totalNumOfPayments, Subscription subscription,
-            string customData, int maxVLCOfSelectedUsageModule, long billingTransitionId)
+            string customData, int maxVLCOfSelectedUsageModule, long billingTransitionId, string userIp)
         {
 
             // end wasn't retuned - get next end date from MPP
@@ -1010,7 +1010,7 @@ namespace Core.ConditionalAccess
                                             {"SubscriptionCode", subscription.m_SubscriptionCode}
                                         };
 
-                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData, userIp);
             }
 
             log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
@@ -1104,7 +1104,7 @@ namespace Core.ConditionalAccess
             }
 
             return HandleRenewGrantedSubscription(cas, groupId, userId, purchaseId, billingGuid, productId, ref endDate, householdId,
-               double.Parse(price), currency, newRecurringNumber, numOfPayments, subscription, theRequest.InnerXml, int.Parse(mumlc), billingTransactionID);
+               double.Parse(price), currency, newRecurringNumber, numOfPayments, subscription, theRequest.InnerXml, int.Parse(mumlc), billingTransactionID, userIp);
 
         }
 
@@ -1742,7 +1742,7 @@ namespace Core.ConditionalAccess
                     {"SubscriptionCode", subscription.m_SubscriptionCode}
                 };
 
-                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage);
+                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage, string.Empty);
             }
             
             return true;

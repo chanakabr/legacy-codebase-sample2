@@ -261,9 +261,11 @@ namespace PermissionsManager
 
                         int sourceType = Convert.ToInt32(sourceRow["type"]);
                         object sourceUsersGroupObject = sourceRow["users_group"];
-                        object friendlyNameGroupObject = sourceRow["friendly_name"];
+                        object friendlyNameObject = sourceRow["friendly_name"];
+                        object dependsOnPermissionNamesObject = sourceRow["dependsOnPermissionNames"];
                         string sourceUsersGroup = null;
-                        string friendlyName = friendlyNameGroupObject != null && friendlyNameGroupObject != DBNull.Value ? Convert.ToString(friendlyNameGroupObject) : string.Empty;
+                        string friendlyName = friendlyNameObject != null && friendlyNameObject != DBNull.Value ? Convert.ToString(friendlyNameObject) : string.Empty;
+                        string dependsOnPermissionNames = dependsOnPermissionNamesObject != null && dependsOnPermissionNamesObject != DBNull.Value ? Convert.ToString(dependsOnPermissionNamesObject) : string.Empty;
 
                         if (sourceUsersGroupObject != null && sourceUsersGroupObject != DBNull.Value)
                         {
@@ -275,7 +277,7 @@ namespace PermissionsManager
                         {
                             if (!alreadyExistingPermissions.Contains(sourceName))
                             {
-                                int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup, friendlyName);
+                                int newId = ApiDAL.InsertPermission(sourceName, sourceType, sourceUsersGroup, friendlyName, dependsOnPermissionNames);
 
                                 permissionsDictionary[sourceName] = newId;
                                 alreadyExistingPermissions.Add(sourceName);
@@ -296,14 +298,16 @@ namespace PermissionsManager
                             int destinationType = ExtractValue<int>(destinationRow, "type");
                             string destinationUsersGroup = ExtractValue<string>(destinationRow, "users_group");
                             string destinationFriendlyName = ExtractValue<string>(destinationRow, "friendly_name");
+                            string destinationDependsOnPermissionNames = ExtractValue<string>(destinationRow, "depends_on_permission_names");
 
                             if (
                                 destinationType != sourceType ||
                                 destinationUsersGroup != sourceUsersGroup ||
-                                destinationFriendlyName != friendlyName
+                                destinationFriendlyName != friendlyName ||
+                                destinationDependsOnPermissionNames != dependsOnPermissionNames
                                 )
                             {
-                                bool actionResult = ApiDAL.UpdatePermission(destinationId, sourceName, sourceType, sourceUsersGroup, friendlyName);
+                                bool actionResult = ApiDAL.UpdatePermission(destinationId, sourceName, sourceType, sourceUsersGroup, friendlyName, dependsOnPermissionNames);
 
                                 log.InfoFormat("!!UPDATE!! Table : {0} Destination Id : {1} name : {2} type : {3} users group : {4}", PERMISSION,
                                     destinationId, sourceName, sourceType, sourceUsersGroup);
@@ -1096,11 +1100,11 @@ namespace PermissionsManager
                 string[] allfiles = Directory.GetFiles(folderName, "*.json", SearchOption.AllDirectories);
 
                 List<FilePermission> permissionsFromFiles = new List<FilePermission>();
-                Dictionary<string, FilePermission> dictionaryPermissionsFromFiles = new Dictionary<string, FilePermission>();
+                Dictionary<string, FilePermission> dictionaryPermissionsFromFiles = new Dictionary<string, FilePermission>(StringComparer.CurrentCultureIgnoreCase);
                 List<FileRole> rolesFromFiles = new List<FileRole>();
-                Dictionary<string, FileRole> dictionaryRolesFromFiles = new Dictionary<string, FileRole>();
+                Dictionary<string, FileRole> dictionaryRolesFromFiles = new Dictionary<string, FileRole>(StringComparer.CurrentCultureIgnoreCase);
                 List<FilePermissionItem> permissionItemsFromFiles = new List<FilePermissionItem>();
-                Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromFiles = new Dictionary<string, FilePermissionItem>();
+                Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromFiles = new Dictionary<string, FilePermissionItem>(StringComparer.CurrentCultureIgnoreCase);
                 
                 foreach (string filePath in allfiles)
                 {
@@ -1174,11 +1178,11 @@ namespace PermissionsManager
                 #region Get data, build dictionaries
 
                 Roles rolesFromDatabase;
-                Dictionary<string, FileRole> dictionaryRolesFromDatabase = new Dictionary<string, FileRole>();
+                Dictionary<string, FileRole> dictionaryRolesFromDatabase = new Dictionary<string, FileRole>(StringComparer.CurrentCultureIgnoreCase);
                 Dictionary<string, PermissionItems> permissionItemsFromDatabase;
-                Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromDatabase = new Dictionary<string, FilePermissionItem>();
+                Dictionary<string, FilePermissionItem> dictionaryPermissionItemsFromDatabase = new Dictionary<string, FilePermissionItem>(StringComparer.CurrentCultureIgnoreCase);
                 Permissions permissionsFromDatabase;
-                Dictionary<string, FilePermission> dictionaryPermissionsFromDatabase = new Dictionary<string, FilePermission>();
+                Dictionary<string, FilePermission> dictionaryPermissionsFromDatabase = new Dictionary<string, FilePermission>(StringComparer.CurrentCultureIgnoreCase);
 
                 BuildPermissionsDictionaries(out rolesFromDatabase, out permissionItemsFromDatabase, out permissionsFromDatabase);
                 DataSet dataSet = ApiDAL.Get_PermissionsForExport();
@@ -1214,10 +1218,12 @@ namespace PermissionsManager
                     {
                         var filePermission = dictionaryPermissionsFromFiles[permission.Name];
 
-                        // if permission exists both in file and in DB - check if update is required (only users_group, friendly_name are relevant)
-                        if (permission.UsersGroup != filePermission.UsersGroup || permission.FriendlyName != filePermission.FriendlyName)
+                        // if permission exists both in file and in DB - check if update is required
+                        if ((!(string.IsNullOrEmpty(permission.UsersGroup) && string.IsNullOrEmpty(filePermission.UsersGroup)) && permission.UsersGroup != filePermission.UsersGroup) ||
+                            (!(string.IsNullOrEmpty(permission.FriendlyName) && string.IsNullOrEmpty(filePermission.FriendlyName)) && permission.FriendlyName != filePermission.FriendlyName) ||
+                            (!(string.IsNullOrEmpty(permission.DependsOnPermissionNames) && string.IsNullOrEmpty(filePermission.DependsOnPermissionNames)) && permission.DependsOnPermissionNames != filePermission.DependsOnPermissionNames))
                         {
-                            ApiDAL.UpdatePermission((int)permission.Id, filePermission.Name, (int)ePermissionType.Group, filePermission.UsersGroup, filePermission.FriendlyName);
+                            ApiDAL.UpdatePermission((int)permission.Id, filePermission.Name, (int)ePermissionType.Group, filePermission.UsersGroup, filePermission.FriendlyName, filePermission.DependsOnPermissionNames);
                             log.InfoFormat("!! UPDATE !! Permissions - id {0} name {1}", permission.Id, permission.Name);
                         }
                     }
@@ -1235,13 +1241,17 @@ namespace PermissionsManager
                 }
 
                 // run on all permissions we have in files
+
+                //Get All permission from Db
+                List<Permission> dbPermissions = ApiDAL.GetPermissions(0);
+
                 foreach (var permission in permissionsFromFiles)
                 {
                     // check if exists in DB
-                    if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name))
+                    if (!dictionaryPermissionsFromDatabase.ContainsKey(permission.Name) && dbPermissions?.Count( x =>x.Name == permission.Name) == 0 )
                     {
-                        // if not, it is new and should be added
-                        int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup, permission.FriendlyName);
+                        // if not, it is new and should be added                        
+                        int newId = ApiDAL.InsertPermission(permission.Name, (int)ePermissionType.Group, permission.UsersGroup, permission.FriendlyName, permission.DependsOnPermissionNames);
                         permission.Id = newId;
 
                         log.InfoFormat("!! INSERT !! Permissions - id {0} name {1}", permission.Id, permission.Name);
@@ -1523,13 +1533,23 @@ namespace PermissionsManager
                                 // if permission permission items exists in file but not in DB - add it to DB
                                 if (!permissionPermissionItemsFromDatabase.ContainsKey(permissionName))
                                 {
-                                    int permissionId = (int)dictionaryPermissionsFromDatabase[permissionName].Id;
-                                    int newPermissionPermissionItemId = 
-                                        ApiDAL.InsertPermissionPermissionItem(permissionId, (int)dbPermissionItem.Id, Convert.ToInt32(isExcluded));
+                                    if (dictionaryPermissionsFromDatabase.ContainsKey(permissionName))
+                                    {
+                                        int permissionId = (int)dictionaryPermissionsFromDatabase[permissionName].Id;
+                                        int newPermissionPermissionItemId =
+                                            ApiDAL.InsertPermissionPermissionItem(permissionId, (int)dbPermissionItem.Id, Convert.ToInt32(isExcluded));
 
-                                    log.InfoFormat("!! INSERT !! Permission Permission Item - permission id = {0} permission item id = {1} " +
-                                        "permission name = {2} permission item name = {3}",
-                                        permissionId, dbPermissionItem.Id, permissionName, dbPermissionItem.Name);
+                                        log.InfoFormat("!! INSERT !! Permission Permission Item - permission id = {0} permission item id = {1} " +
+                                            "permission name = {2} permission item name = {3}",
+                                            permissionId, dbPermissionItem.Id, permissionName, dbPermissionItem.Name);
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("Permission - permission item: trying to insert a permission permission item of " +
+                                            " a non existing permission. Either it was not defined in files " +
+                                            " or it was defomedhas no role. permission name = {0} permission item name = {1}",
+                                            permissionName, dbPermissionItem.Name);
+                                    }
                                 }
                                 else
                                 {
@@ -1681,8 +1701,9 @@ namespace PermissionsManager
         #region Utility Methods
 
         private static void BuildPermissionsDictionaries(
-            out Roles roles, out Dictionary<string, PermissionItems> 
-            permissionItemsFiles, out Permissions permissions)
+            out Roles roles, 
+            out Dictionary<string, PermissionItems> permissionItemsFiles, 
+            out Permissions permissions)
         {
             List<Role> allRoles = ApiDAL.GetRoles(0, null);
 
@@ -1695,7 +1716,7 @@ namespace PermissionsManager
 
             Dictionary<long, FilePermission> permissionsDictionary = new Dictionary<long, FilePermission>();
             Dictionary<long, FilePermissionItem> permissionItemsDictionary = new Dictionary<long, FilePermissionItem>();
-            permissionItemsFiles = new Dictionary<string, PermissionItems>();
+            permissionItemsFiles = new Dictionary<string, PermissionItems>(StringComparer.CurrentCultureIgnoreCase);
 
             // create dictionary of permissions and permission items by their id
             foreach (var role in allRoles)
@@ -1870,7 +1891,7 @@ namespace PermissionsManager
         }
 
         #endregion
-        
+
         public static void TestRabbit()
         {
             InitializeLogging();
@@ -1917,5 +1938,5 @@ namespace PermissionsManager
             Task.WaitAll(tasks);
             Task.WaitAll(tasks2);
         }
-    }
+    }    
 }
