@@ -28,7 +28,7 @@ RUN tar -zxvf ${DEVELOPER_PLATFORM_BRANCH}.tar.gz && mv developer-platform-${DEV
 RUN /bin/bash -c 'chown -R lucy:lucy /opt/kaltura'
 
 USER lucy
-RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/LucyBot-Inc/documentation-generator#v4.4.0
+RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/LucyBot-Inc/documentation-generator#v4.8.4
 
 WORKDIR /opt/kaltura/kaltura-spec-converter
 RUN npm install
