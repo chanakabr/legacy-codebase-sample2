@@ -53,7 +53,7 @@ namespace ElasticSearchHandler.IndexBuilders
             int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue;
             int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
             int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
-            long mediaPageSize = 5000;
+            long mediaPageSize = ApplicationConfiguration.ElasticSearchConfiguration.MediaPageSize.IntValue;
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)
@@ -65,6 +65,12 @@ namespace ElasticSearchHandler.IndexBuilders
             if (maxResults == 0)
             {
                 maxResults = 100000;
+            }
+
+            // Default size of max results should be 100,000
+            if (mediaPageSize == 0)
+            {
+                mediaPageSize = 10000;
             }
 
             CatalogGroupCache catalogGroupCache = null;
