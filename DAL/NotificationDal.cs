@@ -1202,7 +1202,7 @@ namespace DAL
 
         public static List<DbAnnouncement> GetAnnouncements(int groupId)
         {
-            List<DbAnnouncement> result = null;
+            List<DbAnnouncement> result = new List<DbAnnouncement>();
 
             try
             {
