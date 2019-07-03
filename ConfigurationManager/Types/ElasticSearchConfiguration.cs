@@ -15,6 +15,7 @@ namespace ConfigurationManager
         public NumericConfigurationValue MaxResults;
         public NumericConfigurationValue MaxStatSortResults;
         public NumericConfigurationValue StatSortBulkSize;
+        public NumericConfigurationValue MediaPageSize;
 
         public ElasticSearchConfiguration(string key) : base(key)
         {
@@ -59,6 +60,11 @@ namespace ConfigurationManager
             StatSortBulkSize = new NumericConfigurationValue("stat_sort_bulk_size", this)
             {
                 DefaultValue = 5000,
+                ShouldAllowEmpty = true
+            };
+            MediaPageSize = new NumericConfigurationValue("media_page_size", this)
+            {
+                DefaultValue = 10000,
                 ShouldAllowEmpty = true
             };
         }
