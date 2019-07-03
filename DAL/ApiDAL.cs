@@ -5693,21 +5693,12 @@ namespace DAL
             }
         }
 
-        // TODO SHIR - FINISH GetIpv6ToCountryTable
         public static DataTable GetIpv6ToCountryTable()
         {
-            DataTable table = null;
-
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_IP_To_Country");
+            var storedProcedure = new StoredProcedure("GetIpv6ToCountry");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            DataSet dataSet = storedProcedure.ExecuteDataSet();
-
-            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
-            {
-                table = dataSet.Tables[0];
-            }
-
+            var table = storedProcedure.Execute();
             return table;
         }
     }
