@@ -36,6 +36,7 @@ using TVinciShared;
 using HttpMultipartParser;
 using EventManager;
 
+// TODO: Arthur, move to a different namespace (Exceptions, need to update reflector as well because of this)
 namespace WebAPI.Filters
 {
     public class RequestParserException : BadRequestException

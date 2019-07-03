@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebAPI.Filters
+namespace WebAPI
 {
     public enum RequestType
     {

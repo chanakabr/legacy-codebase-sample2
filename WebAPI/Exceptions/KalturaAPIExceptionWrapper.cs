@@ -18,6 +18,7 @@ using System.Runtime.Serialization;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
 
+// TODO: Arthur, move to a different namespace (Exceptions, need to update reflector as well because of this)
 namespace WebAPI.App_Start
 {
     [DataContract(Name = "error")]

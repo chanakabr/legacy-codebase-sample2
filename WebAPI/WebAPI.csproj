@@ -87,10 +87,6 @@
     <Reference Include="log4stash, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\log4stash.2.2.1\lib\net45\log4stash.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.WebApi.MessageHandlers.Compression, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.MessageHandlers.Compression.1.3.0\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Microsoft.AspNet.WebApi.MessageHandlers.Compression.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.AspNetCore.Authentication, Version=2.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNetCore.Authentication.2.1.2\lib\netstandard2.0\Microsoft.AspNetCore.Authentication.dll</HintPath>
     </Reference>
@@ -776,12 +772,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AssetXmlFormatter.cs" />
+    <Compile Include="App_Start\BaseFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
-    <Compile Include="App_Start\ExcelFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
-    <Compile Include="App_Start\KalturaAPIException.cs" />
-    <Compile Include="App_Start\KalturaApiExceptionArg.cs" />
-    <Compile Include="App_Start\KalturaAPIExceptionWrapper.cs" />
+    <Compile Include="App_Start\ExcelFormatter.cs" />
+    <Compile Include="App_Start\JilFormatter.cs" />
+    <Compile Include="App_Start\JsonPFormatter.cs" />
+    <Compile Include="ExcelFormatterConsts.cs" />
+    <Compile Include="Exceptions\KalturaAPIException.cs" />
+    <Compile Include="Exceptions\KalturaApiExceptionArg.cs" />
+    <Compile Include="Exceptions\KalturaAPIExceptionWrapper.cs" />
     <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
@@ -827,9 +827,13 @@
     <Compile Include="Filters\ApiAuthorize.cs" />
     <Compile Include="Filters\AutoMapperConfig.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
-    <Compile Include="Filters\ExceptionFilter.cs" />
-    <Compile Include="Filters\RequestParserException.cs" />
-    <Compile Include="Filters\RequestType.cs" />
+    <Compile Include="Exceptions\RequestParserException.cs" />
+    <Compile Include="IKalturaBulkUploadObject.cs" />
+    <Compile Include="IKalturaBulkUploadStructure.cs" />
+    <Compile Include="IKalturaExcelableListResponse.cs" />
+    <Compile Include="IKalturaExcelableObject.cs" />
+    <Compile Include="IKalturaExcelStructure.cs" />
+    <Compile Include="RequestType.cs" />
     <Compile Include="KalturaApiExceptionHelpers.cs" />
     <Compile Include="RequestContext.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
@@ -1579,7 +1583,6 @@
     <Compile Include="Reflection\KalturaJsonSerializer.cs" />
     <Compile Include="Reflection\MethodParam.cs" />
     <Compile Include="RequestParsingHelpers.cs" />
-    <Compile Include="Utils\BaseFormatter.cs" />
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
     <Compile Include="Utils\DrmUtils.cs" />
@@ -1587,8 +1590,6 @@
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
     <Compile Include="Utils\HouseholdUtils.cs" />
-    <Compile Include="Utils\JsonPFormatter.cs" />
-    <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Managers\PlaybackAdapterManager.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />

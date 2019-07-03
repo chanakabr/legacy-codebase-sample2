@@ -94,7 +94,7 @@ namespace WebAPI.Utils
             return HttpContext.Current.Items[RequestContext.REQUEST_LANGUAGE].ToString();
         }
 
-        internal static int? GetGroupIdFromRequest()
+        public static int? GetGroupIdFromRequest()
         {
             if (HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] == null)
             {

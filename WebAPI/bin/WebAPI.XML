@@ -5053,7 +5053,7 @@
             <param name="action">Action name</param>
             <param name="silent">Fail silently</param>
         </member>
-        <member name="M:WebAPI.Managers.RolesManager.ValidatePropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
+        <member name="M:WebAPI.Managers.RolesManager.ValidatePropertyPermitted(System.String,System.String,WebAPI.RequestType,System.Boolean)">
             <summary>
             Checks if a property of an object is allowed
             </summary>
@@ -5063,7 +5063,7 @@
             <param name="silent">Fail silently</param>
             <returns>True if the property is permitted, false otherwise</returns>
         </member>
-        <member name="M:WebAPI.Managers.RolesManager.IsPropertyPermitted(System.String,System.String,WebAPI.Filters.RequestType,System.Boolean)">
+        <member name="M:WebAPI.Managers.RolesManager.IsPropertyPermitted(System.String,System.String,WebAPI.RequestType,System.Boolean)">
             <summary>
             Checks if a property of an object is allowed
             </summary>

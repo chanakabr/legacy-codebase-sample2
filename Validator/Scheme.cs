@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using WebAPI.Utils;
 using TVinciShared;
 using WebAPI.Models.API;
+using WebAPI;
 
 namespace Validator.Managers.Scheme
 {

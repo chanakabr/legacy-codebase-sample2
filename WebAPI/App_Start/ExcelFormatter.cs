@@ -25,53 +25,26 @@ using WebAPI.Models.Catalog;
 using System.Linq;
 using Core.Catalog.CatalogManagement;
 using ApiObjects.Response;
-using ApiObjects.Catalog;
-using TVinciShared;
-using ApiObjects;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
-using WebAPI.Utils;
-using System.Drawing;
+
 using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
 using WebAPI.Managers;
 using System.Net;
 using System.Net.Http;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace WebAPI.App_Start
 {
-    public interface IKalturaBulkUploadObject
-    {
-    }
-
-    public interface IKalturaExcelableObject : IKalturaBulkUploadObject
-    {
-        Dictionary<string, object> GetExcelValues(int groupId);
-    }
-
-    public interface IKalturaBulkUploadStructure
-    {
-    }
-
-    public interface IKalturaExcelStructure : IKalturaBulkUploadStructure
-    {
-        ExcelStructure GetExcelStructure(int groupId);
-    }
-
-    public interface IKalturaExcelableListResponse : IKalturaExcelStructure
-    {
-        List<IKalturaExcelableObject> GetObjects();
-    }
 
     public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        private const string EXCEL_SHEET_NAME = "OPC Batch Template";
-        public const string EXCEL_EXTENTION = ".xlsx";
+        
+        
 
-        public ExcelFormatter() : base(KalturaResponseType.EXCEL, EXCEL_CONTENT_TYPE)
+        public ExcelFormatter() : base(KalturaResponseType.EXCEL, ExcelFormatterConsts.EXCEL_CONTENT_TYPE)
         {
         }
 
@@ -132,7 +105,7 @@ namespace WebAPI.App_Start
                             fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
                         }
 
-                        HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
+                        HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
                         HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
 
                         return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
@@ -213,7 +186,7 @@ namespace WebAPI.App_Start
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "Filter.name");
                     }
 
-                    if (!fileName.EndsWith(EXCEL_EXTENTION))
+                    if (!fileName.EndsWith(ExcelFormatterConsts.EXCEL_EXTENTION))
                     {
                         throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Filter.name");
                     }
@@ -225,7 +198,7 @@ namespace WebAPI.App_Start
                     var id = requestMethodParameters.FirstOrDefault();
                     if (id != null)
                     {
-                        fileName = id.ToString() + EXCEL_EXTENTION;
+                        fileName = id.ToString() + ExcelFormatterConsts.EXCEL_EXTENTION;
                         isResponseValid = true;
                     }
                 }
@@ -238,7 +211,7 @@ namespace WebAPI.App_Start
         {
             using (ExcelPackage pack = new ExcelPackage(new FileInfo(fileName)))
             {
-                ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(EXCEL_SHEET_NAME);
+                ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(ExcelFormatterConsts.EXCEL_SHEET_NAME);
 
                 int columnNameRowIndex = 1;
                 // Set overview instructions

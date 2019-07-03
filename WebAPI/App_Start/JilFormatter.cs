@@ -24,7 +24,7 @@ using Newtonsoft.Json.Linq;
 using WebAPI.Managers;
 using WebAPI.Models.API;
 
-namespace WebAPI.Utils
+namespace WebAPI.App_Start
 {
     public class JilFormatter : BaseFormatter
     {

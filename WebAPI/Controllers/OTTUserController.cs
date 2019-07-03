@@ -284,7 +284,7 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(user.RoleIds) && !RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
                                                        "KalturaOTTUser",
                                                        "roleIds");
                 }
@@ -647,7 +647,7 @@ namespace WebAPI.Controllers
                 if (!RolesManager.IsManagerAllowedUpdateAction(id, user.GetRoleIds()))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
                                                        "KalturaOTTUser",
                                                        "roleIds");
                 }
@@ -691,7 +691,7 @@ namespace WebAPI.Controllers
                 if (!RolesManager.IsManagerAllowedUpdateAction(userId, roleToAdd))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
                                                        "KalturaOTTUser",
                                                        "roleId");
                 }
@@ -925,7 +925,7 @@ namespace WebAPI.Controllers
                     else // no household and less then Operator
                     {
                         throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, 
-                                                        Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ),
+                                                        Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.READ),
                                                         "KalturaOTTUserFilter", 
                                                         "idIn");
                     }
