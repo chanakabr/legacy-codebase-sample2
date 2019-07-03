@@ -2772,6 +2772,7 @@ namespace DAL
         }
 
         #region Bulk Export
+
         public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, string version, bool isActive)
         {
@@ -5690,6 +5691,24 @@ namespace DAL
                 log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, externalId: {1}, ex:{2} ", groupId, externalId , ex);
                 throw;
             }
+        }
+
+        // TODO SHIR - FINISH GetIpv6ToCountryTable
+        public static DataTable GetIpv6ToCountryTable()
+        {
+            DataTable table = null;
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_IP_To_Country");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
+            {
+                table = dataSet.Tables[0];
+            }
+
+            return table;
         }
     }
 }

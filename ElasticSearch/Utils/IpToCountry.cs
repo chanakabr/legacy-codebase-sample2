@@ -143,36 +143,8 @@ namespace ElasticSearch.Utilities
 
             try
             {
-                FilteredQuery query = BuildFilteredQueryForGetCountry();
-                QueryFilter filter = new QueryFilter();
-
                 string ipValue = ConvertIpv4ToInt64(ip);
-
-                FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
-
-                // Build range term: the country id will be the closest to these
-                ESRange rangeTo = new ESRange(true)
-                {
-                    Key = "ip_to",
-                };
-
-                rangeTo.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipValue));
-
-                ESRange rangeFrom = new ESRange(true)
-                {
-                    Key = "ip_from",
-                };
-
-                rangeFrom.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipValue));
-
-                // ip value is between ip_to and ip_from
-                composite.AddChild(rangeTo);
-                composite.AddChild(rangeFrom);
-
-                filter.FilterSettings = composite;
-                query.Filter = filter;
-
-                string searchQuery = query.ToString();
+                string searchQuery = BuildSearchQueryForIpv4(ipValue);
 
                 // Perform search
                 ElasticSearchApi api = new ElasticSearchApi();
@@ -293,7 +265,6 @@ namespace ElasticSearch.Utilities
             return country;
         }
 
-        // TODO SHIR - FINISH GetCountryByIpv6FromES
         public static Tuple<Country, bool> GetCountryByIpv6FromES(Dictionary<string, object> funcParams)
         {
             Country country = null;
@@ -305,32 +276,10 @@ namespace ElasticSearch.Utilities
                     string ipv6 = funcParams["ipv6"].ToString();
                     if (!string.IsNullOrEmpty(ipv6))
                     {
-                        var query = BuildFilteredQueryForGetCountry();
-                        QueryFilter filter = new QueryFilter();
-
                         var ipv6Value = ConvertIpv6ToUInt64Array(ipv6);
 
-                        // 2001:bf8:0000:0000:0000:0000:0000:0000 - 2001:bf8:ffff:ffff:ffff:ffff:ffff:ffff
-                        // [300, 042] -> 300042
-                        //  300 < x2 && 042 > x1
-                        //  300041 -> x1=041, x2=300
-
                         // Build range term: the country id will be the closest to these
-                        ESRange rangeTo = new ESRange(true) { Key = "ip_to" };
-                        rangeTo.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipv6Value[0].ToString()));
-
-                        ESRange rangeFrom = new ESRange(true) { Key = "ip_from" };
-                        rangeFrom.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipv6Value[1].ToString()));
-
-                        // ip value is between ip_to and ip_from
-                        FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
-                        composite.AddChild(rangeTo);
-                        composite.AddChild(rangeFrom);
-
-                        filter.FilterSettings = composite;
-                        query.Filter = filter;
-
-                        string searchQuery = query.ToString();
+                        var searchQuery = BuildSearchQueryForIpv6(ipv6Value);
 
                         // Perform search
                         ElasticSearchApi api = new ElasticSearchApi();
@@ -349,7 +298,7 @@ namespace ElasticSearch.Utilities
             return new Tuple<ApiObjects.Country, bool>(country, country != null);
         }
 
-        private static FilteredQuery BuildFilteredQueryForGetCountry()
+        private static FilteredQuery BuildBasicFilteredQueryForGetCountry()
         {
             // basic initialization
             var query = new FilteredQuery(true)
@@ -445,6 +394,112 @@ namespace ElasticSearch.Utilities
             return null;
         }
 
+        private static string BuildSearchQueryForIpv4(string ipValue)
+        {
+            FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
+
+            // Build range term: the country id will be the closest to these
+            ESRange rangeTo = new ESRange(true)
+            {
+                Key = "ip_to",
+            };
+
+            rangeTo.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipValue));
+
+            ESRange rangeFrom = new ESRange(true)
+            {
+                Key = "ip_from",
+            };
+
+            rangeFrom.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipValue));
+
+            // ip value is between ip_to and ip_from
+            composite.AddChild(rangeTo);
+            composite.AddChild(rangeFrom);
+
+            var filter = new QueryFilter { FilterSettings = composite };
+
+            FilteredQuery query = BuildBasicFilteredQueryForGetCountry();
+            query.Filter = filter;
+
+            return query.ToString();
+        }
+
+        private static string BuildSearchQueryForIpv6(ulong[] ipv6Value)
+        {
+            // [2001:bf8:0000:0000]:[0000:0000:0000:0000] - [2001:bf8:ffff:ffff]:[ffff:ffff:ffff:ffff]
+            // [2001:bf8:900:6]:[00:0:808b:22f0]
+            // [300, 042] -> 300042
+            //  300 < x2 && 042 > x1
+            //  300041 -> x1=041, x2=300
+
+            //if ((ipFrom[0] < ipv6Value[0]) || (ipFrom[0] == ipv6Value[0] && ipFrom[1] <= ipv6Value[1]))
+            //{
+            //    if ((ipv6Value[0] < ipTo[0]) || (ipv6Value[0] == ipTo[0] && ipv6Value[1] <= ipTo[1]))
+            //    {
+            //        Console.WriteLine("ipcurrent is in range");
+            //    }
+            //}
+
+            // FROM:
+            // ipFrom[0] == ipv6Value[0]
+            ESRange ipRangeFrom1LTE = new ESRange(true) { Key = "ip_from1" };
+            ipRangeFrom1LTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipv6Value[0].ToString()));
+
+            // ipFrom[1] <= ipv6Value[1]
+            ESRange ipRangeFrom2LTE = new ESRange(true) { Key = "ip_from2" };
+            ipRangeFrom2LTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipv6Value[1].ToString()));
+
+            //  ipRangeFrom1LTE && ipRangeFrom2LTE
+            FilterCompositeType compositeFromLTE = new FilterCompositeType(CutWith.AND);
+            compositeFromLTE.AddChild(ipRangeFrom1LTE);
+            compositeFromLTE.AddChild(ipRangeFrom2LTE);
+
+            // ipFrom[0] < ipv6Value[0]
+            ESRange ipRangeFrom1LT = new ESRange(true) { Key = "ip_from1" };
+            ipRangeFrom1LT.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, ipv6Value[0].ToString()));
+
+            // ipRangeFrom1LT || compositeFromLTE
+            FilterCompositeType compositeFrom = new FilterCompositeType(CutWith.OR);
+            compositeFrom.AddChild(ipRangeFrom1LT);
+            compositeFrom.AddChild(compositeFromLTE);
+
+            // TO:
+            // ipTo[0] == ipv6Value[0]
+            ESRange ipRangeTo1GTE = new ESRange(true) { Key = "ip_to1" };
+            ipRangeTo1GTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipv6Value[0].ToString()));
+
+            // ipTo[1] >= ipv6Value[1]
+            ESRange ipRangeTo2GTE = new ESRange(true) { Key = "ip_to2" };
+            ipRangeTo2GTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipv6Value[1].ToString()));
+
+            //  ipRangeTo1GTE && ipRangeTo2GTE
+            FilterCompositeType compositeToGTE = new FilterCompositeType(CutWith.AND);
+            compositeToGTE.AddChild(ipRangeTo1GTE);
+            compositeToGTE.AddChild(ipRangeTo2GTE);
+
+            // ipTo[0] > ipv6Value[0]
+            ESRange ipRangeTo1GT = new ESRange(true) { Key = "ip_to1" };
+            ipRangeTo1GT.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, ipv6Value[0].ToString()));
+
+            // ipRangeTo1GT || compositeFromLTE
+            FilterCompositeType compositeTo = new FilterCompositeType(CutWith.OR);
+            compositeTo.AddChild(ipRangeTo1GT);
+            compositeTo.AddChild(compositeToGTE);
+
+            // ipFrom is less AND ipTo is greater (ip value is between ip_to and ip_from)
+            FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
+            composite.AddChild(compositeFrom);
+            composite.AddChild(compositeTo);
+
+            var filter = new QueryFilter { FilterSettings = composite };
+
+            var query = BuildBasicFilteredQueryForGetCountry();
+            query.Filter = filter;
+
+            return query.ToString();
+        }
+
         private static Country ParseSearchResultToCountry(string searchResult)
         {
             var jsonObj = JObject.Parse(searchResult);
@@ -497,6 +552,14 @@ namespace ElasticSearch.Utilities
             }
 
             return null;
+        }
+
+        // TODO SHIR - FINISH TO IMPLEMENT ConvertNetworkToIpv6Ranges
+        public static Tuple<ulong[], ulong[]> ConvertNetworkToIpv6Ranges(string network)
+        {
+            var from = new ulong[] { 2306137643970199552, 0 };
+            var to = new ulong[] { 2306137648265166847, 18446744073709551615 };
+            return new Tuple<ulong[], ulong[]>(from, to);
         }
     }
 }
