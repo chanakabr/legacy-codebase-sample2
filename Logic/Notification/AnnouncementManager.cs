@@ -587,7 +587,6 @@ namespace Core.Notification
                     if (string.IsNullOrEmpty(externalAnnouncementId))
                     {
                         log.ErrorFormat("CreateSystemAnnouncement failed Create guest announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
                     }
 
                     // insert ARN to DB
@@ -607,7 +606,6 @@ namespace Core.Notification
                     if (string.IsNullOrEmpty(externalAnnouncementId))
                     {
                         log.ErrorFormat("CreateSystemAnnouncement failed Create logged in announcement groupID = {0}, announcementName = {1}", groupId, announcementName);
-                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create LoggedIn announcement");
                     }
 
                     // insert ARN to DB 
@@ -668,7 +666,8 @@ namespace Core.Notification
                 log.ErrorFormat("CreateSystemAnnouncement failed groupId = {0}, ex = {1}", groupId, ex);
                 return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
-            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); ;
+            
+            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         public static bool SendMessageAnnouncement(int groupId, long startTime, int messageId)
