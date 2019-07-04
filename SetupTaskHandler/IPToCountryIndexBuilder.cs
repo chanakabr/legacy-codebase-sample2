@@ -261,7 +261,7 @@ namespace SetupTaskHandler
             string name = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_NAME");
             name = ElasticSearch.Common.Utils.ReplaceDocumentReservedCharacters(name, false);
 
-            var tuple = IpToCountry.ConvertNetworkToIpv6Ranges(network);
+            var tuple = IpToCountry.GetIpRangesByNetwork(network);
             IPV6 ipv6 = new IPV6(tuple, countryId, code, name);
 
             return Newtonsoft.Json.JsonConvert.SerializeObject(ipv6);
