@@ -1,5 +1,6 @@
 ﻿using ConfigurationManager;
 using ElasticSearch.Common;
+using ElasticSearch.Utilities;
 using ElasticSearchHandler;
 using KLogMonitor;
 using System;
@@ -57,8 +58,9 @@ namespace SetupTaskHandler
             }
 
             string newIndexName = ElasticSearchTaskUtils.GetNewUtilsIndexString();
-            string type = "iptocountry";
-            
+            string ipToCountryType = "iptocountry";
+            string ipV6ToCountryType = "ipv6tocountry";
+
             int numOfShards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
             int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue;
             
@@ -76,10 +78,12 @@ namespace SetupTaskHandler
                     indexExists = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, new List<string>());
                 }
 
-                // Insert mapping for name field - default mapping isn't good for us
-                ESMappingObj indexMapping = new ESMappingObj(type);
+                #region Ip
 
-                indexMapping.AddProperty(new BasicMappingPropertyV2()
+                // Insert mapping for name field - default mapping isn't good for us
+                ESMappingObj ipIndexMapping = new ESMappingObj(ipToCountryType);
+
+                ipIndexMapping.AddProperty(new BasicMappingPropertyV2()
                 {
                     name = "name",
                     type = eESFieldType.STRING,
@@ -87,25 +91,25 @@ namespace SetupTaskHandler
                     analyzer = "lowercase_analyzer"
                 });
 
-                api.InsertMapping(newIndexName, type, indexMapping.ToString());
+                api.InsertMapping(newIndexName, ipToCountryType, ipIndexMapping.ToString());
 
-                DataTable mappingTable = DAL.ApiDAL.Get_IPToCountryTable();
+                DataTable ipToCountryMapping = DAL.ApiDAL.Get_IPToCountryTable();
 
-                if (mappingTable != null)
+                if (ipToCountryMapping != null)
                 {
                     List<ESBulkRequestObj<int>> bulkObjects = new List<ESBulkRequestObj<int>>();
 
-                    foreach (DataRow row in mappingTable.Rows)
+                    foreach (DataRow row in ipToCountryMapping.Rows)
                     {
 
-                        string serializedMapping = SerializeMapping(row);
+                        string serializedMapping = SerializeIPMapping(row);
                         int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
 
                         bulkObjects.Add(new ESBulkRequestObj<int>()
                         {
                             docID = id,
                             index = newIndexName,
-                            type = type,
+                            type = ipToCountryType,
                             document = serializedMapping
                         });
 
@@ -124,8 +128,61 @@ namespace SetupTaskHandler
                     }
                 }
 
-                // Switch index alias + Delete old indices handling
+                #endregion
 
+                #region IpV6
+
+                // Insert mapping for name field - default mapping isn't good for us
+                ESMappingObj ipV6IndexMapping = new ESMappingObj(ipV6ToCountryType);
+
+                ipV6IndexMapping.AddProperty(new BasicMappingPropertyV2()
+                {
+                    name = "name",
+                    type = eESFieldType.STRING,
+                    index = eMappingIndex.analyzed,
+                    analyzer = "lowercase_analyzer"
+                });
+
+                api.InsertMapping(newIndexName, ipV6ToCountryType, ipV6IndexMapping.ToString());
+
+                DataTable ipV6ToCountryMapping = DAL.ApiDAL.GetIpv6ToCountryTable();
+
+                if (ipV6ToCountryMapping != null)
+                {
+                    List<ESBulkRequestObj<int>> bulkObjects = new List<ESBulkRequestObj<int>>();
+
+                    foreach (DataRow row in ipV6ToCountryMapping.Rows)
+                    {
+
+                        string serializedMapping = SerializeIPV6Mapping(row);
+                        int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+
+                        bulkObjects.Add(new ESBulkRequestObj<int>()
+                        {
+                            docID = id,
+                            index = newIndexName,
+                            type = ipV6ToCountryType,
+                            document = serializedMapping
+                        });
+
+                        if (bulkObjects.Count >= 5000)
+                        {
+                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
+                            t.Wait();
+                            bulkObjects = new List<ESBulkRequestObj<int>>();
+                        }
+                    }
+
+                    if (bulkObjects.Count > 0)
+                    {
+                        Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
+                        t.Wait();
+                    }
+                }
+
+                #endregion
+
+                // Switch index alias + Delete old indices handling
                 string alias = "utils";
                 bool currentIndexExists = api.IndexExists(alias);
 
@@ -172,11 +229,10 @@ namespace SetupTaskHandler
                 result = false;
             }
 
-
             return result;
         }
 
-        private string SerializeMapping(DataRow row)
+        private string SerializeIPMapping(DataRow row)
         {
             string result = string.Empty;
 
@@ -193,6 +249,42 @@ namespace SetupTaskHandler
                 "}");
 
             return result;
+        }
+
+        private string SerializeIPV6Mapping(DataRow row)
+        {
+            string result = string.Empty;
+
+            string network = ODBCWrapper.Utils.ExtractValue<string>(row, "NETWORK");
+            int countryId = ODBCWrapper.Utils.ExtractInteger(row, "COUNTRY_ID");
+            string code = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_CD2");
+            string name = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_NAME");
+            name = ElasticSearch.Common.Utils.ReplaceDocumentReservedCharacters(name, false);
+
+            var tuple = IpToCountry.ConvertNetworkToIpv6Ranges(network);
+            IPV6 ipv6 = new IPV6(tuple, countryId, code, name);
+
+            return Newtonsoft.Json.JsonConvert.SerializeObject(ipv6);
+        }
+
+        public class IPV6
+        {
+            public int countryId;
+            public string code;
+            public string name;
+            public string ipv6_to;
+            public string ipv6_from;
+
+
+            public IPV6(Tuple<string, string> tuple, int countryId, string code, string name)
+            {
+                ipv6_from = tuple.Item1;
+                ipv6_to = tuple.Item2;
+
+                this.countryId = countryId;
+                this.code = code;
+                this.name = name;
+            }
         }
     }
 }
