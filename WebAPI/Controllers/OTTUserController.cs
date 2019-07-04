@@ -731,7 +731,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (!RolesManager.IsManagerAllowedDeleteAction())
+                if (!RolesManager.IsAllowedDeleteAction())
                 {
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
