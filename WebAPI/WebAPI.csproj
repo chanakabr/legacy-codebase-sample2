@@ -1572,21 +1572,21 @@
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <Content Include="Web References\Social\SocialConfig.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Social\SocialPrivacySettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\API\KSQLChannel\" />
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <WebReferences Include="Web References\" />
-  </ItemGroup>
+  </ItemGroup>-->
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
@@ -1688,6 +1688,9 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
