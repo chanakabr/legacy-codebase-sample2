@@ -498,11 +498,6 @@ namespace ElasticsearchTasksCommon
                     return dMediaTrans;
                 }
                 
-                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
-                {
-                    return Core.Catalog.CatalogManagement.AssetManager.GetGroupMediaAssets(groupId);
-                }
-
                 ODBCWrapper.StoredProcedure groupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
                 groupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -893,6 +888,43 @@ namespace ElasticsearchTasksCommon
                     }
 
                 }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupMedias - {0}", ex.Message), ex);
+            }
+
+            return dMediaTrans;
+        }
+
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMediasTotalForOPCAccount(int groupId, int nMediaID, long nextId, long pageSize)
+        {
+            //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
+            //E.g. dMedias[123][2] --> will return media 123 of the hebrew language
+            Dictionary<int, Dictionary<int, Media>> dMediaTrans = new Dictionary<int, Dictionary<int, Media>>();
+
+            //temporary media dictionary
+            Dictionary<int, Media> medias = new Dictionary<int, Media>();
+
+            try
+            {
+                Group group = GroupsCache.Instance().GetGroup(groupId);
+
+                if (group == null)
+                {
+                    log.Error("Could not load group from cache in GetGroupMedias");
+                    return dMediaTrans;
+                }
+
+                ApiObjects.LanguageObj oDefaultLangauge = group.GetGroupDefaultLanguage();
+
+                if (oDefaultLangauge == null)
+                {
+                    log.Error("Could not get group default language from cache in GetGroupMedias");
+                    return dMediaTrans;
+                }
+
+                dMediaTrans = Core.Catalog.CatalogManagement.AssetManager.GetGroupMediaAssets(groupId, nextId, pageSize);
             }
             catch (Exception ex)
             {

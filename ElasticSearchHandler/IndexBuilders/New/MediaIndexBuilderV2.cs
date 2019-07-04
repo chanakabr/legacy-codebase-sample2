@@ -53,6 +53,7 @@ namespace ElasticSearchHandler.IndexBuilders
             int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue;
             int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
             int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            long mediaPageSize = ApplicationConfiguration.ElasticSearchConfiguration.MediaPageSize.IntValue;
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)
@@ -64,6 +65,12 @@ namespace ElasticSearchHandler.IndexBuilders
             if (maxResults == 0)
             {
                 maxResults = 100000;
+            }
+
+            // Default size of max results should be 100,000
+            if (mediaPageSize == 0)
+            {
+                mediaPageSize = 10000;
             }
 
             CatalogGroupCache catalogGroupCache = null;
@@ -171,97 +178,23 @@ namespace ElasticSearchHandler.IndexBuilders
 
             log.DebugFormat("Start GetGroupMediasTotal for group {0}", groupId);
 
-            // Get ALL media in group
-            Dictionary<int, Dictionary<int, Media>> groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
-
-            if (groupMedias != null)
+            if (doesGroupUsesTemplates)
             {
-                log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
-                List<ESBulkRequestObj<int>> bulkList = new List<ESBulkRequestObj<int>>();
+                Dictionary<int, Dictionary<int, Media>> groupMedias;
+                long nextId = 0;
 
-                // For each media
-                foreach (var groupMedia in groupMedias)
+                do
                 {
-                    var mediaId = groupMedia.Key;
-                    
-                    // For each language
-                    foreach (int languageId in groupMedia.Value.Keys)
-                    {
-                        ApiObjects.LanguageObj language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById[languageId] : group.GetLanguage(languageId);
-                        string suffix = null;
-
-                        if (!language.IsDefault)
-                        {
-                            suffix = language.Code;
-                        }
-
-                        Media media = groupMedia.Value[languageId];
-
-                        if (media != null)
-                        {
-                            media.PadMetas(MetasToPad);
-
-                            // Serialize media and create a bulk request for it
-                            string serializedMedia = serializer.SerializeMediaObject(media, suffix);
-
-                            string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
-
-                            bulkList.Add(new ESBulkRequestObj<int>()
-                            {
-                                docID = media.m_nMediaID,
-                                index = newIndexName,
-                                type = documentType,
-                                document = serializedMedia
-                            });
-                        }
-
-                        // If we exceeded the size of a single bulk reuquest
-                        if (bulkList.Count >= sizeOfBulk)
-                        {
-                            // Send request to elastic search in a different thread
-                            Task t = Task.Run(() => 
-                                {
-                                    cd.Load();
-
-                                    var invalidResults = api.CreateBulkRequest(bulkList);
-
-                                    // Log invalid results
-                                    if (invalidResults != null && invalidResults.Count > 0)
-                                    {
-                                        foreach (var item in invalidResults)
-                                        {
-                                            log.ErrorFormat("Error - Could not add Media to ES index. GroupID={0};Type={1};ID={2};error={3};",
-                                                groupId, MEDIA, item.Key, item.Value);
-                                        }
-                                    }
-                                });
-
-                            t.Wait();
-                            bulkList.Clear();
-                        }
-                    }
-                }
-
-                // If we have a final bulk pending
-                if (bulkList.Count > 0)
-                {
-                    // Send request to elastic search in a different thread
-                    Task t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        var invalidResults = api.CreateBulkRequest(bulkList);
-
-                        if (invalidResults != null && invalidResults.Count > 0)
-                        {
-                            foreach (var item in invalidResults)
-                            {
-                                log.ErrorFormat("Error - Could not add Media to ES index. GroupID={0};Type={1};ID={2};error={3};",
-                                    groupId, MEDIA, item.Key, item.Value);
-                            }
-                        }
-                    });
-                    t.Wait();
-                }
+                    groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotalForOPCAccount(groupId, 0, nextId, mediaPageSize);
+                    InsertMedias(cd, groupMedias, catalogGroupCache, doesGroupUsesTemplates, group, newIndexName, sizeOfBulk);
+                    nextId = groupMedias.Max(x => x.Key);
+                } while (groupMedias.Count > 0);
+            }
+            else
+            {
+                // Get ALL media in group
+                Dictionary<int, Dictionary<int, Media>> groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotal(groupId, 0);
+                InsertMedias(cd, groupMedias, catalogGroupCache, doesGroupUsesTemplates, group, newIndexName, sizeOfBulk);
             }
 
             #endregion
@@ -317,6 +250,100 @@ namespace ElasticSearchHandler.IndexBuilders
             return true;
         }
 
+        private void InsertMedias(ContextData cd, Dictionary<int, Dictionary<int, Media>> groupMedias, 
+            CatalogGroupCache catalogGroupCache, bool doesGroupUsesTemplates, Group group,
+            string newIndexName, int sizeOfBulk)
+        {
+            if (groupMedias != null)
+            {
+                log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
+                List<ESBulkRequestObj<int>> bulkList = new List<ESBulkRequestObj<int>>();
+
+                // For each media
+                foreach (var groupMedia in groupMedias)
+                {
+                    var mediaId = groupMedia.Key;
+
+                    // For each language
+                    foreach (int languageId in groupMedia.Value.Keys)
+                    {
+                        ApiObjects.LanguageObj language = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById[languageId] : group.GetLanguage(languageId);
+                        string suffix = null;
+
+                        if (!language.IsDefault)
+                        {
+                            suffix = language.Code;
+                        }
+
+                        Media media = groupMedia.Value[languageId];
+
+                        if (media != null)
+                        {
+                            media.PadMetas(MetasToPad);
+
+                            // Serialize media and create a bulk request for it
+                            string serializedMedia = serializer.SerializeMediaObject(media, suffix);
+
+                            string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
+
+                            bulkList.Add(new ESBulkRequestObj<int>()
+                            {
+                                docID = media.m_nMediaID,
+                                index = newIndexName,
+                                type = documentType,
+                                document = serializedMedia
+                            });
+                        }
+
+                        // If we exceeded the size of a single bulk reuquest
+                        if (bulkList.Count >= sizeOfBulk)
+                        {
+                            // Send request to elastic search in a different thread
+                            Task t = Task.Run(() =>
+                            {
+                                cd.Load();
+
+                                var invalidResults = api.CreateBulkRequest(bulkList);
+
+                                // Log invalid results
+                                if (invalidResults != null && invalidResults.Count > 0)
+                                {
+                                    foreach (var item in invalidResults)
+                                    {
+                                        log.ErrorFormat("Error - Could not add Media to ES index. GroupID={0};Type={1};ID={2};error={3};",
+                                            groupId, MEDIA, item.Key, item.Value);
+                                    }
+                                }
+                            });
+
+                            t.Wait();
+                            bulkList.Clear();
+                        }
+                    }
+                }
+
+                // If we have a final bulk pending
+                if (bulkList.Count > 0)
+                {
+                    // Send request to elastic search in a different thread
+                    Task t = Task.Run(() =>
+                    {
+                        cd.Load();
+                        var invalidResults = api.CreateBulkRequest(bulkList);
+
+                        if (invalidResults != null && invalidResults.Count > 0)
+                        {
+                            foreach (var item in invalidResults)
+                            {
+                                log.ErrorFormat("Error - Could not add Media to ES index. GroupID={0};Type={1};ID={2};error={3};",
+                                    groupId, MEDIA, item.Key, item.Value);
+                            }
+                        }
+                    });
+                    t.Wait();
+                }
+            }
+        }
 
         #endregion
 
