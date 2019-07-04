@@ -277,17 +277,19 @@ namespace ElasticSearch.Utilities
                     string ipv6 = funcParams["ipv6"].ToString();
                     if (!string.IsNullOrEmpty(ipv6))
                     {
-                        var ipv6Value = ConvertIpv6ToUInt64Array(ipv6);
+                        var ipv6Value = ConvertIpv6ToValidString(ipv6);
+                        if (!string.IsNullOrEmpty(ipv6Value))
+                        {
+                            // Build range term: the country id will be the closest to these
+                            var searchQuery = BuildSearchQueryForIpv6(ipv6Value);
 
-                        // Build range term: the country id will be the closest to these
-                        var searchQuery = BuildSearchQueryForIpv6(ipv6Value);
+                            // Perform search
+                            ElasticSearchApi api = new ElasticSearchApi();
+                            string searchResult = api.Search("utils", "ipv6tocountry", ref searchQuery);
 
-                        // Perform search
-                        ElasticSearchApi api = new ElasticSearchApi();
-                        string searchResult = api.Search("utils", "ipv6tocountry", ref searchQuery);
-
-                        // parse search reult to json object
-                        country = ParseSearchResultToCountry(searchResult);
+                            // parse search reult to json object
+                            country = ParseSearchResultToCountry(searchResult);
+                        }
                     }
                 }
             }
@@ -298,12 +300,12 @@ namespace ElasticSearch.Utilities
 
             return new Tuple<ApiObjects.Country, bool>(country, country != null);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="network"></param>
-        /// <returns>item1=fromAddressWords; item2=toAddressWords</returns>
+        /// <returns>item1=fromAddress; item2=toAddress</returns>
         public static Tuple<string, string> ConvertNetworkToIpv6Ranges(string network)
         {
             try
@@ -416,13 +418,11 @@ namespace ElasticSearch.Utilities
             {
                 string[] splitted = null;
                 string toSplit = ipv4;
-
-                IPAddress address;
-
+                
                 try
                 {
                     // try to convert to IPv4 only if it was previously mapped to IPv6 and if this is indeed an IPv6
-                    if (IPAddress.TryParse(ipv4, out address))
+                    if (IPAddress.TryParse(ipv4, out IPAddress address))
                     {
                         if (address.IsIPv4MappedToIPv6 && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
                         {
@@ -440,20 +440,21 @@ namespace ElasticSearch.Utilities
                 // validate that we have a good split result
                 if (splitted.Length == 4)
                 {
-                    ipValue =
-                        (Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 +
-                            Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
+                    ipValue = (Int64.Parse(splitted[3]) + 
+                               Int64.Parse(splitted[2]) * 256 + 
+                               Int64.Parse(splitted[1]) * 256 * 256 +
+                               Int64.Parse(splitted[0]) * 256 * 256 * 256).ToString();
                 }
             }
 
             return ipValue;
         }
 
-        private static ulong[] ConvertIpv6ToUInt64Array(string ipv6)
+        private static string ConvertIpv6ToValidString(string ipv6)
         {
             if (IPAddress.TryParse(ipv6, out IPAddress address))
             {
-                var addrBytes = address.GetAddressBytes();
+                var addressBytes = address.GetAddressBytes();
                 if (BitConverter.IsLittleEndian)
                 {
                     //little-endian machines store multi-byte integers with the
@@ -461,23 +462,12 @@ namespace ElasticSearch.Utilities
                     //values are sent over the network in big-endian mode. reversing
                     //the order of the bytes is a quick way to get the BitConverter
                     //methods to convert the byte arrays in big-endian mode.
-                    var byteList = new List<byte>(addrBytes);
+                    var byteList = new List<byte>(addressBytes);
                     byteList.Reverse();
-                    addrBytes = byteList.ToArray();
+                    addressBytes = byteList.ToArray();
                 }
-
-                var addrWords = new ulong[2];
-                if (addrBytes.Length > 8)
-                {
-                    addrWords[0] = BitConverter.ToUInt64(addrBytes, 8);
-                    addrWords[1] = BitConverter.ToUInt64(addrBytes, 0);
-                }
-                else
-                {
-                    addrWords[0] = 0;
-                    addrWords[1] = BitConverter.ToUInt32(addrBytes, 0);
-                }
-
+                
+                var addrWords = ConvertAddressBytesToString(addressBytes);
                 return addrWords;
             }
 
@@ -515,72 +505,23 @@ namespace ElasticSearch.Utilities
             return query.ToString();
         }
 
-        private static string BuildSearchQueryForIpv6(ulong[] ipv6Value)
+        private static string BuildSearchQueryForIpv6(string ipv6Value)
         {
-            // [2001:bf8:0000:0000]:[0000:0000:0000:0000] - [2001:bf8:ffff:ffff]:[ffff:ffff:ffff:ffff]
-            // [2001:bf8:900:6]:[00:0:808b:22f0]
-            // [300, 042] -> 300042
-            //  300 < x2 && 042 > x1
-            //  300041 -> x1=041, x2=300
+            // [2001:bf8:0000:0000:0000:0000:0000:0000] - [2001:bf8:ffff:ffff:ffff:ffff:ffff:ffff]
+            // [032001011248000000000000000000000000000000000000] - [032001011248255255255255255255255255255255255255]
+            // [2001:bf8:900:6:00:0:808b:22f0]
+            // [032001011248009000000006000000000000128139034240]
+            
+            ESRange ipRangeFromLTE = new ESRange(true) { Key = "ip_from" };
+            ipRangeFromLTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipv6Value));
+            
+            ESRange ipRangeToGTE = new ESRange(true) { Key = "ip_to" };
+            ipRangeToGTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipv6Value));
 
-            //if ((ipFrom[0] < ipv6Value[0]) || (ipFrom[0] == ipv6Value[0] && ipFrom[1] <= ipv6Value[1]))
-            //{
-            //    if ((ipv6Value[0] < ipTo[0]) || (ipv6Value[0] == ipTo[0] && ipv6Value[1] <= ipTo[1]))
-            //    {
-            //        Console.WriteLine("ipcurrent is in range");
-            //    }
-            //}
-
-            // FROM:
-            // ipFrom[0] == ipv6Value[0]
-            ESRange ipRangeFrom1LTE = new ESRange(true) { Key = "ip_from1" };
-            ipRangeFrom1LTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipv6Value[0].ToString()));
-
-            // ipFrom[1] <= ipv6Value[1]
-            ESRange ipRangeFrom2LTE = new ESRange(true) { Key = "ip_from2" };
-            ipRangeFrom2LTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipv6Value[1].ToString()));
-
-            //  ipRangeFrom1LTE && ipRangeFrom2LTE
-            FilterCompositeType compositeFromLTE = new FilterCompositeType(CutWith.AND);
-            compositeFromLTE.AddChild(ipRangeFrom1LTE);
-            compositeFromLTE.AddChild(ipRangeFrom2LTE);
-
-            // ipFrom[0] < ipv6Value[0]
-            ESRange ipRangeFrom1LT = new ESRange(true) { Key = "ip_from1" };
-            ipRangeFrom1LT.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, ipv6Value[0].ToString()));
-
-            // ipRangeFrom1LT || compositeFromLTE
-            FilterCompositeType compositeFrom = new FilterCompositeType(CutWith.OR);
-            compositeFrom.AddChild(ipRangeFrom1LT);
-            compositeFrom.AddChild(compositeFromLTE);
-
-            // TO:
-            // ipTo[0] == ipv6Value[0]
-            ESRange ipRangeTo1GTE = new ESRange(true) { Key = "ip_to1" };
-            ipRangeTo1GTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipv6Value[0].ToString()));
-
-            // ipTo[1] >= ipv6Value[1]
-            ESRange ipRangeTo2GTE = new ESRange(true) { Key = "ip_to2" };
-            ipRangeTo2GTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipv6Value[1].ToString()));
-
-            //  ipRangeTo1GTE && ipRangeTo2GTE
-            FilterCompositeType compositeToGTE = new FilterCompositeType(CutWith.AND);
-            compositeToGTE.AddChild(ipRangeTo1GTE);
-            compositeToGTE.AddChild(ipRangeTo2GTE);
-
-            // ipTo[0] > ipv6Value[0]
-            ESRange ipRangeTo1GT = new ESRange(true) { Key = "ip_to1" };
-            ipRangeTo1GT.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, ipv6Value[0].ToString()));
-
-            // ipRangeTo1GT || compositeFromLTE
-            FilterCompositeType compositeTo = new FilterCompositeType(CutWith.OR);
-            compositeTo.AddChild(ipRangeTo1GT);
-            compositeTo.AddChild(compositeToGTE);
-
-            // ipFrom is less AND ipTo is greater (ip value is between ip_to and ip_from)
+            // (ipFrom <= ipv6Value) && (ipv6Value <= ipTo)
             FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
-            composite.AddChild(compositeFrom);
-            composite.AddChild(compositeTo);
+            composite.AddChild(ipRangeFromLTE);
+            composite.AddChild(ipRangeToGTE);
 
             var filter = new QueryFilter { FilterSettings = composite };
 
