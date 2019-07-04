@@ -281,28 +281,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="WS_Modules\api.asmx" />
-    <Content Include="WS_Modules\billing.asmx" />
-    <Content Include="WS_Modules\Billing\adyen_api.aspx" />
-    <Content Include="WS_Modules\Billing\GoogleInApp.aspx" />
-    <Content Include="WS_Modules\Billing\M1_Callback.aspx" />
-    <Content Include="WS_Modules\Billing\plimus_api.aspx" />
-    <Content Include="WS_Modules\Billing\Plimus_Callback.aspx" />
-    <Content Include="WS_Modules\Billing\sc_api.aspx" />
-    <Content Include="WS_Modules\Billing\tp_api.aspx" />
-    <Content Include="WS_Modules\Billing\winpl_api.aspx" />
-    <Content Include="WS_Modules\cas.asmx" />
-    <Content Include="WS_Modules\catalog.svc" />
-    <Content Include="WS_Modules\domains.asmx" />
-    <Content Include="WS_Modules\notification.svc" />
-    <Content Include="WS_Modules\Social\facebook_api.aspx" />
-    <Content Include="WS_Modules\Social\SocialFeed.aspx" />
-    <Content Include="WS_Modules\Social\SocialFeedTags.aspx" />
-    <Content Include="WS_Modules\users.asmx" />
-    <Content Include="WS_Modules\social.asmx" />
-    <Content Include="WS_Modules\pricing.asmx" />
-    <Content Include="WS_Modules\Users\OAuth.aspx" />
-    <Content Include="WS_Modules\Users\SSO.aspx" />
     <Content Include="clientlibs\web.config" />
     <Content Include="Permissions\permissions.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1593,131 +1571,6 @@
     <Compile Include="Managers\PlaybackAdapterManager.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
-    <Compile Include="WS_Modules\api.asmx.cs">
-      <DependentUpon>api.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\billing.asmx.cs">
-      <DependentUpon>billing.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\AdyenRedirectMessages.cs" />
-    <Compile Include="WS_Modules\Billing\adyen_api.aspx.cs">
-      <DependentUpon>adyen_api.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\adyen_api.aspx.designer.cs">
-      <DependentUpon>adyen_api.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\GoogleInApp.aspx.cs">
-      <DependentUpon>GoogleInApp.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\GoogleInApp.aspx.designer.cs">
-      <DependentUpon>GoogleInApp.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\M1_Callback.aspx.cs">
-      <DependentUpon>M1_Callback.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\M1_Callback.aspx.designer.cs">
-      <DependentUpon>M1_Callback.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\plimus_api.aspx.cs">
-      <DependentUpon>plimus_api.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\plimus_api.aspx.designer.cs">
-      <DependentUpon>plimus_api.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\Plimus_Callback.aspx.cs">
-      <DependentUpon>Plimus_Callback.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\Plimus_Callback.aspx.designer.cs">
-      <DependentUpon>Plimus_Callback.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\sc_api.aspx.cs">
-      <DependentUpon>sc_api.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\sc_api.aspx.designer.cs">
-      <DependentUpon>sc_api.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\tp_api.aspx.cs">
-      <DependentUpon>tp_api.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\tp_api.aspx.designer.cs">
-      <DependentUpon>tp_api.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\winpl_api.aspx.cs">
-      <DependentUpon>winpl_api.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Billing\winpl_api.aspx.designer.cs">
-      <DependentUpon>winpl_api.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\cas.asmx.cs">
-      <DependentUpon>cas.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\catalog.svc.cs">
-      <DependentUpon>catalog.svc</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\domains.asmx.cs">
-      <DependentUpon>domains.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\INotificationService.cs" />
-    <Compile Include="WS_Modules\Iservice.cs" />
-    <Compile Include="WS_Modules\notification.svc.cs">
-      <DependentUpon>notification.svc</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Social\facebook_api.aspx.cs">
-      <DependentUpon>facebook_api.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Social\facebook_api.aspx.designer.cs">
-      <DependentUpon>facebook_api.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Social\SocialFeed.aspx.cs">
-      <DependentUpon>SocialFeed.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Social\SocialFeed.aspx.designer.cs">
-      <DependentUpon>SocialFeed.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\Social\SocialFeedTags.aspx.cs">
-      <DependentUpon>SocialFeedTags.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Social\SocialFeedTags.aspx.designer.cs">
-      <DependentUpon>SocialFeedTags.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="WS_Modules\users.asmx.cs">
-      <DependentUpon>users.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\social.asmx.cs">
-      <DependentUpon>social.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\pricing.asmx.cs">
-      <DependentUpon>pricing.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Users\OAuth.aspx.cs">
-      <DependentUpon>OAuth.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Users\SSO.aspx.cs">
-      <DependentUpon>SSO.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WS_Modules\Users\SSO.aspx.designer.cs">
-      <DependentUpon>SSO.aspx</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web References\Social\SocialConfig.datasource">
@@ -1725,9 +1578,6 @@
     </Content>
     <Content Include="Web References\Social\SocialPrivacySettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="ssl-dev\cert.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
