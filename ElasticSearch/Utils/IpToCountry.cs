@@ -298,6 +298,95 @@ namespace ElasticSearch.Utilities
 
             return new Tuple<ApiObjects.Country, bool>(country, country != null);
         }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="network"></param>
+        /// <returns>item1=fromAddressWords; item2=toAddressWords</returns>
+        public static Tuple<string, string> ConvertNetworkToIpv6Ranges(string network)
+        {
+            try
+            {
+                //Split the string in parts for address and prefix
+                var endOfAddressIndex = network.IndexOf('/');
+                var address = network.Substring(0, endOfAddressIndex);
+                var networkBits = Int32.Parse(network.Substring(endOfAddressIndex + 1));
+
+                if (IPAddress.TryParse(address, out IPAddress ipAddress))
+                {
+                    var fromAddressBytes = ipAddress.GetAddressBytes();
+                    var toAddressBytes = new byte[fromAddressBytes.Length];
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        var addressBytesList = new List<byte>(fromAddressBytes);
+                        addressBytesList.Reverse();
+                        fromAddressBytes = addressBytesList.ToArray();
+                        var addressBitArray = new BitArray(fromAddressBytes);
+
+                        // run over bit array and set value to 1 from networkBits to the end.
+                        for (int i = 0; i < (128 - networkBits) && i < addressBitArray.Length; i++)
+                        {
+                            addressBitArray[i] = true;
+                        }
+
+                        addressBitArray.CopyTo(toAddressBytes, 0);
+                    }
+                    else
+                    {
+                        var addressBitArray = new BitArray(fromAddressBytes);
+
+                        // run over bit array and set value to 1 from networkBits to the end.
+                        for (int i = networkBits; i < 128 && i < addressBitArray.Length; i++)
+                        {
+                            addressBitArray[i] = true;
+                        }
+
+                        addressBitArray.CopyTo(toAddressBytes, 0);
+                    }
+
+                    var fromAddress = ConvertAddressBytesToString(fromAddressBytes);
+                    var toAddress = ConvertAddressBytesToString(toAddressBytes);
+
+                    return new Tuple<string, string>(fromAddress, toAddress);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in ConvertNetworkToIpv6Ranges. network:{0}.", network), ex);
+            }
+
+            return null;
+        }
+
+        private static string ConvertAddressBytesToString(byte[] addressWords)
+        {
+            var address = new StringBuilder(48);
+
+            if (addressWords.Length < 16)
+            {
+                for (int i = 0; i < 16 - addressWords.Length; i++)
+                {
+                    address.Append("000");
+                }
+            }
+
+            for (int i = addressWords.Length - 1; i >= 0; i--)
+            {
+                var word = addressWords[i].ToString();
+                if (word.Length < 3)
+                {
+                    for (int j = 0; j < 3 - word.Length; j++)
+                    {
+                        address.Append("0");
+                    }
+                }
+                address.Append(word);
+            }
+
+            return address.ToString();
+        }
 
         private static FilteredQuery BuildBasicFilteredQueryForGetCountry()
         {
@@ -550,84 +639,6 @@ namespace ElasticSearch.Utilities
                     var country = new Country() { Id = id, Code = code, Name = name };
                     return country;
                 }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="network"></param>
-        /// <returns>item1=fromAddressWords; item2=toAddressWords</returns>
-        public static Tuple<ulong[], ulong[]> ConvertNetworkToIpv6Ranges(string network)
-        {
-            try
-            {
-                //Split the string in parts for address and prefix
-                var endOfAddressIndex = network.IndexOf('/');
-                var address = network.Substring(0, endOfAddressIndex);
-                var networkBits = Int32.Parse(network.Substring(endOfAddressIndex + 1));
-
-                if (IPAddress.TryParse(address, out IPAddress ipAddress))
-                {
-                    var fromAddressBytes = ipAddress.GetAddressBytes();
-                    var toAddressBytes = new byte[fromAddressBytes.Length];
-
-                    if (BitConverter.IsLittleEndian)
-                    {
-                        var addressBytesList = new List<byte>(fromAddressBytes);
-                        addressBytesList.Reverse();
-                        fromAddressBytes = addressBytesList.ToArray();
-                        var addressBitArray = new BitArray(fromAddressBytes);
-
-                        // run over bit array and set value to 1 from networkBits to the end..
-                        for (int i = 0; i < (128 - networkBits); i++)
-                        {
-                            addressBitArray[i] = true;
-                        }
-
-                        addressBitArray.CopyTo(toAddressBytes, 0);
-                    }
-                    else
-                    {
-                        var addressBitArray = new BitArray(fromAddressBytes);
-
-                        // run over bit array and set value to 1 from networkBits to the end..
-                        for (int i = networkBits; i < 128; i++)
-                        {
-                            addressBitArray[i] = true;
-                        }
-
-                        addressBitArray.CopyTo(toAddressBytes, 0);
-                    }
-                    
-                    var fromAddressWords = new ulong[2];
-                    var toAddressWords = new ulong[2];
-
-                    if (fromAddressBytes.Length > 8)
-                    {
-                        fromAddressWords[0] = BitConverter.ToUInt64(fromAddressBytes, 8);
-                        fromAddressWords[1] = BitConverter.ToUInt64(fromAddressBytes, 0);
-
-                        toAddressWords[0] = BitConverter.ToUInt64(toAddressBytes, 8);
-                        toAddressWords[1] = BitConverter.ToUInt64(toAddressBytes, 0);
-                    }
-                    else
-                    {
-                        fromAddressWords[0] = 0;
-                        fromAddressWords[1] = BitConverter.ToUInt32(fromAddressBytes, 0);
-
-                        toAddressWords[0] = 0;
-                        toAddressWords[1] = BitConverter.ToUInt32(toAddressBytes, 0);
-                    }
-
-                    return new Tuple<ulong[], ulong[]>(fromAddressWords, toAddressWords);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("An Exception was occurred in ConvertNetworkToIpv6Ranges. network:{0}.", network), ex);
             }
 
             return null;
