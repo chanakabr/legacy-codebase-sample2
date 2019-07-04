@@ -18,7 +18,6 @@ namespace CachingProvider.LayeredCache
         public const string MEDIA_ID_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME = "GetMediaIdForAsset";
         public const string GET_RECORDING_PLAYBACK_SETTINGS_LAYERED_CACHE_CONFIG_NAME = "GetRecordingPlaybackSettingsByLinearMediaId";
         public const string COUNTRY_BY_IP_LAYERED_CACHE_CONFIG_NAME = "GetCountryByIp";
-        public const string COUNTRY_BY_IPV6_LAYERED_CACHE_CONFIG_NAME = "GetCountryByIpv6FromES";
         public const string COUNTRY_BY_COUNTRY_NAME_LAYERED_CACHE_CONFIG_NAME = "GetCountryByCountryName";
         public const string CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME = "CheckGeoBlockMedia";
         public const string MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME = "CheckMediaUserType";
@@ -117,7 +116,6 @@ namespace CachingProvider.LayeredCache
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
         public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";
-        public const string GET_COUNTRY_BY_IPV6_INVALIDATION_KEY = "invalidateGetCountryByIpv6FromES";
 
         #endregion
     }

@@ -54,12 +54,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("ip_{0}", ip);
         }
-
-        public static string GetKeyForIpv6(string ipv6)
-        {
-            return string.Format("ipv6_{0}", ipv6);
-        }
-
+        
         public static string GetKeyForCountryName(string countryName)
         {
             return string.Format("countryName_{0}", countryName);
