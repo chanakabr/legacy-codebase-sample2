@@ -550,14 +550,18 @@ namespace WebAPI.Managers
                 {
                     // get original user's roles
                     var userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, originalUserId);
-
-                    if(userRoleIds.Any(ur => ur == MANAGER_ROLE_ID || ur == OPERATOR_ROLE_ID))
+                    if (userRoleIds?.Count > 0)
                     {
-                        userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+                        long maxRole = userRoleIds.Max();
 
-                        if(userRoleIds?.Count> 0&& userRoleIds.Any(x => x > OPERATOR_ROLE_ID))
+                        if (userRoleIds.Any(ur => ur == MANAGER_ROLE_ID || ur == OPERATOR_ROLE_ID))
                         {
-                            return false;
+                            userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
+
+                            if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole))
+                            {
+                                return false;
+                            }
                         }
                     }
                 }
