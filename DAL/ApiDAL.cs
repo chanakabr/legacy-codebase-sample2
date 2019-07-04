@@ -5708,34 +5708,20 @@ namespace DAL
             return UtilsDal.Execute("Get_PermissionById", parameters);
         }
 
-        public static HashSet<string> GetGroupFeatures(int groupId)
+        public static DataTable GetGroupFeatures(int groupId)
         {
-            HashSet<string> features = new HashSet<string>();
-
             try
             {
                 // get the roles, permissions, permission items tables 
                 var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
-                DataTable dt = UtilsDal.Execute("Get_Groupfeatures", parameters);
-
-                if (dt?.Rows.Count > 0)
-                {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        string name = Utils.GetSafeStr(dr, "name");
-                        if (!string.IsNullOrEmpty(name) && !features.Contains(name.ToLower()))
-                        {
-                            features.Add(name.ToLower());
-                        }
-                    }
-                }
+                return UtilsDal.Execute("Get_GroupFeatures", parameters);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while Get_Groupfeatures from DB, group id = {0}", groupId), ex);
             }
 
-            return features;
+            return null;
         }
 
         public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)

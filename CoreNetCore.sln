@@ -79,9 +79,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TvinciCache", "TvinciCache\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVinciShared", "TVinciShared\TVinciShared.csproj", "{BBD6CFBB-B6F6-4B8E-A4CF-0516AA270474}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledTasks", "ScheduledTasks\ScheduledTasks.csproj", "{4EB719ED-06B1-4C05-A7CA-269D802105EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduledTasks", "ScheduledTasks\ScheduledTasks.csproj", "{4EB719ED-06B1-4C05-A7CA-269D802105EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Uploader", "Uploader\Uploader.csproj", "{A35BD0D3-3055-4206-8B3F-80079F9ECA15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Uploader", "Uploader\Uploader.csproj", "{A35BD0D3-3055-4206-8B3F-80079F9ECA15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3C2774FF-63DF-4A17-ADC5-8BA6190BB216}"
+	ProjectSection(SolutionItems) = preProject
+		Jenkinsfile = Jenkinsfile
+		NetCore.Dockerfile = NetCore.Dockerfile
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

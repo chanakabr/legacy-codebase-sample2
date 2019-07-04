@@ -8451,7 +8451,15 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+                response.Permissions = RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+
+                // Merge permission with type features
+                Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
+                if(groupFeatures?.Count > 0)
+                {
+                    response.Permissions.AddRange(groupFeatures.Values.ToList());
+                }
+
                 if (response.Permissions != null)
                 {
                     response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
@@ -8464,7 +8472,7 @@ namespace Core.Api
             }
 
             return response;
-        }
+        }        
 
         public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
@@ -11972,20 +11980,9 @@ namespace Core.Api
             return new Status((int)eResponseStatus.OK);
         }
 
-        public static HashSet<string> GetGroupfeatures(int groupId)
+        public static Dictionary<string, Permission> GetGroupFeatures(int groupId)
         {
-            HashSet<string> response = new HashSet<string>();
-
-            try
-            {
-                response = DAL.ApiDAL.GetGroupFeatures(groupId);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while getting Group features. group id = {0}", groupId), ex);
-            }
-
-            return response;
+            return RolesPermissionsManager.GetGroupFeatures(groupId);
         }
 
         public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)

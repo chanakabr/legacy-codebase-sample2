@@ -2332,9 +2332,17 @@ namespace Core.Api
             return result;
         }
 
-        public static HashSet<string> GetGroupfeatures(int groupId)
+        public static List<string> GetGroupFeatures(int groupId)
         {
-            return api.GetGroupfeatures(groupId);
+            Dictionary<string, Permission> groupfeatures = api.GetGroupFeatures(groupId);
+            if(groupfeatures?.Count > 0)
+            {
+                return api.GetGroupFeatures(groupId).Keys.ToList();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)

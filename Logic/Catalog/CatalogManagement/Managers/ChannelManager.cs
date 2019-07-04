@@ -1121,7 +1121,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            metaData = currentChannel.MetaData;
+                            metaData = currentChannel != null ? currentChannel.MetaData : null;
                         }
 
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
