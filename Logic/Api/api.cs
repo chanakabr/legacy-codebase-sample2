@@ -115,6 +115,8 @@ namespace Core.Api
         private const string PROFILE_NOT_EXIST = "profile doesn't exist";
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
+
+        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";        
         #endregion
 
         protected api() { }
@@ -8456,7 +8458,15 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+                response.Permissions = RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+
+                // Merge permission with type features
+                Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
+                if(groupFeatures?.Count > 0)
+                {
+                    response.Permissions.AddRange(groupFeatures.Values.ToList());
+                }
+
                 if (response.Permissions != null)
                 {
                     response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
@@ -8469,7 +8479,7 @@ namespace Core.Api
             }
 
             return response;
-        }
+        }        
 
         public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
@@ -11893,7 +11903,12 @@ namespace Core.Api
                 {
                     response.Object = permission;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId));
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                    }
                 }
                 else
                 {
@@ -11948,7 +11963,7 @@ namespace Core.Api
                 if(permission == null)
                 {
                     log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
-                    return new Status((int)eResponseStatus.PermissionNotFound);
+                    return new Status((int)eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
                 }
 
                 // delete topicNotification from DB
@@ -11957,7 +11972,12 @@ namespace Core.Api
                     log.ErrorFormat("Error while trying to delete Permission. groupId:{0}, id:{1}", groupId, id);
                     return new Status((int)eResponseStatus.Error); ;
                 }
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId));
+
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                }
             }
             catch (Exception exc)
             {
@@ -11968,20 +11988,9 @@ namespace Core.Api
             return new Status((int)eResponseStatus.OK);
         }
 
-        public static HashSet<string> GetGroupfeatures(int groupId)
+        public static Dictionary<string, Permission> GetGroupFeatures(int groupId)
         {
-            HashSet<string> response = new HashSet<string>();
-
-            try
-            {
-                response = DAL.ApiDAL.GetGroupFeatures(groupId);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while getting Group features. group id = {0}", groupId), ex);
-            }
-
-            return response;
+            return RolesPermissionsManager.GetGroupFeatures(groupId);
         }
 
         public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)

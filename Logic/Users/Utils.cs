@@ -715,7 +715,7 @@ namespace Core.Users
                     result.Message = "User exists";
                     break;
                 case ResponseStatus.UserDoesNotExist:
-                    result.Code = (int)eResponseStatus.UserDoesNotExist;
+                    result.Code = (int)eResponseStatus.WrongPasswordOrUserName;
                     result.Message = "The username or password is not correct";
                     break;
                 case ResponseStatus.WrongPasswordOrUserName:

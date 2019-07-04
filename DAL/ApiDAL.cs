@@ -4876,7 +4876,7 @@ namespace DAL
 
             StoredProcedure storedProcedure = new StoredProcedure("Insert_Permission");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@groupId", groupId);
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
@@ -5707,34 +5707,20 @@ namespace DAL
             return UtilsDal.Execute("Get_PermissionById", parameters);
         }
 
-        public static HashSet<string> GetGroupFeatures(int groupId)
+        public static DataTable GetGroupFeatures(int groupId)
         {
-            HashSet<string> features = new HashSet<string>();
-
             try
             {
                 // get the roles, permissions, permission items tables 
                 var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
-                DataTable dt = UtilsDal.Execute("Get_Groupfeatures", parameters);
-
-                if (dt?.Rows.Count > 0)
-                {
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        string name = Utils.GetSafeStr(dr, "name");
-                        if (!string.IsNullOrEmpty(name) && !features.Contains(name.ToLower()))
-                        {
-                            features.Add(name.ToLower());
-                        }
-                    }
-                }
+                return UtilsDal.Execute("Get_GroupFeatures", parameters);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while Get_Groupfeatures from DB, group id = {0}", groupId), ex);
             }
 
-            return features;
+            return null;
         }
 
         public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
@@ -5835,8 +5821,47 @@ namespace DAL
                     result.Add(key, new List<string>());
                 }
 
-                result[key].AddRange(dependsOnPermissionNames.Split(',').ToList());
+                result[key].AddRange(dependsOnPermissionNames.Split(',').Select(p => p.Trim().ToLower()));
             }
+        }
+
+        public static List<Permission> GetPermissions(int groupId)
+        {
+            List<Permission> permissions = null;
+            Permission permission = null;
+            try
+            {
+
+                StoredProcedure sp = new StoredProcedure("Get_Permissions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataTable dt = sp.Execute();
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permissions = new List<Permission>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        permission = new Permission
+                        {
+                            Id = Utils.GetLongSafeVal(dr, "ID"),
+                            Name = Utils.GetSafeStr(dr, "NAME"),
+                            FriendlyName = Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                            GroupId = groupId,                            
+                            Type = (ePermissionType)Utils.GetIntSafeVal(dr, "TYPE"),
+                            DependsOnPermissionNames = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES")
+                        };
+
+                        permissions.Add(permission);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred in GetPermissions. groupId:{0}. ex: {1}", groupId, ex);
+            }
+
+            return permissions;
         }
     }
 }
