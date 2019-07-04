@@ -84,7 +84,7 @@ namespace APILogic.Api.Managers
                 }
                 else
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetBusinessModuleRuleInvalidationKey(businessModuleRule.Id));
+                    SetInvalidationKeys(groupId, businessModuleRule.Id);
                     response.Object = businessModuleRule;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
