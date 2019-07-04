@@ -2772,6 +2772,7 @@ namespace DAL
         }
 
         #region Bulk Export
+
         public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, string version, bool isActive)
         {
@@ -5862,6 +5863,15 @@ namespace DAL
             }
 
             return permissions;
+        }
+
+        public static DataTable GetIpv6ToCountryTable()
+        {
+            var storedProcedure = new StoredProcedure("GetIpv6ToCountry");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            var table = storedProcedure.Execute();
+            return table;
         }
     }
 }

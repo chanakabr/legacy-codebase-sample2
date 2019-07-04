@@ -6,6 +6,7 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Users;
+using ElasticSearch.Utilities;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -463,8 +464,8 @@ namespace APILogic
 
         internal static Tuple<ApiObjects.Country, bool> GetCountryByIpFromES(Dictionary<string, object> funcParams)
         {
-            bool res = false;
             ApiObjects.Country country = null;
+
             try
             {
                 if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("ip"))
@@ -472,25 +473,18 @@ namespace APILogic
                     string ip = funcParams["ip"].ToString();
                     if (!string.IsNullOrEmpty(ip))
                     {
-                        country = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
-                        if (country == null)
-                        {
-                            country = new ApiObjects.Country();
-                        }
-
-                        res = true;
+                        country = IpToCountry.GetCountryByIp(ip);
                     }
                 }
-
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("GetCountryByIpFromES failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<ApiObjects.Country, bool>(country, res);
+            return new Tuple<ApiObjects.Country, bool>(country, country != null);
         }
-
+        
         internal static Tuple<ApiObjects.Country, bool> GetCountryByCountryNameFromES(Dictionary<string, object> funcParams)
         {
             bool res = false;

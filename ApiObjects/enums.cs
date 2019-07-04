@@ -516,7 +516,8 @@ namespace ApiObjects
         InsertExpiredRecordingsTasks,
         RecordingScheduledTasks,
         ReminderCleanupIteration,
-        PurgeUsers
+        PurgeUsers,
+        BuildIPV6ToCountry
     }
 
 

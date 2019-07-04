@@ -115,7 +115,7 @@ namespace CachingProvider.LayeredCache
         #region Constant Invalidation Keys
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
-        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";        
+        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";
 
         #endregion
     }
