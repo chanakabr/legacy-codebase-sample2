@@ -183,12 +183,19 @@ namespace ElasticSearchHandler.IndexBuilders
                 Dictionary<int, Dictionary<int, Media>> groupMedias;
                 long nextId = 0;
 
-                do
+                while (true)
                 {
                     groupMedias = ElasticsearchTasksCommon.Utils.GetGroupMediasTotalForOPCAccount(groupId, 0, nextId, mediaPageSize);
+                    if (groupMedias == null || groupMedias.Count == 0)
+                        break;
+
                     InsertMedias(cd, groupMedias, catalogGroupCache, doesGroupUsesTemplates, group, newIndexName, sizeOfBulk);
-                    nextId = groupMedias.Max(x => x.Key);
-                } while (groupMedias.Count > 0);
+                    var nextNextId = groupMedias.Max(x => x.Key);
+                    if (nextId == nextNextId)
+                        break;
+
+                    nextId = nextNextId;
+                }
             }
             else
             {
