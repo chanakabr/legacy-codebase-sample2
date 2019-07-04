@@ -46,8 +46,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Bcl" Version="1.1.10" />
-    <PackageReference Include="Microsoft.Bcl.Build" Version="1.0.21" />
+    <!--<PackageReference Include="Microsoft.Bcl" Version="1.1.10" />-->
+    <!--<PackageReference Include="Microsoft.Bcl.Build" Version="1.0.21" />-->
     <!--<PackageReference Include="Microsoft.CSharp" Version="4.0.1" />-->
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="2.1.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.2" />
