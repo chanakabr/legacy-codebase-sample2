@@ -6716,10 +6716,12 @@ namespace Core.ConditionalAccess
                                 FilterByDate = true,
                                 UserSubscriptions = domainEntitlements != null ? domainEntitlements.DomainSubscriptionsIds : null
                             };
+                            log.DebugFormat("GetItemsPrices - Seasonal promotion filter: {0}.", filter.ToString());
 
                             var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(m_nGroupID, filter, RuleActionType.ApplyFreePlayback);
                             if (businessModuleRules != null && businessModuleRules.HasObjects())
                             {
+                                log.DebugFormat("GetItemsPrices - businessModuleRules ids: {0} for Seasonal promotion.", string.Join(", ", businessModuleRules.Objects.Select(x => x.Id)));
                                 var maxDate = GetMaxEndDateByBusinessModuleRules(businessModuleRules.Objects);
                                 ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
                                 priceContainer[0] = GetFreeItemPriceContainer();
