@@ -16,8 +16,9 @@ pipeline {
 					def appVersion = env.version.replaceAll("[.]","_")
 					def tcmApp = "REMOTE_TASKS_v${appVersion}"
 					
+                    env.DOCKER_BUILD_TAG = UUID.randomUUID().toString()
 					docker.withRegistry("https://870777418594.dkr.ecr.eu-west-1.amazonaws.com", "ecr:eu-west-1:dev") {
-	                    docker.build("remote-tasks:$BUILD_NUMBER", "--build-arg VERSION=$version --build-arg CORE_BUILD_TAG=netcore-$BRANCH_NAME --build-arg TCM_APP=$tcmApp .")
+	                    docker.build("remote-tasks:$DOCKER_BUILD_TAG", "--build-arg VERSION=$version --build-arg CORE_BUILD_TAG=netcore-$BRANCH_NAME --build-arg TCM_APP=$tcmApp .")
 					}
                 }
             }
