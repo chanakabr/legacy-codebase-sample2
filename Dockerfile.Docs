@@ -28,34 +28,47 @@ RUN tar -zxvf ${DEVELOPER_PLATFORM_BRANCH}.tar.gz && mv developer-platform-${DEV
 RUN /bin/bash -c 'chown -R lucy:lucy /opt/kaltura'
 
 USER lucy
-RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/LucyBot-Inc/documentation-generator#v4.4.0
+RUN npm install -g https://5472131e413ab1b768081c6e0eea38a948911fc7@github.com/LucyBot-Inc/documentation-generator#v4.8.4
 
 WORKDIR /opt/kaltura/kaltura-spec-converter
 RUN npm install
-RUN node refresh.js --target ott --schema /opt/kaltura/KalturaClient.xml --output ../developer-platform/ott.openapi.json
+RUN node refresh.js --novalidate --target ott --schema /opt/kaltura/KalturaClient.xml --output ../developer-platform/ott.openapi.json
 
 WORKDIR /opt/kaltura/developer-platform
 RUN npm install
 RUN mkdir -p markdown/generated
+
+ARG API_VERSION
+ENV OTT_API_VERSION ${API_VERSION}
 
 RUN node scripts/resources/client_libraries.js
 RUN node scripts/resources/ott.js
 RUN node scripts/resources/support_matrix.js
 
 ARG BASE_PATH=/
+ARG ENABLE_HOMEPAGE=true
+
+ENV TARGET_API ott
+ENV ENABLE_HOMEPAGE ${ENABLE_HOMEPAGE}
+
 RUN lucybot build --prerender --destination generated/ott --basePath ${BASE_PATH}
 
-#RUN cp -a $WORKSPACE/developer-platform/generated/ott /home/dev/jenkins/$branch/generated
+
+
+
+
+
 
 
 FROM node:11
 
 ARG BASE_PATH=/
+ARG ENABLE_HOMEPAGE=true
 
 ENV TARGET_API ott
 ENV NO_SSL true
 ENV BASE_PATH ${BASE_PATH}
-ENV ENABLE_HOMEPAGE true
+ENV ENABLE_HOMEPAGE ${ENABLE_HOMEPAGE}
 ENV KALTURA_RECIPES_PORT 80
 
 RUN mkdir /opt/kaltura

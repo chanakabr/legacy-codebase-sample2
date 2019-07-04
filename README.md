@@ -26,6 +26,7 @@
 4) Build documentation
 	```
 	docker build -t kaltura/phoenix-doc -f Dockerfile.Docs .
+	docker run --rm -it -p 80:80 kaltura/phoenix-doc
 	```
 
 5) Build Configuration Validator
