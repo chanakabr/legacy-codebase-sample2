@@ -106,6 +106,11 @@ namespace TVinciShared
             return ctx.Server.MapPath(path);
         }
 
+        public static string GetHttpMethod(this HttpRequest req)
+        {
+            return req.HttpMethod;
+        }
+
         // This is a shim method for .net452 to allow HttpContext.Current.Items.ContainsKey
         // This is because Items collection is Idictionary in net452 but in netCore its Idictionary<object,object>
         public static bool ContainsKey(this IDictionary dict, string key)
@@ -227,6 +232,11 @@ namespace TVinciShared
             {
                 file.CopyTo(fileStream);
             }
+        }
+
+        public static string GetHttpMethod(this HttpRequest req)
+        {
+            return req.Method;
         }
 
         /// <summary>
