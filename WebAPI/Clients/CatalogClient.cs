@@ -327,7 +327,7 @@ namespace WebAPI.Clients
             }
 
             result = Mapper.Map<KalturaAsset>(response.Object);
-            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
 
             return result;
         }
@@ -374,7 +374,7 @@ namespace WebAPI.Clients
             if (response.Object != null)
             {
                 result = AutoMapper.Mapper.Map<KalturaProgramAsset>(response.Object);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
 
             return result;
@@ -404,7 +404,7 @@ namespace WebAPI.Clients
                 {
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
-                    Dictionary<long, string> imageTypeIdToRatioNameMap = ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                    Dictionary<long, string> imageTypeIdToRatioNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (Asset assetToConvert in assetListResponse.Objects)
                     {
                         KalturaAsset asset = null;
