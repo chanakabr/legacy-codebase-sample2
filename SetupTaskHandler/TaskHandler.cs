@@ -79,7 +79,7 @@ namespace SetupTaskHandler
                         break;
 
                         #endregion
-                    }                    
+                    }
                     case ApiObjects.eSetupTask.NotificationSeriesCleanupIteration:
                     {
                         #region Notification Clean Iteration

@@ -64,6 +64,11 @@ namespace ElasticSearchHandler
             return string.Format("utils_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));        
         }
 
+        public static string GetNewIPv6IndexString()
+        {
+            return string.Format("ipv6_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+        }
+
         internal static string GetMetadataGroupAliasStr(int groupId)
         {
             return string.Format("{0}_metadata", groupId);
