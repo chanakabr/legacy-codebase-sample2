@@ -398,9 +398,9 @@ namespace APILogic.Api.Managers
                         permission = new Permission()
                         {
                             Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                            DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DEPENDS_ON_PERMISSION_NAMES"),
-                            FriendlyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FRIENDLY_NAME"),
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID"),
+                            DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES"),
+                            FriendlyName = ODBCWrapper.Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
                             Type = ePermissionType.SpecialFeature
                         };
 
