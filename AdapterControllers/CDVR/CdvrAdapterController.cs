@@ -21,11 +21,11 @@ namespace AdapterControllers.CDVR
     public class CdvrAdapterController
     {
         #region Consts
-        private const int STATUS_OK = 0;
-        private const int STATUS_NO_CONFIGURATION_FOUND = 3;
+        public const int STATUS_OK = 0;
+        public const int STATUS_NO_CONFIGURATION_FOUND = 3;
 
-        private const string PARAMETER_GROUP_ID = "group_id";
-        private const string PARAMETER_ADAPTER = "adapter";
+        public const string PARAMETER_GROUP_ID = "group_id";
+        public const string PARAMETER_ADAPTER = "adapter";
         #endregion
 
         #region Static Data Members
@@ -82,6 +82,7 @@ namespace AdapterControllers.CDVR
         #endregion
 
         #region Public Method
+
         public bool SetConfiguration(CDVRAdapter adapter, int partnerId)
         {
             bool result = false;
@@ -774,9 +775,289 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
+        public ApiObjects.TimeShiftedTv.RecordingResponse SearchCloudRecordings(int adapterId, int partnerId, string userId, long domainId, string adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
+        {
+            var recordingResult = new ApiObjects.TimeShiftedTv.RecordingResponse();
+
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
+
+            if (adapter == null)
+            {
+                throw new KalturaException(string.Format("Cdvr Adapter {0} doesn't exist", adapter.ID), (int)eResponseStatus.AdapterNotExists);
+            }
+
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+            }
+
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+
+            //set unixTimestamp
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+
+            //TODO: verify that signature is correct
+            string signature = string.Concat(userId, domainId, adapterData, adapterId, timeStamp);
+
+            try
+            {
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, adapterData = {2}",
+                    partnerId, adapter.ID, adapterData);
+
+                var adapterResponse = new AdapterControllers.cdvrAdap.ExternalRecordingResponse();
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //call Adapter GetRecordingLinks
+                    try
+                    {
+                        adapterResponse = client.GetCloudRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetCloudRecording");
+                    }
+                }
+
+                LogAdapterResponse(adapterResponse, "GetCloudRecording", adapterId,
+                    string.Format("adapterData = {0}", adapterData));
+
+                if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                {
+                    #region Send Configuration if not found
+
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
+
+                    // Build dictionary for synchronized action
+                    Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, partnerId}
+                    };
+
+                    configurationSynchronizer.DoAction(key, parameters);
+
+
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        //call Adapter GetRecordingLinks
+                        try
+                        {
+                            adapterResponse = client.GetCloudRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetCloudRecording");
+                        }
+                    }
+
+                    LogAdapterResponse(adapterResponse, "GetCloudRecording", adapterId,
+                        string.Format("adapterData = {0}", adapterData));
+
+                    #endregion
+                }
+
+                if (adapterResponse != null && adapterResponse.Status != null)
+                {
+                    // If something went wrong in the adapter, throw relevant exception
+                    if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+                    }
+                    else if (adapterResponse.ExternalRecordings != null)
+                    {
+                        recordingResult = CreateRecordingResult(adapterResponse.ExternalRecordings);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetCloudRecording (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, adapterData = {3}",
+                    ex, adapterId, adapter.ExternalIdentifier, adapterData);
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+            }
+
+            return recordingResult;
+        }
+
+        public ApiObjects.TimeShiftedTv.SeriesResponse SearchCloudSeriesRecordings(int adapterId, int partnerId, string userId, long domainId, string adapterData)
+        {
+            var recordingResult = new ApiObjects.TimeShiftedTv.SeriesResponse();
+
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
+
+            if (adapter == null)
+            {
+                throw new KalturaException(string.Format("Cdvr Adapter {0} doesn't exist", adapter.ID), (int)eResponseStatus.AdapterNotExists);
+            }
+
+            if (string.IsNullOrEmpty(adapter.AdapterUrl))
+            {
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+            }
+
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+
+            //set unixTimestamp
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+
+            //TODO: verify that signature is correct
+            string signature = string.Concat(userId, domainId, adapterData, adapterId, timeStamp);
+
+            try
+            {
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, adapterData = {2}",
+                    partnerId, adapter.ID, adapterData);
+
+                var adapterResponse = new AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse();
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //call Adapter GetRecordingLinks
+                    try
+                    {
+                        adapterResponse = client.GetCloudSeriesRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetCloudRecording");
+                    }
+                }
+
+                LogAdapterResponse(adapterResponse, "SearchCloudSeriesRecordings", adapterId,
+                    string.Format("adapterData = {0}", adapterData));
+
+                if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
+                {
+                    #region Send Configuration if not found
+
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
+
+                    // Build dictionary for synchronized action
+                    Dictionary<string, object> parameters = new Dictionary<string, object>()
+                    {
+                        {PARAMETER_ADAPTER, adapter},
+                        {PARAMETER_GROUP_ID, partnerId}
+                    };
+
+                    configurationSynchronizer.DoAction(key, parameters);
+
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        //call Adapter GetRecordingLinks
+                        try
+                        {
+                            adapterResponse = client.GetCloudSeriesRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "SearchCloudSeriesRecordings");
+                        }
+                    }
+
+                    LogAdapterResponse(adapterResponse, "SearchCloudSeriesRecordings", adapterId,
+                        string.Format("adapterData = {0}", adapterData));
+
+                    #endregion
+                }
+
+                if (adapterResponse != null && adapterResponse.Status != null)
+                {
+                    // If something went wrong in the adapter, throw relevant exception
+                    if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+                    }
+                    else if (adapterResponse.ExternalSeriesRecordings != null)
+                    {
+                        recordingResult = CreateSeriesResponse(adapterResponse.ExternalSeriesRecordings);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in GetCloudRecording (Cdvr): error = {0}, adapterID = {1}, adapter ExternalIdentifier = {2}, adapterData = {3}",
+                    ex, adapterId, adapter.ExternalIdentifier, adapterData);
+                throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
+            }
+
+            return recordingResult;
+        }
+
         #endregion
 
         #region Private Method
+
+        public static DateTime FromUnixTime(long unixTime)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return epoch.AddSeconds(unixTime);
+        }
+
+        private ApiObjects.TimeShiftedTv.RecordingResponse CreateRecordingResult(List<CloudRecording> externalRecordings)
+        {
+            var response = new ApiObjects.TimeShiftedTv.RecordingResponse
+            {
+                Recordings = new List<ApiObjects.TimeShiftedTv.Recording>()
+            };
+
+            foreach (var item in externalRecordings)
+            {
+                try
+                {
+                    response.Recordings.Add(new ExternalRecording
+                    {
+                        ChannelId = item.ChannelId,
+                        CreateDate = FromUnixTime(item.CreateDate),
+                        EpgId = item.EpgId,
+                        ExternalDomainRecordingId = item.Id.ToString(),
+                        IsProtected = item.IsProtected,
+                        RecordingStatus = (TstvRecordingStatus)item.RecordingStatus,
+                        Type = (RecordingType)item.Type,
+                        UpdateDate = FromUnixTime(item.UpdateDate),
+                        ViewableUntilDate = item.ViewableUntilDate,
+                        MetaData = item.MetaData.ToDictionary(x => x.Key, y => y.Value)
+                    });
+                }
+                catch { }
+            }
+
+            return response;
+        }
+
+        private SeriesResponse CreateSeriesResponse(List<CloudSeriesRecording> externalSeriesRecordings)
+        {
+            var response = new ApiObjects.TimeShiftedTv.SeriesResponse
+            {
+                SeriesRecordings = new List<ApiObjects.TimeShiftedTv.SeriesRecording>()
+            };
+
+            foreach (var item in externalSeriesRecordings)
+            {
+                try
+                {
+                    response.SeriesRecordings.Add(new SeriesRecording
+                    {
+                        EpgChannelId = item.EpgChannelId,
+                        CreateDate = FromUnixTime(item.CreateDate),
+                        EpgId = item.EpgId,
+                        Id = item.Id,
+                        Type = (RecordingType)item.Type,
+                        UpdateDate = FromUnixTime(item.UpdateDate),
+                        SeasonNumber = item.SeasonNumber,
+                        SeriesId = item.SeriesId
+                        //MetaData = item.MetaData.ToDictionary(x => x.Key, y => y.Value)
+                    });
+                }
+                catch { }
+            }
+
+            return response;
+        }
 
         private static RecordResult CreateRecordResult(cdvrAdap.RecordingResponse adapterResponse)
         {
@@ -840,7 +1121,7 @@ namespace AdapterControllers.CDVR
             return result;
         }
 
-        private void LogAdapterResponse(AdapterControllers.cdvrAdap.RecordingResponse adapterResponse, string action,
+        private static void LogAdapterResponse(AdapterControllers.cdvrAdap.RecordingResponse adapterResponse, string action,
             int adapterId, string inputParameters)
         {
             string logMessage = string.Empty;
@@ -893,40 +1174,146 @@ namespace AdapterControllers.CDVR
             log.Debug(logMessage);
         }
 
+        private void LogAdapterResponse(ExternalRecordingResponse adapterResponse, string action,
+            int adapterId, string inputParameters)
+        {
+            string logMessage = string.Empty;
+
+            if (adapterResponse == null)
+            {
+                logMessage = string.Format("Cdvr Adapter {0} Result is null", action != null ? action : string.Empty);
+            }
+            else if (adapterResponse.Status == null)
+            {
+                logMessage = string.Format("Cdvr Adapter {0} Result's status is null", action != null ? action : string.Empty);
+            }
+            else
+            {
+                if (adapterResponse.ExternalRecordings == null)
+                {
+                    logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording is null",
+                                     action != null ? action : string.Empty,                                                                                                                // {0}
+                                     adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
+                                     adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
+                }
+                else
+                {
+                    logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording: RecordingIds = {3}",
+                        // {0}
+                        action != null ? action : string.Empty,
+                        // {1}
+                        adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,
+                        // {2}
+                        adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,
+                        //{3}
+                        string.Join(",", adapterResponse.ExternalRecordings.Select(x => x.Id)));
+                }
+            }
+
+            log.Debug(logMessage);
+        }
+
+        private void LogAdapterResponse(ExternalSeriesRecordingResponse adapterResponse, string action,
+            int adapterId, string inputParameters)
+        {
+            string logMessage = string.Empty;
+
+            if (adapterResponse == null)
+            {
+                logMessage = string.Format("Cdvr Adapter {0} Result is null", action != null ? action : string.Empty);
+            }
+            else if (adapterResponse.Status == null)
+            {
+                logMessage = string.Format("Cdvr Adapter {0} Result's status is null", action != null ? action : string.Empty);
+            }
+            else
+            {
+                if (adapterResponse.ExternalSeriesRecordings == null)
+                {
+                    logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording is null",
+                                     action != null ? action : string.Empty,                                                                                                                // {0}
+                                     adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
+                                     adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
+                }
+                else
+                {
+                    logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording: RecordingIds = {3}",
+                        // {0}
+                        action != null ? action : string.Empty,
+                        // {1}
+                        adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,
+                        // {2}
+                        adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,
+                        //{3}
+                        string.Join(",", adapterResponse.ExternalSeriesRecordings.Select(x => x.Id)));
+                }
+            }
+
+            log.Debug(logMessage);
+        }
+
         private static void ReportCDVRAdapterError(int adapterId, string url, Exception ex, string action, bool throwException = true)
         {
-            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
-            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR adapter";
+            string cdvrAdapter = "C-DVR adapter";
 
-            log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
-                adapterId,
-                url,
-                action,
-                ex);
-            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
-
-            if (throwException)
+            if (HttpContext.Current?.Items != null)
             {
-                throw ex;
+                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.Contains(Constants.TOPIC))
+                {
+                    var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+                    HttpContext.Current.Items[Constants.TOPIC] = cdvrAdapter;
+
+                    log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
+                        adapterId,
+                        url,
+                        action,
+                        ex);
+                    HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+
+                    if (throwException)
+                    {
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    HttpContext.Current.Items.Add(Constants.TOPIC, cdvrAdapter);
+                    log.DebugFormat("ReportCDVRAdapterError added {0} to HttpContext.Current.Items. Adapter identifier: {1}, Adapter URL: {2}, Adapter Api: {3}",
+                        Constants.TOPIC, adapterId, url, action, ex);
+                }
             }
         }
 
         private static void ReportCDVRProviderFailure(int adapterId, string action, string inputParameters, int errorCode, string providerCode,
             string providerMessage, int failReason)
         {
-            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
-            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR provider";
+            string cdvrProvider = "C-DVR provider";
 
-            log.ErrorFormat("Adapter was accessed successfully, but returned an error. " +
-                "Adapter identifier: {0}, Adapter Api: {1}. Input parameters: {2}. Error code: {3}, Provider Code: {4}, Provider Message: {5}, Fail Reason: {6}",
-                adapterId,
-                action,
-                inputParameters,
-                errorCode,
-                providerCode,
-                providerMessage,
-                failReason);
-            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+            if (HttpContext.Current?.Items != null)
+            {
+                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.Contains(Constants.TOPIC))
+                {
+                    var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+                    HttpContext.Current.Items[Constants.TOPIC] = cdvrProvider;
+
+                    log.ErrorFormat("Adapter was accessed successfully, but returned an error. " +
+                        "Adapter identifier: {0}, Adapter Api: {1}. Input parameters: {2}. Error code: {3}, Provider Code: {4}, Provider Message: {5}, Fail Reason: {6}",
+                        adapterId,
+                        action,
+                        inputParameters,
+                        errorCode,
+                        providerCode,
+                        providerMessage,
+                        failReason);
+                    HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+                }
+                else
+                {
+                    HttpContext.Current.Items.Add(Constants.TOPIC, cdvrProvider);
+                    log.DebugFormat("ReportCDVRProviderFailure added {0} to HttpContext.Current.Items. Adapter identifier: {1}, Adapter Api: {2},  Input parameters: {3}",
+                       Constants.TOPIC, adapterId, action, inputParameters);
+                }
+            }
         }
 
         #endregion

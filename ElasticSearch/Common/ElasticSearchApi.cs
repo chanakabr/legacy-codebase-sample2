@@ -944,7 +944,6 @@ namespace ElasticSearch.Common
             url = builder.ToString();
             int httpStatus = 0;
             result = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, searchQuery, true);
-            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", url, searchQuery, result);
 
             if (httpStatus != 200)
             {
@@ -991,8 +990,6 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/_msearch", baseUrl);
             int nStatus = 0;
             sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
-            log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", sUrl, sb.ToString(), sRes);
-
 
             if (nStatus != 200)
             {

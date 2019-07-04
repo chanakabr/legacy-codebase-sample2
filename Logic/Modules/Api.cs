@@ -1475,12 +1475,7 @@ namespace Core.Api
         public static PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
             return Core.Api.api.GetUserPermissions(groupId, userId);
-        }
-
-        public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            return Core.Api.api.AddPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
-        }
+        }      
 
         public static Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -2225,9 +2220,9 @@ namespace Core.Api
             return Core.Api.api.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, APILogic.ConditionalAccess.ConditionScope filter)
+        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, APILogic.ConditionalAccess.ConditionScope filter, RuleActionType? ruleActionType)
         {
-            return Core.Api.api.GetBusinessModuleRules(groupId, filter);
+            return Core.Api.api.GetBusinessModuleRules(groupId, filter, ruleActionType);
         }
 
         public static GenericListResponse<PlaybackProfile> GetPlaybackProfiles(int groupId)
@@ -2309,5 +2304,50 @@ namespace Core.Api
             return result;
         }
 
+        public static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        {
+            GenericResponse<Permission> result = new GenericResponse<Permission>();
+            try
+            {
+                result = api.AddPermission(groupId, permission);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in AddPermission", ex);
+            }
+            return result;
+        }
+
+        public static Status DeletePermission(int groupId, long id)
+        {
+            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                result = api.DeletePermission(groupId, id);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in DeletePermission", ex);
+            }
+            return result;
+        }
+
+        public static List<string> GetGroupFeatures(int groupId)
+        {
+            Dictionary<string, Permission> groupfeatures = api.GetGroupFeatures(groupId);
+            if(groupfeatures?.Count > 0)
+            {
+                return api.GetGroupFeatures(groupId).Keys.ToList();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            return api.GetPermissionItemsToFeatures(groupId);
+        }
     }
 }

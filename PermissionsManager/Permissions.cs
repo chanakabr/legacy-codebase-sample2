@@ -1,4 +1,5 @@
-﻿using ApiObjects.Roles;
+﻿using ApiObjects;
+using ApiObjects.Roles;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,12 @@ namespace PermissionsManager
         [JsonProperty("friendly_name")]
         public string FriendlyName { get; set; }
 
+        [JsonProperty("depends_on_permission_names")]
+        public string DependsOnPermissionNames { get; set; }
+
+        [JsonProperty("type")]
+        public ePermissionType Type { get; set; }
+
         public FilePermission(GroupPermission original)
         {
             if (original != null)
@@ -51,6 +58,8 @@ namespace PermissionsManager
                 this.GroupId = original.GroupId;
                 this.UsersGroup = original.UsersGroup;
                 this.FriendlyName = original.FriendlyName;
+                this.DependsOnPermissionNames = original.DependsOnPermissionNames;
+                this.Type = original.Type;
             }
         }
     }

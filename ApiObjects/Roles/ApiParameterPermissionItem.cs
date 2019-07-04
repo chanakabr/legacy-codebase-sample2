@@ -26,6 +26,7 @@ namespace ApiObjects.Roles
         READ = 1,
         INSERT = 2,
         UPDATE = 4,
+        WRITE = 6,
         USAGE = 7
     }
 }

@@ -104,6 +104,11 @@ namespace Core.Catalog
         [JsonProperty("CoGuid")]
         public string CoGuid { get; set; }
 
+        
+        [JsonProperty("IndexStatus")]
+        public AssetIndexStatus IndexStatus { get; set; }
+
+
         #endregion
 
         #region Ctor's
@@ -142,7 +147,7 @@ namespace Core.Catalog
             this.Metas = metas != null ? new List<Metas>(metas) : new List<Metas>();
             this.Tags = tags != null ? new List<Tags>(tags) : new List<Tags>();
             this.Images = images != null ? new List<Image>(images) : new List<Image>();
-            this.CoGuid = coGuid;
+            this.CoGuid = coGuid;            
         }
 
         public Asset(Asset assetToCopy)
@@ -161,6 +166,7 @@ namespace Core.Catalog
             this.Tags = assetToCopy.Tags != null ? new List<Tags>(assetToCopy.Tags) : new List<Tags>();
             this.Images = assetToCopy.Images != null ? new List<Image>(assetToCopy.Images) : new List<Image>();
             this.CoGuid = assetToCopy.CoGuid;
+            this.IndexStatus = assetToCopy.IndexStatus;
         }
 
         public Asset(Core.Catalog.Response.MediaObj mediaObj)
@@ -185,6 +191,7 @@ namespace Core.Catalog
             this.Tags.ForEach(x => x.m_oTagMeta.m_sType = MetaType.Tag.ToString());
             this.Images = new List<Image>();
             this.CoGuid = mediaObj.CoGuid;
+            this.IndexStatus = mediaObj.IndexStatus;
         }
 
         #endregion

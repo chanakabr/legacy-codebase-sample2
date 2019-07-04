@@ -538,7 +538,8 @@ namespace ApiObjects
     public enum ePermissionType
     {
         Normal = 1,
-        Group = 2
+        Group = 2,
+        SpecialFeature = 3
 
     }
 
@@ -1091,7 +1092,8 @@ namespace ApiObjects
         ApplyDiscountModuleRule,
         ApplyPlaybackAdapter,
         UserFilter,
-        AssetLifeCycleTransition
+        AssetLifeCycleTransition,
+        ApplyFreePlayback
     }
 
     public enum RuleConditionType
@@ -1104,7 +1106,10 @@ namespace ApiObjects
         Segments,
         Date,
         Or,
-        Header
+        Header,
+        UserSubscription,
+        AssetSubscription,
+        UserRole
     }
 
     public enum RuleActionTaskType
@@ -1159,5 +1164,12 @@ namespace ApiObjects
     {
         Pending = 0,
         Sent = 1,
+    }
+
+    public enum AssetIndexStatus
+    {
+        Ok = 0,
+        Deleted = 1,
+        NotUpdated = 2
     }
 }

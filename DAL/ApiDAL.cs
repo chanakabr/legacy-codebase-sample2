@@ -3180,6 +3180,7 @@ namespace DAL
                         permission.FriendlyName = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "FRIENDLY_NAME");
                         permission.GroupId = groupId;
                         permission.isExcluded = isExcluded;
+                        permission.Type = permissionType;
 
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {
@@ -3332,46 +3333,46 @@ namespace DAL
 
         }
         
-        public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            Permission permission = new Permission();
-            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
-            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
+        //public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
+        //{
+        //    Permission permission = new Permission();
+        //    Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+        //    Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Permission");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@type", (int)type);
-                sp.AddParameter("@users_group", usersGroup);
-                sp.AddParameter("@updater_id", updaterId);
-                sp.AddIDListParameter<long>("@permission_item_ids", permissionItemsIds, "ID");
+        //    try
+        //    {
+        //        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Permission");
+        //        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //        sp.AddParameter("@group_id", groupId);
+        //        sp.AddParameter("@name", name);
+        //        sp.AddParameter("@type", (int)type);
+        //        sp.AddParameter("@users_group", usersGroup);
+        //        sp.AddParameter("@updater_id", updaterId);
+        //        sp.AddIDListParameter<long>("@permission_item_ids", permissionItemsIds, "ID");
 
-                DataSet ds = sp.ExecuteDataSet();
+        //        DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    DataTable permissionsTable = ds.Tables[0];
-                    DataTable permissionItemsTable = ds.Tables[1];
+        //        if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+        //        {
+        //            DataTable permissionsTable = ds.Tables[0];
+        //            DataTable permissionItemsTable = ds.Tables[1];
 
-                    permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
+        //            permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
 
-                    rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
+        //            rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
 
-                    if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null && rolesPermissions[0].Count > 0)
-                        permission = rolesPermissions[0][0];
-                }
-            }
-            catch (Exception ex)
-            {
-                permission = null;
-                log.Error(string.Format("Error while inserting new permission to DB, group id = {0}", groupId), ex);
-            }
+        //            if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null && rolesPermissions[0].Count > 0)
+        //                permission = rolesPermissions[0][0];
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        permission = null;
+        //        log.Error(string.Format("Error while inserting new permission to DB, group id = {0}", groupId), ex);
+        //    }
 
-            return permission;
-        }
+        //    return permission;
+        //}
 
         public static int InsertRolePermission(int groupId, long roleId, long permissionId)
         {
@@ -4869,24 +4870,25 @@ namespace DAL
             return result;
         }
 
-        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName)
+        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName, string dependsOnPermissionNames, int groupId = 0)
         {
             int result = 0;
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Permission");
+            StoredProcedure storedProcedure = new StoredProcedure("Insert_Permission");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@groupId", groupId);
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
             storedProcedure.AddParameter("@friendlyName", friendlyName);
+            storedProcedure.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
-            return result;
+
+            return result;            
         }
 
-        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName)
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName, string dependsOnPermissionNames)
         {
             bool result = false;
 
@@ -4897,6 +4899,7 @@ namespace DAL
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
             storedProcedure.AddParameter("@friendlyName", friendlyName);
+            storedProcedure.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
 
             int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
@@ -4908,7 +4911,7 @@ namespace DAL
             return result;
         }
 
-        public static bool DeletePermission(int id)
+        public static bool DeletePermission(long id)
         {
             bool result = false;
 
@@ -5263,6 +5266,11 @@ namespace DAL
             return string.Format("business_module_rule:{0}", businessModuleRuleId);
         }
 
+        private static string GetBusinessModuleRuleTypeKey(long businessModuleRuleId)
+        {
+            return string.Format("business_module_rule_type:{0}", businessModuleRuleId);
+        }
+
         public static BusinessModuleRule GetBusinessModuleRuleCB(long businessModuleRuleId)
         {
             string key = GetBusinessModuleRuleKey(businessModuleRuleId);
@@ -5274,8 +5282,19 @@ namespace DAL
         {
             if (businessModuleRule != null && businessModuleRule.Id > 0)
             {
-                string key = GetBusinessModuleRuleKey(businessModuleRule.Id);
-                return UtilsDal.SaveObjectInCB<BusinessModuleRule>(eCouchbaseBucket.OTT_APPS, key, businessModuleRule);
+                var businessModuleRuleType = new BusinessModuleRuleType()
+                {
+                    BusinessModuleRuleId = businessModuleRule.Id,
+                    ConditionsTypeIdIn = new HashSet<RuleConditionType>(businessModuleRule.Conditions.Select(x => x.Type)),
+                    ActionsTypeIdIn = new HashSet<int>(businessModuleRule.Actions.Select(x => (int)x.Type))
+                };
+
+                string businessModuleRuleTypeKey = GetBusinessModuleRuleTypeKey(businessModuleRule.Id);
+                if (UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, businessModuleRuleTypeKey, businessModuleRuleType))
+                {
+                    string key = GetBusinessModuleRuleKey(businessModuleRule.Id);
+                    return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, businessModuleRule);
+                }
             }
 
             return false;
@@ -5283,8 +5302,10 @@ namespace DAL
 
         public static bool DeleteBusinessModuleRuleCB(int groupId, long businessModuleRuleId)
         {
-            string key = GetBusinessModuleRuleKey(businessModuleRuleId);
-            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+            string businessModuleRuleKey = GetBusinessModuleRuleKey(businessModuleRuleId);
+            string businessModuleRuleTypeKey = GetBusinessModuleRuleTypeKey(businessModuleRuleId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, businessModuleRuleKey) &&
+                   UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, businessModuleRuleTypeKey);
         }
 
         public static List<BusinessModuleRule> GetBusinessModuleRulesCB(IEnumerable<long> businessModuleRuleIds)
@@ -5367,8 +5388,19 @@ namespace DAL
             return dt;
         }
 
+        public static List<BusinessModuleRuleType> GetBusinessModuleRuleTypeCB(List<long> businessModuleRuleIds)
+        {
+            List<string> businessModuleRuleTypeKeys = new List<string>();
+            foreach (var businessModuleRuleId in businessModuleRuleIds)
+            {
+                businessModuleRuleTypeKeys.Add(GetBusinessModuleRuleTypeKey(businessModuleRuleId));
+            }
+
+            return UtilsDal.GetObjectListFromCB<BusinessModuleRuleType>(eCouchbaseBucket.OTT_APPS, businessModuleRuleTypeKeys);
+        }
+
         #endregion
-     
+
         public static List<PlaybackProfile> GetPlaybackAdapters(int groupId)
         {
             List<PlaybackProfile> res = new List<PlaybackProfile>();
@@ -5661,6 +5693,175 @@ namespace DAL
                 log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, externalId: {1}, ex:{2} ", groupId, externalId , ex);
                 throw;
             }
+        }
+
+        public static DataTable GetPermission(int groupId, long id)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId }
+                ,{ "@id", id }
+
+            };
+
+            return UtilsDal.Execute("Get_PermissionById", parameters);
+        }
+
+        public static DataTable GetGroupFeatures(int groupId)
+        {
+            try
+            {
+                // get the roles, permissions, permission items tables 
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                return UtilsDal.Execute("Get_GroupFeatures", parameters);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while Get_Groupfeatures from DB, group id = {0}", groupId), ex);
+            }
+
+            return null;
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                DataTable dt = UtilsDal.Execute("Get_PermissionItemsToFeatures", parameters);
+
+                if (dt?.Rows.Count > 0)
+                {
+                    string key = string.Empty;
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string dopn = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES");
+                        string service = Utils.GetSafeStr(dr, "SERVICE");
+                        string action = Utils.GetSafeStr(dr, "ACTION");
+                        string parameter = Utils.GetSafeStr(dr, "PARAMETER");
+                        string objectName = Utils.GetSafeStr(dr, "OBJECT");
+                        ePermissionItemType permissionItemType = (ePermissionItemType)Utils.GetIntSafeVal(dr, "TYPE");
+
+                        switch (permissionItemType)
+                        {
+                            case ePermissionItemType.Action:
+                                key = string.Format("{0}_{1}", service, action).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            case ePermissionItemType.Parameter:
+                                int actionNumeric = 0;
+                                int.TryParse(action, out actionNumeric);
+
+                                if (actionNumeric > 0)
+                                {
+                                    ParameterPermissionItemAction actionEnum = (ParameterPermissionItemAction)actionNumeric;
+                                    switch (actionEnum)
+                                    {
+                                        case ParameterPermissionItemAction.READ:                                            
+                                        case ParameterPermissionItemAction.INSERT:                                            
+                                        case ParameterPermissionItemAction.UPDATE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, actionEnum).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        case ParameterPermissionItemAction.WRITE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.INSERT).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.UPDATE).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        case ParameterPermissionItemAction.USAGE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.INSERT).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.UPDATE).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.READ).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                break;
+                            case ePermissionItemType.Argument:
+                                key = string.Format("{0}_{1}_{2}", service, action, parameter).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            case ePermissionItemType.Priviliges:
+                                key = string.Format("{0}_{1}", objectName, parameter).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while Get_PermissionItemsToFeatures from DB, group id = {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        public static void AddToPermissionItemsToFeatures(ref Dictionary<string, List<string>> result, 
+            string key, string dependsOnPermissionNames)
+        {
+            if (!string.IsNullOrEmpty(dependsOnPermissionNames))
+            {
+
+                if (!result.ContainsKey(key))
+                {
+                    result.Add(key, new List<string>());
+                }
+
+                result[key].AddRange(dependsOnPermissionNames.Split(',').Select(p => p.Trim().ToLower()));
+            }
+        }
+
+        public static List<Permission> GetPermissions(int groupId)
+        {
+            List<Permission> permissions = null;
+            Permission permission = null;
+            try
+            {
+
+                StoredProcedure sp = new StoredProcedure("Get_Permissions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataTable dt = sp.Execute();
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permissions = new List<Permission>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        permission = new Permission
+                        {
+                            Id = Utils.GetLongSafeVal(dr, "ID"),
+                            Name = Utils.GetSafeStr(dr, "NAME"),
+                            FriendlyName = Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                            GroupId = groupId,                            
+                            Type = (ePermissionType)Utils.GetIntSafeVal(dr, "TYPE"),
+                            DependsOnPermissionNames = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES")
+                        };
+
+                        permissions.Add(permission);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred in GetPermissions. groupId:{0}. ex: {1}", groupId, ex);
+            }
+
+            return permissions;
         }
     }
 }

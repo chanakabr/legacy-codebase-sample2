@@ -398,6 +398,490 @@ namespace AdapterControllers.cdvrAdap {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ExternalRecordingResponse", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
+    [System.SerializableAttribute()]
+    public partial class ExternalRecordingResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<AdapterControllers.cdvrAdap.CloudRecording> ExternalRecordingsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private AdapterControllers.cdvrAdap.AdapterStatus StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.cdvrAdap.CloudRecording> ExternalRecordings {
+            get {
+                return this.ExternalRecordingsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExternalRecordingsField, value) != true)) {
+                    this.ExternalRecordingsField = value;
+                    this.RaisePropertyChanged("ExternalRecordings");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.cdvrAdap.AdapterStatus Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CloudRecording", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
+    [System.SerializableAttribute()]
+    public partial class CloudRecording : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long ChannelIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long CreateDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long EpgIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsProtectedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> MetaDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int RecordingStatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long UpdateDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<long> ViewableUntilDateField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long ChannelId {
+            get {
+                return this.ChannelIdField;
+            }
+            set {
+                if ((this.ChannelIdField.Equals(value) != true)) {
+                    this.ChannelIdField = value;
+                    this.RaisePropertyChanged("ChannelId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long CreateDate {
+            get {
+                return this.CreateDateField;
+            }
+            set {
+                if ((this.CreateDateField.Equals(value) != true)) {
+                    this.CreateDateField = value;
+                    this.RaisePropertyChanged("CreateDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long EpgId {
+            get {
+                return this.EpgIdField;
+            }
+            set {
+                if ((this.EpgIdField.Equals(value) != true)) {
+                    this.EpgIdField = value;
+                    this.RaisePropertyChanged("EpgId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsProtected {
+            get {
+                return this.IsProtectedField;
+            }
+            set {
+                if ((this.IsProtectedField.Equals(value) != true)) {
+                    this.IsProtectedField = value;
+                    this.RaisePropertyChanged("IsProtected");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> MetaData {
+            get {
+                return this.MetaDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MetaDataField, value) != true)) {
+                    this.MetaDataField = value;
+                    this.RaisePropertyChanged("MetaData");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int RecordingStatus {
+            get {
+                return this.RecordingStatusField;
+            }
+            set {
+                if ((this.RecordingStatusField.Equals(value) != true)) {
+                    this.RecordingStatusField = value;
+                    this.RaisePropertyChanged("RecordingStatus");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Type {
+            get {
+                return this.TypeField;
+            }
+            set {
+                if ((this.TypeField.Equals(value) != true)) {
+                    this.TypeField = value;
+                    this.RaisePropertyChanged("Type");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long UpdateDate {
+            get {
+                return this.UpdateDateField;
+            }
+            set {
+                if ((this.UpdateDateField.Equals(value) != true)) {
+                    this.UpdateDateField = value;
+                    this.RaisePropertyChanged("UpdateDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<long> ViewableUntilDate {
+            get {
+                return this.ViewableUntilDateField;
+            }
+            set {
+                if ((this.ViewableUntilDateField.Equals(value) != true)) {
+                    this.ViewableUntilDateField = value;
+                    this.RaisePropertyChanged("ViewableUntilDate");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="ExternalSeriesRecordingResponse", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
+    [System.SerializableAttribute()]
+    public partial class ExternalSeriesRecordingResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<AdapterControllers.cdvrAdap.CloudSeriesRecording> ExternalSeriesRecordingsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private AdapterControllers.cdvrAdap.AdapterStatus StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.cdvrAdap.CloudSeriesRecording> ExternalSeriesRecordings {
+            get {
+                return this.ExternalSeriesRecordingsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExternalSeriesRecordingsField, value) != true)) {
+                    this.ExternalSeriesRecordingsField = value;
+                    this.RaisePropertyChanged("ExternalSeriesRecordings");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public AdapterControllers.cdvrAdap.AdapterStatus Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="CloudSeriesRecording", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
+    [System.SerializableAttribute()]
+    public partial class CloudSeriesRecording : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long CreateDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long EpgChannelIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long EpgIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> MetaDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int SeasonNumberField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SeriesIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long UpdateDateField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long CreateDate {
+            get {
+                return this.CreateDateField;
+            }
+            set {
+                if ((this.CreateDateField.Equals(value) != true)) {
+                    this.CreateDateField = value;
+                    this.RaisePropertyChanged("CreateDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long EpgChannelId {
+            get {
+                return this.EpgChannelIdField;
+            }
+            set {
+                if ((this.EpgChannelIdField.Equals(value) != true)) {
+                    this.EpgChannelIdField = value;
+                    this.RaisePropertyChanged("EpgChannelId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long EpgId {
+            get {
+                return this.EpgIdField;
+            }
+            set {
+                if ((this.EpgIdField.Equals(value) != true)) {
+                    this.EpgIdField = value;
+                    this.RaisePropertyChanged("EpgId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> MetaData {
+            get {
+                return this.MetaDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MetaDataField, value) != true)) {
+                    this.MetaDataField = value;
+                    this.RaisePropertyChanged("MetaData");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int SeasonNumber {
+            get {
+                return this.SeasonNumberField;
+            }
+            set {
+                if ((this.SeasonNumberField.Equals(value) != true)) {
+                    this.SeasonNumberField = value;
+                    this.RaisePropertyChanged("SeasonNumber");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SeriesId {
+            get {
+                return this.SeriesIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SeriesIdField, value) != true)) {
+                    this.SeriesIdField = value;
+                    this.RaisePropertyChanged("SeriesId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Type {
+            get {
+                return this.TypeField;
+            }
+            set {
+                if ((this.TypeField.Equals(value) != true)) {
+                    this.TypeField = value;
+                    this.RaisePropertyChanged("Type");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long UpdateDate {
+            get {
+                return this.UpdateDateField;
+            }
+            set {
+                if ((this.UpdateDateField.Equals(value) != true)) {
+                    this.UpdateDateField = value;
+                    this.RaisePropertyChanged("UpdateDate");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="cdvrAdap.IService")]
     public interface IService {
@@ -443,6 +927,18 @@ namespace AdapterControllers.cdvrAdap {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLinks", ReplyAction="http://tempuri.org/IService/GetRecordingLinksResponse")]
         System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetCloudRecording", ReplyAction="http://tempuri.org/IService/GetCloudRecordingResponse")]
+        AdapterControllers.cdvrAdap.ExternalRecordingResponse GetCloudRecording(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetCloudRecording", ReplyAction="http://tempuri.org/IService/GetCloudRecordingResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalRecordingResponse> GetCloudRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetCloudSeriesRecording", ReplyAction="http://tempuri.org/IService/GetCloudSeriesRecordingResponse")]
+        AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse GetCloudSeriesRecording(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetCloudSeriesRecording", ReplyAction="http://tempuri.org/IService/GetCloudSeriesRecordingResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse> GetCloudSeriesRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -526,6 +1022,22 @@ namespace AdapterControllers.cdvrAdap {
         
         public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature) {
             return base.Channel.GetRecordingLinksAsync(recordingId, channelId, domainId, adapterId, timeStamp, signature);
+        }
+        
+        public AdapterControllers.cdvrAdap.ExternalRecordingResponse GetCloudRecording(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetCloudRecording(userId, domainId, adapterData, adapterId, timeStamp, signature);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalRecordingResponse> GetCloudRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetCloudRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, signature);
+        }
+        
+        public AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse GetCloudSeriesRecording(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetCloudSeriesRecording(userId, domainId, adapterData, adapterId, timeStamp, signature);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse> GetCloudSeriesRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetCloudSeriesRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, signature);
         }
     }
 }

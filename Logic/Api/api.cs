@@ -114,6 +114,8 @@ namespace Core.Api
         private const string PROFILE_NOT_EXIST = "profile doesn't exist";
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
+
+        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";        
         #endregion
 
         protected api() { }
@@ -2296,7 +2298,7 @@ namespace Core.Api
 
             }
             return res;
-        }
+        }        
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -8449,7 +8451,15 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+                response.Permissions = RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+
+                // Merge permission with type features
+                Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
+                if(groupFeatures?.Count > 0)
+                {
+                    response.Permissions.AddRange(groupFeatures.Values.ToList());
+                }
+
                 if (response.Permissions != null)
                 {
                     response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
@@ -8462,7 +8472,7 @@ namespace Core.Api
             }
 
             return response;
-        }
+        }        
 
         public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
@@ -8488,28 +8498,28 @@ namespace Core.Api
             return response;
         }
 
-        public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            PermissionResponse response = new PermissionResponse()
-            {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+        //public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
+        //{
+        //    PermissionResponse response = new PermissionResponse()
+        //    {
+        //        Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+        //    };
 
-            try
-            {
-                response.Permission = DAL.ApiDAL.InsertPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
-                if (response.Permission != null)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while adding permission. group id = {0}", groupId), ex);
-            }
+        //    try
+        //    {
+        //        response.Permission = DAL.ApiDAL.InsertPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
+        //        if (response.Permission != null)
+        //        {
+        //            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(string.Format("Error while adding permission. group id = {0}", groupId), ex);
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}        
 
         public static ApiObjects.Response.Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -11133,9 +11143,9 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, RuleActionType? ruleActionType)
         {
-            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
+            return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, ruleActionType);
         }
 
         #region PlaybackProfiles
@@ -11863,6 +11873,132 @@ namespace Core.Api
             }
 
             return assetResponse.Object;
+        }
+
+        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        {
+            GenericResponse<Permission> response = new GenericResponse<Permission>();
+
+            try
+            {
+                // Validate permissnio Name (Must be unique per group)
+                if(ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
+                {
+                    response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
+                    log.ErrorFormat("AddPermission failed. PermissionNameAlreadyInUse.groupId = {0}, permissionName: {1}", groupId, permission.Name);
+                    return response;
+                }
+
+                permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName,
+                    permission.DependsOnPermissionNames, groupId);
+                if (permission.Id > 0)
+                {
+                    response.Object = permission;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                    }
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "failed to insert new permission");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddPermission failed groupId = {0}, permissionName: {1} ex = {2}", groupId, permission.Name, ex);
+                return response;
+            }
+
+            return response;
+        }
+
+        internal static Permission GetPermission(int groupId, long id)
+        {
+            Permission permission = null;
+
+            try
+            {
+                DataTable dt = ApiDAL.GetPermission(groupId, id);
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permission = new Permission()
+                    {
+                        GroupId = groupId,
+                        DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DEPENDS_ON_PERMISSION_NAMES"),
+                        FriendlyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FRIENDLY_NAME"),
+                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID")
+                    };
+                }
+                else
+                {
+                    log.ErrorFormat("No permissionId found {0}, groupId: {1}", id, groupId);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("GetPermission Failed. permissionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+            }
+
+            return permission;
+        }
+
+        internal static Status DeletePermission(int groupId, long id)
+        {
+            try
+            {
+                Permission permission = GetPermission(groupId, id);
+                if(permission == null)
+                {
+                    log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
+                }
+
+                // delete topicNotification from DB
+                if (!ApiDAL.DeletePermission(id))
+                {
+                    log.ErrorFormat("Error while trying to delete Permission. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("DeletePermission Failed. permissionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+                return new Status((int)eResponseStatus.Error); ;
+            }
+
+            return new Status((int)eResponseStatus.OK);
+        }
+
+        public static Dictionary<string, Permission> GetGroupFeatures(int groupId)
+        {
+            return RolesPermissionsManager.GetGroupFeatures(groupId);
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> response = new Dictionary<string, List<string>>();
+
+            try
+            {
+                response = DAL.ApiDAL.GetPermissionItemsToFeatures(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting Permission Items To Features. group id = {0}", groupId), ex);
+            }
+
+            return response;
         }
     }
 }

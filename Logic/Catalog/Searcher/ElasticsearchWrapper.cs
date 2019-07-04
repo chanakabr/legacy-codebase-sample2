@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
 using Catalog.Response;
 using ConfigurationManager;
 using Core.Catalog.Cache;
@@ -1096,8 +1097,18 @@ namespace Core.Catalog
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
                 queryParser.PageIndex = 0;
-                queryParser.PageSize = 0;
-                queryParser.GetAllDocuments = true;
+
+                int maxStatSortResult = ApplicationConfiguration.ElasticSearchConfiguration.MaxStatSortResults.IntValue;
+
+                if (maxStatSortResult > 0)
+                {
+                    queryParser.PageSize = maxStatSortResult;
+                }
+                else
+                {
+                    queryParser.PageSize = 0;
+                    queryParser.GetAllDocuments = true;
+                }
 
                 if (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                 {
@@ -1196,9 +1207,7 @@ namespace Core.Catalog
                     }
 
                     string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                    log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                    
                     if (httpStatus == STATUS_OK)
                     {
                         #region Process ElasticSearch result
@@ -1829,14 +1838,82 @@ namespace Core.Catalog
         public List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection,
             DateTime? startDate = null, DateTime? endDate = null)
         {
+            assetIds = assetIds.Distinct().ToList();
+
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
-
             ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary =
                 new ConcurrentDictionary<string, List<StatisticsAggregationResult>>();
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
 
+            // we will use layered cache for asset stats for non-rating values and only if we don't have dates in filter
+            if (startDate == null && endDate == null && orderBy != OrderBy.RATING)
+            {
+                Dictionary<string, int> sortValues = SortAssetsByStatsWithLayeredCache(assetIds, groupId, orderBy, orderDirection);
+                ConcurrentDictionary<string, int> innerDictionary = new ConcurrentDictionary<string, int>();
+                foreach (var sortValue in sortValues)
+                {
+                    // we don't check if the key exists since the SortAssetsByStatsWithLayeredCache function returns a value for all passed assetIds
+                    innerDictionary[sortValue.Key] = sortValue.Value;
+                }
+
+                countsAggregationsDictionary["stats"] = innerDictionary;
+            }
+            else
+            {
+                GetAssetStatsValuesFromElasticSearch(assetIds, groupId, orderBy, startDate, endDate, ratingsAggregationsDictionary, countsAggregationsDictionary);
+            }
+
+            #region Process Aggregations
+
+            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
+            sortedList = new List<long>();
+            alreadyContainedIds = new HashSet<long>();
+
+            // Ratings is a special case, because it is not based on count, but on average instead
+            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            {
+                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
+            }
+            // If it is not ratings - just use count
+            else
+            {
+                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
+            }
+
+            #endregion
+
+            if (sortedList == null)
+            {
+                sortedList = new List<long>();
+            }
+
+            // Add all ids that don't have stats
+            foreach (var currentId in assetIds)
+            {
+                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
+                {
+                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
+                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
+                    {
+                        sortedList.Insert(0, currentId);
+                    }
+                    else
+                    {
+                        sortedList.Add(currentId);
+                    }
+                }
+            }
+
+            return sortedList;
+        }
+
+        private void GetAssetStatsValuesFromElasticSearch(List<long> assetIds, int groupId, OrderBy orderBy, 
+            DateTime? startDate, DateTime? endDate, 
+            ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary, 
+            ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary)
+        {
             #region Define Aggregation Query
 
             FilteredQuery filteredQuery = new FilteredQuery()
@@ -1974,18 +2051,18 @@ namespace Core.Catalog
 
             #region Split call of aggregations query to pieces
 
-            int aggregationssSize = 5000;
+            int aggregationsSize = ApplicationConfiguration.ElasticSearchConfiguration.StatSortBulkSize.IntValue;
 
             //Start MultiThread Call
             List<Task> tasks = new List<Task>();
 
             // Split the request to small pieces, to avoid timeout exceptions
-            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationssSize)
+            for (int assetIndex = 0; assetIndex < assetIds.Count; assetIndex += aggregationsSize)
             {
                 idsTerm.Value.Clear();
 
                 // Convert partial Ids to strings
-                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(aggregationssSize).Select(id => id.ToString()));
+                idsTerm.Value.AddRange(assetIds.Skip(assetIndex).Take(aggregationsSize).Select(id => id.ToString()));
 
                 string aggregationsRequestBody = filteredQuery.ToString();
 
@@ -1996,12 +2073,14 @@ namespace Core.Catalog
                     ContextData contextData = new ContextData();
                     // Create a task for the search and merge of partial aggregations
                     Task task = Task.Run(() =>
-                        {
-                            contextData.Load();
-                            // Get aggregations results
-                            string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsRequestBody);
+                    {
+                        contextData.Load();
+                        // Get aggregations results
+                        string aggregationsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsRequestBody);
 
-                            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+                        if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+                        {
+                            if (ratingsAggregationsDictionary != null)
                             {
                                 // Parse string into dictionary
                                 var partialDictionary = ESAggregationsResult.DeserializeStatisticsAggregations(aggregationsResults, "sub_stats");
@@ -2020,7 +2099,10 @@ namespace Core.Catalog
                                     }
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            if (countsAggregationsDictionary != null)
                             {
                                 // Parse string into dictionary
                                 var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults);
@@ -2039,10 +2121,10 @@ namespace Core.Catalog
                                     }
                                 }
                             }
-                        });
+                        }
+                    });
 
                     tasks.Add(task);
-
                 }
                 catch (Exception ex)
                 {
@@ -2059,53 +2141,108 @@ namespace Core.Catalog
                 log.ErrorFormat("Error in SortAssetsByStats (WAIT ALL), Exception: {0}", ex);
             }
 
-
             #endregion
+        }
 
-            #region Process Aggregations
+        private Tuple<Dictionary<string, int>, bool> SortAssetsByStatsDelegate(Dictionary<string, object> funcParams)
+        {
+            var countsAggregationsDictionary = new ConcurrentDictionary<string, ConcurrentDictionary<string, int>>();
+            var result = new Dictionary<string, int>();
+            bool success = true;
+            List<long> assetIds = new List<long>();
+            int groupId = 0;
+            OrderBy orderBy = OrderBy.NONE;
 
-            // get a sorted list of the asset Ids that have statistical data in the aggregations dictionary
-            sortedList = new List<long>();
-            alreadyContainedIds = new HashSet<long>();
-
-            // Ratings is a special case, because it is not based on count, but on average instead
-            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+            try
             {
-                ProcessRatingsAggregationsResult(ratingsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
-            }
-            // If it is not ratings - just use count
-            else
-            {
-                ProcessCountDictionaryResults(countsAggregationsDictionary, orderDirection, alreadyContainedIds, sortedList);
-            }
-
-            #endregion
-
-            if (sortedList == null)
-            {
-                sortedList = new List<long>();
-            }
-
-            // Add all ids that don't have stats
-            foreach (var currentId in assetIds)
-            {
-                if (alreadyContainedIds == null || !alreadyContainedIds.Contains(currentId))
+                // extract from funcParams
+                if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("orderBy"))
                 {
-                    // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
-                    if (orderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
+                    groupId = Convert.ToInt32(funcParams["groupId"]);
+                    orderBy = (OrderBy)funcParams["orderBy"];
+                }
+
+                // if we don't have missing keys - all ids should be sent
+                if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                {
+                    assetIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
+                }
+                else if (funcParams.ContainsKey("assetIds"))
+                {
+                    assetIds = (List<long>)funcParams["assetIds"];
+                }
+
+                GetAssetStatsValuesFromElasticSearch(assetIds, groupId, orderBy, null, null, null, countsAggregationsDictionary);
+
+                var statsDictionary = countsAggregationsDictionary["stats"];
+
+                // fill dictionary of asset-id..stats-value (if it doesn't exist in ES, fill it with a 0)
+                foreach (var assetId in assetIds)
+                {
+                    string dictionaryKey =
+                        //assetId.ToString();
+                        LayeredCacheKeys.GetAssetStatsSortKey(assetId.ToString(), orderBy.ToString());
+
+                    if (!statsDictionary.ContainsKey(assetId.ToString()))
                     {
-                        sortedList.Insert(0, currentId);
+                        result[dictionaryKey] = 0;
                     }
                     else
                     {
-                        sortedList.Add(currentId);
+                        result[dictionaryKey] = statsDictionary[assetId.ToString()];
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                success = false;
+                log.ErrorFormat("Error when trying to sort assets by stats. group Id = {0}, ex = {1}", groupId, ex);
+            }
 
-            return sortedList;
+            return new Tuple<Dictionary<string, int>, bool>(result, success);
         }
 
+        private Dictionary<string, int> SortAssetsByStatsWithLayeredCache(List<long> assetIds, int groupId, OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDirection)
+        {
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            Dictionary<string, int> layeredCacheResult = new Dictionary<string, int>();
+            if (assetIds != null && assetIds.Count > 0)
+            {
+                try
+                {
+                    Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).
+                        ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
+                    Dictionary<string, List<string>> invalidationKeys = 
+                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsSortInvalidationKey() });
+
+                    Dictionary<string, object> funcParams = new Dictionary<string, object>();
+                    funcParams.Add("groupId", groupId);
+                    funcParams.Add("orderBy", orderBy);
+                    funcParams.Add("assetIds", assetIds);
+
+                    if (!LayeredCache.Instance.GetValues<int>(keyToOriginalValueMap, ref layeredCacheResult, SortAssetsByStatsDelegate, funcParams,
+                                                                groupId, LayeredCacheConfigNames.ASSET_STATS_SORT_CONFIG_NAME, invalidationKeys))
+                    {
+                        log.ErrorFormat("Failed getting asset stats from cache, ids: {0}:", assetIds.Count < 100 ? string.Join(",", assetIds) : string.Join(",", assetIds.Take(100)));
+                    }
+                    else
+                    {
+                        foreach (var item in layeredCacheResult)
+                        {
+                            string key = keyToOriginalValueMap[item.Key];
+                            result.Add(key, item.Value);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed SortAssetsByStatsLayeredCache", ex);
+                }
+            }
+
+            return result;
+        }
+        
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
@@ -2220,9 +2357,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2309,9 +2444,7 @@ namespace Core.Catalog
 
                 // Perform search
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2417,9 +2550,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-
-                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
-
+                
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result

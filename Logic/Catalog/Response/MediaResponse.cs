@@ -92,6 +92,8 @@ namespace Core.Catalog.Response
         [DataMember]
         public LanguageContainer[] Description;
 
+        [DataMember]
+        public AssetIndexStatus IndexStatus { get; set; }
 
         public MediaObj()
             : base()

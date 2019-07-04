@@ -13,6 +13,9 @@ namespace ConfigurationManager
         public StringConfigurationValue AlternativeUrl;
         public NumericConfigurationValue MaxNGram;
         public NumericConfigurationValue MaxResults;
+        public NumericConfigurationValue MaxStatSortResults;
+        public NumericConfigurationValue StatSortBulkSize;
+        public NumericConfigurationValue MediaPageSize;
 
         public ElasticSearchConfiguration(string key) : base(key)
         {
@@ -47,6 +50,21 @@ namespace ConfigurationManager
             {
                 DefaultValue = 100000,
                 OriginalKey = "MAX_RESULTS",
+                ShouldAllowEmpty = true
+            };
+            MaxStatSortResults = new NumericConfigurationValue("max_stat_sort_results", this)
+            {
+                DefaultValue = 0,
+                ShouldAllowEmpty = true
+            };
+            StatSortBulkSize = new NumericConfigurationValue("stat_sort_bulk_size", this)
+            {
+                DefaultValue = 5000,
+                ShouldAllowEmpty = true
+            };
+            MediaPageSize = new NumericConfigurationValue("media_page_size", this)
+            {
+                DefaultValue = 10000,
                 ShouldAllowEmpty = true
             };
         }

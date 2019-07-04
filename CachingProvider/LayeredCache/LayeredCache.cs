@@ -121,7 +121,20 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public bool GetValues<T>(Dictionary<string, string> KeyToOriginalValueMap, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="keyToOriginalValueMap"></param>
+        /// <param name="results"></param>
+        /// <param name="fillObjectsMethod"></param>
+        /// <param name="funcParameters"></param>
+        /// <param name="groupId"></param>
+        /// <param name="layeredCacheConfigName"></param>
+        /// <param name="inValidationKeysMap"></param>
+        /// <param name="shouldUseAutoNameTypeHandling"></param>
+        /// <returns></returns>
+        public bool GetValues<T>(Dictionary<string, string> keyToOriginalValueMap, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
                                     Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null,
                                     bool shouldUseAutoNameTypeHandling = false)
         {
@@ -133,8 +146,8 @@ namespace CachingProvider.LayeredCache
             try
             {
                 bool isReadAction = IsReadAction();
-                Dictionary<string, string> KeyToOriginalValueMapAfterSession = new Dictionary<string, string>(KeyToOriginalValueMap);
-                if (isReadAction && TryGetKeysFromSession<T>(KeyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
+                Dictionary<string, string> KeyToOriginalValueMapAfterSession = new Dictionary<string, string>(keyToOriginalValueMap);
+                if (isReadAction && TryGetKeysFromSession<T>(keyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
                 {
                     shouldAddSessionResults = true;
                     foreach (string key in sessionResultMapping.Keys)
@@ -201,7 +214,7 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", KeyToOriginalValueMap.Keys),
+                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", keyToOriginalValueMap.Keys),
                                         string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
@@ -834,7 +847,18 @@ namespace CachingProvider.LayeredCache
                     return true;
                 }
 
-                if (ShouldCheckInvalidationKey(layeredCacheConfigName, groupId, ref invalidationKeyCacheConfig))
+                bool isReadAction = IsReadAction();
+                HashSet<string> keysToGet = new HashSet<string>(keys);
+                Dictionary<string, long> compeleteResultMap = new Dictionary<string, long>();
+                if (isReadAction && TryGetKeysFromSession<long>(keysToGet.ToList(), ref compeleteResultMap))
+                {
+                    foreach (string key in compeleteResultMap.Keys)
+                    {
+                        keysToGet.Remove(key);
+                    }
+                }
+
+                if (ShouldCheckInvalidationKey(layeredCacheConfigName, groupId, ref invalidationKeyCacheConfig) && keysToGet.Count > 0)
                 {
                     if (invalidationKeyCacheConfig == null)
                     {
@@ -842,8 +866,7 @@ namespace CachingProvider.LayeredCache
                     }
 
                     Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
-                    HashSet<string> keysToGet = new HashSet<string>(keys);
-                    Dictionary<string, long> compeleteResultMap = new Dictionary<string, long>();
+                    Dictionary<string, long> addToSessionResultMap = new Dictionary<string, long>();
                     foreach (LayeredCacheConfig cacheConfig in invalidationKeyCacheConfig)
                     {
                         ICachingService cache = cacheConfig.GetICachingService();
@@ -859,6 +882,7 @@ namespace CachingProvider.LayeredCache
                                     if (shouldSearchKeyInResult || resultMap.ContainsKey(keyToGet))
                                     {
                                         compeleteResultMap[keyToGet] = resultMap.ContainsKey(keyToGet) ? resultMap[keyToGet] : 0;
+                                        addToSessionResultMap[keyToGet] = compeleteResultMap[keyToGet];
                                         keysToGet.Remove(keyToGet);
                                     }
                                     else
@@ -877,16 +901,6 @@ namespace CachingProvider.LayeredCache
                                 // found all keys
                                 if (keysToGet.Count == 0)
                                 {
-                                    res = true;
-                                    foreach (object obj in compeleteResultMap.Values)
-                                    {
-                                        long inValidationDate;
-                                        if (long.TryParse(obj.ToString(), out inValidationDate) && inValidationDate > MaxInValidationDate)
-                                        {
-                                            MaxInValidationDate = inValidationDate;
-                                        }
-                                    }
-
                                     break;
                                 }
                             }
@@ -898,7 +912,13 @@ namespace CachingProvider.LayeredCache
                         }
                     }
 
-                    if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && res && compeleteResultMap != null)
+                    // add results to session
+                    if (isReadAction && addToSessionResultMap != null && addToSessionResultMap.Count > 0)
+                    {
+                        InsertResultsToSession<long>(addToSessionResultMap);
+                    }
+
+                    if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap != null)
                     {
                         foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfig)
                         {
@@ -914,10 +934,20 @@ namespace CachingProvider.LayeredCache
                         }
                     }
                 }
-                else
+
+                if (compeleteResultMap != null)
                 {
-                    res = true;
+                    foreach (object obj in compeleteResultMap.Values)
+                    {
+                        long inValidationDate;
+                        if (long.TryParse(obj.ToString(), out inValidationDate) && inValidationDate > MaxInValidationDate)
+                        {
+                            MaxInValidationDate = inValidationDate;
+                        }
+                    }
                 }
+
+                res = true;
             }
 
             catch (Exception ex)
@@ -1255,27 +1285,13 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    ulong version = 0;
-                    if (cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache)
-                    {
-                        Tuple<T, long> getResult = default(Tuple<T, long>);
-                        if (shouldUseAutoNameTypeHandling)
-                        {
-                            cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult, jsonSerializerSettings);
-                        }
-                        else
-                        {
-                            cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        }
-                    }
-
                     if (shouldUseAutoNameTypeHandling)
                     {
-                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL, jsonSerializerSettings);
+                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, 0, cacheConfig.TTL, jsonSerializerSettings);
                     }
                     else
                     {
-                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
+                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, 0, cacheConfig.TTL);
                     }
                 }
             }
@@ -1364,16 +1380,11 @@ namespace CachingProvider.LayeredCache
                     ICachingService cache = cacheConfig.GetICachingService();
                     if (cache != null)
                     {
-                        ulong version = 0;
-                        if (cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache)
-                        {
-
-                            LayeredCacheGroupConfig getResult = null;
-                            cache.GetWithVersion<LayeredCacheGroupConfig>(key, out version, ref getResult);
-
-                        }
-
-                        insertResult = insertResult && cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, version, cacheConfig.TTL);
+                        insertResult = insertResult && cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, 0, cacheConfig.TTL);
+                    }
+                    else
+                    {
+                        insertResult = false;
                     }
                 }
 

@@ -114,7 +114,13 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ApplyDiscountModuleRuleAction : RuleAction
+    public abstract class BusinessModuleRuleAction : RuleAction
+    {
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ApplyDiscountModuleRuleAction : BusinessModuleRuleAction
     {
         [JsonProperty("DiscountModuleId")]
         public long DiscountModuleId { get; set; }
@@ -174,6 +180,16 @@ namespace ApiObjects.Rules
         {
             Type = RuleActionType.AssetLifeCycleTransition;
             TransitionType = AssetLifeCycleRuleTransitionType.BusinessModel;
+        }
+    }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ApplyFreePlaybackAction : BusinessModuleRuleAction
+    {
+        public ApplyFreePlaybackAction()
+        {
+            Type = RuleActionType.ApplyFreePlayback;
         }
     }
 }
