@@ -19,9 +19,15 @@ RUN dotnet publish -c Release "./IngestTransformationHandler/IngestTransformatio
 FROM mcr.microsoft.com/dotnet/core/runtime:2.2
 WORKDIR /
 
+ARG TCM_APP
+
+ENV TCM_APP=${TCM_APP}
 ENV RUN_TASK=no-task-selected
 ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
 
 COPY --from=builder /src/published .
 ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}/${RUN_TASK}.dll" ]
+
+ARG VERSION
+LABEL version=${VERSION}
