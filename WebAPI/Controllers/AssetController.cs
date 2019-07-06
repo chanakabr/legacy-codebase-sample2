@@ -188,7 +188,7 @@ namespace WebAPI.Controllers
                 if (filter is KalturaChannelExternalFilter)
                 {
                     KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;
-                    string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                    string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
                     response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
                         language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual.ToString(), channelExternalFilter.FreeText, channelExternalFilter.DynamicOrderBy);
                 }
@@ -992,7 +992,7 @@ namespace WebAPI.Controllers
 
                 var convertedWith = with.Select(x => x.type).ToList();
 
-                string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
                 string str_utc_offset = utc_offset.HasValue ? utc_offset.Value.ToString() : null;
                 response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, order_by, convertedWith, deviceType, str_utc_offset, free_param);

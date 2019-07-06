@@ -308,12 +308,12 @@ namespace WebAPI.Managers.Models
 
         internal static void SaveOnRequest(KS ks)
         {
-            if (HttpContext.Current.Items.Contains(RequestContext.REQUEST_KS))
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_KS))
                 HttpContext.Current.Items[RequestContext.REQUEST_KS] = ks;
             else
                 HttpContext.Current.Items.Add(RequestContext.REQUEST_KS, ks);
 
-            if (HttpContext.Current.Items.Contains(RequestContext.REQUEST_GROUP_ID))
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_GROUP_ID))
                 HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] = ks.groupId;
             else
                 HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, ks.groupId);

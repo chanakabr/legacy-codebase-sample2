@@ -15,13 +15,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Http.Filters;
-using WebAPI.ClientManagers;
-using WebAPI.Controllers;
-using WebAPI.Exceptions;
-using WebAPI.Managers;
+
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Billing;
@@ -32,10 +26,9 @@ using WebAPI.Reflection;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using KlogMonitorHelper;
-using TVinciShared;
-using HttpMultipartParser;
-using EventManager;
+
 using WebAPI.Filters;
+using TVinciShared;
 
 namespace WebAPI
 {
@@ -177,13 +170,13 @@ namespace WebAPI
             }
 
             // format    
-            if (HttpContext.Current.Items.Contains(RequestContext.REQUEST_FORMAT))
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_FORMAT))
             {
                 HttpContext.Current.Items.Remove(RequestContext.REQUEST_FORMAT);
             }
-            if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[RequestContext.REQUEST_FORMAT]))
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request.GetQueryString()[RequestContext.REQUEST_FORMAT]))
             {
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_FORMAT, HttpContext.Current.Request.QueryString[RequestContext.REQUEST_FORMAT]);
+                HttpContext.Current.Items.Add(RequestContext.REQUEST_FORMAT, HttpContext.Current.Request.GetQueryString()[RequestContext.REQUEST_FORMAT]);
             }
 
             if (HttpContext.Current.Items[RequestContext.REQUEST_TYPE] != null)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.Filters;
 using WebAPI.Managers;
@@ -46,7 +47,7 @@ namespace WebAPI.Utils
             }
 
             string ip = string.Empty;
-            string retIp = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            string retIp = HttpContext.Current.Request.GetForwardedForHeader();
             string[] ipRange;
 
             if (!string.IsNullOrEmpty(retIp) && (ipRange = retIp.Split(',')) != null && ipRange.Length > 0)
@@ -55,7 +56,7 @@ namespace WebAPI.Utils
             }
             else
             {
-                ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                ip = HttpContext.Current.Request.GetRemoteAddress();
             }
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
@@ -188,7 +189,7 @@ namespace WebAPI.Utils
 
             string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
                 (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
-                "https" : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+                "https" : HttpContext.Current.Request.GetUrl().Scheme, HttpContext.Current.Request.GetUrl().Host, HttpContext.Current.Request.GetApplicationPath().TrimEnd('/'));
             return baseUrl;
         }
 

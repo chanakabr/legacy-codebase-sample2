@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -132,7 +133,7 @@ namespace WebAPI.Controllers
                     // pass query string params
                     if (response.Url.ToLower().Contains("playmanifest"))
                     {
-                        if (HttpContext.Current.Request.QueryString.Count > 0)
+                        if (HttpContext.Current.Request.GetQueryString().Count > 0)
                         {
                             string dynamicQueryStringParamsConfiguration = ApplicationConfiguration.PlayManifestDynamicQueryStringParamsNames.Value;
                             
@@ -149,15 +150,15 @@ namespace WebAPI.Controllers
 
                             foreach (var dynamicParam in dynamicQueryStringParamsNames)
                             {
-                                if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[dynamicParam]))
+                                if (!string.IsNullOrEmpty(HttpContext.Current.Request.GetQueryString()[dynamicParam]))
                                 {
-                                    response.Url = string.Format("{0}{1}{2}={3}", response.Url, response.Url.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.QueryString[dynamicParam]);
+                                    response.Url = string.Format("{0}{1}{2}={3}", response.Url, response.Url.Contains("?") ? "&" : "?", dynamicParam, HttpContext.Current.Request.GetQueryString()[dynamicParam]);
                                 }
                             }
                         }
                     }
 
-                    string responseFormat = HttpContext.Current.Request.QueryString["responseFormat"];
+                    string responseFormat = HttpContext.Current.Request.GetQueryString()["responseFormat"];
 
                     if (string.IsNullOrEmpty(responseFormat))
                     {

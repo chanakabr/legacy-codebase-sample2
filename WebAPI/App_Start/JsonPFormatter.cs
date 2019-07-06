@@ -23,6 +23,7 @@ using WebAPI.Reflection;
 using Newtonsoft.Json.Linq;
 using WebAPI.Managers;
 using WebAPI.Models.API;
+using TVinciShared;
 
 namespace WebAPI.Utils
 {
@@ -41,7 +42,7 @@ namespace WebAPI.Utils
             {
                 string json = jsonManager.Serialize(value);
 
-                string callback = HttpContext.Current.Request.QueryString["callback"];
+                string callback = HttpContext.Current.Request.GetQueryString()["callback"];
                 if (string.IsNullOrEmpty(callback))
                 {
                     callback = "callback";

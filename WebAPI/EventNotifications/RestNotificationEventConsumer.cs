@@ -12,7 +12,6 @@ using System.Reflection;
 using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
-using System.Web.Hosting;
 using KlogMonitorHelper;
 
 namespace WebAPI
@@ -264,12 +263,17 @@ namespace WebAPI
                 ContextData contextData = new ContextData();
                 var currentHttpContext = HttpContext.Current;
 
-                HostingEnvironment.QueueBackgroundWorkItem((obj) =>
+                Task.Run(() =>
                 {
                     try
                     {
                         contextData.Load();
+                        
+                        
+                        #if NET452
+                        // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = currentHttpContext;
+                        #endif
 
                         log.DebugFormat("Start async action: action name = {0}, partner {1},  specific notification is {2}",
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());

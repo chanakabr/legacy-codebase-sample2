@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Threading;
 using System.Web;
 using Core.Catalog;
 using Core.Catalog.Response;
+using TVinciShared;
 
 namespace WebAPI.Managers
 {
@@ -42,7 +44,7 @@ namespace WebAPI.Managers
                       cacheLock.EnterReadLock();
                       try
                       {
-                          cacheObj = HttpContext.Current.Cache.Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
+                          cacheObj = HttpContext.Current.GetCache().Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
                       }
                       finally
                       {
@@ -81,7 +83,14 @@ namespace WebAPI.Managers
                     cacheLock.EnterWriteLock();
                     try
                     {
-                        HttpContext.Current.Cache.Insert(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, null, experationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                        var cacheItemPolicy = new CacheItemPolicy
+                        {
+                           AbsoluteExpiration = new DateTimeOffset(experationTime),
+                           Priority = CacheItemPriority.Default,
+                        };
+
+                        var key = string.Format("{0}_{1}", keyPrefix, obj.AssetId);
+                        HttpContext.Current.GetCache().Add(key, obj, cacheItemPolicy);
                     }
                     finally
                     {
@@ -99,7 +108,7 @@ namespace WebAPI.Managers
             cacheLock.EnterReadLock();
             try
             {
-                cacheObj = HttpContext.Current.Cache.Get(key);
+                cacheObj = HttpContext.Current.GetCache().Get(key);
             }
             finally
             {
@@ -118,7 +127,14 @@ namespace WebAPI.Managers
             cacheLock.EnterWriteLock();
             try
             {
-                HttpContext.Current.Cache.Insert(key, response);
+                var expiration = new DateTime(DEFAULT_DURATION);
+                var cacheItemPolicy = new CacheItemPolicy
+                {
+                    Priority = CacheItemPriority.Default,
+                    AbsoluteExpiration = new DateTimeOffset(expiration),
+                };
+
+                HttpContext.Current.GetCache().Add(key, response, cacheItemPolicy);
             }
             finally
             {

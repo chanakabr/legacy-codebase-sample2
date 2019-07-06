@@ -201,7 +201,9 @@ namespace WebAPI.EventNotifications
         {
             int statusCode = -1;
 
+            #if NET452
             System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
+            #endif
 
             switch (this.Method)
             {
@@ -475,6 +477,7 @@ namespace WebAPI.EventNotifications
         }
     }
 
+    #if NET452
     public class KalturaPolicy : ICertificatePolicy
     {
         #region ICertificatePolicy Members
@@ -486,6 +489,7 @@ namespace WebAPI.EventNotifications
 
         #endregion
     }
+    #endif
 
     #region Enums
 

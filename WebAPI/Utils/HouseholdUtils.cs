@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -89,7 +90,7 @@ namespace WebAPI.Utils
         {
             KalturaHousehold domain = null;
 
-            if (HttpContext.Current.Items.Contains(HOUSEHOLD_KEY))
+            if (HttpContext.Current.Items.ContainsKey(HOUSEHOLD_KEY))
             {
                 domain = (KalturaHousehold)HttpContext.Current.Items[HOUSEHOLD_KEY];
             }
@@ -116,7 +117,7 @@ namespace WebAPI.Utils
             if (domain == null)
                 return null;
 
-            if (HttpContext.Current.Items.Contains(HOUSEHOLD_KEY))
+            if (HttpContext.Current.Items.ContainsKey(HOUSEHOLD_KEY))
             {
                 HttpContext.Current.Items[HOUSEHOLD_KEY] = domain;
             }

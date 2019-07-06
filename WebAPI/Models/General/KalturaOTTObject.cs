@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
@@ -56,7 +57,7 @@ namespace WebAPI.Models.General
 
         protected string EscapeXml(string str)
         {
-            return HttpContext.Current.Server.HtmlEncode(str);
+            return WebUtility.HtmlEncode(str);
         }
 
         public virtual string ToJson(Version currentVersion, bool omitObsolete)

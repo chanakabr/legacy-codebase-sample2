@@ -33,6 +33,7 @@ using System.Net;
 using System.Net.Http;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using TVinciShared;
 
 namespace WebAPI.App_Start
 {
@@ -106,7 +107,7 @@ namespace WebAPI.App_Start
                         }
 
                         HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
-                        HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
+                        HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
 
                         return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
                     }
@@ -122,7 +123,7 @@ namespace WebAPI.App_Start
                 }
             }
 
-            if (HttpContext.Current.Request.HttpMethod.Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
+            if (HttpContext.Current.Request.GetHttpMethod().Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
             {
                 HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }

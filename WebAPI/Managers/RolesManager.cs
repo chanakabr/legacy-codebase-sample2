@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -314,7 +315,7 @@ namespace WebAPI.Managers
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
             string userId = null;
-            if (HttpContext.Current.Items.Contains(RequestContext.REQUEST_USER_ID))
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_USER_ID))
             {
                 var extraUserId = HttpContext.Current.Items[RequestContext.REQUEST_USER_ID];
                 userId = extraUserId != null ? extraUserId.ToString() : null;

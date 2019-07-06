@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Routing;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Filters;

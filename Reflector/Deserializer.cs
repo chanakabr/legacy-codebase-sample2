@@ -39,6 +39,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Reflection;");
+            file.WriteLine("using TVinciShared;");
         }
 
         protected override void writeBody()

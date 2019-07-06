@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
-using System.Web.Routing;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -148,7 +148,8 @@ namespace WebAPI.Controllers
             {
                 // call client
                 // add header. if key exists use extraParams
-                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers, group.ShouldSupportSingleLogin);
+                var httpHeaders = HttpContext.Current.Request.GetHeaders();
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, httpHeaders, group.ShouldSupportSingleLogin);
             }
             catch (ClientExternalException ex)
             {

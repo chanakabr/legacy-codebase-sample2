@@ -23,18 +23,7 @@ using WebAPI.Controllers;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Scheme;
-using WebAPI.Models.Billing;
-using WebAPI.Models.Catalog;
-using WebAPI.Models.General;
-using WebAPI.Models.MultiRequest;
-using WebAPI.Reflection;
-using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
-using KlogMonitorHelper;
-using TVinciShared;
-using HttpMultipartParser;
-using EventManager;
+
 
 // TODO: Arthur, move to a different namespace (Exceptions, need to update reflector as well because of this)
 namespace WebAPI.Filters
