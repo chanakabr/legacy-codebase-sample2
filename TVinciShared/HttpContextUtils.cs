@@ -106,6 +106,19 @@ namespace TVinciShared
             return ctx.Server.MapPath(path);
         }
 
+        public static string GetApplicationPath(this HttpRequest req)
+        {
+            return req.ApplicationPath;
+        }
+
+        /// <summary>
+        /// This is a portability method for getting HttpContext.Current.Items.ContainsKey in bodth net framework and net core
+        /// </summary>
+        public static bool ContainesKey(this IDictionary items, string key)
+        {
+            return items.Contains(key);
+        }
+
         public static string GetHttpMethod(this HttpRequest req)
         {
             return req.HttpMethod;
@@ -117,6 +130,11 @@ namespace TVinciShared
         {
             return dict.Contains(key);
         }
+
+        public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
+        {
+            return System.Runtime.Caching.MemoryCache.Default;
+        } 
 
 #endif
 
@@ -234,6 +252,11 @@ namespace TVinciShared
             }
         }
 
+        public static string GetApplicationPath(this HttpRequest req)
+        {
+            return req.PathBase.Value;
+        }
+
         public static string GetHttpMethod(this HttpRequest req)
         {
             return req.Method;
@@ -263,6 +286,11 @@ namespace TVinciShared
         {
             return Path.Combine(System.Web.HostingEnvironment.Current.WebRootPath, path);
         }
+
+        public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
+        {
+            return System.Runtime.Caching.MemoryCache.Default;
+        } 
 
 #endif
     }
