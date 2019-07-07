@@ -55,6 +55,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
+            file.WriteLine("using TVinciShared;");
         }
 
         protected override void writeBody()
@@ -91,7 +92,7 @@ namespace Reflector
             
             if (properties.Any(doesPropertyRequiresReadPermission))
             {
-                file.WriteLine("            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;");
+                file.WriteLine("            var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;");
             }
 
             file.Write(Environment.NewLine);

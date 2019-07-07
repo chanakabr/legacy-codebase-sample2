@@ -9,6 +9,14 @@ using WebAPI.Models.General;
 
 namespace Phoenix.Context
 {
+    public class RequestRouteData
+    {
+        public string Service { get; set; }
+        public string Action { get; set; }
+        public string PathData { get; set; }
+    }
+
+
     public class PhoenixRequestContext
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -21,9 +29,7 @@ namespace Phoenix.Context
         public long UserId { get; set; }
         public string UserIpAdress { get; set; }
         public string Ks { get; set; }
-        public string Service { get; set; }
-        public string Action { get; set; }
-        public string PathData { get; set; }
+        public RequestRouteData RouteData { get; set; }
         public string Language { get; set; }
         public string Currency { get; set; }
         public string Format { get; set; }
@@ -32,8 +38,7 @@ namespace Phoenix.Context
         public bool AbortAllOnError { get; set; }
         public bool SkipCondition { get; set; }
         public IDictionary<string, object> ActionParams { get; set; } = new Dictionary<string, object>();
-        public IList<KalturaOTTFile> UploadedFiles { get; set; } = new List<KalturaOTTFile>();
-        public bool IsMultiRequest => Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
+        public bool IsMultiRequest => RouteData?.Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
         public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; } = new List<PhoenixRequestContext>();
         public KalturaOTTObject ResponseProfile { get; set; }
         public string RequestContentType { get; set; }
@@ -50,13 +55,13 @@ namespace Phoenix.Context
             HttpContext.Current.Items[ContextConstants.REQUEST_GROUP_ID] = GroupId;
             HttpContext.Current.Items[ContextConstants.USER_IP] = UserId;
             HttpContext.Current.Items[ContextConstants.USER_IP] = UserIpAdress;
-            HttpContext.Current.Items[ContextConstants.REQUEST_SERVICE] = Service;
-            HttpContext.Current.Items[ContextConstants.REQUEST_ACTION] = Action;
+            HttpContext.Current.Items[ContextConstants.REQUEST_SERVICE] = RouteData.Service;
+            HttpContext.Current.Items[ContextConstants.REQUEST_ACTION] = RouteData.Action;
+            HttpContext.Current.Items[ContextConstants.REQUEST_PATH_DATA] = RouteData.PathData;
             HttpContext.Current.Items[ContextConstants.REQUEST_FORMAT] = Format;
             HttpContext.Current.Items[ContextConstants.REQUEST_CURRENCY] = Currency;
             HttpContext.Current.Items[ContextConstants.REQUEST_LANGUAGE] = Language;
             HttpContext.Current.Items[ContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR] = this.AbortOnError;
-            HttpContext.Current.Items[ContextConstants.REQUEST_PATH_DATA] = PathData;
             HttpContext.Current.Items[ContextConstants.REQUEST_METHOD_PARAMETERS] = ActionParams;
             HttpContext.Current.Items[ContextConstants.REQUEST_RESPONSE_PROFILE] = ResponseProfile;
             HttpContext.Current.Items[ContextConstants.REQUEST_SERVE_CONTENT_TYPE] = RequestContentType;

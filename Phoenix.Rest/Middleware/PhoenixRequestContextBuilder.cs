@@ -20,6 +20,7 @@ using WebAPI.Models.General;
 
 namespace Phoenix.Rest.Middleware
 {
+
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -36,15 +37,15 @@ namespace Phoenix.Rest.Middleware
         {
             var phoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             var request = context.Request;
-            GetRouteData(phoenixCtx, request);
+            phoenixCtx.RouteData = GetRouteData(request);
 
             if (context.Request.Method == HttpMethods.Post)
             {
-                await GetRequestBody(phoenixCtx, request);
+                await GetRequestBody(request);
             }
             else
             {
-                GetRequestBodyFromQueryString(phoenixCtx, request);
+                GetRequestBodyFromQueryString(request);
             }
 
             phoenixCtx.SetHttpContextForBackwardCompatibility();
@@ -56,46 +57,41 @@ namespace Phoenix.Rest.Middleware
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(phoenixCtx));
             });
 
-
-
             await _Next(context);
-
         }
 
 
 
 
 
-        private void GetRouteData(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private RequestRouteData GetRouteData(HttpRequest request)
         {
-            if (!TryGetRouteDataFromUrl(phoenixCtx, request))
+            if (TryGetRouteDataFromUrl(request, out var routeDataFromUrl)) { return routeDataFromUrl; }
+            else if (TryGetRoutDataFromQueryString(request, out var routDataFromQS)) { return routDataFromQS; }
+            else if (TryGetRouteDataFromFormBody(request, out var routeDataFromFormBody)) { return routeDataFromFormBody; }
+            else
             {
-                if (!TryGetRoutDataFromQueryString(phoenixCtx, request))
-                {
-                    if (!TryGetRouteDataFromFormBody(phoenixCtx, request))
-                    {
-                        // TODO: arthur, add error response handling
-                        throw new Exception("Unknown service");
-                    }
-                };
+                // TODO: arthur, add error response handling
+                throw new Exception("Unknown service");
             }
         }
 
-        private bool TryGetRouteDataFromFormBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private bool TryGetRouteDataFromFormBody(HttpRequest request, out RequestRouteData routeData)
         {
+            routeData = new RequestRouteData();
             if (!request.HasFormContentType) { return false; }
 
             if (request.Form.TryGetValue("service", out var serviceQsVal))
             {
-                phoenixCtx.Service = serviceQsVal.First();
+                routeData.Service = serviceQsVal.First();
                 if (request.Form.TryGetValue("action", out var actionQsVal))
                 {
-                    phoenixCtx.Action = actionQsVal.First();
+                    routeData.Action = actionQsVal.First();
                 }
 
                 if (request.Form.TryGetValue("pathData", out var pathDataQsVal))
                 {
-                    phoenixCtx.PathData = pathDataQsVal.First();
+                    routeData.PathData = pathDataQsVal.First();
                 }
 
                 return true;
@@ -104,20 +100,22 @@ namespace Phoenix.Rest.Middleware
             return false;
         }
 
-        private bool TryGetRoutDataFromQueryString(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private bool TryGetRoutDataFromQueryString(HttpRequest request, out RequestRouteData routeData)
         {
+            routeData = new RequestRouteData();
+
             if (request.Method != HttpMethods.Get) { return false; }
             if (request.Query.TryGetValue("service", out var serviceQsVal))
             {
-                phoenixCtx.Service = serviceQsVal.First();
+                routeData.Service = serviceQsVal.First();
                 if (request.Query.TryGetValue("action", out var actionQsVal))
                 {
-                    phoenixCtx.Action = actionQsVal.First();
+                    routeData.Action = actionQsVal.First();
                 }
 
                 if (request.Query.TryGetValue("pathData", out var pathDataQsVal))
                 {
-                    phoenixCtx.PathData = pathDataQsVal.First();
+                    routeData.PathData = pathDataQsVal.First();
                 }
 
                 return true;
@@ -126,33 +124,35 @@ namespace Phoenix.Rest.Middleware
             return false;
         }
 
-        private bool TryGetRouteDataFromUrl(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private bool TryGetRouteDataFromUrl(HttpRequest request, out RequestRouteData routeData)
         {
+            routeData = new RequestRouteData();
+
             var urlSegments = request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
-            phoenixCtx.Service = urlSegments.ElementAtOrDefault(2);
-            var isRoutDataFoundInUrl = phoenixCtx.Service != null;
+            routeData.Service = urlSegments.ElementAtOrDefault(2);
+            var isRoutDataFoundInUrl = routeData.Service != null;
             if (isRoutDataFoundInUrl)
             {
-                phoenixCtx.Action = urlSegments.ElementAtOrDefault(4);
+                routeData.Action = urlSegments.ElementAtOrDefault(4);
             }
 
-            phoenixCtx.PathData = string.Join('/', urlSegments.Skip(4));
+            routeData.PathData = string.Join('/', urlSegments.Skip(4));
 
             return isRoutDataFoundInUrl;
         }
 
 
-        private async Task GetRequestBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private async Task<IDictionary<string, object>> GetRequestBody(HttpRequest request)
         {
 
             if (request.HasFormContentType)
             {
-                await ParseFormDataBody(phoenixCtx, request);
+                return await ParseFormDataBody(request);
             }
             else if (request.ContentType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
             {
-                await ParseJsonBody(phoenixCtx, request);
+                return await ParseJsonBody(request);
             }
             else
             {
@@ -163,38 +163,41 @@ namespace Phoenix.Rest.Middleware
 
         }
 
-        private void GetRequestBodyFromQueryString(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private IDictionary<string, object> GetRequestBodyFromQueryString(HttpRequest request)
         {
             var queryStringDictionary = request.Query.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
             var nestedDictionary = GetNestedDictionary(queryStringDictionary);
-            phoenixCtx.ActionParams = nestedDictionary;
+            return nestedDictionary;
 
         }
 
-        private async Task ParseFormDataBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private async Task<IDictionary<string, object>> ParseFormDataBody(HttpRequest request)
         {
-            await ParseUploadedFiles(phoenixCtx, request);
+            var uploadedFilesDictionary = await ParseUploadedFiles(request);
 
-            ParseRequestBodyFromFormData(phoenixCtx, request);
+            var actionParamsDictionary = ParseRequestBodyFromFormData(request);
+            return uploadedFilesDictionary.Concat(actionParamsDictionary).ToDictionary(k => k.Key, v => v.Value);
 
         }
 
-        private void ParseRequestBodyFromFormData(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private IDictionary<string, object> ParseRequestBodyFromFormData(HttpRequest request)
         {
             if (request.Form.TryGetValue("json", out var jsonFromData))
             {
                 var body = JObject.Parse(jsonFromData.First());
+                return body.ToObject<IDictionary<string, object>>();
             }
             else
             {
                 var queryStringDictionary = request.Form.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
                 var nestedDictionary = GetNestedDictionary(queryStringDictionary);
-                phoenixCtx.ActionParams = nestedDictionary;
+                return nestedDictionary;
             }
         }
 
-        private async Task ParseUploadedFiles(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private async Task<IDictionary<string, object>> ParseUploadedFiles(HttpRequest request)
         {
+            var uploadedFiles = new Dictionary<string, object>();
             if (!Directory.Exists(_FileSystemUploaderSourcePath))
             {
                 Directory.CreateDirectory(_FileSystemUploaderSourcePath);
@@ -208,18 +211,20 @@ namespace Phoenix.Rest.Middleware
                     await uploadedFile.CopyToAsync(tempFile);
                 }
 
-                phoenixCtx.UploadedFiles.Add(new KalturaOTTFile(filePath, uploadedFile.FileName));
+                uploadedFiles.Add(uploadedFile.Name, new KalturaOTTFile(filePath, uploadedFile.FileName));
             }
+
+            return uploadedFiles;
         }
 
-        private static async Task ParseJsonBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        private static async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request)
         {
 
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
                 var body = await JObject.LoadAsync(jsonReader);
-                phoenixCtx.ActionParams = body.ToObject<Dictionary<string, object>>();
+                return body.ToObject<Dictionary<string, object>>();
             }
         }
 
