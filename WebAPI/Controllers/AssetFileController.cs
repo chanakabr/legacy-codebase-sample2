@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(tokenizedUrl))
                 {
-                    response.Url = Encoding.UTF8.GetString(Convert.FromBase64String(tokenizedUrl));
+                    response.Url = Encoding.UTF8.GetString(Convert.FromBase64String(Utils.Utils.ReturnSlashesToBase64Str(tokenizedUrl)));
                 }
                 else
                 {
