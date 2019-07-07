@@ -16,7 +16,7 @@ namespace WebAPI
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static List<object> BuildActionArguments(Dictionary<string, MethodParam> methodArgs, Dictionary<string, object> reqParams)
+        public static List<object> BuildActionArguments(Dictionary<string, MethodParam> methodArgs, IDictionary<string, object> reqParams)
         {
             List<Object> methodParams = new List<object>();
             foreach (KeyValuePair<string, MethodParam> methodArgItem in methodArgs)

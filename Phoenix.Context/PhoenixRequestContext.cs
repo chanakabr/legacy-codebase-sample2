@@ -37,7 +37,7 @@ namespace Phoenix.Context
         public bool AbortOnError { get; set; }
         public bool AbortAllOnError { get; set; }
         public bool SkipCondition { get; set; }
-        public IDictionary<string, object> ActionParams { get; set; } = new Dictionary<string, object>();
+        public List<object> ActionParams { get; set; } = new List<object>();
         public bool IsMultiRequest => RouteData?.Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
         public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; } = new List<PhoenixRequestContext>();
         public KalturaOTTObject ResponseProfile { get; set; }

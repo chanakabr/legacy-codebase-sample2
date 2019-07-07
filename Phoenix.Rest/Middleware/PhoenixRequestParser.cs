@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Phoenix.Rest.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

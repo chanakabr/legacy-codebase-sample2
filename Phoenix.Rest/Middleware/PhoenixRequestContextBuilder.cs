@@ -17,6 +17,10 @@ using System.Collections.Generic;
 using System.IO;
 using ConfigurationManager;
 using WebAPI.Models.General;
+using WebAPI.Reflection;
+using WebAPI;
+using WebAPI.Controllers;
+using WebAPI.Managers.Models;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -25,6 +29,8 @@ namespace Phoenix.Rest.Middleware
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
+        private static int _LegacyAccessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
+
 
         private readonly RequestDelegate _Next;
 
@@ -35,20 +41,25 @@ namespace Phoenix.Rest.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
+            KS.ClearOnRequest();
             var phoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             var request = context.Request;
             phoenixCtx.RouteData = GetRouteData(request);
+            var action = phoenixCtx.RouteData.Action;
+            var service = phoenixCtx.RouteData.Service;
+            var pathData = phoenixCtx.RouteData.PathData;
 
-            if (context.Request.Method == HttpMethods.Post)
-            {
-                await GetRequestBody(request);
-            }
-            else
-            {
-                GetRequestBodyFromQueryString(request);
-            }
+
+            var parsedActionParams = await GetActionParams(context.Request.Method, request);
+            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
+
+            RequestContext.SetContext(parsedActionParams, service, action);
 
             phoenixCtx.SetHttpContextForBackwardCompatibility();
+            var ctr = new ServiceController();
+            var response = ctr.Action(phoenixCtx.RouteData.Service, phoenixCtx.RouteData.Action);
+
+
 
             context.Response.OnStarting(async () =>
             {
@@ -60,6 +71,36 @@ namespace Phoenix.Rest.Middleware
             await _Next(context);
         }
 
+        private List<object> GetDeserializedActionParams(IDictionary<string, object> parsedActionParams, bool isMultiRequest, string service, string action)
+        {
+            var actionParams = new List<object>();
+            if (isMultiRequest)
+            {
+                // TODO: arthur handle multirequest
+                throw new NotImplementedException("Multi request not implemented in net core yet ... where is Arthur!");
+            }
+            else
+            {
+                var methodArgs = DataModel.getMethodParams(service, action);
+                actionParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parsedActionParams);
+            }
+            return actionParams;
+        }
+
+        private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request)
+        {
+            IDictionary<string, object> parsedActionParams;
+            if (httpMethod == HttpMethods.Post)
+            {
+                parsedActionParams = await GetActionParsemFromPostBody(request);
+            }
+            else
+            {
+                parsedActionParams = GetActionParamsFromQueryString(request);
+            }
+
+            return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
+        }
 
 
 
@@ -143,7 +184,7 @@ namespace Phoenix.Rest.Middleware
         }
 
 
-        private async Task<IDictionary<string, object>> GetRequestBody(HttpRequest request)
+        private async Task<IDictionary<string, object>> GetActionParsemFromPostBody(HttpRequest request)
         {
 
             if (request.HasFormContentType)
@@ -163,7 +204,7 @@ namespace Phoenix.Rest.Middleware
 
         }
 
-        private IDictionary<string, object> GetRequestBodyFromQueryString(HttpRequest request)
+        private IDictionary<string, object> GetActionParamsFromQueryString(HttpRequest request)
         {
             var queryStringDictionary = request.Query.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
             var nestedDictionary = GetNestedDictionary(queryStringDictionary);
@@ -273,6 +314,11 @@ namespace Phoenix.Rest.Middleware
         {
             var randomFileName = Path.GetRandomFileName();
             return Path.GetFileNameWithoutExtension(randomFileName) + Path.GetExtension(fileName);
+        }
+
+        private static bool IsKsV2Format(string ksVal)
+        {
+            return ksVal.Length > _LegacyAccessTokenLength;
         }
     }
 

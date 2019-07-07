@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Phoenix.Context;
 using System.Linq;
+using WebAPI.Filters;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -24,6 +25,7 @@ namespace Phoenix.Rest.Middleware
         /// </summary>
         public static IApplicationBuilder UsePhoenix(this IApplicationBuilder app)
         {
+            AutoMapperConfig.RegisterMappings();
             app.UseMiddleware<PhoenixSessionId>();
             app.UseMiddleware<PhoenixCors>();
             app.UseMiddleware<PhoenixRequestContextBuilder>();
