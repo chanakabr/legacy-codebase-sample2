@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace WebAPI.Models.MultiRequest
+﻿namespace WebAPI.Models.MultiRequest
 {
     public enum KalturaSkipOptions
     {

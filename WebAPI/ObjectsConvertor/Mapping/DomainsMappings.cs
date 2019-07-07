@@ -1,15 +1,8 @@
-﻿using AutoMapper;
-using Core.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Core.Users;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
-using WebAPI.Models.General;
-using WebAPI.Utils;
 using AutoMapper.Configuration;
 using TVinciShared;
 

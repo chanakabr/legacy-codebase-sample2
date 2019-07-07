@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
-using WebAPI.ClientManagers.Client;
+﻿using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
 

@@ -1,5 +1,4 @@
-﻿using ApiObjects.Roles;
-using CachingProvider.LayeredCache;
+﻿using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -8,12 +7,9 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using TVinciShared;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 

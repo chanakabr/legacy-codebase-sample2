@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using AutoMapper;
 using Catalog.Response;
 using Core.Catalog;
 using Core.Catalog.Request;
@@ -9,19 +8,14 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.ServiceModel;
-using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
-using WebAPI.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor;
-using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Utils
 {

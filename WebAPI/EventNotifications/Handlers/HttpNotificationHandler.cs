@@ -2,21 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Web;
 using WebAPI.Models.General;
 using KLogMonitor;
-using KlogMonitorHelper;
 using System.Reflection;
 using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using WebAPI.Managers;
-using WebAPI.Filters;
 
 namespace WebAPI.EventNotifications
 {

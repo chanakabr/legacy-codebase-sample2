@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Web;
-using WebAPI.Filters;
-using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Scheme
 {

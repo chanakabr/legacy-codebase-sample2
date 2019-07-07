@@ -1,27 +1,4 @@
-﻿using ConfigurationManager;
-using KLogMonitor;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Http.Filters;
-using WebAPI.ClientManagers;
-using WebAPI.Controllers;
-using WebAPI.Exceptions;
-using WebAPI.Managers;
+﻿using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 
 

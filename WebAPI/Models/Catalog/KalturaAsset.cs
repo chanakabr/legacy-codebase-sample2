@@ -1,16 +1,11 @@
-﻿using ApiObjects;
-using Core.Catalog.CatalogManagement;
-using Jil;
+﻿using Jil;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;

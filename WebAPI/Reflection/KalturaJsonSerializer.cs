@@ -4,27 +4,10 @@ using System.Linq;
 using System.Web;
 using System.Collections.Generic;
 using WebAPI.Managers.Scheme;
-using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.Social;
-using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
-using WebAPI.Models.Notifications;
-using WebAPI.Models.Notification;
-using WebAPI.App_Start;
 using WebAPI.Models.Catalog;
-using WebAPI.Models.API;
-using WebAPI.Models.Pricing;
-using WebAPI.Models.Users;
-using WebAPI.Models.Segmentation;
-using WebAPI.Models.Partner;
-using WebAPI.Models.Upload;
-using WebAPI.Models.DMS;
-using WebAPI.Models.Domains;
-using WebAPI.Models.Billing;
-using WebAPI.EventNotifications;
-using WebAPI.Models.Api;
 using TVinciShared;
 
 namespace WebAPI.Models.ConditionalAccess

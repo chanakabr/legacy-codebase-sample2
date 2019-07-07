@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Web;
-using Newtonsoft.Json;
-using WebAPI.Models.General;
-using System.Xml.Serialization;
-using WebAPI.Managers.Scheme;
-
-namespace WebAPI.Models.Social
+﻿namespace WebAPI.Models.Social
 {
     public partial class KalturaFacebookSocial : KalturaSocial
     {

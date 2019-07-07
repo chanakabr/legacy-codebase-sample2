@@ -1,30 +1,27 @@
-﻿using ApiObjects.Response;
-using KLogMonitor;
-using Newtonsoft.Json.Linq;
+﻿using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.Description;
-using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
 
+#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Mvc;
+#endif
+#if NET461
+using System.Web.Http.Description;
+#endif
+
 namespace WebAPI.Controllers
 {
+    #if NET461
     [RoutePrefix("api_v3")]
+    #endif
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {

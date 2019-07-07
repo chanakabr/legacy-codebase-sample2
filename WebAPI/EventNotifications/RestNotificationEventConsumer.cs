@@ -2,11 +2,8 @@
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using WebAPI.Managers.Models;
-using System.Collections.Concurrent;
-using Newtonsoft.Json.Linq;
 using WebAPI.EventNotifications;
 using System.Reflection;
 using ApiObjects;

@@ -1,9 +1,6 @@
 ﻿using KLogMonitor;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
 using WebAPI.App_Start;
 
 namespace WebAPI

@@ -15,12 +15,17 @@ using System.Linq;
 using Phoenix.Rest.Helpers;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
+using System.IO;
+using ConfigurationManager;
+using WebAPI.Models.General;
 
 namespace Phoenix.Rest.Middleware
 {
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
+
         private readonly RequestDelegate _Next;
 
         public PhoenixRequestContextBuilder(RequestDelegate next)
@@ -168,12 +173,14 @@ namespace Phoenix.Rest.Middleware
 
         private async Task ParseFormDataBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
         {
-            foreach (var file in request.Form.Files)
-            {
-                // TODO: Parse Kaltura OTT Files and upload
-                throw new NotImplementedException("File upload is not implementd");
-            }
+            await ParseUploadedFiles(phoenixCtx, request);
 
+            ParseRequestBodyFromFormData(phoenixCtx, request);
+
+        }
+
+        private void ParseRequestBodyFromFormData(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        {
             if (request.Form.TryGetValue("json", out var jsonFromData))
             {
                 var body = JObject.Parse(jsonFromData.First());
@@ -184,7 +191,25 @@ namespace Phoenix.Rest.Middleware
                 var nestedDictionary = GetNestedDictionary(queryStringDictionary);
                 phoenixCtx.ActionParams = nestedDictionary;
             }
+        }
 
+        private async Task ParseUploadedFiles(PhoenixRequestContext phoenixCtx, HttpRequest request)
+        {
+            if (!Directory.Exists(_FileSystemUploaderSourcePath))
+            {
+                Directory.CreateDirectory(_FileSystemUploaderSourcePath);
+            }
+
+            foreach (var uploadedFile in request.Form.Files)
+            {
+                var filePath = $@"{_FileSystemUploaderSourcePath}\{CreateRandomFileName(uploadedFile.FileName)}";
+                using (Stream tempFile = File.Create(filePath))
+                {
+                    await uploadedFile.CopyToAsync(tempFile);
+                }
+
+                phoenixCtx.UploadedFiles.Add(new KalturaOTTFile(filePath, uploadedFile.FileName));
+            }
         }
 
         private static async Task ParseJsonBody(PhoenixRequestContext phoenixCtx, HttpRequest request)
@@ -237,6 +262,12 @@ namespace Phoenix.Rest.Middleware
                     nestedDict = nestedDict[key] as Dictionary<string, object>;
                 }
             }
+        }
+
+        private string CreateRandomFileName(string fileName)
+        {
+            var randomFileName = Path.GetRandomFileName();
+            return Path.GetFileNameWithoutExtension(randomFileName) + Path.GetExtension(fileName);
         }
     }
 

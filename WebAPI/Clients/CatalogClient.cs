@@ -21,7 +21,6 @@ using WebAPI.App_Start;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Api;
 using WebAPI.Models.API;

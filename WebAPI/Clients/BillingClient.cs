@@ -3,7 +3,6 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -12,10 +11,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.Partner;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
-using System.Linq;
 using ApiObjects.Billing;
 using ApiObjects.Response;
 

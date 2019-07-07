@@ -1,10 +1,6 @@
 ﻿using ApiObjects;
-using EventManager;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using WebAPI.Filters;
 using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications

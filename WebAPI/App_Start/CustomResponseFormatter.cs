@@ -3,21 +3,11 @@ using System.IO;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Runtime.Serialization;
-using WebAPI.Models.General;
-using System.Text;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Renderers;
 using System.Net.Http;
 using System.Net;
-using System.Web.Http;
-using System.Web.Http.Routing;
-using WebAPI.Filters;
 using System.Web;
-using WebAPI.Utils;
 
 namespace WebAPI.App_Start
 {

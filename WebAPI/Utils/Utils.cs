@@ -1,15 +1,10 @@
-﻿using ConfigurationManager;
-using ConfigurationManager.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers;
-using WebAPI.Filters;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 

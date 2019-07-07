@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
+using WebAPI.Models.General;
 
 namespace Phoenix.Context
 {
@@ -29,7 +30,7 @@ namespace Phoenix.Context
         public bool AbortAllOnError { get; set; }
         public bool SkipCondition { get; set; }
         public IDictionary<string, object> ActionParams { get; set; } = new Dictionary<string, object>();
-        public object FormFiles { get; set; }
+        public IList<KalturaOTTFile> UploadedFiles { get; set; } = new List<KalturaOTTFile>();
         public bool IsMultiRequest => Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
         public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; } = new List<PhoenixRequestContext>();
 

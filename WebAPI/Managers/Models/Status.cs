@@ -1,14 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Runtime.Serialization;
-using System.Web;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Models
 {
