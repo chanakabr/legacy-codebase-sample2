@@ -116,6 +116,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.ActivatedOn)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
             ;
+
+            // TODO ANAT(BEO-6931) - MAP KalturaHouseholdCoupon TO DomainCoupon
+                         
+            // TODO ANAT(BEO-6931) - MAP DomainCoupon TO KalturaHouseholdCoupon
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

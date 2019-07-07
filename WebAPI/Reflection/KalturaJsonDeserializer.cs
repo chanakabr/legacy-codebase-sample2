@@ -769,6 +769,9 @@ namespace WebAPI.Reflection
                 case "KalturaHousehold":
                     return new KalturaHousehold(parameters);
                     
+                case "KalturaHouseholdCoupon":
+                    return new KalturaHouseholdCoupon(parameters);
+                    
                 case "KalturaHouseholdDevice":
                     return new KalturaHouseholdDevice(parameters);
                     
@@ -25785,6 +25788,19 @@ namespace WebAPI.Models.Domains
                         RoleIdSchemaProperty.Validate("roleId", parameters["roleId"]);
                     }
                     RoleId = (Int32) Convert.ChangeType(parameters["roleId"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdCoupon
+    {
+        public KalturaHouseholdCoupon(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
             }
         }

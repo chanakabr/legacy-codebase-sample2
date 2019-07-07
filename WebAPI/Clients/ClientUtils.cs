@@ -17,12 +17,14 @@ using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using ApiObjects.Base;
 
 namespace WebAPI.Clients
 {
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static object handler1;
 
         internal static U GetResponseFromWS<U, T>(U requestObject, Func<T, GenericResponse<T>> funcInWS)
             where U : KalturaOTTObject where T : class
@@ -40,7 +42,6 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-
                 log.Error("Exception received while calling client service.", ex);
                 ErrorUtils.HandleWSException(ex);
             }
@@ -209,6 +210,51 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(status.Code, status.Message);
             }
+        }
+
+        //------------------------------------
+        // TODO SHIR - put all crud generic methods in other place
+        internal static KalturaT Add<KalturaT, CoreT>(int groupId, KalturaT kalturaObjectToAdd)
+            where KalturaT : KalturaOTTObject, IKalturaCrudHandeledObject<CoreT>
+            where CoreT : class, ICrudHandeledObject
+        {
+            var handler = kalturaObjectToAdd.GetHandler();
+            KalturaT result = ClientUtils.GetResponseFromWS(kalturaObjectToAdd, (CoreT objectToAdd) => handler.Add(groupId, objectToAdd));
+
+            //---------------
+            //GenericResponse<CoreT> response = null;
+            //try
+            //{
+            //    var handler = kalturaObjectToAdd.GetHandler();
+            //    var objectToAdd = AutoMapper.Mapper.Map<CoreT>(kalturaObjectToAdd);
+            //    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            //    {
+            //        response = handler.Add(groupId, objectToAdd);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Error("An Exception was occurred while adding an object with CRUD handler.", ex);
+            //    ErrorUtils.HandleWSException(ex);
+            //}
+
+            //if (response == null)
+            //{
+            //    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            //}
+
+            //if (response.Status.Code != (int)StatusCode.OK)
+            //{
+            //    throw new ClientException(response.Status.Code, response.Status.Message);
+            //}
+            
+            //KalturaT result = null;
+            //if (response.Object != null)
+            //{
+            //    result = AutoMapper.Mapper.Map<KalturaT>(response.Object);
+            //}
+            
+            return result;
         }
     }
 }

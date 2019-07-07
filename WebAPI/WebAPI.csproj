@@ -810,6 +810,7 @@
     <Compile Include="Clients\ClientUtils.cs" />
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
+    <Compile Include="Controllers\HouseholdCouponController.cs" />
     <Compile Include="Controllers\IngestProfileController.cs" />
     <Compile Include="Controllers\TopicNotificationController.cs" />
     <Compile Include="Controllers\TopicNotificationMessageController.cs" />
@@ -875,7 +876,9 @@
     <Compile Include="Models\ConditionalAccess\KalturaCloudRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCloudSeriesRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaExternalRecordingFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdCoupon.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
+    <Compile Include="Models\General\IKalturaCrudHandeledObject.cs" />
     <Compile Include="Models\General\KalturaApiPriviligesPermissionItem.cs" />
     <Compile Include="Models\General\KalturaMessage.cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />

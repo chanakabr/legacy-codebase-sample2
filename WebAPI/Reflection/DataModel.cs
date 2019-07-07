@@ -2663,6 +2663,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaHouseholdCoupon":
+                    switch(property.Name)
+                    {
+                        case "HouseholdId":
+                            return "householdId";
+                    }
+                    break;
+                    
                 case "KalturaHouseholdDevice":
                     switch(property.Name)
                     {
@@ -7752,6 +7760,16 @@ namespace WebAPI.Reflection
                         case "updateoldstandard":
                             RolesManager.ValidateActionPermitted("household", "updateOldStandard", false);
                             return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "householdcoupon":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdCoupon", "add", false);
+                            return HouseholdCouponController.Add((KalturaHouseholdCoupon) methodParams[0]);
                             
                     }
                     break;
@@ -13434,6 +13452,20 @@ namespace WebAPI.Reflection
                             ret.Add("description", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdcoupon":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("householdCoupon", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdCoupon),
                             });
                             return ret;
                             
