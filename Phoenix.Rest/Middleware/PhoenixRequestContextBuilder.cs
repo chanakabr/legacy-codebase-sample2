@@ -65,7 +65,7 @@ namespace Phoenix.Rest.Middleware
             {
                 context.Response.ContentType = "application/json; charset=utf-8";
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
-                await context.Response.WriteAsync(JsonConvert.SerializeObject(phoenixCtx));
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
             });
 
             await _Next(context);

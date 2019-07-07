@@ -6,6 +6,9 @@ using System.Web;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using WebAPI.Models.General;
+using TVinciShared;
+using System.Collections;
+using WebAPI.Managers.Models;
 
 namespace Phoenix.Context
 {
@@ -25,10 +28,10 @@ namespace Phoenix.Context
         public string SessionId { get; set; }
         public string ClientTag { get; set; }
         public DateTime RequestDate { get; set; } = DateTime.UtcNow;
-        public long GroupId { get; set; }
-        public long UserId { get; set; }
+        public int GroupId { get; set; }
+        public int UserId { get; set; }
         public string UserIpAdress { get; set; }
-        public string Ks { get; set; }
+        public KS Ks { get; set; }
         public RequestRouteData RouteData { get; set; }
         public string Language { get; set; }
         public string Currency { get; set; }
@@ -51,23 +54,35 @@ namespace Phoenix.Context
         /// </summary>
         public void SetHttpContextForBackwardCompatibility()
         {
-            HttpContext.Current.Items[ContextConstants.REQUEST_KS] = Ks;
-            HttpContext.Current.Items[ContextConstants.REQUEST_GROUP_ID] = GroupId;
-            HttpContext.Current.Items[ContextConstants.USER_IP] = UserId;
-            HttpContext.Current.Items[ContextConstants.USER_IP] = UserIpAdress;
-            HttpContext.Current.Items[ContextConstants.REQUEST_SERVICE] = RouteData.Service;
-            HttpContext.Current.Items[ContextConstants.REQUEST_ACTION] = RouteData.Action;
-            HttpContext.Current.Items[ContextConstants.REQUEST_PATH_DATA] = RouteData.PathData;
-            HttpContext.Current.Items[ContextConstants.REQUEST_FORMAT] = Format;
-            HttpContext.Current.Items[ContextConstants.REQUEST_CURRENCY] = Currency;
-            HttpContext.Current.Items[ContextConstants.REQUEST_LANGUAGE] = Language;
-            HttpContext.Current.Items[ContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR] = this.AbortOnError;
-            HttpContext.Current.Items[ContextConstants.REQUEST_METHOD_PARAMETERS] = ActionParams;
-            HttpContext.Current.Items[ContextConstants.REQUEST_RESPONSE_PROFILE] = ResponseProfile;
-            HttpContext.Current.Items[ContextConstants.REQUEST_SERVE_CONTENT_TYPE] = RequestContentType;
-            HttpContext.Current.Items[ContextConstants.REQUEST_TIME] = RequestDate;
-            HttpContext.Current.Items[ContextConstants.REQUEST_TYPE] = RequestType;
-            HttpContext.Current.Items[ContextConstants.REQUEST_VERSION] = RequestVersion;
+            var ctx = HttpContext.Current.Items;
+
+            Ks = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_KS, Ks);
+            GroupId = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_GROUP_ID, GroupId);
+            UserId = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_USER_ID, UserId);
+            UserIpAdress = GetOrSetFromHttpContext(ctx, ContextConstants.USER_IP, UserIpAdress);
+            RouteData.Service = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_SERVICE, RouteData.Service);
+            RouteData.Action = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_ACTION, RouteData.Action);
+            RouteData.PathData = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_PATH_DATA, RouteData.PathData);
+            Format = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_FORMAT, Format);
+            Currency = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_CURRENCY, Currency);
+            AbortOnError = GetOrSetFromHttpContext(ctx, ContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, AbortOnError);
+            ActionParams = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_METHOD_PARAMETERS, ActionParams);
+            ResponseProfile = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_RESPONSE_PROFILE, ResponseProfile);
+            RequestContentType = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_SERVE_CONTENT_TYPE, RequestContentType);
+            RequestDate = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_TIME, RequestDate);
+            RequestType = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_TYPE, RequestType);
+            RequestVersion = GetOrSetFromHttpContext(ctx, ContextConstants.REQUEST_VERSION, RequestVersion);
+        }
+
+        #if NET461
+        private T GetOrSetFromHttpContext<T>(IDictionary ctx, string key, T value)
+        #endif
+        #if NETSTANDARD2_0
+        private T GetOrSetFromHttpContext<T>(IDictionary<object, object> ctx, string key, T value)
+        #endif
+        {
+            if (!ctx.ContainsKey(key)) { ctx[key] = value; }
+            return (T)ctx[key];
         }
     }
 }
