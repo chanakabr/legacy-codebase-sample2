@@ -20,8 +20,8 @@ namespace Core.Catalog
         
         // ASSET EXCEL COLUMNS
         public const string MEDIA_ASSET_TYPE = "Media Asset Type";
-        public const string GEO_RULE_ID = "GeoBlockRuleId";
-        public const string DEVICE_RULE_ID = "DeviceRuleId";
+        public const string GEO_RULE = "Geo Block Rule";
+        public const string DEVICE_RULE = "Device Rule";
         public const string FILES = "FILES";
 
         #endregion
@@ -43,11 +43,11 @@ namespace Core.Catalog
         [JsonProperty("EntryId")]
         public string EntryId { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Rule, DEVICE_RULE_ID)]
+        [ExcelColumn(ExcelColumnType.Rule, DEVICE_RULE)]
         [JsonProperty("DeviceRuleId")]
         public int? DeviceRuleId { get; set; }
 
-        [ExcelColumn(ExcelColumnType.Rule, GEO_RULE_ID)]
+        [ExcelColumn(ExcelColumnType.Rule, GEO_RULE)]
         [JsonProperty("GeoBlockRuleId")]
         public int? GeoBlockRuleId { get; set; }
 
@@ -217,14 +217,22 @@ namespace Core.Catalog
 
             if (this.DeviceRuleId.HasValue)
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(DEVICE_RULE_ID);
-                excelValues.TryAdd(excelColumn, this.DeviceRuleId);
+                var deviceRuleName = TvmRuleManager.GetDeviceRuleName(groupId, this.DeviceRuleId.Value);
+                if (!string.IsNullOrEmpty(deviceRuleName))
+                {
+                    var excelColumn = ExcelColumn.GetFullColumnName(DEVICE_RULE);
+                    excelValues.TryAdd(excelColumn, deviceRuleName);
+                }
             }
 
             if (this.GeoBlockRuleId.HasValue)
             {
-                var excelColumn = ExcelColumn.GetFullColumnName(GEO_RULE_ID);
-                excelValues.TryAdd(excelColumn, this.GeoBlockRuleId);
+                var geoBlockRuleName = TvmRuleManager.GetGeoBlockRuleName(groupId, this.GeoBlockRuleId.Value);
+                if (!string.IsNullOrEmpty(geoBlockRuleName))
+                {
+                    var excelColumn = ExcelColumn.GetFullColumnName(GEO_RULE);
+                    excelValues.TryAdd(excelColumn, geoBlockRuleName);
+                }
             }
 
             if (this.IsActive.HasValue)
@@ -281,15 +289,6 @@ namespace Core.Catalog
                     {
                         switch (columns[columnValue.Key].ColumnType)
                         {
-                            case ExcelColumnType.Meta:
-                                SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
-                                break;
-                            case ExcelColumnType.Tag:
-                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code);
-                                break;
-                            case ExcelColumnType.Image:
-                                SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
-                                break;
                             case ExcelColumnType.Basic:
                                 SetBasicByExcelValues(columnValue, assetStruct);
                                 break;
@@ -302,6 +301,18 @@ namespace Core.Catalog
                                     var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
                                     SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
                                 }
+                                break;
+                            case ExcelColumnType.Image:
+                                SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
+                                break;
+                            case ExcelColumnType.Meta:
+                                SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
+                                break;
+                            case ExcelColumnType.Rule:
+                                SetRuleByExcelValues(columnValue, groupId);
+                                break;
+                            case ExcelColumnType.Tag:
+                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code);
                                 break;
                             default:
                                 SetPropertyByExcelValue(columns[columnValue.Key].Property, columnValue.Value);
@@ -350,7 +361,28 @@ namespace Core.Catalog
                 this.Metas.Add(currMeta);
             }
         }
-        
+
+        private void SetRuleByExcelValues(KeyValuePair<string, object> columnValue, int groupId)
+        {
+            if (columnValue.Value == null) { return; }
+            var ruleName = columnValue.Value.ToString();
+            if (string.IsNullOrEmpty(ruleName)) { return; }
+
+            var deviceRuleColumn = ExcelColumn.GetFullColumnName(DEVICE_RULE);
+            if (columnValue.Key.Equals(deviceRuleColumn))
+            {
+                this.DeviceRuleId = (int?)TvmRuleManager.GetDeviceRuleId(groupId, ruleName);
+                return;
+            }
+
+            var geoRuleColumn = ExcelColumn.GetFullColumnName(GEO_RULE);
+            if (columnValue.Key.Equals(geoRuleColumn))
+            {
+                this.GeoBlockRuleId = (int?)TvmRuleManager.GetGeoBlockRuleId(groupId, ruleName);
+                return;
+            }
+        }
+
         private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)

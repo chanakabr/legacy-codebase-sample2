@@ -364,15 +364,15 @@ namespace Core.Catalog
                 }
 
                 // RULES
-                if (systemNameToExcelAttribute.ContainsKey(MediaAsset.GEO_RULE_ID))
+                if (systemNameToExcelAttribute.ContainsKey(MediaAsset.GEO_RULE))
                 {
-                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.GEO_RULE_ID], MediaAsset.GEO_RULE_ID);
+                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.GEO_RULE], MediaAsset.GEO_RULE);
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
-                if (systemNameToExcelAttribute.ContainsKey(MediaAsset.DEVICE_RULE_ID))
+                if (systemNameToExcelAttribute.ContainsKey(MediaAsset.DEVICE_RULE))
                 {
-                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.DEVICE_RULE_ID], MediaAsset.DEVICE_RULE_ID);
+                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.DEVICE_RULE], MediaAsset.DEVICE_RULE);
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
