@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Phoenix.Rest.Helpers
+namespace Phoenix.Context
 {
     public static class ContextConstants
     {

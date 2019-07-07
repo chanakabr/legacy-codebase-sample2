@@ -12,7 +12,6 @@ using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Linq;
-using Phoenix.Rest.Helpers;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 using System.IO;
@@ -48,6 +47,7 @@ namespace Phoenix.Rest.Middleware
                 GetRequestBodyFromQueryString(phoenixCtx, request);
             }
 
+            phoenixCtx.SetHttpContextForBackwardCompatibility();
 
             context.Response.OnStarting(async () =>
             {
