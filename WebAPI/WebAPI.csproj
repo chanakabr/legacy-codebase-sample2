@@ -786,6 +786,9 @@
     <Content Include="Permissions\objects\kalturaasset.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Permissions\controllers\partner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml">
       <SubType>Designer</SubType>
     </None>
@@ -811,6 +814,7 @@
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AssetFilePpvController.cs" />
     <Compile Include="Controllers\IngestProfileController.cs" />
+    <Compile Include="Controllers\PartnerController.cs" />
     <Compile Include="Controllers\TopicNotificationController.cs" />
     <Compile Include="Controllers\TopicNotificationMessageController.cs" />
     <Compile Include="Controllers\TvmRuleController.cs" />

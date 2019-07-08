@@ -34,7 +34,6 @@ namespace WebAPI.Managers
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
-
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
             KS ks = KS.GetFromRequest();
@@ -801,5 +800,19 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
             }
         }
+
+        internal static KalturaLoginSession GenerateOvpSession(int groupId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            if (string.IsNullOrEmpty(group.MediaPrepAccountSecret) || group.MediaPrepAccountId == 0)
+            {
+                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
+            }
+
+            return GenerateSession("0", group.MediaPrepAccountId, true, false);
+
+        }
+
     }
 }
