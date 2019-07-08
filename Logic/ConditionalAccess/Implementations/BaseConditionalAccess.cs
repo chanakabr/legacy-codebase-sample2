@@ -7306,6 +7306,7 @@ namespace Core.ConditionalAccess
         /// </summary>
         protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
         {
+            log.Debug(string.Format("GetUserBillingHistoryExt - User Guid: {0}, Start Date: {1}, End Date: {2}, Start Index: {3}, Number Of Items: {4}", sUserGUID, dStartDate, dEndDate, nStartIndex, nNumberOfItems));
 
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
             BillingTransactions response = new BillingTransactions();
