@@ -163,6 +163,7 @@ namespace ElasticSearch.Utilities
                     }
 
                     var ipValue = handler.ConvertIpToValidString(address);
+                    log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
                     var filter = handler.BuildQueryFilterForIp(ipValue);
                     var query = BuildBasicFilteredQueryForGetCountry();
                     query.Filter = filter;
