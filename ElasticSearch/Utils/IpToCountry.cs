@@ -163,9 +163,8 @@ namespace ElasticSearch.Utilities
                     }
 
                     var ipValue = handler.ConvertIpToValidString(address);
-                    var filter = handler.BuildQueryFilterForIp(ipValue);
-                    var query = BuildBasicFilteredQueryForGetCountry();
-                    query.Filter = filter;
+                    log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
+                    var query = handler.BuildFilteredQueryForIp(ipValue);
                     var searchQuery = query.ToString();
 
                     // Perform search
@@ -196,8 +195,6 @@ namespace ElasticSearch.Utilities
                 }
 
                 // Build query for getting country
-                FilteredQuery query = BuildBasicFilteredQueryForGetCountry();
-
                 QueryFilter filter = new QueryFilter();
                 FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
                 ESTerm term = new ESTerm(false)
@@ -205,10 +202,24 @@ namespace ElasticSearch.Utilities
                     Key = "name",
                     Value = countryName.ToLower()
                 };
-
                 composite.AddChild(term);
-                filter.FilterSettings = composite;
-                query.Filter = filter;                
+                
+                var query = new FilteredQuery(true)
+                {
+                    PageIndex = 0,
+                    PageSize = 1,
+                    Filter = filter
+                };
+
+                query.ReturnFields.Clear();
+                query.ReturnFields.AddRange(new List<string>()
+                {
+                    { string.Format("\"{0}\"", "country_id") },
+                    { string.Format("\"{0}\"", "name") },
+                    { string.Format("\"{0}\"", "code") },
+                    { string.Format("\"{0}\"", "_id") }
+                });
+
                 string searchQuery = query.ToString();
 
                 // Perform search
@@ -231,27 +242,7 @@ namespace ElasticSearch.Utilities
         {
             return handlers[AddressFamily.InterNetworkV6].GetIpRangesByNetwork(network);
         }
-
-        private static FilteredQuery BuildBasicFilteredQueryForGetCountry()
-        {
-            // basic initialization
-            var query = new FilteredQuery(true)
-            {
-                PageIndex = 0,
-                PageSize = 1,
-            };
-
-            query.ReturnFields.Clear();
-            query.ReturnFields.AddRange(new List<string>()
-            {
-                { string.Format("\"{0}\"", "country_id") },
-                { string.Format("\"{0}\"", "name") },
-                { string.Format("\"{0}\"", "code") }
-            });
-
-            return query;
-        }
-
+        
         private static Country ParseSearchResultToCountry(string searchResult)
         {
             var jsonObj = JObject.Parse(searchResult);
@@ -266,7 +257,7 @@ namespace ElasticSearch.Utilities
             // get country from first (and hopefully only) result 
             if (jsonObj.SelectToken("hits.hits").First().SelectToken("fields") is JObject jObj && jObj.HasValues)
             {
-                string countryId = string.Empty, code = string.Empty, name = string.Empty;
+                string country_id = string.Empty, code = string.Empty, name = string.Empty, id = string.Empty;
                 foreach (JProperty jProp in jObj.Properties())
                 {
                     if (jProp != null && jProp.HasValues)
@@ -283,10 +274,16 @@ namespace ElasticSearch.Utilities
                                         name = value;
                                         break;
                                     case "country_id":
-                                        countryId = value;
+                                        country_id = value;
+                                        break;
+                                    case "countryId":
+                                        country_id = value;
                                         break;
                                     case "code":
                                         code = value;
+                                        break;
+                                    case "_id":
+                                        id = value;
                                         break;
                                     default:
                                         break;
@@ -296,9 +293,10 @@ namespace ElasticSearch.Utilities
                     }
                 }
 
-                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code) && int.TryParse(countryId, out int id))
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code) && int.TryParse(country_id, out int countryId))
                 {
-                    var country = new Country() { Id = id, Code = code, Name = name };
+                    log.DebugFormat("ParseSearchResultToCountry - the result (network) ID is:{0}.", id);
+                    var country = new Country() { Id = countryId, Code = code, Name = name };
                     return country;
                 }
             }
@@ -313,7 +311,7 @@ namespace ElasticSearch.Utilities
 
         internal abstract string IndexType { get; }
         internal abstract string ConvertIpToValidString(IPAddress ipAddress);
-        internal abstract QueryFilter BuildQueryFilterForIp(string ipValue);
+        internal abstract FilteredQuery BuildFilteredQueryForIp(string ipValue);
 
         /// <summary>
         /// 
@@ -327,7 +325,7 @@ namespace ElasticSearch.Utilities
     {
         internal override string IndexType { get { return "iptocountry"; } }
 
-        internal override QueryFilter BuildQueryFilterForIp(string ipValue)
+        internal override FilteredQuery BuildFilteredQueryForIp(string ipValue)
         {
             FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
 
@@ -349,9 +347,24 @@ namespace ElasticSearch.Utilities
             // ip value is between ip_to and ip_from
             composite.AddChild(rangeTo);
             composite.AddChild(rangeFrom);
+            
+            var query = new FilteredQuery(true)
+            {
+                PageIndex = 0,
+                PageSize = 1,
+                Filter = new QueryFilter { FilterSettings = composite }
+            };
 
-            var filter = new QueryFilter { FilterSettings = composite };
-            return filter;
+            query.ReturnFields.Clear();
+            query.ReturnFields.AddRange(new List<string>()
+            {
+                { string.Format("\"{0}\"", "country_id") },
+                { string.Format("\"{0}\"", "name") },
+                { string.Format("\"{0}\"", "code") },
+                { string.Format("\"{0}\"", "_id") }
+            });
+
+            return query;
         }
 
         internal override string ConvertIpToValidString(IPAddress ipAddress)
@@ -398,26 +411,36 @@ namespace ElasticSearch.Utilities
     {
         internal override string IndexType { get { return "ipv6tocountry"; } }
 
-        internal override QueryFilter BuildQueryFilterForIp(string ipValue)
+        internal override FilteredQuery BuildFilteredQueryForIp(string ipValue)
         {
-            // [2001:bf8:0000:0000:0000:0000:0000:0000] - [2001:bf8:ffff:ffff:ffff:ffff:ffff:ffff]
-            // [032001011248000000000000000000000000000000000000] - [032001011248255255255255255255255255255255255255]
-            // [2001:bf8:900:6:00:0:808b:22f0]
-            // [032001011248009000000006000000000000128139034240]
+            ESRange ipRangeFromLTE = new ESRange(true) { Key = "ipv6_from" };
+            ipRangeFromLTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, string.Format("\"{0}\"", ipValue)));
 
-            ESRange ipRangeFromLTE = new ESRange(true) { Key = "ip_from" };
-            ipRangeFromLTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, ipValue));
-
-            ESRange ipRangeToGTE = new ESRange(true) { Key = "ip_to" };
-            ipRangeToGTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, ipValue));
+            ESRange ipRangeToGTE = new ESRange(true) { Key = "ipv6_to" };
+            ipRangeToGTE.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, string.Format("\"{0}\"", ipValue)));
 
             // (ipFrom <= ipv6Value) && (ipv6Value <= ipTo)
             FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
             composite.AddChild(ipRangeFromLTE);
             composite.AddChild(ipRangeToGTE);
+            
+            var query = new FilteredQuery(true)
+            {
+                PageIndex = 0,
+                PageSize = 1,
+                Filter = new QueryFilter { FilterSettings = composite }
+            };
 
-            var filter = new QueryFilter { FilterSettings = composite };
-            return filter;
+            query.ReturnFields.Clear();
+            query.ReturnFields.AddRange(new List<string>()
+            {
+                { string.Format("\"{0}\"", "countryId") },
+                { string.Format("\"{0}\"", "name") },
+                { string.Format("\"{0}\"", "code") },
+                { string.Format("\"{0}\"", "_id") }
+            });
+
+            return query;
         }
 
         internal override string ConvertIpToValidString(IPAddress ipAddress)
