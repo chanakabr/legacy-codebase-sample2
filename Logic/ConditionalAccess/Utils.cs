@@ -6030,11 +6030,21 @@ namespace Core.ConditionalAccess
 
             try
             {
+                var seriesIdName = SERIES_ALIAS;
+                var seasonNumberName = SEASON_ALIAS;
+
+                // support for OPC accout
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                {
+                    seriesIdName = SERIES_ID;
+                    seasonNumberName = SEASON_NUMBER;
+                }
+
                 StringBuilder ksql = new StringBuilder();
-                ksql.AppendFormat("(and series_id = '{0}' ", seriesId);
+                ksql.AppendFormat("(and {0} = '{1}' ", seriesIdName, seriesId);
 
                 if (seasonNumber > 0)
-                    ksql.AppendFormat("season_number = '{0}'", seasonNumber);
+                    ksql.AppendFormat("{0} = '{1}'", seasonNumberName, seasonNumber);
 
                 ksql.AppendFormat("start_date > '{0}'", TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(startDate));
                 ksql.AppendFormat("epg_channel_id = '{0}')", epgChannelId);
