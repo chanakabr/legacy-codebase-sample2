@@ -1321,8 +1321,8 @@ namespace ElasticSearch.Common
                 httpResponse = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
 
-            log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, response = {3}",
-                requestGuid, url, parameters, httpResponse);
+            log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, body length = {3}, response = {4}",
+                requestGuid, url, parameters, parameters.Length, httpResponse);
 
             status = nStatusCode;
             return httpResponse;
