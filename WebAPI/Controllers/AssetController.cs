@@ -410,19 +410,42 @@ namespace WebAPI.Controllers
                         response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
-                        response = GetAsset(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
+                        int epgId;
+                        if (!int.TryParse(id, out epgId))
+                        {
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "id");
+                        }
+
+                        if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                        {
+                            response = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
+                        }
+                        else
+                        {
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                               0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
+
+                            // if no response - return not found status 
+                            if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                            {
+                                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
+                            }
+
+                            response = epgRes.Objects.First();
+                        }
                         break;
+
                     case KalturaAssetReferenceType.epg_external:
-                        var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                        var epgExRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                           0, 1, new List<string> { id }, KalturaAssetOrderBy.START_DATE_DESC);
 
                         // if no response - return not found status 
-                        if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
+                        if (epgExRes == null || epgExRes.Objects == null || epgExRes.Objects.Count == 0)
                         {
                             throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
 
-                        response = epgRes.Objects.First();
+                        response = epgExRes.Objects.First();
                         break;
 
                     case KalturaAssetReferenceType.npvr:
@@ -471,37 +494,6 @@ namespace WebAPI.Controllers
 
                     var epgAsset = epgRes.Objects.First();
                     return new KalturaRecordingAsset((KalturaProgramAsset)epgAsset) { RecordingId = id.ToString(), RecordingType = recording.Type };
-                }
-            }
-        }
-
-        private static KalturaAsset GetAsset(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets)
-        {
-            var recording = RecordingController.Get(id);
-            if (recording == null)
-            {
-                throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-            }
-            else
-            {
-                int epgId = (int)recording.AssetId;
-
-                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
-                {
-                    return ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
-                }
-                else
-                {
-                    var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                       0, 1, new List<int> { epgId }, KalturaAssetOrderBy.START_DATE_DESC);
-
-                    // if no response - return not found status 
-                    if (epgRes == null || epgRes.Objects == null || epgRes.Objects.Count == 0)
-                    {
-                        throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
-                    }
-
-                    return epgRes.Objects.First();
                 }
             }
         }

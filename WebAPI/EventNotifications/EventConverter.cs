@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using KLogMonitor;
 using System;
 using System.Web;
 using WebAPI.Models.General;
@@ -42,13 +43,10 @@ namespace WebAPI.EventNotifications
             KalturaEventAction action = KalturaEventAction.None;
 
             KalturaObjectActionEvent actionEvent = objectEvent as KalturaObjectActionEvent;
-
             if (actionEvent != null)
             {
                 action = ConvertKalturaAction(actionEvent.Action);
             }
-
-
 
             string systemName = objectEvent.GetSystemName();
             var userIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString();
@@ -60,7 +58,8 @@ namespace WebAPI.EventNotifications
                 eventObjectType = destination.Name,
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
-                UserIp = userIp
+                UserIp = userIp,
+                UniqueId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
             };
 
             return eventWrapper;

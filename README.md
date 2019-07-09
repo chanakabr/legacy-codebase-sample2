@@ -25,7 +25,9 @@
 
 4) Build documentation
 	```
-	docker build -t kaltura/phoenix-doc -f Dockerfile.Docs .
+	docker build -t kaltura/phoenix-doc -f Dockerfile.Docs --build-arg BASE_PATH=/doc/ --build-arg VERSION=5.2.3.0 --build-arg API_VERSION=5.2.3 --build-arg ENABLE_HOMEPAGE=false .
+	```
+	```
 	docker run --rm -it -p 80:80 kaltura/phoenix-doc
 	```
 

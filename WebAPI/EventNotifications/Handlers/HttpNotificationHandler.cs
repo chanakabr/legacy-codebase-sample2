@@ -13,6 +13,7 @@ using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using WebAPI.Managers;
+using ApiObjects;
 
 namespace WebAPI.EventNotifications
 {
@@ -31,6 +32,8 @@ namespace WebAPI.EventNotifications
                 this.ValidHttpStatuses = new List<int>() { 200, 201, 202, 203, 204, 205, 206, 207, 208, 226 };
             }
 
+            KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
+
             this.SendRequest(
                 new KalturaHttpNotification()
                 {
@@ -39,7 +42,8 @@ namespace WebAPI.EventNotifications
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
                     partnerId = kalturaEvent.PartnerId,
-                    UserIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString()
+                    UserIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString(),
+                    UniqueId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
                 }
             );
         }
