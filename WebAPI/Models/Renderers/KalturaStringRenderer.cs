@@ -14,6 +14,11 @@ namespace WebAPI.Models.Renderers
             _sContent = content;
         }
 
+        public override string GetOutput()
+        {
+            return _sContent;
+        }
+
         public override void Output(Stream writeStream) 
         {
             var buf = Encoding.UTF8.GetBytes(_sContent);

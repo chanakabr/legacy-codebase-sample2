@@ -9,6 +9,7 @@ using WebAPI.Models.General;
 using TVinciShared;
 using System.Collections;
 using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 
 namespace Phoenix.Context
 {
@@ -25,7 +26,7 @@ namespace Phoenix.Context
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public const string PHOENIX_REQUEST_CONTEXT_KEY = "PHOENIX_REQUEST_CONTEXT";
 
-        public string SessionId { get; set; }
+        public Guid SessionId { get; set; }
         public string ClientTag { get; set; }
         public DateTime RequestDate { get; set; } = DateTime.UtcNow;
         public int GroupId { get; set; }
@@ -46,6 +47,12 @@ namespace Phoenix.Context
         public KalturaOTTObject ResponseProfile { get; set; }
         public string RequestContentType { get; set; }
         public string RequestVersion { get; set; }
+        
+        /// <summary>
+        /// This property is set by the SessionId middleware only to allow access to the elapes time from anywere in the
+        /// Request proccessing pipeline.
+        /// </summary>
+        public KMonitor ApiMonitorLog { get; set; }
 
         /// <summary>
         /// This method sets all required HttpContext.Current.Items to suppport backward compatibility

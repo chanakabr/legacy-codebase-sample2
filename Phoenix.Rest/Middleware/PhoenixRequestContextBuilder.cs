@@ -56,17 +56,6 @@ namespace Phoenix.Rest.Middleware
             RequestContext.SetContext(parsedActionParams, service, action);
 
             phoenixCtx.SetHttpContextForBackwardCompatibility();
-            var ctr = new ServiceController();
-            var response = ctr.Action(phoenixCtx.RouteData.Service, phoenixCtx.RouteData.Action);
-
-
-
-            context.Response.OnStarting(async () =>
-            {
-                context.Response.ContentType = "application/json; charset=utf-8";
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
-            });
 
             await _Next(context);
         }

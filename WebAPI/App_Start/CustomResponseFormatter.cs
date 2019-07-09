@@ -53,20 +53,19 @@ namespace WebAPI.App_Start
             headers.ContentType = new MediaTypeHeaderValue(contentType);
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
+        public override Task<string> GetStringResponse(object response)
         {
-            if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is WebAPI.App_Start.KalturaAPIExceptionWrapper)
-                return base.WriteToStreamAsync(type, value, writeStream, content, transportContext);
+            var type = response.GetType();
+            if (type == typeof(StatusWrapper) && ((StatusWrapper)response).Result != null && ((StatusWrapper)response).Result is WebAPI.App_Start.KalturaAPIExceptionWrapper)
+                return base.GetStringResponse(response);
 
-            return Task.Factory.StartNew(() =>
+            if (type == typeof(StatusWrapper) && ((StatusWrapper)response).Result != null && ((StatusWrapper)response).Result is KalturaRenderer)
             {
-                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is KalturaRenderer)
-                {
-                    KalturaRenderer renderer = (KalturaRenderer)((StatusWrapper)value).Result;
+                var renderer = (KalturaRenderer)((StatusWrapper)response).Result;
+                return Task.FromResult(renderer.GetOutput());
+            }
 
-                    renderer.Output(writeStream);
-                }
-            });
+            return Task.FromResult<string>(null);
         }
     }
 }

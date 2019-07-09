@@ -24,17 +24,29 @@ namespace Phoenix.Rest.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var sessionID = context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var SessionHeader) ? SessionHeader.ToString() : Guid.NewGuid().ToString();
-            context.Items[SESSION_HEADER_KEY] = sessionID;
-            KLogger.SetRequestId(sessionID);
+            using (var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
+            {
+                Guid sessionId;
+                if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
+                {
+                    sessionId = new Guid(sessionHeader);
+                }
+                else
+                {
+                    sessionId = Guid.NewGuid();
+                }
+                context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
+                KLogger.SetRequestId(sessionId.ToString());
 
-            var phoenixCtx = new PhoenixRequestContext();
-            context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixCtx;
-            phoenixCtx.SessionId = sessionID;
-            phoenixCtx.RequestDate = DateTime.UtcNow;
-            context.Response.Headers["X-Kaltura-Session"] = sessionID;
+                var phoenixCtx = new PhoenixRequestContext();
+                context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixCtx;
+                phoenixCtx.SessionId = sessionId;
+                phoenixCtx.RequestDate = DateTime.UtcNow;
+                context.Response.Headers["X-Kaltura-Session"] = sessionId.ToString();
+                phoenixCtx.ApiMonitorLog = km;
+                await _Next(context);
 
-            await _Next(context);
+            }
         }
     }
 }
