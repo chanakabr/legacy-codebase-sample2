@@ -38,7 +38,15 @@ namespace Reflector
 
     class Serializer : Base
     {
-        public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaSerializable))
+        public static string GetJsonSerializerCSFilePath()
+        {
+            var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\KalturaJsonSerializer.cs");
+            return filePath;
+        }
+
+        public Serializer() : base(GetJsonSerializerCSFilePath(), typeof(IKalturaSerializable))
         {
             types.Remove(typeof(StatusWrapper));
             types.Remove(typeof(KalturaSerializable));

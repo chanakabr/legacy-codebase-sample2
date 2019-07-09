@@ -19,9 +19,18 @@ namespace Reflector
 {
     class DataModel : Base
     {
-        public DataModel() : base("..\\..\\..\\WebAPI\\Reflection\\DataModel.cs")
-        {
 
+        public static string GetDataModelCSFilePath()
+        {
+            var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\DataModel.cs");
+            return filePath;
+        }
+
+        public DataModel() : base(GetDataModelCSFilePath())
+        {
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory);
         }
 
         protected override void writeHeader()
