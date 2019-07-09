@@ -810,8 +810,27 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
             }
 
-            return GenerateSession("0", group.MediaPrepAccountId, true, false);
+            return GenerateExternalKs(group.MediaPrepAccountId, group.MediaPrepAccountSecret, group.KSExpirationSeconds);
 
+        }
+
+        public static KalturaLoginSession GenerateExternalKs(int partnerId, string secret, long expiration)
+        {
+            KalturaLoginSession session = new KalturaLoginSession();
+
+            KS KsObject = new KS(secret,
+                partnerId.ToString(),
+                string.Empty,
+                (int)(DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(expiration)) - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
+                KalturaSessionType.ADMIN,
+                string.Empty,
+                null,
+                Models.KS.KSVersion.V2);
+
+            session.KS = KsObject.ToString();
+            session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(KsObject.Expiration);
+
+            return session;
         }
 
     }
