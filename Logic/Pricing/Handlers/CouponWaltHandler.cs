@@ -87,9 +87,93 @@ namespace Core.Pricing.Handlers
             throw new NotImplementedException();
         }
 
-        public Status Delete(long id)
+        public Status Delete(long id, Dictionary<string, object> funcParams)
         {
-            throw new NotImplementedException();
+            Status response = new Status();
+            long? householdId = null;
+            string couponCode = string.Empty;
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("householdId"))
+                {
+                    householdId = funcParams["householdId"] as long?;
+                }
+
+                if (!householdId.HasValue || householdId.Value <= 0)
+                {
+                    response.Set(eResponseStatus.HouseholdRequired, "Household required");
+                    return response;
+                }
+
+                if (funcParams != null && funcParams.ContainsKey("couponCode"))
+                {
+                    couponCode = funcParams["couponCode"] as string;
+                }
+
+                if (string.IsNullOrEmpty(couponCode))
+                {
+                    response.Set(eResponseStatus.CouponCodeIsMissing, "Coupon code is missing");
+                    return response;
+                }
+
+                // Get Household's Walt
+                List<CouponWalt> couponWalts = PricingDAL.GetHouseholdCouponWaltCB(householdId.Value);
+
+                // make sure coupon is in household
+                if (couponWalts?.Count > 0 && couponWalts.Count(x => x.CouponCode == couponCode) != 1)
+                {
+                    response.Set(eResponseStatus.CouponCodeNotInHousehold, "Coupon code not in household");
+                    return response;
+                }
+
+                // remove coupon from walt
+                couponWalts.Remove(couponWalts.Where(x => x.CouponCode == couponCode).First());
+
+                // Save CouponWaltAtCB                    
+                if (!PricingDAL.SaveHouseholdCouponWaltCB(householdId.Value, couponWalts))
+                {
+                    log.ErrorFormat("Error while SaveHouseholdCouponWaltCB. domainId:{0}", householdId.Value);
+                    return response;
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred in CouponWalt. domainId:{0}, couponCode:{1}. ex: {2}",
+                    householdId, couponCode, ex);
+            }
+
+            return response;
         }
+
+        public GenericListResponse<CouponWalt> List(int groupId, CouponWaltFilter couponWaltFilter)
+        {
+            var response = new GenericListResponse<CouponWalt>();
+
+            try
+            {
+                if (couponWaltFilter == null || couponWaltFilter.HouseholdIdEqual <= 0)
+                {
+                    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
+                    return response;
+                }
+
+                // Get Household's Walt
+                response.Objects = PricingDAL.GetHouseholdCouponWaltCB(couponWaltFilter.HouseholdIdEqual);
+
+                response.TotalItems = response.Objects!= null ? 0 : response.Objects.Count;              
+                response.Status.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred in CouponWalt List. domainId:{0} . ex: {1}",
+                    couponWaltFilter.HouseholdIdEqual, ex);
+            }
+
+            return response;
+        }
+
     }
 }
