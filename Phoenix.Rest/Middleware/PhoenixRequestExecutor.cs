@@ -54,7 +54,7 @@ namespace Phoenix.Rest.Middleware
             var context = ctx as HttpContext;
 
             var ottResponse = _Response as KalturaOTTObject;
-            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), ottResponse);
+            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), ottResponse);
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
 

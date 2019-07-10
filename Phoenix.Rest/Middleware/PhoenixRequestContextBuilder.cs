@@ -51,7 +51,7 @@ namespace Phoenix.Rest.Middleware
 
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
-            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
+            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest.Value, service, action);
 
             RequestContext.SetContext(parsedActionParams, service, action);
 

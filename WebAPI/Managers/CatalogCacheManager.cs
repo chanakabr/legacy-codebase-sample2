@@ -126,11 +126,10 @@ namespace WebAPI.Managers
             cacheLock.EnterWriteLock();
             try
             {
-                var expiration = new DateTime(DEFAULT_DURATION);
                 var cacheItemPolicy = new CacheItemPolicy
                 {
                     Priority = CacheItemPriority.Default,
-                    AbsoluteExpiration = new DateTimeOffset(expiration),
+                    AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(DEFAULT_DURATION),
                 };
 
                 HttpContext.Current.GetCache().Add(key, response, cacheItemPolicy);

@@ -47,22 +47,26 @@ namespace Phoenix.Rest.Middleware
                     StatusWrapper errorResponse;
                     int code;
                     string message;
+                    string stackTrace;
                     KalturaApiExceptionArg[] args;
                     if (ex is ApiException apiEx)
                     {
                         code = apiEx.Code;
                         message = apiEx.Message;
+                        stackTrace = apiEx.StackTrace;
                         args = apiEx.Args;
                     }
                     else
                     {
                         code = (int)StatusCode.Error;
                         message = "Unknown error";
+                        stackTrace = ex.StackTrace;
                         args = null;
                     }
 
+                    KalturaApiExceptionHelpers.HandleError(message, stackTrace);
                     var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
-                    errorResponse = new StatusWrapper(code, ctx.SessionId, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
+                    errorResponse = new StatusWrapper(code, ctx.SessionId.Value, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
 
 
                     // get proper response formatter but make sure errors should be only xml or json ...
