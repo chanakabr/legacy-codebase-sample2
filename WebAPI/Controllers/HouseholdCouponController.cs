@@ -43,8 +43,8 @@ namespace WebAPI.Controllers
                
                 response = ClientUtils.Add<KalturaHouseholdCoupon, CouponWalt>(groupId, householdCoupon,
                                                                                 new Dictionary<string, object>()
-                                                                {{ "householdId", householdId }
-                                                                                });
+                                                                                { { "householdId", householdId } }
+                                                                                );
             }
             catch (ClientException ex)
             {
@@ -55,15 +55,22 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Romve coupon from household
+        /// Remove coupon from household
         /// </summary>
         /// <param name="code">Coupon code</param>
         [Action("delete")]
-        [ApiAuthorize]        
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CouponCodeNotInHousehold)]
         static public void Delete(string code)
         {
+            int groupId = KS.GetFromRequest().GroupId;
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
             try
             {
+                //ClientUtils.Delete(groupId, new Dictionary<string, object>()
+                //                                { { "householdId", householdId } }
+                //);
             }
 
             catch (ClientException ex)
@@ -83,8 +90,6 @@ namespace WebAPI.Controllers
         static public KalturaHouseholdCouponListResponse List()
         {
             KalturaHouseholdCouponListResponse response = null;
-
-            
 
             try
             {

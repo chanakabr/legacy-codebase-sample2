@@ -71,7 +71,7 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdCouponController.Delete(System.String)">
             <summary>
-            Romve coupon from household
+            Remove coupon from household
             </summary>
             <param name="code">Coupon code</param>
         </member>
