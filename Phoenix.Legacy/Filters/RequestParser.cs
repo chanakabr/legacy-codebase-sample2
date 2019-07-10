@@ -322,7 +322,7 @@ namespace WebAPI.Filters
                         List<Object> methodParams;
                         if (currentController == "multirequest")
                         {
-                            methodParams = buildMultirequestActions(requestParams);
+                            methodParams = RequestParsingHelpers.BuildMultirequestActions(requestParams);
                         }
                         else
                         {
@@ -384,7 +384,7 @@ namespace WebAPI.Filters
                         List<Object> methodParams;
                         if (currentController == "multirequest")
                         {
-                            methodParams = buildMultirequestActions(groupedParams);
+                            methodParams = RequestParsingHelpers.BuildMultirequestActions(groupedParams);
                         }
                         else
                         {
@@ -465,7 +465,7 @@ namespace WebAPI.Filters
                         List<Object> methodParams;
                         if (currentController == "multirequest")
                         {
-                            methodParams = buildMultirequestActions(groupedParams);
+                            methodParams = RequestParsingHelpers.BuildMultirequestActions(groupedParams);
                         }
                         else
                         {
@@ -495,103 +495,7 @@ namespace WebAPI.Filters
             base.OnActionExecuting(actionContext);
         }
 
-        private static List<object> buildMultirequestActions(Dictionary<string, object> requestParams)
-        {
-            List<KalturaMultiRequestAction> requests = new List<KalturaMultiRequestAction>();
-            Dictionary<string, object> currentRequestParams;
-
-            // multi request abort on error
-            HttpContext.Current.Items.Remove(RequestContext.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR);
-            if (requestParams.ContainsKey("abortOnError") && requestParams["abortOnError"] != null)
-            {
-                bool abortOnError;
-                if (requestParams["abortOnError"].GetType() == typeof(JObject) || requestParams["abortOnError"].GetType().IsSubclassOf(typeof(JObject)))
-                {
-                    abortOnError = ((JObject)requestParams["abortOnError"]).ToObject<bool>();
-                }
-                else
-                {
-                    abortOnError = (bool)Convert.ChangeType(requestParams["abortOnError"], typeof(bool));
-                }
-
-                HttpContext.Current.Items.Add(RequestContext.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, abortOnError);
-            }
-
-            int requestIndex = 0;
-            foreach (var param in requestParams)
-            {
-                if (!int.TryParse(param.Key, out requestIndex))
-                    continue;
-
-                if (param.Value.GetType() == typeof(JObject) || param.Value.GetType().IsSubclassOf(typeof(JObject)))
-                {
-                    currentRequestParams = ((JObject)param.Value).ToObject<Dictionary<string, object>>();
-                }
-                else
-                {
-                    currentRequestParams = (Dictionary<string, object>)param.Value;
-                }
-
-                bool abortAllOnError = false;
-                if (currentRequestParams.ContainsKey("abortAllOnError"))
-                {
-                    BoolUtils.TryConvert(currentRequestParams["abortAllOnError"], out abortAllOnError);
-                }
-
-                KalturaSkipCondition skipCondition = null;
-                if (currentRequestParams.ContainsKey("skipCondition"))
-                {
-                    Dictionary<string, object> skipConditionParams;
-                    if (currentRequestParams["skipCondition"].GetType() == typeof(JObject) || currentRequestParams["skipCondition"].GetType().IsSubclassOf(typeof(JObject)))
-                    {
-                        skipConditionParams = ((JObject)currentRequestParams["skipCondition"]).ToObject<Dictionary<string, object>>();
-                    }
-                    else
-                    {
-                        skipConditionParams = (Dictionary<string, object>)currentRequestParams["skipCondition"];
-                    }
-
-                    if (skipConditionParams.ContainsKey("objectType"))
-                    {
-                        Type skipConditionType = null;
-                        switch (skipConditionParams["objectType"].ToString())
-                        {
-                            case "KalturaSkipOnErrorCondition":
-                                skipConditionType = typeof(KalturaSkipOnErrorCondition);
-                                break;
-                            case "KalturaPropertySkipCondition":
-                                skipConditionType = typeof(KalturaPropertySkipCondition);
-                                break;
-                            case "KalturaAggregatedPropertySkipCondition":
-                                skipConditionType = typeof(KalturaAggregatedPropertySkipCondition);
-                                break;
-                        }
-
-                        if (skipConditionType != null)
-                        {
-                            skipCondition = Deserializer.deserialize(skipConditionType, skipConditionParams) as KalturaSkipCondition;
-                            skipCondition.Validate();
-                        }
-                    }
-                }
-
-                KalturaMultiRequestAction currentRequest = new KalturaMultiRequestAction()
-                {
-                    Service = currentRequestParams["service"].ToString(),
-                    Action = currentRequestParams["action"].ToString(),
-                    Parameters = currentRequestParams,
-                    AbortAllOnError = abortAllOnError,
-                    SkipCondition = skipCondition
-                };
-
-                requests.Add(currentRequest);
-                requestIndex++;
-            }
-
-            List<object> serviceArguments = new List<object>();
-            serviceArguments.Add(requests.ToArray());
-            return serviceArguments;
-        }
+        
 
         
 

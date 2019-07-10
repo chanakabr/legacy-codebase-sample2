@@ -41,7 +41,16 @@ namespace Phoenix.Rest.Middleware
         {
             _PhoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             var ctr = new ServiceController();
-            _Response = await ctr.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
+            if (_PhoenixCtx.IsMultiRequest)
+            {
+                _Response = await ctr.Multirequest(_PhoenixCtx.RouteData.Service);
+
+            }
+            else
+            {
+                _Response = await ctr.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
+
+            }
 
 
             context.Response.OnStarting(HandleResponse, context);
@@ -53,8 +62,7 @@ namespace Phoenix.Rest.Middleware
         {
             var context = ctx as HttpContext;
 
-            var ottResponse = _Response as KalturaOTTObject;
-            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), ottResponse);
+            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), _Response);
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
 

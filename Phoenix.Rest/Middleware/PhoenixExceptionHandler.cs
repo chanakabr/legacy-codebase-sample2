@@ -58,6 +58,7 @@ namespace Phoenix.Rest.Middleware
                     }
                     else
                     {
+                        _Logger.Error("Unexpected unknown error: ",ex);
                         code = (int)StatusCode.Error;
                         message = "Unknown error";
                         stackTrace = ex.StackTrace;

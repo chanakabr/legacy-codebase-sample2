@@ -42,11 +42,11 @@ namespace Phoenix.Context
         public bool? AbortAllOnError { get; set; }
         public bool? SkipCondition { get; set; }
         public List<object> ActionParams { get; set; } = new List<object>();
-        public bool? IsMultiRequest => RouteData?.Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
+        public bool IsMultiRequest => RouteData?.Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
         public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; } = new List<PhoenixRequestContext>();
         public KalturaOTTObject ResponseProfile { get; set; }
         public string RequestContentType { get; set; }
-        public string RequestVersion { get; set; }
+        public Version RequestVersion { get; set; }
 
         /// <summary>
         /// This property is set by the SessionId middleware only to allow access to the elapes time from anywere in the

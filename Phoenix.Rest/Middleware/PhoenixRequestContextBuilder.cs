@@ -21,6 +21,7 @@ using WebAPI.Reflection;
 using WebAPI;
 using WebAPI.Controllers;
 using WebAPI.Managers.Models;
+using WebAPI.Filters;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -51,7 +52,8 @@ namespace Phoenix.Rest.Middleware
 
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
-            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest.Value, service, action);
+            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
+            phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);
 
             RequestContext.SetContext(parsedActionParams, service, action);
 
@@ -60,13 +62,29 @@ namespace Phoenix.Rest.Middleware
             await _Next(context);
         }
 
+        private Version GetRequestVersion(IDictionary<string, object> parsedActionParams)
+        {
+            if (parsedActionParams.TryGetValue("apiVersion", out var versionFromParams))
+            {
+                if (Version.TryParse((string)versionFromParams, out var parsedVersion))
+                {
+                    return parsedVersion;
+                }
+                else
+                {
+                    throw new RequestParserException(RequestParserException.INVALID_VERSION, versionFromParams);
+                }
+            }
+
+            return null;
+        }
+
         private List<object> GetDeserializedActionParams(IDictionary<string, object> parsedActionParams, bool isMultiRequest, string service, string action)
         {
             var actionParams = new List<object>();
             if (isMultiRequest)
             {
-                // TODO: arthur handle multirequest
-                throw new NotImplementedException("Multi request not implemented in net core yet ... where is Arthur!");
+                actionParams = RequestParsingHelpers.BuildMultirequestActions(parsedActionParams);
             }
             else
             {
