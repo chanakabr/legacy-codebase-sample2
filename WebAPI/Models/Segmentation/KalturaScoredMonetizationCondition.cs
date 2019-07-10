@@ -61,7 +61,7 @@ namespace WebAPI.Models.Segmentation
         public KalturaMathemticalOperatorType Operator { get; set; }
 
         /// <summary>
-        /// List comma saperated of business module IDs
+        /// Comma saperated list of business module IDs
         /// </summary>
         [DataMember(Name = "businessModuleIdIn")]
         [JsonProperty(PropertyName = "businessModuleIdIn")]
