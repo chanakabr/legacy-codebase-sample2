@@ -1112,5 +1112,27 @@ namespace Core.Pricing
             }
             return discountsMap != null ? discountsMap.Values.ToList() : null;
         }
+
+        static public bool IsCouponValid(CouponDataResponse couponData)
+        {
+            bool result = false;
+            try
+            {
+                if (couponData != null)
+                {
+                    if (couponData?.Status?.Code == (int)eResponseStatus.OK &&
+                        couponData.Coupon?.m_CouponStatus == CouponsStatus.Valid)
+                    {
+                        result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Error at IsCouponValid. ex: {0}", ex);
+            }
+            return result;
+        }
     }
 }
