@@ -117,9 +117,15 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
             ;
 
-            // TODO ANAT(BEO-6931) - MAP KalturaHouseholdCoupon TO DomainCoupon
-                         
-            // TODO ANAT(BEO-6931) - MAP DomainCoupon TO KalturaHouseholdCoupon
+            //CouponWalt, KalturaHouseholdCoupon
+            cfg.CreateMap<ApiObjects.Pricing.CouponWalt, KalturaHouseholdCoupon>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CouponCode))
+                ;
+
+            //KalturaHouseholdCoupon, CouponWalt
+            cfg.CreateMap<KalturaHouseholdCoupon, ApiObjects.Pricing.CouponWalt>()
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.Code))
+                ;
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

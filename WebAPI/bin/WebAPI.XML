@@ -69,6 +69,19 @@
             <param name="householdCoupon">householdCoupon details</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdCouponController.Delete(System.String)">
+            <summary>
+            Romve coupon from household
+            </summary>
+            <param name="code">Coupon code</param>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdCouponController.List">
+            <summary>
+            Lists all topic notifications in the system.
+            </summary>
+            <param name="filter">Filter options</param>
+            <param name="pager">Paging the request</param>
+        </member>
         <member name="M:WebAPI.Controllers.IngestProfileController.List">
             <summary>
             Returns all ingest profiles for partner
@@ -10598,9 +10611,14 @@
             Household Coupon details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCoupon.HouseholdId">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCoupon.Code">
             <summary>
-            Household identifier
+            Coupon code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponListResponse.Objects">
+            <summary>
+            Household coupon
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitationsListResponse">

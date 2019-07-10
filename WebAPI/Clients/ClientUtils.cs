@@ -147,7 +147,7 @@ namespace WebAPI.Clients
             {
                 result.Objects = new List<U>();
             }
-            
+
             return result;
         }
 
@@ -180,7 +180,7 @@ namespace WebAPI.Clients
 
             return true;
         }
-        
+
         internal static void GetResponseStatusFromWS<U, T>(Func<T, Status> funcInWS, U kalturaOTTObject)
             where U : KalturaOTTObject where T : class
         {
@@ -214,12 +214,12 @@ namespace WebAPI.Clients
 
         //------------------------------------
         // TODO SHIR - put all crud generic methods in other place
-        internal static KalturaT Add<KalturaT, CoreT>(int groupId, KalturaT kalturaObjectToAdd)
+        internal static KalturaT Add<KalturaT, CoreT>(int groupId, KalturaT kalturaObjectToAdd, Dictionary<string, object> funcParams)
             where KalturaT : KalturaOTTObject, IKalturaCrudHandeledObject<CoreT>
             where CoreT : class, ICrudHandeledObject
         {
             var handler = kalturaObjectToAdd.GetHandler();
-            KalturaT result = ClientUtils.GetResponseFromWS(kalturaObjectToAdd, (CoreT objectToAdd) => handler.Add(groupId, objectToAdd));
+            KalturaT result = ClientUtils.GetResponseFromWS(kalturaObjectToAdd, (CoreT objectToAdd) => handler.Add(groupId, objectToAdd, funcParams));
 
             //---------------
             //GenericResponse<CoreT> response = null;
@@ -247,13 +247,13 @@ namespace WebAPI.Clients
             //{
             //    throw new ClientException(response.Status.Code, response.Status.Message);
             //}
-            
+
             //KalturaT result = null;
             //if (response.Object != null)
             //{
             //    result = AutoMapper.Mapper.Map<KalturaT>(response.Object);
             //}
-            
+
             return result;
         }
     }

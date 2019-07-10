@@ -772,6 +772,9 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdCoupon":
                     return new KalturaHouseholdCoupon(parameters);
                     
+                case "KalturaHouseholdCouponListResponse":
+                    return new KalturaHouseholdCouponListResponse(parameters);
+                    
                 case "KalturaHouseholdDevice":
                     return new KalturaHouseholdDevice(parameters);
                     
@@ -7055,6 +7058,16 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute UniqueIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaNotification(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -7100,6 +7113,14 @@ namespace WebAPI.Models.General
                         UserIpSchemaProperty.Validate("userIp", parameters["userIp"]);
                     }
                     UserIp = (String) Convert.ChangeType(parameters["userIp"], typeof(String));
+                }
+                if (parameters.ContainsKey("uniqueId") && parameters["uniqueId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UniqueIdSchemaProperty.Validate("uniqueId", parameters["uniqueId"]);
+                    }
+                    UniqueId = (String) Convert.ChangeType(parameters["uniqueId"], typeof(String));
                 }
             }
         }
@@ -25798,9 +25819,29 @@ namespace WebAPI.Models.Domains
         {
             if (parameters != null)
             {
-                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
                 {
-                    HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                    Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdCouponListResponse
+    {
+        public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaHouseholdCoupon>(typeof(KalturaHouseholdCoupon), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaHouseholdCoupon), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
