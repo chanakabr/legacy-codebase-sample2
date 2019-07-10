@@ -59,5 +59,19 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "operator")]
         [SchemeProperty()]
         public KalturaMathemticalOperatorType Operator { get; set; }
+
+        /// <summary>
+        /// List comma saperated of business module IDs
+        /// </summary>
+        [DataMember(Name = "businessModuleIdIn")]
+        [JsonProperty(PropertyName = "businessModuleIdIn")]
+        [XmlElement(ElementName = "businessModuleIdIn")]
+        [SchemeProperty()]
+        public string BusinessModuleIdIn { get; set; }
+
+        internal List<int> GetBusinessModuleIdIn()
+        {
+            return this.GetItemsIn<List<int>, int>(BusinessModuleIdIn, "KalturaMonetizationCondition.businessModuleIdIn");
+        }
     }
 }

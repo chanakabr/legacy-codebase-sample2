@@ -3588,6 +3588,8 @@ namespace WebAPI.Reflection
                 case "KalturaMonetizationCondition":
                     switch(property.Name)
                     {
+                        case "BusinessModuleIdIn":
+                            return "businessModuleIdIn";
                         case "Days":
                             return "days";
                         case "MaxValue":

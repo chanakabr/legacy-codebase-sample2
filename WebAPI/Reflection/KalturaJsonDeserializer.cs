@@ -22714,6 +22714,16 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute BusinessModuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaMonetizationCondition(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -22769,6 +22779,14 @@ namespace WebAPI.Models.Segmentation
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaMathemticalOperatorType)));
                     }
+                }
+                if (parameters.ContainsKey("businessModuleIdIn") && parameters["businessModuleIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        BusinessModuleIdInSchemaProperty.Validate("businessModuleIdIn", parameters["businessModuleIdIn"]);
+                    }
+                    BusinessModuleIdIn = (String) Convert.ChangeType(parameters["businessModuleIdIn"], typeof(String));
                 }
             }
         }

@@ -13138,6 +13138,11 @@
             Mathermtical operator to calculate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaMonetizationCondition.BusinessModuleIdIn">
+            <summary>
+            List comma saperated of business module IDs
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaSegmentationType">
             <summary>
             Segmentation type - defines at least one segment 
