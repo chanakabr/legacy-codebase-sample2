@@ -70,7 +70,7 @@ pipeline {
 
                     dir("phoenix") {
                         // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
-                        bat "robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL"
+                        bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                     }
                 }
             }
