@@ -1,0 +1,34 @@
+pipeline {
+    agent {
+        label 'Jenkins-Windows-2019'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+    }
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
+    }
+    environment {
+        PUBLISH_TEMP_DIR = "C:\\Temp_Publish\\Phoenix\\${params.branch}"
+        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        NUGET = 'c:\\nuget.exe'
+    }
+    stages {
+        stage("Checkout and restore Core Source"){
+            steps{
+                dir('phoenix') { checkout scm }
+                dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+                dir('pgadapter'){ git(url: 'git@bitbucket.org:tvinci_dev/pgadapter.git', branch: "${params.branch}") }
+                dir('pgadapter'){ git(url: 'git@bitbucket.org:tvinci_dev/pgadapter.git', branch: "${params.branch}") }
+            }
+        }
+        stage("Version Patch"){
+            steps{
+                dir("core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                    bat "sh DllVersioning.Core.sh ../TvmCore" 
+                }
+            }        
+        }
+    }
+}
