@@ -764,14 +764,14 @@ namespace ConfigurationManager
                     }
                     catch (Exception ex)
                     {
-                        WriteToLog(string.Format("Exception when validating: {0}", ex.Message));
+                        WriteToLog(string.Format("Exception when validating: {0}", ex));
                         result = false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                WriteToLog(string.Format("Exception when validating: {0}", ex.Message));
+                WriteToLog(string.Format("Exception when validating: {0}", ex));
                 result = false;
             }
 
