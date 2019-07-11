@@ -11,15 +11,16 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
+    // TODO SHIR - CRUD changes
     // TODO ANAT(BEO-6931) - ADD ALL relevant KalturaHouseholdCoupon data members and validation
 
     /// <summary>
     /// Household Coupon details
     /// </summary>
-    public partial class KalturaHouseholdCoupon : KalturaOTTObject, IKalturaCrudHandeledObject<DomainCoupon>
+    public partial class KalturaHouseholdCoupon : KalturaCrudObject<DomainCoupon>
     {
-        private static readonly DomainCouponHandler domainCouponHandler = new DomainCouponHandler();
-
+        public ICrudHandler<DomainCoupon> Handler { get { return DomainCouponHandler.Instance; } }
+        
         /// <summary>
         /// Household identifier
         /// </summary>
@@ -27,13 +28,8 @@ namespace WebAPI.Models.Domains
         [JsonProperty("householdId")]
         [XmlElement(ElementName = "householdId")]
         public long? HouseholdId { get; set; }
-
-        public ICrudHandler<DomainCoupon> GetHandler()
-        {
-            return domainCouponHandler;
-        }
-
-        public void ValidateForAdd()
+        
+        public override void ValidateForAdd()
         {
             if (this.HouseholdId < 0)
             {
@@ -41,7 +37,7 @@ namespace WebAPI.Models.Domains
             }
         }
 
-        public void ValidateForUpdate()
+        public override void ValidateForUpdate()
         {
             throw new System.NotImplementedException();
         }

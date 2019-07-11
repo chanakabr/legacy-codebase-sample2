@@ -588,5 +588,9 @@ namespace WebAPI.Controllers
             }
             return null;
         }
+
+        // TODO SHIR - ADD METHOd ApplyCoupon(string couponCode)
+        // validate if can be add
+        //
     }
 }

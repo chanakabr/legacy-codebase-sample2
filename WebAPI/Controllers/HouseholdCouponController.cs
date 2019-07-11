@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Pricing;
 using ApiObjects.Response;
+using Core.Pricing.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,10 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
+    // TODO SHIR - CRUD changes
     // TODO ANAT(BEO-6931) - ADD ALL relevant methods for HouseholdCouponController
     [Service("householdCoupon")]
-    public class HouseholdCouponController : IKalturaController
+    public class HouseholdCouponController : KalturaCrudController<KalturaHouseholdCoupon, DomainCoupon>
     {
         /// <summary>
         /// householdCoupon add
@@ -29,20 +31,24 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaHouseholdCoupon Add(KalturaHouseholdCoupon householdCoupon)
         {
-            KalturaHouseholdCoupon response = null;
             int groupId = KS.GetFromRequest().GroupId;
-
-            try
-            {
-                householdCoupon.ValidateForAdd();
-                response = ClientUtils.Add<KalturaHouseholdCoupon, DomainCoupon>(groupId, householdCoupon);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
+            // TODO SHIR - TALK WITH TANTAN ABOUT THIS
+            var response = KalturaCrudController<KalturaHouseholdCoupon, DomainCoupon>.Add(groupId, householdCoupon);
             return response;
+        }
+
+        /// <summary>
+        /// householdCoupon delete
+        /// </summary>
+        /// <param name="householdCoupon">householdCoupon details</param>
+        /// <returns></returns>
+        [Action("delete")]
+        [ApiAuthorize]
+        static public void Delete(long id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            // TODO SHIR - TALK WITH TANTAN ABOUT THIS
+            KalturaCrudController<KalturaHouseholdCoupon, DomainCoupon>.Delete(groupId, id, DomainCouponHandler.Instance);
         }
     }
 }

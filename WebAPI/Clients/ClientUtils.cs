@@ -18,6 +18,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using ApiObjects.Base;
+using ApiLogic.Base;
 
 namespace WebAPI.Clients
 {
@@ -214,47 +215,11 @@ namespace WebAPI.Clients
 
         //------------------------------------
         // TODO SHIR - put all crud generic methods in other place
-        internal static KalturaT Add<KalturaT, CoreT>(int groupId, KalturaT kalturaObjectToAdd)
-            where KalturaT : KalturaOTTObject, IKalturaCrudHandeledObject<CoreT>
-            where CoreT : class, ICrudHandeledObject
+        
+        internal static void Delete<CoreT>(int groupId, int id, ICrudHandler<CoreT> handler)
+           where CoreT : class, ICrudHandeledObject
         {
-            var handler = kalturaObjectToAdd.GetHandler();
-            KalturaT result = ClientUtils.GetResponseFromWS(kalturaObjectToAdd, (CoreT objectToAdd) => handler.Add(groupId, objectToAdd));
-
-            //---------------
-            //GenericResponse<CoreT> response = null;
-            //try
-            //{
-            //    var handler = kalturaObjectToAdd.GetHandler();
-            //    var objectToAdd = AutoMapper.Mapper.Map<CoreT>(kalturaObjectToAdd);
-            //    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-            //    {
-            //        response = handler.Add(groupId, objectToAdd);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.Error("An Exception was occurred while adding an object with CRUD handler.", ex);
-            //    ErrorUtils.HandleWSException(ex);
-            //}
-
-            //if (response == null)
-            //{
-            //    throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            //}
-
-            //if (response.Status.Code != (int)StatusCode.OK)
-            //{
-            //    throw new ClientException(response.Status.Code, response.Status.Message);
-            //}
-            
-            //KalturaT result = null;
-            //if (response.Object != null)
-            //{
-            //    result = AutoMapper.Mapper.Map<KalturaT>(response.Object);
-            //}
-            
-            return result;
+            ClientUtils.GetResponseStatusFromWS(() => handler.Delete(groupId, id));
         }
     }
 }
