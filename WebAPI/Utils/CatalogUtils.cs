@@ -704,25 +704,35 @@ namespace WebAPI.Utils
             Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
             bool isNewerThenOpcMergeVersion = requestVersion.CompareTo(opcMergeVersion) > 0;
             List<KalturaAsset> result = new List<KalturaAsset>();
-            foreach (BaseObject asset in assets)
+            if (assets != null)
             {
-                KalturaAsset assetToAdd = null;
-                if (asset.AssetType == eAssetTypes.MEDIA && asset is MediaObj)
+                foreach (BaseObject asset in assets)
                 {
-                    assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);
-                    MediaObj mediaObj = asset as MediaObj;
-                    if (isNewerThenOpcMergeVersion && linearMediaTypeId > 0 && mediaObj.m_oMediaType.m_nTypeID == linearMediaTypeId)
+                    if (asset != null)
                     {
-                        assetToAdd = AutoMapper.Mapper.Map<KalturaLiveAsset>(mediaObj);
+                        KalturaAsset assetToAdd = null;
+                        if (asset.AssetType == eAssetTypes.MEDIA && asset is MediaObj)
+                        {
+                            assetToAdd = AutoMapper.Mapper.Map<KalturaMediaAsset>(asset);
+                            MediaObj mediaObj = asset as MediaObj;
+                            if (isNewerThenOpcMergeVersion && linearMediaTypeId > 0 && mediaObj.m_oMediaType.m_nTypeID == linearMediaTypeId)
+                            {
+                                assetToAdd = AutoMapper.Mapper.Map<KalturaLiveAsset>(mediaObj);
+                            }
+                        }
+                        else
+                        {
+                            assetToAdd = AutoMapper.Mapper.Map<KalturaAsset>(asset);
+                        }
+
+                        result.Add(assetToAdd);
+                    }
+                    else
+                    {
+                        log.WarnFormat("found null asset while mapping from internal asset object to KalturaAsset");
                     }
                 }
-                else
-                {
-                    assetToAdd = AutoMapper.Mapper.Map<KalturaAsset>(asset);
-                }
-
-                result.Add(assetToAdd);
-            }
+            }            
 
             return result;
         }
