@@ -18649,6 +18649,16 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute CouponCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCoupon")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCoupon(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -18713,6 +18723,14 @@ namespace WebAPI.Models.Pricing
                         LeftUsesSchemaProperty.Validate("leftUses", parameters["leftUses"]);
                     }
                     LeftUses = (Int32) Convert.ChangeType(parameters["leftUses"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("couponCode") && parameters["couponCode"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
+                    }
+                    CouponCode = (String) Convert.ChangeType(parameters["couponCode"], typeof(String));
                 }
             }
         }

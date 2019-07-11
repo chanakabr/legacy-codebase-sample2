@@ -18448,6 +18448,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponCode != null)
+            {
+                ret.Add("couponCode", "\"couponCode\": " + "\"" + EscapeJson(CouponCode) + "\"");
+            }
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToJson(currentVersion, omitObsolete);
@@ -18475,6 +18479,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponCode != null)
+            {
+                ret.Add("couponCode", "<couponCode>" + EscapeXml(CouponCode) + "</couponCode>");
+            }
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToXml(currentVersion, omitObsolete);

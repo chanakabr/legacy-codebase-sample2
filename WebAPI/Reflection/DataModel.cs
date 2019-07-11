@@ -1694,6 +1694,8 @@ namespace WebAPI.Reflection
                 case "KalturaCoupon":
                     switch(property.Name)
                     {
+                        case "CouponCode":
+                            return "couponCode";
                         case "CouponsGroup":
                             return "couponsGroup";
                         case "LeftUses":

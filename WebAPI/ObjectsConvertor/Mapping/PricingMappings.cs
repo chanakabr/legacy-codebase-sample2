@@ -229,6 +229,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertCouponStatus(src.m_CouponStatus)))
                .ForMember(dest => dest.LeftUses, opt => opt.MapFrom(src => src.leftUses))
                .ForMember(dest => dest.TotalUses, opt => opt.MapFrom(src => src.totalUses))
+               .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.id))
                ;
 
             // PpvModule to KalturaPpvModule
