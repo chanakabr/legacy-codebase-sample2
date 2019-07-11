@@ -74,7 +74,7 @@ namespace WebAPI.Managers
 
         public void StoreObjects(List<BaseObject> objects, string keyPrefix, int duration)
         {
-            DateTime experationTime = duration > 0 ? DateTime.UtcNow.AddSeconds(duration) : DateTime.UtcNow.AddSeconds(DEFAULT_DURATION);
+            var experationTime = duration > 0 ? DateTimeOffset.UtcNow.AddSeconds(duration) : DateTimeOffset.UtcNow.AddSeconds(DEFAULT_DURATION);
             foreach (BaseObject obj in objects)
             {
                 if (obj != null)
@@ -84,7 +84,7 @@ namespace WebAPI.Managers
                     {
                         var cacheItemPolicy = new CacheItemPolicy
                         {
-                           AbsoluteExpiration = new DateTimeOffset(experationTime),
+                           AbsoluteExpiration = experationTime,
                            Priority = CacheItemPriority.Default,
                         };
 
