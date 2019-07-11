@@ -47,6 +47,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected int sizeOfBulk;
         protected bool shouldAddRouting = true;
+        protected Dictionary<long, List<int>> linearChannelsRegionsMapping;
 
         #endregion
 
@@ -56,6 +57,7 @@ namespace ElasticSearchHandler.IndexBuilders
             : base(groupID)
         {
             serializer = new ESSerializerV2();
+            linearChannelsRegionsMapping = new Dictionary<long, List<int>>();
         }
 
         #endregion
@@ -73,6 +75,7 @@ namespace ElasticSearchHandler.IndexBuilders
             GroupManager groupManager = new GroupManager();
             bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             ApiObjects.LanguageObj defaultLanguage = null;
+
             if (doesGroupUsesTemplates)
             {
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -187,6 +190,15 @@ namespace ElasticSearchHandler.IndexBuilders
             }
 
             log.DebugFormat("Start populating epg index = {0}", newIndexName);
+
+            #region Get Linear Channels Regions
+
+            if (group.isRegionalizationEnabled)
+            {
+                linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+            }
+
+            #endregion
 
             PopulateIndex(newIndexName, group);
 
@@ -446,11 +458,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             // used only to support linear media id search on elastic search
             List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
-            Dictionary<string, LinearChannelSettings>  linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
-            if (doesGroupUsesTemplates)
-            {
-                linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
-            }
+            Dictionary<string, LinearChannelSettings>  linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
 
             // Run on all programs
             foreach (ulong epgID in programs.Keys)
@@ -496,9 +504,14 @@ namespace ElasticSearchHandler.IndexBuilders
                         epg.PadMetas(MetasToPad);
 
                         // used only to currently support linear media id search on elastic search
-                        if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                        if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                         {
                             epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
+                        }
+
+                        if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
+                        {
+                            epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
                         }
 
                         // Serialize EPG object to string
@@ -515,15 +528,15 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
 
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
-                            {
-                                docID = GetDocumentId(epg),
-                                document = serializedEpg,
-                                index = index,
-                                Operation = eOperation.index,
-                                routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                                type = epgType,
-                                ttl = ttl
-                            });
+                        {
+                            docID = GetDocumentId(epg),
+                            document = serializedEpg,
+                            index = index,
+                            Operation = eOperation.index,
+                            routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
+                            type = epgType,
+                            ttl = ttl
+                        });
                     }
 
                     // If we exceeded maximum size of bulk 

@@ -209,12 +209,8 @@ namespace ElasticSearchHandler.Updaters
                 ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
 
                 // used only to support linear media id search on elastic search                
-                Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string, LinearChannelSettings>();
-                if (doesGroupUsesTemplates)
-                {
-                    List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
-                    linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
-                }
+                List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
 
                 if (epgObjects != null)
                 {
@@ -231,6 +227,12 @@ namespace ElasticSearchHandler.Updaters
 
                         // Temporarily - assume success
                         bool temporaryResult = true;
+
+                        Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+                        if (group.isRegionalizationEnabled)
+                        {
+                            linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                        }
 
                         // Create dictionary by languages
                         foreach (LanguageObj language in languages)
@@ -255,10 +257,14 @@ namespace ElasticSearchHandler.Updaters
                                         suffix = language.Code;
                                     }
 
-                                    // TODO - Lior, remove all this if - used only to currently support linear media id search on elastic search
-                                    if (doesGroupUsesTemplates && linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
+                                    if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                                     {
                                         epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
+                                    }
+
+                                    if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
+                                    {
+                                        epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
                                     }
 
                                     string serializedEpg = SerializeEPG(epg, suffix, doesGroupUsesTemplates);
