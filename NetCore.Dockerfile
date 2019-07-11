@@ -6,21 +6,26 @@ ARG BRANCH=master
 
 WORKDIR /src
 COPY [".", "phoenix-rest"]
-
 WORKDIR /src/phoenix-rest
 
 RUN bash /src/Core/DllVersioning.Core.sh .
-#RUN dotnet publish -c Release "./phoenix-rest/Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
+RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-#FROM mcr.microsoft.com/dotnet/core/runtime:2.2
-#WORKDIR /
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
+WORKDIR /opt
 
-#ENV RUN_TASK=no-task-selected
-#ENV CONCURRENT_CONSUMERS=1
-#ENV API_LOG_DIR=/var/log/remote-tasks/
+ARG API_LOG_DIR=/var/log/remote-tasks/
+ENV API_LOG_DIR ${API_LOG_DIR}
 
-#COPY --from=builder /src/published .
-#ENTRYPOINT [ "sh", "-c", "dotnet ./${RUN_TASK}/${RUN_TASK}.dll" ]
+COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
+WORKDIR /opt/phoenix-rest
+
+EXPOSE 80
+EXPOSE 443
+
+ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll" ]
+
+
