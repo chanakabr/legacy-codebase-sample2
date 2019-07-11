@@ -30,10 +30,10 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     // TODO SHIR - CRUD changes
-    public abstract partial class KalturaCrudController<KalturaT, CoreT> : IKalturaController
-        //where KalturaT : KalturaCrudObject<CoreT>
-        where KalturaT : KalturaCrudObject<CoreT>
+    public abstract partial class KalturaCrudController<KalturaT, CoreT, IdentifierT> : IKalturaController
+        where KalturaT : KalturaCrudObject<CoreT, IdentifierT>
         where CoreT : class, ICrudHandeledObject
+        where IdentifierT : IConvertible
     {
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -73,25 +73,25 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        internal static void Delete(int groupId, long id, ICrudHandler<CoreT> handler)// BaseCrudHandler<CoreT> handler)
+        internal static void Delete(int groupId, IdentifierT id, ICrudHandler<CoreT, IdentifierT> handler, Dictionary<string, object> extraParams = null)// BaseCrudHandler<CoreT> handler)
         {
             try
             {
-                GetResponseStatusFromCore(() => handler.Delete(groupId, id));
+                GetResponseStatusFromCore(() => handler.Delete(groupId, id, extraParams));
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
         }
-
-        internal static KalturaT Get(int groupId, long id, ICrudHandler<CoreT> handler)
+        
+        internal static KalturaT Get(int groupId, IdentifierT id, ICrudHandler<CoreT, IdentifierT> handler, Dictionary<string, object> extraParams = null)
         {
             KalturaT response = null;
 
             try
             {
-                response = GetResponseFromCore(() => handler.Get(groupId, id));
+                response = GetResponseFromCore(() => handler.Get(groupId, id, extraParams));
             }
             catch (ClientException ex)
             {

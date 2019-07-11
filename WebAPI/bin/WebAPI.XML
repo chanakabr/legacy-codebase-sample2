@@ -69,6 +69,19 @@
             <param name="householdCoupon">householdCoupon details</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdCouponController.Delete(System.String)">
+            <summary>
+            Remove coupon from household
+            </summary>
+            <param name="code">Coupon code</param>
+        </member>
+        <member name="M:WebAPI.Controllers.HouseholdCouponController.List">
+            <summary>
+            Lists all topic notifications in the system.
+            </summary>
+            <param name="filter">Filter options</param>
+            <param name="pager">Paging the request</param>
+        </member>
         <member name="M:WebAPI.Controllers.IngestProfileController.List">
             <summary>
             Returns all ingest profiles for partner
@@ -3752,6 +3765,12 @@
             <remarks>Possible status codes: Coupon not valid = 3020
                </remarks>
             <param name="code">Coupon code</param>
+        </member>
+        <member name="M:WebAPI.Controllers.CouponController.List(WebAPI.Models.Pricing.KalturaCouponFilter)">
+            <summary>
+            Lists coupon codes.
+            </summary>
+            <param name="filter">Filter options</param>
         </member>
         <member name="M:WebAPI.Controllers.EntitlementController.Cancel(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType)">
             <summary>
@@ -10598,9 +10617,14 @@
             Household Coupon details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCoupon.HouseholdId">
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCoupon.Code">
             <summary>
-            Household identifier
+            Coupon code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponListResponse.Objects">
+            <summary>
+            Household coupon
             </summary>
         </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitationsListResponse">
@@ -11939,6 +11963,11 @@
             End date and time represented as epoch.
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponFilter.CouponCodesIn">
+            <summary>
+            Comma separated list of coupon codes.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPpvFilter">
             <summary>
             Filtering Asset Struct Metas
@@ -12407,6 +12436,16 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCoupon.LeftUses">
             <summary>
             Left coupon uses
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCoupon.CouponCode">
+            <summary>
+            Coupon code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponListResponse.Objects">
+            <summary>
+            Coupons
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaItemPriceListResponse">

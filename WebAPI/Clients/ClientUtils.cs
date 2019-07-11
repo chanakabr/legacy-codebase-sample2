@@ -148,7 +148,7 @@ namespace WebAPI.Clients
             {
                 result.Objects = new List<U>();
             }
-            
+
             return result;
         }
 
@@ -181,7 +181,7 @@ namespace WebAPI.Clients
 
             return true;
         }
-        
+
         internal static void GetResponseStatusFromWS<U, T>(Func<T, Status> funcInWS, U kalturaOTTObject)
             where U : KalturaOTTObject where T : class
         {
@@ -211,15 +211,6 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(status.Code, status.Message);
             }
-        }
-
-        //------------------------------------
-        // TODO SHIR - put all crud generic methods in other place
-        
-        internal static void Delete<CoreT>(int groupId, int id, ICrudHandler<CoreT> handler)
-           where CoreT : class, ICrudHandeledObject
-        {
-            ClientUtils.GetResponseStatusFromWS(() => handler.Delete(groupId, id));
         }
     }
 }

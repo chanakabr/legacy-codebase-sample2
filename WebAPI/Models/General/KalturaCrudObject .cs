@@ -22,9 +22,11 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base class that have CRUD actions 
     /// </summary>
-    public abstract partial class KalturaCrudObject<CoreT> : KalturaOTTObject where CoreT : ICrudHandeledObject
+    public abstract partial class KalturaCrudObject<CoreT, IdentifierT> : KalturaOTTObject 
+        where CoreT : ICrudHandeledObject
+        where IdentifierT : IConvertible
     {
-        public abstract ICrudHandler<CoreT> Handler { get; } //  BaseCrudHandler<T>
+        public abstract ICrudHandler<CoreT, IdentifierT> Handler { get; } //  BaseCrudHandler<T>
         public abstract void ValidateForAdd();
         public abstract void ValidateForUpdate();
     }

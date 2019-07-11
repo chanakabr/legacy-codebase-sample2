@@ -3,6 +3,7 @@ using ApiObjects.Base;
 using ApiObjects.Pricing;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
@@ -12,28 +13,26 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Domains
 {
     // TODO SHIR - CRUD changes
-    // TODO ANAT(BEO-6931) - ADD ALL relevant KalturaHouseholdCoupon data members and validation
-
     /// <summary>
     /// Household Coupon details
     /// </summary>
-    public partial class KalturaHouseholdCoupon : KalturaCrudObject<DomainCoupon>
+    public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string>
     {
-        public ICrudHandler<DomainCoupon> Handler { get { return DomainCouponHandler.Instance; } }
+        public ICrudHandler<CouponWallet, string> Handler { get { return CouponWalletHandler.Instance; } }
         
         /// <summary>
-        /// Household identifier
+        /// Coupon code
         /// </summary>
-        [DataMember(Name = "householdId")]
-        [JsonProperty("householdId")]
-        [XmlElement(ElementName = "householdId")]
-        public long? HouseholdId { get; set; }
+        [DataMember(Name = "code")]
+        [JsonProperty("code")]
+        [XmlElement(ElementName = "code")]
+        public string Code { get; set; }
         
-        public override void ValidateForAdd()
+        public void ValidateForAdd()
         {
-            if (this.HouseholdId < 0)
+            if (string.IsNullOrEmpty(this.Code))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "householdId");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "code");
             }
         }
 
@@ -41,5 +40,17 @@ namespace WebAPI.Models.Domains
         {
             throw new System.NotImplementedException();
         }
+    }
+
+    public partial class KalturaHouseholdCouponListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Household coupon
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaHouseholdCoupon> Objects { get; set; }
     }
 }

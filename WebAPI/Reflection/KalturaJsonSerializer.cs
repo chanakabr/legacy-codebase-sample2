@@ -5630,6 +5630,10 @@ namespace WebAPI.Models.General
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(systemName) + "\"");
             }
+            if(UniqueId != null)
+            {
+                ret.Add("uniqueId", "\"uniqueId\": " + "\"" + EscapeJson(UniqueId) + "\"");
+            }
             if(UserIp != null)
             {
                 ret.Add("userIp", "\"userIp\": " + "\"" + EscapeJson(UserIp) + "\"");
@@ -5660,6 +5664,10 @@ namespace WebAPI.Models.General
             if(systemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(systemName) + "</systemName>");
+            }
+            if(UniqueId != null)
+            {
+                ret.Add("uniqueId", "<uniqueId>" + EscapeXml(UniqueId) + "</uniqueId>");
             }
             if(UserIp != null)
             {
@@ -18440,6 +18448,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponCode != null)
+            {
+                ret.Add("couponCode", "\"couponCode\": " + "\"" + EscapeJson(CouponCode) + "\"");
+            }
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToJson(currentVersion, omitObsolete);
@@ -18467,6 +18479,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponCode != null)
+            {
+                ret.Add("couponCode", "<couponCode>" + EscapeXml(CouponCode) + "</couponCode>");
+            }
             if(CouponsGroup != null)
             {
                 propertyValue = CouponsGroup.ToXml(currentVersion, omitObsolete);
@@ -18488,6 +18504,34 @@ namespace WebAPI.Models.Pricing
             return ret;
         }
     }
+    public partial class KalturaCouponFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(CouponCodesIn != null)
+            {
+                ret.Add("couponCodesIn", "\"couponCodesIn\": " + "\"" + EscapeJson(CouponCodesIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(CouponCodesIn != null)
+            {
+                ret.Add("couponCodesIn", "<couponCodesIn>" + EscapeXml(CouponCodesIn) + "</couponCodesIn>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaCouponGenerationOptions
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -18505,6 +18549,36 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            return ret;
+        }
+    }
+    public partial class KalturaCouponListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             return ret;
         }
     }
@@ -25482,9 +25556,9 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(HouseholdId.HasValue)
+            if(Code != null)
             {
-                ret.Add("householdId", "\"householdId\": " + HouseholdId);
+                ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
             }
             return ret;
         }
@@ -25495,9 +25569,39 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(HouseholdId.HasValue)
+            if(Code != null)
             {
-                ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+                ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaHouseholdCouponListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

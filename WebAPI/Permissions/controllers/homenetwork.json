@@ -21,7 +21,7 @@
       "excluded_permissions": [],
       "name": "HomeNetwork_Update",
       "service": "HomeNetwork",
-      "action": "Delete",
+      "action": "Update",
       "type": "Action"
     },
     {
@@ -31,7 +31,7 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "HomeNetwork_Update",
+      "name": "HomeNetwork_Delete",
       "service": "HomeNetwork",
       "action": "Delete",
       "type": "Action"

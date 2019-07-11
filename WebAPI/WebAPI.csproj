@@ -894,6 +894,7 @@
     <Compile Include="Models\Notification\KalturaTrigger.cs" />
     <Compile Include="Models\Partner\KalturaGeneralPartnerConfig.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpv.cs" />
+    <Compile Include="Models\Pricing\KalturaCouponFilter.cs" />
     <Compile Include="Models\Pricing\KalturaPpvFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpvFilter.cs" />
     <Compile Include="Models\Pricing\KalturaAssetFilePpvListResponse.cs" />
