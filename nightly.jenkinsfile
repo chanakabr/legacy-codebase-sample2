@@ -8,6 +8,7 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
     }
     environment {
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
@@ -68,7 +69,8 @@ pipeline {
                     echo "Version Identified:[${RELEASE_VERSION}]"
 
                     dir("phoenix") {
-                        bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                        // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                        bat "robocopy robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL"
                     }
                 }
             }
