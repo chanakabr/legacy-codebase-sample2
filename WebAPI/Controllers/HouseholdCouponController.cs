@@ -16,7 +16,6 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    // TODO ANAT(BEO-6931) - ADD ALL relevant methods for HouseholdCouponController
     [Service("householdCoupon")]
     public class HouseholdCouponController : IKalturaController
     {
@@ -41,7 +40,7 @@ namespace WebAPI.Controllers
             {
                 householdCoupon.ValidateForAdd();
                
-                response = ClientUtils.Add<KalturaHouseholdCoupon, CouponWalt>(groupId, householdCoupon,
+                response = ClientUtils.Add<KalturaHouseholdCoupon, CouponWallet>(groupId, householdCoupon,
                                                                                 new Dictionary<string, object>()
                                                                                 { { "householdId", householdId } }
                                                                                 );

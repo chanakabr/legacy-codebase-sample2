@@ -12,14 +12,12 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
 {
-    // TODO ANAT(BEO-6931) - ADD ALL relevant KalturaHouseholdCoupon data members and validation
-
     /// <summary>
     /// Household Coupon details
     /// </summary>
-    public partial class KalturaHouseholdCoupon : KalturaOTTObject, IKalturaCrudHandeledObject<CouponWalt>
+    public partial class KalturaHouseholdCoupon : KalturaOTTObject, IKalturaCrudHandeledObject<CouponWallet>
     {
-        private static readonly CouponWaltHandler couponWaltHandler = new CouponWaltHandler();
+        private static readonly CouponWalletHandler couponWalletHandler = new CouponWalletHandler();
         
         /// <summary>
         /// Coupon code
@@ -29,9 +27,9 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "code")]
         public string Code { get; set; }
 
-        public ICrudHandler<CouponWalt> GetHandler()
+        public ICrudHandler<CouponWallet> GetHandler()
         {
-            return couponWaltHandler;
+            return couponWalletHandler;
         }
 
         public void ValidateForAdd()

@@ -117,13 +117,13 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
             ;
 
-            //CouponWalt, KalturaHouseholdCoupon
-            cfg.CreateMap<ApiObjects.Pricing.CouponWalt, KalturaHouseholdCoupon>()
+            //CouponWallet, KalturaHouseholdCoupon
+            cfg.CreateMap<ApiObjects.Pricing.CouponWallet, KalturaHouseholdCoupon>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CouponCode))
                 ;
 
-            //KalturaHouseholdCoupon, CouponWalt
-            cfg.CreateMap<KalturaHouseholdCoupon, ApiObjects.Pricing.CouponWalt>()
+            //KalturaHouseholdCoupon, CouponWallet
+            cfg.CreateMap<KalturaHouseholdCoupon, ApiObjects.Pricing.CouponWallet>()
                 .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.Code))
                 ;
         }

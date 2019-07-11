@@ -526,8 +526,14 @@ namespace WebAPI.Reflection
                 case "KalturaCoupon":
                     return new KalturaCoupon(parameters);
                     
+                case "KalturaCouponFilter":
+                    return new KalturaCouponFilter(parameters);
+                    
                 case "KalturaCouponGenerationOptions":
                     return new KalturaCouponGenerationOptions(parameters);
+                    
+                case "KalturaCouponListResponse":
+                    return new KalturaCouponListResponse(parameters);
                     
                 case "KalturaCouponsGroup":
                     return new KalturaCouponsGroup(parameters);
@@ -18735,10 +18741,43 @@ namespace WebAPI.Models.Pricing
             }
         }
     }
+    public partial class KalturaCouponFilter
+    {
+        public KalturaCouponFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("couponCodesIn") && parameters["couponCodesIn"] != null)
+                {
+                    CouponCodesIn = (String) Convert.ChangeType(parameters["couponCodesIn"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaCouponGenerationOptions
     {
         public KalturaCouponGenerationOptions(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaCouponListResponse
+    {
+        public KalturaCouponListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCoupon>(typeof(KalturaCoupon), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCoupon), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCouponsGroup
