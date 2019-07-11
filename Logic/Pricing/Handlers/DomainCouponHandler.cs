@@ -3,39 +3,37 @@ using ApiObjects.Pricing;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Core.Pricing.Handlers
 {
+    // TODO SHIR - CRUD changes
     // TODO ANAT(BEO-6931) - implement ALL relevant methods for DomainCouponHandler
-    public class DomainCouponHandler : ICrudHandler<DomainCoupon>
+    public class DomainCouponHandler : ICrudHandler<DomainCoupon> // BaseCrudHandler<DomainCoupon>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly Lazy<DomainCouponHandler> lazy = new Lazy<DomainCouponHandler>(() => new DomainCouponHandler());
 
-        public GenericResponse<DomainCoupon> Add(int groupId, DomainCoupon objectToAdd)
-        {
-            var response = new GenericResponse<DomainCoupon>();
-            
-            try
-            {
-                response.Status.Set(eResponseStatus.OK);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("An Exception was occurred in DomainCoupon. groupId:{0}, object to add details:{1}.",
-                                        groupId, objectToAdd), ex);
-                response.SetStatus(eResponseStatus.Error);
-            }
-
-            return response;
-        }
-
-        public GenericResponse<DomainCoupon> Update(int groupId, DomainCoupon objectToUpdate)
+        public static DomainCouponHandler Instance { get { return lazy.Value; }}
+        private DomainCouponHandler() { }
+       
+        public GenericResponse<DomainCoupon> Add(int groupId, DomainCoupon objectToAdd, Dictionary<string, object> extraParams = null)
         {
             throw new NotImplementedException();
         }
 
-        public Status Delete(long id)
+        public GenericResponse<DomainCoupon> Update(int groupId, DomainCoupon objectToUpdate, Dictionary<string, object> extraParams = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Status Delete(int groupId, long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GenericResponse<DomainCoupon> Get(int groupId, long id)
         {
             throw new NotImplementedException();
         }
