@@ -4,29 +4,59 @@ pipeline {
     }
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
+        skipDefaultCheckout true
     }
     parameters {
-        string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
+        string(name: 'branch', defaultValue: 'convert_dotNet_2Core', description: 'Core Branch')
     }
     environment {
-        PUBLISH_TEMP_DIR = "C:\\Temp_Publish\\Phoenix\\${params.branch}"
+        PUBLISH_TEMP_DIR = "C:\\temp_deployment\\phoenix\\${params.branch}"
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
         NUGET = 'c:\\nuget.exe'
     }
     stages {
-        stage("Checkout and restore Core Source"){
+        stage("Checkout"){
             steps{
-                dir('phoenix') { checkout scm }
+                dir('phoenix') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
-                dir('pgadapter'){ git(url: 'git@bitbucket.org:tvinci_dev/pgadapter.git', branch: "${params.branch}") }
-                dir('pgadapter'){ git(url: 'git@bitbucket.org:tvinci_dev/pgadapter.git', branch: "${params.branch}") }
             }
         }
         stage("Version Patch"){
             steps{
                 dir("core"){
                     bat "sh DllVersioning.Core.sh ." 
-                    bat "sh DllVersioning.Core.sh ../TvmCore" 
+                    bat "sh DllVersioning.Core.sh ../phoenix" 
+                }
+            }        
+        }
+
+        stage("Build Core"){
+            steps{
+                dir("core"){
+                    bat ("${NUGET} restore")
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                }
+            }        
+        }
+        stage("Build Phoenix"){
+            steps{
+                dir("phoenix"){
+                    bat ("${NUGET} restore")
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                }
+            }        
+        }
+        stage("Publish Localy"){
+            steps{
+                dir("phoenix"){
+                    bat ("\"${MSBUILD}\" Phoenix.Rest\\Phoenix.Rest.csproj /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${PUBLISH_TEMP_DIR}"
+                        )
                 }
             }        
         }
