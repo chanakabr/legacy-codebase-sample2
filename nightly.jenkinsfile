@@ -7,10 +7,9 @@ pipeline {
         skipDefaultCheckout true
     }
     parameters {
-        string(name: 'branch', defaultValue: 'convert_dotNet_2Core', description: 'Core Branch')
+        string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
     }
     environment {
-        PUBLISH_TEMP_DIR = "C:\\temp_deployment\\phoenix\\${params.branch}"
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
         NUGET = 'c:\\nuget.exe'
     }
@@ -49,16 +48,30 @@ pipeline {
         stage("Publish Localy"){
             steps{
                 dir("phoenix"){
-                    bat ("\"${MSBUILD}\" Phoenix.Rest\\Phoenix.Rest.csproj /m:4"
+                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
                             + " /p:Configuration=Release"
                             + " /p:DeployDefaultTarget=WebPublish"
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${PUBLISH_TEMP_DIR}"
+                            + " /p:publishUrl=\"${WORKSPACE}/published/phoenix/"
                         )
                 }
             }        
+        }
+        stage("Publish To Preprod"){
+            environment {
+               RELEASE_VERSION = sh(script: 'cd phoenix && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+            }
+            steps { 
+                dir("published"){
+                    echo "Version Identified:[${RELEASE_VERSION}]"
+
+                    dir("phoenix") {
+                        bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                    }
+                }
+            }
         }
     }
 }

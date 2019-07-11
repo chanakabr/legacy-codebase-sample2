@@ -47,23 +47,6 @@ namespace Phoenix.Rest.Middleware
             app.UseMiddleware<PhoenixRequestExecutor>();
             return app;
         }
-
-        private static async Task ExcpetionResponseHandler(HttpContext context)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
-
-            var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-            if (contextFeature != null)
-            {
-                _Logger.Error($"{contextFeature.Error}");
-
-                //await context.Response.WriteAsync(JsonConvert.SerializeObject(contextFeature.Error));
-
-
-
-            }
-        }
     }
 }
 
