@@ -1,4 +1,4 @@
-﻿﻿ARG DOTNET_FRAMEWORK_TAG=4.7.2-sdk-windowsservercore-ltsc2019
+﻿ARG DOTNET_FRAMEWORK_TAG=4.7.2-sdk-windowsservercore-ltsc2019
 FROM microsoft/dotnet-framework:${DOTNET_FRAMEWORK_TAG} AS builder
 SHELL ["powershell"]
 
