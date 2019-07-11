@@ -1114,6 +1114,26 @@ namespace ElasticSearch.Common
 
             #endregion
 
+            #region add regions
+
+            // Add this field only if there are regions on the media object
+            if (oEpg.regions != null && oEpg.regions.Count > 0)
+            {
+                sRecord.Append(", \"regions\": [");
+
+                foreach (int regionId in oEpg.regions)
+                {
+                    sRecord.Append(regionId);
+                    sRecord.Append(',');
+                }
+
+                // Remove last ','
+                sRecord.Remove(sRecord.Length - 1, 1);
+
+                sRecord.Append("]");
+            }
+
+            #endregion
         }
 
         public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null, bool doesGroupUsesTemplates = false)
