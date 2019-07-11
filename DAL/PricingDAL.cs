@@ -1811,21 +1811,21 @@ namespace DAL
             return res;
         }
 
-        public static List<CouponWalt> GetHouseholdCouponWaltCB(long householdId)
+        public static List<CouponWallet> GetHouseholdCouponWalletCB(long householdId)
         {
-            string key = GetCouponWaltKey(householdId);
-            return UtilsDal.GetObjectFromCB<List<CouponWalt>>(eCouchbaseBucket.OTT_APPS, key, true);
+            string key = GetCouponWalletKey(householdId);
+            return UtilsDal.GetObjectFromCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, true);
         }
 
-        public static bool SaveHouseholdCouponWaltCB(long householdId, List<CouponWalt> couponWalts)
+        public static bool SaveHouseholdCouponWalletCB(long householdId, List<CouponWallet> couponWallets)
         {
-            string key = GetCouponWaltKey(householdId);
-            return UtilsDal.SaveObjectInCB<List<CouponWalt>>(eCouchbaseBucket.OTT_APPS, key, couponWalts, true);
+            string key = GetCouponWalletKey(householdId);
+            return UtilsDal.SaveObjectInCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, couponWallets, true);
         }
 
-        private static string GetCouponWaltKey(long householdId)
+        private static string GetCouponWalletKey(long householdId)
         {
-            return string.Format("household_coupon_walt:{0}", householdId);
+            return string.Format("household_coupon_wallet:{0}", householdId);
         }
     }
 }

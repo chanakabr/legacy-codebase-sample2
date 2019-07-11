@@ -3,10 +3,8 @@ using System;
 
 namespace ApiObjects.Pricing
 {
-    public class CouponWalt : ICrudHandeledObject
+    public class CouponWallet : ICrudHandeledObject
     {
-        public long DomainId { get; set; }
-
         public int CouponId { get; set; }
 
         public string CouponCode { get; set; }

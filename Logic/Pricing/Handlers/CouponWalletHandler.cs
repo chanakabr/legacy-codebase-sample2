@@ -10,18 +10,18 @@ using System.Reflection;
 
 namespace Core.Pricing.Handlers
 {
-    public class CouponWaltHandler : ICrudHandler<CouponWalt>
+    public class CouponWalletHandler : ICrudHandler<CouponWallet>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public GenericResponse<CouponWalt> Add(int groupId, CouponWalt couponWaltToAdd, Dictionary<string, object> funcParams)
+        public GenericResponse<CouponWallet> Add(int groupId, CouponWallet couponWalletToAdd, Dictionary<string, object> funcParams)
         {
-            var response = new GenericResponse<CouponWalt>();
+            var response = new GenericResponse<CouponWallet>();
             long? householdId = null;
 
             try
             {
-                if (string.IsNullOrEmpty(couponWaltToAdd.CouponCode))
+                if (string.IsNullOrEmpty(couponWalletToAdd.CouponCode))
                 {
                     response.SetStatus(eResponseStatus.CouponCodeIsMissing, "Coupon code is missing");
                     return response;
@@ -38,20 +38,18 @@ namespace Core.Pricing.Handlers
                     return response;
                 }
 
-                couponWaltToAdd.DomainId = householdId.Value;
-
-                // Get Household's Walt
-                List<CouponWalt> couponWalts = PricingDAL.GetHouseholdCouponWaltCB(couponWaltToAdd.DomainId);
+                // Get Household's Wallet
+                List<CouponWallet> couponWallets = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
                 
                 // make sure coupon not already been added
-                if (couponWalts?.Count > 0 && couponWalts.Count(x => x.CouponCode == couponWaltToAdd.CouponCode) > 0)
+                if (couponWallets?.Count > 0 && couponWallets.Count(x => x.CouponCode == couponWalletToAdd.CouponCode) > 0)
                 {
                     response.SetStatus(eResponseStatus.CouponCodeAlreadyLoaded, "Coupon code already loaded");
                     return response;
                 }
 
                 // Check that code is valid
-                CouponDataResponse couponData = Module.GetCouponStatus(groupId, couponWaltToAdd.CouponCode, couponWaltToAdd.DomainId);
+                CouponDataResponse couponData = Module.GetCouponStatus(groupId, couponWalletToAdd.CouponCode, householdId.Value);
                 if(!Utils.IsCouponValid(couponData))
                 {
                     response.SetStatus(eResponseStatus.CouponNotValid, "Coupon code not valid");
@@ -59,15 +57,16 @@ namespace Core.Pricing.Handlers
                 }
 
                 // Add coupon to household                                
-                couponWaltToAdd.CouponGroupId = couponData.Coupon.m_oCouponGroup.m_sGroupCode;
+                couponWalletToAdd.CouponGroupId = couponData.Coupon.m_oCouponGroup.m_sGroupCode;
+                //couponWalletToAdd.CouponId = couponData.Coupon.m_nCouponID; //TODO anat
 
-                couponWaltToAdd.CreateDate = DateTime.UtcNow;
-                couponWalts.Add(couponWaltToAdd);
+                couponWalletToAdd.CreateDate = DateTime.UtcNow;
+                couponWallets.Add(couponWalletToAdd);
 
-                // Save CouponWaltAtCB                    
-                if (!PricingDAL.SaveHouseholdCouponWaltCB(householdId.Value, couponWalts))
+                // Save CouponWalletAtCB                    
+                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, couponWallets))
                 {
-                    log.ErrorFormat("Error while SaveHouseholdCouponWaltCB. groupId: {0}, domainId:{1}", groupId, couponWaltToAdd.DomainId);
+                    log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. groupId: {0}, domainId:{1}", groupId, householdId.Value);
                     return response;
                 }
 
@@ -75,14 +74,14 @@ namespace Core.Pricing.Handlers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred in CouponWalt. groupId:{0}, couponCode:{1}. ex: {2}",
-                    groupId, couponWaltToAdd.CouponCode, ex);
+                log.ErrorFormat("An Exception was occurred in CouponWallet. groupId:{0}, couponCode:{1}. ex: {2}",
+                    groupId, couponWalletToAdd.CouponCode, ex);
             }
 
             return response;
         }
 
-        public GenericResponse<CouponWalt> Update(int groupId, CouponWalt objectToUpdate)
+        public GenericResponse<CouponWallet> Update(int groupId, CouponWallet objectToUpdate)
         {
             throw new NotImplementedException();
         }
@@ -118,22 +117,22 @@ namespace Core.Pricing.Handlers
                 }
 
                 // Get Household's Walt
-                List<CouponWalt> couponWalts = PricingDAL.GetHouseholdCouponWaltCB(householdId.Value);
+                List<CouponWallet> CouponWallets = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
 
                 // make sure coupon is in household
-                if (couponWalts?.Count > 0 && couponWalts.Count(x => x.CouponCode == couponCode) != 1)
+                if (CouponWallets?.Count > 0 && CouponWallets.Count(x => x.CouponCode == couponCode) != 1)
                 {
                     response.Set(eResponseStatus.CouponCodeNotInHousehold, "Coupon code not in household");
                     return response;
                 }
 
                 // remove coupon from walt
-                couponWalts.Remove(couponWalts.Where(x => x.CouponCode == couponCode).First());
+                CouponWallets.Remove(CouponWallets.Where(x => x.CouponCode == couponCode).First());
 
-                // Save CouponWaltAtCB                    
-                if (!PricingDAL.SaveHouseholdCouponWaltCB(householdId.Value, couponWalts))
+                // Save CouponWalletAtCB                    
+                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, CouponWallets))
                 {
-                    log.ErrorFormat("Error while SaveHouseholdCouponWaltCB. domainId:{0}", householdId.Value);
+                    log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. domainId:{0}", householdId.Value);
                     return response;
                 }
 
@@ -141,35 +140,35 @@ namespace Core.Pricing.Handlers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred in CouponWalt. domainId:{0}, couponCode:{1}. ex: {2}",
+                log.ErrorFormat("An Exception was occurred in CouponWallet. domainId:{0}, couponCode:{1}. ex: {2}",
                     householdId, couponCode, ex);
             }
 
             return response;
         }
 
-        public GenericListResponse<CouponWalt> List(int groupId, CouponWaltFilter couponWaltFilter)
+        public GenericListResponse<CouponWallet> List(int groupId, CouponWalletFilter couponWalletFilter)
         {
-            var response = new GenericListResponse<CouponWalt>();
+            var response = new GenericListResponse<CouponWallet>();
 
             try
             {
-                if (couponWaltFilter == null || couponWaltFilter.HouseholdIdEqual <= 0)
+                if (couponWalletFilter == null || couponWalletFilter.HouseholdIdEqual <= 0)
                 {
                     response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
 
-                // Get Household's Walt
-                response.Objects = PricingDAL.GetHouseholdCouponWaltCB(couponWaltFilter.HouseholdIdEqual);
+                // Get Household's Wallet
+                response.Objects = PricingDAL.GetHouseholdCouponWalletCB(couponWalletFilter.HouseholdIdEqual);
 
                 response.TotalItems = response.Objects!= null ? 0 : response.Objects.Count;              
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred in CouponWalt List. domainId:{0} . ex: {1}",
-                    couponWaltFilter.HouseholdIdEqual, ex);
+                log.ErrorFormat("An Exception was occurred in CouponWallet List. domainId:{0} . ex: {1}",
+                    couponWalletFilter.HouseholdIdEqual, ex);
             }
 
             return response;
