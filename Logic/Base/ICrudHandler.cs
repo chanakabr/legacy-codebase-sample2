@@ -1,9 +1,6 @@
 ﻿using ApiObjects.Base;
 using ApiObjects.Response;
-using KLogMonitor;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace ApiLogic.Base
 {
@@ -12,7 +9,7 @@ namespace ApiLogic.Base
     {
         GenericResponse<CoreT> Add(int groupId, CoreT objectToAdd, Dictionary<string, object> extraParams = null);
         GenericResponse<CoreT> Update(int groupId, CoreT objectToUpdate, Dictionary<string, object> extraParams = null);
-        Status Delete(int groupId, long id);
+        Status Delete(int groupId, long id, Dictionary<string, object> funcParams);
         GenericResponse<CoreT> Get(int groupId, long id);
     }
 
@@ -22,7 +19,7 @@ namespace ApiLogic.Base
 
         public abstract GenericResponse<CoreT> Add(int groupId, CoreT objectToAdd, Dictionary<string, object> extraParams = null);
         public abstract GenericResponse<CoreT> Update(int groupId, CoreT objectToUpdate, Dictionary<string, object> extraParams = null);
-        public abstract Status Delete(int groupId, long id);
+        public abstract Status Delete(int groupId, long id, Dictionary<string, object> funcParams);
         public abstract GenericResponse<CoreT> Get(int groupId, long id);
 
         private BaseCrudHandler() { }

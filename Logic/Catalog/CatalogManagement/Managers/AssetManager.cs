@@ -3073,7 +3073,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate that asset exist
                 // isAllowedToViewInactiveAssets = true because only operator can delete asset
                 List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, true);
-                if (assets == null || assets.Count != 1)
+                if (assets == null || assets.Count != 1 || assets[0] == null || assets[0].IndexStatus == AssetIndexStatus.Deleted)
                 {
                     result.Set((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                     return result;
