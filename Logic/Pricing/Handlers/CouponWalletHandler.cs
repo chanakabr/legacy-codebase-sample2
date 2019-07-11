@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace Core.Pricing.Handlers
 {
-    public class CouponWalletHandler : ICrudHandler<CouponWallet>
+    public class CouponWalletHandler : ICrudHandler<CouponWallet, string>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<CouponWalletHandler> lazy = new Lazy<CouponWalletHandler>(() => new CouponWalletHandler());
@@ -18,7 +18,7 @@ namespace Core.Pricing.Handlers
         public static CouponWalletHandler Instance { get { return lazy.Value; } }
         private CouponWalletHandler() { }
 
-        public GenericResponse<CouponWallet> Add(int groupId, CouponWallet couponWalletToAdd, Dictionary<string, object> funcParams)
+        public GenericResponse<CouponWallet> Add(int groupId, CouponWallet couponWalletToAdd, Dictionary<string, object> extraParams)
         {
             var response = new GenericResponse<CouponWallet>();
             long? householdId = null;
@@ -31,9 +31,9 @@ namespace Core.Pricing.Handlers
                     return response;
                 }
 
-                if (funcParams != null && funcParams.ContainsKey("householdId"))
+                if (extraParams != null && extraParams.ContainsKey("householdId"))
                 {
-                    householdId = funcParams["householdId"] as long?;
+                    householdId = extraParams["householdId"] as long?;
                 }
                 
                 if(!householdId.HasValue || householdId.Value <= 0)
@@ -85,12 +85,12 @@ namespace Core.Pricing.Handlers
             return response;
         }
 
-        public GenericResponse<CouponWallet> Update(int groupId, CouponWallet objectToUpdate, Dictionary<string, object> extraParams = null)
+        public GenericResponse<CouponWallet> Update(int groupId, CouponWallet objectToUpdate, Dictionary<string, object> extraParams)
         {
             throw new NotImplementedException();
         }
 
-        public Status Delete(int groupId, long id, Dictionary<string, object> funcParams)
+        public Status Delete(int groupId, string id, Dictionary<string, object> extraParams)
         {
             Status response = new Status();
             long? householdId = null;
@@ -98,9 +98,9 @@ namespace Core.Pricing.Handlers
 
             try
             {
-                if (funcParams != null && funcParams.ContainsKey("householdId"))
+                if (extraParams != null && extraParams.ContainsKey("householdId"))
                 {
-                    householdId = funcParams["householdId"] as long?;
+                    householdId = extraParams["householdId"] as long?;
                 }
 
                 if (!householdId.HasValue || householdId.Value <= 0)
@@ -109,9 +109,9 @@ namespace Core.Pricing.Handlers
                     return response;
                 }
 
-                if (funcParams != null && funcParams.ContainsKey("couponCode"))
+                if (extraParams != null && extraParams.ContainsKey("couponCode"))
                 {
-                    couponCode = funcParams["couponCode"] as string;
+                    couponCode = extraParams["couponCode"] as string;
                 }
 
                 if (string.IsNullOrEmpty(couponCode))
@@ -178,7 +178,7 @@ namespace Core.Pricing.Handlers
             return response;
         }
        
-        public GenericResponse<CouponWallet> Get(int groupId, long id)
+        public GenericResponse<CouponWallet> Get(int groupId, string id, Dictionary<string, object> extraParams = null)
         {
             throw new NotImplementedException();
         }
