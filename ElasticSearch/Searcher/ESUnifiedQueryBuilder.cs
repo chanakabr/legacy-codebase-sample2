@@ -763,6 +763,23 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
+                #region Regions
+
+                // region term 
+                if (SearchDefinitions.regionIds != null && SearchDefinitions.regionIds.Count > 0)
+                {
+                    ESTerms regionsTerms = new ESTerms(true)
+                    {
+                        Key = "regions"
+                    };
+
+                    regionsTerms.Value.AddRange(SearchDefinitions.regionIds.Select(region => region.ToString()));
+
+                    epgFilter.AddChild(regionsTerms);
+                }
+
+                #endregion
             }
 
             // Media specific filters - user types, media types etc.

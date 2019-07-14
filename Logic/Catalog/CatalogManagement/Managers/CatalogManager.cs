@@ -4,6 +4,8 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
+using DAL;
+using GroupsCacheManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using QueueWrapper;
@@ -3033,6 +3035,68 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return parentAssetsIds;
+        }
+
+        public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
+        {
+            Dictionary<long, List<int>> res = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetCatalogGroupCacheKey(groupId);
+                if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsFromDB, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                    LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetLinearMediaRegionsInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat("Failed getting GetLinearMediaRegions from LayeredCache, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetLinearMediaRegions with groupId: {0}", groupId), ex);
+            }
+
+            return res;
+        }
+
+        private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsFromDB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<long, List<int>> result = new Dictionary<long, List<int>>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    { 
+                        var dt = ApiDAL.GetMediaRegions(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                long linearChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "MEDIA_ID");
+                                int regionId = ODBCWrapper.Utils.GetIntSafeVal(row, "REGION_ID");
+
+                                if (!result.ContainsKey(linearChannelId))
+                                {
+                                    result.Add(linearChannelId, new List<int>());
+                                }
+
+                                result[linearChannelId].Add(regionId);
+                            }
+                        }
+                    }
+                }
+
+                res = result != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetLinearMediaRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
         }
 
         #endregion

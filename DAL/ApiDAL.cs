@@ -1551,6 +1551,20 @@ namespace DAL
         }
 
         /// <summary>
+        /// Return regions of medias 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static DataTable GetMediaRegions(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaRegions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+
+            return sp.Execute();
+        }
+
+        /// <summary>
         /// Return Regions accroding to External Regions List
         /// </summary>
         /// <param name="groupId"></param>

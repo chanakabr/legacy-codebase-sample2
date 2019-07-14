@@ -306,6 +306,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("DoesGroupUsesTemplates_groupId_{0}", groupId);
         }
 
+        public static string GetLinearMediaRegionsKey(int groupId)
+        {
+            return string.Format("LinearMediaRegions_groupId_{0}", groupId);
+        }
+
         public static string GetCatalogGroupCacheKey(int groupId)
         {
             return string.Format("CatalogGroupCacheV3_groupId_{0}", groupId);
@@ -792,6 +797,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
+        }
+
+        public static string GetLinearMediaRegionsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyLinearMediaRegions_groupId_{0}", groupId);
         }
 
         public static string GetGroupDeviceRulesInvalidationKey(int groupId)
