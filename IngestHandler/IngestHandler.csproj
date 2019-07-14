@@ -33,11 +33,11 @@
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
-    <ProjectReference Include="..\..\Core\Logic\ApiLogicNetCore.csproj" />
     <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
     <ProjectReference Include="..\..\Core\FTPUploadQueue\UploadQueue.csproj" />
-    <ProjectReference Include="..\..\Core\ImageManagerCore\ImageManagerCore.csproj" />
+    <ProjectReference Include="..\..\Core\ImageManager\ImageManager.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>

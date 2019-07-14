@@ -1,0 +1,80 @@
+pipeline {
+    agent {
+        label 'Jenkins-Windows-2019'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        skipDefaultCheckout true
+    }
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+    }
+    environment {
+        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        NUGET = 'c:\\nuget.exe'
+    }
+    stages {
+        stage("Checkout"){
+            steps{
+                dir('remotetasks') { git(url: 'git@bitbucket.org:tvinci_dev/remotetasks.git', branch: "${params.branch}") }
+                dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+            }
+        }
+        stage("Version Patch"){
+            steps{
+                dir("core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                    bat "sh DllVersioning.Core.sh ../remotetasks" 
+                }
+            }        
+        }
+
+        stage("Build Core"){
+            steps{
+                dir("core"){
+                    bat ("${NUGET} restore")
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                }
+            }        
+        }
+        stage("Build Remote Tasks"){
+            steps{
+                dir("remotetasks"){
+                    bat ("${NUGET} restore")
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                }
+            }        
+        }
+        stage("Publish Localy"){
+            steps{
+                dir("remotetasks"){
+                    bat ("\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${WORKSPACE}/published/remotetasks/"
+                        )
+                }
+            }        
+        }
+        stage("Publish To Preprod"){
+            environment {
+               RELEASE_VERSION = sh(script: 'cd remotetasks && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+            }
+            steps { 
+                dir("published"){
+                    echo "Version Identified:[${RELEASE_VERSION}]"
+
+                    dir("remotetasks") {
+                        // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                        // TODO: i dont want to overwrite the preprod build right now .. ill uncomment this later
+                        //bat "(robocopy . \\\\Tvpapic1\\spaces\\RemoteTask\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
+                    }
+                }
+            }
+        }
+    }
+}
