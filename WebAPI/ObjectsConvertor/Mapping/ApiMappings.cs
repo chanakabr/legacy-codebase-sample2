@@ -1673,7 +1673,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => src.Drm))
                 .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => src.AdsPolicy))
                 .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParams))
-                .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.FileExtention))
+                .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => ConvertPlaybackSourceFileExtention(src)))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
                 .ForMember(dest => dest.IsTokenized, opt => opt.MapFrom(src => src.IsTokenized));
 
@@ -3457,6 +3457,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown permission type");
+            }
+
+            return response;
+        }
+
+        private static string ConvertPlaybackSourceFileExtention(ApiObjects.PlaybackAdapter.PlaybackSource source)
+        {
+            string response = string.Empty;
+
+            if (string.IsNullOrEmpty(source.FileExtention))
+            {
+                try
+                {
+                    Uri uri = new Uri(source.Url);
+                    response = uri.Segments.LastOrDefault();
+
+                    if (!string.IsNullOrEmpty(response) && response.Contains("."))
+                    {
+                        response = response.Substring(response.LastIndexOf("."));
+                    }
+                }
+                catch
+                {
+                }
             }
 
             return response;
