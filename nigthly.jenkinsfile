@@ -1,0 +1,80 @@
+pipeline {
+    agent {
+        label 'Jenkins-Windows-2019'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        skipDefaultCheckout true
+    }
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+    }
+    environment {
+        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        NUGET = 'c:\\nuget.exe'
+    }
+    stages {
+        stage("Checkout"){
+            steps{
+                dir('ws_ingest') { git(url: 'git@bitbucket.org:tvinci_dev/ws_ingest.git', branch: "${params.branch}") }
+                dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+            }
+        }
+        stage("Version Patch"){
+            steps{
+                dir("core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                    bat "sh DllVersioning.Core.sh ../ws_ingest" 
+                }
+            }        
+        }
+
+        stage("Build Core"){
+            steps{
+                dir("core"){
+                    bat ("${NUGET} restore")
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                }
+            }        
+        }
+        stage("Build WS_Ingest"){
+            steps{
+                dir("ws_ingest"){
+                    bat ("${NUGET} restore")
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                }
+            }        
+        }
+        stage("Publish Localy"){
+            steps{
+                dir("ws_ingest"){
+                    bat ("\"${MSBUILD}\" Ingest\\Ingest.csproj /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${WORKSPACE}/published/ws_ingest/"
+                        )
+                }
+            }        
+        }
+        stage("Publish To Preprod"){
+            environment {
+               RELEASE_VERSION = sh(script: 'cd ws_ingest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+            }
+            steps { 
+                dir("published"){
+                    echo "Version Identified:[${RELEASE_VERSION}]"
+
+                    dir("ws_ingest") {
+                        // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                        
+                        bat "(robocopy . \\\\Tvpapic1\\ott\\spaces\\WebServices\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
+                    }
+                }
+            }
+        }
+    }
+}
