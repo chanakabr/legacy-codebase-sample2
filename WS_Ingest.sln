@@ -81,6 +81,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AFC9CAD8-5AD5-40EC-80EE-4D1C3FBE73DB}"
 	ProjectSection(SolutionItems) = preProject
 		Dockerfile = Dockerfile
+		nigthly.jenkinsfile = nigthly.jenkinsfile
 		README.md = README.md
 	EndProjectSection
 EndProject
