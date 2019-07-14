@@ -3381,6 +3381,7 @@ namespace Core.ConditionalAccess
             return ret;
         }
 
+        //TODO SHIR - HandleRecurringCoupon
         /// <summary>
         /// Checks if there is recurring coupon definition on the subscription and if yes 
         /// activate the discount of the coupon on the price and return the updated price and the coupon code. 
@@ -3395,54 +3396,44 @@ namespace Core.ConditionalAccess
             {
                 string couponCode = renewSubscriptionDetails.CouponCode;
                 renewSubscriptionDetails.CouponCode = string.Empty; // init for recurring coupon
-
-                // get all SubscriptionsCouponGroup (with expiry date !!!!)
-                List<SubscriptionCouponGroup> allCoupons = Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
-
-                if ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
-                    || (allCoupons != null && allCoupons.Count > 0 && allCoupons.Count(x => x.m_oDiscountCode == null) == 0))
+                
+                var couponGroupId = Utils.GetCouponGroupIdForOldCoupon(m_nGroupID, theSub, ref couponCode, renewSubscriptionDetails.PurchaseId);
+                if (couponGroupId == 0) { return; }
+                
+                // look if this coupon group id is a gift card in the subscription list 
+                CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
+                if (cg.Status.Code == (int)eResponseStatus.OK)
                 {
-                    // check if coupon related to subscription the type is coupon gift card or coupon                        
-                    long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, renewSubscriptionDetails.PurchaseId, m_nGroupID); // return only if valid .
-
-                    if (couponGroupId > 0 && ((theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString())) ||
-                                              (allCoupons != null && allCoupons.Count(x => x.m_sGroupCode.Equals(couponGroupId.ToString())) > 0)))
+                    if (cg.CouponsGroup.couponGroupType == CouponGroupType.GiftCard)
                     {
-                        // look if this coupon group id is a gift card in the subscription list 
-                        CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
-                        if (cg.Status.Code == (int)eResponseStatus.OK)
+                        isCouponGiftCard = true;
+                    }
+                    else // this is not a gift card
+                    {
+                        if (IsCouponStillRedeemable(renewSubscriptionDetails.IsPurchasedWithPreviewModule, cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon,
+                                                    renewSubscriptionDetails.TotalNumOfPayments, out firstExceeded))
                         {
-                            if (cg.CouponsGroup.couponGroupType == CouponGroupType.GiftCard)
+                            Price priceBeforeCouponDiscount = new Price
                             {
-                                isCouponGiftCard = true;
-                            }
-                            else // this is not a gift card
+                                m_dPrice = renewSubscriptionDetails.Price,
+                                m_oCurrency = oCurrency
+                            };
+                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
+                            renewSubscriptionDetails.Price = priceResult.m_dPrice;
+                            renewSubscriptionDetails.CouponCode = couponCode;
+                        }
+                        else if (firstExceeded)
+                        {
+                            double couponRemainder = ConditionalAccessDAL.GetCouponRemainder(renewSubscriptionDetails.PurchaseId);
+                            if (couponRemainder > 0)
                             {
-                                if (IsCouponStillRedeemable(renewSubscriptionDetails.IsPurchasedWithPreviewModule, cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon,
-                                                            renewSubscriptionDetails.TotalNumOfPayments, out firstExceeded))
-                                {
-                                    Price priceBeforeCouponDiscount = new Price
-                                    {
-                                        m_dPrice = renewSubscriptionDetails.Price,
-                                        m_oCurrency = oCurrency
-                                    };
-                                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
-                                    renewSubscriptionDetails.Price = priceResult.m_dPrice;
-                                    renewSubscriptionDetails.CouponCode = couponCode;
-                                }
-                                else if (firstExceeded)
-                                {
-                                    double couponRemainder = ConditionalAccessDAL.GetCouponRemainder(renewSubscriptionDetails.PurchaseId);
-                                    if (couponRemainder > 0)
-                                    {
-                                        renewSubscriptionDetails.IsUseCouponRemainder = true;
-                                        renewSubscriptionDetails.Price -= couponRemainder;
-                                        if (renewSubscriptionDetails.Price < 0)
-                                            renewSubscriptionDetails.Price = 0;
+                                // TODO SHIR - IsUseCouponRemainder
+                                renewSubscriptionDetails.IsUseCouponRemainder = true;
+                                renewSubscriptionDetails.Price -= couponRemainder;
+                                if (renewSubscriptionDetails.Price < 0)
+                                    renewSubscriptionDetails.Price = 0;
 
-                                        renewSubscriptionDetails.CouponCode = couponCode;
-                                    }
-                                }
+                                renewSubscriptionDetails.CouponCode = couponCode;
                             }
                         }
                     }
@@ -3453,7 +3444,7 @@ namespace Core.ConditionalAccess
                 log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewSubscriptionDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
             }
         }
-
+        
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
         {
             if (Utils.IsAnonymousUser(sSiteGUID))

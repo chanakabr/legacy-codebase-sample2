@@ -1,12 +1,14 @@
 ﻿using APILogic.ConditionalAccess.Managers;
 using ApiObjects;
 using ApiObjects.Billing;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.ConditionalAccess.Response;
 using Core.Pricing;
+using Core.Pricing.Handlers;
 using Core.Users;
 using DAL;
 using KLogMonitor;
@@ -1031,5 +1033,42 @@ namespace Core.ConditionalAccess
             return res;
         }
 
+        internal static ApiObjects.Response.Status ApplyCoupon(int groupId, long householdId, string subscriptionCode, long purchaseId, string couponCode)
+        {
+            // TODO SHIR - ADD METHOd ApplyCoupon(string couponCode)
+            var status = ApiObjects.Response.Status.Ok;
+
+            try
+            {
+                var subscription = Core.Billing.Utils.GetSubscriptiondata(groupId, subscriptionCode);
+                if (subscription != null)
+                {
+                    string oldCouponCode = string.Empty;
+                    long couponGroupId = Utils.GetCouponGroupIdForOldCoupon(groupId, subscription, ref oldCouponCode, purchaseId);
+                    if (couponGroupId > 0)
+                    {
+                        //status.Set(eResponseStatus.CouponIsAlReadyInUse);
+                        return status;
+                    }
+                }
+
+
+                var couponWalletResponse = CouponWalletHandler.Instance.Get(groupId, couponCode, new Dictionary<string, object>() { { "householdId", householdId } });
+                if (!couponWalletResponse.HasObject())
+                {
+                    status.Set(couponWalletResponse.Status);
+                    return status;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("An Exception was occurred in ApplyCoupon. householdId:{0}.", householdId), ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
+        }
     }
 }

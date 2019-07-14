@@ -1408,6 +1408,7 @@ namespace Core.ConditionalAccess
 
                     if (finalPrice != null && originalPrice != null)
                     {
+                        // TODO SHIR - CalcPriceAndCouponRemainderByUnifiedBillingCycle
                         var finalPriceAndCouponRemainder =
                             CalcPriceAndCouponRemainderByUnifiedBillingCycle(originalPrice.m_dPrice, couponCode, finalPrice.m_dPrice, ref unifiedBillingCycle,
                                                                              groupId, subscription, false, domainId);
@@ -9463,6 +9464,27 @@ namespace Core.ConditionalAccess
             }
 
             return currencies;
+        }
+
+        internal static long GetCouponGroupIdForOldCoupon(int groupId, Subscription subscription, ref string couponCode, long purchaseId)
+        {
+            // get all SubscriptionsCouponGroup (with expiry date !!!!)
+            var allCoupons = Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(subscription.m_SubscriptionCode), groupId, false);
+
+            if ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_oDiscountCode != null) ||
+                (allCoupons != null && allCoupons.Count > 0 && allCoupons.Count(x => x.m_oDiscountCode == null) == 0))
+            {
+                // check if coupon related to subscription the type is coupon gift card or coupon                        
+                long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, purchaseId, groupId); // return only if valid .
+
+                if (couponGroupId > 0 && ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString())) ||
+                                          (allCoupons != null && allCoupons.Count(x => x.m_sGroupCode.Equals(couponGroupId.ToString())) > 0)))
+                {
+                    return couponGroupId;
+                }
+            }
+
+            return 0;
         }
     }
 }
