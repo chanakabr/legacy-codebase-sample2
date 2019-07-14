@@ -781,6 +781,9 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdCoupon":
                     return new KalturaHouseholdCoupon(parameters);
                     
+                case "KalturaHouseholdCouponFilter":
+                    return new KalturaHouseholdCouponFilter(parameters);
+                    
                 case "KalturaHouseholdCouponListResponse":
                     return new KalturaHouseholdCouponListResponse(parameters);
                     
@@ -25888,6 +25891,28 @@ namespace WebAPI.Models.Domains
                 if (parameters.ContainsKey("code") && parameters["code"] != null)
                 {
                     Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdCouponFilter
+    {
+        public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("businessModuleTypeEqual") && parameters["businessModuleTypeEqual"] != null)
+                {
+                    BusinessModuleTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaTransactionType), BusinessModuleTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", BusinessModuleTypeEqual, typeof(KalturaTransactionType)));
+                    }
+                }
+                if (parameters.ContainsKey("businessModuleIdEqual") && parameters["businessModuleIdEqual"] != null)
+                {
+                    BusinessModuleIdEqual = (Int64) Convert.ChangeType(parameters["businessModuleIdEqual"], typeof(Int64));
                 }
             }
         }

@@ -10641,6 +10641,16 @@
             Household coupon
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponFilter.BusinessModuleTypeEqual">
+            <summary>
+            Indicates which household coupons list to return by their business module type.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponFilter.BusinessModuleIdEqual">
+            <summary>
+            Indicates which household coupons list to return by their business module ID.
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdLimitationsListResponse">
             <summary>
             Household limitations details 

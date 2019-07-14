@@ -2689,6 +2689,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaHouseholdCouponFilter":
+                    switch(property.Name)
+                    {
+                        case "BusinessModuleIdEqual":
+                            return "businessModuleIdEqual";
+                        case "BusinessModuleTypeEqual":
+                            return "businessModuleTypeEqual";
+                    }
+                    break;
+                    
                 case "KalturaHouseholdCouponListResponse":
                     switch(property.Name)
                     {

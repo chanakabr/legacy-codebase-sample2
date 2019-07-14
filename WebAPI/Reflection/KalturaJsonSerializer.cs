@@ -25596,6 +25596,36 @@ namespace WebAPI.Models.Domains
             return ret;
         }
     }
+    public partial class KalturaHouseholdCouponFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(BusinessModuleIdEqual.HasValue)
+            {
+                ret.Add("businessModuleIdEqual", "\"businessModuleIdEqual\": " + BusinessModuleIdEqual);
+            }
+            ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(BusinessModuleIdEqual.HasValue)
+            {
+                ret.Add("businessModuleIdEqual", "<businessModuleIdEqual>" + BusinessModuleIdEqual + "</businessModuleIdEqual>");
+            }
+            ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "" + "</businessModuleTypeEqual>");
+            return ret;
+        }
+    }
     public partial class KalturaHouseholdCouponListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
