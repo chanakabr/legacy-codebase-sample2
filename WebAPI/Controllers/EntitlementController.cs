@@ -588,9 +588,17 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-
-        // TODO SHIR - ADD METHOd ApplyCoupon(string couponCode)
-        // validate if can be add
-        //
+        
+        /// <summary>
+        /// Returns the data about the next renewal 
+        /// </summary>                
+        /// <param name="id">Purchase Id</param>
+        [Action("getNextRenewal")]
+        [ApiAuthorize]
+        static public void ApplyCoupon(string couponCode)
+        {
+            // TODO SHIR - ADD METHOd ApplyCoupon(string couponCode)
+            // validate if can be add
+        }
     }
 }

@@ -26,8 +26,8 @@ namespace WebAPI.Models.General
         where CoreT : ICrudHandeledObject
         where IdentifierT : IConvertible
     {
-        public abstract ICrudHandler<CoreT, IdentifierT> Handler { get; } //  BaseCrudHandler<T>
-        public abstract void ValidateForAdd();
-        public abstract void ValidateForUpdate();
+        internal abstract ICrudHandler<CoreT, IdentifierT> Handler { get; } //  BaseCrudHandler<T>
+        internal abstract void ValidateForAdd();
+        internal abstract void ValidateForUpdate();
     }
 }
