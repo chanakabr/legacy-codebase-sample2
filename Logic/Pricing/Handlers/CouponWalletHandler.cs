@@ -43,10 +43,10 @@ namespace Core.Pricing.Handlers
                 }
 
                 // Get Household's Wallet
-                List<CouponWallet> couponWallets = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                List<CouponWallet> couponWalletList = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
                 
                 // make sure coupon not already been added
-                if (couponWallets?.Count > 0 && couponWallets.Count(x => x.CouponCode == couponWalletToAdd.CouponCode) > 0)
+                if (couponWalletList?.Count > 0 && couponWalletList.Count(x => x.CouponCode == couponWalletToAdd.CouponCode) > 0)
                 {
                     response.SetStatus(eResponseStatus.CouponCodeAlreadyLoaded, "Coupon code already loaded");
                     return response;
@@ -65,10 +65,10 @@ namespace Core.Pricing.Handlers
                 //couponWalletToAdd.CouponId = couponData.Coupon.m_nCouponID; //TODO anat
 
                 couponWalletToAdd.CreateDate = DateTime.UtcNow;
-                couponWallets.Add(couponWalletToAdd);
+                couponWalletList.Add(couponWalletToAdd);
 
                 // Save CouponWalletAtCB                    
-                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, couponWallets))
+                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, couponWalletList))
                 {
                     log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. groupId: {0}, domainId:{1}", groupId, householdId.Value);
                     return response;
@@ -121,20 +121,20 @@ namespace Core.Pricing.Handlers
                 }
 
                 // Get Household's Walt
-                List<CouponWallet> CouponWallets = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                List<CouponWallet> CouponWalletList = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
 
                 // make sure coupon is in household
-                if (CouponWallets?.Count > 0 && CouponWallets.Count(x => x.CouponCode == couponCode) != 1)
+                if (CouponWalletList?.Count > 0 && CouponWalletList.Count(x => x.CouponCode == couponCode) != 1)
                 {
                     response.Set(eResponseStatus.CouponCodeNotInHousehold, "Coupon code not in household");
                     return response;
                 }
 
                 // remove coupon from walt
-                CouponWallets.Remove(CouponWallets.Where(x => x.CouponCode == couponCode).First());
+                CouponWalletList.Remove(CouponWalletList.Where(x => x.CouponCode == couponCode).First());
 
                 // Save CouponWalletAtCB                    
-                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, CouponWallets))
+                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, CouponWalletList))
                 {
                     log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. domainId:{0}", householdId.Value);
                     return response;

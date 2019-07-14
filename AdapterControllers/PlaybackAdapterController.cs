@@ -265,7 +265,7 @@ namespace AdapterControllers
                             Drm = x.Drm == null ? null : ParseDrm(x.Drm),
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
-                            Protocols = x.Protocols
+                            Protocols = x.Protocols                            
                         }).ToList();
                 }
 

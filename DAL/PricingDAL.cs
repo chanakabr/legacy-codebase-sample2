@@ -1817,10 +1817,10 @@ namespace DAL
             return UtilsDal.GetObjectFromCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, true);
         }
 
-        public static bool SaveHouseholdCouponWalletCB(long householdId, List<CouponWallet> couponWallets)
+        public static bool SaveHouseholdCouponWalletCB(long householdId, List<CouponWallet> couponWalletList)
         {
             string key = GetCouponWalletKey(householdId);
-            return UtilsDal.SaveObjectInCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, couponWallets, true);
+            return UtilsDal.SaveObjectInCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, couponWalletList, true);
         }
 
         private static string GetCouponWalletKey(long householdId)
