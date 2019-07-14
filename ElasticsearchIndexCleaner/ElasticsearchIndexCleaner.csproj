@@ -30,11 +30,11 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
-    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\..\TvmCore\ElasticSearch\ElasticSearch.csproj" />
-    <ProjectReference Include="..\..\TvmCore\KLogMonitor\KLogMonitor.csproj" />
-    <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
   </ItemGroup>
 
 </Project>

@@ -119,10 +119,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssetInheritanceHandler", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SegmentationTaskHandler", "SegmentationTaskHandler\SegmentationTaskHandler.csproj", "{785A8E70-B3EE-43B5-9B5A-7BC6EB96ED97}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CD5FAE5B-B608-46BF-91B2-F8A5EEA00B9C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{CD5FAE5B-B608-46BF-91B2-F8A5EEA00B9C}"
 	ProjectSection(SolutionItems) = preProject
+		docker.jenkinsfile = docker.jenkinsfile
 		Dockerfile = Dockerfile
 		nightly.jenkinsfile = nightly.jenkinsfile
+		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -181,6 +183,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestTransformationHandler", "IngestTransformationHandler\IngestTransformationHandler.csproj", "{EA3CBC42-FE3C-4EF2-8C38-A3ABEA674FB3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "HealthCheck\HealthCheck.csproj", "{E89F7F76-5193-44EF-8D8F-17D3E86BD843}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElasticsearchIndexCleaner", "ElasticsearchIndexCleaner\ElasticsearchIndexCleaner.csproj", "{364FCFC5-6A44-4228-8115-D98A0FE107BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1331,6 +1335,22 @@ Global
 		{E89F7F76-5193-44EF-8D8F-17D3E86BD843}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E89F7F76-5193-44EF-8D8F-17D3E86BD843}.Release|x86.ActiveCfg = Release|Any CPU
 		{E89F7F76-5193-44EF-8D8F-17D3E86BD843}.Release|x86.Build.0 = Release|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Basic|x86.ActiveCfg = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Basic|x86.Build.0 = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Debug|x86.Build.0 = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Local|x86.ActiveCfg = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Local|x86.Build.0 = Debug|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Release|x86.ActiveCfg = Release|Any CPU
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1417,6 +1437,7 @@ Global
 		{A77CF16D-8217-4057-951F-BB0C46384E20} = {85CAC73F-7958-4A95-87F9-BCE28F3FDA78}
 		{EA3CBC42-FE3C-4EF2-8C38-A3ABEA674FB3} = {85CAC73F-7958-4A95-87F9-BCE28F3FDA78}
 		{E89F7F76-5193-44EF-8D8F-17D3E86BD843} = {85CAC73F-7958-4A95-87F9-BCE28F3FDA78}
+		{364FCFC5-6A44-4228-8115-D98A0FE107BA} = {85CAC73F-7958-4A95-87F9-BCE28F3FDA78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40B1C766-E53F-4A55-9434-E4001604AA8F}
