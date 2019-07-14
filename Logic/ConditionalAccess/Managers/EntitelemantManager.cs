@@ -1040,7 +1040,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                var subscription = Core.Billing.Utils.GetSubscriptiondata(groupId, subscriptionCode);
+                var subscription = Core.Billing.Utils.GetSubscriptionData(groupId, subscriptionCode);
                 if (subscription != null)
                 {
                     string oldCouponCode = string.Empty;
