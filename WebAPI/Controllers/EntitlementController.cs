@@ -588,13 +588,14 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-        
+
         /// <summary>
         /// Returns the data about the next renewal 
         /// </summary>                
-        /// <param name="id">Purchase Id</param>
-        [Action("getNextRenewal")]
+        /// <param name="couponCode">coupon Code</param>
+        [Action("applyCoupon")]
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public void ApplyCoupon(string couponCode)
         {
             // TODO SHIR - ADD METHOd ApplyCoupon(string couponCode)

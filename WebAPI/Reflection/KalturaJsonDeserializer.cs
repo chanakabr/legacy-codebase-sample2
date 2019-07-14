@@ -541,6 +541,9 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroupListResponse":
                     return new KalturaCouponsGroupListResponse(parameters);
                     
+                case "KalturaCrudObject":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaCurrency":
                     return new KalturaCurrency(parameters);
                     
@@ -6774,6 +6777,12 @@ namespace WebAPI.Models.General
                     ApiVersion = (String) Convert.ChangeType(parameters["apiVersion"], typeof(String));
                 }
             }
+        }
+    }
+    public partial class KalturaCrudObject<CoreT, IdentifierT>
+    {
+        public KalturaCrudObject(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaDetachedResponseProfile

@@ -7431,6 +7431,11 @@ namespace WebAPI.Reflection
                 case "entitlement":
                     switch(action)
                     {
+                        case "applycoupon":
+                            RolesManager.ValidateActionPermitted("entitlement", "applyCoupon", false);
+                            EntitlementController.ApplyCoupon((string) methodParams[0]);
+                            return null;
+                            
                         case "buy":
                             RolesManager.ValidateActionPermitted("entitlement", "buy", false);
                             return EntitlementController.Buy((string) methodParams[0], (bool) methodParams[1], (double) methodParams[2], (string) methodParams[3], (string) methodParams[4], (string) methodParams[5], (string) methodParams[6], (int) methodParams[7], (string) methodParams[8]);
@@ -12617,6 +12622,13 @@ namespace WebAPI.Reflection
                 case "entitlement":
                     switch(action)
                     {
+                        case "applycoupon":
+                            ret.Add("couponCode", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
                         case "buy":
                             paramName = "itemId";
                             newParamName = null;

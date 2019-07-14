@@ -30,7 +30,13 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     // TODO SHIR - CRUD changes
-    public abstract partial class KalturaCrudController<KalturaT, CoreT, IdentifierT> : IKalturaController
+    /// <summary>
+    /// abstract class which represents a controller with CRUD actions
+    /// </summary>
+    /// <typeparam name="KalturaT">kaltura object</typeparam>
+    /// <typeparam name="CoreT">core object</typeparam>
+    /// <typeparam name="IdentifierT">Identifier type</typeparam>
+    public abstract class KalturaCrudController<KalturaT, CoreT, IdentifierT> : IKalturaController
         where KalturaT : KalturaCrudObject<CoreT, IdentifierT>
         where CoreT : class, ICrudHandeledObject
         where IdentifierT : IConvertible
@@ -270,6 +276,5 @@ namespace WebAPI.Controllers
 
             return result;
         }
-
     }
 }

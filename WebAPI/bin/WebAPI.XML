@@ -82,6 +82,14 @@
             <param name="filter">Filter options</param>
             <param name="pager">Paging the request</param>
         </member>
+        <member name="T:WebAPI.Controllers.KalturaCrudController`3">
+            <summary>
+            abstract class which represents a controller with CRUD actions
+            </summary>
+            <typeparam name="KalturaT">kaltura object</typeparam>
+            <typeparam name="CoreT">core object</typeparam>
+            <typeparam name="IdentifierT">Identifier type</typeparam>
+        </member>
         <member name="M:WebAPI.Controllers.IngestProfileController.List">
             <summary>
             Returns all ingest profiles for partner
@@ -3897,6 +3905,12 @@
             Returns the data about the next renewal 
             </summary>                
             <param name="id">Purchase Id</param>
+        </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.ApplyCoupon(System.String)">
+            <summary>
+            Returns the data about the next renewal 
+            </summary>                
+            <param name="couponCode">coupon Code</param>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>
@@ -11085,6 +11099,11 @@
         <member name="P:WebAPI.Models.General.KalturaMessage.Args">
             <summary>
             Message args
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaCrudObject`2">
+            <summary>
+            Base class that have CRUD actions 
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaGenericListResponse`1">

@@ -373,6 +373,8 @@ namespace Validator.Managers.Scheme
 
         private static bool ValidateService(Type controller, bool strict)
         {
+            if (controller.IsAbstract) { return true; }
+            
             bool valid = true;
             string serviceId = getServiceId(controller);
 

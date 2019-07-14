@@ -17,9 +17,7 @@ namespace WebAPI.Models.Domains
     /// Household Coupon details
     /// </summary>
     public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string>
-    {
-        internal ICrudHandler<CouponWallet, string> Handler { get { return CouponWalletHandler.Instance; } }
-        
+    {        
         /// <summary>
         /// Coupon code
         /// </summary>
@@ -27,6 +25,14 @@ namespace WebAPI.Models.Domains
         [JsonProperty("code")]
         [XmlElement(ElementName = "code")]
         public string Code { get; set; }
+
+        internal override ICrudHandler<CouponWallet, string> Handler
+        {
+            get
+            {
+                return CouponWalletHandler.Instance;
+            }
+        }
 
         internal override void ValidateForAdd()
         {
