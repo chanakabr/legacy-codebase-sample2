@@ -11,7 +11,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <PostBuildEvent>dotnet $(SolutionDir)\Validator\bin\$(Configuration)\$(TargetFramework)\Validator.dll</PostBuildEvent>
+    <PostBuildEvent>dotnet $(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\Validator.dll</PostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
