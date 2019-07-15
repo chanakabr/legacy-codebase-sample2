@@ -126,6 +126,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
             cfg.CreateMap<KalturaHouseholdCoupon, ApiObjects.Pricing.CouponWallet>()
                 .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.Code))
                 ;
+
+            //KalturaHouseholdCoupon, CouponWallet
+            cfg.CreateMap<KalturaHouseholdCouponFilter, ApiObjects.Pricing.CouponWalletFilter>()
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdEqual))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeEqual))
+                ;
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

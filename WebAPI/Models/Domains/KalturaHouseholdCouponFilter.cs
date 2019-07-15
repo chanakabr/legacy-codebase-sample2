@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using ApiLogic.Base;
+using ApiObjects.Pricing;
+using Core.Pricing.Handlers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +17,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Domains
 {
     [Serializable]
-    public partial class KalturaHouseholdCouponFilter : KalturaFilter<KalturaHouseholdCouponOrderBy>
+    public partial class KalturaHouseholdCouponFilter : KalturaCrudFilter<KalturaHouseholdCouponOrderBy, CouponWallet, string, CouponWalletFilter>
     {
         /// <summary>
         /// Indicates which household coupons list to return by their business module type.
@@ -32,7 +35,15 @@ namespace WebAPI.Models.Domains
         [JsonProperty("businessModuleIdEqual")]
         [XmlElement(ElementName = "businessModuleIdEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public long? BusinessModuleIdEqual { get; set; }       
+        public long? BusinessModuleIdEqual { get; set; }
+
+        internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
+        {
+            get
+            {
+                return CouponWalletHandler.Instance;
+            }
+        }
 
         public override KalturaHouseholdCouponOrderBy GetDefaultOrderByValue()
         {

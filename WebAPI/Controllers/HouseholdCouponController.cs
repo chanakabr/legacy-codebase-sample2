@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
 {
     // TODO SHIR - CRUD changes
     [Service("householdCoupon")]
-    public class HouseholdCouponController : KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string>
+    public class HouseholdCouponController : KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string, CouponWalletFilter>
     {
         /// <summary>
         /// householdCoupon add
@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
             var extraParams = new Dictionary<string, object>() { { "householdId", householdId } };
             // TODO SHIR - TALK WITH TANTAN ABOUT THIS (that controller is static)
-            var response = KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string>.Add(groupId, householdCoupon,extraParams);
+            var response = KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string, CouponWalletFilter>.Add(groupId, householdCoupon,extraParams);
             return response;
         }
 
@@ -54,23 +54,29 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
             var extraParams = new Dictionary<string, object>() { { "householdId", householdId } };
-            KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string>.Delete(groupId, code, CouponWalletHandler.Instance, extraParams);
+            KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string, CouponWalletFilter>.Delete(groupId, code, CouponWalletHandler.Instance, extraParams);
         }
 
         /// <summary>
         /// Lists all topic notifications in the system.
         /// </summary>
         /// <param name="filter">Filter options</param>
-        /// <param name="pager">Paging the request</param>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaHouseholdCouponListResponse List()
+        static public KalturaHouseholdCouponListResponse List(KalturaHouseholdCouponFilter filter)
         {
-            KalturaHouseholdCouponListResponse response = null;
+            KalturaHouseholdCouponListResponse response = new KalturaHouseholdCouponListResponse();
+            var groupId = KS.GetFromRequest().GroupId;
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            if (filter == null)
+                filter = new KalturaHouseholdCouponFilter();
 
             try
             {
-               // response = ClientUtils.List<KalturaHouseholdCoupon, DomainCoupon>(groupId, householdCoupon);
+                KalturaGenericListResponse<KalturaHouseholdCoupon> coreResponse = filter.Execute<KalturaHouseholdCoupon>();
+                response.Objects = coreResponse.Objects;
+                response.TotalCount = coreResponse.TotalCount;
             }
             catch (ClientException ex)
             {

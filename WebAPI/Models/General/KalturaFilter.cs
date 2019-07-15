@@ -17,7 +17,8 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base filter
     /// </summary>
-    public abstract partial class KalturaFilter<KalturaT> : KalturaOTTObject, IKalturaFilter where KalturaT : struct, IComparable, IFormattable, IConvertible
+    public abstract partial class KalturaFilter<KalturaT> : KalturaOTTObject, IKalturaFilter 
+        where KalturaT : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// order by

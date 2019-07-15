@@ -36,9 +36,8 @@ namespace WebAPI.Controllers
     /// <typeparam name="KalturaT">kaltura object</typeparam>
     /// <typeparam name="CoreT">core object</typeparam>
     /// <typeparam name="IdentifierT">Identifier type</typeparam>
-    public abstract class KalturaCrudController<KalturaT, CoreT, IdentifierT> : IKalturaController
-        where KalturaT : KalturaCrudObject<CoreT, IdentifierT>
-        where CoreT : class, ICrudHandeledObject
+    public abstract class KalturaCrudController<KalturaT, ICrudHandeledObject, IdentifierT, ICrudFilter> : IKalturaController
+        where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
         where IdentifierT : IConvertible
     {
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -50,7 +49,7 @@ namespace WebAPI.Controllers
             try
             {
                 kalturaObjectToAdd.ValidateForAdd();
-                Func<CoreT, GenericResponse<CoreT>> addFunc = (CoreT objectToAdd) => kalturaObjectToAdd.Handler.Add(groupId, objectToAdd, extraParams);
+                Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> addFunc = (ICrudHandeledObject objectToAdd) => kalturaObjectToAdd.Handler.Add(groupId, objectToAdd, extraParams);
                 response = GetResponseFromCore(kalturaObjectToAdd, addFunc);
             }
             catch (ClientException ex)
@@ -68,7 +67,7 @@ namespace WebAPI.Controllers
             try
             {
                 kalturaObjectToUpdate.ValidateForUpdate();
-                Func<CoreT, GenericResponse<CoreT>> updateFunc = (CoreT objectToUpdate) => kalturaObjectToUpdate.Handler.Update(groupId, objectToUpdate, extraParams);
+                Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> updateFunc = (ICrudHandeledObject objectToUpdate) => kalturaObjectToUpdate.Handler.Update(groupId, objectToUpdate, extraParams);
                 response = GetResponseFromCore(kalturaObjectToUpdate, updateFunc);
             }
             catch (ClientException ex)
@@ -79,7 +78,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        internal static void Delete(int groupId, IdentifierT id, ICrudHandler<CoreT, IdentifierT> handler, Dictionary<string, object> extraParams = null)// BaseCrudHandler<CoreT> handler)
+        internal static void Delete(int groupId, IdentifierT id, ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> handler, Dictionary<string, object> extraParams = null)// BaseCrudHandler<CoreT> handler)
         {
             try
             {
@@ -91,7 +90,7 @@ namespace WebAPI.Controllers
             }
         }
         
-        internal static KalturaT Get(int groupId, IdentifierT id, ICrudHandler<CoreT, IdentifierT> handler, Dictionary<string, object> extraParams = null)
+        internal static KalturaT Get(int groupId, IdentifierT id, ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> handler, Dictionary<string, object> extraParams = null)
         {
             KalturaT response = null;
 
@@ -133,13 +132,13 @@ namespace WebAPI.Controllers
         //    return response;
         //}
 
-        private static KalturaT GetResponseFromCore(KalturaT kalturaObjectfromRequest, Func<CoreT, GenericResponse<CoreT>> funcInCore)
+        private static KalturaT GetResponseFromCore(KalturaT kalturaObjectfromRequest, Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> funcInCore)
         {
-            GenericResponse<CoreT> response = null;
+            GenericResponse<ICrudHandeledObject> response = null;
 
             try
             {
-                var mappedCoreObject = AutoMapper.Mapper.Map<CoreT>(kalturaObjectfromRequest);
+                var mappedCoreObject = AutoMapper.Mapper.Map<ICrudHandeledObject>(kalturaObjectfromRequest);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = funcInCore(mappedCoreObject);
@@ -198,9 +197,9 @@ namespace WebAPI.Controllers
             }
         }
 
-        private static KalturaT GetResponseFromCore(Func<GenericResponse<CoreT>> funcInCore)
+        private static KalturaT GetResponseFromCore(Func<GenericResponse<ICrudHandeledObject>> funcInCore)
         {
-            GenericResponse<CoreT> response = null;
+            GenericResponse<ICrudHandeledObject> response = null;
 
             try
             {
@@ -229,49 +228,6 @@ namespace WebAPI.Controllers
             if (response.Object != null)
             {
                 result = AutoMapper.Mapper.Map<KalturaT>(response.Object);
-            }
-
-            return result;
-        }
-
-        internal static KalturaGenericListResponse<U> GetResponseListFromWS<U, T>(Func<GenericListResponse<T>> funcInWS)
-            where U : KalturaOTTObject where T : class
-        {
-            KalturaGenericListResponse<U> result = new KalturaGenericListResponse<U>();
-            GenericListResponse<T> response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = funcInWS();
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception received while calling catalog service.", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (!response.IsOkStatusCode())
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
-            }
-
-            if (response.Objects != null)
-            {
-                result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
-                result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
-                // TODO SHIR - order BY GetResponseListFromWS
-            }
-            else
-            {
-                result.Objects = new List<U>();
             }
 
             return result;

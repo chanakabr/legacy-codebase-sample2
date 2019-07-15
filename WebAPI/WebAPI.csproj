@@ -881,6 +881,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdCouponFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitationsListResponse.cs" />
     <Compile Include="Models\General\KalturaApiPriviligesPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaCrudFilter.cs" />
     <Compile Include="Models\General\KalturaMessage.cs" />
     <Compile Include="Models\General\KalturaCrudObject .cs" />
     <Compile Include="Models\MultiRequest\KalturaSkipCondition.cs" />

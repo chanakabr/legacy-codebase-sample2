@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
 
 namespace WebAPI.Models.Domains
 {
@@ -16,7 +17,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household Coupon details
     /// </summary>
-    public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string>
+    public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string, CouponWalletFilter>
     {        
         /// <summary>
         /// Coupon code
@@ -26,7 +27,16 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "code")]
         public string Code { get; set; }
 
-        internal override ICrudHandler<CouponWallet, string> Handler
+        /// <summary>
+        /// Coupon 
+        /// </summary>
+        [DataMember(Name = "coupon")]
+        [JsonProperty("coupon")]
+        [XmlElement(ElementName = "coupon", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaCoupon Coupon{ get; set; }
+
+        internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
         {
             get
             {

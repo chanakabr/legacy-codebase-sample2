@@ -75,14 +75,13 @@
             </summary>
             <param name="code">Coupon code</param>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdCouponController.List">
+        <member name="M:WebAPI.Controllers.HouseholdCouponController.List(WebAPI.Models.Domains.KalturaHouseholdCouponFilter)">
             <summary>
             Lists all topic notifications in the system.
             </summary>
             <param name="filter">Filter options</param>
-            <param name="pager">Paging the request</param>
         </member>
-        <member name="T:WebAPI.Controllers.KalturaCrudController`3">
+        <member name="T:WebAPI.Controllers.KalturaCrudController`4">
             <summary>
             abstract class which represents a controller with CRUD actions
             </summary>
@@ -10636,6 +10635,11 @@
             Coupon code
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCoupon.Coupon">
+            <summary>
+            Coupon 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponListResponse.Objects">
             <summary>
             Household coupon
@@ -11091,6 +11095,11 @@
             API parameter name
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaCrudFilter`4">
+            <summary>
+            Base Crud filter
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaMessage">
             <summary>
             Message
@@ -11111,7 +11120,7 @@
             Message args
             </summary>
         </member>
-        <member name="T:WebAPI.Models.General.KalturaCrudObject`2">
+        <member name="T:WebAPI.Models.General.KalturaCrudObject`3">
             <summary>
             Base class that have CRUD actions 
             </summary>

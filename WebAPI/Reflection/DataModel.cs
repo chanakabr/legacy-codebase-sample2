@@ -2686,6 +2686,8 @@ namespace WebAPI.Reflection
                     {
                         case "Code":
                             return "code";
+                        case "Coupon":
+                            return "coupon";
                     }
                     break;
                     
@@ -7825,7 +7827,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("householdCoupon", "list", false);
-                            return HouseholdCouponController.List();
+                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
                             
                     }
                     break;
@@ -13548,6 +13550,11 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdCouponFilter),
+                            });
                             return ret;
                             
                     }

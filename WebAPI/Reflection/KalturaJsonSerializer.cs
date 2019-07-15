@@ -5168,7 +5168,27 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaCrudObject<CoreT, IdentifierT>
+    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -25580,6 +25600,11 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
             }
+            if(Coupon != null)
+            {
+                propertyValue = Coupon.ToJson(currentVersion, omitObsolete);
+                ret.Add("coupon", "\"coupon\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -25592,6 +25617,11 @@ namespace WebAPI.Models.Domains
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
+            }
+            if(Coupon != null)
+            {
+                propertyValue = Coupon.ToXml(currentVersion, omitObsolete);
+                ret.Add("coupon", "<coupon>" + propertyValue + "</coupon>");
             }
             return ret;
         }
