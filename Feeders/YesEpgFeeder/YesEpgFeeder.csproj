@@ -86,6 +86,10 @@
       <Project>{5d56dea4-3fda-484d-89e8-5b723d5cd45c}</Project>
       <Name>KLogMonitor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27C6F3ED-B660-466A-9415-DE2D43E58FF0}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
@@ -93,10 +97,6 @@
     <ProjectReference Include="..\..\..\Core\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\TvinciImporter\TvinciImporter.csproj">
-      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
-      <Name>TvinciImporter</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>

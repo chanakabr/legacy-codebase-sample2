@@ -46,7 +46,7 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
                          if (epgChannelID > 0)
                          {
                              int nGroupID = LoginManager.GetLoginGroupID();
-                             result = ImporterImpl.UpdateEpgChannelIndex(new List<ulong>() { (ulong)epgChannelID }, nGroupID, eAction.Update);
+                             result = ImporterImpl.UpdateEpgChannelIndex(new List<int>() { epgChannelID }, nGroupID, eAction.Update);
                          }
                          return;
                      }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Notification;
+using System;
 using System.Data;
 using System.Web;
 using TVinciShared;
@@ -106,8 +107,9 @@ public partial class adm_topic_notification : System.Web.UI.Page
         dt.Columns.Add("status");        
         dt.Columns.Add("updater_id");
 
-        var topics = TvinciImporter.NotificationHelper.GetGroupTopicNotifications(groupId);
-        if (topics != null && topics.Length > 0)
+        var subscribeReference = new SubscriptionSubscribeReference();
+        var topics = Core.Notification.Module.GetTopicNotifications(groupId, subscribeReference, true).Objects;
+        if (topics != null && topics.Count > 0)
         {
             foreach (var item in topics)
             {

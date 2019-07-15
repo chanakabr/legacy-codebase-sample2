@@ -289,7 +289,9 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                         UpdateMediaUserTypes(idToUpdateInLucene, newSutIDS);
                         if (Session[OLD_MPP_NAME_SESSION_KEY] != null && Session[OLD_MPP_NAME_SESSION_KEY].ToString().Length > 0) // when updating media need to update in lucene as well. when creating the lucene update occurs on adm_media_new.aspx.cs
                         {
-                            ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
+                            // Lucene was removed
+                            log.Error("Lucen implementation was removed use elasticsearch");
+                            //ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
                         }
                     }
                 }

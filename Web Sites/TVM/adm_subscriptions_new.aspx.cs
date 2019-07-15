@@ -234,8 +234,13 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
                     if (sSubName.Length > 0)
                     {
                         int idToUpdateInLucene = DBManipulator.BuildOrUpdateFictivicMedia("Package", sSubName, nSuscriptionID, LoginManager.GetLoginGroupID(), Session[OLD_SUB_NAME_SESSION_KEY] != null ? Session[OLD_SUB_NAME_SESSION_KEY].ToString() : string.Empty);
-                        if (Session[OLD_SUB_NAME_SESSION_KEY] != null && Session[OLD_SUB_NAME_SESSION_KEY].ToString().Length > 0) // when updating media need to update in lucene as well. when creating the lucene update occurs on adm_media_new.aspx.cs
-                            ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
+                        if (Session[OLD_SUB_NAME_SESSION_KEY] != null && Session[OLD_SUB_NAME_SESSION_KEY].ToString().Length > 0)
+                        {
+
+                            log.Error("Lucen implementation was removed use elasticsearch");
+                           // when updating media need to update in lucene as well. when creating the lucene update occurs on adm_media_new.aspx.cs
+                            //ImporterImpl.UpdateRecordInLucene(LoginManager.GetLoginGroupID(), idToUpdateInLucene);
+                        }
                     }
                 }
 

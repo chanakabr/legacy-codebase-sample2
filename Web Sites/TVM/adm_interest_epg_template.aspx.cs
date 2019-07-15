@@ -4,7 +4,6 @@ using ApiObjects.Response;
 using System;
 using System.Collections.Specialized;
 using TvinciImporter;
-using TvinciImporter.WSCatalog;
 using TVinciShared;
 
 public partial class adm_interest_epg_template : System.Web.UI.Page

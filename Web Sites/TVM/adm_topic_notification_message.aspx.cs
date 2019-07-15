@@ -111,8 +111,8 @@ public partial class adm_topic_notification_message : System.Web.UI.Page
         if (Session["topic_notification_id"] != null
             && long.TryParse(Session["topic_notification_id"].ToString(), out topicNotificationId))
         {
-            var messages = TvinciImporter.NotificationHelper.GetTopicNotificationMessages(groupId, topicNotificationId, 100, 0);
-            if (messages != null && messages.Length > 0)
+            var messages = Core.Notification.Module.GetTopicNotificationMessages(groupId, topicNotificationId, 100, 0).Objects;
+            if (messages != null && messages.Count > 0)
             {
                 foreach (var item in messages)
                 {

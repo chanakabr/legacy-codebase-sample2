@@ -4773,13 +4773,13 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
-      <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
-      <Name>CDNTokenizers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\CDNTokenizers\CDNTokenizers.csproj">
+      <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
+      <Name>CDNTokenizers</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
       <Project>{27cc9e99-d886-4403-899b-1e0769fdb649}</Project>
@@ -4796,10 +4796,6 @@
     <ProjectReference Include="..\..\..\Core\AdapterControllers\AdapterControllers.csproj">
       <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
       <Name>AdapterControllers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\ADIFeeder\ADIFeeder.csproj">
-      <Project>{0b1d4349-8059-48f7-bf8b-31fb1e7a2260}</Project>
-      <Name>ADIFeeder</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
@@ -4836,10 +4832,6 @@
     <ProjectReference Include="..\..\..\Core\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\EpgIngest\EpgIngest.csproj">
-      <Project>{13504508-227b-4099-9987-3df3d2f8e792}</Project>
-      <Name>EpgIngest</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
@@ -4924,10 +4916,6 @@
     <ProjectReference Include="..\..\..\Core\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\TvinciImporter\TvinciImporter.csproj">
-      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
-      <Name>TvinciImporter</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>

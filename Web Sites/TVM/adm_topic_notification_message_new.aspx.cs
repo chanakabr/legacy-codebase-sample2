@@ -156,7 +156,7 @@ public partial class adm_topic_notification_message_new : System.Web.UI.Page
         else if (Session["topic_notification_message_id"] != null && !string.IsNullOrEmpty(Session["topic_notification_message_id"].ToString()) 
             && long.TryParse(Session["topic_notification_message_id"].ToString(), out topicNotificationMessageId) && topicNotificationMessageId > 0)
         {
-            topicNotificationMessage = NotificationHelper.GetTopicNotificationMessage(LoginManager.GetLoginGroupID(), topicNotificationMessageId);
+            topicNotificationMessage = Core.Notification.Module.GetTopicNotificationMessage(topicNotificationMessageId).Object;
         }
 
         string sBack = "adm_topic_notification_message.aspx?search_save=1";
@@ -432,11 +432,11 @@ public partial class adm_topic_notification_message_new : System.Web.UI.Page
         {
             if (topicNotificationMessage.Id == 0)
             {
-                topicNotificationMessage = NotificationHelper.AddTopicNotificationMessage(LoginManager.GetLoginGroupID(), topicNotificationMessage, LoginManager.GetLoginID());
+                topicNotificationMessage = Core.Notification.Module.AddTopicNotificationMessage(LoginManager.GetLoginGroupID(), topicNotificationMessage, LoginManager.GetLoginID()).Object;
             }
             else
             {
-                topicNotificationMessage = NotificationHelper.UpdateTopicNotificationMessage(LoginManager.GetLoginGroupID(), topicNotificationMessage, LoginManager.GetLoginID());
+                topicNotificationMessage = Core.Notification.Module.UpdateTopicNotificationMessage(LoginManager.GetLoginGroupID(), topicNotificationMessage, LoginManager.GetLoginID()).Object;
             }
 
             if(topicNotificationMessage != null)

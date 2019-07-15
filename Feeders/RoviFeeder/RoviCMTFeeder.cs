@@ -28,6 +28,7 @@ namespace RoviFeeder
             m_groupID = nGroupID;
         }
 
+
         private string ContentURL
         {
             get
