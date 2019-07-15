@@ -34,7 +34,6 @@ pipeline {
             steps{
                 dir("core"){
                     bat ("${NUGET} restore")
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
                 }
             }        
         }
@@ -42,7 +41,6 @@ pipeline {
             steps{
                 dir("phoenix"){
                     bat ("${NUGET} restore")
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
                 }
             }        
         }
@@ -60,6 +58,16 @@ pipeline {
                 }
             }        
         }
+        stage("Generate KalturaClient.xml"){
+            dir("phoenix"){
+                dir("Generator"){
+                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                    dir("Generator/bin/Release/netcoreapp2.0"){
+                        bat ("dotnet Generator.dll")
+                        bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\phoenix\\clientlibs\\")
+                }
+            }
+        }
         stage("Publish To Preprod"){
             environment {
                RELEASE_VERSION = sh(script: 'cd phoenix && ../Core/get-version-tag.sh', , returnStdout: true).trim()
@@ -70,7 +78,7 @@ pipeline {
 
                     dir("phoenix") {
                         // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
-                        bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
+                        bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                     }
                 }
             }
