@@ -73,7 +73,7 @@ pipeline {
         }
         stage("Publish To Preprod"){
             when {
-                expression { return params.publish_preprod; }
+                expression { return params.publish_preprod == true; }
             }
             environment {
                RELEASE_VERSION = sh(script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
