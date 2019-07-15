@@ -42,7 +42,7 @@ pipeline {
         stage("Publish Localy"){
             steps{
                 dir("tvmapps"){
-                    bat ("\"${MSBUILD}\" Web Sites\\TVM\\TVM.csproj /m:4"
+                    bat ("\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" /m:4"
                             + " /p:Configuration=Release"
                             + " /p:DeployDefaultTarget=WebPublish"
                             + " /p:WebPublishMethod=FileSystem"
