@@ -9,6 +9,7 @@ pipeline {
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
         string(name: 'version_folder_name', defaultValue: 'v5_2_5', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_5', description: 'Configuration folder name from Configuration Repo')
         booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
 
     }
@@ -21,6 +22,7 @@ pipeline {
             steps{
                 dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+                dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
         stage("Version Patch"){
@@ -32,18 +34,10 @@ pipeline {
             }        
         }
 
-        stage("Build Core"){
+        stage("Nuget Restore"){
             steps{
-                dir("core"){
-                    bat ("${NUGET} restore")
-                }
-            }        
-        }
-        stage("Build Phoenix"){
-            steps{
-                dir("tvpapi_rest"){
-                    bat ("${NUGET} restore")
-                }
+                dir("core"){ bat ("${NUGET} restore") }
+                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
             }        
         }
         stage("Publish Localy"){
@@ -71,6 +65,11 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+        stage("Patch Config Files"){
+            steps{
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\Kaltura_OTT_API\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /K /D /H /Y"}
             }
         }
         stage("Publish To Preprod"){
