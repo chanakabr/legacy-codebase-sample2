@@ -99,7 +99,7 @@ namespace WebAPI.Models.General
         protected DateTime longToDateTime(long unixTimeStamp)
         {
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            return dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime.AddSeconds(unixTimeStamp);
         }
 
         public static dynamic buildList(Type itemType, object[] array)
