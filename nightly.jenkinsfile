@@ -63,7 +63,7 @@ pipeline {
                 dir("phoenix"){
                     dir("Generator"){
                         bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                        dir("Generator/bin/Release/netcoreapp2.0"){
+                        dir("bin/Release/netcoreapp2.0"){
                             bat ("dotnet Generator.dll")
                             bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\phoenix\\clientlibs\\")
                         }
