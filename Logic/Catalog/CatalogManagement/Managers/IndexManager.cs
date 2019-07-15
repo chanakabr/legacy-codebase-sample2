@@ -822,7 +822,7 @@ namespace Core.Catalog.CatalogManagement
                         #region Get Linear Channels Regions
 
                         Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-                        if (group.isRegionalizationEnabled)
+                        if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
                         {
                             linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
                         }
