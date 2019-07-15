@@ -58,6 +58,9 @@ pipeline {
             }        
         }
         stage("Publish To Preprod"){
+            when {
+                expression { return params.publish_preprod == true; }
+            }
             environment {
                RELEASE_VERSION = sh(script: 'cd ws_ingest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
             }
