@@ -1,7 +1,10 @@
-﻿namespace ApiObjects.Pricing
+﻿using ApiObjects.Base;
+
+namespace ApiObjects.Pricing
 {
-    public class CouponWalletFilter
+    public class CouponWalletFilter : ICrudFilter
     {
-        public long HouseholdIdEqual { get; set; }
+        public long BusinessModuleId { get; set; }
+        public eTransactionType BusinessModuleType { get; set; }
     }
 }

@@ -10,12 +10,14 @@ using System.Reflection;
 
 namespace Core.Pricing.Handlers
 {
-    public class CouponWalletHandler : ICrudHandler<CouponWallet, string>
+    public class CouponWalletHandler : ICrudHandler<CouponWallet, string, CouponWalletFilter>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly Lazy<CouponWalletHandler> lazy = new Lazy<CouponWalletHandler>(() => new CouponWalletHandler());
 
         public static CouponWalletHandler Instance { get { return lazy.Value; } }
+
         private CouponWalletHandler() { }
 
         public GenericResponse<CouponWallet> Add(int groupId, CouponWallet couponWalletToAdd, Dictionary<string, object> extraParams)
@@ -31,14 +33,9 @@ namespace Core.Pricing.Handlers
                     return response;
                 }
 
-                if (extraParams != null && extraParams.ContainsKey("householdId"))
+                response.Status.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
+                if(response.IsOkStatusCode())
                 {
-                    householdId = extraParams["householdId"] as long?;
-                }
-                
-                if(!householdId.HasValue || householdId.Value <= 0)
-                {
-                    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
 
@@ -90,33 +87,22 @@ namespace Core.Pricing.Handlers
             throw new NotImplementedException();
         }
 
-        public Status Delete(int groupId, string id, Dictionary<string, object> extraParams)
+        public Status Delete(int groupId, string couponCode, Dictionary<string, object> extraParams)
         {
             Status response = new Status();
             long? householdId = null;
-            string couponCode = string.Empty;
 
             try
             {
-                if (extraParams != null && extraParams.ContainsKey("householdId"))
-                {
-                    householdId = extraParams["householdId"] as long?;
-                }
-
-                if (!householdId.HasValue || householdId.Value <= 0)
-                {
-                    response.Set(eResponseStatus.HouseholdRequired, "Household required");
-                    return response;
-                }
-
-                if (extraParams != null && extraParams.ContainsKey("couponCode"))
-                {
-                    couponCode = extraParams["couponCode"] as string;
-                }
-
                 if (string.IsNullOrEmpty(couponCode))
                 {
                     response.Set(eResponseStatus.CouponCodeIsMissing, "Coupon code is missing");
+                    return response;
+                }
+
+                response.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
+                if (response.IsOkStatusCode())
+                {
                     return response;
                 }
 
@@ -150,37 +136,56 @@ namespace Core.Pricing.Handlers
 
             return response;
         }
+        
+        public GenericResponse<CouponWallet> Get(int groupId, string id, Dictionary<string, object> extraParams = null)
+        {
+            throw new NotImplementedException();
+        }
 
-        public GenericListResponse<CouponWallet> List(int groupId, CouponWalletFilter couponWalletFilter)
+        private Status GetHouseholdFromExtraPrams(Dictionary<string, object> extraParams, out long? householdId)
+        {
+            householdId = 0;
+
+            if (extraParams != null && extraParams.ContainsKey("householdId"))
+            {
+                householdId = extraParams["householdId"] as long?;
+            }
+
+            if (!householdId.HasValue || householdId.Value <= 0)
+            {
+                return new Status((int)eResponseStatus.HouseholdRequired, "Household required");                
+            }
+
+            return new Status((int)eResponseStatus.OK);
+        }
+        
+        public GenericListResponse<CouponWallet> List(CouponWalletFilter filter)
         {
             var response = new GenericListResponse<CouponWallet>();
+            long? householdId = null;
 
             try
             {
-                if (couponWalletFilter == null || couponWalletFilter.HouseholdIdEqual <= 0)
+                // TODO ANAT
+                //householdId = filter.
+                //response.Status.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
+                if (response.IsOkStatusCode())
                 {
-                    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
 
                 // Get Household's Wallet
-                response.Objects = PricingDAL.GetHouseholdCouponWalletCB(couponWalletFilter.HouseholdIdEqual);
+                response.Objects = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
 
-                response.TotalItems = response.Objects!= null ? 0 : response.Objects.Count;              
+                response.TotalItems = response.Objects != null ? 0 : response.Objects.Count;
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred in CouponWallet List. domainId:{0} . ex: {1}",
-                    couponWalletFilter.HouseholdIdEqual, ex);
+                log.ErrorFormat("An Exception was occurred in CouponWallet List. domainId:{0} . ex: {1}", householdId, ex);
             }
 
             return response;
-        }
-       
-        public GenericResponse<CouponWallet> Get(int groupId, string id, Dictionary<string, object> extraParams = null)
-        {
-            throw new NotImplementedException();
         }
     }
 }
