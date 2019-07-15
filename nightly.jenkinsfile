@@ -8,7 +8,10 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_5', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_5', description: 'Configuration folder name from Configuration Repo')
+        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
+
     }
     environment {
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
@@ -19,6 +22,8 @@ pipeline {
             steps{
                 dir('remotetasks') { git(url: 'git@bitbucket.org:tvinci_dev/remotetasks.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+                dir('tvpapi_rest'){ git(url: 'git@github.com:kaltura/tvpapi_rest.git', branch: "${params.branch}") }
+                dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
         stage("Version Patch"){
@@ -29,21 +34,11 @@ pipeline {
                 }
             }        
         }
-
-        stage("Build Core"){
+        stage("Nuget Restore"){
             steps{
-                dir("core"){
-                    bat ("${NUGET} restore")
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                }
-            }        
-        }
-        stage("Build Remote Tasks"){
-            steps{
-                dir("remotetasks"){
-                    bat ("${NUGET} restore")
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                }
+                dir("core"){ bat ("${NUGET} restore") }
+                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
+                dir("remotetasks"){ bat ("${NUGET} restore") }
             }        
         }
         stage("Publish Localy"){
@@ -60,19 +55,23 @@ pipeline {
                 }
             }        
         }
+        stage("Patch Config Files"){
+            steps{
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\RemoteTasks\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /K /D /H /Y"}
+            }
+        }
         stage("Publish To Preprod"){
+            when {
+                expression { return params.publish_preprod == 'true'; }
+            }
             environment {
-               RELEASE_VERSION = sh(script: 'cd remotetasks && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+               RELEASE_VERSION = sh(script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
             }
             steps { 
-                dir("published"){
+                dir("published/remotetasks"){
                     echo "Version Identified:[${RELEASE_VERSION}]"
-
-                    dir("remotetasks") {
-                        // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
-                        // TODO: i dont want to overwrite the preprod build right now .. ill uncomment this later
-                        //bat "(robocopy . \\\\Tvpapic1\\spaces\\RemoteTask\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
-                    }
+                    // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                    bat "(robocopy . \\\\Tvpapic1\\spaces\\RemoteTask\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
             }
         }
