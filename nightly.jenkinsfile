@@ -8,7 +8,9 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_5', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_5', description: 'Configuration folder name from Configuration Repo')
+        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
     }
     environment {
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
@@ -19,6 +21,7 @@ pipeline {
             steps{
                 dir('ws_ingest') { git(url: 'git@bitbucket.org:tvinci_dev/ws_ingest.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+                dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
         stage("Version Patch"){
@@ -29,22 +32,16 @@ pipeline {
                 }
             }        
         }
-
-        stage("Build Core"){
+        stage("Nuget Restore"){
             steps{
-                dir("core"){
-                    bat ("${NUGET} restore")
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                }
+                dir("core"){ bat ("${NUGET} restore") }
+                dir("ws_ingest"){ bat ("${NUGET} restore") }
             }        
         }
-        stage("Build WS_Ingest"){
+        stage("Patch Config Files"){
             steps{
-                dir("ws_ingest"){
-                    bat ("${NUGET} restore")
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                }
-            }        
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\Kaltura_OTT_API\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /K /D /H /Y"}
+            }
         }
         stage("Publish Localy"){
             steps{
@@ -65,14 +62,10 @@ pipeline {
                RELEASE_VERSION = sh(script: 'cd ws_ingest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
             }
             steps { 
-                dir("published"){
+                dir("published/ws_ingest"){
                     echo "Version Identified:[${RELEASE_VERSION}]"
-
-                    dir("ws_ingest") {
-                        // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
-                        
-                        bat "(robocopy . \\\\Tvpapic1\\ott\\spaces\\WebServices\\${params.version_folder_name}\\WS_Ingest /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
-                    }
+                    // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                    bat "(robocopy . \\\\Tvpapic1\\ott\\spaces\\WebServices\\${params.version_folder_name}\\WS_Ingest /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
             }
         }
