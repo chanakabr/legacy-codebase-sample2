@@ -8,7 +8,9 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_5', description: 'Pre-Prod Target Version Folder')
+        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
+
     }
     environment {
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
@@ -17,7 +19,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
-                dir('phoenix') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
+                dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
             }
         }
@@ -25,7 +27,7 @@ pipeline {
             steps{
                 dir("core"){
                     bat "sh DllVersioning.Core.sh ." 
-                    bat "sh DllVersioning.Core.sh ../phoenix" 
+                    bat "sh DllVersioning.Core.sh ../tvpapi_rest" 
                 }
             }        
         }
@@ -39,50 +41,50 @@ pipeline {
         }
         stage("Build Phoenix"){
             steps{
-                dir("phoenix"){
+                dir("tvpapi_rest"){
                     bat ("${NUGET} restore")
                 }
             }        
         }
         stage("Publish Localy"){
             steps{
-                dir("phoenix"){
+                dir("tvpapi_rest"){
                     bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
                             + " /p:Configuration=Release"
                             + " /p:DeployDefaultTarget=WebPublish"
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/phoenix/"
+                            + " /p:publishUrl=\"${WORKSPACE}/published/tvpapi_rest/"
                         )
                 }
             }        
         }
         stage("Generate KalturaClient.xml"){
             steps { 
-                dir("phoenix"){
+                dir("tvpapi_rest"){
                     dir("Generator"){
                         bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
                         dir("bin/Release/netcoreapp2.0"){
                             bat ("dotnet Generator.dll")
-                            bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\phoenix\\clientlibs\\")
+                            bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\tvpapi_rest\\clientlibs\\")
                         }
                     }
                 }
             }
         }
         stage("Publish To Preprod"){
+            when {
+                expression { return params.publish_preprod == 'true'; }
+            }
             environment {
-               RELEASE_VERSION = sh(script: 'cd phoenix && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+               RELEASE_VERSION = sh(script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
             }
             steps { 
-                dir("published"){
+                dir("published/tvpapi_rest"){
                     echo "Version Identified:[${RELEASE_VERSION}]"
-
-                    dir("phoenix") {
-                        // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
-                        bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
-                    }
+                    // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
+                    bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
             }
         }
