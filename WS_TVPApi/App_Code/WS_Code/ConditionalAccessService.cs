@@ -700,7 +700,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChangeSubscription(sSiteGuid, nOldSubscription, nNewSubscription);
+                    response = new ApiConditionalAccessService(groupId, initObj.Platform).ChangeSubscription(sSiteGuid, nOldSubscription, nNewSubscription, initObj.UDID);
 
                 }
                 catch (Exception ex)
@@ -1473,7 +1473,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelServiceNow(domainID, serviceID, serviceType, forceCancel);
+                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelServiceNow(domainID, serviceID, serviceType, forceCancel, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -1537,7 +1537,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelSubscriptionRenewal(domainID, serviceID);
+                    clientResponse = new ApiConditionalAccessService(nGroupId, initObj.Platform).CancelSubscriptionRenewal(domainID, serviceID, initObj.SiteGuid, initObj.UDID, SiteHelper.GetClientIP());
                 }
                 catch (Exception ex)
                 {
