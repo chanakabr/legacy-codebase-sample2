@@ -468,7 +468,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                 // notify purchase
-                                if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+                                if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userId, udid))
                                 {
                                     log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", transactionResponse.Status.Message, logString);
                                 }
@@ -520,7 +520,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // cancel existing subscription
-                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true);
+                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true, udid);
                     if (cancelSubscriptionStatus == null && cancelSubscriptionStatus.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_SubscriptionCode);
@@ -538,7 +538,7 @@ namespace Core.ConditionalAccess
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // cancel existing subscription renewal
-            Status cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_sObjectCode);
+            Status cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_sObjectCode, userId, udid, userIp);
 
             if (cancelRenewalStatus == null || cancelRenewalStatus.Code != (int)eResponseStatus.OK)
             {
@@ -970,7 +970,7 @@ namespace Core.ConditionalAccess
                                 };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, siteguid, deviceName))
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -1419,7 +1419,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, siteguid, deviceName))
                                     {
                                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -1896,7 +1896,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, siteguid, deviceName))
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
