@@ -11,7 +11,6 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Models;
 using System.Runtime.Serialization;
 using System.Web.Http;
-using System.Web.Http.Description;
 using System.Web;
 using System.Xml.Serialization;
 

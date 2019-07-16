@@ -1,14 +1,10 @@
-﻿using ConfigurationManager;
-using ConfigurationManager.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Web;
+using TVinciShared;
 using WebAPI.ClientManagers;
-using WebAPI.Filters;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
@@ -40,13 +36,13 @@ namespace WebAPI.Utils
         
         public static string GetClientIP()
         {
-            if (HttpContext.Current.Items[RequestParser.USER_IP] != null)
+            if (HttpContext.Current.Items[RequestContext.USER_IP] != null)
             {
-                return HttpContext.Current.Items[RequestParser.USER_IP].ToString();
+                return HttpContext.Current.Items[RequestContext.USER_IP].ToString();
             }
 
             string ip = string.Empty;
-            string retIp = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            string retIp = HttpContext.Current.Request.GetForwardedForHeader();
             string[] ipRange;
 
             if (!string.IsNullOrEmpty(retIp) && (ipRange = retIp.Split(',')) != null && ipRange.Length > 0)
@@ -55,7 +51,7 @@ namespace WebAPI.Utils
             }
             else
             {
-                ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                ip = HttpContext.Current.Request.GetRemoteAddress();
             }
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
@@ -86,22 +82,22 @@ namespace WebAPI.Utils
         
         internal static string GetLanguageFromRequest()
         {
-            if (HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE] == null)
+            if (HttpContext.Current.Items[RequestContext.REQUEST_LANGUAGE] == null)
             {
                 return null;
             }
 
-            return HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE].ToString();
+            return HttpContext.Current.Items[RequestContext.REQUEST_LANGUAGE].ToString();
         }
 
-        internal static int? GetGroupIdFromRequest()
+        public static int? GetGroupIdFromRequest()
         {
-            if (HttpContext.Current.Items[RequestParser.REQUEST_GROUP_ID] == null)
+            if (HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] == null)
             {
                 return null;
             }
 
-            return (int) HttpContext.Current.Items[RequestParser.REQUEST_GROUP_ID];
+            return (int) HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID];
         }
 
         internal static string GetDefaultLanguage()
@@ -159,19 +155,19 @@ namespace WebAPI.Utils
 
         internal static string GetCurrencyFromRequest()
         {
-            var currency = HttpContext.Current.Items[RequestParser.REQUEST_CURRENCY];
+            var currency = HttpContext.Current.Items[RequestContext.REQUEST_CURRENCY];
             return currency != null ? currency.ToString() : null;
         }
 
         internal static string GetFormatFromRequest()
         {
-            var format = HttpContext.Current.Items[RequestParser.REQUEST_FORMAT];
+            var format = HttpContext.Current.Items[RequestContext.REQUEST_FORMAT];
             return format != null ? format.ToString() : null;
         }
 
         internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
-            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestParser.REQUEST_RESPONSE_PROFILE];
+            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContext.REQUEST_RESPONSE_PROFILE];
                         
             return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
         }
@@ -188,7 +184,7 @@ namespace WebAPI.Utils
 
             string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
                 (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
-                "https" : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+                "https" : HttpContext.Current.Request.GetUrl().Scheme, HttpContext.Current.Request.GetUrl().Host, HttpContext.Current.Request.GetApplicationPath().TrimEnd('/'));
             return baseUrl;
         }
 
@@ -228,7 +224,7 @@ namespace WebAPI.Utils
 
         internal static bool GetAbortOnErrorFromRequest()
         {
-            var abortOnError= HttpContext.Current.Items[RequestParser.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
+            var abortOnError= HttpContext.Current.Items[RequestContext.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
             return abortOnError != null ? (bool)abortOnError : false;
         }
 

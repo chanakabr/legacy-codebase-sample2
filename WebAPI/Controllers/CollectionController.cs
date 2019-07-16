@@ -3,17 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using System.Web.Http;
-using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
-using WebAPI.Models.API;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using WebAPI.Managers.Models;
-using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Reflection;
+using TVinciShared;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.MultiRequest;

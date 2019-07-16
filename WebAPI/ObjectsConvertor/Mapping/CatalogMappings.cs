@@ -2,14 +2,12 @@
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
-using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using AutoMapper;
 using AutoMapper.Configuration;
 using Catalog.Response;
 using Core.Catalog;
-using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
 using Core.Users;
 using GroupsCacheManager;
@@ -21,12 +19,10 @@ using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
-using WebAPI.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

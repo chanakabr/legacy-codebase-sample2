@@ -1,12 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using TVinciShared;
-using WebAPI.App_Start;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 

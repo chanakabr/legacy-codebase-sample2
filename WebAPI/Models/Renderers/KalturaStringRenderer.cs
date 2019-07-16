@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Web;
-using System.Web.Http;
 
 namespace WebAPI.Models.Renderers
 {
@@ -18,6 +12,11 @@ namespace WebAPI.Models.Renderers
             : base()
         {
             _sContent = content;
+        }
+
+        public override string GetOutput()
+        {
+            return _sContent;
         }
 
         public override void Output(Stream writeStream) 
