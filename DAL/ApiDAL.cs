@@ -3182,6 +3182,7 @@ namespace DAL
                         permission.GroupId = groupId;
                         permission.isExcluded = isExcluded;
                         permission.Type = permissionType;
+                        permission.DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "DEPENDS_ON_PERMISSION_NAMES");
 
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {
