@@ -261,7 +261,7 @@ namespace PermissionsManager
                         int sourceType = Convert.ToInt32(sourceRow["type"]);
                         object sourceUsersGroupObject = sourceRow["users_group"];
                         object friendlyNameObject = sourceRow["friendly_name"];
-                        object dependsOnPermissionNamesObject = sourceRow["dependsOnPermissionNames"];
+                        object dependsOnPermissionNamesObject = sourceRow["DEPENDS_ON_PERMISSION_NAMES"];
                         string sourceUsersGroup = null;
                         string friendlyName = friendlyNameObject != null && friendlyNameObject != DBNull.Value ? Convert.ToString(friendlyNameObject) : string.Empty;
                         string dependsOnPermissionNames = dependsOnPermissionNamesObject != null && dependsOnPermissionNamesObject != DBNull.Value ? Convert.ToString(dependsOnPermissionNamesObject) : string.Empty;
