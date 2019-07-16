@@ -43,7 +43,7 @@ namespace WebAPI.Clients
 
         }
 
-        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce)
+        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce, string udid)
         {
             Status response = null;
 
@@ -54,7 +54,7 @@ namespace WebAPI.Clients
                     // convert local enu, to ws enum
                     eTransactionType eTransactionType = Mapper.Map<eTransactionType>(transaction_type);
 
-                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce);
+                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce, udid);
                 }
             }
             catch (Exception ex)
@@ -76,7 +76,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
+        public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code, string userId, string udid)
         {
             Status response = null;
 
@@ -84,7 +84,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.CancelSubscriptionRenewal(groupId, domain_id, subscription_code);
+                    response = Core.ConditionalAccess.Module.CancelSubscriptionRenewal(groupId, domain_id, subscription_code, userId, udid, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
