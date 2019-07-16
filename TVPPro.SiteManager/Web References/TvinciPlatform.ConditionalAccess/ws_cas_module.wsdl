@@ -1154,6 +1154,9 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="nDomainId" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sSubscriptionCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2830,6 +2833,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="nOldSubscription" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="nNewSubscription" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2862,6 +2866,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="nAssetID" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="tns:eTransactionType" />
             <s:element minOccurs="1" maxOccurs="1" name="bIsForce" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -8323,10 +8328,10 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost:2626/tvpapi_rest/ws_cas_module.asmx" />
+      <soap:address location="http://localhost/restapi/ws_cas_module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost:2626/tvpapi_rest/ws_cas_module.asmx" />
+      <soap12:address location="http://localhost/restapi/ws_cas_module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

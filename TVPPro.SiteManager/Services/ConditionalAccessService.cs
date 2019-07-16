@@ -1236,7 +1236,7 @@ namespace TVPPro.SiteManager.Services
             return null;
         }
 
-        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid)
         {
             string wsUser;
             string wsPassword;
@@ -1244,7 +1244,7 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                return m_Module.ChangeSubscription(wsUser, wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
+                return m_Module.ChangeSubscription(wsUser, wsPassword, sSiteGuid, nOldSubscription, nNewSubscription, udid);
             }
             catch (Exception ex)
             {
