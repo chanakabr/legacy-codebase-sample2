@@ -1000,8 +1000,8 @@ namespace Core.ConditionalAccess
                     maxNumberOfUses = usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
                     viewLifeCycle = usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0,
                     billingTransactionId = billingTransactionId,
-                    collectionStartDate = entitlementDate,
-                    collectionEndDate = collectionEndDate,
+                    startDate = entitlementDate,
+                    endDate = collectionEndDate,
                     createAndUpdateDate = entitlementDate,
                     houseHoldId = houseHoldID,
                     billingGuid = billingGuid

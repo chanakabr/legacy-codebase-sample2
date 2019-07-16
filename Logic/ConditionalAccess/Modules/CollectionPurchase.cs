@@ -14,12 +14,9 @@ namespace ApiLogic.ConditionalAccess.Modules
         #region Members
 
         public override eTransactionType type => eTransactionType.Collection;
-
         public string productId { get; set; }
         public int maxNumberOfUses { get; set; }
         public int viewLifeCycle { get; set; }
-        public DateTime collectionStartDate { get; set; }
-        public DateTime collectionEndDate { get; set; }
         public DateTime createAndUpdateDate { get; set; }
 
         #endregion
@@ -44,7 +41,7 @@ namespace ApiLogic.ConditionalAccess.Modules
             purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(GroupId, productId, siteGuid, price, currency, customData, country,
                                                                      deviceName, maxNumberOfUses,
                                                                      viewLifeCycle, billingTransactionId,
-                                                                     collectionStartDate, collectionEndDate, createAndUpdateDate, houseHoldId, billingGuid);
+                                                                     startDate.Value, endDate.Value, createAndUpdateDate, houseHoldId, billingGuid);
             return purchaseId > 0;
         }
 

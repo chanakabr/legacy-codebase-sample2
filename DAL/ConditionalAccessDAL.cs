@@ -994,7 +994,7 @@ namespace DAL
         public static long Insert_NewMColPurchase(long lGroupID, string sCollectionCode, string sSiteGuid,
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
-            long lBillingTransactionID, DateTime dtCollectionStartDate, DateTime dtCollectionEndDate,
+            long lBillingTransactionID, DateTime startDate, DateTime endDate,
             DateTime dtCreateAndUpdateDate, string sConnKey, long domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
@@ -1007,9 +1007,9 @@ namespace DAL
             sp.AddParameter("@MaxNumOfUses", lMaxNumOfUses);
             sp.AddParameter("@ViewLifeCycleSecs", lViewLifeCycleSecs);
             sp.AddParameter("@LastViewDate", DBNull.Value); // make sure it is correct
-            sp.AddParameter("@StartDate", dtCollectionStartDate);
+            sp.AddParameter("@StartDate", startDate);
             sp.AddParameter("@IsActive", 1);
-            sp.AddParameter("@EndDate", dtCollectionEndDate);
+            sp.AddParameter("@EndDate", endDate);
             sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
             sp.AddParameter("@Status", 1);
             sp.AddParameter("@Price", dPrice);

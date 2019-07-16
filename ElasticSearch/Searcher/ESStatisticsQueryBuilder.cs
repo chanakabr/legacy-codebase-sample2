@@ -17,9 +17,7 @@ namespace ElasticSearch.Searcher
 
         public static readonly string AND_CONDITION = "AND";
         public static readonly string OR_CONDITION = "OR";
-
-        protected readonly int MAX_RESULTS;
-
+        
         public StatisticsActionSearchObj oSearchObject { get; set; }
 
         public int m_nGroupID { get; set; }
@@ -38,13 +36,6 @@ namespace ElasticSearch.Searcher
             oSearchObject = searchObject;
             m_nGroupID = nGroupID;
             ReturnFields = new List<string>() { "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"media_id\"", "\"action\"" };
-
-            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
-
-            if (MAX_RESULTS == 0)
-            {
-                MAX_RESULTS = 10000;
-            }
         }
 
         public string BuildQuery()

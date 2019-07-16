@@ -540,6 +540,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("business_module_rule_id_{0}", id);
         }
+        public static string GetAssetStatsSortKey(string assetId, string orderBy)
+        {
+            return string.Format("asset_stats_sort_{0}_{1}", assetId, orderBy);
+        }
+
         public static string GetSSOAdapaterByGroupKey(int groupId)
         {
             return string.Format("sso_adapter_by_group_{0}", groupId);
@@ -1078,6 +1083,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyTopicNotifications_groupId_{0}_type_{1}", groupId, SubscribeReferenceType);
         }
+        
+        public static string PermissionsManagerInvalidationKey()
+        {
+            return PERMISSION_MANAGER_INVALIDATION_KEY;
+        }
 
         #endregion
 
@@ -1108,9 +1118,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
-        public static string PermissionsManagerInvalidationKey()
+        public static string GetAssetStatsSortInvalidationKey()
         {
-            return PERMISSION_MANAGER_INVALIDATION_KEY;
+            return "invalidation_key_asset_stats_sort";
         }
 
         #endregion
