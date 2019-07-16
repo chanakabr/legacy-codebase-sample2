@@ -526,7 +526,7 @@ namespace Core.ConditionalAccess
                 dicData.Add("BillingSettingError", billingSettingError);
             }
 
-            cas.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData);
+            cas.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData, siteguid, string.Empty);
 
             // Enqueue event for subscription ends:
             EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseId, endDateUnix);
@@ -756,7 +756,7 @@ namespace Core.ConditionalAccess
                 {"SubscriptionCode", subscription.m_SubscriptionCode}
             };
 
-            cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+            cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData, siteguid, string.Empty);
 
             log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
                 productId,                          // {0}
@@ -1010,7 +1010,7 @@ namespace Core.ConditionalAccess
                                             {"SubscriptionCode", subscription.m_SubscriptionCode}
                                         };
 
-                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData, siteguid, string.Empty);
             }
 
             log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
@@ -1742,7 +1742,7 @@ namespace Core.ConditionalAccess
                     {"SubscriptionCode", subscription.m_SubscriptionCode}
                 };
 
-                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage);
+                cas.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, psMessage, renewUnifiedData.UserId, string.Empty);
             }
             
             return true;

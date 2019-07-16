@@ -4413,39 +4413,6 @@ namespace Core.Catalog
             return set.Select((item) => (item.Result)).ToList<AssetStatsResult>();
         }
 
-        private static Tuple<AssetStatsResult, bool> GetAssetStats(Dictionary<string, object> funcParams)
-        {
-            AssetStatsResult result = null;
-            bool success = false;
-
-            try
-            {
-                if (funcParams != null &&
-                    funcParams.ContainsKey("assetId") && funcParams.ContainsKey("statsType") &&
-                    funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
-                {
-                    int assetId = Convert.ToInt32(funcParams["assetId"]);
-                    int groupId = Convert.ToInt32(funcParams["groupId"]);
-                    StatsType statsType = (StatsType)funcParams["statsType"];
-                    Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
-                    
-                    GetDataForGetAssetStatsFromES(groupId, new List<int>() { assetId }, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
-
-                    if (mapping.ContainsKey(assetId))
-                    {
-                        result = mapping[assetId];
-                        success = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error when getting asset stats result. ex = {0}", ex);
-            }
-
-            return new Tuple<AssetStatsResult, bool>(result, success);
-        }
-
         private static Tuple<Dictionary<string, AssetStatsResult>, bool> GetAssetsStats(Dictionary<string, object> funcParams)
         {
             Dictionary<string, AssetStatsResult> result = null;
@@ -8398,15 +8365,7 @@ namespace Core.Catalog
 
                 definitions.shouldSearchEpg = false;
                 definitions.shouldSearchMedia = false;
-
-                // Special case - if no type was specified or "All" is contained, search all types
-                if ((definitions.mediaTypes == null || definitions.mediaTypes.Count == 0) ||
-                    (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Remove(0)))
-                {
-                    definitions.shouldSearchEpg = true;
-                    definitions.shouldSearchMedia = true;
-                    definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
-                }
+                var shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
 
                 // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
                 // In non-opc accounts, 
@@ -8415,34 +8374,45 @@ namespace Core.Catalog
                 // IN ANY CASE
                 // we don't want to search for asset_type = 0, because the assets are not indexed with it! EPGs are just indexed in their index
                 // and media will never have 0 media type
-                bool hasZeroMediaType = definitions.mediaTypes.Remove(0);
+                bool hasZeroMediaType = definitions.mediaTypes != null ? definitions.mediaTypes.Remove(0) : false;
                 bool hasMinusTwentySixMediaType = definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
-
-                if (doesGroupUsesTemplates)
+                
+                // Special case - if no type was specified or "All" is contained, search all types
+                if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) || 
+                    (!hasZeroMediaType && (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)))
                 {
-                    var programAssetStructId = catalogGroupCache.GetRealAssetStructId(0, out bool hasProgramStructMediaType);
-                    if (hasProgramStructMediaType)
-                    {
-                        hasProgramStructMediaType = definitions.mediaTypes.Remove((int)programAssetStructId);
-                    }
-
-                    // in OPC accounts, 0 media type means EPG
-                    if (hasZeroMediaType || hasProgramStructMediaType)
-                    {
-                        definitions.shouldSearchEpg = true;
-                        definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
-                    }
+                    definitions.shouldSearchEpg = true;
+                    definitions.shouldSearchMedia = true;
+                    definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
                 }
                 else
                 {
-                    // in non-OPC accounts, -26 media type means EPG
-                    if (hasMinusTwentySixMediaType)
+                    if (doesGroupUsesTemplates)
                     {
-                        definitions.shouldSearchEpg = true;
-                        definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
+                        var programAssetStructId = catalogGroupCache.GetRealAssetStructId(0, out bool hasProgramStructMediaType);
+                        if (hasProgramStructMediaType)
+                        {
+                            hasProgramStructMediaType = definitions.mediaTypes.Remove((int)programAssetStructId);
+                        }
+
+                        // in OPC accounts, 0 media type means EPG
+                        if (hasZeroMediaType || hasProgramStructMediaType)
+                        {
+                            definitions.shouldSearchEpg = true;
+                            definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
+                        }
+                    }
+                    else
+                    {
+                        // in non-OPC accounts, -26 media type means EPG
+                        if (hasMinusTwentySixMediaType)
+                        {
+                            definitions.shouldSearchEpg = true;
+                            definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
+                        }
                     }
                 }
-
+                
                 // If there are items left in media types after removing 0, we are searching for media
                 if (definitions.mediaTypes.Count > 0)
                 {
