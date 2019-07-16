@@ -547,13 +547,13 @@ namespace WS_ConditionalAccess
         /// <param name="sSubscriptionCode"></param>
         /// <param name="nSubscriptionPurchaseID"></param>
         /// <returns></returns>
-        public ApiObjects.Response.Status CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode)
+        public ApiObjects.Response.Status CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode, string userId, string udid, string userIp)
         {
             
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.CancelSubscriptionRenewal(nGroupID, nDomainId, sSubscriptionCode);
+                return Core.ConditionalAccess.Module.CancelSubscriptionRenewal(nGroupID, nDomainId, sSubscriptionCode, userId, udid, userIp);
             }
             else
             {
@@ -1923,7 +1923,7 @@ namespace WS_ConditionalAccess
 
 
         [WebMethod]
-        public ChangeSubscriptionStatus ChangeSubscription(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        public ChangeSubscriptionStatus ChangeSubscription(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
@@ -1932,7 +1932,7 @@ namespace WS_ConditionalAccess
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.ChangeSubscription(nGroupID, sSiteGuid, nOldSubscription, nNewSubscription);
+                return Core.ConditionalAccess.Module.ChangeSubscription(nGroupID, sSiteGuid, nOldSubscription, nNewSubscription, udid);
             }
             return ChangeSubscriptionStatus.Error;
         }
@@ -1946,13 +1946,13 @@ namespace WS_ConditionalAccess
          *  Return status object
          ***************************************************************************************************************************/
         public ApiObjects.Response.Status CancelServiceNow(string sWSUserName, string sWSPassword,
-            int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce = false)
+            int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce = false, string udid = null)
         {
             
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.ConditionalAccess.Module.CancelServiceNow(nGroupID, nDomainId, nAssetID, transactionType, bIsForce);
+                return Core.ConditionalAccess.Module.CancelServiceNow(nGroupID, nDomainId, nAssetID, transactionType, bIsForce, udid);
             }
             else
             {
