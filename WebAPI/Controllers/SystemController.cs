@@ -1,14 +1,10 @@
 ﻿using ApiObjects.Response;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Web;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
@@ -78,7 +74,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public long GetTime()
         {
-            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestParser.REQUEST_TIME];
+            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContext.REQUEST_TIME];
             return DateUtils.DateTimeToUtcUnixTimestampSeconds(serverTime);
         }
 

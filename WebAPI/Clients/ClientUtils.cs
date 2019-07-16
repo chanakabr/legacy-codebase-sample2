@@ -2,17 +2,7 @@
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Web;
-using AutoMapper;
-using ConfigurationManager;
-using KLogMonitor;
-using Newtonsoft.Json;
-using System.IO;
-using System.Net;
-using WebAPI.Models.DMS;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;

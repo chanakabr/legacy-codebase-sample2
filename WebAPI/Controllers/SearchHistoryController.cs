@@ -1,20 +1,12 @@
 ﻿using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Models.Catalog;
 using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
-using System.Web;
-using WebAPI.Filters;
 using WebAPI.Models.API;
 
 namespace WebAPI.Controllers

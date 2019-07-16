@@ -1,15 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
-using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Reflection;
 
 namespace WebAPI.Managers
 {

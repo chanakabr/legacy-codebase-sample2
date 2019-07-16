@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
@@ -15,7 +11,7 @@ namespace WebAPI.Models.MultiRequest
     /// </summary>
     public abstract partial class KalturaSkipCondition : KalturaOTTObject
     {
-        internal virtual void Validate()
+        public virtual void Validate()
         {
         }
     }
@@ -68,7 +64,7 @@ namespace WebAPI.Models.MultiRequest
         [XmlElement(ElementName = "value")]
         public string Value { get; set; }
 
-        internal override void Validate()
+        public override void Validate()
         {
             base.Validate();
             if (string.IsNullOrEmpty(PropertyPath))

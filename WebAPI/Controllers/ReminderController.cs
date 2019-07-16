@@ -3,7 +3,6 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;

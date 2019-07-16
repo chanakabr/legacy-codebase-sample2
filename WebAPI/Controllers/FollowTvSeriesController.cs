@@ -1,9 +1,6 @@
 ﻿using ApiObjects.Response;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -185,7 +182,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidToken)]
         static public void DeleteWithToken(int assetId, string token, int partnerId)
         {
-            HttpContext.Current.Items.Add(Filters.RequestParser.REQUEST_GROUP_ID, partnerId);
+            HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, partnerId);
 
             try
             {

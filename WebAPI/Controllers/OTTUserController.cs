@@ -4,19 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Http.ModelBinding;
-using System.Web.Routing;
+using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.API;
-using WebAPI.Models.Catalog;
-using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -148,7 +142,8 @@ namespace WebAPI.Controllers
             {
                 // call client
                 // add header. if key exists use extraParams
-                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers, group.ShouldSupportSingleLogin);
+                var httpHeaders = HttpContext.Current.Request.GetHeaders();
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, httpHeaders, group.ShouldSupportSingleLogin);
             }
             catch (ClientExternalException ex)
             {
@@ -284,7 +279,7 @@ namespace WebAPI.Controllers
                 if (!string.IsNullOrEmpty(user.RoleIds) && !RolesManager.IsManagerAllowedAction(user.GetRoleIds()))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
                                                        "KalturaOTTUser",
                                                        "roleIds");
                 }
@@ -647,7 +642,7 @@ namespace WebAPI.Controllers
                 if (!RolesManager.IsManagerAllowedUpdateAction(id, user.GetRoleIds()))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
                                                        "KalturaOTTUser",
                                                        "roleIds");
                 }
@@ -691,7 +686,7 @@ namespace WebAPI.Controllers
                 if (!RolesManager.IsManagerAllowedUpdateAction(userId, roleToAdd))
                 {
                     throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN,
-                                                       Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.ALL),
+                                                       Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.ALL),
                                                        "KalturaOTTUser",
                                                        "roleId");
                 }
@@ -925,7 +920,7 @@ namespace WebAPI.Controllers
                     else // no household and less then Operator
                     {
                         throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, 
-                                                        Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ),
+                                                        Enum.GetName(typeof(WebAPI.RequestType), WebAPI.RequestType.READ),
                                                         "KalturaOTTUserFilter", 
                                                         "idIn");
                     }

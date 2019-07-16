@@ -11,6 +11,7 @@ using WebAPI.Filters;
 using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
+using TVinciShared;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.MultiRequest;
@@ -3652,6 +3653,8 @@ namespace WebAPI.Reflection
                     {
                         case "eventObject":
                             return "object";
+                        case "UniqueId":
+                            return "uniqueId";
                         case "UserIp":
                             return "userIp";
                     }
@@ -7216,7 +7219,7 @@ namespace WebAPI.Reflection
                             return ConfigurationsController.List((KalturaConfigurationsFilter) methodParams[0]);
                             
                         case "servebydevice":
-                            HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
+                            HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
                             return ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
                             
                         case "update":
@@ -8435,16 +8438,16 @@ namespace WebAPI.Reflection
                             return OttUserController.List((KalturaOTTUserFilter) methodParams[0]);
                             
                         case "login":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             return OttUserController.Login((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (SerializableDictionary<string, KalturaStringValue>) methodParams[3], (string) methodParams[4]);
                             
                         case "loginwithpin":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             return OttUserController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
                             
@@ -8470,9 +8473,9 @@ namespace WebAPI.Reflection
                             return OttUserController.resetPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "setinitialpassword":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             return OttUserController.setInitialPassword((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
@@ -8488,17 +8491,17 @@ namespace WebAPI.Reflection
                             return OttUserController.UpdateDynamicData((string) methodParams[0], (KalturaStringValue) methodParams[1]);
                             
                         case "updatelogindata":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("ottUser", "updateLoginData", false);
                             return OttUserController.UpdateLoginData((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
                         case "updatepassword":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("ottUser", "updatePassword", true);
                             OttUserController.updatePassword((int) methodParams[0], (string) methodParams[1]);
@@ -8524,9 +8527,9 @@ namespace WebAPI.Reflection
                         case "changepassword":
                             if(isOldVersion)
                             {
-                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                                 {
-                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                                 }
                                 RolesManager.ValidateActionPermitted("ottUser", "changePassword", false);
                                 return OttUserController.UpdateLoginData((string) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
@@ -8873,32 +8876,32 @@ namespace WebAPI.Reflection
                         case "update":
                             if(isOldVersion)
                             {
-                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                                 {
-                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                                 }
                                 RolesManager.ValidateActionPermitted("pin", "update", false);
                                 return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
                             }
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("pin", "update", false);
                             return PinController.Update((KalturaEntityReferenceBy) methodParams[0], (KalturaPinType) methodParams[1], (KalturaPin) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                         case "updateoldstandard":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("pin", "updateOldStandard", false);
                             return PinController.UpdateOldStandard((string) methodParams[0], (KalturaEntityReferenceBy) methodParams[1], (KalturaPinType) methodParams[2], (Nullable<int>) methodParams[3]);
                             
                         case "validate":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("pin", "validate", false);
                             return PinController.Validate((string) methodParams[0], (KalturaPinType) methodParams[1], (Nullable<int>) methodParams[2]);
@@ -9344,24 +9347,24 @@ namespace WebAPI.Reflection
                         case "getbytoken":
                             if(isOldVersion)
                             {
-                                if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                                if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                                 {
-                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                    throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                                 }
                                 RolesManager.ValidateActionPermitted("social", "getByToken", false);
                                 return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
                             }
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("social", "getByToken", false);
                             return SocialController.GetByToken((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
                             
                         case "getbytokenoldstandard":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             RolesManager.ValidateActionPermitted("social", "getByTokenOldStandard", false);
                             return SocialController.GetByTokenOldStandard((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2]);
@@ -9371,9 +9374,9 @@ namespace WebAPI.Reflection
                             return SocialController.GetConfiguration((Nullable<KalturaSocialNetwork>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                         case "login":
-                            if(HttpContext.Current.Request.HttpMethod.ToLower() == "get")
+                            if(HttpContext.Current.Request.GetHttpMethod().ToLower() == "get")
                             {
-                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());
+                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
                             return SocialController.Login((int) methodParams[0], (string) methodParams[1], (KalturaSocialNetwork) methodParams[2], (string) methodParams[3]);
                             
@@ -9962,7 +9965,7 @@ namespace WebAPI.Reflection
             service = service.ToLower();
             action = action.ToLower();
             Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();
-            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            Version currentVersion = (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION];
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             string paramName;
             string newParamName = null;

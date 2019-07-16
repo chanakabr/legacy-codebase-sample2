@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Response;
-using System.Web.Http;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;

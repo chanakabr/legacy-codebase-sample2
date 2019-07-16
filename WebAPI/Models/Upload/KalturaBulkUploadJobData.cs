@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
-using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Upload
@@ -34,7 +29,7 @@ namespace WebAPI.Models.Upload
     {
         internal override void Validate(KalturaOTTFile fileData)
         {
-            if (!fileData.path.EndsWith(ExcelFormatter.EXCEL_EXTENTION))
+            if (!fileData.path.EndsWith(ExcelFormatterConsts.EXCEL_EXTENTION))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "fileData.path");
             }

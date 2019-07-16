@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Response;
-using AutoMapper;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using WebAPI.Exceptions;

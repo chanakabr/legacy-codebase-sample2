@@ -1,9 +1,4 @@
-﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using WebAPI.Models.General;
+﻿using WebAPI.Models.General;
 using AutoMapper.Configuration;
 
 namespace WebAPI.ObjectsConvertor.Mapping

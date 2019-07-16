@@ -1,16 +1,7 @@
-﻿using ApiObjects;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
-using TVinciShared;
-using WebAPI.App_Start;
-using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Catalog
