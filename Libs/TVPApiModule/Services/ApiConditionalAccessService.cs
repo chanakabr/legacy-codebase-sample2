@@ -963,13 +963,13 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid)
         {
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription);
+                    return m_Module.ChangeSubscription(m_wsUserName, m_wsPassword, sSiteGuid, nOldSubscription, nNewSubscription, udid);
                 }
             }
             catch (Exception ex)
@@ -1601,7 +1601,7 @@ namespace TVPApiModule.Services
             return res;
         }        
 
-        public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false)
+        public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false, string udid = null)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Status result = null;
             ClientResponseStatus clientResponse;
@@ -1610,7 +1610,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    result = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce);
+                    result = m_Module.CancelServiceNow(m_wsUserName, m_wsPassword, domainId, assetId, transactionType, bIsForce, udid);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
@@ -1623,7 +1623,7 @@ namespace TVPApiModule.Services
             return clientResponse;
         }
 
-        public ClientResponseStatus CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionID)
+        public ClientResponseStatus CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionID, string userId, string udid, string userIp)
         {
             TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Status result = null;
             ClientResponseStatus clientResponse;
@@ -1632,7 +1632,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    result = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID);
+                    result = m_Module.CancelSubscriptionRenewal(m_wsUserName, m_wsPassword, p_nDomainId, p_sSubscriptionID, userId, udid, userIp);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
