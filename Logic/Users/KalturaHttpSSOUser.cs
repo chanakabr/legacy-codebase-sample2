@@ -15,6 +15,8 @@ using CachingProvider.LayeredCache;
 using SSOAdapaterUser = APILogic.SSOAdapaterService.User;
 using SSOAdapterUserType = APILogic.SSOAdapaterService.UserType;
 using System.Web;
+using APILogic.Users;
+using TVinciShared;
 
 namespace Core.Users
 {
@@ -33,11 +35,7 @@ namespace Core.Users
             _GroupId = groupId;
             _AdapterId = adapterConfig.Id.Value;
             _AdapterConfig = adapterConfig;
-            _AdapterClient = new ServiceClient(string.Empty, _AdapterConfig.AdapterUrl);
-            if (!string.IsNullOrEmpty(_AdapterConfig.AdapterUrl))
-            {
-                _AdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(_AdapterConfig.AdapterUrl);
-            }
+            _AdapterClient = SSOAdaptersManager.GetSSOAdapterServiceClient(_AdapterConfig.AdapterUrl);
 
             var implementationsResponse = GetSSOImplementations();
 
@@ -72,10 +70,10 @@ namespace Core.Users
                 var customParamsStr = string.Concat(preSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignInModel.UserId, preSignInModel.UserName, preSignInModel.Password, customParamsStr);
                 _Logger.InfoFormat("Calling sso adapter PreSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
-                var response = _AdapterClient.PreSignIn(_AdapterId, preSignInModel, signature);
+                var response = _AdapterClient.PreSignInAsync(_AdapterId, preSignInModel, signature).ExecuteAndWait();
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PreSignIn(_AdapterId, preSignInModel, signature);
+                    response = _AdapterClient.PreSignInAsync(_AdapterId, preSignInModel, signature).ExecuteAndWait();
                 }
 
                 if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
@@ -128,12 +126,12 @@ namespace Core.Users
 
                 var customParamsStr = string.Concat(postSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignInModel.AuthenticatedUser?.Id, postSignInModel.AuthenticatedUser?.Username, postSignInModel.AuthenticatedUser?.Email, customParamsStr);
-                var response = _AdapterClient.PostSignIn(_AdapterId, postSignInModel, signature);
+                var response = _AdapterClient.PostSignInAsync(_AdapterId, postSignInModel, signature).ExecuteAndWait();
 
                 _Logger.InfoFormat("Calling sso adapter PostSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PostSignIn(_AdapterId, postSignInModel, signature);
+                    response = _AdapterClient.PostSignInAsync(_AdapterId, postSignInModel, signature).ExecuteAndWait();
                 }
 
                 if (response.AdapterStatus != AdapterStatusCode.OK)
@@ -168,10 +166,10 @@ namespace Core.Users
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, userId, userIP, customParamsSrt);
 
                 _Logger.InfoFormat("Calling sso adapter PreGetUserData [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
-                var response = _AdapterClient.PreGetUserData(_AdapterId, userId, userIP, customParams, signature);
+                var response = _AdapterClient.PreGetUserDataAsync(_AdapterId, userId, userIP, customParams, signature).ExecuteAndWait();
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PreGetUserData(_AdapterId, userId, userIP, customParams, signature);
+                    response = _AdapterClient.PreGetUserDataAsync(_AdapterId, userId, userIP, customParams, signature).ExecuteAndWait();
                 }
 
                 if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
@@ -210,10 +208,10 @@ namespace Core.Users
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, userData?.Id, userData?.Username, userData?.Email, customParamsStr);
 
                 _Logger.InfoFormat("Calling sso adapter PostGetUserData [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
-                var response = _AdapterClient.PostGetUserData(_AdapterId, userData, customParams, signature);
+                var response = _AdapterClient.PostGetUserDataAsync(_AdapterId, userData, customParams, signature).ExecuteAndWait();
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PostGetUserData(_AdapterId, userData, customParams, signature);
+                    response = _AdapterClient.PostGetUserDataAsync(_AdapterId, userData, customParams, signature).ExecuteAndWait();
                 }
 
                 if (response.AdapterStatus != AdapterStatusCode.OK)
@@ -269,10 +267,10 @@ namespace Core.Users
             try
             {
                 var adapterId = (int)arg["adapterId"];
-                var implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
+                var implementationsResponse = _AdapterClient.GetConfigurationAsync(adapterId).ExecuteAndWait();
                 if (!ValidateConfigurationIsSet(implementationsResponse.Status))
                 {
-                    implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
+                    implementationsResponse = _AdapterClient.GetConfigurationAsync(adapterId).ExecuteAndWait();
                 }
 
                 return new Tuple<SSOImplementationsResponse, bool>(implementationsResponse, true);
@@ -375,7 +373,7 @@ namespace Core.Users
             var signature = GenerateSignature(adapter.SharedSecret, adapter.Id, adapter.GroupId, settingsString);
 
             _Logger.DebugFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", adapter.Name, string.Concat(configDict.Select(kv => string.Format("[{0}|{1}], ", kv.Key, kv.Value))));
-            client.SetConfiguration(adapter.Id.Value, adapter.GroupId, configDict, signature);
+            client.SetConfigurationAsync(adapter.Id.Value, adapter.GroupId, configDict, signature).ExecuteAndWait();
         }
 
         private static string GenerateSignature(string secret, params object[] values)

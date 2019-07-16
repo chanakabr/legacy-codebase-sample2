@@ -1,33 +1,30 @@
-﻿FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS build
-#FROM mcr.microsoft.com/dotnet/core/sdk:2.2 as builder
+﻿FROM mcr.microsoft.com/dotnet/core/sdk:2.2 as builder
 WORKDIR /src
 
-# unzip required to unzip the downloaded TvmCore repo
-RUN apk add unzip
-# tools required for DllVersioning.Core.sh
-RUN apk --update add grep
-RUN apk --update add git
-RUN apk --update add bash
+RUN apt-get install git
 
 ARG BRANCH=master
-ARG BITBUCKET_TOKEN
+ARG API_VERSION
 
-ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvmcore/get/${BRANCH}.zip TvmCore.zip
+ARG TCM_URL=http://tcm:8080/
+ARG TCM_APP=OTT_API_${API_VERSION}
+ARG TCM_SECTION=base
+ARG TCM_APP_ID=5bf8cf60
+ARG TCM_APP_SECRET=5aaa99331c18f6bad4adeef93ab770c2
 
-RUN unzip TvmCore.zip -d ./uz_tvmcore
-RUN mkdir TvmCore
-RUN mv /src/uz_tvmcore/*/* /src/TvmCore/
-RUN rm -rf uz_tvmcore
-RUN rm -rf TvmCore.zip
-
+ENV TCM_URL ${TCM_URL}
+ENV TCM_APP ${TCM_APP}
+ENV TCM_SECTION ${TCM_SECTION}
+ENV TCM_APP_ID ${TCM_APP_ID}
+ENV TCM_APP_SECRET ${TCM_APP_SECRET}
 
 COPY [".", "Core"]
 
 WORKDIR /src/Core
 RUN bash DllVersioning.Core.sh .
-RUN bash DllVersioning.Core.sh ../TvmCore
+RUN bash get-version-tag.sh > version
 
-RUN dotnet build -c Release "./CoreNetCore.sln"
+RUN dotnet build -c  Release "./Core.sln"
 
 
 

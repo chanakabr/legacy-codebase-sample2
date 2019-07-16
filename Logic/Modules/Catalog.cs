@@ -226,7 +226,7 @@ namespace Core.Catalog
             }
         }
 
-        public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
+        public static bool UpdateEpgIndex(List<ulong> lEpgIds, int nGroupId, eAction eAction)
         {
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupId);

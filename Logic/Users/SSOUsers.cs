@@ -79,8 +79,8 @@ namespace Core.Users
             {
                 case 1: //Canal
                     return new SSOOAuthImplementation(m_nGroupID, nSSOProvID);
-                case 2: //Ziggo
-                    return new SSOOSamlImplementation(m_nGroupID, nSSOProvID);
+                case 2: //Ziggo Removed due to missing support for .net core from dependant assembly ComponentSpace.SAML2
+                    //return new SSOOSamlImplementation(m_nGroupID, nSSOProvID);
                 case 3:
                     return new SSOTvinciImplementation(m_nGroupID, nSSOProvID);
                 case 4:
