@@ -115,7 +115,8 @@ namespace Core.Users
         ConcurrencyLimitation = 24,
         MediaConcurrencyLimitation = 25,
         DomainSuspended = 26,
-        UserAlreadyInDomain = 27
+        UserAlreadyInDomain = 27,
+        RegionDoesNotExists = 28
     }
 
     public enum DeviceResponseStatus
