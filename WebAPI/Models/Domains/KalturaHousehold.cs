@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -140,8 +141,8 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "regionId")]
         [JsonProperty("regionId")]
         [XmlElement(ElementName = "regionId")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("region_id")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public int? RegionId { get; set; }
 
         /// <summary>
