@@ -10,7 +10,7 @@ namespace ApiLogic.Base
         GenericResponse<ICrudHandeledObject> Add(ContextData contextData, ICrudHandeledObject objectToAdd);
         GenericResponse<ICrudHandeledObject> Update(ContextData contextData, ICrudHandeledObject objectToUpdate);
         Status Delete(ContextData contextData, IdentifierT id);
-        GenericResponse<ICrudHandeledObject> Get(ContextData groupId, IdentifierT id);
-        GenericListResponse<ICrudHandeledObject> List(ICrudFilter filter);
+        GenericResponse<ICrudHandeledObject> Get(ContextData contextData, IdentifierT id);
+        GenericListResponse<ICrudHandeledObject> List(ContextData contextData, ICrudFilter filter);
     }
 }

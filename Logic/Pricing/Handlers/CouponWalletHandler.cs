@@ -146,24 +146,90 @@ namespace Core.Pricing.Handlers
             throw new NotImplementedException();
         }
         
-        public GenericListResponse<CouponWallet> List(CouponWalletFilter filter)
+        public GenericListResponse<CouponWallet> List(ContextData contextData, CouponWalletFilter filter)
         {
             var response = new GenericListResponse<CouponWallet>();
             long? householdId = null;
 
             try
             {
-                // TODO ANAT
-                //householdId = filter.
-                //response.Status.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
-                if (response.IsOkStatusCode())
+                if (!contextData.DomainId.HasValue || contextData.DomainId.Value <= 0)
                 {
+                    response.Status.Set(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
 
-                // Get Household's Wallet
-                response.Objects = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                householdId = contextData.DomainId.Value;
 
+                HashSet<string> couponGroupIds = new HashSet<string>();
+
+                if (filter != null && filter.BusinessModuleId > 0 && filter.BusinessModuleType.HasValue)
+                {
+                    switch (filter.BusinessModuleType.Value)
+                    {
+                        case ApiObjects.eTransactionType.PPV:
+                            // Get PPV couponGroupIds
+                            PPVModule ppvModule = Module.GetPPVModuleData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty);
+                            if (ppvModule?.m_oCouponsGroup != null)
+                            {
+                                couponGroupIds.Add(ppvModule.m_oCouponsGroup.m_sGroupCode);
+                            }
+                            break;
+
+                        case ApiObjects.eTransactionType.Subscription:
+                            // Get Subscription couponGroupIds
+                            Subscription subscription = Module.GetSubscriptionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                            if (subscription?.m_oCouponsGroup != null)
+                            {
+                                couponGroupIds.Add(subscription.m_oCouponsGroup.m_sGroupCode);
+                            }
+
+                            if (subscription?.CouponsGroups?.Count > 0)
+                            {
+                                foreach (var item in subscription.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
+                                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
+                                {
+                                    if (!couponGroupIds.Contains(item.m_sGroupCode))
+                                    {
+                                        couponGroupIds.Add(item.m_sGroupCode);
+                                    }
+                                }
+                            }
+
+                            break;
+                        case ApiObjects.eTransactionType.Collection:
+                            // Get Collection couponGroupIds
+                            Collection collection = Module.GetCollectionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, true);
+                            if (collection?.m_oCouponsGroup != null)
+                            {
+                                couponGroupIds.Add(collection.m_oCouponsGroup.m_sGroupCode);
+                            }
+
+                            if (collection?.CouponsGroups?.Count > 0)
+                            {
+                                foreach (var item in collection.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
+                                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
+                                {
+                                    if (!couponGroupIds.Contains(item.m_sGroupCode))
+                                    {
+                                        couponGroupIds.Add(item.m_sGroupCode);
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                // Get Household's Wallet
+                var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                if (couponWallet?.Count > 0 && couponGroupIds.Count > 0)
+                {
+                    couponWallet = couponWallet.Where(x => couponGroupIds.Contains(x.CouponGroupId)).ToList();
+                }
+
+                response.Objects = couponWallet;
                 response.TotalItems = response.Objects != null ? 0 : response.Objects.Count;
                 response.Status.Set(eResponseStatus.OK);
             }
