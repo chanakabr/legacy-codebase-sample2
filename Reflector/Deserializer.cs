@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Controllers;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using WebAPI.Models.Renderers;
 using WebAPI.App_Start;
 using System.Collections;
 
@@ -26,6 +18,7 @@ namespace Reflector
             types.Remove(typeof(KalturaApiExceptionArg));
             types.Remove(typeof(KalturaFilter<>));
             types.Remove(typeof(KalturaGenericListResponse<>));
+            types.Remove(typeof(KalturaListResponse<>));
         }
         
         protected override void writeHeader()

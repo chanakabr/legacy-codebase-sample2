@@ -19,11 +19,31 @@ namespace WebAPI.Models.General
         where KalturaOrderByT : struct, IComparable, IFormattable, IConvertible
         where IdentifierT : IConvertible
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         internal abstract ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> Handler { get; }
         
-        internal KalturaGenericListResponse<KalturaT> Execute<KalturaT>()
+        internal KalturaListResponseT Execute<KalturaListResponseT, KalturaT>()
+            where KalturaListResponseT : KalturaListResponse<KalturaT>, new()
+            where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
+        {
+            KalturaListResponseT response = new KalturaListResponseT();
+            
+            try
+            {
+                // TODO SHIR - TALK WITH TANTAN about all list objects so id FINISH GENERIC LIST METHOD in ICrudHandler - put in controller
+                var coreResponse = GetResponseListFromCore<KalturaT>();
+                response.SetData(coreResponse);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        internal KalturaGenericListResponse<KalturaT> GetResponseListFromCore<KalturaT>()
             where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
         {
             GenericListResponse<ICrudHandeledObject> response = null;
@@ -66,6 +86,5 @@ namespace WebAPI.Models.General
 
             return result;
         }
-
     }
 }
