@@ -57,8 +57,13 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaHouseholdCouponListResponse List(KalturaHouseholdCouponFilter filter)
+        static public KalturaHouseholdCouponListResponse List(KalturaHouseholdCouponFilter filter = null)
         {
+            if(filter == null)
+            {
+                filter = new KalturaHouseholdCouponFilter();
+            }
+
             var response = filter.Execute<KalturaHouseholdCouponListResponse, KalturaHouseholdCoupon>();
             return response;
         }
