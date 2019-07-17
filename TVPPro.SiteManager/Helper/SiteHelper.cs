@@ -5,12 +5,9 @@ using System.Text;
 using Tvinci.Helpers;
 using System.Data;
 using System.Configuration;
-using Tvinci.Data.TVMDataLoader.Protocols;
 using TVPPro.Configuration.Technical;
 using System.Drawing;
 using System.IO;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using System.Runtime.InteropServices;
 using TVPPro.SiteManager.Context;
 using Tvinci.Web.Controls.Gallery.Part;
 using System.Web;
@@ -21,7 +18,6 @@ using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.DataEntities;
 using System.Web.UI;
 using System.Xml;
-using TVPPro.Configuration.Online;
 using System.Net;
 using Tvinci.Localization;
 using System.Text.RegularExpressions;
@@ -1505,6 +1501,7 @@ namespace TVPPro.SiteManager.Helper
             {
                 ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
             }
+
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
 

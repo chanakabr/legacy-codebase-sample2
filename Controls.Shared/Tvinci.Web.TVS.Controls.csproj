@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Tvinci.Web.TVS.Controls</RootNamespace>
     <AssemblyName>Tvinci.Web.TVS.Controls</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Nonshipping>true</Nonshipping>
     <SccProjectName>
@@ -147,6 +147,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Comment\dsComments.xsc">
       <DependentUpon>dsComments.xsd</DependentUpon>
     </None>

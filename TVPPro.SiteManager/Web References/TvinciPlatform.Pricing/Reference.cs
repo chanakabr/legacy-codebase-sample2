@@ -162,7 +162,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://34.249.122.223:8030/PRICING_v5_0_1/ws_pricing_module.asmx";
+            this.Url = "http://localhost:2626/tvpapi_rest/ws_pricing_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -2707,27 +2707,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class Currency {
         
-        private string m_sCurrencyCD3Field;
-        
         private string m_sCurrencyCD2Field;
-        
-        private string m_sCurrencySignField;
-        
-        private string m_sCurrencyNameField;
-        
-        private int m_nCurrencyIDField;
         
         private bool m_bIsDefaultField;
         
-        /// <remarks/>
-        public string m_sCurrencyCD3 {
-            get {
-                return this.m_sCurrencyCD3Field;
-            }
-            set {
-                this.m_sCurrencyCD3Field = value;
-            }
-        }
+        private string m_sCurrencyNameField;
+        
+        private string m_sCurrencySignField;
+        
+        private int m_nCurrencyIDField;
+        
+        private string m_sCurrencyCD3Field;
         
         /// <remarks/>
         public string m_sCurrencyCD2 {
@@ -2740,12 +2730,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public string m_sCurrencySign {
+        public bool m_bIsDefault {
             get {
-                return this.m_sCurrencySignField;
+                return this.m_bIsDefaultField;
             }
             set {
-                this.m_sCurrencySignField = value;
+                this.m_bIsDefaultField = value;
             }
         }
         
@@ -2760,6 +2750,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
+        public string m_sCurrencySign {
+            get {
+                return this.m_sCurrencySignField;
+            }
+            set {
+                this.m_sCurrencySignField = value;
+            }
+        }
+        
+        /// <remarks/>
         public int m_nCurrencyID {
             get {
                 return this.m_nCurrencyIDField;
@@ -2770,12 +2770,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public bool m_bIsDefault {
+        public string m_sCurrencyCD3 {
             get {
-                return this.m_bIsDefaultField;
+                return this.m_sCurrencyCD3Field;
             }
             set {
-                this.m_bIsDefaultField = value;
+                this.m_sCurrencyCD3Field = value;
             }
         }
     }
@@ -2968,25 +2968,25 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class PPVModule {
         
-        private PriceCode m_oPriceCodeField;
-        
-        private UsageModule m_oUsageModuleField;
+        private CouponsGroup m_oCouponsGroupField;
         
         private DiscountModule m_oDiscountModuleField;
-        
-        private CouponsGroup m_oCouponsGroupField;
         
         private LanguageContainer[] m_sDescriptionField;
         
         private string m_sObjectCodeField;
         
-        private string m_sObjectVirtualNameField;
+        private int[] m_relatedFileTypesField;
         
         private bool m_bSubscriptionOnlyField;
         
-        private int[] m_relatedFileTypesField;
+        private string m_sObjectVirtualNameField;
+        
+        private PriceCode m_oPriceCodeField;
         
         private string m_Product_CodeField;
+        
+        private UsageModule m_oUsageModuleField;
         
         private bool m_bFirstDeviceLimitationField;
         
@@ -2997,22 +2997,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         private string adsParamField;
         
         /// <remarks/>
-        public PriceCode m_oPriceCode {
+        public CouponsGroup m_oCouponsGroup {
             get {
-                return this.m_oPriceCodeField;
+                return this.m_oCouponsGroupField;
             }
             set {
-                this.m_oPriceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UsageModule m_oUsageModule {
-            get {
-                return this.m_oUsageModuleField;
-            }
-            set {
-                this.m_oUsageModuleField = value;
+                this.m_oCouponsGroupField = value;
             }
         }
         
@@ -3023,16 +3013,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.m_oDiscountModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CouponsGroup m_oCouponsGroup {
-            get {
-                return this.m_oCouponsGroupField;
-            }
-            set {
-                this.m_oCouponsGroupField = value;
             }
         }
         
@@ -3057,12 +3037,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public string m_sObjectVirtualName {
+        public int[] m_relatedFileTypes {
             get {
-                return this.m_sObjectVirtualNameField;
+                return this.m_relatedFileTypesField;
             }
             set {
-                this.m_sObjectVirtualNameField = value;
+                this.m_relatedFileTypesField = value;
             }
         }
         
@@ -3077,12 +3057,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public int[] m_relatedFileTypes {
+        public string m_sObjectVirtualName {
             get {
-                return this.m_relatedFileTypesField;
+                return this.m_sObjectVirtualNameField;
             }
             set {
-                this.m_relatedFileTypesField = value;
+                this.m_sObjectVirtualNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceCode m_oPriceCode {
+            get {
+                return this.m_oPriceCodeField;
+            }
+            set {
+                this.m_oPriceCodeField = value;
             }
         }
         
@@ -3093,6 +3083,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.m_Product_CodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UsageModule m_oUsageModule {
+            get {
+                return this.m_oUsageModuleField;
+            }
+            set {
+                this.m_oUsageModuleField = value;
             }
         }
         
@@ -3139,51 +3139,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SubscriptionCouponGroup))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class PriceCode {
-        
-        private string m_sCodeField;
-        
-        private Price m_oPriseField;
-        
-        private int m_nObjectIDField;
+    public partial class CouponsGroup {
         
         private LanguageContainer[] m_sDescriptionField;
         
-        /// <remarks/>
-        public string m_sCode {
-            get {
-                return this.m_sCodeField;
-            }
-            set {
-                this.m_sCodeField = value;
-            }
-        }
+        private System.DateTime m_dEndDateField;
         
-        /// <remarks/>
-        public Price m_oPrise {
-            get {
-                return this.m_oPriseField;
-            }
-            set {
-                this.m_oPriseField = value;
-            }
-        }
+        private string m_sGroupCodeField;
         
-        /// <remarks/>
-        public int m_nObjectID {
-            get {
-                return this.m_nObjectIDField;
-            }
-            set {
-                this.m_nObjectIDField = value;
-            }
-        }
+        private string m_sGroupNameField;
+        
+        private System.DateTime m_dStartDateField;
+        
+        private int m_nMaxUseCountForCouponField;
+        
+        private int m_nMaxRecurringUsesCountForCouponField;
+        
+        private int maxDomainUsesField;
+        
+        private string m_sDiscountCodeField;
+        
+        private DiscountModule m_oDiscountCodeField;
+        
+        private int m_nFinancialEntityIDField;
+        
+        private string aliasField;
+        
+        private CouponGroupType couponGroupTypeField;
         
         /// <remarks/>
         public LanguageContainer[] m_sDescription {
@@ -3194,49 +3182,124 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
                 this.m_sDescriptionField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class Price {
-        
-        private double m_dPriceField;
-        
-        private Currency m_oCurrencyField;
-        
-        private int countryIdField;
         
         /// <remarks/>
-        public double m_dPrice {
+        public System.DateTime m_dEndDate {
             get {
-                return this.m_dPriceField;
+                return this.m_dEndDateField;
             }
             set {
-                this.m_dPriceField = value;
+                this.m_dEndDateField = value;
             }
         }
         
         /// <remarks/>
-        public Currency m_oCurrency {
+        public string m_sGroupCode {
             get {
-                return this.m_oCurrencyField;
+                return this.m_sGroupCodeField;
             }
             set {
-                this.m_oCurrencyField = value;
+                this.m_sGroupCodeField = value;
             }
         }
         
         /// <remarks/>
-        public int countryId {
+        public string m_sGroupName {
             get {
-                return this.countryIdField;
+                return this.m_sGroupNameField;
             }
             set {
-                this.countryIdField = value;
+                this.m_sGroupNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dStartDate {
+            get {
+                return this.m_dStartDateField;
+            }
+            set {
+                this.m_dStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxUseCountForCoupon {
+            get {
+                return this.m_nMaxUseCountForCouponField;
+            }
+            set {
+                this.m_nMaxUseCountForCouponField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxRecurringUsesCountForCoupon {
+            get {
+                return this.m_nMaxRecurringUsesCountForCouponField;
+            }
+            set {
+                this.m_nMaxRecurringUsesCountForCouponField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int maxDomainUses {
+            get {
+                return this.maxDomainUsesField;
+            }
+            set {
+                this.maxDomainUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDiscountCode {
+            get {
+                return this.m_sDiscountCodeField;
+            }
+            set {
+                this.m_sDiscountCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DiscountModule m_oDiscountCode {
+            get {
+                return this.m_oDiscountCodeField;
+            }
+            set {
+                this.m_oDiscountCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nFinancialEntityID {
+            get {
+                return this.m_nFinancialEntityIDField;
+            }
+            set {
+                this.m_nFinancialEntityIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CouponGroupType couponGroupType {
+            get {
+                return this.couponGroupTypeField;
+            }
+            set {
+                this.couponGroupTypeField = value;
             }
         }
     }
@@ -3249,29 +3312,29 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class LanguageContainer {
         
-        private string languageCodeField;
+        private string m_sLanguageCode3Field;
         
-        private string valueField;
+        private string m_sValueField;
         
         private bool isDefaultField;
         
         /// <remarks/>
-        public string LanguageCode {
+        public string m_sLanguageCode3 {
             get {
-                return this.languageCodeField;
+                return this.m_sLanguageCode3Field;
             }
             set {
-                this.languageCodeField = value;
+                this.m_sLanguageCode3Field = value;
             }
         }
         
         /// <remarks/>
-        public string Value {
+        public string m_sValue {
             get {
-                return this.valueField;
+                return this.m_sValueField;
             }
             set {
-                this.valueField = value;
+                this.m_sValueField = value;
             }
         }
         
@@ -3294,17 +3357,27 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class DiscountModule : PriceCode {
         
-        private double m_dPercentField;
+        private System.DateTime m_dEndDateField;
         
-        private RelationTypes m_eTheRelationTypeField;
+        private double m_dPercentField;
         
         private System.DateTime m_dStartDateField;
         
-        private System.DateTime m_dEndDateField;
+        private RelationTypes m_eTheRelationTypeField;
         
         private WhenAlgo m_oWhenAlgoField;
         
         private string aliasField;
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
         
         /// <remarks/>
         public double m_dPercent {
@@ -3313,16 +3386,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.m_dPercentField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public RelationTypes m_eTheRelationType {
-            get {
-                return this.m_eTheRelationTypeField;
-            }
-            set {
-                this.m_eTheRelationTypeField = value;
             }
         }
         
@@ -3337,12 +3400,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public System.DateTime m_dEndDate {
+        public RelationTypes m_eTheRelationType {
             get {
-                return this.m_dEndDateField;
+                return this.m_eTheRelationTypeField;
             }
             set {
-                this.m_dEndDateField = value;
+                this.m_eTheRelationTypeField = value;
             }
         }
         
@@ -3427,272 +3490,21 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class UsageModule {
-        
-        private int m_nObjectIDField;
-        
-        private string m_sVirtualNameField;
-        
-        private int m_nMaxNumberOfViewsField;
-        
-        private int m_tsViewLifeCycleField;
-        
-        private int m_tsMaxUsageModuleLifeCycleField;
-        
-        private int m_ext_discount_idField;
-        
-        private int m_internal_discount_idField;
-        
-        private int m_pricing_idField;
-        
-        private int m_coupon_idField;
-        
-        private int m_typeField;
-        
-        private int m_subscription_onlyField;
-        
-        private int m_is_renewField;
-        
-        private int m_num_of_rec_periodsField;
-        
-        private int m_device_limit_idField;
-        
-        private bool m_bWaiverField;
-        
-        private int m_nWaiverPeriodField;
-        
-        private bool m_bIsOfflinePlayBackField;
-        
-        /// <remarks/>
-        public int m_nObjectID {
-            get {
-                return this.m_nObjectIDField;
-            }
-            set {
-                this.m_nObjectIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sVirtualName {
-            get {
-                return this.m_sVirtualNameField;
-            }
-            set {
-                this.m_sVirtualNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxNumberOfViews {
-            get {
-                return this.m_nMaxNumberOfViewsField;
-            }
-            set {
-                this.m_nMaxNumberOfViewsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsViewLifeCycle {
-            get {
-                return this.m_tsViewLifeCycleField;
-            }
-            set {
-                this.m_tsViewLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsMaxUsageModuleLifeCycle {
-            get {
-                return this.m_tsMaxUsageModuleLifeCycleField;
-            }
-            set {
-                this.m_tsMaxUsageModuleLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_ext_discount_id {
-            get {
-                return this.m_ext_discount_idField;
-            }
-            set {
-                this.m_ext_discount_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_internal_discount_id {
-            get {
-                return this.m_internal_discount_idField;
-            }
-            set {
-                this.m_internal_discount_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_pricing_id {
-            get {
-                return this.m_pricing_idField;
-            }
-            set {
-                this.m_pricing_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_coupon_id {
-            get {
-                return this.m_coupon_idField;
-            }
-            set {
-                this.m_coupon_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_type {
-            get {
-                return this.m_typeField;
-            }
-            set {
-                this.m_typeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_subscription_only {
-            get {
-                return this.m_subscription_onlyField;
-            }
-            set {
-                this.m_subscription_onlyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_is_renew {
-            get {
-                return this.m_is_renewField;
-            }
-            set {
-                this.m_is_renewField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_num_of_rec_periods {
-            get {
-                return this.m_num_of_rec_periodsField;
-            }
-            set {
-                this.m_num_of_rec_periodsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_device_limit_id {
-            get {
-                return this.m_device_limit_idField;
-            }
-            set {
-                this.m_device_limit_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bWaiver {
-            get {
-                return this.m_bWaiverField;
-            }
-            set {
-                this.m_bWaiverField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nWaiverPeriod {
-            get {
-                return this.m_nWaiverPeriodField;
-            }
-            set {
-                this.m_nWaiverPeriodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsOfflinePlayBack {
-            get {
-                return this.m_bIsOfflinePlayBackField;
-            }
-            set {
-                this.m_bIsOfflinePlayBackField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SubscriptionCouponGroup))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class CouponsGroup {
-        
-        private DiscountModule m_oDiscountCodeField;
-        
-        private string m_sDiscountCodeField;
+    public partial class PriceCode {
         
         private LanguageContainer[] m_sDescriptionField;
         
-        private System.DateTime m_dStartDateField;
+        private int m_nObjectIDField;
         
-        private System.DateTime m_dEndDateField;
+        private string m_sCodeField;
         
-        private int m_nMaxUseCountForCouponField;
-        
-        private string m_sGroupCodeField;
-        
-        private string m_sGroupNameField;
-        
-        private int m_nFinancialEntityIDField;
-        
-        private int m_nMaxRecurringUsesCountForCouponField;
-        
-        private string aliasField;
-        
-        private CouponGroupType couponGroupTypeField;
-        
-        private int maxDomainUsesField;
-        
-        /// <remarks/>
-        public DiscountModule m_oDiscountCode {
-            get {
-                return this.m_oDiscountCodeField;
-            }
-            set {
-                this.m_oDiscountCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDiscountCode {
-            get {
-                return this.m_sDiscountCodeField;
-            }
-            set {
-                this.m_sDiscountCodeField = value;
-            }
-        }
+        private Price m_oPriseField;
         
         /// <remarks/>
         public LanguageContainer[] m_sDescription {
@@ -3705,102 +3517,77 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public System.DateTime m_dStartDate {
+        public int m_nObjectID {
             get {
-                return this.m_dStartDateField;
+                return this.m_nObjectIDField;
             }
             set {
-                this.m_dStartDateField = value;
+                this.m_nObjectIDField = value;
             }
         }
         
         /// <remarks/>
-        public System.DateTime m_dEndDate {
+        public string m_sCode {
             get {
-                return this.m_dEndDateField;
+                return this.m_sCodeField;
             }
             set {
-                this.m_dEndDateField = value;
+                this.m_sCodeField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nMaxUseCountForCoupon {
+        public Price m_oPrise {
             get {
-                return this.m_nMaxUseCountForCouponField;
+                return this.m_oPriseField;
             }
             set {
-                this.m_nMaxUseCountForCouponField = value;
+                this.m_oPriseField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class Price {
+        
+        private double m_dPriceField;
+        
+        private Currency m_oCurrencyField;
+        
+        private int countryIdField;
+        
+        /// <remarks/>
+        public double m_dPrice {
+            get {
+                return this.m_dPriceField;
+            }
+            set {
+                this.m_dPriceField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sGroupCode {
+        public Currency m_oCurrency {
             get {
-                return this.m_sGroupCodeField;
+                return this.m_oCurrencyField;
             }
             set {
-                this.m_sGroupCodeField = value;
+                this.m_oCurrencyField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sGroupName {
+        public int countryId {
             get {
-                return this.m_sGroupNameField;
+                return this.countryIdField;
             }
             set {
-                this.m_sGroupNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nFinancialEntityID {
-            get {
-                return this.m_nFinancialEntityIDField;
-            }
-            set {
-                this.m_nFinancialEntityIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxRecurringUsesCountForCoupon {
-            get {
-                return this.m_nMaxRecurringUsesCountForCouponField;
-            }
-            set {
-                this.m_nMaxRecurringUsesCountForCouponField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string alias {
-            get {
-                return this.aliasField;
-            }
-            set {
-                this.aliasField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CouponGroupType couponGroupType {
-            get {
-                return this.couponGroupTypeField;
-            }
-            set {
-                this.couponGroupTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int maxDomainUses {
-            get {
-                return this.maxDomainUsesField;
-            }
-            set {
-                this.maxDomainUsesField = value;
+                this.countryIdField = value;
             }
         }
     }
@@ -3826,9 +3613,20 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class SubscriptionCouponGroup : CouponsGroup {
         
+        private System.Nullable<System.DateTime> endDateField;
+        
         private System.Nullable<System.DateTime> startDateField;
         
-        private System.Nullable<System.DateTime> endDateField;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> endDate {
+            get {
+                return this.endDateField;
+            }
+            set {
+                this.endDateField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
@@ -3840,15 +3638,217 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
                 this.startDateField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class UsageModule {
+        
+        private int m_coupon_idField;
+        
+        private int m_tsMaxUsageModuleLifeCycleField;
+        
+        private int m_nObjectIDField;
+        
+        private bool m_bIsOfflinePlayBackField;
+        
+        private bool m_bWaiverField;
+        
+        private int m_nMaxNumberOfViewsField;
+        
+        private string m_sVirtualNameField;
+        
+        private int m_tsViewLifeCycleField;
+        
+        private int m_nWaiverPeriodField;
+        
+        private int m_is_renewField;
+        
+        private int m_pricing_idField;
+        
+        private int m_num_of_rec_periodsField;
+        
+        private int m_ext_discount_idField;
+        
+        private int m_internal_discount_idField;
+        
+        private int m_typeField;
+        
+        private int m_subscription_onlyField;
+        
+        private int m_device_limit_idField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<System.DateTime> endDate {
+        public int m_coupon_id {
             get {
-                return this.endDateField;
+                return this.m_coupon_idField;
             }
             set {
-                this.endDateField = value;
+                this.m_coupon_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsMaxUsageModuleLifeCycle {
+            get {
+                return this.m_tsMaxUsageModuleLifeCycleField;
+            }
+            set {
+                this.m_tsMaxUsageModuleLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nObjectID {
+            get {
+                return this.m_nObjectIDField;
+            }
+            set {
+                this.m_nObjectIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsOfflinePlayBack {
+            get {
+                return this.m_bIsOfflinePlayBackField;
+            }
+            set {
+                this.m_bIsOfflinePlayBackField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bWaiver {
+            get {
+                return this.m_bWaiverField;
+            }
+            set {
+                this.m_bWaiverField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxNumberOfViews {
+            get {
+                return this.m_nMaxNumberOfViewsField;
+            }
+            set {
+                this.m_nMaxNumberOfViewsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sVirtualName {
+            get {
+                return this.m_sVirtualNameField;
+            }
+            set {
+                this.m_sVirtualNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsViewLifeCycle {
+            get {
+                return this.m_tsViewLifeCycleField;
+            }
+            set {
+                this.m_tsViewLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nWaiverPeriod {
+            get {
+                return this.m_nWaiverPeriodField;
+            }
+            set {
+                this.m_nWaiverPeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_is_renew {
+            get {
+                return this.m_is_renewField;
+            }
+            set {
+                this.m_is_renewField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_pricing_id {
+            get {
+                return this.m_pricing_idField;
+            }
+            set {
+                this.m_pricing_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_num_of_rec_periods {
+            get {
+                return this.m_num_of_rec_periodsField;
+            }
+            set {
+                this.m_num_of_rec_periodsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_ext_discount_id {
+            get {
+                return this.m_ext_discount_idField;
+            }
+            set {
+                this.m_ext_discount_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_internal_discount_id {
+            get {
+                return this.m_internal_discount_idField;
+            }
+            set {
+                this.m_internal_discount_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_type {
+            get {
+                return this.m_typeField;
+            }
+            set {
+                this.m_typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_subscription_only {
+            get {
+                return this.m_subscription_onlyField;
+            }
+            set {
+                this.m_subscription_onlyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_device_limit_id {
+            get {
+                return this.m_device_limit_idField;
+            }
+            set {
+                this.m_device_limit_idField = value;
             }
         }
     }
@@ -3874,41 +3874,31 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class Collection : PPVModule {
         
-        private BundleCodeContainer[] m_sCodesField;
-        
         private System.DateTime m_dStartDateField;
         
         private System.DateTime m_dEndDateField;
         
-        private int[] m_sFileTypesField;
-        
-        private PriceCode m_oCollectionPriceCodeField;
-        
-        private DiscountModule m_oExtDisountModuleField;
+        private BundleCodeContainer[] m_sCodesField;
         
         private LanguageContainer[] m_sNameField;
         
-        private UsageModule m_oCollectionUsageModuleField;
-        
-        private int m_fictivicMediaIDField;
+        private string m_CollectionCodeField;
         
         private string m_ProductCodeField;
         
-        private string m_CollectionCodeField;
+        private UsageModule m_oCollectionUsageModuleField;
+        
+        private PriceCode m_oCollectionPriceCodeField;
+        
+        private int[] m_sFileTypesField;
+        
+        private DiscountModule m_oExtDisountModuleField;
+        
+        private int m_fictivicMediaIDField;
         
         private SubscriptionCouponGroup[] couponsGroupsField;
         
         private KeyValuePairOfVerificationPaymentGatewayString[] externalProductCodesField;
-        
-        /// <remarks/>
-        public BundleCodeContainer[] m_sCodes {
-            get {
-                return this.m_sCodesField;
-            }
-            set {
-                this.m_sCodesField = value;
-            }
-        }
         
         /// <remarks/>
         public System.DateTime m_dStartDate {
@@ -3931,32 +3921,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public int[] m_sFileTypes {
+        public BundleCodeContainer[] m_sCodes {
             get {
-                return this.m_sFileTypesField;
+                return this.m_sCodesField;
             }
             set {
-                this.m_sFileTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceCode m_oCollectionPriceCode {
-            get {
-                return this.m_oCollectionPriceCodeField;
-            }
-            set {
-                this.m_oCollectionPriceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public DiscountModule m_oExtDisountModule {
-            get {
-                return this.m_oExtDisountModuleField;
-            }
-            set {
-                this.m_oExtDisountModuleField = value;
+                this.m_sCodesField = value;
             }
         }
         
@@ -3971,22 +3941,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public UsageModule m_oCollectionUsageModule {
+        public string m_CollectionCode {
             get {
-                return this.m_oCollectionUsageModuleField;
+                return this.m_CollectionCodeField;
             }
             set {
-                this.m_oCollectionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_fictivicMediaID {
-            get {
-                return this.m_fictivicMediaIDField;
-            }
-            set {
-                this.m_fictivicMediaIDField = value;
+                this.m_CollectionCodeField = value;
             }
         }
         
@@ -4001,12 +3961,52 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public string m_CollectionCode {
+        public UsageModule m_oCollectionUsageModule {
             get {
-                return this.m_CollectionCodeField;
+                return this.m_oCollectionUsageModuleField;
             }
             set {
-                this.m_CollectionCodeField = value;
+                this.m_oCollectionUsageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceCode m_oCollectionPriceCode {
+            get {
+                return this.m_oCollectionPriceCodeField;
+            }
+            set {
+                this.m_oCollectionPriceCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] m_sFileTypes {
+            get {
+                return this.m_sFileTypesField;
+            }
+            set {
+                this.m_sFileTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DiscountModule m_oExtDisountModule {
+            get {
+                return this.m_oExtDisountModuleField;
+            }
+            set {
+                this.m_oExtDisountModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_fictivicMediaID {
+            get {
+                return this.m_fictivicMediaIDField;
+            }
+            set {
+                this.m_fictivicMediaIDField = value;
             }
         }
         
@@ -4082,51 +4082,51 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class Subscription : PPVModule {
         
-        private BundleCodeContainer[] m_sCodesField;
+        private bool m_bIsInfiniteRecurringField;
+        
+        private bool m_bIsRecurringField;
         
         private System.DateTime m_dStartDateField;
         
         private System.DateTime m_dEndDateField;
         
-        private int[] m_sFileTypesField;
+        private int m_fictivicMediaIDField;
         
-        private bool m_bIsRecurringField;
+        private UsageModule[] m_MultiSubscriptionUsageModuleField;
+        
+        private int m_nDomainLimitationModuleField;
         
         private int m_nNumberOfRecPeriodsField;
         
+        private PreviewModule m_oPreviewModuleField;
+        
         private PriceCode m_oSubscriptionPriceCodeField;
         
-        private DiscountModule m_oExtDisountModuleField;
-        
-        private LanguageContainer[] m_sNameField;
-        
         private UsageModule m_oSubscriptionUsageModuleField;
-        
-        private int m_fictivicMediaIDField;
         
         private long m_PriorityField;
         
         private string m_ProductCodeField;
         
-        private string m_SubscriptionCodeField;
+        private BundleCodeContainer[] m_sCodesField;
         
-        private UsageModule[] m_MultiSubscriptionUsageModuleField;
+        private int[] m_sFileTypesField;
         
-        private int n_GeoCommerceIDField;
-        
-        private bool m_bIsInfiniteRecurringField;
-        
-        private UserType[] m_UserTypesField;
-        
-        private PreviewModule m_oPreviewModuleField;
-        
-        private int m_nDomainLimitationModuleField;
-        
-        private ServiceObject[] m_lServicesField;
+        private LanguageContainer[] m_sNameField;
         
         private int m_GracePeriodMinutesField;
         
+        private string m_SubscriptionCodeField;
+        
+        private UserType[] m_UserTypesField;
+        
         private bool blockCancellationField;
+        
+        private DiscountModule m_oExtDisountModuleField;
+        
+        private int n_GeoCommerceIDField;
+        
+        private ServiceObject[] m_lServicesField;
         
         private KeyValuePair[] subscriptionSetIdsToPriorityField;
         
@@ -4137,12 +4137,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         private SubscriptionType typeField;
         
         /// <remarks/>
-        public BundleCodeContainer[] m_sCodes {
+        public bool m_bIsInfiniteRecurring {
             get {
-                return this.m_sCodesField;
+                return this.m_bIsInfiniteRecurringField;
             }
             set {
-                this.m_sCodesField = value;
+                this.m_bIsInfiniteRecurringField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsRecurring {
+            get {
+                return this.m_bIsRecurringField;
+            }
+            set {
+                this.m_bIsRecurringField = value;
             }
         }
         
@@ -4167,22 +4177,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public int[] m_sFileTypes {
+        public int m_fictivicMediaID {
             get {
-                return this.m_sFileTypesField;
+                return this.m_fictivicMediaIDField;
             }
             set {
-                this.m_sFileTypesField = value;
+                this.m_fictivicMediaIDField = value;
             }
         }
         
         /// <remarks/>
-        public bool m_bIsRecurring {
+        public UsageModule[] m_MultiSubscriptionUsageModule {
             get {
-                return this.m_bIsRecurringField;
+                return this.m_MultiSubscriptionUsageModuleField;
             }
             set {
-                this.m_bIsRecurringField = value;
+                this.m_MultiSubscriptionUsageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nDomainLimitationModule {
+            get {
+                return this.m_nDomainLimitationModuleField;
+            }
+            set {
+                this.m_nDomainLimitationModuleField = value;
             }
         }
         
@@ -4197,6 +4217,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
+        public PreviewModule m_oPreviewModule {
+            get {
+                return this.m_oPreviewModuleField;
+            }
+            set {
+                this.m_oPreviewModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
         public PriceCode m_oSubscriptionPriceCode {
             get {
                 return this.m_oSubscriptionPriceCodeField;
@@ -4207,42 +4237,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public DiscountModule m_oExtDisountModule {
-            get {
-                return this.m_oExtDisountModuleField;
-            }
-            set {
-                this.m_oExtDisountModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer[] m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                this.m_sNameField = value;
-            }
-        }
-        
-        /// <remarks/>
         public UsageModule m_oSubscriptionUsageModule {
             get {
                 return this.m_oSubscriptionUsageModuleField;
             }
             set {
                 this.m_oSubscriptionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_fictivicMediaID {
-            get {
-                return this.m_fictivicMediaIDField;
-            }
-            set {
-                this.m_fictivicMediaIDField = value;
             }
         }
         
@@ -4267,42 +4267,52 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
+        public BundleCodeContainer[] m_sCodes {
+            get {
+                return this.m_sCodesField;
+            }
+            set {
+                this.m_sCodesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] m_sFileTypes {
+            get {
+                return this.m_sFileTypesField;
+            }
+            set {
+                this.m_sFileTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                this.m_sNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_GracePeriodMinutes {
+            get {
+                return this.m_GracePeriodMinutesField;
+            }
+            set {
+                this.m_GracePeriodMinutesField = value;
+            }
+        }
+        
+        /// <remarks/>
         public string m_SubscriptionCode {
             get {
                 return this.m_SubscriptionCodeField;
             }
             set {
                 this.m_SubscriptionCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UsageModule[] m_MultiSubscriptionUsageModule {
-            get {
-                return this.m_MultiSubscriptionUsageModuleField;
-            }
-            set {
-                this.m_MultiSubscriptionUsageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int n_GeoCommerceID {
-            get {
-                return this.n_GeoCommerceIDField;
-            }
-            set {
-                this.n_GeoCommerceIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsInfiniteRecurring {
-            get {
-                return this.m_bIsInfiniteRecurringField;
-            }
-            set {
-                this.m_bIsInfiniteRecurringField = value;
             }
         }
         
@@ -4318,22 +4328,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         }
         
         /// <remarks/>
-        public PreviewModule m_oPreviewModule {
+        public bool BlockCancellation {
             get {
-                return this.m_oPreviewModuleField;
+                return this.blockCancellationField;
             }
             set {
-                this.m_oPreviewModuleField = value;
+                this.blockCancellationField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nDomainLimitationModule {
+        public DiscountModule m_oExtDisountModule {
             get {
-                return this.m_nDomainLimitationModuleField;
+                return this.m_oExtDisountModuleField;
             }
             set {
-                this.m_nDomainLimitationModuleField = value;
+                this.m_oExtDisountModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int n_GeoCommerceID {
+            get {
+                return this.n_GeoCommerceIDField;
+            }
+            set {
+                this.n_GeoCommerceIDField = value;
             }
         }
         
@@ -4344,26 +4364,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.m_lServicesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_GracePeriodMinutes {
-            get {
-                return this.m_GracePeriodMinutesField;
-            }
-            set {
-                this.m_GracePeriodMinutesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool BlockCancellation {
-            get {
-                return this.blockCancellationField;
-            }
-            set {
-                this.blockCancellationField = value;
             }
         }
         
@@ -4415,6 +4415,75 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class PreviewModule {
+        
+        private long m_nIDField;
+        
+        private int m_tsFullLifeCycleField;
+        
+        private string m_sNameField;
+        
+        private int m_tsNonRenewPeriodField;
+        
+        private string aliasField;
+        
+        /// <remarks/>
+        public long m_nID {
+            get {
+                return this.m_nIDField;
+            }
+            set {
+                this.m_nIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsFullLifeCycle {
+            get {
+                return this.m_tsFullLifeCycleField;
+            }
+            set {
+                this.m_tsFullLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sName {
+            get {
+                return this.m_sNameField;
+            }
+            set {
+                this.m_sNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_tsNonRenewPeriod {
+            get {
+                return this.m_tsNonRenewPeriodField;
+            }
+            set {
+                this.m_tsNonRenewPeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class UserType {
         
         private System.Nullable<int> idField;
@@ -4451,75 +4520,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.isDefaultField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class PreviewModule {
-        
-        private long m_nIDField;
-        
-        private string m_sNameField;
-        
-        private int m_tsFullLifeCycleField;
-        
-        private int m_tsNonRenewPeriodField;
-        
-        private string aliasField;
-        
-        /// <remarks/>
-        public long m_nID {
-            get {
-                return this.m_nIDField;
-            }
-            set {
-                this.m_nIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sName {
-            get {
-                return this.m_sNameField;
-            }
-            set {
-                this.m_sNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsFullLifeCycle {
-            get {
-                return this.m_tsFullLifeCycleField;
-            }
-            set {
-                this.m_tsFullLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_tsNonRenewPeriod {
-            get {
-                return this.m_tsNonRenewPeriodField;
-            }
-            set {
-                this.m_tsNonRenewPeriodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string alias {
-            get {
-                return this.aliasField;
-            }
-            set {
-                this.aliasField = value;
             }
         }
     }
@@ -5428,9 +5428,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class CouponData {
         
-        private CouponsStatus m_CouponStatusField;
-        
         private CouponsGroup m_oCouponGroupField;
+        
+        private System.Nullable<int> leftUsesField;
+        
+        private System.Nullable<int> totalUsesField;
+        
+        private CouponsStatus m_CouponStatusField;
         
         private CouponType m_CouponTypeField;
         
@@ -5442,9 +5446,37 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
         
         private string idField;
         
-        private System.Nullable<int> leftUsesField;
+        /// <remarks/>
+        public CouponsGroup m_oCouponGroup {
+            get {
+                return this.m_oCouponGroupField;
+            }
+            set {
+                this.m_oCouponGroupField = value;
+            }
+        }
         
-        private System.Nullable<int> totalUsesField;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> leftUses {
+            get {
+                return this.leftUsesField;
+            }
+            set {
+                this.leftUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> totalUses {
+            get {
+                return this.totalUsesField;
+            }
+            set {
+                this.totalUsesField = value;
+            }
+        }
         
         /// <remarks/>
         public CouponsStatus m_CouponStatus {
@@ -5453,16 +5485,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.m_CouponStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CouponsGroup m_oCouponGroup {
-            get {
-                return this.m_oCouponGroupField;
-            }
-            set {
-                this.m_oCouponGroupField = value;
             }
         }
         
@@ -5513,28 +5535,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> leftUses {
-            get {
-                return this.leftUsesField;
-            }
-            set {
-                this.leftUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> totalUses {
-            get {
-                return this.totalUsesField;
-            }
-            set {
-                this.totalUsesField = value;
             }
         }
     }

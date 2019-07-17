@@ -4423,6 +4423,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sOrderValueField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool shouldPadStringField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -4507,6 +4510,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.m_sOrderValueField, value) != true)) {
                     this.m_sOrderValueField = value;
                     this.RaisePropertyChanged("m_sOrderValue");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool shouldPadString {
+            get {
+                return this.shouldPadStringField;
+            }
+            set {
+                if ((this.shouldPadStringField.Equals(value) != true)) {
+                    this.shouldPadStringField = value;
+                    this.RaisePropertyChanged("shouldPadString");
                 }
             }
         }
@@ -8582,6 +8598,12 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private string IdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long ImageTypeIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsProgramImageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PicHeightField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -8618,6 +8640,32 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.IdField, value) != true)) {
                     this.IdField = value;
                     this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long ImageTypeId {
+            get {
+                return this.ImageTypeIdField;
+            }
+            set {
+                if ((this.ImageTypeIdField.Equals(value) != true)) {
+                    this.ImageTypeIdField = value;
+                    this.RaisePropertyChanged("ImageTypeId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsProgramImage {
+            get {
+                return this.IsProgramImageField;
+            }
+            set {
+                if ((this.IsProgramImageField.Equals(value) != true)) {
+                    this.IsProgramImageField = value;
+                    this.RaisePropertyChanged("IsProgramImage");
                 }
             }
         }
@@ -8719,11 +8767,14 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
-        private bool IsDefaultk__BackingFieldField;
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsDefaultField;
         
-        private string LanguageCodek__BackingFieldField;
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sLanguageCode3Field;
         
-        private string Valuek__BackingFieldField;
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string m_sValueField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -8735,41 +8786,41 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<IsDefault>k__BackingField", IsRequired=true)]
-        public bool IsDefaultk__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsDefault {
             get {
-                return this.IsDefaultk__BackingFieldField;
+                return this.IsDefaultField;
             }
             set {
-                if ((this.IsDefaultk__BackingFieldField.Equals(value) != true)) {
-                    this.IsDefaultk__BackingFieldField = value;
-                    this.RaisePropertyChanged("IsDefaultk__BackingField");
+                if ((this.IsDefaultField.Equals(value) != true)) {
+                    this.IsDefaultField = value;
+                    this.RaisePropertyChanged("IsDefault");
                 }
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<LanguageCode>k__BackingField", IsRequired=true)]
-        public string LanguageCodek__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sLanguageCode3 {
             get {
-                return this.LanguageCodek__BackingFieldField;
+                return this.m_sLanguageCode3Field;
             }
             set {
-                if ((object.ReferenceEquals(this.LanguageCodek__BackingFieldField, value) != true)) {
-                    this.LanguageCodek__BackingFieldField = value;
-                    this.RaisePropertyChanged("LanguageCodek__BackingField");
+                if ((object.ReferenceEquals(this.m_sLanguageCode3Field, value) != true)) {
+                    this.m_sLanguageCode3Field = value;
+                    this.RaisePropertyChanged("m_sLanguageCode3");
                 }
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute(Name="<Value>k__BackingField", IsRequired=true)]
-        public string Valuek__BackingField {
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string m_sValue {
             get {
-                return this.Valuek__BackingFieldField;
+                return this.m_sValueField;
             }
             set {
-                if ((object.ReferenceEquals(this.Valuek__BackingFieldField, value) != true)) {
-                    this.Valuek__BackingFieldField = value;
-                    this.RaisePropertyChanged("Valuek__BackingField");
+                if ((object.ReferenceEquals(this.m_sValueField, value) != true)) {
+                    this.m_sValueField = value;
+                    this.RaisePropertyChanged("m_sValue");
                 }
             }
         }
@@ -9585,7 +9636,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Metas", Namespace="http://schemas.datacontract.org/2004/07/Core.Catalog")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Metas", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog")]
     [System.SerializableAttribute()]
     public partial class Metas : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -9819,7 +9870,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Tags", Namespace="http://schemas.datacontract.org/2004/07/Core.Catalog")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Tags", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog")]
     [System.SerializableAttribute()]
     public partial class Tags : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -9957,7 +10008,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="TagMeta", Namespace="http://schemas.datacontract.org/2004/07/Core.Catalog")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="TagMeta", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog")]
     [System.SerializableAttribute()]
     public partial class TagMeta : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
@@ -12166,6 +12217,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<long> AssetUserRuleIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.DateTime> CreateDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -12173,6 +12227,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.LanguageContainer> NamesInOtherLanguagesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool SupportSegmentBasedOrderingField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SystemNameField;
@@ -12214,7 +12271,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private int m_nGroupIDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int m_nIsActiveField;
+        private System.Nullable<int> m_nIsActiveField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<int> m_nMediaTypeField;
@@ -12247,6 +12304,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<long> AssetUserRuleId {
+            get {
+                return this.AssetUserRuleIdField;
+            }
+            set {
+                if ((this.AssetUserRuleIdField.Equals(value) != true)) {
+                    this.AssetUserRuleIdField = value;
+                    this.RaisePropertyChanged("AssetUserRuleId");
+                }
             }
         }
         
@@ -12285,6 +12355,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.NamesInOtherLanguagesField, value) != true)) {
                     this.NamesInOtherLanguagesField = value;
                     this.RaisePropertyChanged("NamesInOtherLanguages");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool SupportSegmentBasedOrdering {
+            get {
+                return this.SupportSegmentBasedOrderingField;
+            }
+            set {
+                if ((this.SupportSegmentBasedOrderingField.Equals(value) != true)) {
+                    this.SupportSegmentBasedOrderingField = value;
+                    this.RaisePropertyChanged("SupportSegmentBasedOrdering");
                 }
             }
         }
@@ -12459,7 +12542,7 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int m_nIsActive {
+        public System.Nullable<int> m_nIsActive {
             get {
                 return this.m_nIsActiveField;
             }
@@ -13531,6 +13614,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Rebase = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        GeoUpdate = 6,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]

@@ -141,6 +141,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Threading.SendOrPostCallback UpdateLayeredCacheGroupConfigSTOperationCompleted;
         
+        private System.Threading.SendOrPostCallback IncrementLayeredCacheGroupConfigVersionOperationCompleted;
+        
         private System.Threading.SendOrPostCallback SendDrmAdapterConfigurationOperationCompleted;
         
         private System.Threading.SendOrPostCallback DoActionAssetRulesOperationCompleted;
@@ -409,7 +411,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         public API() {
-            this.Url = "http://34.249.122.223:8030/api_v5_0_1/api.asmx";
+            this.Url = "http://localhost:2626/tvpapi_rest/api.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -604,6 +606,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         public event UpdateLayeredCacheGroupConfigSTCompletedEventHandler UpdateLayeredCacheGroupConfigSTCompleted;
+        
+        /// <remarks/>
+        public event IncrementLayeredCacheGroupConfigVersionCompletedEventHandler IncrementLayeredCacheGroupConfigVersionCompleted;
         
         /// <remarks/>
         public event SendDrmAdapterConfigurationCompletedEventHandler SendDrmAdapterConfigurationCompleted;
@@ -2846,6 +2851,37 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             if ((this.UpdateLayeredCacheGroupConfigSTCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.UpdateLayeredCacheGroupConfigSTCompleted(this, new UpdateLayeredCacheGroupConfigSTCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/IncrementLayeredCacheGroupConfigVersion", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool IncrementLayeredCacheGroupConfigVersion(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("IncrementLayeredCacheGroupConfigVersion", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void IncrementLayeredCacheGroupConfigVersionAsync(string sWSUserName, string sWSPassword) {
+            this.IncrementLayeredCacheGroupConfigVersionAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void IncrementLayeredCacheGroupConfigVersionAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.IncrementLayeredCacheGroupConfigVersionOperationCompleted == null)) {
+                this.IncrementLayeredCacheGroupConfigVersionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnIncrementLayeredCacheGroupConfigVersionOperationCompleted);
+            }
+            this.InvokeAsync("IncrementLayeredCacheGroupConfigVersion", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.IncrementLayeredCacheGroupConfigVersionOperationCompleted, userState);
+        }
+        
+        private void OnIncrementLayeredCacheGroupConfigVersionOperationCompleted(object arg) {
+            if ((this.IncrementLayeredCacheGroupConfigVersionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.IncrementLayeredCacheGroupConfigVersionCompleted(this, new IncrementLayeredCacheGroupConfigVersionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -7913,6 +7949,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string filterExpressionField;
         
+        private System.Nullable<long> assetUserRuleIdField;
+        
+        private bool hasMetadataField;
+        
         /// <remarks/>
         public ExternalRecommendationEngineEnrichment[] Enrichments {
             get {
@@ -7982,6 +8022,27 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                 this.filterExpressionField = value;
             }
         }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> AssetUserRuleId {
+            get {
+                return this.assetUserRuleIdField;
+            }
+            set {
+                this.assetUserRuleIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool HasMetadata {
+            get {
+                return this.hasMetadataField;
+            }
+            set {
+                this.hasMetadataField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -8012,19 +8073,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         Language,
         
         /// <remarks/>
-        NPVRSupport,
-        
-        /// <remarks/>
-        Catchup,
-        
-        /// <remarks/>
-        Parental,
-        
-        /// <remarks/>
         DTTRegion,
-        
-        /// <remarks/>
-        AtHome,
     }
     
     /// <remarks/>
@@ -8789,6 +8838,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         AssetUser,
+        
+        /// <remarks/>
+        Network,
     }
     
     /// <remarks/>
@@ -8983,13 +9035,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Nullable<bool> blockAnonymousAccessField;
         
-        private System.Nullable<eParentalRuleType> ruleTypeField;
-        
         private string[] mediaTagValuesField;
         
         private string[] epgTagValuesField;
         
         private bool isDefaultField;
+        
+        private System.Nullable<eParentalRuleType> ruleTypeField;
         
         private eRuleLevel levelField;
         
@@ -9078,17 +9130,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<eParentalRuleType> ruleType {
-            get {
-                return this.ruleTypeField;
-            }
-            set {
-                this.ruleTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
         public string[] mediaTagValues {
             get {
                 return this.mediaTagValuesField;
@@ -9115,6 +9156,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<eParentalRuleType> ruleType {
+            get {
+                return this.ruleTypeField;
+            }
+            set {
+                this.ruleTypeField = value;
             }
         }
         
@@ -9320,11 +9372,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private int idField;
         
-        private string nameField;
-        
         private string externalIdField;
         
         private bool isDefaultField;
+        
+        private string nameField;
         
         private KeyValuePair[] linearChannelsField;
         
@@ -9337,16 +9389,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
             }
         }
         
@@ -9367,6 +9409,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
             }
         }
         
@@ -9613,6 +9665,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private int versionField;
         
+        private bool isProgramImageField;
+        
+        private long imageTypeIdField;
+        
         /// <remarks/>
         public int PicWidth {
             get {
@@ -9682,6 +9738,71 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
                 this.versionField = value;
             }
         }
+        
+        /// <remarks/>
+        public bool IsProgramImage {
+            get {
+                return this.isProgramImageField;
+            }
+            set {
+                this.isProgramImageField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long ImageTypeId {
+            get {
+                return this.imageTypeIdField;
+            }
+            set {
+                this.imageTypeIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
+    public partial class LanguageContainer {
+        
+        private string m_sLanguageCode3Field;
+        
+        private string m_sValueField;
+        
+        private bool isDefaultField;
+        
+        /// <remarks/>
+        public string m_sLanguageCode3 {
+            get {
+                return this.m_sLanguageCode3Field;
+            }
+            set {
+                this.m_sLanguageCode3Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sValue {
+            get {
+                return this.m_sValueField;
+            }
+            set {
+                this.m_sValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                this.isDefaultField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -9696,7 +9817,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string valueField;
         
-        private LanguageContainer1[] valuesField;
+        private LanguageContainer[] valuesField;
         
         /// <remarks/>
         public string Key {
@@ -9719,57 +9840,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public LanguageContainer1[] Values {
+        public LanguageContainer[] Values {
             get {
                 return this.valuesField;
             }
             set {
                 this.valuesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.3056.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName="LanguageContainer", Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
-    public partial class LanguageContainer1 {
-        
-        private string languageCodeField;
-        
-        private string valueField;
-        
-        private bool isDefaultField;
-        
-        /// <remarks/>
-        public string LanguageCode {
-            get {
-                return this.languageCodeField;
-            }
-            set {
-                this.languageCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
             }
         }
     }
@@ -9785,21 +9861,45 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private long ePG_IDField;
         
-        private string ePG_CHANNEL_IDField;
-        
-        private string ePG_IDENTIFIERField;
-        
-        private string nAMEField;
-        
-        private LanguageContainer1[] programmeNameField;
-        
-        private string dESCRIPTIONField;
-        
-        private LanguageContainer1[] programmeDescriptionField;
-        
         private string sTART_DATEField;
         
         private string eND_DATEField;
+        
+        private EPGDictionary[] ePG_MetaField;
+        
+        private EPGDictionary[] ePG_TAGSField;
+        
+        private LanguageContainer[] programmeNameField;
+        
+        private string nAMEField;
+        
+        private LanguageContainer[] programmeDescriptionField;
+        
+        private string dESCRIPTIONField;
+        
+        private EpgPicture[] ePG_PICTURESField;
+        
+        private string cREATE_DATEField;
+        
+        private string uPDATE_DATEField;
+        
+        private string ePG_IDENTIFIERField;
+        
+        private string ePG_CHANNEL_IDField;
+        
+        private string media_idField;
+        
+        private string cRIDField;
+        
+        private long lINEAR_MEDIA_IDField;
+        
+        private int eNABLE_CDVRField;
+        
+        private int eNABLE_CATCH_UPField;
+        
+        private int eNABLE_START_OVERField;
+        
+        private int eNABLE_TRICK_PLAYField;
         
         private string pIC_URLField;
         
@@ -9813,35 +9913,11 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string uPDATER_IDField;
         
-        private string uPDATE_DATEField;
-        
         private string pUBLISH_DATEField;
-        
-        private string cREATE_DATEField;
         
         private int lIKE_COUNTERField;
         
-        private EPGDictionary[] ePG_TAGSField;
-        
-        private EPGDictionary[] ePG_MetaField;
-        
-        private EpgPicture[] ePG_PICTURESField;
-        
-        private string media_idField;
-        
-        private long lINEAR_MEDIA_IDField;
-        
-        private int eNABLE_CDVRField;
-        
-        private int eNABLE_CATCH_UPField;
-        
         private long cHANNEL_CATCH_UP_BUFFERField;
-        
-        private int eNABLE_START_OVERField;
-        
-        private int eNABLE_TRICK_PLAYField;
-        
-        private string cRIDField;
         
         /// <remarks/>
         public long EPG_ID {
@@ -9850,66 +9926,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.ePG_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string EPG_CHANNEL_ID {
-            get {
-                return this.ePG_CHANNEL_IDField;
-            }
-            set {
-                this.ePG_CHANNEL_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string EPG_IDENTIFIER {
-            get {
-                return this.ePG_IDENTIFIERField;
-            }
-            set {
-                this.ePG_IDENTIFIERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string NAME {
-            get {
-                return this.nAMEField;
-            }
-            set {
-                this.nAMEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer1[] ProgrammeName {
-            get {
-                return this.programmeNameField;
-            }
-            set {
-                this.programmeNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string DESCRIPTION {
-            get {
-                return this.dESCRIPTIONField;
-            }
-            set {
-                this.dESCRIPTIONField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer1[] ProgrammeDescription {
-            get {
-                return this.programmeDescriptionField;
-            }
-            set {
-                this.programmeDescriptionField = value;
             }
         }
         
@@ -9930,6 +9946,188 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.eND_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public EPGDictionary[] EPG_Meta {
+            get {
+                return this.ePG_MetaField;
+            }
+            set {
+                this.ePG_MetaField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public EPGDictionary[] EPG_TAGS {
+            get {
+                return this.ePG_TAGSField;
+            }
+            set {
+                this.ePG_TAGSField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] ProgrammeName {
+            get {
+                return this.programmeNameField;
+            }
+            set {
+                this.programmeNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string NAME {
+            get {
+                return this.nAMEField;
+            }
+            set {
+                this.nAMEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public LanguageContainer[] ProgrammeDescription {
+            get {
+                return this.programmeDescriptionField;
+            }
+            set {
+                this.programmeDescriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DESCRIPTION {
+            get {
+                return this.dESCRIPTIONField;
+            }
+            set {
+                this.dESCRIPTIONField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public EpgPicture[] EPG_PICTURES {
+            get {
+                return this.ePG_PICTURESField;
+            }
+            set {
+                this.ePG_PICTURESField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CREATE_DATE {
+            get {
+                return this.cREATE_DATEField;
+            }
+            set {
+                this.cREATE_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UPDATE_DATE {
+            get {
+                return this.uPDATE_DATEField;
+            }
+            set {
+                this.uPDATE_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string EPG_IDENTIFIER {
+            get {
+                return this.ePG_IDENTIFIERField;
+            }
+            set {
+                this.ePG_IDENTIFIERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string EPG_CHANNEL_ID {
+            get {
+                return this.ePG_CHANNEL_IDField;
+            }
+            set {
+                this.ePG_CHANNEL_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string media_id {
+            get {
+                return this.media_idField;
+            }
+            set {
+                this.media_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CRID {
+            get {
+                return this.cRIDField;
+            }
+            set {
+                this.cRIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long LINEAR_MEDIA_ID {
+            get {
+                return this.lINEAR_MEDIA_IDField;
+            }
+            set {
+                this.lINEAR_MEDIA_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CDVR {
+            get {
+                return this.eNABLE_CDVRField;
+            }
+            set {
+                this.eNABLE_CDVRField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CATCH_UP {
+            get {
+                return this.eNABLE_CATCH_UPField;
+            }
+            set {
+                this.eNABLE_CATCH_UPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_START_OVER {
+            get {
+                return this.eNABLE_START_OVERField;
+            }
+            set {
+                this.eNABLE_START_OVERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_TRICK_PLAY {
+            get {
+                return this.eNABLE_TRICK_PLAYField;
+            }
+            set {
+                this.eNABLE_TRICK_PLAYField = value;
             }
         }
         
@@ -9994,32 +10192,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public string UPDATE_DATE {
-            get {
-                return this.uPDATE_DATEField;
-            }
-            set {
-                this.uPDATE_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
         public string PUBLISH_DATE {
             get {
                 return this.pUBLISH_DATEField;
             }
             set {
                 this.pUBLISH_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CREATE_DATE {
-            get {
-                return this.cREATE_DATEField;
-            }
-            set {
-                this.cREATE_DATEField = value;
             }
         }
         
@@ -10034,114 +10212,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public EPGDictionary[] EPG_TAGS {
-            get {
-                return this.ePG_TAGSField;
-            }
-            set {
-                this.ePG_TAGSField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public EPGDictionary[] EPG_Meta {
-            get {
-                return this.ePG_MetaField;
-            }
-            set {
-                this.ePG_MetaField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public EpgPicture[] EPG_PICTURES {
-            get {
-                return this.ePG_PICTURESField;
-            }
-            set {
-                this.ePG_PICTURESField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string media_id {
-            get {
-                return this.media_idField;
-            }
-            set {
-                this.media_idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long LINEAR_MEDIA_ID {
-            get {
-                return this.lINEAR_MEDIA_IDField;
-            }
-            set {
-                this.lINEAR_MEDIA_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_CDVR {
-            get {
-                return this.eNABLE_CDVRField;
-            }
-            set {
-                this.eNABLE_CDVRField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_CATCH_UP {
-            get {
-                return this.eNABLE_CATCH_UPField;
-            }
-            set {
-                this.eNABLE_CATCH_UPField = value;
-            }
-        }
-        
-        /// <remarks/>
         public long CHANNEL_CATCH_UP_BUFFER {
             get {
                 return this.cHANNEL_CATCH_UP_BUFFERField;
             }
             set {
                 this.cHANNEL_CATCH_UP_BUFFERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_START_OVER {
-            get {
-                return this.eNABLE_START_OVERField;
-            }
-            set {
-                this.eNABLE_START_OVERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_TRICK_PLAY {
-            get {
-                return this.eNABLE_TRICK_PLAYField;
-            }
-            set {
-                this.eNABLE_TRICK_PLAYField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CRID {
-            get {
-                return this.cRIDField;
-            }
-            set {
-                this.cRIDField = value;
             }
         }
     }
@@ -15532,6 +15608,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         /// <remarks/>
         MultilingualString,
+        
+        /// <remarks/>
+        ReleatedEntity,
     }
     
     /// <remarks/>
@@ -16283,6 +16362,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private System.Nullable<int> recoveryGracePeriodField;
         
+        private System.Nullable<bool> isPrivateCopyEnabledField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<bool> IsCatchUpEnabled {
@@ -16511,6 +16592,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.recoveryGracePeriodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsPrivateCopyEnabled {
+            get {
+                return this.isPrivateCopyEnabledField;
+            }
+            set {
+                this.isPrivateCopyEnabledField = value;
             }
         }
     }
@@ -16835,13 +16927,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string nameField;
         
-        private LanguageContainer[] namesInOtherLanguagesField;
-        
-        private string systemNameField;
-        
         private string descriptionField;
-        
-        private LanguageContainer[] descriptionInOtherLanguagesField;
         
         private OrderObj orderField;
         
@@ -16912,42 +16998,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         }
         
         /// <remarks/>
-        public LanguageContainer[] NamesInOtherLanguages {
-            get {
-                return this.namesInOtherLanguagesField;
-            }
-            set {
-                this.namesInOtherLanguagesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string SystemName {
-            get {
-                return this.systemNameField;
-            }
-            set {
-                this.systemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
         public string Description {
             get {
                 return this.descriptionField;
             }
             set {
                 this.descriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public LanguageContainer[] DescriptionInOtherLanguages {
-            get {
-                return this.descriptionInOtherLanguagesField;
-            }
-            set {
-                this.descriptionInOtherLanguagesField = value;
             }
         }
         
@@ -16998,51 +17054,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class LanguageContainer {
-        
-        private string languageCodeField;
-        
-        private string valueField;
-        
-        private bool isDefaultField;
-        
-        /// <remarks/>
-        public string LanguageCode {
-            get {
-                return this.languageCodeField;
-            }
-            set {
-                this.languageCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsDefault {
-            get {
-                return this.isDefaultField;
-            }
-            set {
-                this.isDefaultField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2612.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class OrderObj {
         
         private OrderBy m_eOrderByField;
@@ -17056,6 +17067,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private bool m_bIsSlidingWindowFieldField;
         
         private bool isSlidingWindowFromRestApiField;
+        
+        private bool shouldPadStringField;
         
         /// <remarks/>
         public OrderBy m_eOrderBy {
@@ -17114,6 +17127,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.isSlidingWindowFromRestApiField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool shouldPadString {
+            get {
+                return this.shouldPadStringField;
+            }
+            set {
+                this.shouldPadStringField = value;
             }
         }
     }
@@ -17268,6 +17291,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         
         private string nameField;
         
+        private string friendlyNameField;
+        
         private PermissionItem[] permissionItemsField;
         
         private int groupIdField;
@@ -17291,6 +17316,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
             }
             set {
                 this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string FriendlyName {
+            get {
+                return this.friendlyNameField;
+            }
+            set {
+                this.friendlyNameField = value;
             }
         }
         
@@ -19224,6 +19259,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.api {
         private object[] results;
         
         internal UpdateLayeredCacheGroupConfigSTCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    public delegate void IncrementLayeredCacheGroupConfigVersionCompletedEventHandler(object sender, IncrementLayeredCacheGroupConfigVersionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.7.3056.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class IncrementLayeredCacheGroupConfigVersionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal IncrementLayeredCacheGroupConfigVersionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
