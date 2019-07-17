@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
@@ -148,8 +148,9 @@ namespace WebAPI.Controllers
                 {
                     throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
+
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
