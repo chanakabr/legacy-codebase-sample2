@@ -96,15 +96,10 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request)
         {
-            IDictionary<string, object> parsedActionParams;
-            if (httpMethod == HttpMethods.Post)
-            {
-                parsedActionParams = await GetActionParsemFromPostBody(request);
-            }
-            else
-            {
-                parsedActionParams = GetActionParamsFromQueryString(request);
-            }
+            var qsParsedActionParams = GetActionParamsFromQueryString(request);
+            var bodyParsedActionParams = await GetActionParamsFromPostBody(request);
+
+            var parsedActionParams = qsParsedActionParams.Concat(bodyParsedActionParams).ToDictionary(k=>k.Key,v=>v.Value);
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
         }
@@ -119,7 +114,6 @@ namespace Phoenix.Rest.Middleware
             else if (TryGetRouteDataFromFormBody(request, out var routeDataFromFormBody)) { return routeDataFromFormBody; }
             else
             {
-                // TODO: arthur, add error response handling
                 throw new Exception("Unknown service");
             }
         }
@@ -191,7 +185,7 @@ namespace Phoenix.Rest.Middleware
         }
 
 
-        private async Task<IDictionary<string, object>> GetActionParsemFromPostBody(HttpRequest request)
+        private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request)
         {
 
             if (request.HasFormContentType)
