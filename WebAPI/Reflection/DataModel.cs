@@ -8610,6 +8610,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "partner":
+                    switch(action)
+                    {
+                        case "externallogin":
+                            RolesManager.ValidateActionPermitted("partner", "externalLogin", false);
+                            return PartnerController.ExternalLogin();
+                            
+                    }
+                    break;
+                    
                 case "paymentgateway":
                     switch(action)
                     {
@@ -15199,6 +15209,15 @@ namespace WebAPI.Reflection
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerConfiguration),
                             });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "partner":
+                    switch(action)
+                    {
+                        case "externallogin":
                             return ret;
                             
                     }

@@ -3085,6 +3085,12 @@
             'objectType': 'KalturaBillingPartnerConfig'}
             </param>        
         </member>
+        <member name="M:WebAPI.Controllers.PartnerController.ExternalLogin">
+            <summary>
+            Returns a login session for external system (like OVP)
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayController.List">
             <summary>
             Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
