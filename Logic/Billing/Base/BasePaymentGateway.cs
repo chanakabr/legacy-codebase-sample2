@@ -14,6 +14,7 @@ using ApiLogic;
 using APILogic.ConditionalAccess.Modules;
 using System.Xml;
 using TVinciShared;
+using ApiObjects.ConditionalAccess;
 
 namespace Core.Billing
 {
@@ -1087,7 +1088,7 @@ namespace Core.Billing
         }
 
         public virtual TransactResult ProcessUnifiedRenewal(long householdId, double totalPrice, string currency, int paymentGatewayId, 
-            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewDetails> renewDetailsList, ref PaymentGateway paymentGateway)
         {
             TransactResult transactionResponse = new TransactResult();
                          
@@ -1141,7 +1142,7 @@ namespace Core.Billing
                 log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
                     paymentGatewayId, householdId, isPaymentGatewayHouseholdExist, !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);
                                 
-               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewUnified);
+               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewDetailsList);
 
                 if (isSuspended && transactionResponse != null && transactionResponse.Status != null && transactionResponse.Status.Code == (int)eResponseStatus.OK && transactionResponse.State == eTransactionState.OK)
                 {   
@@ -1167,7 +1168,7 @@ namespace Core.Billing
         }
 
         private TransactResult SendUnifiedRenewalRequestToAdapter(string chargeId, double totalPrice, string currency, long householdId, PaymentGateway paymentGateway, string paymentMethodExternalId, 
-            int paymentMethodId, string userIP, ref List<RenewSubscriptionDetails> renewUnified)
+            int paymentMethodId, string userIP, ref List<RenewDetails> renewDetailsList)
         {
             TransactResult response = new TransactResult();
 
@@ -1187,24 +1188,23 @@ namespace Core.Billing
                     householdId = householdId,
                     paymentGateway = paymentGateway,
                     totalPrice = totalPrice,
-                    userIP = userIP
+                    userIP = userIP,
+                    renewRequests = new List<TransactionUnifiedRenewalDetails>()
                 };
-
-                request.renewRequests = new List<TransactionUnifiedRenewalDetails>();
-
-                foreach (RenewSubscriptionDetails ru in renewUnified)
+                
+                foreach (RenewDetails renewDetails in renewDetailsList)
                 {
                     request.renewRequests.Add(new TransactionUnifiedRenewalDetails()
                     {
-                        billingGuid = ru.BillingGuid,
-                        customData = ru.CustomData,
-                        price = ru.Price,
-                        productId = int.Parse(ru.ProductId),
+                        billingGuid = renewDetails.BillingGuid,
+                        customData = renewDetails.CustomData,
+                        price = renewDetails.Price,
+                        productId = renewDetails.ProductId,
                         productType = eTransactionType.Subscription,
-                        siteGuid = ru.UserId,
-                        productCode = ru.ProductId,
-                        ExternalTransactionId = ru.ExternalTransactionId,
-                        GracePeriodMinutes = ru.GracePeriodMinutes
+                        siteGuid = renewDetails.UserId,
+                        productCode = renewDetails.ProductId.ToString(),
+                        ExternalTransactionId = renewDetails.ExternalTransactionId,
+                        GracePeriodMinutes = renewDetails.GracePeriodMinutes
                     });
                 }
 
@@ -1238,7 +1238,7 @@ namespace Core.Billing
                                 log.Debug("process renewal passed - create transaction");
 
                                 int paymentGatewayTransactionId = CreateUnifiedTransaction(ref response, adapterResponse, eTransactionType.Subscription,
-                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewUnified);
+                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewDetailsList);
                                
                                     if (paymentGatewayTransactionId > 0 && response != null && response.Status.Code != (int)eResponseStatus.OK)
                                     {
@@ -1273,9 +1273,9 @@ namespace Core.Billing
 
                             case (int)eTransactionState.Failed:                                
                                 log.Error("process unified renewal failed");                                
-                                foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                                foreach (RenewDetails renewUnifiedData in renewDetailsList)
                                 {
-                                    HandleAdapterTransactionFailed(ref response, adapterResponse, int.Parse(renewUnifiedData.ProductId), eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
+                                    HandleAdapterTransactionFailed(ref response, adapterResponse, renewUnifiedData.ProductId, eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
                                         long.Parse(renewUnifiedData.UserId), renewUnifiedData.CustomData, renewUnifiedData.PaymentNumber);
                                 }
                                 break;
@@ -1330,7 +1330,7 @@ namespace Core.Billing
         }
 
         private int CreateUnifiedTransaction(ref TransactResult response, APILogic.PaymentGWAdapter.TransactionResponse adapterResponse, ApiObjects.eTransactionType transactionType, 
-            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewSubscriptionDetails> renewUnified)
+            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewDetails> renewUnified)
         {
             PaymentGatewayTransaction paymentGWTransaction = new PaymentGatewayTransaction();
 
@@ -1356,7 +1356,7 @@ namespace Core.Billing
         }
 
         private PaymentGatewayTransaction SaveUnifiedTransaction(ref TransactResult response, string externalTransactionId, string externalStatus, int contentId, string message, int state, int paymentGatewayId, int paymenMethodId, int failReason, 
-            string paymentMethod, string paymentDetails, long householdId, ref List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
+            string paymentMethod, string paymentDetails, long householdId, ref List<RenewDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
             bool autoRenewing = false)
         {
 
@@ -1414,7 +1414,7 @@ namespace Core.Billing
                     // create billing transaction passed
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
                     // update renew Subscription Details with the billingTransactionId
-                    foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                    foreach (RenewDetails renewUnifiedData in renewUnified)
                     {
                         if (billingTranactionIds.ContainsKey(renewUnifiedData.PurchaseId))
                         {
@@ -1435,7 +1435,7 @@ namespace Core.Billing
         }
 
 
-        private void BuildBillingTransactionXml(List<RenewSubscriptionDetails> renewUnified, ref XmlDocument xmlDoc)
+        private void BuildBillingTransactionXml(List<RenewDetails> renewUnified, ref XmlDocument xmlDoc)
         {  
             XmlNode rowNode;
             XmlNode rootNode = xmlDoc.CreateElement("root");
@@ -1485,7 +1485,7 @@ namespace Core.Billing
             string prePaidCode = string.Empty;
             string collectionCode = string.Empty;
 
-            foreach (RenewSubscriptionDetails rsd in renewUnified)
+            foreach (RenewDetails rsd in renewUnified)
             {   
 
                 Core.Billing.Utils.SplitRefference(rsd.CustomData, ref mediaFileID, ref mediaID, ref subscriptionCode, ref pPVCode, ref prePaidCode, ref priceCode,

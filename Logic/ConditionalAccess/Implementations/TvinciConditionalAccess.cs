@@ -902,31 +902,30 @@ namespace Core.ConditionalAccess
 
                 // grant entitlement
                 SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
-                    {
-                        productId = productId.ToString(),
-                        price = price,
-                        siteGuid = siteguid,
-                        isEntitledToPreviewModule = isEntitledToPreviewModule,
-                        currency = currency,
-                        customData = customData,
-                        country = country,
-                        deviceName = deviceName,
-                        usageModuleExists = usageModuleExists,
-                        viewLifeCycle = subscription.m_oUsageModule.m_tsViewLifeCycle,
-                        maxNumberOfViews = subscription.m_oUsageModule.m_nMaxNumberOfViews,
-                        isRecurring = isRecurring,
-                        billingTransactionId = billingTransactionId,
-                        previewModuleId = previewModuleID,
-                        startDate = transactionStartDate,
-                        endDate = subscriptionEndDate,
-                        entitlementDate = entitlementDate,
-                        houseHoldId = houseHoldId,
-                        billingGuid = billingGuid,
-                        couponCode = coupon,
-                        processPurchasesId = processPurchasesId
+                {
+                    productId = productId.ToString(),
+                    price = price,
+                    siteGuid = siteguid,
+                    isEntitledToPreviewModule = isEntitledToPreviewModule,
+                    currency = currency,
+                    customData = customData,
+                    country = country,
+                    deviceName = deviceName,
+                    usageModuleExists = usageModuleExists,
+                    viewLifeCycle = subscription.m_oUsageModule.m_tsViewLifeCycle,
+                    maxNumberOfViews = subscription.m_oUsageModule.m_nMaxNumberOfViews,
+                    isRecurring = isRecurring,
+                    billingTransactionId = billingTransactionId,
+                    previewModuleId = previewModuleID,
+                    startDate = transactionStartDate,
+                    endDate = subscriptionEndDate,
+                    entitlementDate = entitlementDate,
+                    houseHoldId = houseHoldId,
+                    billingGuid = billingGuid,
+                    couponCode = coupon,
+                    processPurchasesId = processPurchasesId
                 };
                 subscriptionPurchase.Insert();
-                
                 purchaseId = subscriptionPurchase.purchaseId;
 
                 if (response != null)

@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Base;
+using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using DAL;
@@ -20,10 +21,9 @@ namespace Core.Pricing.Handlers
 
         private CouponWalletHandler() { }
 
-        public GenericResponse<CouponWallet> Add(int groupId, CouponWallet couponWalletToAdd, Dictionary<string, object> extraParams)
+        public GenericResponse<CouponWallet> Add(ContextData contextData, CouponWallet couponWalletToAdd)
         {
             var response = new GenericResponse<CouponWallet>();
-            long? householdId = null;
 
             try
             {
@@ -33,14 +33,14 @@ namespace Core.Pricing.Handlers
                     return response;
                 }
 
-                response.Status.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
-                if(response.IsOkStatusCode())
+                if (!contextData.DomainId.HasValue || contextData.DomainId.Value <= 0)
                 {
+                    response.Status.Set(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
-
+                
                 // Get Household's Wallet
-                List<CouponWallet> couponWalletList = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                List<CouponWallet> couponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
                 
                 // make sure coupon not already been added
                 if (couponWalletList?.Count > 0 && couponWalletList.Count(x => x.CouponCode == couponWalletToAdd.CouponCode) > 0)
@@ -50,7 +50,7 @@ namespace Core.Pricing.Handlers
                 }
 
                 // Check that code is valid
-                CouponDataResponse couponData = Module.GetCouponStatus(groupId, couponWalletToAdd.CouponCode, householdId.Value);
+                CouponDataResponse couponData = Module.GetCouponStatus(contextData.GroupId, couponWalletToAdd.CouponCode, contextData.DomainId.Value);
                 if(!Utils.IsCouponValid(couponData))
                 {
                     response.SetStatus(eResponseStatus.CouponNotValid, "Coupon code not valid");
@@ -65,9 +65,9 @@ namespace Core.Pricing.Handlers
                 couponWalletList.Add(couponWalletToAdd);
 
                 // Save CouponWalletAtCB                    
-                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, couponWalletList))
+                if (!PricingDAL.SaveHouseholdCouponWalletCB(contextData.DomainId.Value, couponWalletList))
                 {
-                    log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. groupId: {0}, domainId:{1}", groupId, householdId.Value);
+                    log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. contextData: {0}.", contextData.ToString());
                     return response;
                 }
 
@@ -75,22 +75,21 @@ namespace Core.Pricing.Handlers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred in CouponWallet. groupId:{0}, couponCode:{1}. ex: {2}",
-                    groupId, couponWalletToAdd.CouponCode, ex);
+                log.ErrorFormat("An Exception was occurred in CouponWallet. contextData:{0}, couponCode:{1}. ex: {2}",
+                                contextData.ToString(), couponWalletToAdd.CouponCode, ex);
             }
 
             return response;
         }
 
-        public GenericResponse<CouponWallet> Update(int groupId, CouponWallet objectToUpdate, Dictionary<string, object> extraParams)
+        public GenericResponse<CouponWallet> Update(ContextData contextData, CouponWallet objectToUpdate)
         {
             throw new NotImplementedException();
         }
 
-        public Status Delete(int groupId, string couponCode, Dictionary<string, object> extraParams)
+        public Status Delete(ContextData contextData, string couponCode)
         {
             Status response = new Status();
-            long? householdId = null;
 
             try
             {
@@ -100,14 +99,14 @@ namespace Core.Pricing.Handlers
                     return response;
                 }
 
-                response.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
-                if (response.IsOkStatusCode())
+                if (!contextData.DomainId.HasValue || contextData.DomainId.Value <= 0)
                 {
+                    response.Set(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
 
                 // Get Household's Walt
-                List<CouponWallet> CouponWalletList = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                List<CouponWallet> CouponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
 
                 // make sure coupon is in household
                 if (CouponWalletList?.Count > 0 && CouponWalletList.Count(x => x.CouponCode == couponCode) != 1)
@@ -120,9 +119,9 @@ namespace Core.Pricing.Handlers
                 CouponWalletList.Remove(CouponWalletList.Where(x => x.CouponCode == couponCode).First());
 
                 // Save CouponWalletAtCB                    
-                if (!PricingDAL.SaveHouseholdCouponWalletCB(householdId.Value, CouponWalletList))
+                if (!PricingDAL.SaveHouseholdCouponWalletCB(contextData.DomainId.Value, CouponWalletList))
                 {
-                    log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. domainId:{0}", householdId.Value);
+                    log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. domainId:{0}", contextData.DomainId);
                     return response;
                 }
 
@@ -130,33 +129,16 @@ namespace Core.Pricing.Handlers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred in CouponWallet. domainId:{0}, couponCode:{1}. ex: {2}",
-                    householdId, couponCode, ex);
+                log.ErrorFormat("An Exception was occurred in CouponWallet. contextData:{0}, couponCode:{1}. ex: {2}",
+                                contextData.ToString(), couponCode, ex);
             }
 
             return response;
         }
         
-        public GenericResponse<CouponWallet> Get(int groupId, string id, Dictionary<string, object> extraParams = null)
+        public GenericResponse<CouponWallet> Get(ContextData contextData, string id)
         {
             throw new NotImplementedException();
-        }
-
-        private Status GetHouseholdFromExtraPrams(Dictionary<string, object> extraParams, out long? householdId)
-        {
-            householdId = 0;
-
-            if (extraParams != null && extraParams.ContainsKey("householdId"))
-            {
-                householdId = extraParams["householdId"] as long?;
-            }
-
-            if (!householdId.HasValue || householdId.Value <= 0)
-            {
-                return new Status((int)eResponseStatus.HouseholdRequired, "Household required");                
-            }
-
-            return new Status((int)eResponseStatus.OK);
         }
         
         public GenericListResponse<CouponWallet> List(CouponWalletFilter filter)

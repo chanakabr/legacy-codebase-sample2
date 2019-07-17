@@ -1304,11 +1304,21 @@ namespace Core.ConditionalAccess
                                     cas.WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
-                                    if (couponRemainder > 0)
+                                    var recurringRenewDetails = new RecurringRenewDetails()
                                     {
-                                        ConditionalAccessDAL.SaveCouponRemainder(purchaseID, couponRemainder);
-                                    }
+                                        CouponCode = couponCode,
+                                        CouponRemainder = couponRemainder,
+                                        IsCouponGiftCard = isGiftCard,
+                                        IsPurchasedWithPreviewModule = entitleToPreview,
+                                        LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
+                                        TotalNumOfRenews = 0
+                                    };
 
+                                    if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
+                                    {
+                                        log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
+                                    }
+                                    
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {

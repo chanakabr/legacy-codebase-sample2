@@ -1690,8 +1690,7 @@ namespace Core.ConditionalAccess
 
             return objResponse;
         }
-
-
+        
         public static BillingResponse InApp_ChargeUserForMediaFile(int groupID, string sSiteGUID, double dPrice, string sCurrencyCode3, string sProductCode, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
         {
@@ -3371,6 +3370,13 @@ namespace Core.ConditionalAccess
             Recording response = t.UpdateRecord(userId, recordingId, recordingToUpdate);
 
             return response;
+        }
+
+        public static Status ApplyCoupon(int groupId, long domainId, string userId, long purchaseId, string couponCode)
+        {
+            BaseConditionalAccess ba = null;
+            Utils.GetBaseConditionalAccessImpl(ref ba, groupId);
+            return ba.ApplyCoupon(domainId, userId, purchaseId, couponCode);
         }
     }
 }

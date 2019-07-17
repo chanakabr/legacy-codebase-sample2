@@ -210,8 +210,7 @@ namespace Core.Pricing
             }
         }
 
-        public static Subscription GetSubscriptionData(int nGroupID, string sSubscriptionCode
-            , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
+        public static Subscription GetSubscriptionData(int nGroupID, string sSubscriptionCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
             BaseSubscription t = null;
             Utils.GetBaseImpl(ref t, nGroupID);

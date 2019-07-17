@@ -1,9 +1,6 @@
-﻿using ApiObjects.Billing;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects;
+using ApiObjects.ConditionalAccess;
 
 namespace ApiObjects
 {
@@ -16,6 +13,11 @@ namespace ApiObjects
         public string siteGuid;
         public long endDate;
         public eSubscriptionRenewRequestType type;
+
+        public RenewTransactionData(RenewDetails renewDetails, long endDate, DateTime nextRenewDate) 
+            : this(renewDetails.GroupId, renewDetails.UserId, renewDetails.PurchaseId, renewDetails.BillingGuid, endDate, nextRenewDate)
+        {
+        }
 
         public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, long endDate, DateTime nextRenewDate, 
             eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.Renew) :
