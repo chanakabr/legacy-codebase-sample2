@@ -49,7 +49,7 @@ namespace ApiObjects.Response
         HomeNetworkFrequency = 1034,
         DlmExist = 1035,
         MasterUserNotFound = 1036,
-        RegionDoesNotExists = 1037,
+        RegionDoesNotExist = 1037,
 
         #endregion
 

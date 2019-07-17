@@ -911,9 +911,9 @@ namespace Core.Users
                     result.Code = (int)eResponseStatus.UserAlreadyInDomain;
                     result.Message = "User already in Household";
                     break;
-                case DomainResponseStatus.RegionDoesNotExists:
-                    result.Code = (int)eResponseStatus.RegionDoesNotExists;
-                    result.Message = "Region does not exists";
+                case DomainResponseStatus.RegionDoesNotExist:
+                    result.Code = (int)eResponseStatus.RegionDoesNotExist;
+                    result.Message = "Region does not exist";
                     break;
                 default:
                     result.Code = (int)eResponseStatus.Error;

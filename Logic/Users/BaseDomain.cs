@@ -125,7 +125,7 @@ namespace Core.Users
                     // validate region exists
                     if (!domain.GetRegions().Contains(regionId.Value))
                     {
-                        return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExists);
+                        return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
                     }
 
                     domain.m_nRegion = regionId.Value;
