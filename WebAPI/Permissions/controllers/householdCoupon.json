@@ -11,7 +11,7 @@
       "service": "householdCoupon",
       "action": "Add",
       "type": "Action"
-    },  
+    },
     {
       "permissions": [
         "User",
@@ -22,6 +22,18 @@
       "name": "householdCoupon_Delete",
       "service": "householdCoupon",
       "action": "Delete",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "householdCoupon_List",
+      "service": "householdCoupon",
+      "action": "List",
       "type": "Action"
     }
   ],
