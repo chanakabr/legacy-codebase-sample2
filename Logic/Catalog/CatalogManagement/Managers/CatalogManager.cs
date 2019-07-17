@@ -3043,7 +3043,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                string key = LayeredCacheKeys.GetCatalogGroupCacheKey(groupId);
+                string key = LayeredCacheKeys.GetLinearMediaRegionsKey(groupId);
                 if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsFromDB, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                     LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetLinearMediaRegionsInvalidationKey(groupId) }))
                 {
