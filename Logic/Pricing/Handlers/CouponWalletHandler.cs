@@ -13,6 +13,7 @@ namespace Core.Pricing.Handlers
 {
     public class CouponWalletHandler : ICrudHandler<CouponWallet, string, CouponWalletFilter>
     {
+        private const int MAX_WALLET_COUPON = 100;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<CouponWalletHandler> lazy = new Lazy<CouponWalletHandler>(() => new CouponWalletHandler());
@@ -46,6 +47,12 @@ namespace Core.Pricing.Handlers
                 if (couponWalletList?.Count > 0 && couponWalletList.Count(x => x.CouponCode == couponWalletToAdd.CouponCode) > 0)
                 {
                     response.SetStatus(eResponseStatus.CouponCodeAlreadyLoaded, "Coupon code already loaded");
+                    return response;
+                }
+
+                if (couponWalletList?.Count == MAX_WALLET_COUPON)
+                {
+                    response.SetStatus(eResponseStatus.ExceededHouseholdCouponLimit, "Exceeded household coupon limit");
                     return response;
                 }
 
@@ -163,9 +170,9 @@ namespace Core.Pricing.Handlers
 
                 HashSet<string> couponGroupIds = new HashSet<string>();
 
-                if (filter != null && filter.BusinessModuleId > 0 && filter.BusinessModuleType.HasValue)
+                if (filter != null && filter.BusinessModuleId > 0 )
                 {
-                    switch (filter.BusinessModuleType.Value)
+                    switch (filter.BusinessModuleType)
                     {
                         case ApiObjects.eTransactionType.PPV:
                             // Get PPV couponGroupIds

@@ -505,6 +505,7 @@ namespace ApiObjects.Response
         CouponCodeIsMissing = 9023,
         CouponCodeAlreadyLoaded = 9024,
         CouponCodeNotInHousehold = 9025,
+        ExceededHouseholdCouponLimit = 9026,
         #endregion
 
         #region Adapters 10000-10999
