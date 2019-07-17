@@ -80,7 +80,7 @@ namespace Core.Domains
         }
 
 
-        public static DomainStatusResponse SetDomainInfo(int nGroupID, Int32 nDomainID, string sDomainName, string sDomainDescription, string externalId = null)
+        public static DomainStatusResponse SetDomainInfo(int nGroupID, Int32 nDomainID, string sDomainName, string sDomainDescription, int? regionId, string externalId = null)
         {
             DomainStatusResponse response = new DomainStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -89,7 +89,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response.DomainResponse = t.SetDomainInfo(nDomainID, sDomainName, nGroupID, sDomainDescription, externalId);
+                response.DomainResponse = t.SetDomainInfo(nDomainID, sDomainName, nGroupID, sDomainDescription, regionId, externalId);
                 if (response.DomainResponse != null)
                 {
                     // convert response status
