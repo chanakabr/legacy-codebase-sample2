@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TVinciShared;
+using AdapterControllers.RecommendationEngineAdapter;
 
 namespace AdapterControllers
 {
@@ -80,13 +81,23 @@ namespace AdapterControllers
 
         #region Public Methods
 
+        public static ServiceClient GetREAdapterServiceClient(string adapterUrl)
+        {
+            log.Debug($"Constructing GetREAdapterServiceClient Client with url:[{adapterUrl}]");
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+
+            return adapterClient;
+        }
+
         public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel,
             Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize, out int totalResults)
         {
             totalResults = 0;
-            List<RecommendationResult> searchResults = new List<RecommendationResult>();
+            var searchResults = new List<RecommendationResult>();
 
-            RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
+            var engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
             if (engine == null)
             {
@@ -98,9 +109,7 @@ namespace AdapterControllers
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
-
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+            var adapterClient = GetREAdapterServiceClient(engine.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -114,7 +123,7 @@ namespace AdapterControllers
                 {
                     Key = item.Key,
                     Value = item.Value
-                });
+                }).ToList();
 
             try
             {
@@ -132,15 +141,15 @@ namespace AdapterControllers
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter get channel recommendations
-                    adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
+                    adapterResponse = adapterClient.GetChannelRecommendationsAsync(engine.ID,
                         externalChannel.ExternalIdentifier,
-                        enrichmentsList.ToArray(),
+                        enrichmentsList,
                         free,
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))),
                         pageIndex,
-                        pageSize);
+                        pageSize).ExecuteAndWait();
                 }
 
                 requestId = adapterResponse.RequestId;
@@ -166,15 +175,15 @@ namespace AdapterControllers
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter get recommendations - after it is configured
-                        adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
+                        adapterResponse = adapterClient.GetChannelRecommendationsAsync(engine.ID,
                             externalChannel.ExternalIdentifier,
-                            enrichmentsList.ToArray(),
+                            enrichmentsList,
                             free,
                             unixTimestamp,
                             System.Convert.ToBase64String(
                                 EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))),
                             pageIndex,
-                            pageSize);
+                            pageSize).ExecuteAndWait();
                     }
 
                     requestId = adapterResponse.RequestId;
@@ -198,7 +207,7 @@ namespace AdapterControllers
                                 new RecommendationResult()
                                 {
                                     id = result.AssetId,
-                                    type = (eAssetTypes)result.AssetType,
+                                    type = (ApiObjects.eAssetTypes)result.AssetType,
                                     TagsExtarData = ConvertAdapterTagsExtarData(result.TagsExtraData)
                                 }).ToList();
                     }
@@ -218,9 +227,9 @@ namespace AdapterControllers
             return searchResults;
         }      
 
-        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId,
-                                                                    string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
-                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, string freeParam, out string requestId, out int totalItems)
+        public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, int nMediaID, int nMediaTypeID, int nGroupID, string siteGuid, string deviceId,
+                                                                    string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<int> filterTypeIDs, int nPageSize,
+                                                                    int nPageIndex, Dictionary<string, string> enrichments, string freeParam, out string requestId, out int totalItems)
         {
             totalItems = 0;
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
@@ -237,9 +246,7 @@ namespace AdapterControllers
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
-
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+            var adapterClient = GetREAdapterServiceClient(engine.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -253,7 +260,7 @@ namespace AdapterControllers
                 {
                     Key = item.Key,
                     Value = item.Value
-                });
+                }).ToList();
 
             try
             {
@@ -267,12 +274,13 @@ namespace AdapterControllers
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter get channel recommendations
-                    adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
+                    adapterResponse = adapterClient.GetRelatedRecommendationsAsync(engine.ID,
                         nMediaID, nMediaTypeID,
-                        enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), nPageIndex, nPageSize,
+                        enrichmentsList, freeParam, filterTypeIDs, nPageIndex, nPageSize,
                         unixTimestamp,
                         System.Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                            .ExecuteAndWait();
                 }
 
                 requestId = adapterResponse.RequestId;
@@ -298,10 +306,11 @@ namespace AdapterControllers
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter get related recommendations - after it is configured
-                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID, nMediaID, nMediaTypeID,
-                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), nPageIndex, nPageSize, unixTimestamp,
+                        adapterResponse = adapterClient.GetRelatedRecommendationsAsync(engine.ID, nMediaID, nMediaTypeID,
+                            enrichmentsList, freeParam, filterTypeIDs, nPageIndex, nPageSize, unixTimestamp,
                             System.Convert.ToBase64String(
-                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                                .ExecuteAndWait();
                     }
 
                     requestId = adapterResponse.RequestId;
@@ -325,7 +334,7 @@ namespace AdapterControllers
                                 new RecommendationResult()
                                 {
                                     id = result.AssetId,
-                                    type = (eAssetTypes)result.AssetType
+                                    type = (ApiObjects.eAssetTypes)result.AssetType
 
                                 }).ToList();
                     }
@@ -360,9 +369,7 @@ namespace AdapterControllers
                 throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
-
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+            var adapterClient = GetREAdapterServiceClient(engine.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -376,7 +383,7 @@ namespace AdapterControllers
                 {
                     Key = item.Key,
                     Value = item.Value
-                });
+                }).ToList();
 
             try
             {
@@ -390,12 +397,13 @@ namespace AdapterControllers
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter get channel recommendations
-                    adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
+                    adapterResponse = adapterClient.GetSearchRecommendationsAsync(engine.ID,
                         query,
-                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), nPageIndex, nPageSize,
+                        enrichmentsList, filterTypeIDs, nPageIndex, nPageSize,
                         unixTimestamp,
                         System.Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                            .ExecuteAndWait();
                 }
 
                 requestId = adapterResponse.RequestId;
@@ -421,12 +429,13 @@ namespace AdapterControllers
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter get Search recommendations - after it is configured
-                        adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
+                        adapterResponse = adapterClient.GetSearchRecommendationsAsync(engine.ID,
                             query,
-                            enrichmentsList.ToArray(), filterTypeIDs.ToArray(), nPageIndex, nPageSize,
+                            enrichmentsList, filterTypeIDs, nPageIndex, nPageSize,
                             unixTimestamp,
                             System.Convert.ToBase64String(
-                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                           .ExecuteAndWait();
                     }
                     requestId = adapterResponse.RequestId;
 
@@ -449,7 +458,7 @@ namespace AdapterControllers
                                 new RecommendationResult()
                                 {
                                     id = result.AssetId,
-                                    type = (eAssetTypes)result.AssetType,
+                                    type = (ApiObjects.eAssetTypes)result.AssetType,
                                     TagsExtarData = ConvertAdapterTagsExtarData(result.TagsExtraData)
                                 }).ToList();
                     }
@@ -494,7 +503,7 @@ namespace AdapterControllers
                     action != null ? action : string.Empty,  // {0}
                     adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,  // {1}
                     adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1, // {2}
-                    adapterResponse != null && adapterResponse.Results != null ? adapterResponse.Results.Length : -1,
+                    adapterResponse != null && adapterResponse.Results != null ? adapterResponse.Results.Count : -1,
                     recommendationsString); // {3}
             }
 
@@ -506,12 +515,7 @@ namespace AdapterControllers
             RecommendationEngine engine =
                 RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
 
-            RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
-
-            if (!string.IsNullOrEmpty(engine.AdapterUrl))
-            {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
-            }
+            var adapterClient = GetREAdapterServiceClient(engine.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -520,15 +524,15 @@ namespace AdapterControllers
             string signature =
                 string.Concat(externalChannel.ID, engine.ID, unixTimestamp);
 
-            RecommendationEngineAdapter.SearchResult[] resultsArray = results.Select(item =>
+            var resultsList = results.Select(item =>
                 new RecommendationEngineAdapter.SearchResult()
                 {
                     AssetId = item.id,
                     AssetType = ConvertAssetType(item.type)
-                }).ToArray();
+                }).ToList();
 
             // Call share filtered response - asynchronously
-            Task task = Task.Run(() => adapterClient.ShareFilteredResponse(engine.ID, resultsArray));
+            Task task = adapterClient.ShareFilteredResponseAsync(engine.ID, resultsList);
         }
 
         #endregion
@@ -566,27 +570,27 @@ namespace AdapterControllers
 
             if (engine != null && !string.IsNullOrEmpty(engine.AdapterUrl))
             {
-                RecommendationEngineAdapter.ServiceClient client = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
+                var client = GetREAdapterServiceClient(engine.AdapterUrl);
 
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
-                //set signature
                 string signature = string.Empty;
 
                 try
                 {
                     //call Adapter Transact
+                    var settingsadaptersSettingsToSend = engine.Settings != null ? engine.Settings.Select(setting => new RecommendationEngineAdapter.KeyValue()
+                    {
+                        Key = setting.key,
+                        Value = setting.value
+                    }).ToList() : null;
+
+                    string signatureToSend = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature)));
                     RecommendationEngineAdapter.AdapterStatus adapterResponse =
-                        client.SetConfiguration(engine.ID,
-                        engine.Settings != null ? engine.Settings.Select(setting => new RecommendationEngineAdapter.KeyValue()
-                        {
-                            Key = setting.key,
-                            Value = setting.value
-                        }).ToArray() : null,
-                        groupId,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                        client.SetConfigurationAsync(engine.ID, settingsadaptersSettingsToSend, groupId, unixTimestamp,
+                        signatureToSend)
+                        .ExecuteAndWait();
 
                     if (adapterResponse != null)
                         log.DebugFormat("Recommendations Engine Adapter Send Configuration Result = {0}", adapterResponse);
@@ -607,24 +611,24 @@ namespace AdapterControllers
             return result;
         }
 
-        private RecommendationEngineAdapter.eAssetTypes ConvertAssetType(eAssetTypes origin)
+        private RecommendationEngineAdapter.eAssetTypes ConvertAssetType(ApiObjects.eAssetTypes origin)
         {
             switch (origin)
             {
-                case eAssetTypes.UNKNOWN:
+                case ApiObjects.eAssetTypes.UNKNOWN:
                     return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
-                case eAssetTypes.EPG:
+                case ApiObjects.eAssetTypes.EPG:
                     return RecommendationEngineAdapter.eAssetTypes.EPG;
-                case eAssetTypes.NPVR:
+                case ApiObjects.eAssetTypes.NPVR:
                     return RecommendationEngineAdapter.eAssetTypes.NPVR;
-                case eAssetTypes.MEDIA:
+                case ApiObjects.eAssetTypes.MEDIA:
                     return RecommendationEngineAdapter.eAssetTypes.MEDIA;
                 default:
                     return RecommendationEngineAdapter.eAssetTypes.UNKNOWN;
             }
         }
 
-        private List<KeyValuePair<string, string>> ConvertAdapterTagsExtarData(RecommendationEngineAdapter.KeyValue[] tagsExtraData)
+        private List<KeyValuePair<string, string>> ConvertAdapterTagsExtarData(List<KeyValue> tagsExtraData)
         {
             List<KeyValuePair<string, string>> resultRagsExtraData = new List<KeyValuePair<string, string>>();
 

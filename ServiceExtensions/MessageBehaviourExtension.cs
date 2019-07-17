@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET452
+using System;
 using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Configuration;
@@ -56,3 +57,4 @@ namespace ServiceExtensions
         }
     }
 }
+#endif

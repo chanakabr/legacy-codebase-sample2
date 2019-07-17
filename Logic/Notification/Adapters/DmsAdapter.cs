@@ -15,39 +15,44 @@ namespace Core.Notification.Adapters
 {
     public class DmsAdapter
     {
-        private static string DmsAdapterUrlKey = ApplicationConfiguration.DMSAdapterUrl.Value;
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static string _DmsAdapterUrl = ApplicationConfiguration.DMSAdapterUrl.Value;
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static ServiceClient GetDmsAdapterServiceClient()
+        {
+            var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, _DmsAdapterUrl);
+            client.ConfigureServiceClient();
+            return client;
+        }
 
         public static List<PushData> GetPushData(int groupId, List<string> udids)
         {
             List<PushData> pushData = null;
 
             // validate DMS URL exists
-            if (string.IsNullOrEmpty(DmsAdapterUrlKey))
+            if (string.IsNullOrEmpty(_DmsAdapterUrl))
             {
-                log.Error("couldn't find DMS_ADAPTER_URL");
+                _Logger.Error("couldn't find DMS_ADAPTER_URL");
                 return pushData;
             }
 
             try
             {
-                using (ServiceClient client = new ServiceClient())
+                using (var client = GetDmsAdapterServiceClient())
                 {
-                    client.Endpoint.Address = new EndpointAddress(DmsAdapterUrlKey);
-
-                    pushData = client.GetPushData(groupId, udids.ToArray()).ToList();
+                    pushData = client.GetPushDataAsync(groupId, udids).ExecuteAndWait();
                     if (pushData == null ||
                         pushData.Count != udids.Count)
                     {
-                        log.ErrorFormat("Error while trying to retrieve push data from DMS. udids: {0}", JsonConvert.SerializeObject(udids));
+                        _Logger.ErrorFormat("Error while trying to retrieve push data from DMS. udids: {0}", JsonConvert.SerializeObject(udids));
                     }
                     else
-                        log.DebugFormat("successfully received push data from DMS.");
+                        _Logger.DebugFormat("successfully received push data from DMS.");
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to retrieve push data from DMS. udids: {0}, ex: {1}", JsonConvert.SerializeObject(udids), ex);
+                _Logger.ErrorFormat("Error while trying to retrieve push data from DMS. udids: {0}, ex: {1}", JsonConvert.SerializeObject(udids), ex);
             }
             return pushData;
         }
@@ -67,20 +72,20 @@ namespace Core.Notification.Adapters
 
             try
             {
-                using (ServiceClient client = new ServiceClient())
+                using (var client = GetDmsAdapterServiceClient())
                 {
-                    client.Endpoint.Address = new EndpointAddress(DmsAdapterUrlKey);
+                    client.Endpoint.Address = new EndpointAddress(_DmsAdapterUrl);
 
-                    result = client.SetPushData(groupId, pushData);
+                    result = client.SetPushDataAsync(groupId, pushData).ExecuteAndWait();
                     if (!result)
-                        log.ErrorFormat("Error while trying to set push data in the DMS. pushData: {0}", JsonConvert.SerializeObject(pushData));
+                        _Logger.ErrorFormat("Error while trying to set push data in the DMS. pushData: {0}", JsonConvert.SerializeObject(pushData));
                     else
-                        log.DebugFormat("successfully updated push data in the DMS.");
+                        _Logger.DebugFormat("successfully updated push data in the DMS.");
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to set push data in the DMS. pushData: {0}, ex: {1}", JsonConvert.SerializeObject(pushData), ex);
+                _Logger.ErrorFormat("Error while trying to set push data in the DMS. pushData: {0}, ex: {1}", JsonConvert.SerializeObject(pushData), ex);
             }
             return result;
         }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using DAL;
-using System.Web.Script.Serialization;
+
 using System.Threading.Tasks;
 using System.Reflection;
 using ApiObjects.Notification;
@@ -14,6 +14,7 @@ using KLogMonitor;
 using KlogMonitorHelper;
 using Core.Users;
 using ApiObjects.Response;
+using Newtonsoft.Json;
 
 namespace Core.Notification
 {
@@ -796,8 +797,7 @@ namespace Core.Notification
                         if (!string.IsNullOrEmpty(sTagParams))
                         {
                             //tagParams = TVinciShared.JSONUtils.JsonToObject<ExtraParams>(sTagParams);
-                            JavaScriptSerializer js = new JavaScriptSerializer();
-                            tagParams = js.Deserialize<ExtraParams>(sTagParams);
+                            tagParams = JsonConvert.DeserializeObject<ExtraParams>(sTagParams);
                             //Dictionary<string, List<string>> tagNames = GetTagsNameByIDs(tagParams.TagDict, int.Parse(nGroupID.ToString()));
                         }
                         NotificationMessage temp = new NotificationMessage(drNotificationType, notificationID, notificationRequestID, 
@@ -1399,8 +1399,7 @@ namespace Core.Notification
 
                 if (!string.IsNullOrEmpty(json))
                 {
-                    JavaScriptSerializer js = new JavaScriptSerializer();
-                    ExtraParams extraParams = js.Deserialize<ExtraParams>(json);
+                    ExtraParams extraParams = JsonConvert.DeserializeObject<ExtraParams>(json);
                     if (extraParams != null)
                     {
                         continueWithRequest = DAL.NotificationDal.IsMediaNeedToBeNotify(extraParams.mediaID);
@@ -1539,8 +1538,7 @@ namespace Core.Notification
             //Get the NotificationTag Object from the json string we got from DB
             // values The JSON data from the POST
             #region extraParams for tag notification
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            ExtraParams extraParams = js.Deserialize<ExtraParams>(values);
+            ExtraParams extraParams = JsonConvert.DeserializeObject<ExtraParams>(values);
             log.Debug("CreateNotificationRequestObject - " + string.Format(" NotificationReques userID={0} ,createdDate={1}, extraParams={2}", userID, createdDate.ToShortDateString(), values));
             string picURL = string.Empty;
             if (extraParams != null)

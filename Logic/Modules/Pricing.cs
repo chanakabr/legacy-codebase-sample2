@@ -1351,7 +1351,6 @@ namespace Core.Pricing
             return response;
         }
 
-
         public static SubscriptionSetsResponse GetSubscriptionSetsByBaseSubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? setType)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
@@ -1735,6 +1734,11 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public static GenericListResponse<CouponData> GetCoupons(int groupId, List<string> couponCodes, long householdId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -2,12 +2,13 @@
 using ApiObjects.Social;
 using ConfigurationManager;
 using Core.Users;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Web.Script.Serialization;
+
 
 namespace Core.Social
 {
@@ -41,8 +42,7 @@ namespace Core.Social
         {
             string sRes = string.Empty;
 
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            string serializedMediaObj = serializer.Serialize(oFBMedia);
+            string serializedMediaObj = JsonConvert.SerializeObject(oFBMedia);
 
             int nStatus = 0;
 
@@ -72,8 +72,7 @@ namespace Core.Social
             nStatus = FBUtils.GetGraphApiAction(sObjectID, string.Empty, sAccessToken, ref sRetVal);
             if (nStatus == STATUS_OK)
             {
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBObjectReponse response = serializer.Deserialize<FBObjectReponse>(sRetVal);
+                FBObjectReponse response = JsonConvert.DeserializeObject<FBObjectReponse>(sRetVal);
                 if (response != null && response.type != null)
                 {
                     string[] lSplit = response.type.Split('.');
@@ -118,8 +117,7 @@ namespace Core.Social
                 Int32 nStatus = GetGraphApiAction(sFacebookID, "permissions", sAccessToken, ref sRetVal);
                 if (nStatus == STATUS_OK)
                 {
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    FBPermissions permissions = serializer.Deserialize<FBPermissions>(sRetVal);
+                    FBPermissions permissions = JsonConvert.DeserializeObject<FBPermissions>(sRetVal);
                     if (permissions != null)
                     {
                         List<FBPermission> permissionsList = permissions.data.ToList<FBPermission>();
@@ -147,8 +145,7 @@ namespace Core.Social
         static public SocialActionResponseStatus GetFacebookError(string sRetVal)
         {
             SocialActionResponseStatus eRes = SocialActionResponseStatus.ERROR;
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            FBError error = serializer.Deserialize<FBError>(sRetVal);
+            FBError error = JsonConvert.DeserializeObject<FBError>(sRetVal);
             if (error != null)
             {
                 switch (error.error.code)

@@ -1,12 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+    <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
+    <AssemblyName />
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
 
-  
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
   </ItemGroup>
@@ -14,8 +22,8 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.Web" />
   </ItemGroup>
-  
-   <!-- This is a workaround that will allow TVM website project to build, if you read this an 
+
+  <!-- This is a workaround that will allow TVM website project to build, if you read this an 
   TVM no longer exist please remove this <Target Name="GetTargetPath"... element-->
   <Target Name="GetTargetPath" Returns="@(_FakeOutputPath)">
     <ItemGroup>

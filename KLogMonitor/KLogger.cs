@@ -293,6 +293,11 @@ namespace KLogMonitor
             return LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
         }
 
+        public static void SetRequestId(string sessionId)
+        {
+            LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
+        }
+
         public void ErrorFormat(string format, params object[] args)
         {
             HandleEvent(format, KLogger.LogEvent.LogLevel.ERROR, true, args, null);

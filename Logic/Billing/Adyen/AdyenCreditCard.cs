@@ -11,16 +11,31 @@ using System.Reflection;
 using System.Web;
 using APILogic.AdyenPayAPI;
 using ApiObjects.Billing;
+using TVinciShared;
 
 namespace Core.Billing
 {
     public class AdyenCreditCard : BaseCreditCard
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private readonly PaymentPortTypeClient _PaymentClient;
+        private readonly RecurringPortTypeClient _RecurringPaymentClient;
 
         public AdyenCreditCard(int groupID)
             : base(groupID)
         {
+            var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
+            var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
+
+            var recurringPaymentServiceUrl = AdyenUtils.GetWSRecurringUrl(groupID);
+            var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
+
+            _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
+            _RecurringPaymentClient.ConfigureServiceClient();
+
+
+            _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
+            _PaymentClient.ConfigureServiceClient();
         }
 
 
@@ -216,127 +231,126 @@ namespace Core.Billing
                 return ret;
             }
 
-            using (Payment payApi = new Payment())
+            var payReq = new PaymentRequest();
+            payReq.amount = new APILogic.AdyenPayAPI.Amount();
+            payReq.amount.value = long.Parse((dChargePrice * 100).ToString());
+            payReq.amount.currency = sCurrencyCode;
+            payReq.merchantAccount = sMerchAccount;
+            log.Debug("MerchantRef - " + AdyenUtils.GetItemID(sCustomData));
+            payReq.reference = string.Format("{0}", AdyenUtils.GetItemID(sCustomData));
+            log.Debug("MerchantRef - " + payReq.reference);
+            payReq.shopperIP = "1.1.1.1";
+            payReq.recurring = new APILogic.AdyenPayAPI.Recurring();
+            payReq.recurring.contract = "RECURRING";
+            payReq.selectedRecurringDetailReference = recRes.recurringDetailReference;
+            payReq.shopperReference = sSiteGUID;
+            payReq.shopperInteraction = "ContAuth";
+            payReq.shopperEmail = sUserEmail;
+
+
+            _PaymentClient.ClientCredentials.UserName.UserName = sUN;
+            _PaymentClient.ClientCredentials.UserName.Password = sPass;
+            var payRes = _PaymentClient.authoriseAsync(payReq).ExecuteAndWait();
+
+            int customDataID = Utils.AddCustomData(sCustomData);
+            int adyenTransID = 1;
+            string status = "Charge";
+            string bankName = string.Empty;
+            string bankAccount = string.Empty;
+            string reason = string.Empty;
+
+            if (!string.IsNullOrEmpty(payRes.refusalReason))
             {
-                PaymentRequest payReq = new PaymentRequest();
-                payReq.amount = new APILogic.AdyenPayAPI.Amount();
-                payReq.amount.value = long.Parse((dChargePrice * 100).ToString());
-                payReq.amount.currency = sCurrencyCode;
-                payReq.merchantAccount = sMerchAccount;
-                log.Debug("MerchantRef - " + AdyenUtils.GetItemID(sCustomData));
-                payReq.reference = string.Format("{0}", AdyenUtils.GetItemID(sCustomData));
-                log.Debug("MerchantRef - " + payReq.reference);
-                payReq.shopperIP = "1.1.1.1";
-                payReq.recurring = new APILogic.AdyenPayAPI.Recurring();
-                payReq.recurring.contract = "RECURRING";
-                payReq.selectedRecurringDetailReference = recRes.recurringDetailReference;
-                payReq.shopperReference = sSiteGUID;
-                payReq.shopperInteraction = "ContAuth";
-                payReq.shopperEmail = sUserEmail;
-                payApi.Credentials = new NetworkCredential(sUN, sPass);
-                payApi.Url = AdyenUtils.GetWSPaymentUrl(m_nGroupID);
-                PaymentResult payRes = payApi.authorise(payReq);
-
-                int customDataID = Utils.AddCustomData(sCustomData);
-                int adyenTransID = 1;
-                string status = "Charge";
-                string bankName = string.Empty;
-                string bankAccount = string.Empty;
-                string reason = string.Empty;
-
-                if (!string.IsNullOrEmpty(payRes.refusalReason))
-                {
-                    reason = payRes.refusalReason;
-                    status = payRes.resultCode;
-                }
-                long lRecieptCode = Core.Billing.Utils.InsertNewAdyenTransaction(m_nGroupID, sSiteGUID, recRes.card.number,
-                    dChargePrice, sCurrencyCode, customDataID.ToString(),
-                    sCustomData, payRes.pspReference, status, bankName, bankAccount, reason, string.Empty, nPaymentNumber, nNumberOfPayments, 3,
-                    nBillingMethod, (int)eBillingProvider.Adyen, 2, ref adyenTransID, false, false);
-                if (!string.IsNullOrEmpty(payRes.resultCode) && (payRes.resultCode.ToLower().Equals("refused") || payRes.resultCode.ToLower().Equals("error")))
-                {
-                    ret.m_oStatus = BillingResponseStatus.Fail;
-                    ret.m_sStatusDescription = payRes.refusalReason;
-                    string sPaymentMethod = string.Empty;
-                    if (recRes != null && recRes.card != null)
-                    {
-                        try
-                        {
-                            string sBrand = recRes.variant;
-                            if (!string.IsNullOrEmpty(recRes.variant))
-                            {
-                                if (recRes.variant.ToLower().Equals("mc"))
-                                {
-                                    sBrand = "MASTERCARD";
-                                }
-                            }
-                            log.Debug("Adyen Charge - " + sSiteGUID + ":" + "Found details: " + recRes.card.number + " " + recRes.variant);
-                            sPaymentMethod = string.Format("Credit Card {0} xxxx{1}", sBrand.ToUpper(), recRes.card.number);
-                            AdyenUtils.SendAdyenPurchaseMail(m_nGroupID, sCustomData,
-                                dChargePrice, sCurrencyCode, sPaymentMethod, sSiteGUID, lRecieptCode, payRes.pspReference, true);
-                        }
-                        catch
-                        {
-                        }
-                    }
-
-                }
-                else
-                {
-                    ret.m_oStatus = BillingResponseStatus.Success;
-                    ret.m_sExternalReceiptCode = payRes.pspReference;
-                    string sPaymentMethod = string.Empty;
-                    if (recRes != null && recRes.card != null)
-                    {
-                        try
-                        {
-                            string sBrand = recRes.variant;
-                            if (!string.IsNullOrEmpty(recRes.variant))
-                            {
-                                if (recRes.variant.ToLower().Equals("mc"))
-                                {
-                                    sBrand = "MASTERCARD";
-                                }
-                            }
-                            log.Info(string.Format("ChargeAdyen , for user {0} . Found details {1},{2}", sSiteGUID, recRes.card.number, recRes.variant));
-                            sPaymentMethod = string.Format("Credit Card {0} xxxx{1}", sBrand.ToUpper(), recRes.card.number);
-                            log.Info(string.Format("ChargeAdyen , for user {0} . sPaymentMethod {1},", sSiteGUID, sPaymentMethod));
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error(string.Format("ChargeAdyen , for user {0} . ex.Message {1}", sSiteGUID, ex.Message));
-                        }
-                    }
-                    AdyenUtils.SendAdyenPurchaseMail(m_nGroupID, sCustomData, dChargePrice, sCurrencyCode, sPaymentMethod, sSiteGUID, lRecieptCode, payRes.pspReference, false);
-                }
-                ret.m_sRecieptCode = lRecieptCode.ToString();
-                if (!string.IsNullOrEmpty(sExtraParameters))
-                {
-                    int subPurchaseID = int.Parse(sExtraParameters);
-                    if (subPurchaseID > 0)
-                    {
-                        ODBCWrapper.UpdateQuery updateQuery = null;
-                        try
-                        {
-                            updateQuery = new ODBCWrapper.UpdateQuery("adyen_transactions");
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("purchase_id", "=", subPurchaseID);
-                            updateQuery += " where ";
-                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", adyenTransID);
-                            updateQuery.SetConnectionKey("BILLING_CONNECTION_STRING");
-                            updateQuery.Execute();
-                        }
-                        finally
-                        {
-                            if (updateQuery != null)
-                            {
-                                updateQuery.Finish();
-                            }
-                        }
-                    }
-                }
-                log.Info(string.Format("ChargeAdyen , for user {0} psp reference {1}", sSiteGUID, payRes.pspReference));
-                return ret;
+                reason = payRes.refusalReason;
+                status = payRes.resultCode;
             }
+            long lRecieptCode = Core.Billing.Utils.InsertNewAdyenTransaction(m_nGroupID, sSiteGUID, recRes.card.number,
+                dChargePrice, sCurrencyCode, customDataID.ToString(),
+                sCustomData, payRes.pspReference, status, bankName, bankAccount, reason, string.Empty, nPaymentNumber, nNumberOfPayments, 3,
+                nBillingMethod, (int)eBillingProvider.Adyen, 2, ref adyenTransID, false, false);
+            if (!string.IsNullOrEmpty(payRes.resultCode) && (payRes.resultCode.ToLower().Equals("refused") || payRes.resultCode.ToLower().Equals("error")))
+            {
+                ret.m_oStatus = BillingResponseStatus.Fail;
+                ret.m_sStatusDescription = payRes.refusalReason;
+                string sPaymentMethod = string.Empty;
+                if (recRes != null && recRes.card != null)
+                {
+                    try
+                    {
+                        string sBrand = recRes.variant;
+                        if (!string.IsNullOrEmpty(recRes.variant))
+                        {
+                            if (recRes.variant.ToLower().Equals("mc"))
+                            {
+                                sBrand = "MASTERCARD";
+                            }
+                        }
+                        log.Debug("Adyen Charge - " + sSiteGUID + ":" + "Found details: " + recRes.card.number + " " + recRes.variant);
+                        sPaymentMethod = string.Format("Credit Card {0} xxxx{1}", sBrand.ToUpper(), recRes.card.number);
+                        AdyenUtils.SendAdyenPurchaseMail(m_nGroupID, sCustomData,
+                            dChargePrice, sCurrencyCode, sPaymentMethod, sSiteGUID, lRecieptCode, payRes.pspReference, true);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+            }
+            else
+            {
+                ret.m_oStatus = BillingResponseStatus.Success;
+                ret.m_sExternalReceiptCode = payRes.pspReference;
+                string sPaymentMethod = string.Empty;
+                if (recRes != null && recRes.card != null)
+                {
+                    try
+                    {
+                        string sBrand = recRes.variant;
+                        if (!string.IsNullOrEmpty(recRes.variant))
+                        {
+                            if (recRes.variant.ToLower().Equals("mc"))
+                            {
+                                sBrand = "MASTERCARD";
+                            }
+                        }
+                        log.Info(string.Format("ChargeAdyen , for user {0} . Found details {1},{2}", sSiteGUID, recRes.card.number, recRes.variant));
+                        sPaymentMethod = string.Format("Credit Card {0} xxxx{1}", sBrand.ToUpper(), recRes.card.number);
+                        log.Info(string.Format("ChargeAdyen , for user {0} . sPaymentMethod {1},", sSiteGUID, sPaymentMethod));
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Format("ChargeAdyen , for user {0} . ex.Message {1}", sSiteGUID, ex.Message));
+                    }
+                }
+                AdyenUtils.SendAdyenPurchaseMail(m_nGroupID, sCustomData, dChargePrice, sCurrencyCode, sPaymentMethod, sSiteGUID, lRecieptCode, payRes.pspReference, false);
+            }
+            ret.m_sRecieptCode = lRecieptCode.ToString();
+            if (!string.IsNullOrEmpty(sExtraParameters))
+            {
+                int subPurchaseID = int.Parse(sExtraParameters);
+                if (subPurchaseID > 0)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = null;
+                    try
+                    {
+                        updateQuery = new ODBCWrapper.UpdateQuery("adyen_transactions");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("purchase_id", "=", subPurchaseID);
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", adyenTransID);
+                        updateQuery.SetConnectionKey("BILLING_CONNECTION_STRING");
+                        updateQuery.Execute();
+                    }
+                    finally
+                    {
+                        if (updateQuery != null)
+                        {
+                            updateQuery.Finish();
+                        }
+                    }
+                }
+            }
+            log.Info(string.Format("ChargeAdyen , for user {0} psp reference {1}", sSiteGUID, payRes.pspReference));
+            return ret;
         }
         /// <summary>
         /// Get adyen contract
@@ -358,14 +372,14 @@ namespace Core.Billing
                 recApi = new APILogic.AdyenRecAPI.Recurring();
                 recRequest.merchantAccount = merchAcc;
                 recRequest.shopperReference = sSiteGUID;
-                recRequest.recurring = new Recurring1();
+                recRequest.recurring = new APILogic.AdyenRecAPI.Recurring();
                 recRequest.recurring.recurringDetailName = "RECURRING";
                 recRequest.recurring.contract = "RECURRING";
-                recApi.Url = AdyenUtils.GetWSRecurringUrl(m_nGroupID);
 
-                recApi.Credentials = new NetworkCredential(sUN, sPass);
 
-                retVal = recApi.listRecurringDetails(recRequest);
+                _RecurringPaymentClient.ClientCredentials.UserName.UserName = sUN;
+                _RecurringPaymentClient.ClientCredentials.UserName.Password = sPass;
+                retVal = _RecurringPaymentClient.listRecurringDetailsAsync(recRequest).ExecuteAndWait();
 
                 string strRecurringDetails = string.Empty;
 
@@ -377,18 +391,11 @@ namespace Core.Billing
                     }
                 }
 
-                log.Debug("Adyen_Logging - " + string.Format("Finished AdyenCreditCard.GetAdyenContract() , for merchAcc: {0} , user: {1} , sUN: {2} , sPass: {3}, recApi url: {4}, recurringDetails: {5}", merchAcc, sSiteGUID, sUN, sPass, recApi.Url, strRecurringDetails));
+                log.Debug("Adyen_Logging - " + string.Format("Finished AdyenCreditCard.GetAdyenContract() , for merchAcc: {0} , user: {1} , sUN: {2} , sPass: {3}, recApi url: {4}, recurringDetails: {5}", merchAcc, sSiteGUID, sUN, sPass, _RecurringPaymentClient?.Endpoint?.Address?.Uri, strRecurringDetails));
             }
             catch (Exception ex)
             {
                 log.Error("Adyen_Logging - " + string.Format("AdyenCreditCard.GetAdyenContract() Error , for merchAcc: {0} , user: {1} , sUN: {2} , sPass: {3} , ex.Message: {4}", merchAcc, sSiteGUID, sUN, sPass, ex.ToString()), ex);
-            }
-            finally
-            {
-                if (recApi != null)
-                {
-                    recApi.Dispose();
-                }
             }
 
             return retVal;
@@ -421,16 +428,4 @@ namespace Core.Billing
     }
 }
 
-namespace APILogic.AdyenPayAPI
-{
-    // adding request ID to header
-    public partial class Payment
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
-    }
-}
+

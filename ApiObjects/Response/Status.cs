@@ -98,6 +98,16 @@ namespace ApiObjects.Response
             }
         }
 
+        public void Set(Status newStatus)
+        {
+            if (newStatus != null)
+            {
+                this.code = newStatus.code;
+                this.message = newStatus.message;
+                this.args = newStatus.args;
+            }
+        }
+
         public void AddArg(string key, object value)
         {
             if (args == null)

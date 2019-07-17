@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
-using System.Web.Script.Serialization;
 using Newtonsoft.Json.Linq;
 using KLogMonitor;
 using System.Reflection;

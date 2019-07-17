@@ -6,12 +6,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
+using TVinciShared;
 
 namespace Core.Notification.Adapters
 {
     public class NotificationAdapter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static ServiceClient GetAmazonSnsServiceClient(string url)
+        {
+            var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, url);
+            client.ConfigureServiceClient();
+            return client;
+        }
 
         public static string CreateAnnouncement(int groupId, string announcementName, bool isUniqueName = false)
         {
@@ -28,17 +36,17 @@ namespace Core.Notification.Adapters
             string externalAnnouncementId = string.Empty;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
-                        externalAnnouncementId = client.CreateTopic(announcementName);
+                        externalAnnouncementId = client.CreateTopicAsync(announcementName).ExecuteAndWait();
                         if (string.IsNullOrEmpty(externalAnnouncementId))
                             log.ErrorFormat("Error while trying to create announcement. announcement Name: {0}, isUniqueName: {1}", announcementName, isUniqueName);
                         else
@@ -58,17 +66,17 @@ namespace Core.Notification.Adapters
             bool result = false;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
-                        result = client.DeleteTopic(externalAnnouncementId);
+                        result = client.DeleteTopicAsync(externalAnnouncementId).ExecuteAndWait();
                         if (!result)
                             log.ErrorFormat("Error while trying to delete announcement. announcement external ID: {0}", externalAnnouncementId);
                         else
@@ -88,18 +96,18 @@ namespace Core.Notification.Adapters
             List<AnnouncementSubscriptionData> result = null;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
                         // fire request
-                        result = client.SubscribeToTopic(announcementSubscriptions);
+                        result = client.SubscribeToTopicAsync(announcementSubscriptions).ExecuteAndWait();
 
                         // validate response
                         if ((result == null ||
@@ -131,18 +139,17 @@ namespace Core.Notification.Adapters
             List<UnSubscribe> result = null;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
-
                         // fire request
-                        result = client.UnSubscribeToTopic(unsubscribeList);
+                        result = client.UnSubscribeToTopicAsync(unsubscribeList).ExecuteAndWait();
 
                         // validate response
                         if ((result == null ||
@@ -174,17 +181,17 @@ namespace Core.Notification.Adapters
             string messageId = string.Empty;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
-                        messageId = client.PublishToTopic(externalAnnouncementId, subject, message);
+                        messageId = client.PublishToTopicAsync(externalAnnouncementId, subject, message).ExecuteAndWait();
                         if (string.IsNullOrEmpty(messageId))
                             log.ErrorFormat("Error while trying to publish announcement. announcement external ID: {0}, message: {1}", externalAnnouncementId, message);
                         else
@@ -204,17 +211,17 @@ namespace Core.Notification.Adapters
             List<WSEndPointPublishDataResult> publishResult = new List<WSEndPointPublishDataResult>();
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
-                        publishResult = client.PublishToEndPoint(publishData);
+                        publishResult = client.PublishToEndPointAsync(publishData).ExecuteAndWait();
                         if (publishResult == null ||
                             publishResult.Count == 0 ||
                             publishResult.Count != publishData.EndPoints.Count)
@@ -246,17 +253,17 @@ namespace Core.Notification.Adapters
             DeviceAppRegistration deviceRegistrationResult = null;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
-                        deviceRegistrationResult = client.RegisterDeviceToApplication(deviceRegistration);
+                        deviceRegistrationResult = client.RegisterDeviceToApplicationAsync(deviceRegistration).ExecuteAndWait();
                         if (deviceRegistrationResult == null || string.IsNullOrEmpty(deviceRegistrationResult.PlatformApplicationArn))
                         {
                             log.ErrorFormat("Error while trying to register device to application. deviceRegistration: {0}",
@@ -286,18 +293,20 @@ namespace Core.Notification.Adapters
                     announcementToUnsubscribe != null ? JsonConvert.SerializeObject(announcementToUnsubscribe) : string.Empty);
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
-                        client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
                         // fire request
-                        result = client.RegisterDeviceToApplicationAndTopic(deviceAppRegistration, announcementToSubscribe, announcementToUnsubscribe);
+                        result = client
+                            .RegisterDeviceToApplicationAndTopicAsync(deviceAppRegistration, announcementToSubscribe, announcementToUnsubscribe)
+                            .ExecuteAndWait();
 
                         if (result == null)
                         {
@@ -346,17 +355,18 @@ namespace Core.Notification.Adapters
             bool success = false;
 
             // validate notification URL exists
-            if (string.IsNullOrEmpty(NotificationSettings.GetPushAdapterUrl(groupId)))
+            var pushAdapterUrl = NotificationSettings.GetPushAdapterUrl(groupId);
+            if (string.IsNullOrEmpty(pushAdapterUrl))
                 log.Error("Notification URL wasn't found");
             else
             {
                 try
                 {
-                    using (ServiceClient client = new ServiceClient())
+                    using (var client = GetAmazonSnsServiceClient(pushAdapterUrl))
                     {
                         client.Endpoint.Address = new EndpointAddress(NotificationSettings.GetPushAdapterUrl(groupId));
 
-                        success = client.SendSms(message, phoneNumber);
+                        success = client.SendSmsAsync(message, phoneNumber).ExecuteAndWait();
 
                         log.DebugFormat("Send Sms to phoneNumber: {0}, success: {1}, message: {2}", phoneNumber, success, message);
                     }

@@ -16,6 +16,8 @@ using TVinciShared;
 using ApiObjects.TimeShiftedTv;
 using System.Web;
 
+
+
 namespace AdapterControllers.CDVR
 {
     public class CdvrAdapterController
@@ -83,14 +85,23 @@ namespace AdapterControllers.CDVR
 
         #region Public Method
 
+        public ServiceClient GetCDVRAdapterServiceClient(string adapterUrl)
+        {
+            log.Debug($"Constructing GetCDVRAdapterServiceClient Client with url:[{adapterUrl}]");
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+
+            return adapterClient;
+        }
+
         public bool SetConfiguration(CDVRAdapter adapter, int partnerId)
         {
             bool result = false;
             try
             {
                 string cdvrAdapterUrl = adapter.AdapterUrl;
-                cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+                var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
                 //set unixTimestamp
                 long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -109,7 +120,9 @@ namespace AdapterControllers.CDVR
                         Value = setting.value
                     }).ToList();
                 }
-                adapterStatus = client.SetConfiguration(adapter.ID, keyValue, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                adapterStatus = client
+                    .SetConfigurationAsync(adapter.ID, keyValue, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                    .ExecuteAndWait();
 
                 if (adapterStatus != null)
                     log.DebugFormat("Cdvr Adapter Send Configuration Result = {0}", adapterStatus);
@@ -146,8 +159,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -167,7 +179,9 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         //call Adapter Record
-                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .RecordAsync(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -199,7 +213,9 @@ namespace AdapterControllers.CDVR
                         try
                         {
                             //call Adapter Record - after it is configured
-                            adapterResponse = client.Record(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client
+                                .RecordAsync(startTimeSeconds, durationSeconds, epgId, channelId, domainIds, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -253,8 +269,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -274,7 +289,9 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         //call Adapter GetRecordingStatus
-                        adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .GetRecordingStatusAsync(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -305,7 +322,9 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingStatus - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingStatus(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client
+                                .GetRecordingStatusAsync(recordingId, channelId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -358,8 +377,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -380,8 +398,9 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         adapterResponse =
-                            client.UpdateRecordingSchedule(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds,
-                            timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            client.UpdateRecordingScheduleAsync(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds,
+                            timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -413,8 +432,9 @@ namespace AdapterControllers.CDVR
                         try
                         {
                             adapterResponse =
-                                client.UpdateRecordingSchedule(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds,
-                                timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                                client.UpdateRecordingScheduleAsync(recordingId, epgId, channelId, adapterId, startDateSeconds, durationSeconds,
+                                timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -474,8 +494,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -495,7 +514,9 @@ namespace AdapterControllers.CDVR
                     //call Adapter CancelRecording
                     try
                     {
-                        adapterResponse = client.CancelRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .CancelRecordingAsync(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -526,7 +547,9 @@ namespace AdapterControllers.CDVR
                         //call Adapter CancelRecording - after it is configured
                         try
                         {
-                            adapterResponse = client.CancelRecording(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client
+                                .CancelRecordingAsync(recordingId, epgId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -580,8 +603,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -601,7 +623,9 @@ namespace AdapterControllers.CDVR
                     //call Adapter DeleteRecording
                     try
                     {
-                        adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .DeleteRecordingAsync(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -632,7 +656,9 @@ namespace AdapterControllers.CDVR
                         //call Adapter - DeleteRecording after it is configured
                         try
                         {
-                            adapterResponse = client.DeleteRecording(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client
+                                .DeleteRecordingAsync(recordingId, epgId, channelId, domainIds, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -686,8 +712,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -707,7 +732,9 @@ namespace AdapterControllers.CDVR
                     //call Adapter GetRecordingLinks
                     try
                     {
-                        adapterResponse = client.GetRecordingLinks(recordingId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .GetRecordingLinksAsync(recordingId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -738,7 +765,9 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks - after it is configured
                         try
                         {
-                            adapterResponse = client.GetRecordingLinks(recordingId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client
+                                .GetRecordingLinksAsync(recordingId, channelId, domainId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -792,8 +821,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -806,14 +834,16 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, adapterData = {2}",
                     partnerId, adapter.ID, adapterData);
 
-                var adapterResponse = new AdapterControllers.cdvrAdap.ExternalRecordingResponse();
+                var adapterResponse = new ExternalRecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter GetRecordingLinks
                     try
                     {
-                        adapterResponse = client.GetCloudRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .GetCloudRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -845,7 +875,9 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks
                         try
                         {
-                            adapterResponse = client.GetCloudRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client
+                                .GetCloudRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -899,8 +931,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = adapter.AdapterUrl;
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
-            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+            var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -920,7 +951,9 @@ namespace AdapterControllers.CDVR
                     //call Adapter GetRecordingLinks
                     try
                     {
-                        adapterResponse = client.GetCloudSeriesRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        adapterResponse = client
+                            .GetCloudSeriesRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .ExecuteAndWait();
                     }
                     catch (Exception ex)
                     {
@@ -951,7 +984,8 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks
                         try
                         {
-                            adapterResponse = client.GetCloudSeriesRecording(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                            adapterResponse = client.GetCloudSeriesRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .ExecuteAndWait();
                         }
                         catch (Exception ex)
                         {
@@ -1258,7 +1292,7 @@ namespace AdapterControllers.CDVR
 
             if (HttpContext.Current?.Items != null)
             {
-                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.Contains(Constants.TOPIC))
+                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.ContainsKey(Constants.TOPIC))
                 {
                     var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
                     HttpContext.Current.Items[Constants.TOPIC] = cdvrAdapter;
@@ -1291,7 +1325,7 @@ namespace AdapterControllers.CDVR
 
             if (HttpContext.Current?.Items != null)
             {
-                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.Contains(Constants.TOPIC))
+                if (HttpContext.Current?.Items.Count > 0 && HttpContext.Current.Items.ContainsKey(Constants.TOPIC))
                 {
                     var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
                     HttpContext.Current.Items[Constants.TOPIC] = cdvrProvider;

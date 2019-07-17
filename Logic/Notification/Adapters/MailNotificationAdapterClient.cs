@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using TVinciShared;
+using APILogic.MailNotificationsAdapterService;
 
 namespace Core.Notification
 {
@@ -39,6 +40,13 @@ namespace Core.Notification
             configurationSynchronizer.SynchronizedAct += configurationSynchronizer_SynchronizedAct;
         }
 
+        public static ServiceClient GetMailNotificationAdapterServiceClient(string url)
+        {
+            var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, url);
+            client.ConfigureServiceClient();
+            return client;
+        }
+
         public static bool SendConfigurationToAdapter(int groupId, MailNotificationAdapter adapter)
         {
             try
@@ -57,13 +65,14 @@ namespace Core.Notification
                 //set signature
                 string signature = string.Concat(adapter.Id, adapter.Settings, groupId, unixTimestamp);
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
+                    AdapterStatus adapterResponse = client.SetConfigurationAsync(
                         adapter.Id, adapter.Settings, groupId, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
-                    if (adapterResponse != null && adapterResponse.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                    if (adapterResponse != null && adapterResponse.Code == (int)eResponseStatus.OK)
                     {
                         log.DebugFormat("Successfully set configuration of mail notification adapter. Result: AdapterID = {0}", adapter.Id);
                         return true;
@@ -109,10 +118,11 @@ namespace Core.Notification
                 //set signature
                 string signature = string.Concat(adapter.Id, announcementName, unixTimestamp);
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementResponse adapterResponse = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    var adapterResponse = client.CreateAnnouncementAsync(adapter.Id, announcementName, unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null && adapterResponse.Status != null &&
                         adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -135,8 +145,9 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.CreateAnnouncement(adapter.Id, announcementName, unixTimestamp,
-                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                adapterResponse = client.CreateAnnouncementAsync(adapter.Id, announcementName, unixTimestamp,
+                                    Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                                    ).ExecuteAndWait();
                             }
                             catch (Exception ex)
                             {
@@ -191,10 +202,11 @@ namespace Core.Notification
                 //set signature
                 string signature = string.Concat(adapter.Id, externalAnnouncementId, unixTimestamp);
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    var adapterResponse = client.DeleteAnnouncementAsync(adapter.Id, externalAnnouncementId, unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null &&
                         adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -217,8 +229,9 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.DeleteAnnouncement(adapter.Id, externalAnnouncementId, unixTimestamp,
-                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                adapterResponse = client.DeleteAnnouncementAsync(adapter.Id, externalAnnouncementId, unixTimestamp,
+                                    Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                                    ).ExecuteAndWait();
                             }
                             catch (Exception ex)
                             {
@@ -280,11 +293,12 @@ namespace Core.Notification
                 string signature = string.Concat(adapter.Id, userData.FirstName, userData.LastName, userData.Email, token,
                     announcementExternalIds != null ? string.Join("", announcementExternalIds) : string.Empty, unixTimestamp);
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email,
+                    var adapterResponse = client.SubscribeAsync(adapter.Id, userData.FirstName, userData.LastName, userData.Email,
                         token, announcementExternalIds, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null && adapterResponse.Status != null &&
                         adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -307,8 +321,9 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.Subscribe(adapter.Id, userData.FirstName, userData.LastName, userData.Email, token, announcementExternalIds, unixTimestamp,
-                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                adapterResponse = client.SubscribeAsync(adapter.Id, userData.FirstName, userData.LastName, userData.Email, token, announcementExternalIds, unixTimestamp,
+                                    Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                                    ).ExecuteAndWait();
                             }
                             catch (Exception ex)
                             {
@@ -363,10 +378,11 @@ namespace Core.Notification
                 string signature = string.Concat(adapter.Id, userData.Email, announcementExternalIds != null ? string.Join("", announcementExternalIds) : string.Empty, unixTimestamp);
 
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AnnouncementListResponse adapterResponse = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    var adapterResponse = client.UnSubscribeAsync(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null && adapterResponse.Status != null &&
                         adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -389,8 +405,9 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.UnSubscribe(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
-                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                adapterResponse = client.UnSubscribeAsync(adapter.Id, userData.Email, announcementExternalIds, unixTimestamp,
+                                    Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                                    ).ExecuteAndWait();
                             }
                             catch (Exception ex)
                             {
@@ -446,12 +463,13 @@ namespace Core.Notification
                     mergeVars != null ? string.Concat(mergeVars.Select(kv => string.Concat(kv.Key, kv.Value))) : string.Empty,
                     unixTimestamp);
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject,
-                        mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null,
+                    var adapterResponse = client.PublishAsync(adapter.Id, externalAnnouncementId, templateId, subject,
+                        mergeVars?.Select(mv => new KeyValue() { Key = mv.Key, Value = mv.Value }).ToList(),
                         unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null &&
                         adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -474,10 +492,11 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.Publish(adapter.Id, externalAnnouncementId, templateId, subject,
-                                    mergeVars != null ? mergeVars.Select(mv => new APILogic.MailNotificationsAdapterService.KeyValue() { Key = mv.Key, Value = mv.Value }).ToList() : null,
+                                adapterResponse = client.PublishAsync(adapter.Id, externalAnnouncementId, templateId, subject,
+                                    mergeVars?.Select(mv => new KeyValue() { Key = mv.Key, Value = mv.Value }).ToList(),
                                     unixTimestamp,
-                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                    Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                                    ).ExecuteAndWait();
                             }
                             catch (Exception ex)
                             {
@@ -540,11 +559,12 @@ namespace Core.Notification
                      externalAnnouncementIds != null ? string.Join("", externalAnnouncementIds) : string.Empty, unixTimestamp);
 
 
-                using (APILogic.MailNotificationsAdapterService.ServiceClient client = new APILogic.MailNotificationsAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                using (var client = GetMailNotificationAdapterServiceClient(adapter.AdapterUrl))
                 {
-                    APILogic.MailNotificationsAdapterService.AdapterStatus adapterResponse = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
+                    var adapterResponse = client.UpdateUserAsync(adapter.Id, userId, oldUserData.Email,
                         NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, token, externalAnnouncementIds, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null &&
                         adapterResponse.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -567,9 +587,10 @@ namespace Core.Notification
                             try
                             {
                                 //call Adapter - after it is configured
-                                adapterResponse = client.UpdateUser(adapter.Id, userId, oldUserData.Email,
+                                adapterResponse = client.UpdateUserAsync(adapter.Id, userId, oldUserData.Email,
                                     NewUserData.Email, NewUserData.FirstName, NewUserData.LastName, token, externalAnnouncementIds, unixTimestamp,
-                                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                    Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                                    ).ExecuteAndWait();
                             }
                             catch (Exception ex)
                             {

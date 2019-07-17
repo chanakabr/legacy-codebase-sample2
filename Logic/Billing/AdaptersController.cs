@@ -11,6 +11,8 @@ using CouchbaseManager;
 using System.Threading;
 using Synchronizer;
 using TVinciShared;
+using PGWServiceClient = APILogic.PaymentGWAdapter.ServiceClient;
+using APILogic.PaymentGWAdapter;
 
 namespace Core.Billing
 {
@@ -20,33 +22,21 @@ namespace Core.Billing
     public class AdaptersController
     {
         #region Consts
-
         protected const string PARAMETER_PAYMENT_GATEWAY = "paymentGateway";
         protected const string PARAMETER_GROUP_ID = "groupId";
-
         #endregion
 
         #region Static Data Members
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         private static Dictionary<int, AdaptersController> instances;
-
-        /// <summary>
-        /// Locker for the entire class
-        /// </summary>
         private static readonly object generalLocker = new object();
-
         private static readonly Random random;
-
         #endregion
 
         #region Normal Data Members
-
         private int paymentGatewayId;
-
         private CouchbaseSynchronizer configurationSynchronizer;
-
+        private readonly PGWServiceClient _PGWAdapterClient;
         #endregion
 
         #region Getter
@@ -56,7 +46,7 @@ namespace Core.Billing
         /// </summary>
         /// <param name="paymentGatewayId"></param>
         /// <returns></returns>
-        public static AdaptersController GetInstance(int paymentGatewayId)
+        public static AdaptersController GetInstance(int paymentGatewayId, string adapterUrl)
         {
             if (!instances.ContainsKey(paymentGatewayId))
             {
@@ -64,7 +54,7 @@ namespace Core.Billing
                 {
                     if (!instances.ContainsKey(paymentGatewayId))
                     {
-                        instances[paymentGatewayId] = new AdaptersController();
+                        instances[paymentGatewayId] = new AdaptersController(adapterUrl);
                     }
                 }
             }
@@ -82,10 +72,19 @@ namespace Core.Billing
             random = new Random();
         }
 
-        private AdaptersController()
+        private AdaptersController(string adapterUrl)
         {
             configurationSynchronizer = new CouchbaseSynchronizer(100);
             configurationSynchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
+            _PGWAdapterClient = GetPGWServiceClient(adapterUrl);
+        }
+
+        public static PGWServiceClient GetPGWServiceClient(string adapterUrl)
+        {
+            var behvaiour = PGWServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new PGWServiceClient(behvaiour, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+            return adapterClient;
         }
 
         #endregion
@@ -104,11 +103,10 @@ namespace Core.Billing
 
             this.paymentGatewayId = request.paymentGateway.ID;
 
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, request.paymentGateway.AdapterUrl);
 
             if (!string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
             }
 
             //set unixTimestamp
@@ -121,16 +119,17 @@ namespace Core.Billing
             try
             {
                 //call Adapter Transact
-                adapterResponse = adapterClient.Transact(this.paymentGatewayId,
-                    request.siteGuid, request.chargeId,
-                    request.price, request.currency, request.productId.ToString(),
-                    ConvertTransactionType(request.productType),
-                    request.contentId.ToString(), request.userIP,
-                    request.paymentMethodExternalId,
-                    request.adapterData,
-                    unixTimestamp,
-                    System.Convert.ToBase64String(
-                        TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                adapterResponse = _PGWAdapterClient.TransactAsync(this.paymentGatewayId,
+                        request.siteGuid, request.chargeId,
+                        request.price, request.currency, request.productId.ToString(),
+                        ConvertTransactionType(request.productType),
+                        request.contentId.ToString(), request.userIP,
+                        request.paymentMethodExternalId,
+                        request.adapterData,
+                        unixTimestamp,
+                        Convert.ToBase64String(
+                        EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
 
                 LogAdapterResponse(adapterResponse, "Transact");
 
@@ -149,16 +148,17 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
-                    adapterResponse = adapterClient.Transact(this.paymentGatewayId,
-                        request.siteGuid, request.chargeId,
-                        request.price, request.currency, request.productId.ToString(),
-                        ConvertTransactionType(request.productType),
-                        request.contentId.ToString(), request.userIP,
-                        request.paymentMethodExternalId,
-                        request.adapterData,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(
-                            TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    adapterResponse = _PGWAdapterClient.TransactAsync(this.paymentGatewayId,
+                            request.siteGuid, request.chargeId,
+                            request.price, request.currency, request.productId.ToString(),
+                            ConvertTransactionType(request.productType),
+                            request.contentId.ToString(), request.userIP,
+                            request.paymentMethodExternalId,
+                            request.adapterData,
+                            unixTimestamp,
+                            Convert.ToBase64String(
+                            EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     LogAdapterResponse(adapterResponse, "Transact After NoConfigurationFound");
                 }
@@ -189,11 +189,9 @@ namespace Core.Billing
 
             this.paymentGatewayId = request.paymentGateway.ID;
 
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, request.paymentGateway.AdapterUrl);
-
             if (!string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
             }
 
             //set unixTimestamp
@@ -206,9 +204,10 @@ namespace Core.Billing
             try
             {
                 //call Adapter Transact
-                adapterResponse = adapterClient.ProcessRenewal(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
+                adapterResponse = _PGWAdapterClient.ProcessRenewalAsync(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
                                                                request.GracePeriodMinutes, request.price, request.currency, request.chargeId, request.paymentMethodExternalId, unixTimestamp,
-                                                               Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                                               Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                                                            ).ExecuteAndWait();
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
@@ -228,9 +227,10 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
-                    adapterResponse = adapterClient.ProcessRenewal(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
+                    adapterResponse = _PGWAdapterClient.ProcessRenewalAsync(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
                                                                 request.GracePeriodMinutes, request.price, request.currency, request.chargeId, request.paymentMethodExternalId, unixTimestamp,
-                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                                                           ).ExecuteAndWait();
 
                     // log response
                     LogAdapterResponse(adapterResponse, "Renewal");
@@ -258,11 +258,9 @@ namespace Core.Billing
 
             this.paymentGatewayId = paymentGateway.ID;
 
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, paymentGateway.AdapterUrl);
-
             if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
             }
 
             //set unixTimestamp
@@ -274,12 +272,13 @@ namespace Core.Billing
             try
             {
                 //call Adapter
-                adapterResponse = adapterClient.RemovePaymentMethod(this.paymentGatewayId,
+                adapterResponse = _PGWAdapterClient.RemovePaymentMethodAsync(this.paymentGatewayId,
                     chargeId,
                     paymentMethodExternalId,
                     unixTimestamp,
-                    System.Convert.ToBase64String(
-                        TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    Convert.ToBase64String(
+                    EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
 
                 //LogAdapterResponse(adapterResponse, "Transact");
 
@@ -298,12 +297,13 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter - after it is configured
-                    adapterResponse = adapterClient.RemovePaymentMethod(this.paymentGatewayId,
+                    adapterResponse = _PGWAdapterClient.RemovePaymentMethodAsync(this.paymentGatewayId,
                     chargeId.ToString(),
                     paymentMethodExternalId,
                     unixTimestamp,
-                    System.Convert.ToBase64String(
-                        TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    Convert.ToBase64String(
+                    EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
 
                     //LogAdapterResponse(adapterResponse, "Transact After NoConfigurationFound");
                 }
@@ -323,23 +323,23 @@ namespace Core.Billing
         /// </summary>
         /// <param name="origin"></param>
         /// <returns></returns>
-        private APILogic.PaymentGWAdapter.eTransactionType ConvertTransactionType(eTransactionType origin)
+        private APILogic.PaymentGWAdapter.eTransactionType ConvertTransactionType(ApiObjects.eTransactionType origin)
         {
             APILogic.PaymentGWAdapter.eTransactionType result = (APILogic.PaymentGWAdapter.eTransactionType)0;
 
             switch (origin)
             {
-                case eTransactionType.PPV:
+                case ApiObjects.eTransactionType.PPV:
                     {
                         result = APILogic.PaymentGWAdapter.eTransactionType.PPV;
                         break;
                     }
-                case eTransactionType.Subscription:
+                case ApiObjects.eTransactionType.Subscription:
                     {
                         result = APILogic.PaymentGWAdapter.eTransactionType.Subscription;
                         break;
                     }
-                case eTransactionType.Collection:
+                case ApiObjects.eTransactionType.Collection:
                     {
                         result = APILogic.PaymentGWAdapter.eTransactionType.Collection;
                         break;
@@ -359,15 +359,13 @@ namespace Core.Billing
 
             this.paymentGatewayId = request.paymentGateway.ID;
 
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, request.paymentGateway.AdapterUrl);
-
             if (!string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(paymentGatewayId, request.pendingExternalTransactionId, unixTimestamp);
@@ -375,8 +373,9 @@ namespace Core.Billing
             try
             {
                 //call Adapter verify
-                adapterResponse = adapterClient.VerifyPendingTransaction(paymentGatewayId, request.pendingExternalTransactionId, unixTimestamp,
-                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                adapterResponse = _PGWAdapterClient.VerifyPendingTransactionAsync(paymentGatewayId, request.pendingExternalTransactionId, unixTimestamp,
+                    Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
 
                 LogAdapterResponse(adapterResponse, "Verify");
 
@@ -395,8 +394,9 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter verify - after it is configured
-                    adapterResponse = adapterClient.VerifyPendingTransaction(paymentGatewayId, request.pendingExternalTransactionId, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    adapterResponse = _PGWAdapterClient.VerifyPendingTransactionAsync(paymentGatewayId, request.pendingExternalTransactionId, unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     LogAdapterResponse(adapterResponse, "Verify after NoConfigurationFound");
                 }
@@ -500,19 +500,19 @@ namespace Core.Billing
 
                 try
                 {
-                    APILogic.PaymentGWAdapter.ServiceClient client = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, paymentGateway.AdapterUrl);
 
                     //call Adapter Transact
                     APILogic.PaymentGWAdapter.AdapterStatus adapterResponse =
-                        client.SetConfiguration(this.paymentGatewayId, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl,
-                        paymentGateway.Settings != null ? paymentGateway.Settings.Select(setting => new APILogic.PaymentGWAdapter.KeyValue()
-                        {
-                            Key = setting.key,
-                            Value = setting.value
-                        }).ToArray() : null,
-                        groupId,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        _PGWAdapterClient.SetConfigurationAsync(this.paymentGatewayId, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl,
+                            paymentGateway.Settings != null ? paymentGateway.Settings.Select(setting => new APILogic.PaymentGWAdapter.KeyValue()
+                            {
+                                Key = setting.key,
+                                Value = setting.value
+                            }).ToArray() : null,
+                            groupId,
+                            unixTimestamp,
+                            Convert.ToBase64String(EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null)
                     {
@@ -543,10 +543,9 @@ namespace Core.Billing
                 {
                     this.paymentGatewayId = paymentGateway.ID;
 
-                    APILogic.PaymentGWAdapter.ServiceClient client = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, paymentGateway.AdapterUrl);
                     if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
                     {
-                        client.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
+                        _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
                     }
 
                     //set unixTimestamp
@@ -557,8 +556,9 @@ namespace Core.Billing
                         string.Concat(adapterKeyValue.Select(x => string.Concat(x.Key, x.Value))) : string.Empty);
 
                     //call Adapter
-                    adapterResponse = client.GetConfiguration(paymentGateway.ID, intent, adapterKeyValue, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    adapterResponse = _PGWAdapterClient.GetConfigurationAsync(paymentGateway.ID, intent, adapterKeyValue, unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     log.Debug(string.Format("GetAdapterConfiguration - paymentGateway id = {0}, groupId = {1} intent = {2}", paymentGateway.ID, groupId, intent));
 
@@ -580,8 +580,9 @@ namespace Core.Billing
                         log.Debug(string.Format("GetAdapterConfiguration - no configuration, sending again - paymentGateway id = {0}, groupId = {1} intent = {2}", paymentGateway.ID, groupId, intent));
 
                         //call Adapter after it is configured
-                        adapterResponse = client.GetConfiguration(paymentGateway.ID, intent, adapterKeyValue, unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        adapterResponse = _PGWAdapterClient.GetConfigurationAsync(paymentGateway.ID, intent, adapterKeyValue, unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
                     }
                     #endregion
 
@@ -651,15 +652,13 @@ namespace Core.Billing
 
             this.paymentGatewayId = request.paymentGateway.ID;
 
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, request.paymentGateway.AdapterUrl);
-
             if (!string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
             }
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature
             string signature = string.Concat(this.paymentGatewayId, request.siteGuid, request.userIP, request.productId.ToString(), request.productCode,
@@ -668,7 +667,7 @@ namespace Core.Billing
             try
             {
                 //call Adapter VerifyTransaction
-                adapterResponse = adapterClient.VerifyTransaction(this.paymentGatewayId,
+                adapterResponse = _PGWAdapterClient.VerifyTransactionAsync(this.paymentGatewayId,
                     request.siteGuid,
                     request.userIP,
                     request.productId.ToString(),
@@ -678,7 +677,7 @@ namespace Core.Billing
                     unixTimestamp,
                     Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))),
                     request.contentId.ToString(),
-                    request.adapterData);
+                    request.adapterData).ExecuteAndWait();
 
                 LogAdapterResponse(adapterResponse, "VerifyTransaction");
 
@@ -697,7 +696,7 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Verify Transaction - after it is configured
-                    adapterResponse = adapterClient.VerifyTransaction(this.paymentGatewayId,
+                    adapterResponse = _PGWAdapterClient.VerifyTransactionAsync(this.paymentGatewayId,
                         request.siteGuid,
                         request.userIP,
                         request.productId.ToString(),
@@ -707,7 +706,7 @@ namespace Core.Billing
                         unixTimestamp,
                         Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))),
                         request.contentId.ToString(),
-                        request.adapterData);
+                        request.adapterData).ExecuteAndWait();
 
                     LogAdapterResponse(adapterResponse, "VerifyTransaction");
                 }
@@ -735,12 +734,9 @@ namespace Core.Billing
             APILogic.PaymentGWAdapter.PaymentMethodResponse adapterResponse = null;
 
             this.paymentGatewayId = paymentGateway.ID;
-
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, paymentGateway.AdapterUrl);
-
             if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
             }
 
             //set unixTimestamp
@@ -752,12 +748,13 @@ namespace Core.Billing
             try
             {
                 //call Adapter
-                adapterResponse = adapterClient.RemoveAccount(this.paymentGatewayId,
-                    chargeId,
-                    paymentMethodExternalIds != null ? paymentMethodExternalIds.ToArray() : null,
-                    unixTimestamp,
-                    System.Convert.ToBase64String(
-                        TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                adapterResponse = _PGWAdapterClient.RemoveAccountAsync(this.paymentGatewayId,
+                        chargeId,
+                        paymentMethodExternalIds != null ? paymentMethodExternalIds.ToArray() : null,
+                        unixTimestamp,
+                        Convert.ToBase64String(
+                        EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == (int)PaymentGatewayAdapterStatus.NoConfigurationFound)
@@ -774,12 +771,13 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter - after it is configured
-                    adapterResponse = adapterClient.RemoveAccount(this.paymentGatewayId,
+                    adapterResponse = _PGWAdapterClient.RemoveAccountAsync(this.paymentGatewayId,
                     chargeId.ToString(),
                     paymentMethodExternalIds != null ? paymentMethodExternalIds.ToArray() : null,
                     unixTimestamp,
-                    System.Convert.ToBase64String(
-                        TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    Convert.ToBase64String(
+                    EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
                 }
             }
             catch (Exception ex)
@@ -801,16 +799,13 @@ namespace Core.Billing
                 return adapterResponse;
 
             this.paymentGatewayId = request.paymentGateway.ID;
-
-            APILogic.PaymentGWAdapter.ServiceClient adapterClient = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, request.paymentGateway.AdapterUrl);
-
             if (!string.IsNullOrEmpty(request.paymentGateway.AdapterUrl))
             {
-                adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
+                _PGWAdapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(request.paymentGateway.AdapterUrl);
             }
                        
-            List<APILogic.PaymentGWAdapter.TransactionProductDetails> renewSubscription = new List<APILogic.PaymentGWAdapter.TransactionProductDetails>();
-            renewSubscription = request.renewRequests.Select(x => new APILogic.PaymentGWAdapter.TransactionProductDetails() {
+            List<TransactionProductDetails> renewSubscription = new List<TransactionProductDetails>();
+            renewSubscription = request.renewRequests.Select(x => new TransactionProductDetails() {
                 gracePeriodMinutes = x.GracePeriodMinutes,
                 price = x.price,
                 productCode = x.productCode,
@@ -820,7 +815,7 @@ namespace Core.Billing
 
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            long unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //set signature           
 
@@ -830,9 +825,10 @@ namespace Core.Billing
             try
             {
                 //call Adapter Transact
-                adapterResponse = adapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
+                adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
                     request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
-                    Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));                
+                    Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();                
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
@@ -851,9 +847,10 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
-                    adapterResponse = adapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
+                    adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
                         request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
-                        Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     // log response
                     LogAdapterResponse(adapterResponse, "Renewal");

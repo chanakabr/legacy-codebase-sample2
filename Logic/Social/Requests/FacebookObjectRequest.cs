@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web.Script.Serialization;
 using Core.Social.Responses;
 using ApiObjects;
 using ApiObjects.Social;
+using Newtonsoft.Json;
 
 namespace Core.Social.Requests
 {
@@ -128,8 +128,7 @@ namespace Core.Social.Requests
                         break;
                 }
 
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBObjectReponse oCreateObjReponse = serializer.Deserialize<FBObjectReponse>(sCreateObjectResponse);
+                FBObjectReponse oCreateObjReponse = JsonConvert.DeserializeObject<FBObjectReponse>(sCreateObjectResponse);
 
                 if (oCreateObjReponse != null && !string.IsNullOrEmpty(oCreateObjReponse.id))
                 {

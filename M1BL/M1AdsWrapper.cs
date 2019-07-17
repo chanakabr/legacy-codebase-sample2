@@ -10,6 +10,9 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using KLogMonitor;
+using TVinciShared;
+using BusinessFascadeService = M1.MobileOneBusinessFascadeService;
+using SingleSignOnService = M1.SingleSignOnService;
 
 namespace M1BL
 {
@@ -22,8 +25,8 @@ namespace M1BL
         private const string WS_SESSION_VALID_MSG = "Session_Valid";
 
         //private const string WS_FAILURE_MSG = "Status_AuthFailure";
-        
-        private const string SESSION_TOKEN_VALIDATION_SUCCESS_MSG = "true"; 
+
+        private const string SESSION_TOKEN_VALIDATION_SUCCESS_MSG = "true";
         private const string SESSION_TOKEN_VALIDATION_FAILURE_MSG = "false";
 
         //private const string PROXIMITY_WS_FACADE_USER_NAME = "ToggleUser";
@@ -84,7 +87,7 @@ namespace M1BL
         //members
         private List<M1_ServiceParameters> m_lPrimaryActions = new List<M1_ServiceParameters>();
         private List<M1_ServiceParameters> m_lActions = new List<M1_ServiceParameters>();
-        
+
         //private AdsService.AuthorizationWebServiceService m1Service = new AdsService.AuthorizationWebServiceService();
 
         private int m_nGroupID = 0;
@@ -92,7 +95,7 @@ namespace M1BL
         private string m_sAppPassword = string.Empty;
         //private string m_sMacAddress = string.Empty;
         private string m_sWsAdsUrl = string.Empty;
-        private string m_sWsServiceFacadeUrl = string.Empty; 
+        private string m_sWsServiceFacadeUrl = string.Empty;
         private string m_sWsServiceInterfaceUrl = string.Empty;
         private string m_sSessionValidationUrl = string.Empty;
         private string m_sBaseRedirectUrl = string.Empty;
@@ -112,6 +115,24 @@ namespace M1BL
             InitObject(nGroupID, sAppID);
         }
 
+        public static BusinessFascadeService.ServiceInterfaceSoapClient GetMobileOneBusinessFascadeServiceInterfaceSoapClient(string url)
+        {
+            _log.Debug($"Constructing MobileOneBusinessFascadeServiceInterfaceSoapClient Client with url:[{url}]");
+            var SSOAdapaterServiceEndpointConfiguration = BusinessFascadeService.ServiceInterfaceSoapClient.EndpointConfiguration.ServiceInterfaceSoap;
+            var client = new BusinessFascadeService.ServiceInterfaceSoapClient(SSOAdapaterServiceEndpointConfiguration, url);
+            client.ConfigureServiceClient();
+            return client;
+        }
+
+        public static SingleSignOnService.ServiceFacadeSoapClient GetSingleSignOnServiceFacadeSoapClient(string url)
+        {
+            _log.Debug($"Constructing MobileOneBusinessFascadeServiceInterfaceSoapClient Client with url:[{url}]");
+            var SSOAdapaterServiceEndpointConfiguration = SingleSignOnService.ServiceFacadeSoapClient.EndpointConfiguration.ServiceFacadeSoap;
+            var client = new SingleSignOnService.ServiceFacadeSoapClient(SSOAdapaterServiceEndpointConfiguration, url);
+            client.ConfigureServiceClient();
+            return client;
+        }
+
 
         private bool InitObject(int nGroupID, string sAppID)
         {
@@ -123,7 +144,7 @@ namespace M1BL
                 {
                     return false;
                 }
-                
+
                 InitM1GroupParameters(nGroupID, sAppID);
 
                 //if (!string.IsNullOrEmpty(m_sWsAdsUrl))
@@ -132,7 +153,7 @@ namespace M1BL
                 //}
 
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                                          
+
                 DataTable dt = BillingDAL.Get_M1CustomerServiceType(m_nGroupID);
 
                 if (dt != null)
@@ -183,7 +204,7 @@ namespace M1BL
             {
                 dsGroupParams = BillingDAL.Get_M1GroupParameters(nGroupID, null);
             }
-            
+
             if (dsGroupParams != null && dsGroupParams.Tables.Count > 0)
             {
                 DataTable dtGroupParams = dsGroupParams.Tables[0];
@@ -192,11 +213,11 @@ namespace M1BL
                     DataRow groupParameterRow = dtGroupParams.Rows[0];
                     m_nGroupID = ODBCWrapper.Utils.GetIntSafeVal(groupParameterRow["group_id"]);
                     m_sAppID = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["app_id"]);
-                    m_sAppPassword  = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["app_password"]);
+                    m_sAppPassword = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["app_password"]);
                     //m_sMacAddress = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["macAddress"]);
-                    m_sWsAdsUrl =  ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_ads_url"]);
+                    m_sWsAdsUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_ads_url"]);
                     m_sWsServiceFacadeUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_service_facade_url"]);
-                    m_sWsServiceInterfaceUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_service_interface_url"]);                      
+                    m_sWsServiceInterfaceUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["ws_service_interface_url"]);
                     m_sSessionValidationUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["sessionValidation_url"]);
                     m_sBaseRedirectUrl = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["base_redirect_url"]);
                     m_sFixedMailAddress = ODBCWrapper.Utils.GetSafeStr(groupParameterRow["invoice_mail_address"]);
@@ -275,7 +296,7 @@ namespace M1BL
         //    }
 
         //    return retValue;
-        
+
         //}
 
         public ADSResponse CheckExistingPurchasePermissions(string sUserID, out string sFixedMailAddress)
@@ -287,11 +308,11 @@ namespace M1BL
             };
 
 
-            sFixedMailAddress = m_sFixedMailAddress;          
+            sFixedMailAddress = m_sFixedMailAddress;
 
             if (bIsInit == false)
             {
-                return (new ADSResponse( M1_API_ResponseReason.WRAPPER_NOT_INITIALIZED, false));
+                return (new ADSResponse(M1_API_ResponseReason.WRAPPER_NOT_INITIALIZED, false));
             }
 
             try
@@ -299,16 +320,16 @@ namespace M1BL
                 retValue = CanAccessVas(sUserID);
                 if (!retValue.is_succeeded)
                 {
-                    return retValue; 
+                    return retValue;
                 }
-                retValue = CheckBlackList(sUserID); 
+                retValue = CheckBlackList(sUserID);
             }
             catch (Exception ex)
             {
                 _log.Error(ex.Message, ex);
-                return (new ADSResponse(M1_API_ResponseReason.GENERAL_ERROR, false,  ",exception:" + ex.Message + " || " + ex.StackTrace));
+                return (new ADSResponse(M1_API_ResponseReason.GENERAL_ERROR, false, ",exception:" + ex.Message + " || " + ex.StackTrace));
             }
-                
+
             return retValue;
         }
 
@@ -360,22 +381,22 @@ namespace M1BL
                     return retValue;
                 }
 
-              
+
                 foreach (M1_ServiceParameters sp in m_lActions)
                 {
-                    if (!IsAuthorized(userID: sMsisdn, policyID: sp.m_sCanAccessServiceID, appID: m_sAppID, appSecret: m_sAppPassword)) 
-                        //result = CanAccessVas(sMsisdn, m_sAppID, sp.m_sCanAccessServiceID, m_sAppPassword);  //m1Service.canAccess(sMsisdn, m_sAppID, sp.m_sCanAccessServiceID, m_sAppPassword);
+                    if (!IsAuthorized(userID: sMsisdn, policyID: sp.m_sCanAccessServiceID, appID: m_sAppID, appSecret: m_sAppPassword))
+                    //result = CanAccessVas(sMsisdn, m_sAppID, sp.m_sCanAccessServiceID, m_sAppPassword);  //m1Service.canAccess(sMsisdn, m_sAppID, sp.m_sCanAccessServiceID, m_sAppPassword);
                     {
                         continue;
                     }
-                    
+
                     //if (result != WS_AUTH_SUCCESS_MSG) { continue; }
 
                     sCustomerServiceID = sp.m_sCanAccessServiceID;
                     nServiceID = sp.m_nServiceID;
                     break;
                 }
-              
+
 
                 if (result != WS_AUTH_SUCCESS_MSG)
                 {
@@ -386,7 +407,7 @@ namespace M1BL
                 retValue = CreateDummyVas(sMsisdn, nServiceID);
                 _log.DebugFormat("CreateDummyVas for MSISDN: {0}, Service ID: {1} - Result: {2}", sMsisdn, nServiceID, retValue.is_succeeded);
 
-                if (!retValue.is_succeeded )
+                if (!retValue.is_succeeded)
                 {
                     string desc = string.Format("Failure result from create dummy vas: {0}, Msisdn:{1}, appID:{2}, ServiceID:{3}", result, sMsisdn, m_sAppID, nServiceID);
                     return (new ADSResponse(M1_API_ResponseReason.CREATE_DUMMY_VAS_ERROR, false, desc));
@@ -487,7 +508,7 @@ namespace M1BL
             }
 
             return false;
-        } 
+        }
 
         public ADSResponse CanAccessVas(string sUserID)
         {
@@ -505,8 +526,8 @@ namespace M1BL
                     if (IsAuthorized(userID: sUserID, policyID: sp.m_sCanAccessVasServiceID, appID: m_sAppID, appSecret: m_sAppPassword)) { continue; }
 
                     string desc = string.Format("Authorization denied from M1 canAccessVas for: Msisdn:{0}, appID:{1}, serviceID:{2}", sUserID, m_sAppID, sp.m_sCanAccessServiceID);
-                        //string desc = string.Format("Failure result from canAccessVas() method:{0}, UserID:{1}, appID:{2}, serviceID:{3}", result, sUserID, m_sAppID, sp.m_sCanAccessVasServiceID);
-                    
+                    //string desc = string.Format("Failure result from canAccessVas() method:{0}, UserID:{1}, appID:{2}, serviceID:{3}", result, sUserID, m_sAppID, sp.m_sCanAccessVasServiceID);
+
                     return (new ADSResponse(M1_API_ResponseReason.CAN_ACCESS_VAS_SERVICE_FAILURE, false, desc));
                 }
             }
@@ -530,17 +551,17 @@ namespace M1BL
             try
             {
                 string inputXML = string.Format(XML_GET_CUST_BLACK_LIST, sMsisdn);
-                MobileOneBusinessFascadeService.StandardStringArrayResult proximityResult = CallProximityAction(inputXML);
+                var proximityResult = CallProximityAction(inputXML);
 
                 if (proximityResult != null && proximityResult.WebServiceResult != null && proximityResult.WebServiceResult.ErrorCode != 0)
                 {
                     string desc = string.Format("Transaction failed result from MobileOneBusinessFascadeService.ServiceInterface.Execute(), error code:{0}, error message{1}",
                             proximityResult.WebServiceResult.ErrorCode, proximityResult.WebServiceResult.ErrorMessages);
-                    
-                    return (new ADSResponse(M1_API_ResponseReason.CHECK_BLACK_LIST_ERROR , false, desc));
+
+                    return (new ADSResponse(M1_API_ResponseReason.CHECK_BLACK_LIST_ERROR, false, desc));
                 }
 
-                if (proximityResult != null && !(proximityResult.Return != null && 
+                if (proximityResult != null && !(proximityResult.Return != null &&
                     proximityResult.Return.Length > 0 && proximityResult.Return[0].Contains("<BLACK_LIST>false</BLACK_LIST>")))
                 {
                     return (new ADSResponse(M1_API_ResponseReason.USER_BLACKLISTED, false));
@@ -566,7 +587,7 @@ namespace M1BL
             {
 
                 string inputXML = string.Format(XML_CREATE_DUMMY_VAS, sMsisdn, nServiceID);
-                MobileOneBusinessFascadeService.StandardStringArrayResult proximityResult = CallProximityAction(inputXML);
+                var proximityResult = CallProximityAction(inputXML);
 
                 if (proximityResult != null && proximityResult.WebServiceResult != null && proximityResult.WebServiceResult.ErrorCode != 0)
                 {
@@ -575,9 +596,9 @@ namespace M1BL
                         string desc = string.Format("Transaction failed result from MobileOneBusinessFascadeService.ServiceInterface.Execute(), error code:{0}, error message{1}",
                             proximityResult.WebServiceResult.ErrorCode, proximityResult.WebServiceResult.ErrorMessages);
 
-                        return (new ADSResponse(M1_API_ResponseReason.CREATE_DUMMY_VAS_ERROR , false, desc));
+                        return (new ADSResponse(M1_API_ResponseReason.CREATE_DUMMY_VAS_ERROR, false, desc));
                     }
-                }              
+                }
 
             }
             catch (Exception ex)
@@ -599,14 +620,14 @@ namespace M1BL
             try
             {
                 string inputXML = string.Format(XML_REMOVE_DUMMY_VAS, sMsisdn, nCustomerServiceID);
-                MobileOneBusinessFascadeService.StandardStringArrayResult proximityResult = CallProximityAction(inputXML);
+                var proximityResult = CallProximityAction(inputXML);
 
                 if (proximityResult != null && proximityResult.WebServiceResult != null && proximityResult.WebServiceResult.ErrorCode != 0)
                 {
                     string desc = string.Format("Transaction failed result from MobileOneBusinessFascadeService.ServiceInterface.Execute(), error code:{0}, error message{1}",
                                             proximityResult.WebServiceResult.ErrorCode, proximityResult.WebServiceResult.ErrorMessages);
 
-                    return (new ADSResponse(M1_API_ResponseReason.REMOVE_DUMMY_VAS_ERROR , false, desc));
+                    return (new ADSResponse(M1_API_ResponseReason.REMOVE_DUMMY_VAS_ERROR, false, desc));
                 }
             }
             catch (Exception ex)
@@ -641,15 +662,14 @@ namespace M1BL
             return retValue;
         }
 
-        private MobileOneBusinessFascadeService.StandardStringArrayResult CallProximityAction(string inputXml)
+        
+
+        private BusinessFascadeService.StandardStringArrayResult CallProximityAction(string inputXml)
         {
 
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
-            SingleSignOnService.ServiceFacade oSSOService = new SingleSignOnService.ServiceFacade
-            {
-                Url = m_sWsServiceFacadeUrl
-            };
+            var oSSOService = GetSingleSignOnServiceFacadeSoapClient(m_sWsServiceFacadeUrl);
 
 
             //    "GetAuthenticationTicketForClients: PROXIMITY_WS_FACADE_USER_NAME: " + PROXIMITY_WS_FACADE_USER_NAME +
@@ -657,7 +677,7 @@ namespace M1BL
             //                    " PROXIMITY_WS_FACADE_ACCOUNT_TYPE: " + PROXIMITY_WS_FACADE_ACCOUNT_TYPE,
             //    M1_ADSWRAPPER_LOG_FILE);
 
-            SingleSignOnService.GetAuthenticationTicketResult oTicket = oSSOService.GetAuthenticationTicketForClients(m_sWsFacadeUsername, m_sWsFacadePassword, m_sWsFacadeAccountType);
+            var oTicket = oSSOService.GetAuthenticationTicketForClientsAsync(m_sWsFacadeUsername, m_sWsFacadePassword, m_sWsFacadeAccountType).ExecuteAndWait();
 
             //// to check return result
             if (oTicket != null && oTicket.ActionResult != null && oTicket.ActionResult.ErrorCode != 0)
@@ -668,16 +688,15 @@ namespace M1BL
             }
 
             //create the general service interface object
-            MobileOneBusinessFascadeService.ServiceInterface myInterface = new MobileOneBusinessFascadeService.ServiceInterface {Url = m_sWsServiceInterfaceUrl};
+            var myInterface = GetMobileOneBusinessFascadeServiceInterfaceSoapClient(m_sWsServiceInterfaceUrl);
             //point to correct back-end server
             //myInterface.Url = myInterface.Url.Replace("localhost", this.serverName);
 
             ////create authentication object
-            MobileOneBusinessFascadeService.AuthenticationSoapHeader clTicket = new MobileOneBusinessFascadeService.AuthenticationSoapHeader();
-            
+            var clTicket = new BusinessFascadeService.AuthenticationSoapHeader();
+
             if (oTicket != null) clTicket.Credential = oTicket.AuthTicket;
-            myInterface.AuthenticationSoapHeaderValue = clTicket;
-            
+
             ////invoke        
             string channelId = m_sWsInterfaceChannelId;
             string userID = PROXIMITY_WS_INTERFACE_USER_ID;
@@ -685,8 +704,8 @@ namespace M1BL
 
             //    " userID= " + PROXIMITY_WS_INTERFACE_USER_ID
             //    , M1_ADSWRAPPER_LOG_FILE);
-            MobileOneBusinessFascadeService.StandardStringArrayResult currResult = myInterface.Execute(inputXml, channelId, userID, onErrorContinue);
-
+            var response = myInterface.ExecuteAsync(clTicket, inputXml, channelId, userID, onErrorContinue).ExecuteAndWait();
+            var currResult = response.ExecuteResult;
 
             return currResult;
         }

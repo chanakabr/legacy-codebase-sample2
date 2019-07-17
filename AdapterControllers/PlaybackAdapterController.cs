@@ -49,13 +49,23 @@ namespace AdapterControllers
             configurationSynchronizer.SynchronizedAct += configurationSynchronizer_SynchronizedAct;
         }
 
+        public ServiceClient GetPlaybackAdapterServiceClient(string adapterUrl)
+        {
+            log.Debug($"Constructing GetPlaybackAdapterServiceClient Client with url:[{adapterUrl}]");
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+
+            return adapterClient;
+        }
+
         public bool SendConfiguration(PlaybackProfile adapter, int partnerId)
         {
             bool result = false;
 
             if (adapter != null && !string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                PlaybackAdapter.ServiceClient client = new PlaybackAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+                var client = GetPlaybackAdapterServiceClient(adapter.AdapterUrl);
 
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -66,8 +76,9 @@ namespace AdapterControllers
                 try
                 {
                     PlaybackAdapter.AdapterStatus adapterResponse =
-                        client.SetConfiguration(adapter.Id, adapter.Settings, partnerId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                        client.SetConfigurationAsync(adapter.Id, adapter.Settings, partnerId, unixTimestamp,
+                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                        .ExecuteAndWait();
 
                     if (adapterResponse != null)
                         log.DebugFormat("Playback Adapter Send Configuration Result = {0}", adapterResponse);
@@ -103,8 +114,7 @@ namespace AdapterControllers
                 throw new KalturaException("playback adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            PlaybackAdapter.ServiceClient adapterClient = new PlaybackAdapter.ServiceClient();
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+            var adapterClient = GetPlaybackAdapterServiceClient(adapter.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -132,7 +142,7 @@ namespace AdapterControllers
                     Udid = udid,
                     TimeStamp = unixTimestamp,
                     Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))),
-                    AdapterData = playbackAdapterData.ToArray(),
+                    AdapterData = playbackAdapterData.ToList(),
                     UserId = userId
                 };
 
@@ -189,7 +199,7 @@ namespace AdapterControllers
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetPlaybackContext(contextOptions);
+                adapterResponse = adapterClient.GetPlaybackContextAsync(contextOptions).ExecuteAndWait();
             }
 
             if (adapterResponse != null)
@@ -265,7 +275,7 @@ namespace AdapterControllers
                             Drm = x.Drm == null ? null : ParseDrm(x.Drm),
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
-                            Protocols = x.Protocols
+                            Protocols = x.Protocols                            
                         }).ToList();
                 }
 
@@ -290,7 +300,7 @@ namespace AdapterControllers
             return kalturaPlaybackContext;
         }       
 
-        private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(PlaybackAdapter.DrmPlaybackPluginData[] drms)
+        private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(List<PlaybackAdapter.DrmPlaybackPluginData> drms)
         {
             List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drmPlaybackPluginDatas = new List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>();
 
@@ -327,7 +337,7 @@ namespace AdapterControllers
             return drmPlaybackPluginDatas;
         }
 
-        private PlaybackAdapter.DrmPlaybackPluginData[] ParseDrm(List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drms)
+        private List<PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drms)
         {
             List<PlaybackAdapter.DrmPlaybackPluginData> drmPlaybackPluginDatas = new List<PlaybackAdapter.DrmPlaybackPluginData>();
 
@@ -361,7 +371,7 @@ namespace AdapterControllers
                 drmPlaybackPluginDatas.Add(drm);
             }
 
-            return drmPlaybackPluginDatas.ToArray();
+            return drmPlaybackPluginDatas;
         }
 
         private PlaybackAdapter.AdapterPlaybackContext ParsePlaybackContextToAdapterContext(PlaybackContext kalturaPlaybackContext)
@@ -378,7 +388,7 @@ namespace AdapterControllers
                              Description = x.Description,
                              Type = (PlaybackAdapter.RuleActionType)x.Type
 
-                         }).ToArray();
+                         }).ToList();
                 }
 
                 if (kalturaPlaybackContext.Messages != null)
@@ -388,7 +398,7 @@ namespace AdapterControllers
                         {
                             Code = x.Code,
                             Message = x.Message
-                        }).ToArray();
+                        }).ToList();
                 }
 
                 if (kalturaPlaybackContext.Sources != null)
@@ -421,7 +431,7 @@ namespace AdapterControllers
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols
-                        }).ToArray();
+                        }).ToList();
                 }
 
                 if (kalturaPlaybackContext.Plugins != null)
@@ -438,14 +448,14 @@ namespace AdapterControllers
                              Format = x.Format,
                              Label = x.Label,
                              Language = x.Language
-                         }).ToArray();
+                         }).ToList();
                 }
             }
 
             return playbackContext;
         }
 
-        private PlaybackAdapter.PlaybackPluginData[] ParsePlugins(List<ApiObjects.PlaybackAdapter.PlaybackPluginData> plugins)
+        private List<PlaybackAdapter.PlaybackPluginData> ParsePlugins(List<ApiObjects.PlaybackAdapter.PlaybackPluginData> plugins)
         {
             List<PlaybackAdapter.PlaybackPluginData> playbackPluginDatas = new List<PlaybackAdapter.PlaybackPluginData>();
             PlaybackAdapter.PlaybackPluginData playbackPluginData;
@@ -469,10 +479,10 @@ namespace AdapterControllers
                 playbackPluginDatas.Add(playbackPluginData);
             }
 
-            return playbackPluginDatas.ToArray();
+            return playbackPluginDatas;
         }
 
-        private static List<ApiObjects.PlaybackAdapter.PlaybackPluginData> ParsePlugins(PlaybackAdapter.PlaybackPluginData[] plugins)
+        private static List<ApiObjects.PlaybackAdapter.PlaybackPluginData> ParsePlugins(List<PlaybackAdapter.PlaybackPluginData> plugins)
         {
             List<ApiObjects.PlaybackAdapter.PlaybackPluginData> playbackPluginDatas = new List<ApiObjects.PlaybackAdapter.PlaybackPluginData>();
             ApiObjects.PlaybackAdapter.PlaybackPluginData playbackPluginData;

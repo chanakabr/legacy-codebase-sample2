@@ -500,7 +500,9 @@ namespace ApiObjects.Response
         CouponGroupNotExist = 9020,
         CouponCodeNotInTheRightLength = 9021,
         DiscountCodeNotExist = 9022,
-
+        CouponCodeIsMissing = 9023,
+        CouponCodeAlreadyLoaded = 9024,
+        CouponCodeNotInHousehold = 9025,
         #endregion
 
         #region Adapters 10000-10999

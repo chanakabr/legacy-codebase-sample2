@@ -265,9 +265,6 @@ namespace Core.Users
                 FlowManager.CreateDefaultRules(ref userResponse, this, newUser, userId.ToString(), GroupId, keyValueList);
             }
             
-            // subscribe to news letter
-            FlowManager.SubscribeToNewsLetter(ref userResponse, this, dynamicData, newUser, keyValueList);
-
             // send welcome mail
             FlowManager.SendWelcomeMailRequest(ref userResponse, this, newUser, password, keyValueList);
 
@@ -284,33 +281,6 @@ namespace Core.Users
         }
 
         public override void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList) { }
-
-        internal override void InitSubscribeToNewsLetter(ref UserResponseObject response, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe)
-        {
-            string sNewsLetter = dynamicData.GetValByKey("newsletter");
-            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true"))
-                shouldSubscribe = true;
-            else
-                shouldSubscribe = false;
-        }
-
-        public override void PreSubscribeToNewsLetter(ref UserResponseObject response, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe, ref List<KeyValuePair> keyValueList) { }
-
-        internal override bool MidSubscribeToNewsLetter(ref UserResponseObject userResponse, UserDynamicData dynamicData, User user, ref bool shouldSubscribe)
-        {
-            bool passed = false;
-            if (shouldSubscribe)
-            {
-                if (newsLetterImpl != null)
-                {
-                    if (!newsLetterImpl.IsUserSubscribed(user))
-                        passed = newsLetterImpl.Subscribe(userResponse.m_user);
-                }
-            }
-            return passed;
-        }
-
-        public override void PostSubscribeToNewsLetter(ref UserResponseObject userResponse, bool passed, ref UserDynamicData dynamicData, ref User user, ref List<KeyValuePair> keyValueList) { }
 
         internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
         {
@@ -432,19 +402,6 @@ namespace Core.Users
 
                 user.Initialize(userId, GroupId, shouldSaveInCache);
 
-                if (newsLetterImpl != null)
-                {
-                    if (user.m_oDynamicData != null && user.m_oDynamicData.GetDynamicData() != null)
-                    {
-                        foreach (UserDynamicDataContainer udc in user.m_oDynamicData.GetDynamicData())
-                        {
-                            if (udc.m_sDataType.ToLower().Equals("newsletter"))
-                            {
-                                udc.m_sValue = newsLetterImpl.IsUserSubscribed(user).ToString().ToLower();
-                            }
-                        }
-                    }
-                }
                 UserResponseObject resp = new UserResponseObject();
                 if (user.m_oBasicData.m_sUserName == "")
                     resp.Initialize(ResponseStatus.UserDoesNotExist, user);
@@ -480,7 +437,6 @@ namespace Core.Users
                 {
                     this.isActivationNeededProp = tUser.isActivationNeededProp;
                     this.mailImpl = tUser.mailImpl;
-                    this.newsLetterImpl = tUser.newsLetterImpl;
                     this.GroupId = tUser.GroupId;
                     this.ActivationMail = tUser.ActivationMail;
                     this.ChangedPinMail = tUser.ChangedPinMail;
@@ -539,16 +495,6 @@ namespace Core.Users
                         mailPort = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_PORT");
                         //bool member
                         isActivationNeededProp = (nActivationNeeded == 1);
-                        //m_newsLetterImpl composition
-                        object oNewLetterImplID = dvMailParameters["NewsLetter_Impl_ID"];
-                        if (oNewLetterImplID != DBNull.Value && oNewLetterImplID != null && !string.IsNullOrEmpty(oNewLetterImplID.ToString()))
-                        {
-                            object oNewLetterApiKey = dvMailParameters["NewsLetter_API_Key"];
-                            object oNewLetterListID = dvMailParameters["NewsLetter_List_ID"];
-
-                            if (oNewLetterApiKey != DBNull.Value && oNewLetterApiKey != null && oNewLetterListID != DBNull.Value && oNewLetterListID != null)
-                                newsLetterImpl = Utils.GetBaseImpl(oNewLetterApiKey.ToString(), oNewLetterListID.ToString(), int.Parse(oNewLetterImplID.ToString()));
-                        }
 
                         int nMailImplID = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "Mail_Impl_ID");
 
@@ -597,18 +543,6 @@ namespace Core.Users
                 User user = new User();
 
                 user.Initialize(userId, GroupId);
-
-                if (newsLetterImpl != null)
-                {
-                    if (user.m_oDynamicData != null && user.m_oDynamicData.GetDynamicData() != null)
-                    {
-                        foreach (UserDynamicDataContainer udc in user.m_oDynamicData.GetDynamicData())
-                        {
-                            if (udc.m_sDataType.ToLower().Equals("newsletter"))
-                                udc.m_sValue = newsLetterImpl.IsUserSubscribed(user).ToString().ToLower();
-                        }
-                    }
-                }
 
                 if (user.m_oBasicData.m_sUserName == "")
                     userResponse.Initialize(ResponseStatus.UserDoesNotExist, user);
