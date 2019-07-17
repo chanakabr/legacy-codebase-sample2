@@ -1,18 +1,10 @@
 ﻿using ApiObjects.Response;
-using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
-using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers

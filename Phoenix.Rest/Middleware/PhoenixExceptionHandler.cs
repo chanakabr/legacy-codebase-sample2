@@ -1,0 +1,95 @@
+﻿using KLogMonitor;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Phoenix.Context;
+using Phoenix.Rest.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
+using WebAPI;
+using WebAPI.App_Start;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+
+namespace Phoenix.Rest.Middleware
+{
+    public class PhoenixExceptionHandler
+    {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
+        private readonly RequestDelegate _Next;
+
+        public IResponseFromatterProvider _FormatterProvider { get; }
+
+        public PhoenixExceptionHandler(RequestDelegate next, IResponseFromatterProvider formatterProvider)
+        {
+            _Next = next;
+            _FormatterProvider = formatterProvider;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await _Next(context);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+
+                    StatusWrapper errorResponse;
+                    int code;
+                    string message;
+                    string stackTrace;
+                    KalturaApiExceptionArg[] args;
+                    if (ex is ApiException apiEx)
+                    {
+                        code = apiEx.Code;
+                        message = apiEx.Message;
+                        stackTrace = apiEx.StackTrace;
+                        args = apiEx.Args;
+                    }
+                    else
+                    {
+                        _Logger.Error("Unexpected unknown error: ",ex);
+                        code = (int)StatusCode.Error;
+                        message = "Unknown error";
+                        stackTrace = ex.StackTrace;
+                        args = null;
+                    }
+
+                    KalturaApiExceptionHelpers.HandleError(message, stackTrace);
+                    var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
+                    errorResponse = new StatusWrapper(code, ctx.SessionId.Value, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
+
+
+                    // get proper response formatter but make sure errors should be only xml or json ...
+                    context.Request.Headers.TryGetValue("accept", out var acceptHeader);
+                    var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
+                    var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), ctx.Format);
+
+                    var response = await formatter.GetStringResponse(errorResponse);
+
+                    context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
+                    context.Response.Headers.Add("X-Kaltura", $"error-{code}");
+                    context.Response.ContentType = formatter.AcceptContentTypes[0];
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+
+                    await context.Response.WriteAsync(response);
+                }
+                catch (Exception e)
+                {
+                    _Logger.Error($"Error while trying to generate an API Error response from APIException:[{JsonConvert.SerializeObject(ex)}]", e);
+                    throw e;
+                }
+            }
+        }
+    }
+}

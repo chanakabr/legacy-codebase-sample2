@@ -8,7 +8,6 @@ using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.Description;
 using System.Xml;
 using WebAPI.App_Start;
 using WebAPI.Controllers;
@@ -22,6 +21,8 @@ using Newtonsoft.Json;
 using WebAPI.Utils;
 using TVinciShared;
 using WebAPI.Models.API;
+using WebAPI;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Validator.Managers.Scheme
 {

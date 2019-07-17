@@ -1,13 +1,9 @@
 ﻿using System;
-using AutoMapper;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using ApiObjects;
-using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;

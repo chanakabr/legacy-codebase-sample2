@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using AutoMapper;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Models;
 using WebAPI.Models.Catalog;
-using WebAPI.Utils;
-using WebAPI.ObjectsConvertor.Mapping.Utils;
-using WebAPI.ObjectsConvertor.Mapping;
 using Core.Catalog;
 using ApiObjects.SearchObjects;
 using ApiObjects;

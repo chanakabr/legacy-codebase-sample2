@@ -2,12 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Http;
-using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;

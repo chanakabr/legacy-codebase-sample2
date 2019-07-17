@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Web;
-using WebAPI.Utils;
-using WebAPI.Models;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
-using System.Web.Http.Controllers;
-using System.Net.Http;
-using WebAPI.Filters;
 using KLogMonitor;
 using TVinciShared;
 using ApiObjects.Base;
+using WebAPI.Utils;
 
 namespace WebAPI.Managers.Models
 {
@@ -293,32 +287,32 @@ namespace WebAPI.Managers.Models
         internal void SaveOnRequest()
         {
             HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
-            HttpContext.Current.Items.Add(RequestParser.REQUEST_GROUP_ID, groupId);
-            HttpContext.Current.Items.Add(RequestParser.REQUEST_KS, this);
+            HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, groupId);
+            HttpContext.Current.Items.Add(RequestContext.REQUEST_KS, this);
         }
 
         public static void ClearOnRequest()
         {
-            HttpContext.Current.Items.Remove(RequestParser.REQUEST_GROUP_ID);
-            HttpContext.Current.Items.Remove(RequestParser.REQUEST_KS);
+            HttpContext.Current.Items.Remove(RequestContext.REQUEST_GROUP_ID);
+            HttpContext.Current.Items.Remove(RequestContext.REQUEST_KS);
         }
 
         internal static void SaveOnRequest(KS ks)
         {
-            if (HttpContext.Current.Items.Contains(RequestParser.REQUEST_KS))
-                HttpContext.Current.Items[RequestParser.REQUEST_KS] = ks;
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_KS))
+                HttpContext.Current.Items[RequestContext.REQUEST_KS] = ks;
             else
-                HttpContext.Current.Items.Add(RequestParser.REQUEST_KS, ks);
+                HttpContext.Current.Items.Add(RequestContext.REQUEST_KS, ks);
 
-            if (HttpContext.Current.Items.Contains(RequestParser.REQUEST_GROUP_ID))
-                HttpContext.Current.Items[RequestParser.REQUEST_GROUP_ID] = ks.groupId;
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_GROUP_ID))
+                HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] = ks.groupId;
             else
-                HttpContext.Current.Items.Add(RequestParser.REQUEST_GROUP_ID, ks.groupId);
+                HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, ks.groupId);
         }
 
         internal static KS GetFromRequest()
         {
-            return (KS)HttpContext.Current.Items[RequestParser.REQUEST_KS];
+            return (KS)HttpContext.Current.Items[RequestContext.REQUEST_KS];
         }
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)

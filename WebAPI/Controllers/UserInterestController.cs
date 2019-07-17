@@ -1,6 +1,5 @@
 ﻿using ApiObjects.Response;
 using System.Collections.Generic;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using AutoMapper;
-using DAL;
 using ApiObjects;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Users;
-using WebAPI.Models.General;
 using WebAPI.Models.Social;
 using ApiObjects.Social;
 using Core.Social;

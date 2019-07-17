@@ -1,14 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
-using TVinciShared;
-using WebAPI.App_Start;
 using WebAPI.Managers.Scheme;
+using System.Collections.Generic;
 
 namespace WebAPI.Models.General
 {
