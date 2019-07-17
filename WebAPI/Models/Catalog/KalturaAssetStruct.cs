@@ -1,17 +1,13 @@
 ﻿using ApiObjects.BulkUpload;
 using ConfigurationManager;
-using Core.Catalog;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 

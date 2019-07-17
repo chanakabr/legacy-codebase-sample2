@@ -20,7 +20,16 @@ namespace Reflector
 {
     class Deserializer : Base
     {
-        public Deserializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonDeserializer.cs")
+
+        public static string GetJsonDeserializerCSFilePath()
+        {
+            var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\KalturaJsonDeserializer.cs");
+            return filePath;
+        }
+
+        public Deserializer() : base(GetJsonDeserializerCSFilePath())
         {
             types.Remove(typeof(KalturaOTTObject));
             types.Remove(typeof(KalturaApiExceptionArg));
@@ -39,6 +48,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Reflection;");
+            file.WriteLine("using TVinciShared;");
         }
 
         protected override void writeBody()

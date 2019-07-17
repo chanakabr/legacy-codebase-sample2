@@ -1,21 +1,13 @@
-﻿using ApiObjects;
-using ApiObjects.Catalog;
-using ApiObjects.Response;
+﻿using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Web;
-using System.Web.Http;
 using TVinciShared;
-using WebAPI.App_Start;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
@@ -188,7 +180,7 @@ namespace WebAPI.Controllers
                 if (filter is KalturaChannelExternalFilter)
                 {
                     KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;
-                    string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                    string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
                     response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
                         language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual.ToString(), channelExternalFilter.FreeText, channelExternalFilter.DynamicOrderBy);
                 }
@@ -984,7 +976,7 @@ namespace WebAPI.Controllers
 
                 var convertedWith = with.Select(x => x.type).ToList();
 
-                string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
                 string str_utc_offset = utc_offset.HasValue ? utc_offset.Value.ToString() : null;
                 response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.getPageIndex(), pager.PageSize, order_by, convertedWith, deviceType, str_utc_offset, free_param);

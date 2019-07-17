@@ -1,8 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.SearchObjects;
-using AutoMapper;
-using System;
 using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;

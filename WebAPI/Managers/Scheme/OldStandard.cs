@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Web;
-using WebAPI.Filters;
-using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Scheme
 {
@@ -41,9 +37,9 @@ namespace WebAPI.Managers.Scheme
                 return OldStandardAttribute.GetCurrentVersion();
             }
 
-            if (HttpContext.Current.Items != null || HttpContext.Current.Items[RequestParser.REQUEST_VERSION] != null)
+            if (HttpContext.Current.Items != null || HttpContext.Current.Items[RequestContext.REQUEST_VERSION] != null)
             {
-                return (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+                return (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION];
             }
 
             return null;

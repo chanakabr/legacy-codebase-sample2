@@ -1,77 +1,38 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Runtime.Serialization;
 using WebAPI.Models.General;
-using System.Text;
 using WebAPI.Managers.Models;
 using WebAPI.Exceptions;
-using System.Web.Http;
 using System.Collections.Generic;
 using System.Collections;
 using System.Web;
 using WebAPI.Filters;
-using WebAPI.Managers.Scheme;
 using KLogMonitor;
 using System.Reflection;
 using System.Data;
-using System.ComponentModel;
-using WebAPI.Models.Catalog;
 using System.Linq;
-using Core.Catalog.CatalogManagement;
 using ApiObjects.Response;
-using ApiObjects.Catalog;
-using TVinciShared;
-using ApiObjects;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
-using WebAPI.Utils;
-using System.Drawing;
+
 using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
-using WebAPI.Managers;
 using System.Net;
-using System.Net.Http;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using TVinciShared;
 
 namespace WebAPI.App_Start
 {
-    public interface IKalturaBulkUploadObject
-    {
-    }
-
-    public interface IKalturaExcelableObject : IKalturaBulkUploadObject
-    {
-        Dictionary<string, object> GetExcelValues(int groupId);
-    }
-
-    public interface IKalturaBulkUploadStructure
-    {
-    }
-
-    public interface IKalturaExcelStructure : IKalturaBulkUploadStructure
-    {
-        ExcelStructure GetExcelStructure(int groupId);
-    }
-
-    public interface IKalturaExcelableListResponse : IKalturaExcelStructure
-    {
-        List<IKalturaExcelableObject> GetObjects();
-    }
 
     public class ExcelFormatter : BaseFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string EXCEL_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        private const string EXCEL_SHEET_NAME = "OPC Batch Template";
-        public const string EXCEL_EXTENTION = ".xlsx";
 
-        public ExcelFormatter() : base(KalturaResponseType.EXCEL, EXCEL_CONTENT_TYPE)
+
+
+        public ExcelFormatter() : base(KalturaResponseType.EXCEL, ExcelFormatterConsts.EXCEL_CONTENT_TYPE)
         {
         }
 
@@ -88,93 +49,19 @@ namespace WebAPI.App_Start
             return true;
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, System.Net.TransportContext transportContext)
-        {
-            if (value != null && value is StatusWrapper)
-            {
-                try
-                {
-                    // validate expected type was received
-                    StatusWrapper restResultWrapper = value as StatusWrapper;
-
-                    if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
-                    {
-                        if (!(restResultWrapper.Result is IKalturaExcelStructure))
-                        {
-                            throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
-                        }
-
-                        int? groupId;
-                        string fileName;
-
-                        if (!TryGetDataFromRequest(out groupId, out fileName))
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
-                        }
-
-                        var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
-                        if (kalturaExcelStructure == null)
-                        {
-                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-                        }
-
-                        var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
-                        if (excelStructure == null)
-                        {
-                            log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
-                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
-                        }
-
-                        DataTable fullDataTable = null;
-                        var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
-                        if (excelableListResponse != null)
-                        {
-                            fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
-                        }
-
-                        HttpContext.Current.Response.ContentType = EXCEL_CONTENT_TYPE;
-                        HttpContext.Current.Response.AddHeader("Content-Disposition", "attachment; filename=" + fileName);
-
-                        return CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                    }
-                }
-                catch(ApiException ex)
-                {
-                    value = CreateStatusWrapper(ex, value);
-                }
-                catch (Exception ex)
-                {
-                    var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
-                    value = CreateStatusWrapper(apiException, value);
-                }
-            }
-
-            if (HttpContext.Current.Request.HttpMethod.Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
-            {
-                HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            }
-
-            using (TextWriter streamWriter = new StreamWriter(writeStream))
-            {
-                HttpContext.Current.Response.ContentType = "application/json";
-                streamWriter.Write(JsonConvert.SerializeObject(value));
-                return Task.FromResult(writeStream);
-            }
-        }
-
         private StatusWrapper CreateStatusWrapper(ApiException ex, object value)
         {
             var subCode = ex.Code;
             var message = ex.Message;
-            var exceptionWrapper = WrappingHandler.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
+            var exceptionWrapper = KalturaApiExceptionHelpers.prepareExceptionResponse(ex.Code, ex.Message, ex.Args);
 
             var exceptionContentValue = (ex.Response.Content as System.Net.Http.ObjectContent).Value;
             if (exceptionContentValue is ApiException.ExceptionPayload && (exceptionContentValue as ApiException.ExceptionPayload).code != 0)
             {
                 var payload = exceptionContentValue as WebAPI.Exceptions.ApiException.ExceptionPayload;
                 subCode = payload.code;
-                message = WrappingHandler.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
-                exceptionWrapper = WrappingHandler.prepareExceptionResponse(payload.code, message, payload.arguments);
+                message = KalturaApiExceptionHelpers.HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
+                exceptionWrapper = KalturaApiExceptionHelpers.prepareExceptionResponse(payload.code, message, payload.arguments);
                 if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
                 {
                     HttpContext.Current.Response.StatusCode = (int)payload.failureHttpCode;
@@ -201,9 +88,9 @@ namespace WebAPI.App_Start
                 throw new RequestParserException(RequestParserException.PARTNER_INVALID);
             }
 
-            if (HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] is IEnumerable)
+            if (HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS] is IEnumerable)
             {
-                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
+                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {
@@ -213,7 +100,7 @@ namespace WebAPI.App_Start
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "Filter.name");
                     }
 
-                    if (!fileName.EndsWith(EXCEL_EXTENTION))
+                    if (!fileName.EndsWith(ExcelFormatterConsts.EXCEL_EXTENTION))
                     {
                         throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Filter.name");
                     }
@@ -225,7 +112,7 @@ namespace WebAPI.App_Start
                     var id = requestMethodParameters.FirstOrDefault();
                     if (id != null)
                     {
-                        fileName = id.ToString() + EXCEL_EXTENTION;
+                        fileName = id.ToString() + ExcelFormatterConsts.EXCEL_EXTENTION;
                         isResponseValid = true;
                     }
                 }
@@ -234,11 +121,11 @@ namespace WebAPI.App_Start
             return isResponseValid;
         }
 
-        private Task CreateExcel(Stream writeStream, string fileName, DataTable dt, ExcelStructure excelStructure)
+        private void CreateExcel(Stream writeStream, string fileName, DataTable dt, ExcelStructure excelStructure)
         {
             using (ExcelPackage pack = new ExcelPackage(new FileInfo(fileName)))
             {
-                ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(EXCEL_SHEET_NAME);
+                ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(ExcelFormatterConsts.EXCEL_SHEET_NAME);
 
                 int columnNameRowIndex = 1;
                 // Set overview instructions
@@ -277,8 +164,6 @@ namespace WebAPI.App_Start
                 }
 
                 pack.SaveAs(writeStream);
-
-                return Task.FromResult(writeStream);
             }
         }
 
@@ -337,6 +222,85 @@ namespace WebAPI.App_Start
             }
 
             return dataTable;
+        }
+
+        public override async Task<string> GetStringResponse(object value)
+        {
+            if (value != null && value is StatusWrapper)
+            {
+                try
+                {
+                    // validate expected type was received
+                    StatusWrapper restResultWrapper = value as StatusWrapper;
+
+                    if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
+                    {
+                        if (!(restResultWrapper.Result is IKalturaExcelStructure))
+                        {
+                            throw new BadRequestException(BadRequestException.FORMAT_NOT_SUPPORTED, KalturaResponseType.EXCEL, (int)KalturaResponseType.EXCEL);
+                        }
+
+                        int? groupId;
+                        string fileName;
+
+                        if (!TryGetDataFromRequest(out groupId, out fileName))
+                        {
+                            throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
+                        }
+
+                        var kalturaExcelStructure = restResultWrapper.Result as IKalturaExcelStructure;
+                        if (kalturaExcelStructure == null)
+                        {
+                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                        }
+
+                        var excelStructure = kalturaExcelStructure.GetExcelStructure(groupId.Value);
+                        if (excelStructure == null)
+                        {
+                            log.ErrorFormat("excelStructure is null for groupId:{0}, value:{1}", groupId.Value, JsonConvert.SerializeObject(value));
+                            throw new ClientException((int)eResponseStatus.InvalidBulkUploadStructure, "Invalid BulkUpload Structure");
+                        }
+
+                        DataTable fullDataTable = null;
+                        var excelableListResponse = restResultWrapper.Result as IKalturaExcelableListResponse;
+                        if (excelableListResponse != null)
+                        {
+                            fullDataTable = GetDataTableByObjects(groupId.Value, excelableListResponse.GetObjects(), excelStructure.ExcelColumns);
+                        }
+
+                        HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
+                        HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
+
+                        using (var writeStream = new MemoryStream())
+                        using (var sr = new StreamReader(writeStream))
+                        {
+                            CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
+                            writeStream.Seek(0, SeekOrigin.Begin);
+                            var excelStringresult = await sr.ReadToEndAsync();
+                            return excelStringresult;
+                        }
+
+                    }
+                }
+                catch (ApiException ex)
+                {
+                    value = CreateStatusWrapper(ex, value);
+                }
+                catch (Exception ex)
+                {
+                    var apiException = new ApiException(ex, HttpStatusCode.InternalServerError);
+                    value = CreateStatusWrapper(apiException, value);
+                }
+            }
+
+            if (HttpContext.Current.Request.GetHttpMethod().Equals("POST") && HttpContext.Current.Response.StatusCode == (int)HttpStatusCode.OK)
+            {
+                HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+
+            HttpContext.Current.Response.ContentType = "application/json";
+            var exceptionResult = JsonConvert.SerializeObject(value);
+            return exceptionResult;
         }
     }
 }

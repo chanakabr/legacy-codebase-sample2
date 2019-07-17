@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Web;
-using WebAPI.Clients;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Models;
 using AutoMapper;
 using WebAPI.Exceptions;
-using WebAPI.Utils;
-using WebAPI.Models.General;
 using System.Reflection;
 using KLogMonitor;
 using WebAPI.Managers.Models;
-using WebAPI.Managers;
-using WebAPI.Models.API;
 using ConfigurationManager;
 using CachingProvider.LayeredCache;
 

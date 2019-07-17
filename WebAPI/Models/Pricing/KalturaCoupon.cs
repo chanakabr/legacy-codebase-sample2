@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -51,5 +48,26 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "leftUses")]
         [SchemeProperty(ReadOnly = true)]
         public int? LeftUses { get; set; }
+
+        /// <summary>
+        /// Coupon code
+        /// </summary>
+        [DataMember(Name = "couponCode")]
+        [JsonProperty("couponCode")]
+        [XmlElement(ElementName = "couponCode")]
+        [SchemeProperty(ReadOnly = true)]
+        public string CouponCode { get; set; }
+    }
+
+    public partial class KalturaCouponListResponse : KalturaListResponse
+    {
+        /// <summary>
+        /// Coupons
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaCoupon> Objects { get; set; }
     }
 }

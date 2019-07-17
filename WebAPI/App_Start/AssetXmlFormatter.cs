@@ -1,26 +1,18 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Linq;
-using System.Runtime.Serialization;
 using WebAPI.Models.General;
 using System.Text;
 using WebAPI.Managers.Models;
-using WebAPI.Exceptions;
-using System.Web.Http;
 using System.Collections.Generic;
-using System.Collections;
 using WebAPI.Models.Catalog;
 using TVinciShared;
-using WebAPI.Models.Renderers;
 using KLogMonitor;
 using System.Reflection;
-using WebAPI.Utils;
 using WebAPI.Models.API;
 
 namespace WebAPI.App_Start
@@ -32,7 +24,7 @@ namespace WebAPI.App_Start
         public AssetXmlFormatter() : base(KalturaResponseType.ASSET_XML, "application/xml")
         {
         }
-        
+
         public override bool CanReadType(Type type)
         {
             if (type == (Type)null)
@@ -679,18 +671,17 @@ namespace WebAPI.App_Start
             return feed;
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content,
-            System.Net.TransportContext transportContext)
+        public override Task<string> GetStringResponse(object response)
         {
-            return Task.Factory.StartNew(() =>
+            return Task<string>.Factory.StartNew(() =>
             {
                 try
                 {
                     Feed resultFeed = new Feed();
-                    if (value != null)
+                    if (response != null)
                     {
                         // validate expected type was received
-                        StatusWrapper restResultWrapper = (StatusWrapper)value;
+                        StatusWrapper restResultWrapper = (StatusWrapper)response;
                         if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
                         {
                             resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
@@ -705,21 +696,20 @@ namespace WebAPI.App_Start
                                 doc.RemoveChild(declaration);
 
                             var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                            writeStream.Write(buf, 0, buf.Length);
+                            return doc.OuterXml;
                         }
                         else
                         {
-                            using (TextWriter streamWriter = new StreamWriter(writeStream))
-                            {
-                                streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
-                            }
+                            return JsonConvert.SerializeObject(restResultWrapper);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     log.Error("Error while formatting asset list to XML ingest", ex);
+
                 }
+                return null;
             });
         }
     }
