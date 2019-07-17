@@ -35,7 +35,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("businessModuleIdEqual")]
         [XmlElement(ElementName = "businessModuleIdEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public long? BusinessModuleIdEqual { get; set; }
+        public long BusinessModuleIdEqual { get; set; }
 
         internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
         {
@@ -48,6 +48,14 @@ namespace WebAPI.Models.Domains
         public override KalturaHouseholdCouponOrderBy GetDefaultOrderByValue()
         {
             return KalturaHouseholdCouponOrderBy.NONE;
+        }
+
+        internal override void Validate()
+        {
+            if (BusinessModuleIdEqual == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHouseholdCouponFilter.businessModuleIdEqual");
+            }
         }
     }
 

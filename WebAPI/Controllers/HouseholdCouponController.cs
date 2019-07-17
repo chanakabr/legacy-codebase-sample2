@@ -32,6 +32,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CouponCodeAlreadyLoaded)]
         [Throws(eResponseStatus.CouponNotValid)]
         [Throws(eResponseStatus.HouseholdRequired)]
+        [Throws(eResponseStatus.ExceededHouseholdCouponLimit)]        
         public static KalturaHouseholdCoupon Add(KalturaHouseholdCoupon householdCoupon)
         {
             var response = HouseholdCouponController.DoAdd(householdCoupon);
@@ -59,9 +60,13 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaHouseholdCouponListResponse List(KalturaHouseholdCouponFilter filter = null)
         {
-            if(filter == null)
+            if (filter == null)
             {
                 filter = new KalturaHouseholdCouponFilter();
+            }
+            else
+            {
+                filter.Validate();
             }
 
             var response = filter.Execute<KalturaHouseholdCouponListResponse, KalturaHouseholdCoupon>();

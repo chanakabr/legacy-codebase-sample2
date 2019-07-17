@@ -25657,10 +25657,7 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BusinessModuleIdEqual.HasValue)
-            {
-                ret.Add("businessModuleIdEqual", "\"businessModuleIdEqual\": " + BusinessModuleIdEqual);
-            }
+            ret.Add("businessModuleIdEqual", "\"businessModuleIdEqual\": " + BusinessModuleIdEqual);
             ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "\"");
             return ret;
         }
@@ -25671,10 +25668,7 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BusinessModuleIdEqual.HasValue)
-            {
-                ret.Add("businessModuleIdEqual", "<businessModuleIdEqual>" + BusinessModuleIdEqual + "</businessModuleIdEqual>");
-            }
+            ret.Add("businessModuleIdEqual", "<businessModuleIdEqual>" + BusinessModuleIdEqual + "</businessModuleIdEqual>");
             ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "" + "</businessModuleTypeEqual>");
             return ret;
         }
