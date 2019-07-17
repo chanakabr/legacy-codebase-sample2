@@ -31,8 +31,9 @@ namespace WebAPI.Models.General
             
             try
             {
+                var contextData = KS.GetContextData();
                 // TODO SHIR - TALK WITH TANTAN about all list objects so id FINISH GENERIC LIST METHOD in ICrudHandler - put in controller
-                var coreResponse = GetResponseListFromCore<KalturaT>();
+                var coreResponse = GetResponseListFromCore<KalturaT>(contextData);
                 response.SetData(coreResponse);
             }
             catch (ClientException ex)
@@ -43,7 +44,7 @@ namespace WebAPI.Models.General
             return response;
         }
 
-        internal KalturaGenericListResponse<KalturaT> GetResponseListFromCore<KalturaT>()
+        internal KalturaGenericListResponse<KalturaT> GetResponseListFromCore<KalturaT>(ContextData contextData)
             where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
         {
             GenericListResponse<ICrudHandeledObject> response = null;
@@ -53,7 +54,7 @@ namespace WebAPI.Models.General
                 var coreFilter = AutoMapper.Mapper.Map<ICrudFilter>(this);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = this.Handler.List(coreFilter);
+                    response = this.Handler.List(contextData, coreFilter);
                 }
             }
             catch (Exception ex)
