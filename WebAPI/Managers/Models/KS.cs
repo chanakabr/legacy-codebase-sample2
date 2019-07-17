@@ -14,6 +14,7 @@ using System.Net.Http;
 using WebAPI.Filters;
 using KLogMonitor;
 using TVinciShared;
+using ApiObjects.Base;
 
 namespace WebAPI.Managers.Models
 {
@@ -263,16 +264,12 @@ namespace WebAPI.Managers.Models
                 }
             }).Reverse().ToArray();
         }
-
         
-
         public override string ToString()
         {
             return encryptedValue;
         }
-
         
-
         public static string preparePayloadData(List<KeyValuePair<string, string>> pairs)
         {
             return string.Join(";;", pairs.Select(x => string.Format("{0}={1}", x.Key, x.Value)));
@@ -372,6 +369,16 @@ namespace WebAPI.Managers.Models
             // build KS
             string fallbackSecret = group.UserSecretFallbackExpiryEpoch > DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) ? group.UserSecretFallback : null;
             return KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KS.KSVersion.V2, fallbackSecret);
+        }
+
+        public static ContextData GetContextData()
+        {
+            var contextData = new ContextData(GetFromRequest().GroupId)
+            {
+                DomainId = HouseholdUtils.GetHouseholdIDByKS()
+            };
+
+            return contextData;
         }
     }
 }

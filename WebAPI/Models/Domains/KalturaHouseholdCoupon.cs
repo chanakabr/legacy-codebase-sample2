@@ -3,6 +3,8 @@ using ApiObjects.Base;
 using ApiObjects.Pricing;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -13,7 +15,6 @@ using WebAPI.Models.Pricing;
 
 namespace WebAPI.Models.Domains
 {
-    // TODO SHIR - CRUD changes
     /// <summary>
     /// Household Coupon details
     /// </summary>
@@ -56,9 +57,14 @@ namespace WebAPI.Models.Domains
         {
             throw new System.NotImplementedException();
         }
+
+        internal override void SetId(string id)
+        {
+            this.Code = id;
+        }
     }
 
-    public partial class KalturaHouseholdCouponListResponse : KalturaListResponse
+    public partial class KalturaHouseholdCouponListResponse : KalturaListResponse<KalturaHouseholdCoupon>
     {
         /// <summary>
         /// Household coupon
@@ -68,5 +74,15 @@ namespace WebAPI.Models.Domains
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaHouseholdCoupon> Objects { get; set; }
+
+        internal override void SetData(KalturaGenericListResponse<KalturaHouseholdCoupon> kalturaGenericList)
+        {
+            this.Objects = kalturaGenericList.Objects;
+            this.TotalCount = kalturaGenericList.TotalCount;
+        }
+
+        public KalturaHouseholdCouponListResponse(): base()
+        {
+        }
     }
 }

@@ -17,10 +17,10 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    // TODO SHIR - CRUD changes
     [Service("householdCoupon")]
     public class HouseholdCouponController : KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string, CouponWalletFilter>
     {
+        // TODO SHIR - talk with Arthur about Throws, description etc in all crud methods
         /// <summary>
         /// householdCoupon add
         /// </summary>
@@ -31,14 +31,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CouponCodeIsMissing)]
         [Throws(eResponseStatus.CouponCodeAlreadyLoaded)]
         [Throws(eResponseStatus.CouponNotValid)]
-        [Throws(eResponseStatus.HouseholdRequired)]        
-        static public KalturaHouseholdCoupon Add(KalturaHouseholdCoupon householdCoupon)
+        [Throws(eResponseStatus.HouseholdRequired)]
+        public static KalturaHouseholdCoupon Add(KalturaHouseholdCoupon householdCoupon)
         {
-            var groupId = KS.GetFromRequest().GroupId;
-            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            var extraParams = new Dictionary<string, object>() { { "householdId", householdId } };
-            // TODO SHIR - TALK WITH TANTAN ABOUT THIS (that controller is static)
-            var response = KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string, CouponWalletFilter>.Add(groupId, householdCoupon,extraParams);
+            var response = HouseholdCouponController.DoAdd(householdCoupon);
             return response;
         }
 
@@ -51,38 +47,19 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CouponCodeNotInHousehold)]
         static public void Delete(string code)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            var extraParams = new Dictionary<string, object>() { { "householdId", householdId } };
-            KalturaCrudController<KalturaHouseholdCoupon, CouponWallet, string, CouponWalletFilter>.Delete(groupId, code, CouponWalletHandler.Instance, extraParams);
+            HouseholdCouponController.DoDelete(code, CouponWalletHandler.Instance);
         }
 
         /// <summary>
-        /// Lists all topic notifications in the system.
+        /// Gets all HouseholdCoupon items for a household
         /// </summary>
-        /// <param name="filter">Filter options</param>
+        /// <param name="filter">Request filter</param>
+        /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
         static public KalturaHouseholdCouponListResponse List(KalturaHouseholdCouponFilter filter)
         {
-            KalturaHouseholdCouponListResponse response = new KalturaHouseholdCouponListResponse();
-            var groupId = KS.GetFromRequest().GroupId;
-            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-            if (filter == null)
-                filter = new KalturaHouseholdCouponFilter();
-
-            try
-            {
-                KalturaGenericListResponse<KalturaHouseholdCoupon> coreResponse = filter.Execute<KalturaHouseholdCoupon>();
-                response.Objects = coreResponse.Objects;
-                response.TotalCount = coreResponse.TotalCount;
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-            
+            var response = filter.Execute<KalturaHouseholdCouponListResponse, KalturaHouseholdCoupon>();
             return response;
         }
     }

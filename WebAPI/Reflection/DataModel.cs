@@ -3243,6 +3243,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaListResponse`1":
+                    switch(property.Name)
+                    {
+                        case "TotalCount":
+                            return "totalCount";
+                    }
+                    break;
+                    
                 case "KalturaLiveAsset":
                     switch(property.Name)
                     {
@@ -7445,7 +7453,7 @@ namespace WebAPI.Reflection
                     {
                         case "applycoupon":
                             RolesManager.ValidateActionPermitted("entitlement", "applyCoupon", false);
-                            EntitlementController.ApplyCoupon((string) methodParams[0]);
+                            EntitlementController.ApplyCoupon((long) methodParams[0], (string) methodParams[1]);
                             return null;
                             
                         case "buy":
@@ -12635,6 +12643,10 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "applycoupon":
+                            ret.Add("purchaseId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
                             ret.Add("couponCode", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),

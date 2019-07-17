@@ -588,18 +588,31 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-
+        
         /// <summary>
-        /// Returns the data about the next renewal 
-        /// </summary>                
+        /// Apply new coupon for existing subscription
+        /// </summary>
+        /// <param name="purchaseId">purchase Id</param>
         /// <param name="couponCode">coupon Code</param>
         [Action("applyCoupon")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public void ApplyCoupon(string couponCode)
+        [Throws(eResponseStatus.CouponNotValid)]
+        [Throws(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription)]
+        static public void ApplyCoupon(long purchaseId, string couponCode)
         {
-            // TODO SHIR - ADD METHOd ApplyCoupon(string couponCode)
-            // validate if can be add
+            var groupId = KS.GetFromRequest().GroupId;
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode );
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
         }
     }
 }
