@@ -435,7 +435,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.ExternalId);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
             {
@@ -477,7 +477,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, name, description);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, name, description, null);
             }
             catch (ClientException ex)
             {

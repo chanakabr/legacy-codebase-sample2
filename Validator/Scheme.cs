@@ -644,6 +644,8 @@ namespace Validator.Managers.Scheme
 
         private void writeService(Type controller)
         {
+            if (controller.IsAbstract) { return ; }
+
             var serviceId = SchemeManager.getServiceId(controller);
 
             writer.WriteStartElement("service");
