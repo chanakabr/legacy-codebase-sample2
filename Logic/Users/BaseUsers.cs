@@ -62,8 +62,6 @@ namespace Core.Users
         protected bool? m_bIsActivationNeeded; // Visibility reduced && type changed to nullable bool
         //due to MCORP-1685. Use IsActivationNeeded declared in this abstract class in order to access it
 
-        protected BaseNewsLetterImpl m_newsLetterImpl;
-
         protected BaseMailImpl m_mailImpl;
 
         #endregion

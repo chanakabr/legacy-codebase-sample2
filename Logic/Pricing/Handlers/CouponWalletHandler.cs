@@ -38,7 +38,7 @@ namespace Core.Pricing.Handlers
                     response.Status.Set(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
-                
+
                 // Get Household's Wallet
                 List<CouponWallet> couponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
                 
@@ -62,6 +62,11 @@ namespace Core.Pricing.Handlers
                 //couponWalletToAdd.CouponId = couponData.Coupon.m_nCouponID; //TODO anat
 
                 couponWalletToAdd.CreateDate = DateTime.UtcNow;
+                if(couponWalletList == null)
+                {
+                    couponWalletList = new List<CouponWallet>();
+                }
+
                 couponWalletList.Add(couponWalletToAdd);
 
                 // Save CouponWalletAtCB                    
@@ -70,7 +75,7 @@ namespace Core.Pricing.Handlers
                     log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. contextData: {0}.", contextData.ToString());
                     return response;
                 }
-
+                response.Object = couponWalletToAdd;
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -104,7 +109,7 @@ namespace Core.Pricing.Handlers
                     response.Set(eResponseStatus.HouseholdRequired, "Household required");
                     return response;
                 }
-
+                
                 // Get Household's Walt
                 List<CouponWallet> CouponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
 
@@ -116,7 +121,7 @@ namespace Core.Pricing.Handlers
                 }
 
                 // remove coupon from walt
-                CouponWalletList.Remove(CouponWalletList.Where(x => x.CouponCode == couponCode).First());
+                CouponWalletList.Remove(CouponWalletList.First(x => x.CouponCode == couponCode));
 
                 // Save CouponWalletAtCB                    
                 if (!PricingDAL.SaveHouseholdCouponWalletCB(contextData.DomainId.Value, CouponWalletList))

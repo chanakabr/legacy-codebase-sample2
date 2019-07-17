@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ImageResizer;
+
 
 namespace ImageManager
 {
@@ -28,7 +28,7 @@ namespace ImageManager
         public string sBaseName;
         public ResizeStatus eResizeStatus;
 
-        public ImageObj() : this(string.Empty, ImageType.THUMB, 0, 0, string.Empty) {}
+        public ImageObj() : this(string.Empty, ImageType.THUMB, 0, 0, string.Empty) { }
 
         public ImageObj(string baseName, ImageType eType, int width, int height, string ext)
         {
@@ -43,7 +43,7 @@ namespace ImageManager
             }
             else
             {
-                oResizeSettings = new ResizeSettings(width, height, ImageResizer.FitMode.Crop, null);
+                oResizeSettings = new ResizeSettings(width, height, FitMode.Crop);
                 oResizeSettings.Quality = 80;
             }
 
@@ -72,5 +72,32 @@ namespace ImageManager
 
             return string.Format("{0}_{1}.{2}", sBaseName, name, sExt);
         }
+    }
+
+    public class ResizeSettings
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public FitMode FitMode { get; set; }
+        public int Quality { get; set; }
+
+        public ResizeSettings()
+        {
+        }
+
+        public ResizeSettings(int width, int height, FitMode fitMode, int? quality = null)
+        {
+            Width = width;
+            Height = height;
+            FitMode = fitMode;
+            Quality = quality ?? 100;
+        }
+
+    }
+
+    public enum FitMode
+    {
+        Crop = 0,
+        Resize = 1,
     }
 }

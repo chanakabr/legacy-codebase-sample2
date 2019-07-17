@@ -20,7 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web.Script.Serialization;
+
 using TVinciShared;
 
 namespace Core.Social
@@ -56,8 +56,7 @@ namespace Core.Social
 
                 if (httpStatus >= 200 && httpStatus < 300)
                 {
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    FacebookResp parsedResp = serializer.Deserialize<FacebookResp>(fbRespStr);
+                    FacebookResp parsedResp = JsonConvert.DeserializeObject<FacebookResp>(fbRespStr);
 
                     while (parsedResp.data.Count < numOfPosts)
                     {
@@ -80,8 +79,7 @@ namespace Core.Social
             {
                 int nStatus = 0;
                 string fbRespStr = Utils.SendGetHttpReq(nextPageUrl, ref nStatus, string.Empty, string.Empty);
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                return serializer.Deserialize<FacebookResp>(fbRespStr);
+                return JsonConvert.DeserializeObject<FacebookResp>(fbRespStr);
             }
 
             static public string GetFacebookAppAccessToken(int groupId)
@@ -137,15 +135,15 @@ namespace Core.Social
 
                 TwitterContext context = new TwitterContext(new SingleUserAuthorizer()
                 {
-                    Credentials = new SingleUserInMemoryCredentials()
+                    CredentialStore = new SingleUserInMemoryCredentialStore()
                     {
                         ConsumerKey = consumerKey,
                         ConsumerSecret = consumerSecret,
-                        TwitterAccessToken = accessToken,
-                        TwitterAccessTokenSecret = accessTokenSecret
-                    }
+                        AccessToken = accessToken,
+                        AccessTokenSecret = accessTokenSecret,
+                    },
                 });
-                context.AuthorizedClient.Authorize();
+                context.Authorizer.AuthorizeAsync().ExecuteAndWait();
 
                 return context.Search.Where(s => s.Query == "#" + hashTagVal && s.Type == SearchType.Search && s.Count == numOfPosts).Select(x => x.Statuses.Select(s => new SocialFeedItem()
                 {
@@ -172,13 +170,13 @@ namespace Core.Social
                     {
                         ApplicationOnlyAuthorizer authorizer = new ApplicationOnlyAuthorizer()
                         {
-                            Credentials = new InMemoryCredentials()
+                            CredentialStore = new InMemoryCredentialStore()
                             {
                                 ConsumerKey = TWITTER_CONSUMER_KEY,
                                 ConsumerSecret = TWITTER_CONSUMER_SECRET
                             }
                         };
-                        authorizer.Authorize();
+                        authorizer.AuthorizeAsync().ExecuteAndWait();
                         _accessTokenDictionary.Add(groupId, authorizer);
                     }
                 }
@@ -289,7 +287,6 @@ namespace Core.Social
         private static List<SocialFeedItem> ParsePlatformResponse(object socialPlatformResp, eSocialPlatform platform)
         {
             ISocialFeed feed;
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
             switch (platform)
             {
                 case eSocialPlatform.Facebook:
@@ -300,7 +297,7 @@ namespace Core.Social
                     break;
 
                 case eSocialPlatform.Twitter:
-                    feed = serializer.Deserialize<TweeterResp>((string)socialPlatformResp);
+                    feed = JsonConvert.DeserializeObject<TweeterResp>((string)socialPlatformResp);
                     break;
                 default:
                     return null;
@@ -312,7 +309,6 @@ namespace Core.Social
         private static List<SocialFeedItem> ParsePlatformResp(object socialPlatformResp, eSocialPlatform platform)
         {
             ISocialFeed feed;
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
             switch (platform)
             {
                 case eSocialPlatform.Facebook:
@@ -329,7 +325,7 @@ namespace Core.Social
                     break;
 
                 case eSocialPlatform.Twitter:
-                    feed = serializer.Deserialize<TweeterResp>((string)socialPlatformResp);
+                    feed = JsonConvert.DeserializeObject<TweeterResp>((string)socialPlatformResp);
                     break;
                 default:
                     return null;

@@ -9,13 +9,14 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Users;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Web.Script.Serialization;
+
 
 namespace Core.Social
 {
@@ -139,8 +140,7 @@ namespace Core.Social
 
                 if (nStatus == STATUS_OK)
                 {
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    FBFriendsContainer friends = serializer.Deserialize<FBFriendsContainer>(sRetVal);
+                    FBFriendsContainer friends = JsonConvert.DeserializeObject<FBFriendsContainer>(sRetVal);
                     if (friends != null && friends.data != null)
                     {
                         List<FBUser> friendsList = friends.data.ToList<FBUser>();
@@ -216,8 +216,8 @@ namespace Core.Social
                 return oPrivacySettings;
             }
 
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            FBPrivacySettingContainer oPrivacySettingContainer = serializer.Deserialize<FBPrivacySettingContainer>(sRetVal);
+
+            FBPrivacySettingContainer oPrivacySettingContainer = JsonConvert.DeserializeObject<FBPrivacySettingContainer>(sRetVal);
             if (oPrivacySettingContainer != null && oPrivacySettingContainer.data != null)
             {
                 List<FBPrivacySetting> lPrivacySettings = oPrivacySettingContainer.data.ToList<FBPrivacySetting>();
@@ -301,8 +301,7 @@ namespace Core.Social
 
             if (nStatus == STATUS_OK)
             {
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBFriendsList friendList = serializer.Deserialize<FBFriendsList>(sRetVal);
+                FBFriendsList friendList = JsonConvert.DeserializeObject<FBFriendsList>(sRetVal);
 
                 if (friendList != null)
                 {
@@ -320,8 +319,7 @@ namespace Core.Social
 
             if (nStatus == STATUS_OK)
             {
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                oRes = serializer.Deserialize<FBUser>(sRetVal);
+                oRes = JsonConvert.DeserializeObject<FBUser>(sRetVal);
             }
 
             return oRes;
@@ -424,8 +422,8 @@ namespace Core.Social
             }
 
             bResult = true;
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            FBFriendsContainer friends = serializer.Deserialize<FBFriendsContainer>(sRetVal);
+
+            FBFriendsContainer friends = JsonConvert.DeserializeObject<FBFriendsContainer>(sRetVal);
             if (friends != null && friends.data != null)
             {
                 lFriendsList.AddRange(friends.data);
@@ -511,8 +509,7 @@ namespace Core.Social
 
             if (nStatus == STATUS_OK)
             {
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBFriendsContainer lFBFriends = serializer.Deserialize<FBFriendsContainer>(sRetVal);
+                FBFriendsContainer lFBFriends = JsonConvert.DeserializeObject<FBFriendsContainer>(sRetVal);
                 if (lFBFriends != null)
                 {
                     List<string> lFBFriendsID = new List<string>();
@@ -761,8 +758,7 @@ namespace Core.Social
                     }
 
                     //Create FBUser
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
+                    FBUser fbUser = JsonConvert.DeserializeObject<FBUser>(sRetVal);
 
                     facebookResponse.ResponseData.fbUser = fbUser;
                     facebookResponse.ResponseData.pic = string.Format("http://graph.facebook.com/{0}/picture?type=normal", fbUser.id);
@@ -823,8 +819,7 @@ namespace Core.Social
                 }
 
                 //Create FBUser
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
+                FBUser fbUser = JsonConvert.DeserializeObject<FBUser>(sRetVal);
 
                 //Search user with facebook id 
                 uObj = Utils.GetUserDataByFacebookID(fbUser.id, m_nGroupID);
@@ -956,8 +951,7 @@ namespace Core.Social
                 }
 
                 //Create FBUser
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
+                FBUser fbUser = JsonConvert.DeserializeObject<FBUser>(sRetVal);
 
                 UserResponseObject uObj = new UserResponseObject();
 
@@ -1180,8 +1174,7 @@ namespace Core.Social
             }
 
             //Create FBUser
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
+            FBUser fbUser = JsonConvert.DeserializeObject<FBUser>(sRetVal);
             string fbid = fbUser.id;
 
             if (!string.IsNullOrEmpty(userId))
@@ -1290,8 +1283,7 @@ namespace Core.Social
             {
                 return;
             }
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            FBFriendsListContainer friendListContainer = serializer.Deserialize<FBFriendsListContainer>(sRetVal);
+            FBFriendsListContainer friendListContainer = JsonConvert.DeserializeObject<FBFriendsListContainer>(sRetVal);
             if (friendListContainer != null)
             {
                 List<FBFriendsList> friendLists = friendListContainer.data.ToList<FBFriendsList>();
@@ -1413,8 +1405,7 @@ namespace Core.Social
                 }
 
                 //Create FBUser
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBTokenRes fbToken = serializer.Deserialize<FBTokenRes>(sRetVal);
+                FBTokenRes fbToken = JsonConvert.DeserializeObject<FBTokenRes>(sRetVal);
 
                 if (fbToken != null)
                 {
@@ -1644,8 +1635,7 @@ namespace Core.Social
                 }
 
                 //Create FBUser
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                FBUser fbUser = serializer.Deserialize<FBUser>(sRetVal);
+                FBUser fbUser = JsonConvert.DeserializeObject<FBUser>(sRetVal);
 
                 string key = ApplicationConfiguration.FacebookConfiguration.TokenKey.Value;
                 string sEncryptToken = Utils.Encrypt(token, key);

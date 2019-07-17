@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Web;
@@ -2882,7 +2883,7 @@ namespace Core.ConditionalAccess
                         sBasicLink = sBasicLink.Replace(BASIC_LINK_CONFIG_DATA, "brt=");
                     }
                 }
-                sBasicLink = HttpContext.Current.Server.HtmlDecode(sBasicLink).Replace("''", "\"");
+                sBasicLink = WebUtility.HtmlDecode(sBasicLink).Replace("''", "\"");
             }
             return sBasicLink;
         }

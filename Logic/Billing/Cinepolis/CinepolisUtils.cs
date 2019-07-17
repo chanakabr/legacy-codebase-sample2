@@ -339,32 +339,33 @@ namespace Core.Billing
             return res.ToString("dd/MM/yyyy");
         }
 
-        public static string GetIncomingRequestMsg(ref HttpContext context)
-        {
-            StringBuilder sb = new StringBuilder("Incoming request. ");
-            if (context.Request != null)
-            {
-                sb.Append(String.Concat(" Request type: ", context.Request.RequestType));
-                sb.Append(String.Concat(" ,Request content type: ", context.Request.ContentType));
-                sb.Append(String.Concat(" ,Request form: ", context.Request.Form != null ? context.Request.Form.ToString() : "null"));
-                sb.Append(String.Concat(" ,User host address: ", context.Request.UserHostAddress));
-                sb.Append(String.Concat(" ,User host name: ", context.Request.UserHostName));
-                sb.Append(String.Concat(" ,Server machine name: ", context.Server.MachineName));
-                if (context.Request.Url != null)
-                {
-                    sb.Append(String.Concat(" ,Querystring: ", context.Request.Url.OriginalString));
-                }
-                else
-                {
-                    sb.Append(" ,No querystring");
-                }
-            }
-            else
-            {
-                sb.Append("Request is null");
-            }
-            return sb.ToString();
-        }
+        // This was removed due to 0 ref code from REST solution, TODO: check remote tasks and tvm
+        //public static string GetIncomingRequestMsg(ref HttpContext context)
+        //{
+        //    StringBuilder sb = new StringBuilder("Incoming request. ");
+        //    if (context.Request != null)
+        //    {
+        //        sb.Append(String.Concat(" Request type: ", context.Request.RequestType));
+        //        sb.Append(String.Concat(" ,Request content type: ", context.Request.ContentType));
+        //        sb.Append(String.Concat(" ,Request form: ", context.Request.Form != null ? context.Request.Form.ToString() : "null"));
+        //        sb.Append(String.Concat(" ,User host address: ", context.Request.UserHostAddress));
+        //        sb.Append(String.Concat(" ,User host name: ", context.Request.UserHostName));
+        //        sb.Append(String.Concat(" ,Server machine name: ", context.Server.MachineName));
+        //        if (context.Request.Url != null)
+        //        {
+        //            sb.Append(String.Concat(" ,Querystring: ", context.Request.Url.OriginalString));
+        //        }
+        //        else
+        //        {
+        //            sb.Append(" ,No querystring");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        sb.Append("Request is null");
+        //    }
+        //    return sb.ToString();
+        //}
 
     }
 }

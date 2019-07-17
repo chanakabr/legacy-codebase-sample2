@@ -78,14 +78,22 @@ namespace AdapterControllers
 
         #region Public Method
 
+        public ServiceClient GetDRMAdapterServiceClient(string adapterUrl)
+        {
+            log.Debug($"Constructing GetCDNAdapterServiceClient Client with url:[{adapterUrl}]");
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+
+            return adapterClient;
+        }
+
         public bool SetConfiguration(DrmAdapter adapter, int partnerId)
         {
             bool result = false;
             try
             {
-                string drmAdapterUrl = adapter.AdapterUrl;
-                AdapterControllers.drmAdapter.ServiceClient client = new AdapterControllers.drmAdapter.ServiceClient();
-                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(drmAdapterUrl);
+                var client = GetDRMAdapterServiceClient(adapter.AdapterUrl);
 
                 //set unixTimestamp
                 long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -95,7 +103,9 @@ namespace AdapterControllers
                 //call Adapter 
                 AdapterControllers.drmAdapter.AdapterStatus adapterStatus = null;
 
-                adapterStatus = client.SetConfiguration(adapter.ID, adapter.Settings, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                adapterStatus = client
+                    .SetConfigurationAsync(adapter.ID, adapter.Settings, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                    .ExecuteAndWait();
 
                 if (adapterStatus != null)
                     log.DebugFormat("DRM Adapter Send Configuration Result = {0}", adapterStatus);
@@ -130,8 +140,7 @@ namespace AdapterControllers
                 throw new KalturaException("DRM adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            drmAdapter.ServiceClient adapterClient = new drmAdapter.ServiceClient();
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+            var adapterClient = GetDRMAdapterServiceClient(adapter.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -197,8 +206,7 @@ namespace AdapterControllers
                 throw new KalturaException("DRM adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            drmAdapter.ServiceClient adapterClient = new drmAdapter.ServiceClient();
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+            var adapterClient = GetDRMAdapterServiceClient(adapter.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -300,8 +308,9 @@ namespace AdapterControllers
             {
                 drmAdapter.ContextType context = ConvertToDrmContextType(contextType);
                 //call adapter
-                adapterResponse = adapterClient.GetAssetLicenseData(adapterId, partnerId, userId, assetId, (drmAdapter.AssetType)assetType, fileId,
-                    externalFileId, ip, udid, context, recordingId, unixTimestamp, System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                adapterResponse = adapterClient.GetAssetLicenseDataAsync(adapterId, partnerId, userId, assetId, (drmAdapter.AssetType)assetType, fileId,
+                    externalFileId, ip, udid, context, recordingId, unixTimestamp, System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                    .ExecuteAndWait();
             }
 
             if (adapterResponse != null)
@@ -324,8 +333,9 @@ namespace AdapterControllers
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetDeviceLicenseData(adapterId, partnerId, userId, udid, deviceFamily, deviceBrandId, ip, unixTimestamp,
-                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                adapterResponse = adapterClient.GetDeviceLicenseDataAsync(adapterId, partnerId, userId, udid, deviceFamily, deviceBrandId, ip, unixTimestamp,
+                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                    .ExecuteAndWait();
             }
 
             if (adapterResponse != null)

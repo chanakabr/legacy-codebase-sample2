@@ -965,7 +965,7 @@ namespace Core.ConditionalAccess
                                                 {"CouponCode", couponCode},
                                             };
 
-                                        if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, eventRecordData, sUserIP))
+                                        if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, eventRecordData, siteGUID, deviceName, sUserIP))
                                         {
                                             log.ErrorFormat("Error while enqueue media file purchase record: mediaFile = {0}" +
                                             "siteGuid = {1}", mediaFileID, siteGUID);
@@ -1440,7 +1440,7 @@ namespace Core.ConditionalAccess
                                                 {"CouponCode", string.Empty},
                                             };
 
-                                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, eventRecordData, sUserIP))
+                                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, eventRecordData, sSiteGUID, sDEVICE_NAME, sUserIP))
                                             {
                                                 log.ErrorFormat("Error while enqueue subscription purchase record: subCode = {0}" +
                                                 "siteGuid = {1}", sSubscriptionCode, sSiteGUID);
@@ -1728,7 +1728,7 @@ namespace Core.ConditionalAccess
         /// <param name="domainId"></param>
         /// <param name="subscriptionCode"></param>
         /// <returns></returns>
-        public virtual ApiObjects.Response.Status CancelSubscriptionRenewal(int domainId, string subscriptionCode, string userIp)
+        public virtual ApiObjects.Response.Status CancelSubscriptionRenewal(int domainId, string subscriptionCode, string userId, string udid, string userIp)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             bool cancelResult = false;
@@ -1835,7 +1835,7 @@ namespace Core.ConditionalAccess
                                         {"ServiceEndDate", dtServiceEndDate}
                                     };
 
-                                EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData, userIp);
+                                EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData, userId, udid, userIp);
 
                                 string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
                                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
@@ -2464,7 +2464,7 @@ namespace Core.ConditionalAccess
                                     {"SubscriptionCode", sSubscriptionCode}
                                 };
 
-                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, eventRecordData, string.Empty))
+                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, eventRecordData, sSiteGUID, sDEVICE_NAME, string.Empty))
                             {
                                 log.ErrorFormat("Error while enqueue subscription purchase record: subCode = {0}" +
                                 "siteGuid = {1}", sSubscriptionCode, sSiteGUID);
@@ -2818,7 +2818,7 @@ namespace Core.ConditionalAccess
                             {"SubscriptionCode", sSubscriptionCode}
                         };
 
-                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData, sUserIP);
+                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData, sSiteGUID, sDEVICE_NAME, sUserIP);
 
                         HandleMPPRenewalBillingSuccess(sSiteGUID, sSubscriptionCode, dtCurrentEndDate, bIsPurchasedWithPreviewModule,
                            nPurchaseID, sCurrency, dPrice, nPaymentNumber, oBillingResponse.m_sRecieptCode, nMaxVLCOfSelectedUsageModule,
@@ -5138,7 +5138,7 @@ namespace Core.ConditionalAccess
                                                 {"PurchaseID", lPurchaseID}
                                             };
 
-                                    this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, sUserIP);
+                                    this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, sSiteGUID, sDEVICE_NAME, sUserIP);
                                 }
                                 else
                                 {
@@ -6215,7 +6215,7 @@ namespace Core.ConditionalAccess
                         {"CustomData", sCustomData}
                     };
 
-                    var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, sUserIP);
+                    var isEnqueSuccessful = this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, sSiteGUID, sDEVICE_NAME, sUserIP);
                 }
                 else
                 {
@@ -6279,8 +6279,7 @@ namespace Core.ConditionalAccess
                                                 {"CustomData", sCustomData}
                                             };
 
-                this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, sUserIP);
-
+                this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, sSiteGUID, sDEVICE_NAME, sUserIP);
             }
             else
             {
@@ -9361,7 +9360,7 @@ namespace Core.ConditionalAccess
                                                 {"CustomData", sCustomData}
                                             };
 
-                                    this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, sUserIP);
+                                    this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, sSiteGUID, sDEVICE_NAME, sUserIP);
                                 }
                                 else
                                 {
@@ -9550,8 +9549,7 @@ namespace Core.ConditionalAccess
                                                 {"CustomData", sCustomData}
                                             };
 
-                                    this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, sUserIP);
-
+                                    this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, sSiteGUID, sDEVICE_NAME, sUserIP);
                                 }
                                 else
                                 {
@@ -9670,7 +9668,7 @@ namespace Core.ConditionalAccess
 
         //Change subscription for a given user - the user will be able to watch the new subscription content, 
         //but the billing for the new subscription will happen only when the previous subcription ends 
-        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSub, int nNewSub)
+        public ChangeSubscriptionStatus ChangeSubscription(string sSiteGuid, int nOldSub, int nNewSub, string udid)
         {
             try
             {
@@ -9741,7 +9739,7 @@ namespace Core.ConditionalAccess
                         return ChangeSubscriptionStatus.NewSubNotRenewable;
                     }
 
-                    return SetSubscriptionChange(sSiteGuid, domainID, userSubNew, userSubOld);
+                    return SetSubscriptionChange(sSiteGuid, domainID, userSubNew, userSubOld, udid);
                 }
                 else
                 {
@@ -9771,7 +9769,7 @@ namespace Core.ConditionalAccess
 
         //the new subscription is dummy charged and its end date is set according the previous subscriptions end date
         //the previous  subscription is cancled and its end date is set to 'now'
-        private ChangeSubscriptionStatus SetSubscriptionChange(string sSiteGuid, int nDomainID, Subscription subNew, PermittedSubscriptionContainer userSubOld)
+        private ChangeSubscriptionStatus SetSubscriptionChange(string sSiteGuid, int nDomainID, Subscription subNew, PermittedSubscriptionContainer userSubOld, string udid)
         {
             ChangeSubscriptionStatus status = ChangeSubscriptionStatus.Error;
             try
@@ -9840,7 +9838,7 @@ namespace Core.ConditionalAccess
                                 {"domainID", nDomainID}
                             };
 
-                            this.EnqueueEventRecord(NotifiedAction.ChangedSubscription, dicData, sUserIP);
+                            this.EnqueueEventRecord(NotifiedAction.ChangedSubscription, dicData, sSiteGuid, udid, sUserIP);
                         }
                         else
                         {
@@ -9936,7 +9934,7 @@ namespace Core.ConditionalAccess
         /// <param name="transactionType"></param>
         /// <param name="isForce"></param>
         /// <returns></returns>
-        public virtual ApiObjects.Response.Status CancelServiceNow(int domainId, int assetID, eTransactionType transactionType, bool isForce = false, string userIp = null)
+        public virtual ApiObjects.Response.Status CancelServiceNow(int domainId, int assetID, eTransactionType transactionType, bool isForce = false, string udid = null, string userIp = null)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 
@@ -10160,7 +10158,7 @@ namespace Core.ConditionalAccess
                                 {
                                     DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
 
-                                    EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate, userIp);
+                                    EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate, purchasingSiteGuid, udid, userIp);
                                 }
 
                                 string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
@@ -10375,7 +10373,7 @@ namespace Core.ConditionalAccess
         /// <param name="p_nAssetID"></param>
         /// <param name="p_enmTransactionType"></param>
         /// <param name="p_dtServiceEndDate"></param>
-        private bool EnqueueCancelServiceRecord(int p_nDomainId, int p_nAssetID, eTransactionType p_enmTransactionType, DateTime p_dtServiceEndDate, string userIp)
+        private bool EnqueueCancelServiceRecord(int p_nDomainId, int p_nAssetID, eTransactionType p_enmTransactionType, DateTime p_dtServiceEndDate, string userId, string udid, string userIp)
         {
             bool bResult = false;
             try
@@ -10386,7 +10384,7 @@ namespace Core.ConditionalAccess
                 dicData.Add("ServiceType", (int)p_enmTransactionType);
                 dicData.Add("ServiceEndDate", p_dtServiceEndDate);
 
-                bResult = EnqueueEventRecord(NotifiedAction.CancelDomainServiceNow, dicData, userIp);
+                bResult = EnqueueEventRecord(NotifiedAction.CancelDomainServiceNow, dicData, userId, udid, userIp);
             }
             catch (Exception ex)
             {
@@ -10400,7 +10398,7 @@ namespace Core.ConditionalAccess
         /// Fire event to the queue
         /// </summary>
         /// <param name="dataDictionary"></param>
-        protected internal bool EnqueueEventRecord(NotifiedAction action, Dictionary<string, object> dataDictionary, string ip)
+        protected internal bool EnqueueEventRecord(NotifiedAction action, Dictionary<string, object> dataDictionary, string userId, string udid, string ip)
         {
             bool result = false;
 
@@ -11685,7 +11683,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                 // notify purchase
-                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, userIp))
+                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, siteguid, deviceName, userIp))
                                 {
                                     log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                 }
@@ -11871,7 +11869,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                     // notify purchase
-                                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userIp))
+                                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -12002,7 +12000,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                 // notify purchase
-                                if (!EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, userIp))
+                                if (!EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, siteguid, deviceName, userIp))
                                 {
                                     log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                 }
@@ -12893,7 +12891,7 @@ namespace Core.ConditionalAccess
                                         {"CustomData", customData}
                                     };
                                 // notify purchase
-                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userIP))
+                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userId, udid, userIP))
                                 {
                                     log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", transactionResponse.Status.Message, logString);
                                 }
@@ -13056,7 +13054,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                 // notify purchase
-                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, userIP))
+                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, userId, udid, userIP))
                                 {
                                     log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                                 }

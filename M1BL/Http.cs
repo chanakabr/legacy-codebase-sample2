@@ -54,7 +54,7 @@ namespace M1BL
 
                 using (StreamReader sr = new StreamReader(receiveStream))
                 {
-                    string resultString = HttpUtility.HtmlDecode(sr.ReadToEnd());
+                    string resultString = WebUtility.HtmlDecode(sr.ReadToEnd());
 
                     sr.Close();
 
@@ -76,7 +76,7 @@ namespace M1BL
 
                 using (StreamReader rdr = new StreamReader(errRsp.GetResponseStream()))
                 {
-                    return HttpUtility.HtmlDecode(rdr.ReadToEnd());
+                    return WebUtility.HtmlDecode(rdr.ReadToEnd());
                 }
             }
         }
