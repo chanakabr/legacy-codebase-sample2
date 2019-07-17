@@ -34,7 +34,7 @@ namespace Core.Pricing.Handlers
                 }
 
                 response.Status.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
-                if(response.IsOkStatusCode())
+                if(!response.IsOkStatusCode())
                 {
                     return response;
                 }
@@ -62,6 +62,11 @@ namespace Core.Pricing.Handlers
                 //couponWalletToAdd.CouponId = couponData.Coupon.m_nCouponID; //TODO anat
 
                 couponWalletToAdd.CreateDate = DateTime.UtcNow;
+                if(couponWalletList == null)
+                {
+                    couponWalletList = new List<CouponWallet>();
+                }
+
                 couponWalletList.Add(couponWalletToAdd);
 
                 // Save CouponWalletAtCB                    
@@ -70,7 +75,7 @@ namespace Core.Pricing.Handlers
                     log.ErrorFormat("Error while SaveHouseholdCouponWalletCB. groupId: {0}, domainId:{1}", groupId, householdId.Value);
                     return response;
                 }
-
+                response.Object = couponWalletToAdd;
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
@@ -101,7 +106,7 @@ namespace Core.Pricing.Handlers
                 }
 
                 response.Set(GetHouseholdFromExtraPrams(extraParams, out householdId));
-                if (response.IsOkStatusCode())
+                if (!response.IsOkStatusCode())
                 {
                     return response;
                 }
