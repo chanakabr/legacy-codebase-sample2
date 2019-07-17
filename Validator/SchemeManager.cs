@@ -318,13 +318,27 @@ namespace Validator.Managers.Scheme
         private static bool ValidateObject(Type type, bool strict)
         {
             bool valid = true;
-            
-            if (type != typeof(KalturaListResponse) && type.Name.EndsWith("ListResponse"))
+
+            var kalturaListResponseType = typeof(KalturaListResponse);
+            if (type != kalturaListResponseType && type.Name.EndsWith("ListResponse"))
             {
-                if (!type.IsSubclassOf(typeof(KalturaListResponse)))
+                if (!type.IsSubclassOf(kalturaListResponseType))
                 {
-                    logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
-                    valid = false;
+                    Type genericKalturaListResponseType = null;
+                    if (type.BaseType != null)
+                    {
+                        var genericArguments = type.BaseType.GetGenericArguments();
+                        if (genericArguments != null && genericArguments.Length == 1)
+                        {
+                            genericKalturaListResponseType = typeof(KalturaListResponse<>).MakeGenericType(genericArguments[0]);
+                        }
+                    }
+
+                    if (genericKalturaListResponseType == null || (type != genericKalturaListResponseType && !type.IsSubclassOf(genericKalturaListResponseType)))
+                    {
+                        logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
+                        valid = false;
+                    }
                 }
 
                 PropertyInfo objectsProperty = getObjectsProperty(type);
@@ -371,6 +385,8 @@ namespace Validator.Managers.Scheme
 
         private static bool ValidateService(Type controller, bool strict)
         {
+            if (controller.IsAbstract) { return true; }
+            
             bool valid = true;
             string serviceId = getServiceId(controller);
 

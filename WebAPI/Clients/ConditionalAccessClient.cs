@@ -2571,5 +2571,11 @@ namespace WebAPI.Clients
 
             return recording;
         }
+        
+        internal void ApplyCoupon(int groupId, long domainId, string userId, long purchaseId, string couponCode)
+        {
+            Func<Status> applyCouponFunc = () => Core.ConditionalAccess.Module.ApplyCoupon(groupId, domainId, userId, purchaseId, couponCode);
+            ClientUtils.GetResponseStatusFromWS(applyCouponFunc);
+        }
     }
 }

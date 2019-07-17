@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;

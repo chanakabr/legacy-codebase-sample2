@@ -17,6 +17,11 @@ namespace WebAPI.Utils
 
         private const string HOUSEHOLD_KEY = "household";
 
+        public static long GetHouseholdIDByKS()
+        {
+            return GetHouseholdIDByKS(0);
+        }
+
         public static long GetHouseholdIDByKS(int groupID)
         {
             var ks = KS.GetFromRequest();

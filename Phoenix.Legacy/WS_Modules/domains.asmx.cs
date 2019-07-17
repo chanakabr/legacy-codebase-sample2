@@ -114,7 +114,7 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.SetDomainInfo(nGroupID, nDomainID, sDomainName, sDomainDescription);
+                return Core.Domains.Module.SetDomainInfo(nGroupID, nDomainID, sDomainName, sDomainDescription, null);
             }
             else
             {

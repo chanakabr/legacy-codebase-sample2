@@ -7,12 +7,15 @@ using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using ApiObjects.Base;
+using ApiLogic.Base;
 
 namespace WebAPI.Clients
 {
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static object handler1;
 
         internal static U GetResponseFromWS<U, T>(U requestObject, Func<T, GenericResponse<T>> funcInWS)
             where U : KalturaOTTObject where T : class
@@ -30,7 +33,6 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-
                 log.Error("Exception received while calling client service.", ex);
                 ErrorUtils.HandleWSException(ex);
             }
@@ -136,7 +138,7 @@ namespace WebAPI.Clients
             {
                 result.Objects = new List<U>();
             }
-            
+
             return result;
         }
 
@@ -169,7 +171,7 @@ namespace WebAPI.Clients
 
             return true;
         }
-        
+
         internal static void GetResponseStatusFromWS<U, T>(Func<T, Status> funcInWS, U kalturaOTTObject)
             where U : KalturaOTTObject where T : class
         {

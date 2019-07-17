@@ -1695,6 +1695,8 @@ namespace WebAPI.Reflection
                 case "KalturaCoupon":
                     switch(property.Name)
                     {
+                        case "CouponCode":
+                            return "couponCode";
                         case "CouponsGroup":
                             return "couponsGroup";
                         case "LeftUses":
@@ -1703,6 +1705,22 @@ namespace WebAPI.Reflection
                             return "status";
                         case "TotalUses":
                             return "totalUses";
+                    }
+                    break;
+                    
+                case "KalturaCouponFilter":
+                    switch(property.Name)
+                    {
+                        case "CouponCodesIn":
+                            return "couponCodesIn";
+                    }
+                    break;
+                    
+                case "KalturaCouponListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -2664,6 +2682,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaHouseholdCoupon":
+                    switch(property.Name)
+                    {
+                        case "Code":
+                            return "code";
+                        case "Coupon":
+                            return "coupon";
+                    }
+                    break;
+                    
+                case "KalturaHouseholdCouponFilter":
+                    switch(property.Name)
+                    {
+                        case "BusinessModuleIdEqual":
+                            return "businessModuleIdEqual";
+                        case "BusinessModuleTypeEqual":
+                            return "businessModuleTypeEqual";
+                    }
+                    break;
+                    
+                case "KalturaHouseholdCouponListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaHouseholdDevice":
                     switch(property.Name)
                     {
@@ -3191,6 +3237,14 @@ namespace WebAPI.Reflection
                     break;
                     
                 case "KalturaListResponse":
+                    switch(property.Name)
+                    {
+                        case "TotalCount":
+                            return "totalCount";
+                    }
+                    break;
+                    
+                case "KalturaListResponse`1":
                     switch(property.Name)
                     {
                         case "TotalCount":
@@ -7246,6 +7300,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("coupon", "get", false);
                             return CouponController.Get((string) methodParams[0]);
                             
+                        case "list":
+                            RolesManager.ValidateActionPermitted("coupon", "list", false);
+                            return CouponController.List((KalturaCouponFilter) methodParams[0]);
+                            
                     }
                     break;
                     
@@ -7394,6 +7452,11 @@ namespace WebAPI.Reflection
                 case "entitlement":
                     switch(action)
                     {
+                        case "applycoupon":
+                            RolesManager.ValidateActionPermitted("entitlement", "applyCoupon", false);
+                            EntitlementController.ApplyCoupon((long) methodParams[0], (string) methodParams[1]);
+                            return null;
+                            
                         case "buy":
                             RolesManager.ValidateActionPermitted("entitlement", "buy", false);
                             return EntitlementController.Buy((string) methodParams[0], (bool) methodParams[1], (double) methodParams[2], (string) methodParams[3], (string) methodParams[4], (string) methodParams[5], (string) methodParams[6], (int) methodParams[7], (string) methodParams[8]);
@@ -7755,6 +7818,25 @@ namespace WebAPI.Reflection
                         case "updateoldstandard":
                             RolesManager.ValidateActionPermitted("household", "updateOldStandard", false);
                             return HouseholdController.UpdateOldStandard((string) methodParams[0], (string) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "householdcoupon":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdCoupon", "add", false);
+                            return HouseholdCouponController.Add((KalturaHouseholdCoupon) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdCoupon", "delete", false);
+                            HouseholdCouponController.Delete((string) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdCoupon", "list", false);
+                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
                             
                     }
                     break;
@@ -12339,6 +12421,14 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCouponFilter),
+                            });
+                            return ret;
+                            
                     }
                     break;
                     
@@ -12563,6 +12653,17 @@ namespace WebAPI.Reflection
                 case "entitlement":
                     switch(action)
                     {
+                        case "applycoupon":
+                            ret.Add("purchaseId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("couponCode", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
                         case "buy":
                             paramName = "itemId";
                             newParamName = null;
@@ -13447,6 +13548,37 @@ namespace WebAPI.Reflection
                             ret.Add("description", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdcoupon":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("householdCoupon", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdCoupon),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("code", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdCouponFilter),
                             });
                             return ret;
                             

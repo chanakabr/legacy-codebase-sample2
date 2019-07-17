@@ -45,5 +45,34 @@ namespace WebAPI.Controllers
 
             return coupon;
         }
+
+        /// <summary>
+        /// Lists coupon codes.
+        /// </summary>
+        /// <param name="filter">Filter options</param>
+        [Action("list")]
+        [ApiAuthorize]
+        static public KalturaCouponListResponse List(KalturaCouponFilter filter)
+        {
+            KalturaCouponListResponse response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "filter");
+            }
+
+            try
+            {
+                // call client
+                response = ClientsManager.PricingClient().GetCoupons(groupId, filter.getCouponCodesIn(), HouseholdUtils.GetHouseholdIDByKS(groupId));
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

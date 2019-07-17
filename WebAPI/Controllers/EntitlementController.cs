@@ -587,5 +587,31 @@ namespace WebAPI.Controllers
             }
             return null;
         }
+        
+        /// <summary>
+        /// Apply new coupon for existing subscription
+        /// </summary>
+        /// <param name="purchaseId">purchase Id</param>
+        /// <param name="couponCode">coupon Code</param>
+        [Action("applyCoupon")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.CouponNotValid)]
+        [Throws(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription)]
+        static public void ApplyCoupon(long purchaseId, string couponCode)
+        {
+            var groupId = KS.GetFromRequest().GroupId;
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode );
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
     }
 }
