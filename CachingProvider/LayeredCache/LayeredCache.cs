@@ -24,6 +24,8 @@ namespace CachingProvider.LayeredCache
         private const string INVALIDATION_KEYS_HEADER = "X-Kaltura-InvalidationKeys";
         public const string MISSING_KEYS = "NeededKeys";
         public const string IS_READ_ACTION = "IsReadAction";
+        public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
+
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
             "get", "list", "getContext", "playManifest"
@@ -76,20 +78,35 @@ namespace CachingProvider.LayeredCache
             try
             {
                 bool isReadAction = IsReadAction();
-                if (isReadAction && TryGetKeyFromSession<T>(key, ref genericParameter))
+
+                if (TryGetKeyFromCurrentRequest(key, ref genericParameter))
                 {
                     return true;
                 }
+
+                //if (isReadAction && TryGetKeyFromCurrentRequest<T>(key, ref genericParameter))
+                //{
+                //    return true;
+                //}
 
                 Tuple<T, long> tuple = null;
                 // save data in cache only if result is true!!!!
                 result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, groupId, inValidationKeys, shouldUseAutoNameTypeHandling);
                 genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
-                if (isReadAction && result)
+
+                if (result)
                 {
                     Dictionary<string, T> resultsToAdd = new Dictionary<string, T>();
                     resultsToAdd.Add(key, genericParameter);
-                    InsertResultsToSession<T>(resultsToAdd);
+                    Dictionary<string, List<string>> invalidationKeyToAdd = new Dictionary<string, List<string>>();
+
+                    foreach (var invalidationKey in inValidationKeys)
+                    {
+                        invalidationKeyToAdd.Add(invalidationKey, new List<string>() { key });
+                    }
+
+                    InsertResultsToCurrentRequest(resultsToAdd, invalidationKeyToAdd);
+                    //InsertResultsToSession<T>(resultsToAdd);
                 }
 
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
@@ -121,6 +138,7 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -147,23 +165,35 @@ namespace CachingProvider.LayeredCache
             {
                 bool isReadAction = IsReadAction();
                 Dictionary<string, string> KeyToOriginalValueMapAfterSession = new Dictionary<string, string>(keyToOriginalValueMap);
-                if (isReadAction && TryGetKeysFromSession<T>(keyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
+
+                if (TryGetKeysFromCurrentRequest<T>(keyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
                 {
                     shouldAddSessionResults = true;
+
                     foreach (string key in sessionResultMapping.Keys)
                     {
                         KeyToOriginalValueMapAfterSession.Remove(key);
                     }
                 }
+                //if (isReadAction && TryGetKeysFromSession<T>(keyToOriginalValueMap.Keys.ToList(), ref sessionResultMapping))
+                //{
+                //    shouldAddSessionResults = true;
+                //    foreach (string key in sessionResultMapping.Keys)
+                //    {
+                //        KeyToOriginalValueMapAfterSession.Remove(key);
+                //    }
+                //}
 
                 if (KeyToOriginalValueMapAfterSession.Count > 0)
                 {
                     res = TryGetValuesFromCacheByConfig<T>(KeyToOriginalValueMapAfterSession, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod,
                                                             funcParameters, groupId, inValidationKeysMap, shouldUseAutoNameTypeHandling);
                     results = resultsMapping != null && resultsMapping.Count > 0 ? resultsMapping.ToDictionary(x => x.Key, x => x.Value.Item1) : null;
-                    if (isReadAction && res)
+
+                    if (res)
                     {
-                        InsertResultsToSession<T>(results);
+                        //InsertResultsToSession<T>(results);
+                        InsertResultsToCurrentRequest(results, inValidationKeysMap);
                     }
 
                     if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null)
@@ -465,13 +495,13 @@ namespace CachingProvider.LayeredCache
 
         public bool TryGetKeyFromSession<T>(string key, ref T genericParameter)
         {
-            bool res = false;
+            bool success = false;
             try
             {
                 if (HttpContext.Current != null && HttpContext.Current.Items[key] != null)
                 {
                     genericParameter = (T)HttpContext.Current.Items[key];
-                    res = genericParameter != null && true;
+                    success = genericParameter != null && true;
                 }
             }
             catch (Exception ex)
@@ -479,7 +509,60 @@ namespace CachingProvider.LayeredCache
                 log.Error(string.Format("Failed to get key {0} from TryGetFromSession", key), ex);
             }
 
-            return res;
+            return success;
+        }
+
+        private bool TryGetKeyFromCurrentRequest<T>(string key, ref T genericParameter)
+        {
+            List<string> keys = new List<string>() { key };
+            Dictionary<string, T> sessionResultMapping = new Dictionary<string, T>();
+
+            bool success = TryGetKeysFromCurrentRequest(keys, ref sessionResultMapping);
+
+            if (sessionResultMapping != null && sessionResultMapping.ContainsKey(key))
+            {
+                genericParameter = (T)sessionResultMapping[key];
+            }
+
+            return success;
+        }
+
+        private bool TryGetKeysFromCurrentRequest<T>(List<string> keys, ref Dictionary<string, T> sessionResultMapping)
+        {
+            bool success = false;
+
+            try
+            {
+                sessionResultMapping = new Dictionary<string, T>();
+
+                if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
+                    HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] is RequestLayeredCache &&
+                    keys != null && keys.Count > 0)
+                {
+                    RequestLayeredCache requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
+
+                    foreach (string key in keys)
+                    {
+                        if (requestLayeredCache.cachedObjects.ContainsKey(key))
+                        {
+                            T genericParameter = (T)requestLayeredCache.cachedObjects[key];
+
+                            if (genericParameter != null)
+                            {
+                                sessionResultMapping.Add(key, genericParameter);
+                            }
+                        }
+                    }
+
+                    success = sessionResultMapping.Count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed TryGetKeysFromCurrentRequest for keys = {0}; error = {1}", keys != null ? string.Join(",", keys) : "null", ex);
+            }
+
+            return success;
         }
 
         public void InsertResultsToSession<T>(Dictionary<string, T> results)
@@ -491,6 +574,46 @@ namespace CachingProvider.LayeredCache
                     HttpContext.Current.Items[pair.Key] = pair.Value;
                 }
             }
+        }
+
+        public void InsertResultsToCurrentRequest<T>(Dictionary<string, T> results, Dictionary<string, List<string>> invalidationKeysToKeys)
+        {
+            RequestLayeredCache requestLayeredCache = null;
+
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
+                HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] is RequestLayeredCache)
+            {
+                requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
+            }
+            else
+            {
+                requestLayeredCache = new RequestLayeredCache();
+            }
+
+            if (results != null)
+            {
+                // save cached objects
+                foreach (var result in results)
+                {
+                    requestLayeredCache.cachedObjects[result.Key] = result.Value;
+                }
+            }
+
+            if (invalidationKeysToKeys != null && invalidationKeysToKeys.Count > 0)
+            {
+                // save invalidation keys (merge two dictionaries)
+                foreach (var invalidationKey in invalidationKeysToKeys)
+                {
+                    if (!requestLayeredCache.invalidationKeysToKeys.ContainsKey(invalidationKey.Key))
+                    {
+                        requestLayeredCache.invalidationKeysToKeys[invalidationKey.Key] = new HashSet<string>();
+                    }
+
+                    requestLayeredCache.invalidationKeysToKeys[invalidationKey.Key].UnionWith(invalidationKey.Value);
+                }
+            }
+
+            HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
         }
 
         public bool ShouldGoToCache(string layeredCacheConfigName, int groupId)
@@ -847,16 +970,17 @@ namespace CachingProvider.LayeredCache
                     return true;
                 }
 
-                bool isReadAction = IsReadAction();
                 HashSet<string> keysToGet = new HashSet<string>(keys);
                 Dictionary<string, long> compeleteResultMap = new Dictionary<string, long>();
-                if (isReadAction && TryGetKeysFromSession<long>(keysToGet.ToList(), ref compeleteResultMap))
-                {
-                    foreach (string key in compeleteResultMap.Keys)
-                    {
-                        keysToGet.Remove(key);
-                    }
-                }
+
+                //bool isReadAction = IsReadAction();
+                //if (isReadAction && TryGetKeysFromSession<long>(keysToGet.ToList(), ref compeleteResultMap))
+                //{
+                //    foreach (string key in compeleteResultMap.Keys)
+                //    {
+                //        keysToGet.Remove(key);
+                //    }
+                //}
 
                 if (ShouldCheckInvalidationKey(layeredCacheConfigName, groupId, ref invalidationKeyCacheConfig) && keysToGet.Count > 0)
                 {
@@ -912,11 +1036,11 @@ namespace CachingProvider.LayeredCache
                         }
                     }
 
-                    // add results to session
-                    if (isReadAction && addToSessionResultMap != null && addToSessionResultMap.Count > 0)
-                    {
-                        InsertResultsToSession<long>(addToSessionResultMap);
-                    }
+                    //// add results to session
+                    //if (isReadAction && addToSessionResultMap != null && addToSessionResultMap.Count > 0)
+                    //{
+                    //    InsertResultsToSession<long>(addToSessionResultMap);
+                    //}
 
                     if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap != null)
                     {
@@ -1031,10 +1155,14 @@ namespace CachingProvider.LayeredCache
                     return res;
                 }
 
-                if (TryGetKeyFromSession<LayeredCacheGroupConfig>(key, ref groupConfig))
+                if (TryGetKeyFromCurrentRequest<LayeredCacheGroupConfig>(key, ref groupConfig))
                 {
                     return true;
                 }
+                //if (TryGetKeyFromSession<LayeredCacheGroupConfig>(key, ref groupConfig))
+                //{
+                //    return true;
+                //}
 
                 foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
@@ -1046,7 +1174,8 @@ namespace CachingProvider.LayeredCache
                             res = true;
                             Dictionary<string, LayeredCacheGroupConfig> groupConfigToAdd = new Dictionary<string, LayeredCacheGroupConfig>();
                             groupConfigToAdd.Add(key, groupConfig);
-                            InsertResultsToSession(groupConfigToAdd);
+                            //InsertResultsToSession(groupConfigToAdd);
+
                             break;
                         }
 
