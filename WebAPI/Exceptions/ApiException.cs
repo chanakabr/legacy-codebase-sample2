@@ -1,21 +1,16 @@
 ﻿using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Reflection;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Web.Http;
 using System.Xml.Serialization;
 using WebAPI.App_Start;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 
 namespace WebAPI.Exceptions
 {

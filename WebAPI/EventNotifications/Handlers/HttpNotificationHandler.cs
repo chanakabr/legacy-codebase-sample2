@@ -2,21 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Web;
 using WebAPI.Models.General;
 using KLogMonitor;
-using KlogMonitorHelper;
 using System.Reflection;
 using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using WebAPI.Managers;
-using WebAPI.Filters;
+using ApiObjects;
 
 namespace WebAPI.EventNotifications
 {
@@ -35,6 +32,8 @@ namespace WebAPI.EventNotifications
                 this.ValidHttpStatuses = new List<int>() { 200, 201, 202, 203, 204, 205, 206, 207, 208, 226 };
             }
 
+            KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
+
             this.SendRequest(
                 new KalturaHttpNotification()
                 {
@@ -43,7 +42,8 @@ namespace WebAPI.EventNotifications
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
                     partnerId = kalturaEvent.PartnerId,
-                    UserIp = HttpContext.Current.Items[RequestParser.USER_IP]?.ToString()
+                    UserIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString(),
+                    UniqueId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
                 }
             );
         }
@@ -201,7 +201,9 @@ namespace WebAPI.EventNotifications
         {
             int statusCode = -1;
 
+            #if NET452
             System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
+            #endif
 
             switch (this.Method)
             {
@@ -475,6 +477,7 @@ namespace WebAPI.EventNotifications
         }
     }
 
+    #if NET452
     public class KalturaPolicy : ICertificatePolicy
     {
         #region ICertificatePolicy Members
@@ -486,6 +489,7 @@ namespace WebAPI.EventNotifications
 
         #endregion
     }
+    #endif
 
     #region Enums
 

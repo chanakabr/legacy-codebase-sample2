@@ -1,31 +1,26 @@
-﻿using Jil;
-using KLogMonitor;
+﻿using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http;
-using System.Web.Http.Description;
 using TVinciShared;
-using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
 using WebAPI.Utils;
+#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Mvc;
+#endif
+#if NET461
+using System.Web.Http.Description;
+#endif
 
 namespace WebAPI.Controllers
 {
@@ -502,9 +497,9 @@ namespace WebAPI.Controllers
                                     Type propertyType;
                                     parameters = (Dictionary<string, object>)translateMultirequestTokens(parameters, responses, out propertyType);
                                 }
-                                RequestParser.setRequestContext(parameters, request[i].Service, request[i].Action);
+                                RequestContext.SetContext(parameters, request[i].Service, request[i].Action);
                                 Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
-                                List<Object> methodParams = RequestParser.buildActionArguments(methodArgs, parameters);
+                                List<Object> methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parameters);
                                 response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                             }
                         }
@@ -536,7 +531,7 @@ namespace WebAPI.Controllers
                 
                 if (response is ApiException)
                 {
-                    response = WrappingHandler.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
+                    response = KalturaApiExceptionHelpers.prepareExceptionResponse(((ApiException)response).Code, ((ApiException)response).Message, ((ApiException)response).Args);
                 }
 
                 responses[i] = response;

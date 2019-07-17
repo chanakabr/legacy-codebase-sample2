@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -67,9 +63,7 @@ namespace WebAPI.Controllers
                         }
                     case KalturaEntityReferenceBy.household:
                         {
-                            bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[Filters.RequestParser.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
-
-
+                            bool isDeprecated = !DeprecatedAttribute.IsDeprecated("4.8.0.0", (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION]); // fix for userFullName and userId disapearing from response since 4.8.0.0
 
                             response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
                                 groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, pager.getPageIndex(), pager.getPageSize(), filter.OrderBy, isDeprecated);

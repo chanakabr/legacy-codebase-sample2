@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Models.General;
 
-namespace WebAPI.Models.General 
+namespace WebAPI.Models.General
 {
     /// <summary>
     /// Reports info wrapper

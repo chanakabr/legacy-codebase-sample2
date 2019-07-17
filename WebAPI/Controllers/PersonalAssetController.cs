@@ -3,13 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -112,7 +108,11 @@ namespace WebAPI.Controllers
 
                 var withTypes = with.Select(x => x.type);
 
+                #if NET452
+                // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                 HttpContext ctx = HttpContext.Current;
+                #endif
+
                 List<Task> taskList = new List<Task>();
 
                 if (withTypes.Contains(KalturaPersonalAssetWith.bookmark))
@@ -121,7 +121,10 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
+                        #if NET452
+                        // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = ctx;
+                        #endif
 
                         // Convert request to catalog client's parameter
 
@@ -151,7 +154,10 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
+                        #if NET452
+                        // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = ctx;
+                        #endif
 
                         var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
 
@@ -170,7 +176,10 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
+                        #if NET452
+                        // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = ctx;
+                        #endif
 
                         // get all phrases.
                         //List<string> followingPhrases;

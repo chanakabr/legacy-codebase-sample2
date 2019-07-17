@@ -1,17 +1,10 @@
-﻿using ApiObjects.Response;
-using System;
-using System.Linq;
-using System.Web.Http;
-using WebAPI.ClientManagers;
+﻿using System;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Users;
 using WebAPI.Utils;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Models.Upload;
-using System.Net.Http;
 using WebAPI.Models.General;
 
 namespace WebAPI.Controllers

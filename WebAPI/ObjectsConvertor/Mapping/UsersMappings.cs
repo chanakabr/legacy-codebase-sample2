@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using AutoMapper;
 using Core.Users;
 using DAL;
 using System.Collections.Generic;
@@ -8,8 +7,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
-using WebAPI.Utils;
-using System;
 using ApiObjects.SSOAdapter;
 using System.Linq;
 using AutoMapper.Configuration;

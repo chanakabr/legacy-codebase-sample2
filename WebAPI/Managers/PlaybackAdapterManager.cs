@@ -1,10 +1,4 @@
-﻿using ApiObjects;
-using ApiObjects.PlaybackAdapter;
-using AutoMapper;
-using KLogMonitor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using KLogMonitor;
 using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers.Client;

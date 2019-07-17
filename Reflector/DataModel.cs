@@ -19,11 +19,20 @@ namespace Reflector
 {
     class DataModel : Base
     {
-        public DataModel() : base("..\\..\\..\\WebAPI\\Reflection\\DataModel.cs")
-        {
 
+        public static string GetDataModelCSFilePath()
+        {
+            var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\DataModel.cs");
+            return filePath;
         }
-        
+
+        public DataModel() : base(GetDataModelCSFilePath())
+        {
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory);
+        }
+
         protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
@@ -39,6 +48,8 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers;");
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Models.MultiRequest;");
+            file.WriteLine("using TVinciShared;");
+
             types.GroupBy(type => type.Namespace).Select(group => group.First().Namespace).ToList().ForEach(name => file.WriteLine("using " + name + ";"));
             file.WriteLine("");
             file.WriteLine("namespace WebAPI.Reflection");
@@ -60,7 +71,7 @@ namespace Reflector
             file.WriteLine("    }");
             file.WriteLine("}");
         }
-        
+
         private void wrtieGetFailureHttpCode()
         {
             file.WriteLine("        public static HttpStatusCode? getFailureHttpCode(string service, string action)");
@@ -132,12 +143,12 @@ namespace Reflector
 
         private string varToString(object value)
         {
-            if(value == null)
+            if (value == null)
             {
                 return "null";
             }
 
-            if(value is bool)
+            if (value is bool)
             {
                 return value.ToString().ToLower();
             }
@@ -154,7 +165,7 @@ namespace Reflector
             file.WriteLine("            service = service.ToLower();");
             file.WriteLine("            action = action.ToLower();");
             file.WriteLine("            Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();");
-            file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];");
+            file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION];");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            string paramName;");
             file.WriteLine("            string newParamName = null;");
@@ -373,13 +384,14 @@ namespace Reflector
                             }
                             file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "),");
                         }
-                        
+
                         foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
                         {
                             if (schemaArgument.Name.Equals(parameter.Name))
                             {
                                 file.WriteLine("                                SchemeArgument = new RuntimeSchemeArgumentAttribute(\"" + parameter.Name + "\", \"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\") {");
-                                schemeArgumentProperties.ForEach(schemeArgumentProperty => {
+                                schemeArgumentProperties.ForEach(schemeArgumentProperty =>
+                                {
                                     object val = schemeArgumentProperty.GetValue(schemaArgument);
                                     if (val != null)
                                     {
@@ -413,7 +425,7 @@ namespace Reflector
                                             else if (schemeArgumentProperty.PropertyType == typeof(float))
                                             {
                                                 if ((float)val != float.MinValue && (float)val != float.MaxValue)
-                                                { 
+                                                {
                                                     file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
                                                 }
                                             }
@@ -458,11 +470,11 @@ namespace Reflector
                 List<string> conditions = new List<string>();
                 foreach (string httpMethod in blockHttpMethods.HttpMethods)
                 {
-                    conditions.Add("HttpContext.Current.Request.HttpMethod.ToLower() == \"" + httpMethod.ToLower() + "\"");
+                    conditions.Add("HttpContext.Current.Request.GetHttpMethod().ToLower() == \"" + httpMethod.ToLower() + "\"");
                 }
                 file.WriteLine(tab + "                            if(" + String.Join(" || ", conditions) + ")");
                 file.WriteLine(tab + "                            {");
-                file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.HttpMethod.ToUpper());");
+                file.WriteLine(tab + "                                throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());");
                 file.WriteLine(tab + "                            }");
             }
 
@@ -487,7 +499,7 @@ namespace Reflector
             SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
             if (serve != null)
             {
-                file.WriteLine(tab + "                            HttpContext.Current.Items[RequestParser.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
+                file.WriteLine(tab + "                            HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
             }
 
             string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
@@ -521,7 +533,7 @@ namespace Reflector
             foreach (Type controller in controllers)
             {
                 ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
-                if(serviceAttribute == null)
+                if (serviceAttribute == null)
                 {
                     continue;
                 }
@@ -529,7 +541,7 @@ namespace Reflector
                 file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
                 file.WriteLine("                    switch(action)");
                 file.WriteLine("                    {");
-                
+
                 List<MethodInfo> actions = controller.GetMethods().ToList();
                 actions.Sort(new MethodInfoComparer());
 
@@ -549,13 +561,13 @@ namespace Reflector
                         continue;
                     }
                     doneOldStandard.Add(actionAttribute.Name);
-                    if(leftOldStandard.Contains(actionAttribute.Name))
+                    if (leftOldStandard.Contains(actionAttribute.Name))
                     {
                         leftOldStandard.Remove(actionAttribute.Name);
                     }
 
                     oldStandardActionAttribute = action.GetCustomAttribute<OldStandardActionAttribute>(true);
-                    if(oldStandardActionAttribute != null && !doneOldStandard.Contains(oldStandardActionAttribute.oldName))
+                    if (oldStandardActionAttribute != null && !doneOldStandard.Contains(oldStandardActionAttribute.oldName))
                     {
                         leftOldStandard.Add(oldStandardActionAttribute.oldName);
                     }
@@ -565,7 +577,7 @@ namespace Reflector
                     foreach (MethodInfo oldAction in actions)
                     {
                         oldStandardActionAttribute = oldAction.GetCustomAttribute<OldStandardActionAttribute>(true);
-                        if(oldStandardActionAttribute != null && oldStandardActionAttribute.oldName == actionAttribute.Name)
+                        if (oldStandardActionAttribute != null && oldStandardActionAttribute.oldName == actionAttribute.Name)
                         {
                             file.WriteLine("                            if(isOldVersion)");
                             file.WriteLine("                            {");
@@ -574,11 +586,11 @@ namespace Reflector
                             break;
                         }
                     }
-                    
+
                     wrtieExecAction(action, false);
                     file.WriteLine("                            ");
                 }
-                foreach(string oldStandardName in leftOldStandard)
+                foreach (string oldStandardName in leftOldStandard)
                 {
                     file.WriteLine("                        case \"" + oldStandardName.ToLower() + "\":");
 
@@ -670,7 +682,7 @@ namespace Reflector
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
-        
+
         private void wrtieTypeOldMembersCase(Type type)
         {
             List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).ToList();

@@ -1,5 +1,4 @@
-﻿using ApiObjects.Roles;
-using CachingProvider.LayeredCache;
+﻿using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -7,12 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using WebAPI.ClientManagers;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
 
@@ -314,9 +311,9 @@ namespace WebAPI.Managers
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
             string userId = null;
-            if (HttpContext.Current.Items.Contains(RequestParser.REQUEST_USER_ID))
+            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_USER_ID))
             {
-                var extraUserId = HttpContext.Current.Items[RequestParser.REQUEST_USER_ID];
+                var extraUserId = HttpContext.Current.Items[RequestContext.REQUEST_USER_ID];
                 userId = extraUserId != null ? extraUserId.ToString() : null;
             }
             // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)
