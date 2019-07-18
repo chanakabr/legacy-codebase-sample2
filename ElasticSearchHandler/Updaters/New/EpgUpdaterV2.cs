@@ -229,7 +229,7 @@ namespace ElasticSearchHandler.Updaters
                         bool temporaryResult = true;
 
                         Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-                        if (group.isRegionalizationEnabled)
+                        if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
                         {
                             linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
                         }
