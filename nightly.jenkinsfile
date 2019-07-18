@@ -71,7 +71,7 @@ pipeline {
                 dir("published/remotetasks"){
                     echo "Version Identified:[${RELEASE_VERSION}]"
                     // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
-                    bat "(robocopy . \\\\Tvpapic1\\spaces\\RemoteTask\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
+                    bat "(robocopy . \\\\Tvpapic1\\ott\\spaces\\RemoteTask\\ /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
             }
         }
