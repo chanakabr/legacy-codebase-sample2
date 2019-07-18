@@ -61,9 +61,6 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceExtensions">
-      <HintPath>..\..\tvincicommon\External\ServiceExtensions.dll</HintPath>
-    </Reference>
     <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
       <HintPath>..\packages\Swashbuckle.Core.5.2.1\lib\net40\Swashbuckle.Core.dll</HintPath>
     </Reference>
@@ -177,6 +174,10 @@
     <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ServiceExtensions\ServiceExtensions.csproj">
+      <Project>{2e48dc40-a9ab-485d-a847-8e3662c69696}</Project>
+      <Name>ServiceExtensions</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
@@ -347,7 +348,6 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
