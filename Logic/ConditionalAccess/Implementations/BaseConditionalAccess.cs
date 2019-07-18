@@ -10407,6 +10407,20 @@ namespace Core.ConditionalAccess
 
             try
             {
+                if (!string.IsNullOrEmpty(userId) && !dataDictionary.ContainsKey("UserId"))
+                {
+                    dataDictionary.Add("UserId", userId);
+                }
+
+                if (!string.IsNullOrEmpty(udid) && !dataDictionary.ContainsKey("udid"))
+                {
+                    dataDictionary.Add("UDID", udid);
+                }
+            }
+            catch { }
+
+            try
+            {
                 string task = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.Task.Value;
 
                 PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, dataDictionary, action);
@@ -16801,15 +16815,15 @@ namespace Core.ConditionalAccess
         public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)
         {
             SearchableRecording[] result = new SearchableRecording[0];
-            List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
+            List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording };
             bool shouldFilterViewableRecordingOnly = true;
             if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
             {
-                recordingStatuses.AddRange(new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled });
+                recordingStatuses.AddRange(new List<TstvRecordingStatus>() { TstvRecordingStatus.Scheduled });
                 shouldFilterViewableRecordingOnly = false;
             }
 
-                try
+            try
             {
                 Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(m_nGroupID, domainId, recordingStatuses, shouldFilterViewableRecordingOnly);
 
