@@ -1,2 +1,2 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="logout.aspx.cs" Inherits="logout" %>
+<%@ Page Language="C#" AutoEventWireup="true" Codebehind="logout.aspx.cs" Inherits="logout" %>
 
