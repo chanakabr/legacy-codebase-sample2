@@ -9,11 +9,7 @@ namespace EPGTransformationHandler
         public static async Task Main(string[] args)
         {
             var builder = new HostBuilder()
-                .ConfigureEventBustConsumer(c =>
-                {
-                    c.QueueName = "epg_ingest_transformation";
-                    c.ConcurrentConsumers = 3;
-                });
+                .ConfigureEventBustConsumer();
             await builder.RunConsoleAsync();
 
         }

@@ -119,6 +119,8 @@ namespace IngestHandler
 				CloneExistingIndex();
 				UpdateClonedIndex(finalEpgState, crudOperations.ItemsToDelete);
 
+                // TODO: publish using EventBus to a new consumer with a new event ValidateIngest
+
 				var indexIsValid = ValidateClonedIndex(finalEpgState);
 				_Logger.Debug($"Index validation done with result:[{indexIsValid}]");
 
@@ -922,8 +924,6 @@ namespace IngestHandler
 				{
 					isValid = false;
 				}
-
-				// TODO : explain failures
 
 
 				if (!isValid)
