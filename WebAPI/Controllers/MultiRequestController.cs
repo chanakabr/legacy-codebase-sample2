@@ -214,6 +214,15 @@ namespace WebAPI.Controllers
 
                 result = dict[token];
             }
+            else if (parameterType == typeof(SerializableDictionary<string, KalturaValue>))
+            {
+                SerializableDictionary<string, KalturaValue> dict = (SerializableDictionary<string, KalturaValue>)parameter;
+                if (!dict.ContainsKey(token))
+                {
+                    throw new RequestParserException();
+                }
+                result = dict[token];
+            }
             else
             {
                 throw new RequestParserException();
