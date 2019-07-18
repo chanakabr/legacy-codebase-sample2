@@ -10399,6 +10399,20 @@ namespace Core.ConditionalAccess
 
             try
             {
+                if (!string.IsNullOrEmpty(userId) && !dataDictionary.ContainsKey("UserId"))
+                {
+                    dataDictionary.Add("UserId", userId);
+                }
+
+                if (!string.IsNullOrEmpty(udid) && !dataDictionary.ContainsKey("udid"))
+                {
+                    dataDictionary.Add("UDID", udid);
+                }
+            }
+            catch { }
+
+            try
+            {
                 string task = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.Task.Value;
 
                 PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, dataDictionary, action);
