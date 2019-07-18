@@ -146,8 +146,7 @@ namespace Core.Api.Managers
         {
             try
             {
-                if (checkGeoAvailabilityEnabled && 
-                    (!IsGeoAssetRulesEnabled(groupId) || UtilsDal.GetObjectFromCB<string>(eCouchbaseBucket.OTT_APPS, GetGeoUpdateMediaCbKey(groupId, mediaId)) == null))
+                if (checkGeoAvailabilityEnabled && !IsGeoAssetRulesEnabled(groupId))
                 {
                     return true;
                 }
@@ -910,7 +909,7 @@ namespace Core.Api.Managers
                     return false;
                 }
 
-                return catalogGroupCache.IsAssetUserRuleEnabled;
+                return catalogGroupCache.IsGeoAvailabilityWindowingEnabled;
             }
             else
             {
@@ -923,7 +922,7 @@ namespace Core.Api.Managers
 
                 List<LanguageObj> languages = group.GetLangauges();
 
-                return group.isAssetUserRuleEnabled;
+                return group.isGeoAvailabilityWindowingEnabled;
             }
         }
         
