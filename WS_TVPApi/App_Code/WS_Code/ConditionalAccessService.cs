@@ -1649,7 +1649,7 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).Purchase(user_id, price, currency,
-                        content_id, product_id, productType, coupon, string.Empty, payment_gateway_id, payment_method_id);
+                        content_id, product_id, productType, coupon, initObj.UDID, payment_gateway_id, payment_method_id);
 
                 }
                 catch (Exception ex)
