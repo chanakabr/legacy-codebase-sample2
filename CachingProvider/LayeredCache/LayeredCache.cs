@@ -98,13 +98,17 @@ namespace CachingProvider.LayeredCache
                 {
                     Dictionary<string, T> resultsToAdd = new Dictionary<string, T>();
                     resultsToAdd.Add(key, genericParameter);
-                    Dictionary<string, List<string>> invalidationKeyToAdd = new Dictionary<string, List<string>>();
+                    Dictionary<string, List<string>> invalidationKeyToAdd = null;
 
-                    foreach (var invalidationKey in inValidationKeys)
+                    if (inValidationKeys != null && inValidationKeys.Count > 0)
                     {
-                        invalidationKeyToAdd.Add(invalidationKey, new List<string>() { key });
-                    }
+                        invalidationKeyToAdd = new Dictionary<string, List<string>>();
 
+                        foreach (var invalidationKey in inValidationKeys)
+                        {
+                            invalidationKeyToAdd.Add(invalidationKey, new List<string>() { key });
+                        }
+                    }
                     InsertResultsToCurrentRequest(resultsToAdd, invalidationKeyToAdd);
                     //InsertResultsToSession<T>(resultsToAdd);
                 }
@@ -614,6 +618,27 @@ namespace CachingProvider.LayeredCache
             }
 
             HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
+        }
+
+        private void RemoveCachedObjectsFromCurrentRequest(string invalidationKey)
+        {
+            RequestLayeredCache requestLayeredCache = null;
+
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
+                HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] is RequestLayeredCache)
+            {
+                requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
+
+                HashSet<string> keysToRemove;
+
+                if (requestLayeredCache.invalidationKeysToKeys.TryGetValue(invalidationKey, out keysToRemove))
+                {
+                    foreach (var keyToRemove in keysToRemove)
+                    {
+                        requestLayeredCache.cachedObjects.Remove(keyToRemove);
+                    }
+                }
+            }
         }
 
         public bool ShouldGoToCache(string layeredCacheConfigName, int groupId)
@@ -1174,6 +1199,7 @@ namespace CachingProvider.LayeredCache
                             res = true;
                             Dictionary<string, LayeredCacheGroupConfig> groupConfigToAdd = new Dictionary<string, LayeredCacheGroupConfig>();
                             groupConfigToAdd.Add(key, groupConfig);
+                            InsertResultsToCurrentRequest(groupConfigToAdd, null); 
                             //InsertResultsToSession(groupConfigToAdd);
 
                             break;
@@ -1457,6 +1483,8 @@ namespace CachingProvider.LayeredCache
                 }
 
                 res = TrySetInvalidationKeyWithCacheConfig(key, valueToUpdate, invalidationKeyCacheConfig);
+
+                RemoveCachedObjectsFromCurrentRequest(key);
             }
 
             catch (Exception ex)
