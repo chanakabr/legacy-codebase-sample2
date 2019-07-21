@@ -37,7 +37,7 @@ namespace WS_Domains
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid);
+                return Core.Domains.Module.AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, null);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace WS_Domains
 
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, sCoGuid);
+                return Core.Domains.Module.AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, sCoGuid, null);
             }
             else
             {
