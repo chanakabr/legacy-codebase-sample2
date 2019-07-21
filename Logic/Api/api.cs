@@ -10037,12 +10037,27 @@ namespace Core.Api
             return result;
         }
 
-        public static bool DoActionRules()
-        {
+        public static bool DoActionRules(bool isSingleRun)
+        { 
             double alcrScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
+            int impactedItems = 0;
             try
             {
+                if (isSingleRun)
+                {
+                    impactedItems = AssetLifeCycleRuleManager.DoActionRules();
+
+                    if (impactedItems > 0)
+                    {
+                        log.DebugFormat("Successfully applied asset life cycle rules on: {0} assets", impactedItems);
+                    }
+                    else
+                    {
+                        log.DebugFormat("No assets were modified on DoActionRules");
+                    }
+                }
+
                 // try to get interval for next run take default
                 BaseScheduledTaskLastRunDetails assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
 
@@ -10071,7 +10086,7 @@ namespace Core.Api
                     alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = AssetLifeCycleRuleManager.DoActionRules();
+                impactedItems = AssetLifeCycleRuleManager.DoActionRules();
 
                 if (impactedItems > 0)
                 {
@@ -10815,12 +10830,28 @@ namespace Core.Api
             return AssetRuleManager.UpdateAssetRule(groupId, assetRule);
         }
 
-        internal static bool DoActionAssetRules()
+        internal static bool DoActionAssetRules(bool isSingleRun)
         {
             double assetRuleScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
+            int impactedItems = 0;
             try
             {
+
+                if (isSingleRun)
+                {
+                    impactedItems = AssetLifeCycleRuleManager.DoActionRules();
+
+                    if (impactedItems > 0)
+                    {
+                        log.DebugFormat("Successfully applied asset life cycle rules on: {0} assets", impactedItems);
+                    }
+                    else
+                    {
+                        log.DebugFormat("No assets were modified on DoActionRules");
+                    }
+                }
+
                 // try to get interval for next run take default
                 BaseScheduledTaskLastRunDetails assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetRuleScheduledTasks);
 
@@ -10849,7 +10880,7 @@ namespace Core.Api
                     assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = AssetRuleManager.DoActionRules();
+                impactedItems = AssetRuleManager.DoActionRules();
 
                 if (impactedItems > 0)
                 {
