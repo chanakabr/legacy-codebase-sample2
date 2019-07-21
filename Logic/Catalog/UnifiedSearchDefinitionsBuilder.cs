@@ -245,7 +245,7 @@ namespace Core.Catalog
 
                 #region Regions
 
-                if (definitions.isAllowedToViewInactiveAssets)
+                if (!definitions.isAllowedToViewInactiveAssets)
                 {
                     List<int> regionIds;
                     List<string> linearMediaTypes;
