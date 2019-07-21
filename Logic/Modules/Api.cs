@@ -1708,13 +1708,13 @@ namespace Core.Api
             return Core.Api.api.IncrementLayeredCacheGroupConfigVersion(groupId);
         }
 
-        public static bool DoActionRules()
+        public static bool DoActionRules(bool isSingleRun = false)
         {
             bool result = false;
 
             try
             {
-                result = Core.Api.api.DoActionRules();
+                result = Core.Api.api.DoActionRules(isSingleRun);
             }
             catch (Exception ex)
             {
@@ -1886,13 +1886,13 @@ namespace Core.Api
             return Core.Api.api.UpdateAssetRule(groupId, assetRuleRequest);
         }
 
-        public static bool DoActionAssetRules()
+        public static bool DoActionAssetRules(bool isSingleRun = false)
         {
             bool result = false;
 
             try
             {
-                result = Core.Api.api.DoActionAssetRules();
+                result = Core.Api.api.DoActionAssetRules(isSingleRun);
             }
             catch (Exception ex)
             {

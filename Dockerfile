@@ -3,7 +3,6 @@ FROM microsoft/dotnet-framework:${DOTNET_FRAMEWORK_TAG} AS builder
 SHELL ["powershell"]
 
 ARG BRANCH=master
-ARG BITBUCKET_TOKEN
 ARG API_VERSION
 
 ARG TCM_URL=http://tcm:8080/
@@ -18,17 +17,17 @@ ENV TCM_SECTION ${TCM_SECTION}
 ENV TCM_APP_ID ${TCM_APP_ID}
 ENV TCM_APP_SECRET ${TCM_APP_SECRET}
 
-ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvmcore/get/${BRANCH}.zip TvmCore.zip
-ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/CDNTokenizers/get/${BRANCH}.zip CDNTokenizers.zip
+WORKDIR /
 
-RUN Expand-Archive TvmCore.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) TvmCore; rm tmp
-RUN Expand-Archive CDNTokenizers.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) CDNTokenizers; rm tmp
+# Install choco and Git for versioning script
+RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+RUN choco install -y git
 
 ADD . Core
+WORKDIR /Core
+RUN  ./DllVersioning.ps1 .
 
-RUN nuget restore TvmCore/TvinciCore.sln
-RUN nuget restore Core/Core.sln
+RUN msbuild -p:Configuration=Release -t:restore,build  Core.sln
 
-RUN msbuild /p:Configuration=Release Core/Core.sln
-
+WORKDIR /
 
