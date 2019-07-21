@@ -63,10 +63,10 @@ namespace Core.Users
             return d;
         }
 
-        public static Domain CreateDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
+        public static Domain CreateDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid, int? regionId)
         {
             //Create new domain
-            Domain domain = new Domain();
+            Domain domain = new Domain() { GroupId = nGroupID };
 
             // check if user is valid
             User user = new User();
@@ -93,13 +93,24 @@ namespace Core.Users
                 if (nDomainID > 0)
                 {
                     domain.m_DomainStatus = DomainStatus.DomainAlreadyExists;
-
                     return domain;
                 }
             }
 
+            if (regionId.HasValue)
+            {
+                // validate region exists
+                if (!domain.GetRegions().Contains(regionId.Value))
+                {
+                    domain.m_DomainStatus = DomainStatus.RegionDoesNotExist;
+                    return domain;
+                }
+
+                domain.m_nRegion = regionId.Value;
+            }
+
             // Create new domain
-            Domain oNewDomain = domain.CreateNewDomain(sDomainName, sDomainDescription, nGroupID, nMasterUserGuid, sCoGuid);
+            Domain oNewDomain = domain.CreateNewDomain(sDomainName, sDomainDescription, nGroupID, nMasterUserGuid, regionId, sCoGuid);
             oNewDomain = DomainFactory.CheckAddMonkey(oNewDomain);
 
             return oNewDomain;

@@ -70,6 +70,7 @@ namespace Core.Users
         NoUsersInDomain = 14,
         UserExistsInOtherDomains = 15,
         Pending = 16,
+        RegionDoesNotExist = 17
     }
 
     [Serializable]

@@ -78,7 +78,7 @@ namespace Core.Users
                         case DomainInfo.eAddToDomainType.CreateNewDomain:
 
                             //add a new domain
-                            domainResponse = domain.AddDomain(username + "/Domain", username + "/Domain", userId, domainInfo.GroupId, domainInfo.DomainCoGuid);
+                            domainResponse = domain.AddDomain(username + "/Domain", username + "/Domain", userId, domainInfo.GroupId, domainInfo.DomainCoGuid, null);
 
                             if (domainResponse == null || domainResponse.m_oDomainResponseStatus != DomainResponseStatus.OK)
                             {
@@ -358,7 +358,7 @@ namespace Core.Users
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, groupId);
-            DomainResponseObject dr = t.AddDomain(username + "/Domain", username + "/Domain", userId, groupId, "");
+            DomainResponseObject dr = t.AddDomain(username + "/Domain", username + "/Domain", userId, groupId, "", null);
 
             if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
             {
