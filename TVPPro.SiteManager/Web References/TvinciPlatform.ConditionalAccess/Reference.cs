@@ -320,7 +320,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         public module() {
-            this.Url = "http://localhost:2626/tvpapi_rest/ws_cas_module.asmx";
+            this.Url = "http://34.249.122.223:8030/CAS_v5_2_3/ws_cas_module.asmx";
             if ((this.IsLocalFileSystemWebService(this.Url) == true)) {
                 this.UseDefaultCredentials = true;
                 this.useDefaultCredentialsSetExplicitly = false;
@@ -2131,22 +2131,25 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelSubscriptionRenewal", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode) {
+        public Status CancelSubscriptionRenewal(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode, string userId, string udid, string userIp) {
             object[] results = this.Invoke("CancelSubscriptionRenewal", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainId,
-                        sSubscriptionCode});
+                        sSubscriptionCode,
+                        userId,
+                        udid,
+                        userIp});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void CancelSubscriptionRenewalAsync(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode) {
-            this.CancelSubscriptionRenewalAsync(sWSUserName, sWSPassword, nDomainId, sSubscriptionCode, null);
+        public void CancelSubscriptionRenewalAsync(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode, string userId, string udid, string userIp) {
+            this.CancelSubscriptionRenewalAsync(sWSUserName, sWSPassword, nDomainId, sSubscriptionCode, userId, udid, userIp, null);
         }
         
         /// <remarks/>
-        public void CancelSubscriptionRenewalAsync(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode, object userState) {
+        public void CancelSubscriptionRenewalAsync(string sWSUserName, string sWSPassword, int nDomainId, string sSubscriptionCode, string userId, string udid, string userIp, object userState) {
             if ((this.CancelSubscriptionRenewalOperationCompleted == null)) {
                 this.CancelSubscriptionRenewalOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelSubscriptionRenewalOperationCompleted);
             }
@@ -2154,7 +2157,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sWSUserName,
                         sWSPassword,
                         nDomainId,
-                        sSubscriptionCode}, this.CancelSubscriptionRenewalOperationCompleted, userState);
+                        sSubscriptionCode,
+                        userId,
+                        udid,
+                        userIp}, this.CancelSubscriptionRenewalOperationCompleted, userState);
         }
         
         private void OnCancelSubscriptionRenewalOperationCompleted(object arg) {
@@ -4610,23 +4616,24 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/ChangeSubscription", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public ChangeSubscriptionStatus ChangeSubscription(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription) {
+        public ChangeSubscriptionStatus ChangeSubscription(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid) {
             object[] results = this.Invoke("ChangeSubscription", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGuid,
                         nOldSubscription,
-                        nNewSubscription});
+                        nNewSubscription,
+                        udid});
             return ((ChangeSubscriptionStatus)(results[0]));
         }
         
         /// <remarks/>
-        public void ChangeSubscriptionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription) {
-            this.ChangeSubscriptionAsync(sWSUserName, sWSPassword, sSiteGuid, nOldSubscription, nNewSubscription, null);
+        public void ChangeSubscriptionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid) {
+            this.ChangeSubscriptionAsync(sWSUserName, sWSPassword, sSiteGuid, nOldSubscription, nNewSubscription, udid, null);
         }
         
         /// <remarks/>
-        public void ChangeSubscriptionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription, object userState) {
+        public void ChangeSubscriptionAsync(string sWSUserName, string sWSPassword, string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid, object userState) {
             if ((this.ChangeSubscriptionOperationCompleted == null)) {
                 this.ChangeSubscriptionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnChangeSubscriptionOperationCompleted);
             }
@@ -4635,7 +4642,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sWSPassword,
                         sSiteGuid,
                         nOldSubscription,
-                        nNewSubscription}, this.ChangeSubscriptionOperationCompleted, userState);
+                        nNewSubscription,
+                        udid}, this.ChangeSubscriptionOperationCompleted, userState);
         }
         
         private void OnChangeSubscriptionOperationCompleted(object arg) {
@@ -4647,24 +4655,25 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CancelServiceNow", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status CancelServiceNow(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce) {
+        public Status CancelServiceNow(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce, string udid) {
             object[] results = this.Invoke("CancelServiceNow", new object[] {
                         sWSUserName,
                         sWSPassword,
                         nDomainId,
                         nAssetID,
                         transactionType,
-                        bIsForce});
+                        bIsForce,
+                        udid});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void CancelServiceNowAsync(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce) {
-            this.CancelServiceNowAsync(sWSUserName, sWSPassword, nDomainId, nAssetID, transactionType, bIsForce, null);
+        public void CancelServiceNowAsync(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce, string udid) {
+            this.CancelServiceNowAsync(sWSUserName, sWSPassword, nDomainId, nAssetID, transactionType, bIsForce, udid, null);
         }
         
         /// <remarks/>
-        public void CancelServiceNowAsync(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce, object userState) {
+        public void CancelServiceNowAsync(string sWSUserName, string sWSPassword, int nDomainId, int nAssetID, eTransactionType transactionType, bool bIsForce, string udid, object userState) {
             if ((this.CancelServiceNowOperationCompleted == null)) {
                 this.CancelServiceNowOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCancelServiceNowOperationCompleted);
             }
@@ -4674,7 +4683,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         nDomainId,
                         nAssetID,
                         transactionType,
-                        bIsForce}, this.CancelServiceNowOperationCompleted, userState);
+                        bIsForce,
+                        udid}, this.CancelServiceNowOperationCompleted, userState);
         }
         
         private void OnCancelServiceNowOperationCompleted(object arg) {
@@ -9605,6 +9615,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private bool blockCancellationField;
         
+        private System.Nullable<System.DateTime> preSaleDateField;
+        
         private DiscountModule m_oExtDisountModuleField;
         
         private int n_GeoCommerceIDField;
@@ -9817,6 +9829,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.blockCancellationField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> PreSaleDate {
+            get {
+                return this.preSaleDateField;
+            }
+            set {
+                this.preSaleDateField = value;
             }
         }
         
