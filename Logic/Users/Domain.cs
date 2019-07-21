@@ -430,13 +430,19 @@ namespace Core.Users
         /// <param name="nGroupID"></param>
         /// <param name="nLimit"></param>
         /// <returns>the new record ID</returns>
-        public virtual Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int masterGuID, string sCoGuid = null)
+        public virtual Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int masterGuID, int? regionId, string sCoGuid = null)
         {
             DateTime dDateTime = DateTime.UtcNow;
             m_sName = sName;
             m_sDescription = sDescription;
             m_nGroupID = nGroupID;
             m_sCoGuid = sCoGuid;
+
+            if (regionId.HasValue)
+            {
+                m_nRegion = regionId.Value;
+            }
+            
             this.MasterGuID = masterGuID;
 
             // Pending - until proved otherwise
@@ -2868,7 +2874,7 @@ namespace Core.Users
             int nDomainID = -1;
             int nDomainLimitID = DomainDal.Get_DomainLimitID(this.m_nGroupID);
             bool bInserRes =
-                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, nDomainLimitID, ref nDomainID, this.m_sCoGuid);
+                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, nDomainLimitID, ref nDomainID, m_nRegion, this.m_sCoGuid);
 
             if (!bInserRes)
             {

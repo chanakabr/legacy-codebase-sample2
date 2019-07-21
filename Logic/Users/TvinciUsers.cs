@@ -208,7 +208,7 @@ namespace Core.Users
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
-            DomainResponseObject dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", nUserID, nGroupID, "");
+            DomainResponseObject dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", nUserID, nGroupID, "", null);
 
             if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
             {

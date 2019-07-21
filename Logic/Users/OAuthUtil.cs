@@ -124,7 +124,7 @@ namespace TVinciShared
                 if (wsRespObject.m_RespStatus != ResponseStatus.UserExists)
                 {
                     Domain d = new Domain();
-                    d.CreateNewDomain(credsObj.Customer_ID + "'s Domain", string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), "");
+                    d.CreateNewDomain(credsObj.Customer_ID + "'s Domain", string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), null, "");
                     domain_id = d.m_nDomainID;
                 }
                 else

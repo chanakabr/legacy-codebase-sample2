@@ -10413,6 +10413,7 @@ namespace Core.ConditionalAccess
                 {
                     dataDictionary.Add("ClientIp", ip);
                 }
+
                 if (!string.IsNullOrEmpty(userId) && !dataDictionary.ContainsKey("UserId"))
                 {
                     dataDictionary.Add("UserId", userId);

@@ -132,7 +132,7 @@ namespace Core.Users
                             user = AddNewKdgUser(username, pass, kdgLoginResp.Status, usersImplementation);
                             if (user.m_RespStatus == ResponseStatus.UserWithNoDomain)
                             {
-                                DomainResponseObject domainResponseObject = domainImplementation.AddDomain(kdgLoginResp.CustomerAccountNumber, "", int.Parse(user.m_user.m_sSiteGUID), m_nGroupID, kdgLoginResp.CustomerAccountNumber);
+                                DomainResponseObject domainResponseObject = domainImplementation.AddDomain(kdgLoginResp.CustomerAccountNumber, "", int.Parse(user.m_user.m_sSiteGUID), m_nGroupID, kdgLoginResp.CustomerAccountNumber, null);
                                 if (domainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK)
                                 {
                                     user.m_user.m_domianID = domainResponseObject.m_oDomain.m_nDomainID;

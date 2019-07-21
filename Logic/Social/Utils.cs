@@ -141,7 +141,7 @@ namespace Core.Social
             dObj.m_oDomainResponseStatus = DomainResponseStatus.UnKnown;
             try
             {
-                var res = Core.Domains.Module.AddDomain(nGroupID, user.m_oBasicData.m_sFirstName + "'s Domain", string.Empty, int.Parse(user.m_sSiteGUID));
+                var res = Core.Domains.Module.AddDomain(nGroupID, user.m_oBasicData.m_sFirstName + "'s Domain", string.Empty, int.Parse(user.m_sSiteGUID), null);
                 if (res != null)
                 {
                     dObj = res.DomainResponse;
