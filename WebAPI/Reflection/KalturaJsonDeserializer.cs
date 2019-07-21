@@ -7086,7 +7086,7 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute UniqueIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        private static RuntimeSchemePropertyAttribute SequenceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -7142,13 +7142,13 @@ namespace WebAPI.Models.General
                     }
                     UserIp = (String) Convert.ChangeType(parameters["userIp"], typeof(String));
                 }
-                if (parameters.ContainsKey("uniqueId") && parameters["uniqueId"] != null)
+                if (parameters.ContainsKey("sequenceId") && parameters["sequenceId"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        UniqueIdSchemaProperty.Validate("uniqueId", parameters["uniqueId"]);
+                        SequenceIdSchemaProperty.Validate("sequenceId", parameters["sequenceId"]);
                     }
-                    UniqueId = (String) Convert.ChangeType(parameters["uniqueId"], typeof(String));
+                    SequenceId = (String) Convert.ChangeType(parameters["sequenceId"], typeof(String));
                 }
             }
         }

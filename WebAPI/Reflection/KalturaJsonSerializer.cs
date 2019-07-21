@@ -5689,13 +5689,13 @@ namespace WebAPI.Models.General
                 ret.Add("eventType", "\"eventType\": " + "\"" + Enum.GetName(typeof(KalturaEventAction), eventType) + "\"");
             }
             ret.Add("partnerId", "\"partnerId\": " + partnerId);
+            if(SequenceId != null)
+            {
+                ret.Add("sequenceId", "\"sequenceId\": " + "\"" + EscapeJson(SequenceId) + "\"");
+            }
             if(systemName != null)
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(systemName) + "\"");
-            }
-            if(UniqueId != null)
-            {
-                ret.Add("uniqueId", "\"uniqueId\": " + "\"" + EscapeJson(UniqueId) + "\"");
             }
             if(UserIp != null)
             {
@@ -5724,13 +5724,13 @@ namespace WebAPI.Models.General
                 ret.Add("eventType", "<eventType>" + "" + Enum.GetName(typeof(KalturaEventAction), eventType) + "" + "</eventType>");
             }
             ret.Add("partnerId", "<partnerId>" + partnerId + "</partnerId>");
+            if(SequenceId != null)
+            {
+                ret.Add("sequenceId", "<sequenceId>" + EscapeXml(SequenceId) + "</sequenceId>");
+            }
             if(systemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(systemName) + "</systemName>");
-            }
-            if(UniqueId != null)
-            {
-                ret.Add("uniqueId", "<uniqueId>" + EscapeXml(UniqueId) + "</uniqueId>");
             }
             if(UserIp != null)
             {

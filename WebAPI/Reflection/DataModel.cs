@@ -3707,8 +3707,8 @@ namespace WebAPI.Reflection
                     {
                         case "eventObject":
                             return "object";
-                        case "UniqueId":
-                            return "uniqueId";
+                        case "SequenceId":
+                            return "sequenceId";
                         case "UserIp":
                             return "userIp";
                     }
