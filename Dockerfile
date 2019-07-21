@@ -2,20 +2,22 @@
 ARG IIS_TAG=windowsservercore-ltsc2019
 FROM 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:${BUILD_TAG} AS builder
 SHELL ["powershell"]
+WORKDIR /
 
 ADD . tvpapi_rest
 
-RUN nuget restore tvpapi_rest/TVPProAPIs.sln
-RUN msbuild /p:Configuration=Release tvpapi_rest/TVPProAPIs.sln
+#version patch assemblies
+WORKDIR /tvpapi_rest
+RUN  ../Core/DllVersioning.ps1 .
+WORKDIR /
 
-RUN tvpapi_rest\Generator\bin\Release\Generator.exe
-RUN mv KalturaClient.xml tvpapi_rest\WebAPI\clientlibs\KalturaClient.xml
-RUN msbuild /t:WebPublish /p:Configuration=Release /p:DeployOnBuild=True /p:WebPublishMethod=FileSystem /p:PublishUrl=C:/WebAPI /p:Profile=FolderProfile tvpapi_rest/WebAPI/WebAPI.csproj
+RUN msbuild -p:Configuration=Release -t:restore,build tvpapi_rest/TVPProAPIs.sln
 
+RUN msbuild -t:WebPublish -p:Configuration=Release -p:DeployOnBuild=True -p:WebPublishMethod=FileSystem -p:PublishUrl=C:/WebAPI -p:Profile=FolderProfile tvpapi_rest/Phoenix.Legacy/Phoenix.Legacy.csproj
+RUN dotnet tvpapi_rest/Generator/bin/Release/netcoreapp2.0\Generator.dll
 
-
-
-
+RUN mkdir C:\WebAPI\clientlibs
+RUN mv KalturaClient.xml C:\WebAPI\clientlibs\KalturaClient.xml
 
 
 
