@@ -923,7 +923,7 @@ namespace ElasticSearch.Searcher
                 #region Regions
 
                 // region term 
-                if (SearchDefinitions.regionIds != null && SearchDefinitions.regionIds.Count > 0)
+                if (!SearchDefinitions.isAllowedToViewInactiveAssets && SearchDefinitions.regionIds != null && SearchDefinitions.regionIds.Count > 0)
                 {
                     FilterCompositeType regionComposite = new FilterCompositeType(CutWith.OR);
                     FilterCompositeType emptyRegionAndComposite = new FilterCompositeType(CutWith.AND);
