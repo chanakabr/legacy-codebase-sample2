@@ -2687,8 +2687,6 @@ namespace WebAPI.Reflection
                     {
                         case "Code":
                             return "code";
-                        case "Coupon":
-                            return "coupon";
                     }
                     break;
                     

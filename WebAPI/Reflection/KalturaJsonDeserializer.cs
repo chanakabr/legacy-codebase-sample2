@@ -842,6 +842,9 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdWithHolder":
                     return new KalturaHouseholdWithHolder(parameters);
                     
+                case "KalturaHouseoldCouponCodeFilter":
+                    return new KalturaHouseoldCouponCodeFilter(parameters);
+                    
                 case "KalturaHttpNotification":
                     return new KalturaHttpNotification(parameters);
                     
@@ -25894,40 +25897,13 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCoupon
     {
-        private static RuntimeSchemePropertyAttribute CouponSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCoupon")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaHouseholdCoupon(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("code") && parameters["code"] != null)
                 {
                     Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
-                }
-                if (parameters.ContainsKey("coupon") && parameters["coupon"] != null)
-                {
-                    if(!isOldVersion)
-                    {
-                        CouponSchemaProperty.Validate("coupon", parameters["coupon"]);
-                    }
-                    if (parameters["coupon"] is JObject)
-                    {
-                        Coupon = (KalturaCoupon) Deserializer.deserialize(typeof(KalturaCoupon), ((JObject) parameters["coupon"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["coupon"] is IDictionary)
-                    {
-                        Coupon = (KalturaCoupon) Deserializer.deserialize(typeof(KalturaCoupon), (Dictionary<string, object>) parameters["coupon"]);
-                    }
                 }
             }
         }
@@ -26708,6 +26684,12 @@ namespace WebAPI.Models.Domains
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaHouseoldCouponCodeFilter
+    {
+        public KalturaHouseoldCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
 }

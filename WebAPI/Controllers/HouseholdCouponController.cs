@@ -60,6 +60,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaHouseholdCouponListResponse List(KalturaHouseholdCouponFilter filter = null)
         {
+
             if (filter == null)
             {
                 filter = new KalturaHouseholdCouponFilter();
@@ -69,7 +70,15 @@ namespace WebAPI.Controllers
                 filter.Validate();
             }
 
+            KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
             var response = filter.Execute<KalturaHouseholdCouponListResponse, KalturaHouseholdCoupon>();
+
+            if (response.Objects != null && response.Objects.Count > 0 && responseProfile != null)
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                PricingUtils.SetCouopnData(groupId, HouseholdUtils.GetHouseholdIDByKS(groupId), responseProfile, response.Objects);
+                
+            }
             return response;
         }
     }
