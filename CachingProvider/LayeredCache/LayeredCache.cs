@@ -578,7 +578,10 @@ namespace CachingProvider.LayeredCache
                 }
             }
 
-            HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
+            if (HttpContext.Current != null && HttpContext.Current.Items != null)
+            {
+                HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
+            }
         }
 
         private void RemoveCachedObjectsFromCurrentRequest(string invalidationKey)
