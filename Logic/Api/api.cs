@@ -10056,6 +10056,8 @@ namespace Core.Api
                     {
                         log.DebugFormat("No assets were modified on DoActionRules");
                     }
+
+                    return true;
                 }
 
                 // try to get interval for next run take default
@@ -10850,6 +10852,8 @@ namespace Core.Api
                     {
                         log.DebugFormat("No assets were modified on DoActionRules");
                     }
+
+                    return true;
                 }
 
                 // try to get interval for next run take default
