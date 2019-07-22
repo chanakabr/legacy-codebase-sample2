@@ -64,12 +64,8 @@ pipeline {
             when {
                 expression { return params.publish_preprod == true; }
             }
-            environment {
-               RELEASE_VERSION = sh(script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
-            }
             steps { 
-                dir("published/remotetasks"){
-                    echo "Version Identified:[${RELEASE_VERSION}]"
+                dir("published/remotetasks"){                    
                     // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
                     bat "(robocopy . \\\\Tvpapic1\\ott\\spaces\\RemoteTask\\ /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
