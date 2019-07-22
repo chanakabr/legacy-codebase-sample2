@@ -203,7 +203,7 @@ namespace Core.Api.Managers
             if (assetConditions != null && assetConditions.Count > 0)
             {
                 StringBuilder ksql = new StringBuilder("(and ");
-                ksql.AppendFormat("media_id = {0}", mediaId);
+                ksql.AppendFormat("media_id = '{0}'", mediaId);
                 foreach (var assetCondition in assetConditions)
                 {
                     ksql.Append(" " + assetCondition.Ksql);
