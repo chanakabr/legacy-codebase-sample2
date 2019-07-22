@@ -10842,7 +10842,7 @@ namespace Core.Api
 
                 if (isSingleRun)
                 {
-                    impactedItems = AssetLifeCycleRuleManager.DoActionRules();
+                    impactedItems = AssetRuleManager.DoActionRules();
 
                     if (impactedItems > 0)
                     {
