@@ -32,7 +32,7 @@ namespace WebAPI.Models.General
             
             try
             {
-                Validate();
+                // Validate(); TODO Shir: i want to remove this
                 var contextData = KS.GetContextData();
                 // TODO SHIR - TALK WITH TANTAN about all list objects so id FINISH GENERIC LIST METHOD in ICrudHandler - put in controller
                 var coreResponse = GetResponseListFromCore<KalturaT>(contextData);

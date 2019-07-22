@@ -25910,10 +25910,23 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCouponFilter
     {
+        private static RuntimeSchemePropertyAttribute BusinessModuleIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCouponFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("businessModuleTypeEqual") && parameters["businessModuleTypeEqual"] != null)
                 {
                     BusinessModuleTypeEqual = (KalturaTransactionType) Enum.Parse(typeof(KalturaTransactionType), parameters["businessModuleTypeEqual"].ToString(), true);
@@ -25925,6 +25938,10 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("businessModuleIdEqual") && parameters["businessModuleIdEqual"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        BusinessModuleIdEqualSchemaProperty.Validate("businessModuleIdEqual", parameters["businessModuleIdEqual"]);
+                    }
                     BusinessModuleIdEqual = (Int64) Convert.ChangeType(parameters["businessModuleIdEqual"], typeof(Int64));
                 }
             }
