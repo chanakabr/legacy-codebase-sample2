@@ -1573,7 +1573,13 @@ namespace Core.Catalog.CatalogManagement
                             geoAvailability[mediaId].Add(row);
                         }
                     }
-                }                
+                }
+
+                Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+                if (catalogGroupCache.IsRegionalizationEnabled)
+                {
+                    linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                }
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
@@ -1643,7 +1649,7 @@ namespace Core.Catalog.CatalogManagement
                                                       select row);
                                 }
 
-                                Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
+                                Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache, linearChannelsRegionsMapping);
                                 if (geoAvailability.ContainsKey(id))
                                 {
                                     foreach (DataRow row in geoAvailability[id])
@@ -1698,7 +1704,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, EnumerableRowCollection<DataRow> assetFileTypes,
-                                                                                                                CatalogGroupCache catalogGroupCache)
+                                                                                                                CatalogGroupCache catalogGroupCache, Dictionary<long, List<int>> linearChannelsRegionsMapping)
         {
             Dictionary<int, ApiObjects.SearchObjects.Media> result = new Dictionary<int, ApiObjects.SearchObjects.Media>();
             // File Types + is free
@@ -1794,6 +1800,7 @@ namespace Core.Catalog.CatalogManagement
 
                 string now = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
                 string max = DateTime.MaxValue.ToString("yyyyMMddHHmmss");
+
                 ApiObjects.SearchObjects.Media media = new ApiObjects.SearchObjects.Media()
                 {
                     m_nMediaID = (int)mediaAsset.Id,
@@ -1822,6 +1829,18 @@ namespace Core.Catalog.CatalogManagement
                     allowedCountries = new List<int>(),
                     blockedCountries = new List<int>()
                 };
+
+                if (catalogGroupCache.IsRegionalizationEnabled)
+                {
+                    if (linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(media.m_nMediaID))
+                    {
+                        media.regions = linearChannelsRegionsMapping[media.m_nMediaID];
+                    }
+                    else
+                    {
+                        media.regions = new List<int>() { 0 };
+                    }
+                }
 
                 result.Add(language.ID, media);
             }
@@ -2873,7 +2892,13 @@ namespace Core.Catalog.CatalogManagement
                         assetFileTypes = ds.Tables[3].AsEnumerable();
                     }
 
-                    Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache);
+                    Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+                    if (catalogGroupCache.IsRegionalizationEnabled)
+                    {
+                        linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                    }
+
+                    Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache, linearChannelsRegionsMapping);
 
                     if (ds != null && ds.Tables != null && ds.Tables.Count > 6 && ds.Tables[6] != null && ds.Tables[6].Rows != null && ds.Tables[6].Rows.Count > 0)
                     {

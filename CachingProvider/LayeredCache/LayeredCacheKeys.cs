@@ -313,7 +313,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetCatalogGroupCacheKey(int groupId)
         {
-            return string.Format("CatalogGroupCacheV3_groupId_{0}", groupId);
+            return string.Format("CatalogGroupCacheV4_groupId_{0}", groupId);
         }
 
         public static string GetGroupDeviceRulesKey(int groupId)

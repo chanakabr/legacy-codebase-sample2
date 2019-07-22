@@ -250,7 +250,7 @@ namespace Core.Catalog
                     List<int> regionIds;
                     List<string> linearMediaTypes;
 
-                    CatalogLogic.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+                    CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
                     definitions.regionIds = regionIds;
                     definitions.linearChannelMediaTypes = linearMediaTypes;

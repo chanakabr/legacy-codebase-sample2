@@ -173,7 +173,8 @@ namespace Core.Catalog.CatalogManagement
                         ConnectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID"),
                         ConnectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID"),
                         PluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME"),
-                        IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1
+                        IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1,
+                        IsLinearAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LINEAR") == 1
                     };
                 }
             }
