@@ -21,7 +21,7 @@ namespace CachingProvider.LayeredCache
         private static JsonSerializerSettings layeredCacheConfigSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
         private static LayeredCacheTcmConfig layeredCacheTcmConfig = null;
         private static JsonSerializerSettings jsonSerializerSettings = null;
-        private const string INVALIDATION_KEYS_HEADER = "X-Kaltura-InvalidationKeys";
+        public const string INVALIDATION_KEYS_HEADER = "X-Kaltura-InvalidationKeys";
         public const string MISSING_KEYS = "NeededKeys";
         public const string IS_READ_ACTION = "IsReadAction";
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
@@ -351,44 +351,7 @@ namespace CachingProvider.LayeredCache
                 layeredCacheTcmConfig.DefaultSettings.RemoveAll(x => x.Type == LayeredCacheType.InMemoryCache);
             }
         }
-
-        public void SetReadingInvalidationKeys(List<string> invalidationKeys)
-        {
-            try
-            {
-                if (invalidationKeys != null)
-                {
-
-                    if (HttpContext.Current != null)
-                    {
-                        var invalidationKeysHeader = HttpContext.Current.Response.Headers[INVALIDATION_KEYS_HEADER];
-                        if (string.IsNullOrEmpty(invalidationKeysHeader))
-                        {
-                            string invalidationKeysString = string.Join(";", invalidationKeys);
-
-                            HttpContext.Current.Response.Headers.Add(INVALIDATION_KEYS_HEADER, invalidationKeysString);
-                        }
-                        else
-                        {
-                            // Split and create hashset of all current invalidation keys - to avoid duplications
-                            HashSet<string> invalidationKeysHashSet = new HashSet<string>(invalidationKeysHeader.ToString().Split(';'));
-
-                            invalidationKeysHashSet.UnionWith(invalidationKeys);
-
-                            string invalidationKeysString = string.Join(";", invalidationKeysHashSet);
-
-                            HttpContext.Current.Response.Headers.Remove(INVALIDATION_KEYS_HEADER);
-                            HttpContext.Current.Response.Headers.Add(INVALIDATION_KEYS_HEADER, invalidationKeysString);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed setting reading invalidation keys, ex = {0}", ex);
-            }
-        }
-
+        
         public bool SetLayeredCacheGroupConfig(int groupId, int? version = null, bool? shouldDisableLayeredCache = null,
                                                 List<string> layeredCacheSettingsToExclude = null, bool? shouldOverrideExistingExludeSettings = false,
                                                 List<string> layeredCacheInvalidationKeySettingsToExclude = null, bool? shouldOverrideExistingInvalidationKeyExludeSettings = false)

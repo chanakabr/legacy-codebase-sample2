@@ -524,7 +524,6 @@ namespace Core.Users
             }
 
             Dictionary<int, int> dTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
-            SetReadingInvalidationKeys();
 
             // User validations
             if (dTypedUserIDs == null || dTypedUserIDs.Count == 0)
@@ -1859,8 +1858,6 @@ namespace Core.Users
                 ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
                 ref eSuspendStat, ref regionId, ref roleId);
 
-            SetReadingInvalidationKeys();
-
             if (res)
             {
                 // If the domain is not in status 1, the rest of the initialization has no meaning
@@ -1954,8 +1951,7 @@ namespace Core.Users
                         MapUdidToDeviceFamilyId(device.m_deviceUDID, device.m_deviceFamilyID);
                         IncrementDeviceCount(device);
                     }
-
-                    device.SetReadingInvalidationKeys();
+                    
                     if (bIsActiveInDevices && bIsActiveInDomainsDevices && !domainDevices.ContainsKey(device.m_deviceUDID))
                     {
                         domainDevices.Add(device.m_deviceUDID, device.m_deviceFamilyID);
@@ -2295,7 +2291,6 @@ namespace Core.Users
 
                 // Get Domain users from DB; Master user is first
                 Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
-                SetReadingInvalidationKeys();
 
                 if (dbTypedUserIDs != null && dbTypedUserIDs.Count > 0)
                 {
@@ -2315,7 +2310,6 @@ namespace Core.Users
                 isActive = 0;
                 status = 3;
                 Dictionary<int, int> dbPendingUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, status, isActive);
-                SetReadingInvalidationKeys();
 
                 if (dbPendingUserIDs != null && dbPendingUserIDs.Count > 0)
                 {
@@ -2337,7 +2331,6 @@ namespace Core.Users
             DomainResponseStatus eDomainResponseStatus = DomainResponseStatus.UnKnown;
             int numOfUsers = m_UsersIDs.Count;
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
-            SetReadingInvalidationKeys();
 
             //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
@@ -3140,17 +3133,7 @@ namespace Core.Users
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
-
-        public virtual void SetReadingInvalidationKeys()
-        {
-            List<string> invalidationKeys = new List<string>()
-                {
-                    LayeredCacheKeys.GetHouseholdInvalidationKey(this.m_nDomainID)
-                };
-
-            LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
-        }
-
+        
         internal List<int> GetRegions()
         {
             List<int> result = null;
