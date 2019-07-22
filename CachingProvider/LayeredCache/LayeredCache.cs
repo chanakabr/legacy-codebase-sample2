@@ -578,7 +578,7 @@ namespace CachingProvider.LayeredCache
                 }
             }
 
-            if (HttpContext.Current != null && HttpContext.Current.Items != null)
+            if (HttpContext.Current?.Items != null)
             {
                 HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] = requestLayeredCache;
             }
