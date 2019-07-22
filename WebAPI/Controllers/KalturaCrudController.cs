@@ -33,7 +33,6 @@ namespace WebAPI.Controllers
         protected static KalturaT DoAdd(KalturaT kalturaObjectToAdd)
         {
             KalturaT response = null;
-            typesToHandlersMap.Add(typeof(KalturaT), kalturaObjectToAdd.Handler);
 
             try
             {
