@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
@@ -18,30 +19,34 @@ namespace WebAPI.Controllers
     /// abstract class which represents a controller with CRUD actions
     /// </summary>
     /// <typeparam name="KalturaT">kaltura object</typeparam>
-    /// <typeparam name="CoreT">core object</typeparam>
+    /// <typeparam name="ICrudHandeledObject">core object</typeparam>
     /// <typeparam name="IdentifierT">Identifier type</typeparam>
+    /// <typeparam name="ICrudFilter">core filter</typeparam>
     public abstract class KalturaCrudController<KalturaT, ICrudHandeledObject, IdentifierT, ICrudFilter> : IKalturaController
-        where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
+        where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>, new()
         where IdentifierT : IConvertible
     {
-        protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        // TODO SHIR - ADD ALL RELEVANT ITEMS TO typesToHandlersMap - by reflection when phoenix service starts
-        private static Dictionary<Type, ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter>> typesToHandlersMap = 
-            new Dictionary<Type, ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter>>();
-
-        protected static KalturaT DoAdd(KalturaT kalturaObjectToAdd)
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        protected static KalturaT DefaultObject { get; set; }
+        
+        static KalturaCrudController()
+        {
+            DefaultObject = new KalturaT();
+        }
+        
+        [Action("add")]
+        [ApiAuthorize]
+        public static KalturaT Add(KalturaT objectToAdd)
         {
             KalturaT response = null;
-            typesToHandlersMap.Add(typeof(KalturaT), kalturaObjectToAdd.Handler);
 
             try
             {
-                kalturaObjectToAdd.ValidateForAdd();
+                objectToAdd.ValidateForAdd();
                 var contextData = KS.GetContextData();
-                Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> addFunc = 
-                    (ICrudHandeledObject objectToAdd) => kalturaObjectToAdd.Handler.Add(contextData, objectToAdd);
-                response = GetResponseFromCore(kalturaObjectToAdd, addFunc);
+                GenericResponse<ICrudHandeledObject> addFunc(ICrudHandeledObject coreObjectToAdd) => 
+                    objectToAdd.Handler.Add(contextData, coreObjectToAdd);
+                response = GetResponseFromCore(objectToAdd, addFunc);
             }
             catch (ClientException ex)
             {
@@ -51,18 +56,20 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        protected static KalturaT DoUpdate(IdentifierT id, KalturaT kalturaObjectToUpdate)
+        [Action("update")]
+        [ApiAuthorize]
+        public static KalturaT Update(IdentifierT id, KalturaT objectToUpdate)
         {
             KalturaT response = null;
 
             try
             {
-                kalturaObjectToUpdate.SetId(id);
-                kalturaObjectToUpdate.ValidateForUpdate();
+                objectToUpdate.SetId(id);
+                objectToUpdate.ValidateForUpdate();
                 var contextData = KS.GetContextData();
-                Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> updateFunc = 
-                    (ICrudHandeledObject objectToUpdate) => kalturaObjectToUpdate.Handler.Update(contextData, objectToUpdate);
-                response = GetResponseFromCore(kalturaObjectToUpdate, updateFunc);
+                GenericResponse<ICrudHandeledObject> updateFunc(ICrudHandeledObject coreObjectToUpdate) =>
+                     objectToUpdate.Handler.Update(contextData, coreObjectToUpdate);
+                response = GetResponseFromCore(objectToUpdate, updateFunc);
             }
             catch (ClientException ex)
             {
@@ -72,12 +79,19 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        protected static void DoDelete(IdentifierT id, ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> handler)
+        [Action("delete")]
+        [ApiAuthorize]
+        public static void Delete(IdentifierT id)
         {
             try
             {
                 var contextData = KS.GetContextData();
-                GetResponseStatusFromCore(() => typesToHandlersMap[typeof(KalturaT)].Delete(contextData, id));
+                if (DefaultObject.Handler == null)
+                {
+                    throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Handler was not defined for object:{0}", DefaultObject.GetType().Name));
+                }
+
+                GetResponseStatusFromCore(() => DefaultObject.Handler.Delete(contextData, id));
             }
             catch (ClientException ex)
             {
@@ -85,14 +99,22 @@ namespace WebAPI.Controllers
             }
         }
 
-        protected static KalturaT DoGet(IdentifierT id, ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> handler)
+        [Action("get")]
+        [ApiAuthorize]
+        public static KalturaT Get(IdentifierT id)
         {
             KalturaT response = null;
 
             try
             {
                 var contextData = KS.GetContextData();
-                response = GetResponseFromCore(() => handler.Get(contextData, id));
+
+                if (DefaultObject.Handler == null)
+                {
+                    throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Handler was not defined for object:{0}", DefaultObject.GetType().Name));
+                }
+
+                response = GetResponseFromCore(() => DefaultObject.Handler.Get(contextData, id));
             }
             catch (ClientException ex)
             {
@@ -102,6 +124,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        [Action("list1")]
+        [ApiAuthorize]
+        public static void List1()
+        {
+            // TODO SHIR - DONT FORGET LIST
+        }
         //public static KalturaListResponseT DoList<KalturaFilterT, KalturaOrderByT>(KalturaFilterT kalturaFilter)
         //    where KalturaListResponseT :  KalturaListResponse<KalturaT>
         //    where KalturaFilterT: KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>

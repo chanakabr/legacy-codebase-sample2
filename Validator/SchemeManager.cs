@@ -722,5 +722,22 @@ namespace Validator.Managers.Scheme
 
             return Char.ToUpper(str[0]) + str.Substring(1);
         }
+
+        public static bool IsCrudController(Type controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes)
+        {
+            crudActionAttributes = null;
+            if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,>))
+            {
+                var actionAttributes = controller.GetCustomAttributes<CrudActionAttribute>(true).ToDictionary(x => x.Name, x => x);
+
+                if (actionAttributes != null && actionAttributes.Count > 0)
+                {
+                    crudActionAttributes = actionAttributes;
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

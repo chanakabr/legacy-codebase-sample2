@@ -1876,19 +1876,6 @@
              <remarks>Possible status codes: 
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdCouponController.Add(WebAPI.Models.Domains.KalturaHouseholdCoupon)">
-            <summary>
-            householdCoupon add
-            </summary>
-            <param name="householdCoupon">householdCoupon details</param>
-            <returns></returns>
-        </member>
-        <member name="M:WebAPI.Controllers.HouseholdCouponController.Delete(System.String)">
-            <summary>
-            Remove coupon from household
-            </summary>
-            <param name="code">Coupon code</param>
-        </member>
         <member name="M:WebAPI.Controllers.HouseholdCouponController.List(WebAPI.Models.Domains.KalturaHouseholdCouponFilter)">
             <summary>
             Gets all HouseholdCoupon items for a household
@@ -2364,8 +2351,9 @@
             abstract class which represents a controller with CRUD actions
             </summary>
             <typeparam name="KalturaT">kaltura object</typeparam>
-            <typeparam name="CoreT">core object</typeparam>
+            <typeparam name="ICrudHandeledObject">core object</typeparam>
             <typeparam name="IdentifierT">Identifier type</typeparam>
+            <typeparam name="ICrudFilter">core filter</typeparam>
         </member>
         <member name="M:WebAPI.Controllers.LanguageController.List(WebAPI.Models.API.KalturaLanguageFilter)">
             <summary>

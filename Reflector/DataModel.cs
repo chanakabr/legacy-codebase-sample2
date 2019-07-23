@@ -4,21 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Controllers;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using WebAPI.Models.Renderers;
 using System.Net;
+using Validator.Managers.Scheme;
 
 namespace Reflector
 {
     class DataModel : Base
     {
+        public Dictionary<string, MethodInfo> BaseCrudActions;
 
         public static string GetDataModelCSFilePath()
         {
@@ -61,8 +57,8 @@ namespace Reflector
         protected override void writeBody()
         {
             wrtiePropertyApiName();
-            wrtieExecAction();
-            wrtieGetMethodParams();
+            WriteExecAction();
+            WriteGetMethodParams();
             wrtieGetFailureHttpCode();
         }
 
@@ -156,7 +152,7 @@ namespace Reflector
             return value.ToString();
         }
 
-        private void wrtieGetMethodParams()
+        private void WriteGetMethodParams()
         {
             List<PropertyInfo> schemeArgumentProperties = typeof(SchemeArgumentAttribute).GetProperties().ToList();
 
@@ -176,10 +172,13 @@ namespace Reflector
             file.WriteLine("                switch (service)");
             file.WriteLine("                {");
 
+            // run over all controllers to get all OldStandardActions methods names 
             foreach (Type controller in controllers)
             {
                 List<MethodInfo> actions = controller.GetMethods().ToList();
                 bool hasOldVersionActions = false;
+
+                // run over all methods and check if there are any OldStandardActions (stop if exists)
                 foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
@@ -194,6 +193,7 @@ namespace Reflector
                         break;
                     }
                 }
+
                 if (!hasOldVersionActions)
                 {
                     continue;
@@ -246,12 +246,9 @@ namespace Reflector
 
             foreach (Type controller in controllers)
             {
-                ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
-                if (serviceAttribute == null)
-                {
-                    continue;
-                }
-
+                var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if (serviceAttribute == null) { continue; }
+                
                 file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
                 file.WriteLine("                    switch(action)");
                 file.WriteLine("                    {");
@@ -261,188 +258,27 @@ namespace Reflector
 
                 foreach (MethodInfo action in actions)
                 {
-                    if (action.DeclaringType != controller)
+                    if (action.DeclaringType != controller) { continue; }
+                    
+                    var actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+                    if (actionAttribute == null) { continue; }
+
+                    WriteActionParams(actionAttribute, action, schemeArgumentProperties, serviceAttribute);
+                }
+                
+                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes))
+                {
+                    if (BaseCrudActions == null)
                     {
-                        continue;
+                        BaseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
                     }
 
-                    ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
-                    if (actionAttribute == null)
-                    {
-                        continue;
-                    }
-
-                    file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
-
-                    ParameterInfo[] parameters = action.GetParameters();
-                    IEnumerable<SchemeArgumentAttribute> schemaArguments = action.GetCustomAttributes<SchemeArgumentAttribute>();
-                    IEnumerable<OldStandardArgumentAttribute> oldStandardArgumentAttributes = action.GetCustomAttributes<OldStandardArgumentAttribute>(true);
-                    foreach (ParameterInfo parameter in parameters)
-                    {
-                        string paramName = "paramName";
-                        bool hasOldStandard = false;
-                        foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
-                        {
-                            if (oldStandardArgumentAttribute.newName == parameter.Name)
-                            {
-                                hasOldStandard = true;
-                                break;
-                            }
-                        }
-                        if (hasOldStandard)
-                        {
-                            file.WriteLine("                            paramName = \"" + parameter.Name + "\";");
-                            file.WriteLine("                            newParamName = null;");
-                            foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
-                            {
-                                if (oldStandardArgumentAttribute.newName == parameter.Name)
-                                {
-                                    if (oldStandardArgumentAttribute.sinceVersion != null)
-                                    {
-                                        file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.sinceVersion + "\")) < 0)");
-                                        file.WriteLine("                            {");
-                                        file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
-                                        file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.newName + "\";");
-                                        file.WriteLine("                            }");
-                                    }
-                                }
-                            }
-                            foreach (OldStandardArgumentAttribute oldStandardArgumentAttribute in oldStandardArgumentAttributes)
-                            {
-                                if (oldStandardArgumentAttribute.newName == parameter.Name)
-                                {
-                                    if (oldStandardArgumentAttribute.sinceVersion == null)
-                                    {
-                                        file.WriteLine("                            if(isOldVersion)");
-                                        file.WriteLine("                            {");
-                                        file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.oldName + "\";");
-                                        file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.newName + "\";");
-                                        file.WriteLine("                            }");
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            paramName = "\"" + parameter.Name + "\"";
-                        }
-                        file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
-                        file.WriteLine("                                NewName = newParamName,");
-                        if (parameter.IsOptional)
-                        {
-                            file.WriteLine("                                IsOptional = true,");
-                            file.WriteLine("                                DefaultValue = " + varToString(parameter.DefaultValue) + ",");
-                        }
-                        if (parameter.ParameterType.IsGenericType)
-                        {
-                            if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                            {
-                                file.WriteLine("                                IsNullable = true,");
-                                Type nullableType = Nullable.GetUnderlyingType(parameter.ParameterType);
-                                file.WriteLine("                                Type = typeof(" + nullableType.Name + "),");
-                                if (nullableType.IsEnum)
-                                {
-                                    file.WriteLine("                                IsEnum = true,");
-                                }
-                            }
-                            else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>))
-                            {
-                                file.WriteLine("                                IsList = true,");
-                                file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + "),");
-                                file.WriteLine("                                Type = typeof(List<" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + ">),");
-                            }
-                            else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
-                            {
-                                file.WriteLine("                                IsMap = true,");
-                                file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + "),");
-                                file.WriteLine("                                Type = typeof(SerializableDictionary<string, " + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + ">),");
-                            }
-                            else if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
-                            {
-                                file.WriteLine("                                IsKalturaObject = true,");
-                                file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "<>),");
-                            }
-                        }
-                        else if (parameter.ParameterType.IsEnum)
-                        {
-                            file.WriteLine("                                IsEnum = true,");
-                            file.WriteLine("                                Type = typeof(" + parameter.ParameterType.Name + "),");
-                        }
-                        else
-                        {
-                            if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
-                            {
-                                file.WriteLine("                                IsKalturaObject = true,");
-                                if (typeof(KalturaMultilingualString).IsAssignableFrom(parameter.ParameterType))
-                                {
-                                    file.WriteLine("                                IsKalturaMultilingualString = true,");
-                                }
-                            }
-                            else if (parameter.ParameterType == typeof(DateTime))
-                            {
-                                file.WriteLine("                                IsDateTime = true,");
-                            }
-                            file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "),");
-                        }
-
-                        foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
-                        {
-                            if (schemaArgument.Name.Equals(parameter.Name))
-                            {
-                                file.WriteLine("                                SchemeArgument = new RuntimeSchemeArgumentAttribute(\"" + parameter.Name + "\", \"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\") {");
-                                schemeArgumentProperties.ForEach(schemeArgumentProperty =>
-                                {
-                                    object val = schemeArgumentProperty.GetValue(schemaArgument);
-                                    if (val != null)
-                                    {
-                                        if (schemeArgumentProperty.Name != "Name" && schemeArgumentProperty.Name != "TypeId")
-                                        {
-                                            if (schemeArgumentProperty.PropertyType == typeof(bool))
-                                            {
-                                                file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
-                                            }
-                                            else if (schemeArgumentProperty.PropertyType == typeof(int))
-                                            {
-                                                if ((int)val != int.MinValue && (int)val != int.MaxValue)
-                                                {
-                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
-                                                }
-                                            }
-                                            else if (schemeArgumentProperty.PropertyType == typeof(long))
-                                            {
-                                                if ((long)val != long.MinValue && (long)val != long.MaxValue)
-                                                {
-                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
-                                                }
-                                            }
-                                            else if (schemeArgumentProperty.PropertyType == typeof(double))
-                                            {
-                                                if ((double)val != double.MinValue && (double)val != double.MaxValue)
-                                                {
-                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
-                                                }
-                                            }
-                                            else if (schemeArgumentProperty.PropertyType == typeof(float))
-                                            {
-                                                if ((float)val != float.MinValue && (float)val != float.MaxValue)
-                                                {
-                                                    file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
-                                                }
-                                            }
-                                            else
-                                            {
-                                                file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val + ",");
-                                            }
-                                        }
-                                    }
-                                });
-                                file.WriteLine("                                },");
-                            }
-                        }
-                        file.WriteLine("                            });");
-                    }
-                    file.WriteLine("                            return ret;");
-                    file.WriteLine("                            ");
+                    WriteCrudActionParams(AddActionAttribute.Add, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(UpdateActionAttribute.Update, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(DeleteActionAttribute.Delete, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(GetActionAttribute.Get, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    // TODO SHIR - finish to WriteCrudActionParams for LIST action
+                    WriteCrudActionParams(ListActionAttribute.List, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
                 }
 
                 file.WriteLine("                    }");
@@ -457,7 +293,203 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
-        private void wrtieExecAction(MethodInfo action, bool indent, string permissionActionName = null)
+        private void WriteCrudActionParams(string actionName, Dictionary<string, CrudActionAttribute> crudActionAttributes, Dictionary<string, MethodInfo> crudActions, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute)
+        {
+            if (crudActionAttributes.ContainsKey(actionName) && crudActions.ContainsKey(actionName))
+            {
+                var actionAttribute = crudActions[actionName].GetCustomAttribute<ActionAttribute>(true);
+                WriteActionParams(actionAttribute, crudActions[actionName], schemeArgumentProperties, serviceAttribute);
+            }
+        }
+
+        private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute)
+        {
+            file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
+
+            var parameters = action.GetParameters();
+            var schemaArguments = action.GetCustomAttributes<SchemeArgumentAttribute>();
+            var oldStandardAttributesMap = GetOldStandardAttributesMap(action);
+
+            foreach (var parameter in parameters)
+            {
+                string paramName = "paramName";
+                bool hasOldStandard = false;
+                if (oldStandardAttributesMap.ContainsKey(parameter.Name))
+                {
+                    hasOldStandard = true;
+                }
+                
+                if (hasOldStandard)
+                {
+                    file.WriteLine("                            paramName = \"" + parameter.Name + "\";");
+                    file.WriteLine("                            newParamName = null;");
+                    
+                    foreach (var oldStandardArgumentAttribute in oldStandardAttributesMap[parameter.Name])
+                    {
+                        if (string.IsNullOrEmpty(oldStandardArgumentAttribute.Key))
+                        {
+                            file.WriteLine("                            if(isOldVersion)");
+                            file.WriteLine("                            {");
+                            file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.Value.oldName + "\";");
+                            file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.Value.newName + "\";");
+                            file.WriteLine("                            }");
+                        }
+                        else
+                        {
+                            file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.Key + "\")) < 0)");
+                            file.WriteLine("                            {");
+                            file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.Value.oldName + "\";");
+                            file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.Value.newName + "\";");
+                            file.WriteLine("                            }");
+                        }
+                    }
+                }
+                else
+                {
+                    paramName = "\"" + parameter.Name + "\"";
+                }
+
+                file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
+                file.WriteLine("                                NewName = newParamName,");
+                if (parameter.IsOptional)
+                {
+                    file.WriteLine("                                IsOptional = true,");
+                    file.WriteLine("                                DefaultValue = " + varToString(parameter.DefaultValue) + ",");
+                }
+
+                // write param type
+                if (parameter.ParameterType.IsGenericType)
+                {
+                    if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        file.WriteLine("                                IsNullable = true,");
+                        Type nullableType = Nullable.GetUnderlyingType(parameter.ParameterType);
+                        file.WriteLine("                                Type = typeof(" + nullableType.Name + "),");
+                        if (nullableType.IsEnum)
+                        {
+                            file.WriteLine("                                IsEnum = true,");
+                        }
+                    }
+                    else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>))
+                    {
+                        file.WriteLine("                                IsList = true,");
+                        file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + "),");
+                        file.WriteLine("                                Type = typeof(List<" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + ">),");
+                    }
+                    else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
+                    {
+                        file.WriteLine("                                IsMap = true,");
+                        file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + "),");
+                        file.WriteLine("                                Type = typeof(SerializableDictionary<string, " + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + ">),");
+                    }
+                    else if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
+                    {
+                        file.WriteLine("                                IsKalturaObject = true,");
+                        file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "<>),");
+                    }
+                }
+                else if (parameter.ParameterType.IsEnum)
+                {
+                    file.WriteLine("                                IsEnum = true,");
+                    file.WriteLine("                                Type = typeof(" + parameter.ParameterType.Name + "),");
+                }
+                else
+                {
+                    if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
+                    {
+                        file.WriteLine("                                IsKalturaObject = true,");
+                        if (typeof(KalturaMultilingualString).IsAssignableFrom(parameter.ParameterType))
+                        {
+                            file.WriteLine("                                IsKalturaMultilingualString = true,");
+                        }
+                    }
+                    else if (parameter.ParameterType == typeof(DateTime))
+                    {
+                        file.WriteLine("                                IsDateTime = true,");
+                    }
+                    file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "),");
+                }
+
+                foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
+                {
+                    if (schemaArgument.Name.Equals(parameter.Name))
+                    {
+                        file.WriteLine("                                SchemeArgument = new RuntimeSchemeArgumentAttribute(\"" + parameter.Name + "\", \"" + serviceAttribute.Name + "\", \"" + actionAttribute.Name + "\") {");
+                        schemeArgumentProperties.ForEach(schemeArgumentProperty =>
+                        {
+                            object val = schemeArgumentProperty.GetValue(schemaArgument);
+                            if (val != null)
+                            {
+                                if (schemeArgumentProperty.Name != "Name" && schemeArgumentProperty.Name != "TypeId")
+                                {
+                                    if (schemeArgumentProperty.PropertyType == typeof(bool))
+                                    {
+                                        file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                    }
+                                    else if (schemeArgumentProperty.PropertyType == typeof(int))
+                                    {
+                                        if ((int)val != int.MinValue && (int)val != int.MaxValue)
+                                        {
+                                            file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                        }
+                                    }
+                                    else if (schemeArgumentProperty.PropertyType == typeof(long))
+                                    {
+                                        if ((long)val != long.MinValue && (long)val != long.MaxValue)
+                                        {
+                                            file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                        }
+                                    }
+                                    else if (schemeArgumentProperty.PropertyType == typeof(double))
+                                    {
+                                        if ((double)val != double.MinValue && (double)val != double.MaxValue)
+                                        {
+                                            file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                        }
+                                    }
+                                    else if (schemeArgumentProperty.PropertyType == typeof(float))
+                                    {
+                                        if ((float)val != float.MinValue && (float)val != float.MaxValue)
+                                        {
+                                            file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val.ToString().ToLower() + ",");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        file.WriteLine("                                    " + schemeArgumentProperty.Name + " = " + val + ",");
+                                    }
+                                }
+                            }
+                        });
+                        file.WriteLine("                                },");
+                    }
+                }
+                file.WriteLine("                            });");
+            }
+
+            file.WriteLine("                            return ret;");
+            file.WriteLine("                            ");
+        }
+
+        private Dictionary<string, Dictionary<string, OldStandardArgumentAttribute>> GetOldStandardAttributesMap(MethodInfo action)
+        {
+            var oldStandardArgumentAttributes = action.GetCustomAttributes<OldStandardArgumentAttribute>(true);
+            var oldStandardAttributesMap = new Dictionary<string, Dictionary<string, OldStandardArgumentAttribute>>();
+            foreach (var oldStandardArgumentAttribute in oldStandardArgumentAttributes)
+            {
+                if (!oldStandardAttributesMap.ContainsKey(oldStandardArgumentAttribute.newName))
+                {
+                    oldStandardAttributesMap.Add(oldStandardArgumentAttribute.newName, new Dictionary<string, OldStandardArgumentAttribute>());
+                }
+
+                var sinceVersion = oldStandardArgumentAttribute.sinceVersion ?? string.Empty;
+                oldStandardAttributesMap[oldStandardArgumentAttribute.newName].Add(sinceVersion, oldStandardArgumentAttribute);
+            }
+
+            return oldStandardAttributesMap;
+        }
+
+        private void WriteExecAction(MethodInfo action, bool indent, string permissionActionName = null)
         {
             string tab = indent ? "    " : "";
             Type controller = action.DeclaringType;
@@ -518,7 +550,7 @@ namespace Reflector
             }
         }
 
-        private void wrtieExecAction()
+        private void WriteExecAction()
         {
             file.WriteLine("        public static object execAction(string service, string action, List<object> methodParams)");
             file.WriteLine("        {");
@@ -529,16 +561,17 @@ namespace Reflector
             file.WriteLine("            {");
 
             OldStandardActionAttribute oldStandardActionAttribute;
-
+            
             foreach (Type controller in controllers)
             {
+                var controllerName = controller.Name;
                 ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
                 if (serviceAttribute == null)
                 {
                     continue;
                 }
-
-                file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
+                var serviceName = serviceAttribute.Name.ToLower();
+                file.WriteLine("                case \"" + serviceName  + "\":");
                 file.WriteLine("                    switch(action)");
                 file.WriteLine("                    {");
 
@@ -581,15 +614,16 @@ namespace Reflector
                         {
                             file.WriteLine("                            if(isOldVersion)");
                             file.WriteLine("                            {");
-                            wrtieExecAction(oldAction, true, oldStandardActionAttribute.oldName);
+                            WriteExecAction(oldAction, true, oldStandardActionAttribute.oldName);
                             file.WriteLine("                            }");
                             break;
                         }
                     }
 
-                    wrtieExecAction(action, false);
+                    WriteExecAction(action, false);
                     file.WriteLine("                            ");
                 }
+
                 foreach (string oldStandardName in leftOldStandard)
                 {
                     file.WriteLine("                        case \"" + oldStandardName.ToLower() + "\":");
@@ -601,13 +635,29 @@ namespace Reflector
                         {
                             file.WriteLine("                            if(isOldVersion)");
                             file.WriteLine("                            {");
-                            wrtieExecAction(oldAction, true, oldStandardActionAttribute.oldName);
+                            WriteExecAction(oldAction, true, oldStandardActionAttribute.oldName);
                             file.WriteLine("                            }");
                             break;
                         }
                     }
+
                     file.WriteLine("                            break;");
                     file.WriteLine("                            ");
+                }
+                
+                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes))
+                {
+                    if (BaseCrudActions == null)
+                    {
+                        BaseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
+                    }
+                        
+                    WriteCrudAction(AddActionAttribute.Add, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(UpdateActionAttribute.Update, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(DeleteActionAttribute.Delete, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(GetActionAttribute.Get, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    // TODO SHIR - finish to WriteCrudAction for LIST action
+                    WriteCrudAction(ListActionAttribute.List, controller, serviceName, crudActionAttributes, BaseCrudActions);
                 }
 
                 file.WriteLine("                    }");
@@ -620,6 +670,32 @@ namespace Reflector
             file.WriteLine("            throw new RequestParserException(RequestParserException.INVALID_ACTION, service, action);");
             file.WriteLine("        }");
             file.WriteLine("        ");
+        }
+
+        private void WriteCrudAction(string actionName, Type crudController, string serviceName, Dictionary<string, CrudActionAttribute> crudActionAttributes, Dictionary<string, MethodInfo> crudActions)
+        {
+            if (!crudActionAttributes.ContainsKey(actionName) || !crudActions.ContainsKey(actionName)) { return; }
+            var crudAction = crudActions[actionName];
+
+            file.WriteLine("                        case \"" + actionName + "\":");
+            file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceName + "\", \"" + actionName + "\");");
+            
+            string args = String.Join(", ", crudAction.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+            if (crudAction.IsGenericMethod)
+            {
+                file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + crudController.Name + ").GetMethod(\"" + crudAction.Name + "\"), methodParams);");
+            }
+            else if (crudAction.ReturnType == typeof(void))
+            {
+                file.WriteLine("                            " + crudController.Name + "." + crudAction.Name + "(" + args + ");");
+                file.WriteLine("                            return null;");
+            }
+            else
+            {
+                file.WriteLine("                            return " + crudController.Name + "." + crudAction.Name + "(" + args + ");");
+            }
+            
+            file.WriteLine("                            ");
         }
 
         private void wrtiePropertyApiName()

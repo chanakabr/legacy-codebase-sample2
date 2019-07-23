@@ -62,6 +62,8 @@ namespace WebAPI.Models.Domains
         {
             this.Code = id;
         }
+
+        public KalturaHouseholdCoupon() : base() { }
     }
 
     public partial class KalturaHouseholdCouponListResponse : KalturaListResponse<KalturaHouseholdCoupon>

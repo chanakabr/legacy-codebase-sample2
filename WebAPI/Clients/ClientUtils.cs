@@ -12,6 +12,7 @@ using ApiLogic.Base;
 
 namespace WebAPI.Clients
 {
+    // TODO SHIR - DELETE ClientUtils WHEN ALL CNTROLLERS WILL USE CRUD
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -132,7 +133,6 @@ namespace WebAPI.Clients
             {
                 result.Objects = AutoMapper.Mapper.Map<List<U>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
-                // TODO SHIR - order BY GetResponseListFromWS
             }
             else
             {
