@@ -24,7 +24,7 @@ namespace APILogic.ConditionalAccess.Managers
             {
                 string key = DAL.UtilsDal.GetDomainUnifiedBillingCycleKey(domainId, billingCycle);
                 bool isReadAction = LayeredCache.Instance.IsReadAction();
-                if (isReadAction && LayeredCache.Instance.TryGetKeyFromSession<UnifiedBillingCycle>(key, ref unifiedBillingCycle))
+                if (isReadAction && LayeredCache.Instance.TryGetKeyFromCurrentRequest<UnifiedBillingCycle>(key, ref unifiedBillingCycle))
                 {
                     if (unifiedBillingCycle.endDate == 0)
                     {
@@ -44,7 +44,7 @@ namespace APILogic.ConditionalAccess.Managers
                 {
                     Dictionary<string, UnifiedBillingCycle> resultsToAdd = new Dictionary<string, UnifiedBillingCycle>();
                     resultsToAdd.Add(key, unifiedBillingCycle != null ? unifiedBillingCycle : new UnifiedBillingCycle() { endDate = 0 });
-                    LayeredCache.Instance.InsertResultsToSession<UnifiedBillingCycle>(resultsToAdd);
+                    LayeredCache.Instance.InsertResultsToCurrentRequest<UnifiedBillingCycle>(resultsToAdd, null);
 
                     if (unifiedBillingCycle.endDate == 0)
                     {

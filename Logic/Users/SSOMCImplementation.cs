@@ -210,7 +210,7 @@ namespace Core.Users
                             userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
                         {
                             DomainResponseObject domainResponseObject =
-                                domainImpl.AddDomain(sDomainCoGuid, "", int.Parse(userObj.m_user.m_sSiteGUID), m_nGroupID, sDomainCoGuid);
+                                domainImpl.AddDomain(sDomainCoGuid, "", int.Parse(userObj.m_user.m_sSiteGUID), m_nGroupID, sDomainCoGuid, null);
 
                             if (domainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK)
                             {

@@ -70,6 +70,7 @@ namespace Core.Users
         NoUsersInDomain = 14,
         UserExistsInOtherDomains = 15,
         Pending = 16,
+        RegionDoesNotExist = 17
     }
 
     [Serializable]
@@ -116,7 +117,7 @@ namespace Core.Users
         MediaConcurrencyLimitation = 25,
         DomainSuspended = 26,
         UserAlreadyInDomain = 27,
-        RegionDoesNotExists = 28
+        RegionDoesNotExist = 28
     }
 
     public enum DeviceResponseStatus

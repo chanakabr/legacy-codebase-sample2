@@ -1901,7 +1901,7 @@ namespace Core.ConditionalAccess
                                         {"CouponCode", couponCode},
                                         {"CustomData", customData},
                                         {"PurchaseID", purchaseId},
-                                        {"ClientIP", userIp}
+                                        {"ClientIp", userIp}
                                     };
 
                                     // notify purchase

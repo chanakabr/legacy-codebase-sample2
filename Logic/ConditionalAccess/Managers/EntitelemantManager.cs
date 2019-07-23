@@ -1073,6 +1073,13 @@ namespace Core.ConditionalAccess
                     var subscription = Utils.GetSubscription(groupId, subscriptionId);
                     if (subscription == null)
                     {
+                        status.Set(eResponseStatus.SubscriptionDoesNotExist, "ProductId doesn't exist");
+                        return status;
+                    }
+
+                    if (!subscription.m_bIsRecurring)
+                    {
+                        status.Set(eResponseStatus.SubscriptionNotRenewable);
                         return status;
                     }
 

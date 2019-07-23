@@ -173,7 +173,8 @@ namespace Core.Catalog.CatalogManagement
                         ConnectingMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTING_META_ID"),
                         ConnectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID"),
                         PluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME"),
-                        IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1
+                        IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1,
+                        IsLinearAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LINEAR") == 1
                     };
                 }
             }
@@ -3043,7 +3044,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                string key = LayeredCacheKeys.GetCatalogGroupCacheKey(groupId);
+                string key = LayeredCacheKeys.GetLinearMediaRegionsKey(groupId);
                 if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsFromDB, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                     LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetLinearMediaRegionsInvalidationKey(groupId) }))
                 {

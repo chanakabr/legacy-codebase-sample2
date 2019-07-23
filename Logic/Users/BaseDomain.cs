@@ -30,9 +30,9 @@ namespace Core.Users
         }
 
         #region Public Abstract
-        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid);
+        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid, int? regionId);
 
-        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID);
+        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, int? regionId);
 
         public abstract DomainResponseObject SubmitAddUserToDomainRequest(int nGroupID, int nUserGuid, string sMasterUsername);
 
@@ -125,7 +125,7 @@ namespace Core.Users
                     // validate region exists
                     if (!domain.GetRegions().Contains(regionId.Value))
                     {
-                        return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExists);
+                        return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
                     }
 
                     domain.m_nRegion = regionId.Value;

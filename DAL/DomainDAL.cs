@@ -571,8 +571,7 @@ namespace DAL
             return retVal;
         }
 
-
-        public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, ref int nDbDomainID, string sCoGuid = null, int? nOperatorID = null)
+        public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, ref int nDbDomainID, int regionId, string sCoGuid = null, int? nOperatorID = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewDomain");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -584,6 +583,11 @@ namespace DAL
             sp.AddParameter("@DateTime", dDateTime);
             sp.AddParameter("@CoGuid", sCoGuid);
             sp.AddParameter("@OperatorID", nOperatorID);
+
+            if (regionId > 0)
+            {
+                sp.AddParameter("@RegionId", regionId);
+            }
 
             DataTable dt = sp.Execute();
 

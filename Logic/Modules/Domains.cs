@@ -12,12 +12,12 @@ namespace Core.Domains
     public class Module
     {
 
-        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid)
+        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, int? regionId)
         {
-            return AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, string.Empty);
+            return AddDomain(nGroupID, sDomainName, sDomainDescription, nMasterUserGuid, string.Empty, regionId);
         }
 
-        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string coGuid)
+        public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string coGuid, int? regionId)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nMasterUserGuid;
@@ -28,7 +28,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response.DomainResponse = t.AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, coGuid);
+                response.DomainResponse = t.AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, coGuid, regionId);
                 if (response.DomainResponse != null)
                 {
                     // convert response status
@@ -43,7 +43,7 @@ namespace Core.Domains
         }
 
         
-        public static DomainStatusResponse AddDomainWithCoGuid(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string sCoGuid)
+        public static DomainStatusResponse AddDomainWithCoGuid(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, string sCoGuid, int? regionId)
         {
             DomainStatusResponse response = new DomainStatusResponse();
             Core.Users.BaseDomain t = null;
@@ -51,7 +51,7 @@ namespace Core.Domains
 
             if (t != null)
             {
-                response.DomainResponse = t.AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, sCoGuid);
+                response.DomainResponse = t.AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, sCoGuid, regionId);
                 if (response.DomainResponse != null)
                 {
                     // convert response status

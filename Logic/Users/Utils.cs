@@ -138,21 +138,21 @@ namespace Core.Users
         {
             try
             {
+                var httpSsoAdaptersResponse = SSOAdaptersManager.GetSSOAdapters(nGroupID);
+                if (httpSsoAdaptersResponse != null && httpSsoAdaptersResponse.SSOAdapters != null && httpSsoAdaptersResponse.SSOAdapters.Any())
+                {
+                    var httpSSOAdapter = httpSsoAdaptersResponse.SSOAdapters.First();
+                    user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
+
+                    // Return here if we found an hhtp based adapter, it will be stronger than any other implementation configured.
+                    return;
+                }
+
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
 
                 if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID))
                 {
-                    var response = SSOAdaptersManager.GetSSOAdapters(nGroupID);
-                    if (response != null && response.SSOAdapters != null && response.SSOAdapters.Any())
-                    {
-                        var httpSSOAdapter = response.SSOAdapters.First();
-                        user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
-                    }
-                    else
-                    {
-                        user = new KalturaUsers(nGroupID);
-                    }
-
+                    user = new KalturaUsers(nGroupID);
                 }
                 else
                 {
@@ -169,12 +169,12 @@ namespace Core.Users
                         if (operatorId == -1)
                         {
                             // regular user - constructor receives a single parameter
-                            user = (KalturaUsers) Activator.CreateInstance(userType, nGroupID);
+                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
                         }
                         else
                         {
                             // SSO user - constructor receives 2 parameters
-                            user = (KalturaUsers) Activator.CreateInstance(userType, nGroupID, operatorId);
+                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
                         }
                     }
                     catch (Exception ex)
@@ -556,7 +556,7 @@ namespace Core.Users
 
             return homeNetwork;
         }
-        
+
         static public bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;
@@ -911,9 +911,9 @@ namespace Core.Users
                     result.Code = (int)eResponseStatus.UserAlreadyInDomain;
                     result.Message = "User already in Household";
                     break;
-                case DomainResponseStatus.RegionDoesNotExists:
-                    result.Code = (int)eResponseStatus.RegionDoesNotExists;
-                    result.Message = "Region does not exists";
+                case DomainResponseStatus.RegionDoesNotExist:
+                    result.Code = (int)eResponseStatus.RegionDoesNotExist;
+                    result.Message = "Region does not exist";
                     break;
                 default:
                     result.Code = (int)eResponseStatus.Error;
@@ -1084,7 +1084,7 @@ namespace Core.Users
                     log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
             }
         }
-        
+
         private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)
         {
             string request = string.Empty;

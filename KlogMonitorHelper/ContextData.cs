@@ -41,7 +41,7 @@ namespace KlogMonitorHelper
         private const string DEFAULT_LOG4_NET_CONFIG_FILE = "log4net.config";
 
         private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public static readonly LogicalThreadContextProperties _ContextData = KLogger.LogContextData;
+        public static LogicalThreadContextProperties _ContextData => KLogger.LogContextData;
 
         private readonly MessageProperties _WCFContextData = OperationContext.Current?.IncomingMessageProperties;
         //private readonly IDictionary _HttpContextData = HttpContext.Current?.Items;

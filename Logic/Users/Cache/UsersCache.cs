@@ -154,13 +154,6 @@ namespace Core.Users
                 {
                     log.DebugFormat("GetUser - Couldn't get userId {0}", userId);
                 }
-                else
-                {
-                    if (user != null)
-                    {
-                        user.SetReadingInvalidationKeys();
-                    }
-                }
             }
             catch (Exception ex)
             {
