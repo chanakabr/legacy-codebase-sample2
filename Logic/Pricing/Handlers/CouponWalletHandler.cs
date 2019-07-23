@@ -121,7 +121,7 @@ namespace Core.Pricing.Handlers
                 List<CouponWallet> CouponWalletList = PricingDAL.GetHouseholdCouponWalletCB(contextData.DomainId.Value);
 
                 // make sure coupon is in household
-                if (CouponWalletList?.Count > 0 && CouponWalletList.Count(x => x.CouponCode == couponCode) != 1)
+                if (CouponWalletList == null || CouponWalletList.Count == 0 || CouponWalletList.Count(x => x.CouponCode == couponCode) != 1)
                 {
                     response.Set(eResponseStatus.CouponCodeNotInHousehold, "Coupon code not in household");
                     return response;
