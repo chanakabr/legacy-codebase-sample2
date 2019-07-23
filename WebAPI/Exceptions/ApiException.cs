@@ -414,6 +414,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType COUPON_CODE_IS_MISSING = new ClientExceptionType(eResponseStatus.CouponCodeIsMissing, "Coupon code is missing", "Coupon code is missing");
         public static ClientExceptionType COUPON_CODE_ALREADY_LOADED = new ClientExceptionType(eResponseStatus.CouponCodeAlreadyLoaded, "Coupon code already loaded", "Coupon code already loaded");
         public static ClientExceptionType COUPON_CODE_NOT_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.CouponCodeNotInHousehold, "The coupon code is not in household", "The coupon code is not in household");
+        public static ClientExceptionType EXCEEDED_HOUSEHOLD_COUPON_LIMIT = new ClientExceptionType(eResponseStatus.ExceededHouseholdCouponLimit, "Exceeded household coupon limit", "Exceeded household coupon limit");
         
         #endregion
 

@@ -59,7 +59,7 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                UniqueId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
+                SequenceId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
             };
 
             return eventWrapper;

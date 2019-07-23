@@ -1,8 +1,10 @@
 ﻿using ApiObjects.Pricing;
 using ApiObjects.Response;
 using System;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -34,14 +36,17 @@ namespace WebAPI.Controllers
             {
                 filter = new KalturaHouseholdCouponFilter();
             }
+            else
+            {
+                filter.Validate();
+            }
 
             var responseProfile = Utils.Utils.GetResponseProfileFromRequest();
             var response = filter.Execute<KalturaHouseholdCouponListResponse, KalturaHouseholdCoupon>();
-
             if (response.Objects != null && response.Objects.Count > 0 && responseProfile != null)
             {
-                // TODO ANAT - SET RESPONSE PROFILE in some FUNC
-                //response.relatedObjects = 
+                int groupId = KS.GetFromRequest().GroupId;
+                PricingUtils.SetCouopnData(groupId, HouseholdUtils.GetHouseholdIDByKS(groupId), responseProfile, response.Objects);
             }
             return response;
         }

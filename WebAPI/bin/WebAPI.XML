@@ -3114,6 +3114,12 @@
             'objectType': 'KalturaBillingPartnerConfig'}
             </param>        
         </member>
+        <member name="M:WebAPI.Controllers.PartnerController.ExternalLogin">
+            <summary>
+            Returns a login session for external system (like OVP)
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayController.List">
             <summary>
             Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
@@ -11401,11 +11407,6 @@
             Coupon code
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHouseholdCoupon.Coupon">
-            <summary>
-            Coupon 
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponListResponse.Objects">
             <summary>
             Household coupon
@@ -11614,6 +11615,11 @@
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdWithHolder">
             <summary>
             Holder object for Household With enum
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseoldCouponCodeFilter">
+            <summary>
+            Kaltura Houseold CouponCode Filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">

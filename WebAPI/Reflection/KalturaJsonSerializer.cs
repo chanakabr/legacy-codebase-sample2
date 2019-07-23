@@ -5689,13 +5689,13 @@ namespace WebAPI.Models.General
                 ret.Add("eventType", "\"eventType\": " + "\"" + Enum.GetName(typeof(KalturaEventAction), eventType) + "\"");
             }
             ret.Add("partnerId", "\"partnerId\": " + partnerId);
+            if(SequenceId != null)
+            {
+                ret.Add("sequenceId", "\"sequenceId\": " + "\"" + EscapeJson(SequenceId) + "\"");
+            }
             if(systemName != null)
             {
                 ret.Add("systemName", "\"systemName\": " + "\"" + EscapeJson(systemName) + "\"");
-            }
-            if(UniqueId != null)
-            {
-                ret.Add("uniqueId", "\"uniqueId\": " + "\"" + EscapeJson(UniqueId) + "\"");
             }
             if(UserIp != null)
             {
@@ -5724,13 +5724,13 @@ namespace WebAPI.Models.General
                 ret.Add("eventType", "<eventType>" + "" + Enum.GetName(typeof(KalturaEventAction), eventType) + "" + "</eventType>");
             }
             ret.Add("partnerId", "<partnerId>" + partnerId + "</partnerId>");
+            if(SequenceId != null)
+            {
+                ret.Add("sequenceId", "<sequenceId>" + EscapeXml(SequenceId) + "</sequenceId>");
+            }
             if(systemName != null)
             {
                 ret.Add("systemName", "<systemName>" + EscapeXml(systemName) + "</systemName>");
-            }
-            if(UniqueId != null)
-            {
-                ret.Add("uniqueId", "<uniqueId>" + EscapeXml(UniqueId) + "</uniqueId>");
             }
             if(UserIp != null)
             {
@@ -25623,11 +25623,6 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
             }
-            if(Coupon != null)
-            {
-                propertyValue = Coupon.ToJson(currentVersion, omitObsolete);
-                ret.Add("coupon", "\"coupon\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -25641,11 +25636,6 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
             }
-            if(Coupon != null)
-            {
-                propertyValue = Coupon.ToXml(currentVersion, omitObsolete);
-                ret.Add("coupon", "<coupon>" + propertyValue + "</coupon>");
-            }
             return ret;
         }
     }
@@ -25657,10 +25647,7 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BusinessModuleIdEqual.HasValue)
-            {
-                ret.Add("businessModuleIdEqual", "\"businessModuleIdEqual\": " + BusinessModuleIdEqual);
-            }
+            ret.Add("businessModuleIdEqual", "\"businessModuleIdEqual\": " + BusinessModuleIdEqual);
             ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "\"");
             return ret;
         }
@@ -25671,10 +25658,7 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BusinessModuleIdEqual.HasValue)
-            {
-                ret.Add("businessModuleIdEqual", "<businessModuleIdEqual>" + BusinessModuleIdEqual + "</businessModuleIdEqual>");
-            }
+            ret.Add("businessModuleIdEqual", "<businessModuleIdEqual>" + BusinessModuleIdEqual + "</businessModuleIdEqual>");
             ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "" + "</businessModuleTypeEqual>");
             return ret;
         }
@@ -26302,6 +26286,26 @@ namespace WebAPI.Models.Domains
             string propertyValue;
 
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "" + "</type>");
+            return ret;
+        }
+    }
+    public partial class KalturaHouseoldCouponCodeFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }

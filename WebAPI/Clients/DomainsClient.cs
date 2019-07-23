@@ -108,7 +108,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, string externalId = null)
+        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, int? regionId, string externalId = null)
         {
             KalturaHousehold result = null;
 
@@ -120,11 +120,11 @@ namespace WebAPI.Clients
                 {
                     if (string.IsNullOrEmpty(externalId))
                     {
-                        response = Core.Domains.Module.AddDomain(groupId, domainName, domainDescription, int.Parse(masterUserId));
+                        response = Core.Domains.Module.AddDomain(groupId, domainName, domainDescription, int.Parse(masterUserId), regionId);
                     }
                     else
                     {
-                        response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId);
+                        response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId, regionId);
                     }
                 }
             }

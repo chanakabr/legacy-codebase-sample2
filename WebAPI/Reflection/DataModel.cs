@@ -2687,8 +2687,6 @@ namespace WebAPI.Reflection
                     {
                         case "Code":
                             return "code";
-                        case "Coupon":
-                            return "coupon";
                     }
                     break;
                     
@@ -3707,8 +3705,8 @@ namespace WebAPI.Reflection
                     {
                         case "eventObject":
                             return "object";
-                        case "UniqueId":
-                            return "uniqueId";
+                        case "SequenceId":
+                            return "sequenceId";
                         case "UserIp":
                             return "userIp";
                     }
@@ -8688,6 +8686,16 @@ namespace WebAPI.Reflection
                         case "update":
                             RolesManager.ValidateActionPermitted("partnerConfiguration", "update", false);
                             return PartnerConfigurationController.Update((KalturaPartnerConfiguration) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "partner":
+                    switch(action)
+                    {
+                        case "externallogin":
+                            RolesManager.ValidateActionPermitted("partner", "externalLogin", false);
+                            return PartnerController.ExternalLogin();
                             
                     }
                     break;
@@ -15331,6 +15339,15 @@ namespace WebAPI.Reflection
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerConfiguration),
                             });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "partner":
+                    switch(action)
+                    {
+                        case "externallogin":
                             return ret;
                             
                     }

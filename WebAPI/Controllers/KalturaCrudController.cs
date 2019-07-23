@@ -85,12 +85,17 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var contextData = KS.GetContextData();
+                if (DefaultObject == null)
+                {
+                    throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Object was not defined for service:{0}", MethodBase.GetCurrentMethod().DeclaringType));
+                }
+
                 if (DefaultObject.Handler == null)
                 {
                     throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Handler was not defined for object:{0}", DefaultObject.GetType().Name));
                 }
 
+                var contextData = KS.GetContextData();
                 GetResponseStatusFromCore(() => DefaultObject.Handler.Delete(contextData, id));
             }
             catch (ClientException ex)
@@ -107,13 +112,17 @@ namespace WebAPI.Controllers
 
             try
             {
-                var contextData = KS.GetContextData();
+                if (DefaultObject == null)
+                {
+                    throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Object was not defined for service:{0}", MethodBase.GetCurrentMethod().DeclaringType));
+                }
 
                 if (DefaultObject.Handler == null)
                 {
                     throw new ClientException((int)StatusCode.NotImplemented, string.Format("Default Handler was not defined for object:{0}", DefaultObject.GetType().Name));
                 }
 
+                var contextData = KS.GetContextData();
                 response = GetResponseFromCore(() => DefaultObject.Handler.Get(contextData, id));
             }
             catch (ClientException ex)

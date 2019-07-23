@@ -4104,9 +4104,9 @@ namespace WS_API
         }
 
         [WebMethod]
-        public bool DoActionRules()
+        public bool DoActionRules(bool isSingleRun)
         {
-            return Core.Api.Module.DoActionRules();
+            return Core.Api.Module.DoActionRules(isSingleRun);
         }
 
         [WebMethod]
@@ -4294,9 +4294,9 @@ namespace WS_API
         }
 
         [WebMethod]
-        public bool DoActionAssetRules()
+        public bool DoActionAssetRules(bool isSingleRun)
         {
-            return Core.Api.Module.DoActionAssetRules();
+            return Core.Api.Module.DoActionAssetRules(isSingleRun);
         }
 
         [WebMethod]

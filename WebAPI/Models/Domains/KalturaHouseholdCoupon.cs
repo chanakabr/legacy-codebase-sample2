@@ -28,15 +28,6 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "code")]
         public string Code { get; set; }
 
-        /// <summary>
-        /// Coupon 
-        /// </summary>
-        [DataMember(Name = "coupon")]
-        [JsonProperty("coupon")]
-        [XmlElement(ElementName = "coupon", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaCoupon Coupon{ get; set; }
-
         internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
         {
             get

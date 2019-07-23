@@ -203,7 +203,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, household.Name, household.Description, userId, household.ExternalId);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, household.Name, household.Description, userId, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
             {
@@ -242,7 +242,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId, external_id);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId, null, external_id);
             }
             catch (ClientException ex)
             {

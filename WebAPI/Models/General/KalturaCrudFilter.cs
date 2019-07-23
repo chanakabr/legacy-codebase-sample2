@@ -22,6 +22,7 @@ namespace WebAPI.Models.General
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         internal abstract ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> Handler { get; }
+        internal abstract void Validate();
         
         internal KalturaListResponseT Execute<KalturaListResponseT, KalturaT>()
             where KalturaListResponseT : KalturaListResponse<KalturaT>, new()
@@ -31,6 +32,7 @@ namespace WebAPI.Models.General
             
             try
             {
+                // Validate(); TODO Shir: i want to remove this
                 var contextData = KS.GetContextData();
                 // TODO SHIR - TALK WITH TANTAN about all list objects so id FINISH GENERIC LIST METHOD in ICrudHandler - put in controller
                 var coreResponse = GetResponseListFromCore<KalturaT>(contextData);

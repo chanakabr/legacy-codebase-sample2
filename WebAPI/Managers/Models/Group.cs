@@ -117,6 +117,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("media_prep_account_id")]
         public int MediaPrepAccountId { get; set; }
 
+        [JsonProperty("media_prep_account_secret")]
+        public string MediaPrepAccountSecret { get; set; }
+
         [JsonProperty("fairplay_certificate")]
         public string FairplayCertificate { get; set; }
 

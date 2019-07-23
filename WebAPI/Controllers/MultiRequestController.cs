@@ -199,19 +199,25 @@ namespace WebAPI.Controllers
                 if (!found)
                     throw new RequestParserException();
             }
-            else if (parameterType == typeof(Dictionary<string, object>))
+            else
             {
-                Dictionary<string, object> dict = (Dictionary<string, object>)parameter;
-                if (!dict.ContainsKey(token))
+                var genericTypeDefinition = parameterType.GetGenericTypeDefinition();
+                if (parameterType.IsGenericType && (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>)))
+                {
+                    var dynamicParameter = (parameter as dynamic);
+                    if (dynamicParameter != null && dynamicParameter.ContainsKey(token))
+                    {
+                        result = dynamicParameter[token];
+                    }
+                    else
+                    {
+                        throw new RequestParserException();
+                    }
+                }
+                else
                 {
                     throw new RequestParserException();
                 }
-
-                result = dict[token];
-            }
-            else
-            {
-                throw new RequestParserException();
             }
 
             if (tokens.Count > 0)
