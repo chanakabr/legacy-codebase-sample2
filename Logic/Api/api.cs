@@ -10846,7 +10846,7 @@ namespace Core.Api
 
                     if (impactedItems > 0)
                     {
-                        log.DebugFormat("Successfully applied asset life cycle rules on: {0} assets", impactedItems);
+                        log.DebugFormat("Successfully applied asset rules on: {0} assets", impactedItems);
                     }
                     else
                     {
