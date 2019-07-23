@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
             try
             {
                 var contextData = KS.GetContextData();
-                GetResponseStatusFromCore(() => typesToHandlersMap[typeof(KalturaT)].Delete(contextData, id));
+                GetResponseStatusFromCore(() => handler.Delete(contextData, id));
             }
             catch (ClientException ex)
             {
