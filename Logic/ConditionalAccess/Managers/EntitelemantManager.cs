@@ -415,6 +415,9 @@ namespace Core.ConditionalAccess
             billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "BILLING_GUID");
             endDateFromDB = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
             response.Object = subscriptionEntitlement;
+
+            response.SetStatus(eResponseStatus.OK);
+
             return response;
         }
 
@@ -1071,6 +1074,13 @@ namespace Core.ConditionalAccess
                     var subscription = Utils.GetSubscription(groupId, subscriptionId);
                     if (subscription == null)
                     {
+                        status.Set(eResponseStatus.SubscriptionDoesNotExist, "ProductId doesn't exist");
+                        return status;
+                    }
+
+                    if (!subscription.m_bIsRecurring)
+                    {
+                        status.Set(eResponseStatus.SubscriptionNotRenewable);
                         return status;
                     }
 
