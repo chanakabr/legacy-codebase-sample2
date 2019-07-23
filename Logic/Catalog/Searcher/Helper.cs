@@ -21,9 +21,7 @@ namespace Core.Catalog.Searchers
 
             if (!channelFactories.ContainsKey(address))//channel factory not cached
             {
-                ChannelFactory<T> factory = new ChannelFactory<T>();
-                factory.Endpoint.Address = new EndpointAddress(new System.Uri(address));
-                factory.Endpoint.Binding = new BasicHttpBinding();
+                ChannelFactory<T> factory = new ChannelFactory<T>(new BasicHttpBinding(), new EndpointAddress(address));
                 channelFactories.TryAdd(key, factory);
 
             }

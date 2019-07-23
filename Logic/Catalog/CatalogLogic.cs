@@ -1991,7 +1991,7 @@ namespace Core.Catalog
                 List<int> regionIds;
                 List<string> linearMediaTypes;
 
-                CatalogLogic.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+                CatalogLogic.SetSearchRegions(request.m_nGroupID, false, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
                 searchObj.regionIds = regionIds;
                 searchObj.linearChannelMediaTypes = linearMediaTypes;
@@ -2023,14 +2023,14 @@ namespace Core.Catalog
         /// <param name="domainId"></param>
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static void SetSearchRegions(int groupId, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
+        internal static void SetSearchRegions(int groupId, bool isOPC, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
         {
             regionIds = null;
             linearMediaTypes = null;
 
             GroupManager groupManager = new GroupManager();
             Group group = groupManager.GetGroup(groupId);
-
+            
             // If this group has regionalization enabled at all
             if (group.isRegionalizationEnabled)
             {
@@ -2058,16 +2058,27 @@ namespace Core.Catalog
                     }
                 }
 
-                // Now we need linear media types - so we filter them and not other media types
-                Dictionary<string, string> dictionary = CatalogLogic.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
-
-                if (dictionary.ContainsKey(CatalogLogic.LINEAR_MEDIA_TYPES_KEY))
+                if (isOPC)
                 {
-                    // Split by semicolon
-                    var mediaTypesArray = dictionary[CatalogLogic.LINEAR_MEDIA_TYPES_KEY].Split(';');
+                    CatalogGroupCache catalogGroupCache;
+                    if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    {
+                        linearMediaTypes.AddRange(catalogGroupCache.AssetStructsMapById.Values.Where(v => v.IsLinearAssetStruct).Select(a => a.Id.ToString()));
+                    }
+                }
+                else
+                {
+                    // Now we need linear media types - so we filter them and not other media types
+                    Dictionary<string, string> dictionary = CatalogLogic.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
 
-                    // Convert to list
-                    linearMediaTypes.AddRange(mediaTypesArray);
+                    if (dictionary.ContainsKey(CatalogLogic.LINEAR_MEDIA_TYPES_KEY))
+                    {
+                        // Split by semicolon
+                        var mediaTypesArray = dictionary[CatalogLogic.LINEAR_MEDIA_TYPES_KEY].Split(';');
+
+                        // Convert to list
+                        linearMediaTypes.AddRange(mediaTypesArray);
+                    }
                 }
             }
         }
@@ -2855,7 +2866,7 @@ namespace Core.Catalog
             List<int> regionIds;
             List<string> linearMediaTypes;
 
-            CatalogLogic.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+            CatalogLogic.SetSearchRegions(request.m_nGroupID, false, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             searchObject.regionIds = regionIds;
             searchObject.linearChannelMediaTypes = linearMediaTypes;
@@ -4646,7 +4657,7 @@ namespace Core.Catalog
             List<int> regionIds;
             List<string> linearMediaTypes;
 
-            CatalogLogic.SetSearchRegions(nGroupID, domainId, siteGuid, out regionIds, out linearMediaTypes);
+            CatalogLogic.SetSearchRegions(nGroupID, false, domainId, siteGuid, out regionIds, out linearMediaTypes);
 
             res.regionIds = regionIds;
             res.linearChannelMediaTypes = linearMediaTypes;
@@ -5979,7 +5990,7 @@ namespace Core.Catalog
             List<string> linearMediaTypes;
 
             // Get region/regions for search
-            CatalogLogic.SetSearchRegions(epgSearchRequest.m_nGroupID, epgSearchRequest.domainId,
+            CatalogLogic.SetSearchRegions(epgSearchRequest.m_nGroupID, false, epgSearchRequest.domainId,
                 epgSearchRequest.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             // Ask Stored procedure for EPG Identifier of linear channel in current region(s), by joining media and media_regions
@@ -8579,7 +8590,7 @@ namespace Core.Catalog
             List<int> regionIds;
             List<string> linearMediaTypes;
 
-            CatalogLogic.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+            CatalogLogic.SetSearchRegions(request.m_nGroupID, false, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             definitions.regionIds = regionIds;
             definitions.linearChannelMediaTypes = linearMediaTypes;

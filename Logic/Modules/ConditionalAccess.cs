@@ -504,13 +504,13 @@ namespace Core.ConditionalAccess
         /// <param name="sSubscriptionCode"></param>
         /// <param name="nSubscriptionPurchaseID"></param>
         /// <returns></returns>
-        public static ApiObjects.Response.Status CancelSubscriptionRenewal(int groupID, int nDomainId, string sSubscriptionCode)
+        public static ApiObjects.Response.Status CancelSubscriptionRenewal(int groupID, int nDomainId, string sSubscriptionCode, string userId, string udid, string userIp)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.CancelSubscriptionRenewal(nDomainId, sSubscriptionCode, string.Empty);
+                return t.CancelSubscriptionRenewal(nDomainId, sSubscriptionCode, userId, udid, userIp);
             }
             else
             {
@@ -1690,8 +1690,7 @@ namespace Core.ConditionalAccess
 
             return objResponse;
         }
-
-
+        
         public static BillingResponse InApp_ChargeUserForMediaFile(int groupID, string sSiteGUID, double dPrice, string sCurrencyCode3, string sProductCode, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
         {
@@ -1791,7 +1790,7 @@ namespace Core.ConditionalAccess
 
 
 
-        public static ChangeSubscriptionStatus ChangeSubscription(int groupID, string sSiteGuid, int nOldSubscription, int nNewSubscription)
+        public static ChangeSubscriptionStatus ChangeSubscription(int groupID, string sSiteGuid, int nOldSubscription, int nNewSubscription, string udid)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
@@ -1800,7 +1799,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.ChangeSubscription(sSiteGuid, nOldSubscription, nNewSubscription);
+                return t.ChangeSubscription(sSiteGuid, nOldSubscription, nNewSubscription, udid);
             }
             return ChangeSubscriptionStatus.Error;
         }
@@ -1814,13 +1813,13 @@ namespace Core.ConditionalAccess
          *  Return status object
          ***************************************************************************************************************************/
         public static ApiObjects.Response.Status CancelServiceNow(int groupID,
-            int nDomainId, int nAssetID, ApiObjects.eTransactionType transactionType, bool bIsForce = false)
+            int nDomainId, int nAssetID, ApiObjects.eTransactionType transactionType, bool bIsForce = false, string udid = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, string.Empty);
+                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, udid, string.Empty);
             }
             else
             {
@@ -3371,6 +3370,13 @@ namespace Core.ConditionalAccess
             Recording response = t.UpdateRecord(userId, recordingId, recordingToUpdate);
 
             return response;
+        }
+
+        public static Status ApplyCoupon(int groupId, long domainId, string userId, long purchaseId, string couponCode)
+        {
+            BaseConditionalAccess ba = null;
+            Utils.GetBaseConditionalAccessImpl(ref ba, groupId);
+            return ba.ApplyCoupon(domainId, userId, purchaseId, couponCode);
         }
     }
 }

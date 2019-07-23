@@ -9,12 +9,12 @@ using ConfigurationManager;
 
 namespace CachingProvider
 {
-    public class HybridCache<T> : OutOfProcessCache
+    public class HybridCache<TO> : OutOfProcessCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private SingleInMemoryCache inMemoryCache;
-        private CouchBaseCache<T> couchbaseCache;
+        private CouchBaseCache<TO> couchbaseCache;
         private double secondsInMemory;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace CachingProvider
         private HybridCache(eCouchbaseBucket externalCacheName, string internalCacheName)
         {
             this.inMemoryCache = new SingleInMemoryCache(0);
-            this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
+            this.couchbaseCache = CouchBaseCache<TO>.GetInstance(externalCacheName.ToString());
             this.secondsInMemory = ApplicationConfiguration.BaseCacheConfiguration.TTLSeconds.DoubleValue;
 
             // default value = 1 minute = 60 seconds
@@ -34,12 +34,12 @@ namespace CachingProvider
             }
         }
 
-        public static HybridCache<T> GetInstance(eCouchbaseBucket bucket, string internalCacheName)
+        public static HybridCache<TO> GetInstance(eCouchbaseBucket bucket, string internalCacheName)
         {
-            HybridCache<T> cache = null;
+            HybridCache<TO> cache = null;
             try
             {
-                cache = new HybridCache<T>(bucket, internalCacheName);
+                cache = new HybridCache<TO>(bucket, internalCacheName);
             }
             catch (Exception ex)
             {

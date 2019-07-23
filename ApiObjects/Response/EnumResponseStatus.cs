@@ -49,7 +49,8 @@ namespace ApiObjects.Response
         HomeNetworkFrequency = 1034,
         DlmExist = 1035,
         MasterUserNotFound = 1036,
-        
+        RegionDoesNotExist = 1037,
+
         #endregion
 
         #region User Section 2000 - 2999
@@ -188,6 +189,8 @@ namespace ApiObjects.Response
         PurchasePassedEntitlementFailed = 3079,
         NetworkRuleBlock = 3080,
         SubscriptionDoesNotExist = 3081,
+        OtherCouponIsAlreadyAppliedForSubscription = 3082,
+
         #endregion
 
         #region Catalog 4000 - 4999
@@ -499,7 +502,10 @@ namespace ApiObjects.Response
         CouponGroupNotExist = 9020,
         CouponCodeNotInTheRightLength = 9021,
         DiscountCodeNotExist = 9022,
-
+        CouponCodeIsMissing = 9023,
+        CouponCodeAlreadyLoaded = 9024,
+        CouponCodeNotInHousehold = 9025,
+        ExceededHouseholdCouponLimit = 9026,
         #endregion
 
         #region Adapters 10000-10999

@@ -8,7 +8,7 @@ using KLogMonitor;
 
 namespace CachingProvider
 {
-    public class CouchBaseCache<T> : OutOfProcessCache
+    public class CouchBaseCache<TO> : OutOfProcessCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 2;
@@ -21,15 +21,15 @@ namespace CachingProvider
             bucket = eCacheName;
         }
 
-        public static CouchBaseCache<T> GetInstance(string sCacheName)
+        public static CouchBaseCache<TO> GetInstance(string sCacheName)
         {
-            CouchBaseCache<T> cache = null;
+            CouchBaseCache<TO> cache = null;
             try
             {
                 eCouchbaseBucket eCacheName;
                 if (Enum.TryParse<eCouchbaseBucket>(sCacheName.ToUpper(), out eCacheName))
                 {
-                    cache = new CouchBaseCache<T>(eCacheName);
+                    cache = new CouchBaseCache<TO>(eCacheName);
                 }
                 else
                 {
@@ -68,7 +68,7 @@ namespace CachingProvider
         {
             BaseModuleCache baseModule = new BaseModuleCache();
 
-            T result = new CouchbaseManager.CouchbaseManager(bucket).Get<T>(key);
+            TO result = new CouchbaseManager.CouchbaseManager(bucket).Get<TO>(key);
 
             baseModule.result = result;
 
@@ -153,7 +153,7 @@ namespace CachingProvider
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
 
-            var innerResult = new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, asJson);
+            var innerResult = new CouchbaseManager.CouchbaseManager(bucket).GetValues<TO>(keys, asJson);
 
             if (innerResult != null)
             {

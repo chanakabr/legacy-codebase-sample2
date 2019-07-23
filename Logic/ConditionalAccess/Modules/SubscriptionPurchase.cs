@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.ConditionalAccess;
 using DAL;
 using System;
 using System.Collections.Generic;
@@ -76,7 +77,7 @@ namespace Core.ConditionalAccess.Modules
                         this.previewModuleId, this.startDate.Value, this.endDate.Value,
                         this.entitlementDate.Value, string.Empty, (int)this.houseHoldId, this.processPurchasesId);
                 }
-
+                
                 if (this.purchaseId > 0)
                 {
                     success = true;

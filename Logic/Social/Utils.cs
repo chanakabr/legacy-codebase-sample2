@@ -4,6 +4,7 @@ using ApiObjects.Statistics;
 using ConfigurationManager;
 using Core.Users;
 using KLogMonitor;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ using System.Security.Cryptography;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-using System.Web.Script.Serialization;
+
 
 namespace Core.Social
 {
@@ -140,7 +141,7 @@ namespace Core.Social
             dObj.m_oDomainResponseStatus = DomainResponseStatus.UnKnown;
             try
             {
-                var res = Core.Domains.Module.AddDomain(nGroupID, user.m_oBasicData.m_sFirstName + "'s Domain", string.Empty, int.Parse(user.m_sSiteGUID));
+                var res = Core.Domains.Module.AddDomain(nGroupID, user.m_oBasicData.m_sFirstName + "'s Domain", string.Empty, int.Parse(user.m_sSiteGUID), null);
                 if (res != null)
                 {
                     dObj = res.DomainResponse;
@@ -522,8 +523,7 @@ namespace Core.Social
             T response = default(T);
             try
             {
-                JavaScriptSerializer serializer = new JavaScriptSerializer();
-                response = serializer.Deserialize<T>(sObject);
+                response = JsonConvert.DeserializeObject<T>(sObject);
             }
             catch
             {
@@ -691,8 +691,7 @@ namespace Core.Social
                 }
                 interestDict[item.category].Add(item.name);
             }
-            JavaScriptSerializer ser = new JavaScriptSerializer();
-            return ser.Serialize(interestDict);
+            return JsonConvert.SerializeObject(interestDict);
         }
 
         public static UserBasicData GetFBBasicData(FBUser fbUser, string sEncryptToken, string sPic)
@@ -928,21 +927,22 @@ namespace Core.Social
             return id;
         }
 
-        #region create client to WCF service
+        // Removed as it is not in use and not supported by .net core
+        //#region create client to WCF service
 
-        internal static class BindingFactory
-        {
-            internal static Binding CreateInstance()
-            {
-                WSHttpBinding binding = new WSHttpBinding();
-                binding.Security.Mode = SecurityMode.None;
-                binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
-                binding.UseDefaultWebProxy = true;
-                return binding;
-            }
+        //internal static class BindingFactory
+        //{
+        //    internal static Binding CreateInstance()
+        //    {
+        //        WSHttpBinding binding = new WSHttpBinding();
+        //        binding.Security.Mode = SecurityMode.None;
+        //        binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
+        //        binding.UseDefaultWebProxy = true;
+        //        return binding;
+        //    }
 
-        }
-        #endregion
+        //}
+        //#endregion
 
         internal static DataTable InitSocialPrivacySettings()
         {

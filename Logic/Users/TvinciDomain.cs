@@ -64,20 +64,17 @@ namespace Core.Users
         {
             // get domain by domain id from Cache 
             DomainsCache domainsCache = DomainsCache.Instance();
-
-            Domain domain = domainsCache.GetDomain(nDomainID, nGroupID);
-
-            return domain;
+            return domainsCache.GetDomain(nDomainID, nGroupID);
         }
 
-        public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
+        public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid, int? regionId)
         {
             DomainResponseObject oDomainResponseObject = new DomainResponseObject(null, DomainResponseStatus.Error);
 
             try
             {
                 // create domain
-                Domain domain = DomainFactory.CreateDomain(sDomainName.Trim(), sDomainDescription.Trim(), nMasterUserGuid, nGroupID, sCoGuid);
+                Domain domain = DomainFactory.CreateDomain(sDomainName.Trim(), sDomainDescription.Trim(), nMasterUserGuid, nGroupID, sCoGuid, regionId);
 
                 if (domain != null)
                 {
@@ -125,6 +122,9 @@ namespace Core.Users
                         case DomainStatus.Error:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.Error);
                             break;
+                        case DomainStatus.RegionDoesNotExist:
+                            oDomainResponseObject =  new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
+                            break;
                         default:
                             log.Error("Error - " + string.Format("Flow not recognized for DomainStatus: {0} , G ID: {1} , D Name: {2} , Master: {3}", domain.m_DomainStatus.ToString(), nGroupID, sDomainName, nMasterUserGuid));
                             break;
@@ -148,9 +148,9 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID)
+        public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, int? regionId)
         {
-            return AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, "");
+            return AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, "", regionId);
         }
 
         /// <summary>

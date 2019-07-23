@@ -141,8 +141,7 @@ namespace Core.Api.Managers
         {
             try
             {
-                if (checkGeoAvailabilityEnabled && 
-                    (!IsGeoAssetRulesEnabled(groupId) || UtilsDal.GetObjectFromCB<string>(eCouchbaseBucket.OTT_APPS, GetGeoUpdateMediaCbKey(groupId, mediaId)) == null))
+                if (checkGeoAvailabilityEnabled && !IsGeoAssetRulesEnabled(groupId))
                 {
                     return true;
                 }
@@ -199,7 +198,7 @@ namespace Core.Api.Managers
             if (assetConditions != null && assetConditions.Count > 0)
             {
                 StringBuilder ksql = new StringBuilder("(and ");
-                ksql.AppendFormat("media_id = {0}", mediaId);
+                ksql.AppendFormat("media_id = '{0}'", mediaId);
                 foreach (var assetCondition in assetConditions)
                 {
                     ksql.Append(" " + assetCondition.Ksql);
@@ -949,7 +948,7 @@ namespace Core.Api.Managers
 
             long convertedIp;
             APILogic.Utils.ConvertIpToNumber(ip, out convertedIp);
-            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.Headers);
+            Dictionary<string, string> headers = ListUtils.ToDictionary(System.Web.HttpContext.Current.Request.GetHeaders());
 
             ConditionScope conditionScope = new ConditionScope()
             {
@@ -993,7 +992,7 @@ namespace Core.Api.Managers
                     return false;
                 }
 
-                return catalogGroupCache.IsAssetUserRuleEnabled;
+                return catalogGroupCache.IsGeoAvailabilityWindowingEnabled;
             }
             else
             {
@@ -1006,7 +1005,7 @@ namespace Core.Api.Managers
 
                 List<LanguageObj> languages = group.GetLangauges();
 
-                return group.isAssetUserRuleEnabled;
+                return group.isGeoAvailabilityWindowingEnabled;
             }
         }
         

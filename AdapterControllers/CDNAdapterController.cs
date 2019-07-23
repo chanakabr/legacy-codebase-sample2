@@ -57,14 +57,24 @@ namespace AdapterControllers
             configurationSynchronizer.SynchronizedAct += configurationSynchronizer_SynchronizedAct;
         }
 
+        public ServiceClient GetCDNAdapterServiceClient(string adapterUrl)
+        {
+            log.Debug($"Constructing GetCDNAdapterServiceClient Client with url:[{adapterUrl}]");
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
+            adapterClient.ConfigureServiceClient();
+
+            return adapterClient;
+        }
+
         public bool SendConfiguration(CDNAdapter adapter, int groupId)
         {
             bool result = false;
 
             if (adapter != null && !string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                CdnAdapter.ServiceClient client = new CdnAdapter.ServiceClient();
-                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+
+                var client = GetCDNAdapterServiceClient(adapter.AdapterUrl);
 
                 //set unixTimestamp
                 long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -74,15 +84,18 @@ namespace AdapterControllers
 
                 try
                 {
+                    var adapterSettingsToSend = adapter.Settings != null ? adapter.Settings.Select(setting => new KeyValue()
+                    {
+                        Key = setting.key,
+                        Value = setting.value
+                    }).ToList() : null;
+
                     CdnAdapter.AdapterStatus adapterResponse =
-                        client.SetConfiguration(adapter.ID, adapter.Settings != null ? adapter.Settings.Select(setting => new CdnAdapter.KeyValue()
-                        {
-                            Key = setting.key,
-                            Value = setting.value
-                        }).ToArray() : null,
-                        groupId,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                        client.SetConfigurationAsync(adapter.ID, adapterSettingsToSend,
+                            groupId,
+                            unixTimestamp,
+                            Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))))
+                        .ExecuteAndWait();
 
                     if (adapterResponse != null)
                         log.DebugFormat("CDN Adapter Send Configuration Result = {0}", adapterResponse);
@@ -144,8 +157,7 @@ namespace AdapterControllers
                 throw new KalturaException("CDN adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient();
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+            var adapterClient = GetCDNAdapterServiceClient(adapter.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -205,8 +217,7 @@ namespace AdapterControllers
                 throw new KalturaException("CDN adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient();
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+            var adapterClient = GetCDNAdapterServiceClient(adapter.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -248,7 +259,7 @@ namespace AdapterControllers
             return linkResult;
         }
 
-        public LinkResult GetEpgLink(int groupId, int adapterId, string userId, string url, string fileType, int programId, int assetId, int contentId, long startTimeSeconds, 
+        public LinkResult GetEpgLink(int groupId, int adapterId, string userId, string url, string fileType, int programId, int assetId, int contentId, long startTimeSeconds,
             int actionType, string ip)
         {
             LinkResult linkResult = null;
@@ -265,8 +276,7 @@ namespace AdapterControllers
                 throw new KalturaException("CDN adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient();
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+            var adapterClient = GetCDNAdapterServiceClient(adapter.AdapterUrl);
 
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -276,7 +286,7 @@ namespace AdapterControllers
 
             try
             {
-                LinkResponse adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, 
+                LinkResponse adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds,
                     actionType, ip, unixTimestamp, signature);
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
@@ -296,7 +306,7 @@ namespace AdapterControllers
                     configurationSynchronizer.DoAction(key, parameters);
 
                     // call adapter again after setting the configuration
-                    adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType, 
+                    adapterResponse = CallGetEpgLink(adapterClient, adapter.SharedSecret, adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType,
                     ip, unixTimestamp, signature);
                 }
 
@@ -323,8 +333,10 @@ namespace AdapterControllers
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetEpgLink(adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType, ip, unixTimestamp,
-                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))));
+                adapterResponse = adapterClient
+                    .GetEpgLinkAsync(adapterId, userId, url, fileType, programId, assetId, contentId, startTimeSeconds, actionType, ip, unixTimestamp,
+                    Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))))
+                    .ExecuteAndWait();
             }
 
             LogAdapterResponse(adapterResponse, "GetEpgLink", adapterId, inputParameters);
@@ -334,7 +346,7 @@ namespace AdapterControllers
 
         private static LinkResult ParseLinkResponse(LinkResponse adapterResponse)
         {
-            LinkResult linkResult = null; 
+            LinkResult linkResult = null;
 
             if (adapterResponse != null && adapterResponse.Status != null)
             {
@@ -361,15 +373,16 @@ namespace AdapterControllers
         {
             LinkResponse adapterResponse = null;
 
-            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, fileType = {3}, recordingId = {4}, ip = {5}", 
+            string inputParameters = string.Format("adapterId = {0}, userId = {1}, url = {2}, fileType = {3}, recordingId = {4}, ip = {5}",
                 adapterId, userId, url, fileType, recordingId, ip);
             log.DebugFormat("Sending request to CDN adapter. {0}", inputParameters);
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetRecordingLink(adapterId, userId, url, fileType, recordingId, ip, unixTimestamp,
-                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))));
+                adapterResponse = adapterClient.GetRecordingLinkAsync(adapterId, userId, url, fileType, recordingId, ip, unixTimestamp,
+                    Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))))
+                    .ExecuteAndWait();
             }
 
             LogAdapterResponse(adapterResponse, "GetRecordingLink", adapterId, inputParameters);
@@ -389,8 +402,9 @@ namespace AdapterControllers
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetVodLink(adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp,
-                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))));
+                adapterResponse = adapterClient.GetVodLinkAsync(adapterId, userId, url, fileType, assetId, contentId, ip, unixTimestamp,
+                    System.Convert.ToBase64String(EncryptUtils.AesEncrypt(secret, EncryptUtils.HashSHA1(signature))))
+                    .ExecuteAndWait();
             }
 
             LogAdapterResponse(adapterResponse, "GetVodLink", adapterId, inputParameters);
@@ -430,7 +444,7 @@ namespace AdapterControllers
                         adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,
                         // {3}
                         adapterResponse.Link.Url);
-                       
+
 
                     // if Status code is not 0
                     if ((adapterResponse.Status.Code != 0))
@@ -461,6 +475,6 @@ namespace AdapterControllers
 
             HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
         }
-        
+
     }
 }

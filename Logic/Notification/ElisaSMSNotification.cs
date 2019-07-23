@@ -6,9 +6,9 @@ using System.Text;
 using System.Net;
 using System.Web;
 using System.Data;
-using System.Web.Script.Serialization;
 using ApiObjects.Notification;
 using KLogMonitor;
+using Newtonsoft.Json;
 
 namespace Core.Notification
 {
@@ -79,8 +79,7 @@ namespace Core.Notification
                 m_password = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["password"]);
                 m_smsURL = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["smsURL"]);
                 string additions = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["additions"]);//get from here all the params 
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                ElisaSMSNotification obj = js.Deserialize<ElisaSMSNotification>(additions);
+                ElisaSMSNotification obj = JsonConvert.DeserializeObject<ElisaSMSNotification>(additions);
                 m_tariffClass = obj.m_tariffClass;
                 m_operator = obj.m_operator;
                 m_serviceDescription = obj.m_serviceDescription;

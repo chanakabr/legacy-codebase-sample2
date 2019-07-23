@@ -1551,6 +1551,20 @@ namespace DAL
         }
 
         /// <summary>
+        /// Return regions of medias 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static DataTable GetMediaRegions(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaRegions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+
+            return sp.Execute();
+        }
+
+        /// <summary>
         /// Return Regions accroding to External Regions List
         /// </summary>
         /// <param name="groupId"></param>
@@ -3182,6 +3196,7 @@ namespace DAL
                         permission.GroupId = groupId;
                         permission.isExcluded = isExcluded;
                         permission.Type = permissionType;
+                        permission.DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "DEPENDS_ON_PERMISSION_NAMES");
 
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {

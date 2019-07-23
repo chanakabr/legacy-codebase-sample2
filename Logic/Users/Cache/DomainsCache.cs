@@ -322,26 +322,6 @@ namespace Core.Users.Cache
                 {
                     domain = TVinciShared.ObjectCopier.Clone<Domain>(domainToGet);
                     DomainFactory.InitializeDLM(domain);
-
-                    // Mark reading invalidation key for domain and its devices
-                    if (domain != null)
-                    {
-                        domain.SetReadingInvalidationKeys();
-
-                        if (domain.m_deviceFamilies != null)
-                        {
-                            foreach (var deviceContainer in domain.m_deviceFamilies)
-                            {
-                                if (deviceContainer.DeviceInstances != null)
-                                {
-                                    foreach (var device in deviceContainer.DeviceInstances)
-                                    {
-                                        device.SetReadingInvalidationKeys();
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
             catch (Exception ex)

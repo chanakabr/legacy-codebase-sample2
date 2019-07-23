@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using APILogic.ConditionalAccess.Modules;
+using ApiObjects.ConditionalAccess;
 
 namespace Core.Billing
 {
@@ -813,7 +814,11 @@ namespace Core.Billing
             return response;
         }
 
-        
+        public static TransactResult ProcessRenewal(int groupId, RenewDetails renewDetails, string productCode, string billingGuid, int gracePeriodMinutes)
+        {
+            return ProcessRenewal(groupId, renewDetails.UserId, renewDetails.DomainId, renewDetails.Price, renewDetails.Currency, renewDetails.CustomData, renewDetails.ProductId, productCode, renewDetails.PaymentNumber, renewDetails.NumOfPayments, billingGuid, gracePeriodMinutes);
+        }
+
         public static TransactResult ProcessRenewal(int nGroupID, string siteGUID, long householdId, double price, string currency,
             string customData, int productId, string productCode, int paymentNumber, int numberOfPayments, string billingGuid, int gracePeriodMinutes)
         {
@@ -831,23 +836,30 @@ namespace Core.Billing
                 }
                 else
                 {
-                    response = new TransactResult();
-                    response.Status = new ApiObjects.Response.Status();
-                    response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                    response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
+                    response = new TransactResult
+                    {
+                        Status = new ApiObjects.Response.Status()
+                        {
+                            Code = (int)ApiObjects.Response.eResponseStatus.Error,
+                            Message = ApiObjects.Response.eResponseStatus.Error.ToString()
+                        }
+                    };
                 }
             }
             catch (Exception ex)
             {
-                response = new TransactResult();
-                response.Status = new ApiObjects.Response.Status();
-                response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
+                response = new TransactResult
+                {
+                    Status = new ApiObjects.Response.Status()
+                    {
+                        Code = (int)ApiObjects.Response.eResponseStatus.Error,
+                        Message = ApiObjects.Response.eResponseStatus.Error.ToString()
+                    }
+                };
                 log.Error(string.Empty, ex);
             }
             return response;
         }
-
         
         public static PaymentGateway GetPaymentGatewayByBillingGuid(int nGroupID, long householdId, string billingGuid)
         {
@@ -1229,7 +1241,7 @@ namespace Core.Billing
         }
 
         public static TransactResult ProcessUnifiedRenewal(int groupId, long householdId, double totalPrice, string currency, int paymentgatewayId, 
-            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewDetails> renewUnified, ref PaymentGateway paymentGateway)
         {   
             // add siteguid to logs/monitor
             // HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteGUID != null ? siteGUID : "null";

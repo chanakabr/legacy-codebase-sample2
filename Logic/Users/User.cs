@@ -1220,26 +1220,5 @@ namespace Core.Users
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
         public string activationToken;
-
-        #region Invalidation
-
-        public virtual void SetReadingInvalidationKeys()
-        {
-            User.SetReadingInvalidationKeys(this.m_sSiteGUID);
-        }
-
-        public static void SetReadingInvalidationKeys(string siteGuid)
-        {
-            List<string> invalidationKeys = new List<string>()
-                {
-                    LayeredCacheKeys.GetUserInvalidationKey(siteGuid),
-                    LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid)
-                };
-
-            LayeredCache.Instance.SetReadingInvalidationKeys(invalidationKeys);
-        }
-
-        #endregion
-
     }
 }

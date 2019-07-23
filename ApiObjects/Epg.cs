@@ -18,6 +18,9 @@ namespace ApiObjects
         [JsonProperty("epg_id")]
         public ulong EpgID;
 
+        [JsonIgnore]
+        public List<int> regions;
+
         [JsonProperty("epg_identifier")]
         public string EpgIdentifier { get; set; }
 

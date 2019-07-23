@@ -466,7 +466,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                 // notify purchase
-                                if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userIp))
+                                if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userId, udid, userIp))
                                 {
                                     log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", transactionResponse.Status.Message, logString);
                                 }
@@ -518,7 +518,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // cancel existing subscription
-                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true, userIp);
+                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true, udid, userIp);
                     if (cancelSubscriptionStatus == null && cancelSubscriptionStatus.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_SubscriptionCode);
@@ -536,7 +536,7 @@ namespace Core.ConditionalAccess
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // cancel existing subscription renewal
-            Status cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_sObjectCode, userIp);
+            Status cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_sObjectCode, userId, udid, userIp);
 
             if (cancelRenewalStatus == null || cancelRenewalStatus.Code != (int)eResponseStatus.OK)
             {
@@ -968,7 +968,7 @@ namespace Core.ConditionalAccess
                                 };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, userIp))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -1304,11 +1304,21 @@ namespace Core.ConditionalAccess
                                     cas.WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
-                                    if (couponRemainder > 0)
+                                    var recurringRenewDetails = new RecurringRenewDetails()
                                     {
-                                        ConditionalAccessDAL.SaveCouponRemainder(purchaseID, couponRemainder);
-                                    }
+                                        CouponCode = couponCode,
+                                        CouponRemainder = couponRemainder,
+                                        IsCouponGiftCard = isGiftCard,
+                                        IsPurchasedWithPreviewModule = entitleToPreview,
+                                        LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
+                                        TotalNumOfRenews = 0
+                                    };
 
+                                    if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
+                                    {
+                                        log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
+                                    }
+                                    
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {
@@ -1417,7 +1427,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userIp))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -1891,11 +1901,11 @@ namespace Core.ConditionalAccess
                                         {"CouponCode", couponCode},
                                         {"CustomData", customData},
                                         {"PurchaseID", purchaseId},
-                                        {"ClientIP", userIp}
+                                        {"ClientIp", userIp}
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, userIp))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }

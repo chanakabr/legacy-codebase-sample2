@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using ApiObjects;
 using System.Configuration;
-using System.Web.Script.Serialization;
 using KLogMonitor;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -23,7 +22,6 @@ namespace Mailer
             {
                 log.DebugFormat("SendMailTemplate: SenderTo={0}, Subject={1}, TemplateName={2} ", request.m_sSenderTo, request.m_sSubject, request.m_sTemplateName);
                 bool retVal = false;
-                JavaScriptSerializer jsSer = new JavaScriptSerializer();
                 MCObjByTemplate mcObj = request.parseRequestToTemplate();
                 mcObj.key = ApplicationConfiguration.MailerConfiguration.MCKey.Value; // default key
 
@@ -46,7 +44,7 @@ namespace Mailer
                 {
                     mcObj.template_name = mcObj.template_name.Remove(mcObj.template_name.IndexOf('.'));
                 }
-                string json = jsSer.Serialize(mcObj);
+                string json = JsonConvert.SerializeObject(mcObj);
                 log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
                 string mcURL = ApplicationConfiguration.MailerConfiguration.MCURL.Value;
                 string sResp = Utils.SendXMLHttpReq(mcURL, json, null);
@@ -62,7 +60,7 @@ namespace Mailer
                         if (mcObj.message.to != null && mcObj.message.to.Count > 0)
                         {
                             mcObj.message.to[0].email = mcObj.message.bcc_address;
-                            json = jsSer.Serialize(mcObj);
+                            json = JsonConvert.SerializeObject(mcObj);
                             sResp = Utils.SendXMLHttpReq(mcURL, json, null);
                             if (sResp.Contains("sent"))
                             {

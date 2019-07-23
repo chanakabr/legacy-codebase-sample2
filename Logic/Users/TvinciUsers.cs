@@ -208,7 +208,7 @@ namespace Core.Users
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
-            DomainResponseObject dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", nUserID, nGroupID, "");
+            DomainResponseObject dr = t.AddDomain(sUN + "/Domain", sUN + "/Domain", nUserID, nGroupID, "", null);
 
             if (dr == null || dr.m_oDomainResponseStatus != DomainResponseStatus.OK)
             {
@@ -603,13 +603,6 @@ namespace Core.Users
             var userFromDb = usersCache.GetUser(userId, m_nGroupID);
             userResponse.m_user = userFromDb;
 
-            string sNewsLetter = sDynamicData.GetValByKey("newsletter");
-            if (!string.IsNullOrEmpty(sNewsLetter) && sNewsLetter.ToLower().Equals("true") &&
-                m_newsLetterImpl != null && !m_newsLetterImpl.IsUserSubscribed(newUser))
-            {
-                m_newsLetterImpl.Subscribe(userResponse.m_user);
-            }
-
             //Send Welcome Email
             if (m_mailImpl != null)
             {
@@ -778,19 +771,6 @@ namespace Core.Users
 
                 u.Initialize(nUserID, m_nGroupID);
 
-                if (m_newsLetterImpl != null)
-                {
-                    if (u.m_oDynamicData != null && u.m_oDynamicData.GetDynamicData() != null)
-                    {
-                        foreach (UserDynamicDataContainer udc in u.m_oDynamicData.GetDynamicData())
-                        {
-                            if (udc.m_sDataType.ToLower().Equals("newsletter"))
-                            {
-                                udc.m_sValue = m_newsLetterImpl.IsUserSubscribed(u).ToString().ToLower();
-                            }
-                        }
-                    }
-                }
                 UserResponseObject resp = new UserResponseObject();
                 if (u.m_oBasicData.m_sUserName == "")
                 {
@@ -1126,57 +1106,12 @@ namespace Core.Users
                     oBasicData.m_CoGuid = u.m_oBasicData.m_CoGuid;
                 }
 
-                bool isSubscribeNewsLetter = false;
-                bool isUnSubscribeNewsLeter = false;
-                
-                if (m_newsLetterImpl != null && sDynamicData != null && u.m_oDynamicData != null)
-                {
-                    bool isNewNewsLetter = false;
-                    bool isOldNewsLetter = false;
-
-                    foreach (UserDynamicDataContainer data in sDynamicData.GetDynamicData())
-                    {
-                        if (data.m_sDataType.ToLower().Equals("newsletter") && data.m_sValue.ToLower().Equals("true"))
-                        {
-                            isNewNewsLetter = true;
-                            break;
-                        }
-                    }
-
-                    foreach (UserDynamicDataContainer olddata in u.m_oDynamicData.GetDynamicData())
-                    {
-                        if (olddata.m_sDataType.ToLower().Equals("newsletter") && olddata.m_sValue.ToLower().Equals("true"))
-                        {
-                            isOldNewsLetter = true;
-                            break;
-                        }
-                    }
-
-                    isSubscribeNewsLetter = (isNewNewsLetter && !isOldNewsLetter);
-                    isUnSubscribeNewsLeter = (isOldNewsLetter && !isNewNewsLetter);
-
-                    if (isNewNewsLetter && oBasicData.m_sEmail != u.m_oBasicData.m_sEmail)
-                    {
-                        m_newsLetterImpl.UnSubscribe(u);
-                        isSubscribeNewsLetter = true;
-                    }
-                }
-
                 int saveID = u.Update(oBasicData, sDynamicData, m_nGroupID);
                 // failed updating basicData or dynmaicData
                 if (saveID == -1)
                 {                    
                     resp.Initialize(ResponseStatus.WrongPasswordOrUserName, null);
                     return resp;
-                }
-
-                if (isSubscribeNewsLetter && m_newsLetterImpl != null)
-                {
-                    m_newsLetterImpl.Subscribe(u);
-                }
-                else if (isUnSubscribeNewsLeter)
-                {
-                    m_newsLetterImpl.UnSubscribe(u);
                 }
 
                 // add notifications event if email was changed
@@ -1726,7 +1661,6 @@ namespace Core.Users
                     #region Initialize from cache
                     this.m_bIsActivationNeeded = tUser.m_bIsActivationNeeded;
                     this.m_mailImpl = tUser.m_mailImpl;
-                    this.m_newsLetterImpl = tUser.m_newsLetterImpl;
                     this.m_nGroupID = tUser.m_nGroupID;
                     this.m_sActivationMail = tUser.m_sActivationMail;
                     this.m_sChangedPinMail = tUser.m_sChangedPinMail;
@@ -1787,18 +1721,6 @@ namespace Core.Users
                         m_sMailPort = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_PORT");
                         //bool member
                         m_bIsActivationNeeded = (nActivationNeeded == 1);
-                        //m_newsLetterImpl composition
-                        object oNewLetterImplID = dvMailParameters["NewsLetter_Impl_ID"];
-                        if (oNewLetterImplID != DBNull.Value && oNewLetterImplID != null && !string.IsNullOrEmpty(oNewLetterImplID.ToString()))
-                        {
-                            object oNewLetterApiKey = dvMailParameters["NewsLetter_API_Key"];
-                            object oNewLetterListID = dvMailParameters["NewsLetter_List_ID"];
-
-                            if (oNewLetterApiKey != DBNull.Value && oNewLetterApiKey != null && oNewLetterListID != DBNull.Value && oNewLetterListID != null)
-                            {
-                                m_newsLetterImpl = Utils.GetBaseImpl(oNewLetterApiKey.ToString(), oNewLetterListID.ToString(), int.Parse(oNewLetterImplID.ToString()));
-                            }
-                        }
 
                         int nMailImplID = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "Mail_Impl_ID");
 
