@@ -1311,7 +1311,8 @@ namespace Core.ConditionalAccess
                                         IsCouponGiftCard = isGiftCard,
                                         IsPurchasedWithPreviewModule = entitleToPreview,
                                         LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
-                                        TotalNumOfRenews = 0
+                                        TotalNumOfRenews = 0,
+                                        IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0
                                     };
 
                                     if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))

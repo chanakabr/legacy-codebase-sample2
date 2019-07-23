@@ -2698,9 +2698,9 @@ namespace Core.ConditionalAccess
                     renewDetails.Currency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                 }
                 
-                bool isCouponGiftCard = false, recurringCouponFirstExceeded = false;
+                bool recurringCouponFirstExceeded = false;
                 var originalPrice = renewDetails.Price;
-                HandleRecurringCoupon(renewDetails, subscription, oCurrency, ref isCouponGiftCard, out recurringCouponFirstExceeded);                
+                HandleRecurringCoupon(renewDetails, subscription, oCurrency, out recurringCouponFirstExceeded);                
 
                 if (renewDetails.RecurringData.Compensation != null)
                 {
@@ -2725,7 +2725,7 @@ namespace Core.ConditionalAccess
                     bool isFirstTimePreviewModuleEnd = (renewDetails.PaymentNumber == 1 && renewDetails.RecurringData.IsPurchasedWithPreviewModule);
 
                     if (groupId > 0 && renewDetails.DomainId > 0 && renewDetails.EndDate.HasValue && !renewDetails.IsUseCouponRemainder &&
-                        (isCouponGiftCard || recurringCouponFirstExceeded || isFirstTimePreviewModuleEnd))
+                        (renewDetails.RecurringData.IsCouponGiftCard || recurringCouponFirstExceeded || isFirstTimePreviewModuleEnd))
                     {
                         unifiedBillingCycle = Utils.TryGetHouseholdUnifiedBillingCycle((int)renewDetails.DomainId, (long)AppUsageModule.m_tsMaxUsageModuleLifeCycle);
                         if (unifiedBillingCycle != null && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow))
@@ -3361,41 +3361,39 @@ namespace Core.ConditionalAccess
         /// activate the discount of the coupon on the price and return the updated price and the coupon code. 
         /// if coupon is gift card return coupon card and isCouponGiftCard = true
         /// </summary> 
-        private void HandleRecurringCoupon(RenewDetails renewDetails, Subscription theSub, Currency oCurrency, ref bool isCouponGiftCard, 
-                                           out bool firstExceeded)
+        private void HandleRecurringCoupon(RenewDetails renewDetails, Subscription theSub, Currency oCurrency, out bool firstExceeded)
         {
             firstExceeded = false;
-            isCouponGiftCard = renewDetails.RecurringData.IsCouponGiftCard;
-            if (isCouponGiftCard) { return; }
-            
+            if (renewDetails.RecurringData.IsCouponGiftCard || string.IsNullOrEmpty(renewDetails.RecurringData.CouponCode)) { return; }
+
             try
             {
-                
-                if (renewDetails.RecurringData.IsCouponGiftCard )
+                if (renewDetails.RecurringData.IsCouponHasEndlessRecurring || renewDetails.RecurringData.LeftCouponRecurring > 0)
                 {
-                    if (renewDetails.RecurringData.LeftCouponRecurring > 0)
+                    string couponCode = renewDetails.RecurringData.CouponCode;
+                    renewDetails.RecurringData.CouponCode = string.Empty; // init for recurring coupon
+
+                    var couponGroupId = Utils.GetCouponGroupIdForFirstCoupon(m_nGroupID, theSub, ref couponCode, renewDetails.PurchaseId);
+                    if (couponGroupId == 0) { return; }
+
+                    // look if this coupon group id is a gift card in the subscription list 
+                    CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
+                    if (cg.Status.Code != (int)eResponseStatus.OK) { return; }
+
+                    Price priceBeforeCouponDiscount = new Price
                     {
-                        string couponCode = renewDetails.RecurringData.CouponCode;
-                        renewDetails.RecurringData.CouponCode = string.Empty; // init for recurring coupon
+                        m_dPrice = renewDetails.Price,
+                        m_oCurrency = oCurrency
+                    };
 
-                        var couponGroupId = Utils.GetCouponGroupIdForFirstCoupon(m_nGroupID, theSub, ref couponCode, renewDetails.PurchaseId);
-                        if (couponGroupId == 0) { return; }
-
-                        // look if this coupon group id is a gift card in the subscription list 
-                        CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
-                        if (cg.Status.Code != (int)eResponseStatus.OK) { return; }
-
-                        Price priceBeforeCouponDiscount = new Price
-                        {
-                            m_dPrice = renewDetails.Price,
-                            m_oCurrency = oCurrency
-                        };
-
-                        Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
-                        renewDetails.Price = priceResult.m_dPrice;
-                        renewDetails.RecurringData.CouponCode = couponCode;
-                    }
-                    else if (renewDetails.RecurringData.CouponRemainder > 0)
+                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.CouponsGroup.m_oDiscountCode, 0);
+                    renewDetails.Price = priceResult.m_dPrice;
+                    renewDetails.RecurringData.CouponCode = couponCode;
+                }
+                else if (!renewDetails.RecurringData.IsCouponHasEndlessRecurring)
+                {
+                    firstExceeded = true;
+                    if (renewDetails.RecurringData.CouponRemainder > 0)
                     {
                         renewDetails.IsUseCouponRemainder = true;
                         renewDetails.Price -= renewDetails.RecurringData.CouponRemainder;

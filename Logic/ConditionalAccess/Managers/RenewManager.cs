@@ -1524,14 +1524,22 @@ namespace Core.ConditionalAccess
                                          renewDetails.RecurringData.Compensation.Id, transactionId, renewDetails.RecurringData.Compensation.Renewals);
                     }
                 }
-
-                if (renewDetails.IsUseCouponRemainder)
+                
+                if (renewDetails.IsUseCouponRemainder || 
+                    (!renewDetails.RecurringData.IsCouponHasEndlessRecurring && renewDetails.RecurringData.LeftCouponRecurring == 0 && !string.IsNullOrEmpty(renewDetails.RecurringData.CouponCode)))
                 {
                     renewDetails.RecurringData.CouponRemainder = 0;
+                    renewDetails.RecurringData.CouponCode = string.Empty;
+                    renewDetails.RecurringData.LeftCouponRecurring = 0;
+                    renewDetails.RecurringData.IsCouponGiftCard = false;
+                    renewDetails.RecurringData.IsCouponHasEndlessRecurring = false;
                 }
-
+                
                 renewDetails.RecurringData.TotalNumOfRenews++;
-                renewDetails.RecurringData.LeftCouponRecurring--;
+                if (renewDetails.RecurringData.LeftCouponRecurring > 0)
+                {
+                    renewDetails.RecurringData.LeftCouponRecurring--;
+                }
                 
                 ConditionalAccessDAL.SaveRecurringRenewDetails(renewDetails.RecurringData, renewDetails.PurchaseId);
             }

@@ -1096,6 +1096,7 @@ namespace Core.ConditionalAccess
                 
                 renewData.CouponCode = couponCode;
                 renewData.CouponRemainder = 0;
+                renewData.IsCouponHasEndlessRecurring = couponData.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0;
                 renewData.LeftCouponRecurring = couponData.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon;
                 renewData.IsCouponGiftCard = couponData.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard;
 
@@ -1122,7 +1123,7 @@ namespace Core.ConditionalAccess
             }
 
             int leftCouponRecurring = 0;
-            bool isCouponGiftCard = false;
+            bool isCouponGiftCard = false, isCouponEndlessRecurring = false;
             var couponGroupId = Utils.GetCouponGroupIdForFirstCoupon(groupId, subscription, ref couponCode, purchaseId);
             if (couponGroupId > 0)
             {
@@ -1133,6 +1134,7 @@ namespace Core.ConditionalAccess
                     isCouponGiftCard = cg.CouponsGroup.couponGroupType == CouponGroupType.GiftCard;
                     leftCouponRecurring = cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon - totalRenews;
                     if (leftCouponRecurring < 0) { leftCouponRecurring = 0; }
+                    isCouponEndlessRecurring = cg.CouponsGroup.m_nMaxRecurringUsesCountForCoupon == 0;
                 }
             }
             
@@ -1146,7 +1148,8 @@ namespace Core.ConditionalAccess
                 LeftCouponRecurring = leftCouponRecurring,
                 TotalNumOfRenews = totalRenews,
                 Compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(purchaseId),
-                IsCouponGiftCard = isCouponGiftCard
+                IsCouponGiftCard = isCouponGiftCard,
+                IsCouponHasEndlessRecurring = isCouponEndlessRecurring
             };
 
             if (ConditionalAccessDAL.SaveRecurringRenewDetails(renewData, purchaseId))
