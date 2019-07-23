@@ -415,6 +415,8 @@ namespace Core.ConditionalAccess
             billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "BILLING_GUID");
             endDateFromDB = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
             response.Object = subscriptionEntitlement;
+            response.SetStatus(eResponseStatus.OK);
+
             return response;
         }
 
