@@ -11,3 +11,4 @@ obj/
 packages/
 /.vs
 /RemoteTasksService/RemoteTasksService.csproj.user
+/RemoteTasksService/settings.json
