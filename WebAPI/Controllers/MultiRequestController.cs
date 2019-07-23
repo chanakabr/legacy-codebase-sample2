@@ -438,6 +438,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("do")]
         [ApiExplorerSettings(IgnoreApi = true)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public object[] Do(KalturaMultiRequestAction[] request)
         {
             Assembly executingAssembly = Assembly.GetExecutingAssembly();
