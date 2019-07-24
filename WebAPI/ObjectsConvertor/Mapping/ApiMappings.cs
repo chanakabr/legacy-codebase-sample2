@@ -1652,14 +1652,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackContext, KalturaPlaybackContext>()
-             .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
+             .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => GetKalturaPlaybackContextActions(src.Actions)))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources))
              .ForMember(dest => dest.Plugins, opt => opt.MapFrom(src => src.Plugins))
              .ForMember(dest => dest.PlaybackCaptions, opt => opt.MapFrom(src => src.PlaybackCaptions));
 
             cfg.CreateMap<KalturaPlaybackContext, ApiObjects.PlaybackAdapter.PlaybackContext>()
-             .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Messages))
              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Sources))
              .ForMember(dest => dest.Plugins, opt => opt.MapFrom(src => src.Plugins))
@@ -3482,6 +3481,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return response;
+        }
+
+        private static List<KalturaRuleAction> GetKalturaPlaybackContextActions(List<ApiObjects.PlaybackAdapter.RuleAction> actions)
+        {
+            if (actions == null || actions.Count == 0) { return null; }
+
+            var kalturaActionRules = new List<KalturaRuleAction>(actions.Select(x => new KalturaAccessControlBlockAction() { Description = x.Description }));
+            return kalturaActionRules;
         }
     }
 }
