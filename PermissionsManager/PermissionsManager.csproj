@@ -26,5 +26,6 @@
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
   </ItemGroup>
 </Project>
