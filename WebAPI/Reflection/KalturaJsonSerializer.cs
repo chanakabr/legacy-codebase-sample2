@@ -22965,6 +22965,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(BusinessModuleIdIn != null)
+            {
+                ret.Add("businessModuleIdIn", "\"businessModuleIdIn\": " + "\"" + EscapeJson(BusinessModuleIdIn) + "\"");
+            }
             if(Days.HasValue)
             {
                 ret.Add("days", "\"days\": " + Days);
@@ -22988,6 +22992,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(BusinessModuleIdIn != null)
+            {
+                ret.Add("businessModuleIdIn", "<businessModuleIdIn>" + EscapeXml(BusinessModuleIdIn) + "</businessModuleIdIn>");
+            }
             if(Days.HasValue)
             {
                 ret.Add("days", "<days>" + Days + "</days>");

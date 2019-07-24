@@ -1458,6 +1458,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
                 .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => ConvertMathematicalOperator(src.Operator)))
+                .ForMember(dest => dest.BusinessModuleIds, opt => opt.MapFrom(src => src.GetBusinessModuleIdIn()))
                 ;
 
             cfg.CreateMap<MonetizationCondition, KalturaMonetizationCondition>()
@@ -1466,6 +1467,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Days, opt => opt.MapFrom(src => src.Days))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMonetizationType(src.Type)))
                 .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => ConvertMathematicalOperator(src.Operator)))
+                .ForMember(dest => dest.BusinessModuleIdIn, opt => opt.MapFrom(src => string.Join(",", src.BusinessModuleIds)))
                 ;
 
             // base segment value
