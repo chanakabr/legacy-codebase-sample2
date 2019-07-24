@@ -3,7 +3,6 @@ using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Partner;
 
 namespace WebAPI.Models.Partner
 {

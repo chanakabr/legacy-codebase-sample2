@@ -2,21 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Web;
 using WebAPI.Models.General;
 using KLogMonitor;
-using KlogMonitorHelper;
 using System.Reflection;
 using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using WebAPI.Managers;
-using WebAPI.Filters;
 using ApiObjects;
 
 namespace WebAPI.EventNotifications
@@ -46,8 +42,8 @@ namespace WebAPI.EventNotifications
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
                     partnerId = kalturaEvent.PartnerId,
-                    UserIp = HttpContext.Current.Items[RequestParser.USER_IP]?.ToString(),
-                    UniqueId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
+                    UserIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString(),
+                    SequenceId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
                 }
             );
         }
@@ -205,7 +201,9 @@ namespace WebAPI.EventNotifications
         {
             int statusCode = -1;
 
+            #if NET452
             System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
+            #endif
 
             switch (this.Method)
             {
@@ -479,6 +477,7 @@ namespace WebAPI.EventNotifications
         }
     }
 
+    #if NET452
     public class KalturaPolicy : ICertificatePolicy
     {
         #region ICertificatePolicy Members
@@ -490,6 +489,7 @@ namespace WebAPI.EventNotifications
 
         #endregion
     }
+    #endif
 
     #region Enums
 

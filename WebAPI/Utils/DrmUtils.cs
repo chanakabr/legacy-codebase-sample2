@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ConfigurationManager;
-using Core.Users;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

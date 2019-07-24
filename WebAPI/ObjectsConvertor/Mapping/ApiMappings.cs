@@ -1,5 +1,4 @@
-﻿using APILogic.Api.Managers;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Roles;
@@ -7,7 +6,6 @@ using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
-using AutoMapper;
 using AutoMapper.Configuration;
 using Core.Api.Modules;
 using System;

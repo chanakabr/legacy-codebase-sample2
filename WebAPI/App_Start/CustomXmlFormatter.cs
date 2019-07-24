@@ -1,23 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Runtime.Serialization;
-using WebAPI.Models.General;
-using System.Text;
 using WebAPI.Managers.Models;
-using WebAPI.Exceptions;
-using System.Web.Http;
-using System.Collections.Generic;
-using System.Collections;
-using System.Web;
-using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
-using WebAPI.Utils;
 using WebAPI.Models.API;
 
 namespace WebAPI.App_Start
@@ -41,17 +26,12 @@ namespace WebAPI.App_Start
             return true;
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content,
-            System.Net.TransportContext transportContext)
+        public override Task<string> GetStringResponse(object response)
         {
-            using (TextWriter streamWriter = new StreamWriter(writeStream))
-            {
-                StatusWrapper wrapper = (StatusWrapper)value;
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + wrapper.ToXml(currentVersion, true) + "</xml>";
-                streamWriter.Write(xml);
-                return Task.FromResult(writeStream);
-            }
+            StatusWrapper wrapper = (StatusWrapper)response;
+            Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+            string xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + wrapper.ToXml(currentVersion, true) + "</xml>";
+            return Task.FromResult(xml);
         }
     }
 }

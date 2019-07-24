@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Linq;
 using WebAPI.Models.General;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
 using System.Xml;
 using System.Globalization;
 using System.Runtime.Serialization;
@@ -31,7 +30,7 @@ namespace Validator.Managers.Scheme
             if (filename.StartsWith(prefix))
             {
                 FileInfo dll = new FileInfo(filename.Substring(prefix.Length));
-                var projectDir = dll.Directory.Parent.Parent.Parent;
+                var projectDir = dll.Directory.Parent.Parent.Parent.Parent;
                 return projectDir.FullName;
             }
             else
@@ -65,19 +64,18 @@ namespace Validator.Managers.Scheme
             if (map != null)
                 return map;
 
-            map = new Dictionary<string, string>();
-            XmlDocument xml = GetProjectXml();
+            var webAPIProjectPath = Path.Combine(GetProjectDir(),"WebApi");
+            var allfiles = Directory.GetFiles(webAPIProjectPath, "*.cs", SearchOption.AllDirectories);
 
-            string xPath = "//*[local-name()='Compile']";
-            var compileNodes = xml.SelectNodes(xPath);
-            if (compileNodes != null && compileNodes.Count > 0)
+            map = new Dictionary<string, string>();
+           
+            if (allfiles != null && allfiles.Length > 0)
             {
-                foreach (XmlNode compileNode in compileNodes)
+                foreach (var filePath in allfiles)
                 {
-                    string path = GetProjectDir() + @"\WebAPI\" + compileNode.Attributes["Include"].Value;
-                    string type = path.Substring(path.LastIndexOf(@"\") + 1).Replace(".cs", "");
+                    string type = filePath.Substring(filePath.LastIndexOf(@"\") + 1).Replace(".cs", "");
                     if(!map.ContainsKey(type))
-                        map.Add(type, path);
+                        map.Add(type, filePath);
                 }
             }
 
@@ -320,13 +318,27 @@ namespace Validator.Managers.Scheme
         private static bool ValidateObject(Type type, bool strict)
         {
             bool valid = true;
-            
-            if (type != typeof(KalturaListResponse) && type.Name.EndsWith("ListResponse"))
+
+            var kalturaListResponseType = typeof(KalturaListResponse);
+            if (type != kalturaListResponseType && type.Name.EndsWith("ListResponse"))
             {
-                if (!type.IsSubclassOf(typeof(KalturaListResponse)))
+                if (!type.IsSubclassOf(kalturaListResponseType))
                 {
-                    logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
-                    valid = false;
+                    Type genericKalturaListResponseType = null;
+                    if (type.BaseType != null)
+                    {
+                        var genericArguments = type.BaseType.GetGenericArguments();
+                        if (genericArguments != null && genericArguments.Length == 1)
+                        {
+                            genericKalturaListResponseType = typeof(KalturaListResponse<>).MakeGenericType(genericArguments[0]);
+                        }
+                    }
+
+                    if (genericKalturaListResponseType == null || (type != genericKalturaListResponseType && !type.IsSubclassOf(genericKalturaListResponseType)))
+                    {
+                        logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
+                        valid = false;
+                    }
                 }
 
                 PropertyInfo objectsProperty = getObjectsProperty(type);
@@ -373,6 +385,8 @@ namespace Validator.Managers.Scheme
 
         private static bool ValidateService(Type controller, bool strict)
         {
+            if (controller.IsAbstract) { return true; }
+            
             bool valid = true;
             string serviceId = getServiceId(controller);
 

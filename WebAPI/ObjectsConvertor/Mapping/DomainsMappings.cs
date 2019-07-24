@@ -1,15 +1,8 @@
-﻿using AutoMapper;
-using Core.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Core.Users;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
-using WebAPI.Models.General;
-using WebAPI.Utils;
 using AutoMapper.Configuration;
 using TVinciShared;
 
@@ -116,6 +109,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.ActivatedOn)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
             ;
+
+            //CouponWallet, KalturaHouseholdCoupon
+            cfg.CreateMap<ApiObjects.Pricing.CouponWallet, KalturaHouseholdCoupon>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CouponCode))
+                ;
+
+            //KalturaHouseholdCoupon, CouponWallet
+            cfg.CreateMap<KalturaHouseholdCoupon, ApiObjects.Pricing.CouponWallet>()
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.Code))
+                ;
+
+            //KalturaHouseholdCoupon, CouponWallet
+            cfg.CreateMap<KalturaHouseholdCouponFilter, ApiObjects.Pricing.CouponWalletFilter>()
+                .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdEqual))
+                .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeEqual))
+                ;
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

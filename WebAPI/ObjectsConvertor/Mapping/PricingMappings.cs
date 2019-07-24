@@ -1,14 +1,11 @@
 ﻿using ApiObjects;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
-using AutoMapper;
 using AutoMapper.Configuration;
 using Core.ConditionalAccess;
 using Core.Pricing;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -17,7 +14,6 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Users;
-using WebAPI.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -229,6 +225,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertCouponStatus(src.m_CouponStatus)))
                .ForMember(dest => dest.LeftUses, opt => opt.MapFrom(src => src.leftUses))
                .ForMember(dest => dest.TotalUses, opt => opt.MapFrom(src => src.totalUses))
+               .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.id))
                ;
 
             // PpvModule to KalturaPpvModule

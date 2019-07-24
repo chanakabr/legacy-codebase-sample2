@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Web;
-using System.Web.Http;
-using System.Web.Http.Description;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
+
+#if NETSTANDARD2_0
+using Microsoft.AspNetCore.Mvc;
+#endif
+#if NET461
+using System.Web.Http.Description;
+#endif
 
 namespace WebAPI.Controllers
 {

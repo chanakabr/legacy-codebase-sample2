@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Web;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
-using WebAPI.Managers.Models;
 
 namespace WebAPI.Managers.Scheme
 {
@@ -41,8 +35,8 @@ namespace WebAPI.Managers.Scheme
         internal void Validate(string name, object value)
         {
             RequestType requiresPermission = RequestType.READ;
-            if (HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
-                requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
+            if (HttpContext.Current.Items[RequestContext.REQUEST_TYPE] != null)
+                requiresPermission = (RequestType)HttpContext.Current.Items[RequestContext.REQUEST_TYPE];
 
             if (DynamicType != null)
             {

@@ -1,7 +1,5 @@
 ﻿using ApiObjects.Response;
 using System;
-using System.Collections.Generic;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -54,7 +52,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, false, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
@@ -103,7 +101,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, assetId, productType, true, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
@@ -150,8 +148,9 @@ namespace WebAPI.Controllers
                 {
                     throw new ForbiddenException(ForbiddenException.HOUSEHOLD_FORBIDDEN, domain);
                 }
+
                 // call client
-                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId);
+                ClientsManager.ConditionalAccessClient().CancelSubscriptionRenewal(groupId, (int)domain, subscriptionId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID);
             }
             catch (ClientException ex)
             {
@@ -587,6 +586,32 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
             return null;
+        }
+        
+        /// <summary>
+        /// Apply new coupon for existing subscription
+        /// </summary>
+        /// <param name="purchaseId">purchase Id</param>
+        /// <param name="couponCode">coupon Code</param>
+        [Action("applyCoupon")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.CouponNotValid)]
+        [Throws(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription)]
+        static public void ApplyCoupon(long purchaseId, string couponCode)
+        {
+            var groupId = KS.GetFromRequest().GroupId;
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            var userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                ClientsManager.ConditionalAccessClient().ApplyCoupon(groupId, householdId, userId, purchaseId, couponCode );
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
         }
     }
 }

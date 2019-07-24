@@ -1,21 +1,16 @@
 ﻿using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Reflection;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Web.Http;
 using System.Xml.Serialization;
 using WebAPI.App_Start;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 
 namespace WebAPI.Exceptions
 {
@@ -416,7 +411,11 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists", "The PPV module doesn't exist in the database");
         public static ClientExceptionType PRICE_PLAN_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist", "The price plan doesn't exist in the database");
         public static ClientExceptionType PRICE_DETAILS_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist", "The price details doesn't exist in the database");
-
+        public static ClientExceptionType COUPON_CODE_IS_MISSING = new ClientExceptionType(eResponseStatus.CouponCodeIsMissing, "Coupon code is missing", "Coupon code is missing");
+        public static ClientExceptionType COUPON_CODE_ALREADY_LOADED = new ClientExceptionType(eResponseStatus.CouponCodeAlreadyLoaded, "Coupon code already loaded", "Coupon code already loaded");
+        public static ClientExceptionType COUPON_CODE_NOT_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.CouponCodeNotInHousehold, "The coupon code is not in household", "The coupon code is not in household");
+        public static ClientExceptionType EXCEEDED_HOUSEHOLD_COUPON_LIMIT = new ClientExceptionType(eResponseStatus.ExceededHouseholdCouponLimit, "Exceeded household coupon limit", "Exceeded household coupon limit");
+        
         #endregion
 
         #region Adapters 10000-10999

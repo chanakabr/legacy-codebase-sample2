@@ -1,31 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Controllers;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using WebAPI.Models.Renderers;
 using WebAPI.App_Start;
 using System.Collections;
+using System.IO;
 
 namespace Reflector
 {
     class Deserializer : Base
     {
-        public Deserializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonDeserializer.cs")
+
+        public static string GetJsonDeserializerCSFilePath()
+        {
+            var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\KalturaJsonDeserializer.cs");
+            return filePath;
+        }
+
+        public Deserializer() : base(GetJsonDeserializerCSFilePath())
         {
             types.Remove(typeof(KalturaOTTObject));
             types.Remove(typeof(KalturaApiExceptionArg));
             types.Remove(typeof(KalturaFilter<>));
             types.Remove(typeof(KalturaGenericListResponse<>));
+            types.Remove(typeof(KalturaListResponse<>));
         }
         
         protected override void writeHeader()
@@ -39,6 +42,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Reflection;");
+            file.WriteLine("using TVinciShared;");
         }
 
         protected override void writeBody()

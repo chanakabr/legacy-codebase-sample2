@@ -1,19 +1,11 @@
-﻿using ApiObjects;
-using ApiObjects.BulkUpload;
-using ApiObjects.Catalog;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
+﻿using ApiObjects.BulkUpload;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
-using TVinciShared;
 using WebAPI.App_Start;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.General;
 

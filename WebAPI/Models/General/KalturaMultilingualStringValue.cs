@@ -1,11 +1,6 @@
-﻿using ApiObjects;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using TVinciShared;
-using WebAPI.App_Start;
 
 namespace WebAPI.Models.General
 {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -204,7 +203,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, household.Name, household.Description, userId, household.ExternalId);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, household.Name, household.Description, userId, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
             {
@@ -243,7 +242,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId, external_id);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId, null, external_id);
             }
             catch (ClientException ex)
             {
@@ -436,7 +435,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.ExternalId);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, household.Name, household.Description, household.RegionId, household.ExternalId);
             }
             catch (ClientException ex)
             {
@@ -478,7 +477,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, name, description);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, name, description, null);
             }
             catch (ClientException ex)
             {

@@ -38,7 +38,15 @@ namespace Reflector
 
     class Serializer : Base
     {
-        public Serializer() : base("..\\..\\..\\WebAPI\\Reflection\\KalturaJsonSerializer.cs", typeof(IKalturaSerializable))
+        public static string GetJsonSerializerCSFilePath()
+        {
+            var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
+            var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
+            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\KalturaJsonSerializer.cs");
+            return filePath;
+        }
+
+        public Serializer() : base(GetJsonSerializerCSFilePath(), typeof(IKalturaSerializable))
         {
             types.Remove(typeof(StatusWrapper));
             types.Remove(typeof(KalturaSerializable));
@@ -55,6 +63,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
+            file.WriteLine("using TVinciShared;");
         }
 
         protected override void writeBody()
@@ -91,7 +100,7 @@ namespace Reflector
             
             if (properties.Any(doesPropertyRequiresReadPermission))
             {
-                file.WriteLine("            var requestType = HttpContext.Current.Items.Contains(RequestParser.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestParser.REQUEST_TYPE] : null;");
+                file.WriteLine("            var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;");
             }
 
             file.Write(Environment.NewLine);

@@ -13,8 +13,6 @@ using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using WebAPI.Models.Partner;
-using ApiObjects.Rules;
 using ApiObjects.Response;
 using WebAPI.Models.General;
 
@@ -110,7 +108,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, string externalId = null)
+        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, int? regionId, string externalId = null)
         {
             KalturaHousehold result = null;
 
@@ -122,11 +120,11 @@ namespace WebAPI.Clients
                 {
                     if (string.IsNullOrEmpty(externalId))
                     {
-                        response = Core.Domains.Module.AddDomain(groupId, domainName, domainDescription, int.Parse(masterUserId));
+                        response = Core.Domains.Module.AddDomain(groupId, domainName, domainDescription, int.Parse(masterUserId), regionId);
                     }
                     else
                     {
-                        response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId);
+                        response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId, regionId);
                     }
                 }
             }
@@ -627,7 +625,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description, string externalId = null)
+        internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description, int? regionId, string externalId = null)
         {
             KalturaHousehold result = null;
             DomainStatusResponse response = null;
@@ -637,7 +635,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SetDomainInfo(groupId, domainId, name, description, externalId);
+                    response = Core.Domains.Module.SetDomainInfo(groupId, domainId, name, description, regionId, externalId);
                 }
             }
             catch (Exception ex)

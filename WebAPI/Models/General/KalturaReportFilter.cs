@@ -1,9 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using WebAPI.Models.General;
-
-namespace WebAPI.Models.General
+﻿namespace WebAPI.Models.General
 {
     public enum KalturaReportOrderBy
     {

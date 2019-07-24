@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
@@ -17,7 +14,8 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base filter
     /// </summary>
-    public abstract partial class KalturaFilter<KalturaT> : KalturaOTTObject, IKalturaFilter where KalturaT : struct, IComparable, IFormattable, IConvertible
+    public abstract partial class KalturaFilter<KalturaT> : KalturaOTTObject, IKalturaFilter 
+        where KalturaT : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// order by

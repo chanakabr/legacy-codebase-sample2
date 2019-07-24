@@ -1,26 +1,10 @@
 ﻿using KLogMonitor;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http.Controllers;
-using ConfigurationManager;
-using ConfigurationManager.Types;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Upload;
-using Exception = System.Exception;
-using UriBuilder = System.UriBuilder;
-using WebAPI.Utils;
 using ApiLogic;
 
 namespace WebAPI.Managers

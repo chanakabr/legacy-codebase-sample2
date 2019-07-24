@@ -11,23 +11,14 @@ using Core.ConditionalAccess.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.ServiceModel;
-using System.Web;
-using ApiObjects.Rules;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
-using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 using TVinciShared;
@@ -43,7 +34,7 @@ namespace WebAPI.Clients
 
         }
 
-        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce)
+        public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce, string udid)
         {
             Status response = null;
 
@@ -54,7 +45,7 @@ namespace WebAPI.Clients
                     // convert local enu, to ws enum
                     eTransactionType eTransactionType = Mapper.Map<eTransactionType>(transaction_type);
 
-                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce);
+                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce, udid);
                 }
             }
             catch (Exception ex)
@@ -76,7 +67,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
+        public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code, string userId, string udid)
         {
             Status response = null;
 
@@ -84,7 +75,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.ConditionalAccess.Module.CancelSubscriptionRenewal(groupId, domain_id, subscription_code);
+                    response = Core.ConditionalAccess.Module.CancelSubscriptionRenewal(groupId, domain_id, subscription_code, userId, udid, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -2579,6 +2570,12 @@ namespace WebAPI.Clients
             recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
 
             return recording;
+        }
+        
+        internal void ApplyCoupon(int groupId, long domainId, string userId, long purchaseId, string couponCode)
+        {
+            Func<Status> applyCouponFunc = () => Core.ConditionalAccess.Module.ApplyCoupon(groupId, domainId, userId, purchaseId, couponCode);
+            ClientUtils.GetResponseStatusFromWS(applyCouponFunc);
         }
     }
 }

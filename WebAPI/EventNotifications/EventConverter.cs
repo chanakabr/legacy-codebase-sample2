@@ -1,11 +1,7 @@
 ﻿using ApiObjects;
-using EventManager;
 using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using WebAPI.Filters;
 using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
@@ -53,7 +49,7 @@ namespace WebAPI.EventNotifications
             }
 
             string systemName = objectEvent.GetSystemName();
-            var userIp = HttpContext.Current.Items[RequestParser.USER_IP]?.ToString();
+            var userIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString();
 
             KalturaNotification eventWrapper = new KalturaNotification()
             {
@@ -63,7 +59,7 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                UniqueId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
+                SequenceId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
             };
 
             return eventWrapper;

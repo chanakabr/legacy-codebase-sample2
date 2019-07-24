@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 
@@ -63,11 +60,11 @@ namespace WebAPI.Models.General
         [SchemeProperty(ReadOnly = true)]
         public string UserIp { get; set; }
 
-        [DataMember(Name = "uniqueId")]
-        [JsonProperty(PropertyName = "uniqueId")]
-        [XmlElement(ElementName = "uniqueId", IsNullable = true)]
+        [DataMember(Name = "sequenceId")]
+        [JsonProperty(PropertyName = "sequenceId")]
+        [XmlElement(ElementName = "sequenceId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public string UniqueId { get; set; }
+        public string SequenceId { get; set; }
     }
 
     [Serializable]
