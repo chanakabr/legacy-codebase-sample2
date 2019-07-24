@@ -913,6 +913,9 @@ namespace AdapterControllers.PlaybackAdapter {
         private System.Nullable<bool> StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string TypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> TypeIdField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -1158,6 +1161,19 @@ namespace AdapterControllers.PlaybackAdapter {
                 if ((this.StatusField.Equals(value) != true)) {
                     this.StatusField = value;
                     this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Type {
+            get {
+                return this.TypeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.TypeField, value) != true)) {
+                    this.TypeField = value;
+                    this.RaisePropertyChanged("Type");
                 }
             }
         }
