@@ -82,7 +82,7 @@ public partial class adm_group_regions : System.Web.UI.Page
         theTable += " from linear_channels_regions lcr (nolock) left join groups g (nolock) on lcr.group_id = g.id and lcr.id = g.default_region	where";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("lcr.group_id", "=", nGroupID);
         theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("lcr.status", "=", 1);
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("lcr.status", "<>", 2);
         if (sOrderBy != "")
         {
             theTable += " order by ";
