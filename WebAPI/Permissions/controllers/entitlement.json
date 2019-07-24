@@ -140,6 +140,18 @@
       "service": "Entitlement",
       "action": "Swap",
       "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Entitlement_ApplyCoupon",
+      "service": "Entitlement",
+      "action": "ApplyCoupon",
+      "type": "Action"
     }
   ],
   "type": "Action"

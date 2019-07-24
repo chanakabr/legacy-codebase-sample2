@@ -7825,18 +7825,18 @@ namespace WebAPI.Reflection
                 case "householdcoupon":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("householdCoupon", "add", false);
-                            return HouseholdCouponController.Add((KalturaHouseholdCoupon) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("householdCoupon", "delete", false);
-                            HouseholdCouponController.Delete((string) methodParams[0]);
-                            return null;
-                            
                         case "list":
                             RolesManager.ValidateActionPermitted("householdCoupon", "list", false);
                             return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
+                            
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdcoupon", "add");
+                            return HouseholdCouponController.Add((KalturaHouseholdCoupon) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdcoupon", "delete");
+                            HouseholdCouponController.Delete((string) methodParams[0]);
+                            return null;
                             
                     }
                     break;
@@ -12769,14 +12769,14 @@ namespace WebAPI.Reflection
                             });
                             paramName = "productType";
                             newParamName = null;
-                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
-                            {
-                                paramName = "transactionType";
-                                newParamName = "productType";
-                            }
                             if(isOldVersion)
                             {
                                 paramName = "transaction_type";
+                                newParamName = "productType";
+                            }
+                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
+                            {
+                                paramName = "transactionType";
                                 newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
@@ -12836,14 +12836,14 @@ namespace WebAPI.Reflection
                             });
                             paramName = "productType";
                             newParamName = null;
-                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
-                            {
-                                paramName = "transactionType";
-                                newParamName = "productType";
-                            }
                             if(isOldVersion)
                             {
                                 paramName = "transaction_type";
+                                newParamName = "productType";
+                            }
+                            if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
+                            {
+                                paramName = "transactionType";
                                 newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
@@ -13557,21 +13557,6 @@ namespace WebAPI.Reflection
                 case "householdcoupon":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("householdCoupon", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaHouseholdCoupon),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("code", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(string),
-                            });
-                            return ret;
-                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -13579,6 +13564,21 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHouseholdCouponFilter),
+                            });
+                            return ret;
+                            
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdCoupon),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
                             });
                             return ret;
                             
@@ -14426,14 +14426,14 @@ namespace WebAPI.Reflection
                         case "get":
                             paramName = "messageType";
                             newParamName = null;
-                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
-                            {
-                                paramName = "assetType";
-                                newParamName = "messageType";
-                            }
                             if(isOldVersion)
                             {
                                 paramName = "asset_Type";
+                                newParamName = "messageType";
+                            }
+                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
+                            {
+                                paramName = "assetType";
                                 newParamName = "messageType";
                             }
                             ret.Add(paramName, new MethodParam(){
@@ -14454,14 +14454,14 @@ namespace WebAPI.Reflection
                         case "update":
                             paramName = "messageType";
                             newParamName = null;
-                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
-                            {
-                                paramName = "assetType";
-                                newParamName = "messageType";
-                            }
                             if(isOldVersion)
                             {
                                 paramName = "asset_Type";
+                                newParamName = "messageType";
+                            }
+                            if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
+                            {
+                                paramName = "assetType";
                                 newParamName = "messageType";
                             }
                             ret.Add(paramName, new MethodParam(){

@@ -7,18 +7,14 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Http;
 using System.Xml;
 using WebAPI.App_Start;
 using WebAPI.Controllers;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Renderers;
-using System.Net.Http;
 using Newtonsoft.Json;
-using WebAPI.Utils;
 using TVinciShared;
 using WebAPI.Models.API;
 using WebAPI;
@@ -645,7 +641,7 @@ namespace Validator.Managers.Scheme
         private void writeService(Type controller)
         {
             if (controller.IsAbstract) { return ; }
-
+            var name = controller.Name;
             var serviceId = SchemeManager.getServiceId(controller);
 
             writer.WriteStartElement("service");
@@ -671,6 +667,18 @@ namespace Validator.Managers.Scheme
 
                 writeAction(method);
             };
+
+            if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes))
+            {
+                var baseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
+
+                WriteCrudAction(AddActionAttribute.Add, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(UpdateActionAttribute.Update, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(DeleteActionAttribute.Delete, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(GetActionAttribute.Get, controller, crudActionAttributes, baseCrudActions);
+                // TODO SHIR - finish to WriteCrudAction for LIST action
+                WriteCrudAction(ListActionAttribute.List, controller, crudActionAttributes, baseCrudActions);
+            }
 
             writer.WriteEndElement(); // service
         }
@@ -750,6 +758,78 @@ namespace Validator.Managers.Scheme
                 writer.WriteEndElement(); // throws
             }
 
+            writer.WriteEndElement(); // action
+        }
+
+        private void WriteCrudAction(string actionName, Type controller, Dictionary<string, CrudActionAttribute> crudActionAttributes, Dictionary<string, MethodInfo> baseCrudActions)
+        {
+            if (!crudActionAttributes.ContainsKey(actionName) || !baseCrudActions.ContainsKey(actionName)) { return; }
+            var actionAttribute = crudActionAttributes[actionName];
+
+            string serviceId = SchemeManager.getServiceId(controller);
+            string actionId = actionAttribute.Name;
+            
+            writer.WriteStartElement("action");
+            writer.WriteAttributeString("name", actionId);
+            writer.WriteAttributeString("enableInMultiRequest", "1");
+            writer.WriteAttributeString("supportedRequestFormats", "json");
+            writer.WriteAttributeString("supportedResponseFormats", "json,xml");
+            writer.WriteAttributeString("description", actionAttribute.Summary);
+            writer.WriteAttributeString("sessionRequired", "always");
+
+            var parameters = baseCrudActions[actionName].GetParameters();
+            foreach (var param in parameters)
+            {
+                writer.WriteStartElement("param");
+                writer.WriteAttributeString("name", param.Name);
+                appendType(param.ParameterType);
+
+                if (param.IsOptional)
+                {
+                    writer.WriteAttributeString("default", param.DefaultValue == null ? "null" : (param.DefaultValue is bool ? param.DefaultValue.ToString().ToLower() : param.DefaultValue.ToString()));
+                }
+
+                writer.WriteAttributeString("description", actionAttribute.GetDescription(param.Name));
+                writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
+                writer.WriteEndElement(); // param
+            }
+
+            writer.WriteStartElement("result");
+            if (baseCrudActions[actionName].ReturnType != typeof(void))
+            {
+                appendType(baseCrudActions[actionName].ReturnType);
+            }
+            writer.WriteEndElement(); // result
+
+            // write throws
+            if (actionAttribute.ApiThrows != null && actionAttribute.ApiThrows.Length > 0)
+            {
+                foreach (var apiCode in actionAttribute.ApiThrows)
+                {
+                    if (errors.ContainsKey((int)apiCode))
+                    {
+                        writer.WriteStartElement("throws");
+                        var exceptionType = errors[(int)apiCode] as ApiException.ApiExceptionType;
+                        writer.WriteAttributeString("name", exceptionType.name);
+                        writer.WriteEndElement(); // throws
+                    }
+                }
+            }
+
+            if ((actionAttribute.ClientThrows != null && actionAttribute.ClientThrows.Length > 0))
+            {
+                foreach (var clientCode in actionAttribute.ClientThrows)
+                {
+                    if (errors.ContainsKey((int)clientCode))
+                    {
+                        writer.WriteStartElement("throws");
+                        var exceptionType = errors[(int)clientCode] as ApiException.ClientExceptionType;
+                        writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                        writer.WriteEndElement(); // throws
+                    }
+                }
+            }
+           
             writer.WriteEndElement(); // action
         }
 
@@ -1048,15 +1128,16 @@ namespace Validator.Managers.Scheme
 
             if (type.IsGenericType)
             {
-
-                //if List
-                if (type.GetGenericTypeDefinition() == typeof(List<>))
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+                
+                if (genericTypeDefinition == typeof(List<>))
                 {
                     writer.WriteAttributeString("type", "array");
                     writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[0]));
                     return;
                 }
-                else if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
+
+                if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
                 {
                     writer.WriteAttributeString("type", "map");
                     writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[1]));
@@ -1066,6 +1147,5 @@ namespace Validator.Managers.Scheme
 
             writer.WriteAttributeString("type", getTypeName(type));
         }
-
     }
 }

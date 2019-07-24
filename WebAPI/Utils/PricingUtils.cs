@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Core.Pricing;
 using KLogMonitor;
 using System;
@@ -26,7 +27,7 @@ namespace WebAPI.Utils
                     List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
                     if (profiles != null && profiles.Count > 0)
                     {
-                        profileName = profiles.Where(x => x.Filter is KalturaHouseoldCouponCodeFilter).Select(x => x.Name).FirstOrDefault();
+                        profileName = profiles.FirstOrDefault(x => x.Filter is KalturaHouseoldCouponCodeFilter).Name;
                     }
                 }
 

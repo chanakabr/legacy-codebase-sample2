@@ -114,6 +114,16 @@ namespace WebAPI.Filters
                 newResponse.Headers.Add(header.Key, header.Value);
             }
 
+            // BEO-7013 - add all invalidation keys to header
+            if (HttpContext.Current?.Items != null && HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.CURRENT_REQUEST_LAYERED_CACHE] != null &&
+                HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.CURRENT_REQUEST_LAYERED_CACHE] is CachingProvider.LayeredCache.RequestLayeredCache)
+            {
+                var requestLayeredCache = HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.CURRENT_REQUEST_LAYERED_CACHE] as
+                    CachingProvider.LayeredCache.RequestLayeredCache;
+                string invalidationKeysString = string.Join(";", requestLayeredCache.invalidationKeysToKeys.Keys);
+                newResponse.Headers.Add(CachingProvider.LayeredCache.LayeredCache.INVALIDATION_KEYS_HEADER, invalidationKeysString);
+            }
+
             return newResponse;
         }
 
