@@ -11605,7 +11605,7 @@
             Holder object for Household With enum
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseoldCouponCodeFilter">
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdCouponCodeFilter">
             <summary>
             Kaltura Houseold CouponCode Filter
             </summary>
@@ -14519,6 +14519,11 @@
         <member name="P:WebAPI.Models.Segmentation.KalturaMonetizationCondition.Operator">
             <summary>
             Mathermtical operator to calculate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaMonetizationCondition.BusinessModuleIdIn">
+            <summary>
+            Comma saperated list of business module IDs
             </summary>
         </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaSegmentAllValues">

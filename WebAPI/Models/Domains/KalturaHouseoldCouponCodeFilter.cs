@@ -1,8 +1,5 @@
-﻿using ApiObjects.Base;
-using WebAPI.Managers.Scheme;
+﻿using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
 
 namespace WebAPI.Models.Domains
 {
@@ -17,7 +14,7 @@ namespace WebAPI.Models.Domains
             return KalturaHouseoldCouponCodeOrderBy.NONE;
         }
     }
-
+    
     public enum KalturaHouseoldCouponCodeOrderBy
     {
         NONE

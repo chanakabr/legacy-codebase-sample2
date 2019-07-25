@@ -177,6 +177,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
+        [Throws(eResponseStatus.RegionDoesNotExist)]
         static public KalturaHousehold Add(KalturaHousehold household)
         {
             KalturaHousehold response = null;
@@ -420,6 +421,7 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.RegionDoesNotExist)]
         static public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;

@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using System.Collections.Generic;
 
 namespace WebAPI.Models.Segmentation
 {
@@ -54,5 +55,19 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "operator")]
         [SchemeProperty()]
         public KalturaMathemticalOperatorType Operator { get; set; }
+
+        /// <summary>
+        /// Comma saperated list of business module IDs
+        /// </summary>
+        [DataMember(Name = "businessModuleIdIn")]
+        [JsonProperty(PropertyName = "businessModuleIdIn")]
+        [XmlElement(ElementName = "businessModuleIdIn")]
+        [SchemeProperty()]
+        public string BusinessModuleIdIn { get; set; }
+
+        internal List<int> GetBusinessModuleIdIn()
+        {
+            return this.GetItemsIn<List<int>, int>(BusinessModuleIdIn, "KalturaMonetizationCondition.businessModuleIdIn");
+        }
     }
 }

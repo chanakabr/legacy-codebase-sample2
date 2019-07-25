@@ -5,10 +5,10 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaHousehold_UserId_Update",
+      "name": "KalturaHousehold_RegionId_Add",
       "object": "KalturaHousehold",
       "parameter": "RegionId",
-      "action": "UPDATE",
+      "action": "INSERT",
       "type": "Parameter"
     },
     {
@@ -16,10 +16,10 @@
         "Operator"
       ],
       "excluded_permissions": [],
-      "name": "KalturaHousehold_UserId_Add",
+      "name": "KalturaHousehold_RegionId_Update",
       "object": "KalturaHousehold",
       "parameter": "RegionId",
-      "action": "INSERT",
+      "action": "UPDATE",
       "type": "Parameter"
     }
   ],

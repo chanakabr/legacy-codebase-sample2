@@ -782,6 +782,9 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdCoupon":
                     return new KalturaHouseholdCoupon(parameters);
                     
+                case "KalturaHouseholdCouponCodeFilter":
+                    return new KalturaHouseholdCouponCodeFilter(parameters);
+                    
                 case "KalturaHouseholdCouponFilter":
                     return new KalturaHouseholdCouponFilter(parameters);
                     
@@ -838,9 +841,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaHouseholdWithHolder":
                     return new KalturaHouseholdWithHolder(parameters);
-                    
-                case "KalturaHouseoldCouponCodeFilter":
-                    return new KalturaHouseoldCouponCodeFilter(parameters);
                     
                 case "KalturaHttpNotification":
                     return new KalturaHttpNotification(parameters);
@@ -22797,6 +22797,16 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute BusinessModuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaMonetizationCondition(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -22852,6 +22862,14 @@ namespace WebAPI.Models.Segmentation
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaMathemticalOperatorType)));
                     }
+                }
+                if (parameters.ContainsKey("businessModuleIdIn") && parameters["businessModuleIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        BusinessModuleIdInSchemaProperty.Validate("businessModuleIdIn", parameters["businessModuleIdIn"]);
+                    }
+                    BusinessModuleIdIn = (String) Convert.ChangeType(parameters["businessModuleIdIn"], typeof(String));
                 }
             }
         }
@@ -25885,6 +25903,12 @@ namespace WebAPI.Models.Domains
             }
         }
     }
+    public partial class KalturaHouseholdCouponCodeFilter
+    {
+        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaHouseholdCouponFilter
     {
         private static RuntimeSchemePropertyAttribute BusinessModuleIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCouponFilter")
@@ -26664,12 +26688,6 @@ namespace WebAPI.Models.Domains
                     }
                 }
             }
-        }
-    }
-    public partial class KalturaHouseoldCouponCodeFilter
-    {
-        public KalturaHouseoldCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
 }
