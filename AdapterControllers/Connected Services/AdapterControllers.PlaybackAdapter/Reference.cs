@@ -662,6 +662,8 @@ namespace AdapterControllers.PlaybackAdapter
         
         private System.Nullable<bool> StatusField;
         
+        private string TypeField;
+        
         private System.Nullable<int> TypeIdField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -908,6 +910,19 @@ namespace AdapterControllers.PlaybackAdapter
             set
             {
                 this.StatusField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Type
+        {
+            get
+            {
+                return this.TypeField;
+            }
+            set
+            {
+                this.TypeField = value;
             }
         }
         
