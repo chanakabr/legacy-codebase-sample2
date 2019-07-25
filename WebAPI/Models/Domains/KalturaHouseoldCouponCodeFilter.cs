@@ -7,15 +7,20 @@ namespace WebAPI.Models.Domains
     /// Kaltura Houseold CouponCode Filter
     /// </summary>
     [SchemeBase(typeof(KalturaRelatedObjectFilter))]
-    public partial class KalturaHouseoldCouponCodeFilter : KalturaFilter<KalturaAggregationCountOrderBy>, KalturaRelatedObjectFilter
+    public partial class KalturaHouseholdCouponCodeFilter : KalturaFilter<KalturaHouseholdCouponCodeFilterOrderBy>, KalturaRelatedObjectFilter
     {
         internal virtual void Validate()
         {
         }
 
-        public override KalturaAggregationCountOrderBy GetDefaultOrderByValue()
+        public override KalturaHouseholdCouponCodeFilterOrderBy GetDefaultOrderByValue()
         {
-            return KalturaAggregationCountOrderBy.NONE;
+            return KalturaHouseholdCouponCodeFilterOrderBy.NONE;
         }
+    }
+
+    public enum KalturaHouseholdCouponCodeFilterOrderBy
+    {
+        NONE
     }
 }

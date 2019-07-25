@@ -27,7 +27,7 @@ namespace WebAPI.Utils
                     List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
                     if (profiles != null && profiles.Count > 0)
                     {
-                        profileName = profiles.FirstOrDefault(x => x.Filter is KalturaHouseoldCouponCodeFilter).Name;
+                        profileName = profiles.FirstOrDefault(x => x.Filter is KalturaHouseholdCouponCodeFilter).Name;
                     }
                 }
 
