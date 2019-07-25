@@ -782,9 +782,6 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdCoupon":
                     return new KalturaHouseholdCoupon(parameters);
                     
-                case "KalturaHouseholdCouponCodeFilter":
-                    return new KalturaHouseholdCouponCodeFilter(parameters);
-                    
                 case "KalturaHouseholdCouponFilter":
                     return new KalturaHouseholdCouponFilter(parameters);
                     
@@ -841,6 +838,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaHouseholdWithHolder":
                     return new KalturaHouseholdWithHolder(parameters);
+                    
+                case "KalturaHouseoldCouponCodeFilter":
+                    return new KalturaHouseoldCouponCodeFilter(parameters);
                     
                 case "KalturaHttpNotification":
                     return new KalturaHttpNotification(parameters);
@@ -15075,12 +15075,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16197,12 +16197,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
-            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17605,12 +17605,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute SegmentsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentsCondition")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17635,12 +17635,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCondition")
         {
-            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
+            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -25903,12 +25903,6 @@ namespace WebAPI.Models.Domains
             }
         }
     }
-    public partial class KalturaHouseholdCouponCodeFilter
-    {
-        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaHouseholdCouponFilter
     {
         private static RuntimeSchemePropertyAttribute BusinessModuleIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCouponFilter")
@@ -26688,6 +26682,12 @@ namespace WebAPI.Models.Domains
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaHouseoldCouponCodeFilter
+    {
+        public KalturaHouseoldCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
 }

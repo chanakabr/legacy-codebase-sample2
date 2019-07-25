@@ -11605,7 +11605,7 @@
             Holder object for Household With enum
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseholdCouponCodeFilter">
+        <member name="T:WebAPI.Models.Domains.KalturaHouseoldCouponCodeFilter">
             <summary>
             Kaltura Houseold CouponCode Filter
             </summary>
