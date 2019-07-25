@@ -1658,7 +1658,7 @@ namespace Core.ConditionalAccess
             if (renewDetails.RecurringData == null)
             {
                 var couponCode = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "coupon_code");
-                renewDetails.RecurringData = EntitelemantManager.InitializeRecurringRenewDetails(groupId, subscriptionRenealDataRow, renewDetails.PurchaseId, subscription, renewDetails.BillingGuid, couponCode);
+                renewDetails.RecurringData = EntitlementManager.InitializeRecurringRenewDetails(groupId, subscriptionRenealDataRow, renewDetails.PurchaseId, subscription, renewDetails.BillingGuid, couponCode);
             }
 
             renewDetails.PaymentNumber = Utils.CalcPaymentNumber(renewDetails.NumOfPayments, renewDetails.PaymentNumber, renewDetails.RecurringData.IsPurchasedWithPreviewModule);
@@ -2207,7 +2207,7 @@ namespace Core.ConditionalAccess
             if (renewDetails.RecurringData == null)
             {
                 var couponCode = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "COUPON_CODE");
-                renewDetails.RecurringData = EntitelemantManager.InitializeRecurringRenewDetails(groupId, renewDetailsRow, purchaseId, subscription, couponCode);
+                renewDetails.RecurringData = EntitlementManager.InitializeRecurringRenewDetails(groupId, renewDetailsRow, purchaseId, subscription, couponCode);
             }
             renewDetails.PaymentNumber = Utils.CalcPaymentNumber(renewDetails.NumOfPayments, renewDetails.PaymentNumber, renewDetails.RecurringData.IsPurchasedWithPreviewModule);
             
@@ -2266,7 +2266,7 @@ namespace Core.ConditionalAccess
                     if (renewDetails.RecurringData == null)
                     {
                         var couponCode = ODBCWrapper.Utils.ExtractString(dr, "coupon_code");
-                        renewDetails.RecurringData = EntitelemantManager.InitializeRecurringRenewDetails(groupId, dr, renewDetails.PurchaseId, subscription, renewDetails.BillingGuid, couponCode);
+                        renewDetails.RecurringData = EntitlementManager.InitializeRecurringRenewDetails(groupId, dr, renewDetails.PurchaseId, subscription, renewDetails.BillingGuid, couponCode);
                     }
 
                     renewDetails.PaymentNumber = Utils.CalcPaymentNumber(renewDetails.NumOfPayments, renewDetails.PaymentNumber, renewDetails.RecurringData.IsPurchasedWithPreviewModule);

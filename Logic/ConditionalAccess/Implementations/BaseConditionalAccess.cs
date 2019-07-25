@@ -4344,7 +4344,7 @@ namespace Core.ConditionalAccess
         /// </summary>
         public virtual Entitlements GetUsersEntitlementPPVItems(List<int> lUsersIDs, bool isExpired, int domainID = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0, EntitlementOrderBy orderBy = EntitlementOrderBy.PurchaseDateAsc)
         {
-            return EntitelemantManager.GetUsersEntitlementPPVItems(this, m_nGroupID, lUsersIDs, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+            return EntitlementManager.GetUsersEntitlementPPVItems(this, m_nGroupID, lUsersIDs, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
         }
 
         /// <summary>
@@ -8981,7 +8981,7 @@ namespace Core.ConditionalAccess
         /// <returns></returns>
         public EntitlementResponse GetEntitlement(string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, bool isRecording = false)
         {
-            return EntitelemantManager.GetEntitlement(this, m_nGroupID, p_sMediaFileID, p_sSiteGUID, p_bIsCoGuid, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, isRecording);
+            return EntitlementManager.GetEntitlement(this, m_nGroupID, p_sMediaFileID, p_sSiteGUID, p_bIsCoGuid, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME, isRecording);
         }
 
         /// <summary>
@@ -11412,12 +11412,12 @@ namespace Core.ConditionalAccess
                         }
                     case eTransactionType.Subscription:
                         {
-                            response = EntitelemantManager.GetUsersEntitlementSubscriptionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+                            response = EntitlementManager.GetUsersEntitlementSubscriptionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
                             break;
                         }
                     case eTransactionType.Collection:
                         {
-                            response = EntitelemantManager.GetUsersEntitlementCollectionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
+                            response = EntitlementManager.GetUsersEntitlementCollectionsItems(this, m_nGroupID, userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex, orderBy);
                             break;
                         }
                     default:
@@ -17000,7 +17000,7 @@ namespace Core.ConditionalAccess
 
         public Entitlements UpdateEntitlement(long domainID, ConditionalAccess.Response.Entitlement entitlement)
         {
-            return EntitelemantManager.UpdateEntitlement(this, m_nGroupID, domainID, entitlement);
+            return EntitlementManager.UpdateEntitlement(this, m_nGroupID, domainID, entitlement);
         }
 
         public ApiObjects.Response.Status SwapSubscription(string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)
@@ -17038,17 +17038,17 @@ namespace Core.ConditionalAccess
 
         public CompensationResponse AddCompensation(string userId, Compensation compensation)
         {
-            return EntitelemantManager.AddCompensation(this, m_nGroupID, userId, compensation);
+            return EntitlementManager.AddCompensation(this, m_nGroupID, userId, compensation);
         }
 
         public ApiObjects.Response.Status DeleteCompensation(long compensationId)
         {
-            return EntitelemantManager.DeleteCompensation(this, m_nGroupID, compensationId);
+            return EntitlementManager.DeleteCompensation(this, m_nGroupID, compensationId);
         }
 
         public CompensationResponse GetCompensation(long compensationId)
         {
-            return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
+            return EntitlementManager.GetCompensation(this, m_nGroupID, compensationId);
         }
 
         public virtual TransactionResponse UpgradeSubscription(string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp, string udid,
@@ -17081,7 +17081,7 @@ namespace Core.ConditionalAccess
 
         public ApiObjects.Response.Status CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)
         {
-            return EntitelemantManager.CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);
+            return EntitlementManager.CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);
         }
 
         internal APILogic.ConditionalAccess.AdsControlResponse GetAdsContext(string userId, string udid, string ip, string assetId, eAssetTypes assetType,
@@ -17419,7 +17419,7 @@ namespace Core.ConditionalAccess
 
         internal ApiObjects.Response.Status ApplyCoupon(long domainId, string userId, long purchaseId, string couponCode)
         {
-            return EntitelemantManager.ApplyCoupon(this, this.m_nGroupID, domainId, userId, purchaseId, couponCode);
+            return EntitlementManager.ApplyCoupon(this, this.m_nGroupID, domainId, userId, purchaseId, couponCode);
         }
     }
 }
