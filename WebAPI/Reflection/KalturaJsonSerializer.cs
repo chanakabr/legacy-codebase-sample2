@@ -5535,6 +5535,11 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
             ret.Add("totalCount", "\"totalCount\": " + TotalCount);
             return ret;
         }
@@ -5545,6 +5550,11 @@ namespace WebAPI.Models.General
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
             ret.Add("totalCount", "<totalCount>" + TotalCount + "</totalCount>");
             return ret;
         }
@@ -18623,11 +18633,6 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -18637,11 +18642,6 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }
@@ -25671,11 +25671,6 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Objects != null)
-            {
-                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -25685,11 +25680,6 @@ namespace WebAPI.Models.Domains
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(Objects != null)
-            {
-                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }

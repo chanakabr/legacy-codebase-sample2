@@ -1,4 +1,5 @@
-﻿using WebAPI.Managers.Scheme;
+﻿using ApiObjects.Base;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.General
 {

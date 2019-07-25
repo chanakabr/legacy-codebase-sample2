@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Base;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -81,12 +82,24 @@ namespace WebAPI.Models.General
     public interface IKalturaOTTObject
     {
     }
-
+    
     /// <summary>
     /// Base class
     /// </summary>
     public partial class KalturaOTTObject : KalturaSerializable, IKalturaOTTObject
     {
+        [DataMember(Name = "objectType")]
+        [JsonProperty(PropertyName = "objectType")]
+        [XmlElement(ElementName = "objectType")]
+        public string objectType { get { return this.GetType().Name; } set { } }
+
+        [DataMember(Name = "relatedObjects")]
+        [JsonProperty(PropertyName = "relatedObjects")]
+        [XmlElement(ElementName = "relatedObjects")]
+        public SerializableDictionary<string, IKalturaListResponse> relatedObjects { get; set; }
+
+        public virtual void SetRelatedObjects(ContextData contextData, KalturaDetachedResponseProfile profile) { }
+        
         public KalturaOTTObject(Dictionary<string, object> parameters = null)
         {
             Init();
@@ -196,38 +209,23 @@ namespace WebAPI.Models.General
             dynamic res = Activator.CreateInstance(type);
 
             Type itemType = type.GetGenericArguments()[1];
-            foreach (string key in dictionary.Keys)
+            foreach (string itemKey in dictionary.Keys)
             {
-                JToken item = (JToken)dictionary[key];
-
                 if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    var itemObject = Deserializer.deserialize(itemType, item.ToObject<Dictionary<string, object>>());
-                    res.Add(key, (dynamic)Convert.ChangeType(itemObject, itemType));
+                    var itemValue = (JToken)dictionary[itemKey];
+                    var itemObject = Deserializer.deserialize(itemType, itemValue.ToObject<Dictionary<string, object>>());
+                    res.Add(itemKey, (dynamic)Convert.ChangeType(itemObject, itemType));
                 }
                 else
                 {
-                    res.Add(key, (dynamic)Convert.ChangeType(dictionary[key], itemType));
+                    res.Add(itemKey, (dynamic)Convert.ChangeType(dictionary[itemKey], itemType));
                 }
             }
 
             return res;
         }
-
-        [DataMember(Name = "objectType")]
-        [JsonProperty(PropertyName = "objectType")]
-        [XmlElement(ElementName = "objectType")]
-        public string objectType { get { return this.GetType().Name; } set { } }
-
-        [DataMember(Name = "relatedObjects")]
-        [JsonProperty(PropertyName = "relatedObjects")]
-        [XmlElement(ElementName = "relatedObjects")]
-        public SerializableDictionary<string, KalturaListResponse> relatedObjects
-        {
-            get;
-            set;
-        }
-
+        
         public virtual void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)
         {
 
@@ -290,7 +288,7 @@ namespace WebAPI.Models.General
             return values;
         }
     }
-
+    
     /// <summary>
     /// Base class
     /// </summary>

@@ -136,22 +136,7 @@ namespace Reflector
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
-
-        private string varToString(object value)
-        {
-            if (value == null)
-            {
-                return "null";
-            }
-
-            if (value is bool)
-            {
-                return value.ToString().ToLower();
-            }
-
-            return value.ToString();
-        }
-
+        
         private void WriteGetMethodParams()
         {
             List<PropertyInfo> schemeArgumentProperties = typeof(SchemeArgumentAttribute).GetProperties().ToList();
@@ -273,12 +258,11 @@ namespace Reflector
                         BaseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
                     }
 
-                    WriteCrudActionParams(AddActionAttribute.Add, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(UpdateActionAttribute.Update, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(DeleteActionAttribute.Delete, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(GetActionAttribute.Get, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    // TODO SHIR - finish to WriteCrudActionParams for LIST action
-                    WriteCrudActionParams(ListActionAttribute.List, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(AddActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(UpdateActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(DeleteActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(GetActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                    WriteCrudActionParams(ListActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
                 }
 
                 file.WriteLine("                    }");
@@ -298,11 +282,11 @@ namespace Reflector
             if (crudActionAttributes.ContainsKey(actionName) && crudActions.ContainsKey(actionName))
             {
                 var actionAttribute = crudActions[actionName].GetCustomAttribute<ActionAttribute>(true);
-                WriteActionParams(actionAttribute, crudActions[actionName], schemeArgumentProperties, serviceAttribute);
+                WriteActionParams(actionAttribute, crudActions[actionName], schemeArgumentProperties, serviceAttribute, crudActionAttributes[actionName].GetOptionalParameters());
             }
         }
 
-        private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute)
+        private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute, HashSet<string> optionalParameters = null)
         {
             file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
 
@@ -351,10 +335,10 @@ namespace Reflector
 
                 file.WriteLine("                            ret.Add(" + paramName + ", new MethodParam(){");
                 file.WriteLine("                                NewName = newParamName,");
-                if (parameter.IsOptional)
+                if (SchemeManager.IsParameterOptional(parameter, optionalParameters))
                 {
                     file.WriteLine("                                IsOptional = true,");
-                    file.WriteLine("                                DefaultValue = " + varToString(parameter.DefaultValue) + ",");
+                    file.WriteLine("                                DefaultValue = " + SchemeManager.VarToString(parameter.DefaultValue) + ",");
                 }
 
                 // write param type
@@ -652,12 +636,11 @@ namespace Reflector
                         BaseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
                     }
                         
-                    WriteCrudAction(AddActionAttribute.Add, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(UpdateActionAttribute.Update, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(DeleteActionAttribute.Delete, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(GetActionAttribute.Get, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    // TODO SHIR - finish to WriteCrudAction for LIST action
-                    WriteCrudAction(ListActionAttribute.List, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(AddActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(UpdateActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(DeleteActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(GetActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
+                    WriteCrudAction(ListActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
                 }
 
                 file.WriteLine("                    }");
@@ -711,22 +694,19 @@ namespace Reflector
             {
                 needed = false;
 
-                List<PropertyInfo> properties = type.GetProperties().ToList();
+                List<PropertyInfo> properties = type.GetProperties().Where(x => x.DeclaringType == type).ToList();
                 properties.Sort(new PropertyInfoComparer());
-
+                var propertyToDataMemberAttribute = new Dictionary<string, string>();
                 foreach (PropertyInfo property in properties)
                 {
-                    if (property.DeclaringType != type)
-                    {
-                        continue;
-                    }
-
                     DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
                     if (dataMember != null && !dataMember.Name.Equals(property.Name))
                     {
+                        propertyToDataMemberAttribute.Add(property.Name, dataMember.Name);
                         needed = true;
                     }
                 }
+
                 if (!needed)
                     continue;
 
@@ -734,17 +714,10 @@ namespace Reflector
                 file.WriteLine("                    switch(property.Name)");
                 file.WriteLine("                    {");
 
-                foreach (PropertyInfo property in properties)
+                foreach (var propertyToDataMember in propertyToDataMemberAttribute)
                 {
-                    if (property.DeclaringType != type)
-                        continue;
-
-                    DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
-                    if (dataMember != null && !dataMember.Name.Equals(property.Name))
-                    {
-                        file.WriteLine("                        case \"" + property.Name + "\":");
-                        file.WriteLine("                            return \"" + dataMember.Name + "\";");
-                    }
+                    file.WriteLine("                        case \"" + propertyToDataMember.Key + "\":");
+                    file.WriteLine("                            return \"" + propertyToDataMember.Value + "\";");
                 }
 
                 file.WriteLine("                    }");

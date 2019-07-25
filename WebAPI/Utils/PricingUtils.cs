@@ -1,4 +1,5 @@
 ﻿
+using ApiObjects.Base;
 using AutoMapper;
 using Core.Pricing;
 using KLogMonitor;
@@ -15,50 +16,16 @@ namespace WebAPI.Utils
     public class PricingUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        internal static void SetCouopnData(int groupId, long householdId, KalturaBaseResponseProfile responseProfile, List<KalturaHouseholdCoupon> householdCoupons)
-        {
-            if (responseProfile != null)
-            {
-                string profileName = string.Empty;
-                KalturaDetachedResponseProfile profile = (KalturaDetachedResponseProfile)responseProfile; // always KalturaDetachedResponseProfile
-                if (profile != null)
-                {
-                    List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
-                    if (profiles != null && profiles.Count > 0)
-                    {
-                        profileName = profiles.FirstOrDefault(x => x.Filter is KalturaHouseoldCouponCodeFilter).Name;
-                    }
-                }
-
-                foreach (var householdCoupon in householdCoupons)
-                {
-                    householdCoupon.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
-                    KalturaCoupon result = GetCoupon(groupId, householdCoupon.Code, householdId);
-                    if (result != null)
-                    {
-                        KalturaCouponListResponse res = new KalturaCouponListResponse()
-                        {
-                            Objects = new List<KalturaCoupon>()
-                        };
-                        res.Objects.Add(result);
-
-                        householdCoupon.relatedObjects.Add(profileName, res);
-                    }
-                }
-            }
-        }
-
-        internal static KalturaCoupon GetCoupon(int groupId, string couponCode, long householdId)
+        
+        internal static KalturaCouponListResponse GetCouponListResponse(ContextData contextData, KalturaHouseholdCoupon householdCoupon)
         {
             CouponDataResponse response = null;
-            KalturaCoupon coupon = new KalturaCoupon();
-
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetCouponStatus(groupId, couponCode, householdId);
+                    response = Core.Pricing.Module.GetCouponStatus(contextData.GroupId, householdCoupon.Code, contextData.DomainId ?? 0);
                 }
             }
             catch (Exception ex)
@@ -66,12 +33,18 @@ namespace WebAPI.Utils
                 log.ErrorFormat("Exception received while calling pricing service. exception: {0}", ex);                
             }
 
+            KalturaCouponListResponse res = null;
             if (response?.Coupon != null)
             {
-                coupon = Mapper.Map<KalturaCoupon>(response.Coupon);
+                var coupon = Mapper.Map<KalturaCoupon>(response.Coupon);
+                res = new KalturaCouponListResponse()
+                {
+                    Objects = new List<KalturaCoupon>() { coupon },
+                    TotalCount = 1
+                };
             }
-
-            return coupon;
+            
+            return res;
         }
     }
 }

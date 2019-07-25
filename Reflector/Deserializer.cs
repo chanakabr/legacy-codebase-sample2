@@ -29,6 +29,7 @@ namespace Reflector
             types.Remove(typeof(KalturaFilter<>));
             types.Remove(typeof(KalturaGenericListResponse<>));
             types.Remove(typeof(KalturaListResponse<>));
+            types.Remove(typeof(KalturaCrudFilter<,,,>));
         }
         
         protected override void writeHeader()

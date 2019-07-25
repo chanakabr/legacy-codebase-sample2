@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using System;
+using System.Collections.Generic;
 using WebAPI.Managers.Models;
 
 namespace WebAPI.Managers.Scheme
@@ -7,24 +8,29 @@ namespace WebAPI.Managers.Scheme
     [AttributeUsage(AttributeTargets.Class)]
     public abstract class CrudActionAttribute : Attribute
     {
-        public string Name { get; protected set; }
         public string Summary { get; set; }
         public eResponseStatus[] ClientThrows { get; set; }
         public StatusCode[] ApiThrows { get; set; }
 
+        public abstract string GetName();
         public abstract string GetDescription(string paramName);
+        public virtual HashSet<string> GetOptionalParameters() { return null; }
     }
 
     public class AddActionAttribute : CrudActionAttribute
     {
-        public const string Add = "add";
+        public const string Name = "add";
         public string ObjectToAddDescription { get; set; }
         
         public AddActionAttribute()
         {
-            this.Name = Add;
             this.Summary = "Add an object";
             this.ObjectToAddDescription = "Object to add";
+        }
+
+        public override string GetName()
+        {
+            return Name;
         }
 
         public override string GetDescription(string paramName)
@@ -35,16 +41,20 @@ namespace WebAPI.Managers.Scheme
 
     public class UpdateActionAttribute : CrudActionAttribute
     {
-        public const string Update = "update";
+        public const string Name = "update";
         public string IdDescription { get; set; }
         public string ObjectToUpdateDescription { get; set; }
         
         public UpdateActionAttribute()
         {
-            this.Name = Update;
             this.Summary = "Update an object";
             this.ObjectToUpdateDescription = "Object to update";
             this.IdDescription = "Object ID to update";
+        }
+
+        public override string GetName()
+        {
+            return Name;
         }
 
         public override string GetDescription(string paramName)
@@ -60,14 +70,18 @@ namespace WebAPI.Managers.Scheme
 
     public class DeleteActionAttribute : CrudActionAttribute
     {
-        public const string Delete = "delete";
+        public const string Name = "delete";
         public string IdDescription { get; set; }
         
         public DeleteActionAttribute()
         {
-            this.Name = Delete;
             this.Summary = "Delete an object";
             this.IdDescription = "Object ID to delete";
+        }
+
+        public override string GetName()
+        {
+            return Name;
         }
 
         public override string GetDescription(string paramName)
@@ -78,14 +92,18 @@ namespace WebAPI.Managers.Scheme
 
     public class GetActionAttribute : CrudActionAttribute
     {
-        public const string Get = "get";
+        public const string Name = "get";
         public string IdDescription { get; set; }
         
         public GetActionAttribute()
         {
-            this.Name = Get;
             this.Summary = "Get an object";
             this.IdDescription = "Object ID to get";
+        }
+
+        public override string GetName()
+        {
+            return Name;
         }
 
         public override string GetDescription(string paramName)
@@ -93,20 +111,37 @@ namespace WebAPI.Managers.Scheme
             return this.IdDescription;
         }
     }
-
-    // TODO SHIR - FINISH ALL PROPERTIES OF ListActionAttribute
+    
     public class ListActionAttribute : CrudActionAttribute
     {
-        public const string List = "list";
+        public const string Name = "list";
+        public string FilterDescription { get; set; }
+        public bool IsFilterOptional { get; set; }
 
         public ListActionAttribute()
         {
-            this.Name = List;
+            this.FilterDescription = "Request filter";
+            this.IsFilterOptional = false;
+        }
+
+        public override string GetName()
+        {
+            return Name;
         }
 
         public override string GetDescription(string paramName)
         {
-            throw new NotImplementedException();
+            return FilterDescription;
+        }
+
+        public override HashSet<string> GetOptionalParameters()
+        {
+            var optionalParameters = new HashSet<string>();
+            if (IsFilterOptional)
+            {
+                optionalParameters.Add("filter");
+            }
+            return optionalParameters;
         }
     }
 }

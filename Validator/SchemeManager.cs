@@ -22,6 +22,32 @@ namespace Validator.Managers.Scheme
 {
     public class SchemeManager
     {
+        private static readonly string[] availableFilterSuffixes = new string[]{
+            "LessThan",
+            "LessThanOrEqual",
+            "GreaterThan",
+            "GreaterThanOrEqual",
+            "LessThanOrNull",
+            "LessThanOrEqualOrNull",
+            "GreaterThanOrNull",
+            "GreaterThanOrEqualOrNull",
+            "Equal",
+            "Like",
+            "MultiLikeOr",
+            "MultiLikeAnd",
+            "EndsWith",
+            "StartsWith",
+            "In",
+            "NotIn",
+            "NotEqual",
+            "BitAnd",
+            "BitOr",
+            "MatchOr",
+            "MatchAnd",
+            "NotContains",
+            "Empty"
+        };
+
         private static string GetProjectDir()
         {
             string filename = Assembly.GetExecutingAssembly().CodeBase;
@@ -188,7 +214,8 @@ namespace Validator.Managers.Scheme
         private static bool ValidateProperty(PropertyInfo property, bool strict)
         {
             bool valid = true;
-
+            if (property.DeclaringType != null && property.DeclaringType == typeof(KalturaCrudFilter<,,,>)) { return valid; }
+            
             if (property.Name.Contains('_'))
             {
                 logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
@@ -234,44 +261,18 @@ namespace Validator.Managers.Scheme
         private static bool ValidateFilter(Type type, bool strict)
         {
             bool valid = true;
-
-            string[] availableFilterSuffixes = new string[]{
-			    "LessThan",
-			    "LessThanOrEqual",
-			    "GreaterThan",
-			    "GreaterThanOrEqual",
-			    "LessThanOrNull",
-			    "LessThanOrEqualOrNull",
-			    "GreaterThanOrNull",
-			    "GreaterThanOrEqualOrNull",
-			    "Equal",
-			    "Like",
-			    "MultiLikeOr",
-			    "MultiLikeAnd",
-			    "EndsWith",
-			    "StartsWith",
-			    "In",
-			    "NotIn",
-			    "NotEqual",
-			    "BitAnd",
-			    "BitOr",
-			    "MatchOr",
-			    "MatchAnd",
-			    "NotContains",
-			    "Empty"
-            };
-
-            foreach (PropertyInfo property in type.GetProperties())
+            if (type == typeof(KalturaCrudFilter<,,,>)) { return valid; };
+            
+            foreach (PropertyInfo property in type.GetProperties().Where(x => x.DeclaringType == type && !hasValidationException(x, SchemeValidationType.FILTER_SUFFIX)))
             {
                 ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
                 if (obsolete != null)
                     continue;
-
-                if (property.DeclaringType != type || hasValidationException(property, SchemeValidationType.FILTER_SUFFIX))
-                    continue;
+                
+                DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
+                if (dataMember == null) { continue; }
 
                 JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
-
                 if (jsonProperty == null)
                 {
                     valid = false;
@@ -322,23 +323,10 @@ namespace Validator.Managers.Scheme
             var kalturaListResponseType = typeof(KalturaListResponse);
             if (type != kalturaListResponseType && type.Name.EndsWith("ListResponse"))
             {
-                if (!type.IsSubclassOf(kalturaListResponseType))
+                if (!type.IsSubclassOf(kalturaListResponseType) && !IsNewListResponse(type, out ListResponseAttribute listResponseAttribute))
                 {
-                    Type genericKalturaListResponseType = null;
-                    if (type.BaseType != null)
-                    {
-                        var genericArguments = type.BaseType.GetGenericArguments();
-                        if (genericArguments != null && genericArguments.Length == 1)
-                        {
-                            genericKalturaListResponseType = typeof(KalturaListResponse<>).MakeGenericType(genericArguments[0]);
-                        }
-                    }
-
-                    if (genericKalturaListResponseType == null || (type != genericKalturaListResponseType && !type.IsSubclassOf(genericKalturaListResponseType)))
-                    {
-                        logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
-                        valid = false;
-                    }
+                    logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
+                    valid = false;
                 }
 
                 PropertyInfo objectsProperty = getObjectsProperty(type);
@@ -365,14 +353,15 @@ namespace Validator.Managers.Scheme
                 valid = false;
             }
 
-            foreach (PropertyInfo property in type.GetProperties())
+            foreach (PropertyInfo property in type.GetProperties().Where(x => x.DeclaringType == type))
             {
-                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
-                if (obsolete != null)
-                    continue;
+                var obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+                if (obsolete != null) { continue; }
 
-                if (property.DeclaringType == type)
-                    valid = ValidateProperty(property, strict) && valid;
+                var dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
+                if (dataMember == null) { continue; }
+
+                valid = ValidateProperty(property, strict) && valid;
             }
 
             return valid;
@@ -391,19 +380,22 @@ namespace Validator.Managers.Scheme
             string serviceId = getServiceId(controller);
 
             ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>();
-            if (serviceAttribute == null)
-                return !strict;
-
-            var methods = controller.GetMethods().OrderBy(method => method.Name);
+            if (serviceAttribute == null) { return !strict; }
+                
+            var methods = controller.GetMethods().Where(x => x.IsPublic && x.DeclaringType.Namespace == "WebAPI.Controllers").OrderBy(method => method.Name).ToList();
             var hasValidActions = false;
-            foreach (MethodInfo method in methods)
+            if (methods.Count == 0)
             {
-                if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
-                    continue;
-
-                hasValidActions = Validate(method, strict) || hasValidActions;
-            };
-
+                hasValidActions = true;
+            }
+            else
+            {
+                foreach (MethodInfo method in methods)
+                {
+                    hasValidActions = Validate(method, strict) || hasValidActions;
+                };
+            }
+            
             return valid && hasValidActions;
         }
 
@@ -726,9 +718,9 @@ namespace Validator.Managers.Scheme
         public static bool IsCrudController(Type controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes)
         {
             crudActionAttributes = null;
-            if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,>))
+            if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,,,>))
             {
-                var actionAttributes = controller.GetCustomAttributes<CrudActionAttribute>(true).ToDictionary(x => x.Name, x => x);
+                var actionAttributes = controller.GetCustomAttributes<CrudActionAttribute>(true).ToDictionary(x => x.GetName(), x => x);
 
                 if (actionAttributes != null && actionAttributes.Count > 0)
                 {
@@ -738,6 +730,40 @@ namespace Validator.Managers.Scheme
             }
 
             return false;
+        }
+
+        public static bool IsNewListResponse(Type type, out ListResponseAttribute listResponseAttribute)
+        {
+            bool isNewListResponse = false;
+            listResponseAttribute = null;
+            if (type.BaseType != null && type.BaseType.IsGenericType && type.BaseType.GetGenericTypeDefinition() == typeof(KalturaListResponse<>))
+            {
+                isNewListResponse = true;
+                listResponseAttribute = type.GetCustomAttribute<ListResponseAttribute>(true);
+            }
+
+            return isNewListResponse;
+        }
+
+        public static bool IsParameterOptional(ParameterInfo parameter, HashSet<string> optionalParameters)
+        {
+            var isParamOptional = parameter.IsOptional || (optionalParameters != null && optionalParameters.Contains(parameter.Name));
+            return isParamOptional;
+        }
+
+        public static string VarToString(object value)
+        {
+            if (value == null || value is DBNull)
+            {
+                return "null";
+            }
+
+            if (value is bool)
+            {
+                return value.ToString().ToLower();
+            }
+
+            return value.ToString();
         }
     }
 }

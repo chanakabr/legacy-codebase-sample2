@@ -1,8 +1,10 @@
 ﻿using ApiLogic.Base;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -12,9 +14,6 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    // TODO SHIR - SET crud method in KalturaCrudController as real methods AND DELETE crud METHODS FROM inheritors
-    // until then KalturaCrudController crud methods will be DoAdd, DoDelete etc and will be update to Add, Delete 
-    // when i will finish it. 
     /// <summary>
     /// abstract class which represents a controller with CRUD actions
     /// </summary>
@@ -22,9 +21,11 @@ namespace WebAPI.Controllers
     /// <typeparam name="ICrudHandeledObject">core object</typeparam>
     /// <typeparam name="IdentifierT">Identifier type</typeparam>
     /// <typeparam name="ICrudFilter">core filter</typeparam>
-    public abstract class KalturaCrudController<KalturaT, ICrudHandeledObject, IdentifierT, ICrudFilter> : IKalturaController
+    public abstract class KalturaCrudController<KalturaT, KalturaListResponseT, ICrudHandeledObject, IdentifierT, KalturaFilterT, ICrudFilter> : IKalturaController
         where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>, new()
+        where KalturaListResponseT : KalturaListResponse<KalturaT>, new()
         where IdentifierT : IConvertible
+        where KalturaFilterT : KalturaOTTObject, IKalturaCrudFilter<ICrudHandeledObject, IdentifierT, ICrudFilter>, new()
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected static KalturaT DefaultObject { get; set; }
@@ -34,7 +35,7 @@ namespace WebAPI.Controllers
             DefaultObject = new KalturaT();
         }
         
-        [Action("add")]
+        [Action(AddActionAttribute.Name)]
         [ApiAuthorize]
         public static KalturaT Add(KalturaT objectToAdd)
         {
@@ -56,7 +57,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        [Action("update")]
+        [Action(UpdateActionAttribute.Name)]
         [ApiAuthorize]
         public static KalturaT Update(IdentifierT id, KalturaT objectToUpdate)
         {
@@ -79,7 +80,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        [Action("delete")]
+        [Action(DeleteActionAttribute.Name)]
         [ApiAuthorize]
         public static void Delete(IdentifierT id)
         {
@@ -104,7 +105,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [Action("get")]
+        [Action(GetActionAttribute.Name)]
         [ApiAuthorize]
         public static KalturaT Get(IdentifierT id)
         {
@@ -132,106 +133,50 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        [Action("list1")]
+        
+        [Action(ListActionAttribute.Name)]
         [ApiAuthorize]
-        public static void List1()
+        public static KalturaListResponseT List(KalturaFilterT filter)
         {
-            // TODO SHIR - DONT FORGET LIST
-        }
-        //public static KalturaListResponseT DoList<KalturaFilterT, KalturaOrderByT>(KalturaFilterT kalturaFilter)
-        //    where KalturaListResponseT :  KalturaListResponse<KalturaT>
-        //    where KalturaFilterT: KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
-        //    where KalturaOrderByT : struct, IComparable, IFormattable, IConvertible
-        //{
-        //    var response = new KalturaListResponse<KalturaT>();
-        //    var groupId = KS.GetFromRequest().GroupId;
-        //    var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-        //    if (filter == null)
-        //        filter = new KalturaHouseholdCouponFilter();
-
-        //    try
-        //    {
-        //        // TODO SHIR - TALK WITH TANTAN about all list objects so id FINISH GENERIC LIST METHOD in ICrudHandler - put in controller
-        //        KalturaGenericListResponse<KalturaHouseholdCoupon> coreResponse = filter.Execute<KalturaHouseholdCoupon>();
-        //        response.Objects = coreResponse.Objects;
-        //        response.TotalCount = coreResponse.TotalCount;
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
-
-        //    return response;
-
-        //    //--------------------
-        //    GenericListResponse<ICrudHandeledObject> response = null;
+            KalturaListResponseT response = null;
             
-        //    try
-        //    {
-        //        var coreFilter = AutoMapper.Mapper.Map<ICrudFilter>(kalturaFilter);
-        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-        //        {
-        //            response = kalturaFilter.Handler.List(coreFilter);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("Exception received while calling CRUD handler.list.", ex);
-        //        ErrorUtils.HandleWSException(ex);
-        //    }
+            try
+            {
+                if (filter == null)
+                {
+                    filter = new KalturaFilterT();
+                }
+                else
+                {
+                    filter.Validate();
+                }
+                
+                var contextData = KS.GetContextData();
+                response = GetResponseListFromCore(filter, contextData);
 
-        //    if (response == null)
-        //    {
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-        //    }
+                var responseProfile = Utils.Utils.GetResponseProfileFromRequest();
+                if (response.Objects.Count > 0 && responseProfile != null && filter.RelatedObjectFilterType != null)
+                {
+                    KalturaDetachedResponseProfile profile = null;
+                   
+                    if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
+                    {
+                        profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter.GetType() == filter.RelatedObjectFilterType);
+                    }
+                    
+                    if (profile != null && !string.IsNullOrEmpty(profile.Name))
+                    {
+                        response.SetRelatedObjects(contextData, profile);
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    if (!response.IsOkStatusCode())
-        //    {
-        //        throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
-        //    }
-
-        //    var result = new KalturaGenericListResponse<KalturaT>();
-        //    if (response.Objects != null)
-        //    {
-        //        result.Objects = AutoMapper.Mapper.Map<List<KalturaT>>(response.Objects);
-        //        result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
-        //        // TODO SHIR - order BY GetResponseListFromWS
-        //    }
-        //    else
-        //    {
-        //        result.Objects = new List<KalturaT>();
-        //    }
-
-        //    return result;
-        //}
-
-        // TODO SHIR - TALK WITH TANTAN ABOUT THIS
-        //internal static KalturaGenericListResponse<KalturaT> List<FilterT, OrderByT>(FilterT filter) 
-        //    where FilterT : KalturaFilter<OrderByT>
-        //    where OrderByT : struct, IComparable, IFormattable, IConvertible
-        //{
-        //    int groupId = KS.GetFromRequest().GroupId;
-
-        //    if (filter == null)
-        //    {
-        //        filter = new FilterT();
-        //    }
-
-        //    KalturaBusinessModuleRuleListResponse response = null;
-
-        //    try
-        //    {
-        //        response = ClientsManager.ApiClient().GetBusinessModuleRules(groupId, filter);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
-
-        //    return response;
-        //}
+            return response;
+        }
 
         private static KalturaT GetResponseFromCore(KalturaT kalturaObjectfromRequest, Func<ICrudHandeledObject, GenericResponse<ICrudHandeledObject>> funcInCore)
         {
@@ -334,49 +279,47 @@ namespace WebAPI.Controllers
             return result;
         }
 
-        //private static KalturaGenericListResponse<KalturaT> GetResponseListFromCore<KalturaT>(KalturaFilterT filter)
-        //    where KalturaFilterT : KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
-        //    where KalturaT : KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
-        //{
-        //    GenericListResponse<ICrudHandeledObject> response = null;
+        private static KalturaListResponseT GetResponseListFromCore(KalturaFilterT filter, ContextData contextData)
+        {
+            GenericListResponse<ICrudHandeledObject> response = null;
 
-        //    try
-        //    {
-        //        var coreFilter = AutoMapper.Mapper.Map<ICrudFilter>(this);
-        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-        //        {
-        //            response = this.Handler.List(coreFilter);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("Exception received while calling CRUD handler.list.", ex);
-        //        ErrorUtils.HandleWSException(ex);
-        //    }
+            try
+            {
+                var coreFilter = AutoMapper.Mapper.Map<ICrudFilter>(filter);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = filter.Handler.List(contextData, coreFilter);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling CRUD handler action list.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
 
-        //    if (response == null)
-        //    {
-        //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-        //    }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
-        //    if (!response.IsOkStatusCode())
-        //    {
-        //        throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
-        //    }
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
+            }
 
-        //    var result = new KalturaGenericListResponse<KalturaT>();
-        //    if (response.Objects != null)
-        //    {
-        //        result.Objects = AutoMapper.Mapper.Map<List<KalturaT>>(response.Objects);
-        //        result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
-        //        // TODO SHIR - order BY GetResponseListFromWS
-        //    }
-        //    else
-        //    {
-        //        result.Objects = new List<KalturaT>();
-        //    }
+            var result = new KalturaListResponseT();
+            if (response.Objects != null)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaT>>(response.Objects);
+                result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
+                // TODO SHIR - order BY GetResponseListFromWS
+            }
+            else
+            {
+                result.Objects = new List<KalturaT>();
+            }
 
-        //    return result;
-        //}
+            return result;
+        }
     }
 }

@@ -1716,14 +1716,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCouponListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaCouponsGroup":
                     switch(property.Name)
                     {
@@ -2700,14 +2692,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaHouseholdCouponListResponse":
-                    switch(property.Name)
-                    {
-                        case "Objects":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaHouseholdDevice":
                     switch(property.Name)
                     {
@@ -3245,6 +3229,8 @@ namespace WebAPI.Reflection
                 case "KalturaListResponse`1":
                     switch(property.Name)
                     {
+                        case "Objects":
+                            return "objects";
                         case "TotalCount":
                             return "totalCount";
                     }
@@ -7823,10 +7809,6 @@ namespace WebAPI.Reflection
                 case "householdcoupon":
                     switch(action)
                     {
-                        case "list":
-                            RolesManager.ValidateActionPermitted("householdCoupon", "list", false);
-                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
-                            
                         case "add":
                             RolesManager.ValidateActionPermitted("householdcoupon", "add");
                             return HouseholdCouponController.Add((KalturaHouseholdCoupon) methodParams[0]);
@@ -7835,6 +7817,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("householdcoupon", "delete");
                             HouseholdCouponController.Delete((string) methodParams[0]);
                             return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdcoupon", "list");
+                            return HouseholdCouponController.List((KalturaHouseholdCouponFilter) methodParams[0]);
                             
                     }
                     break;
@@ -13555,16 +13541,6 @@ namespace WebAPI.Reflection
                 case "householdcoupon":
                     switch(action)
                     {
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaHouseholdCouponFilter),
-                            });
-                            return ret;
-                            
                         case "add":
                             ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
@@ -13577,6 +13553,16 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdCouponFilter),
                             });
                             return ret;
                             

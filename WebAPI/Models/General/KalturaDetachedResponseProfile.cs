@@ -34,6 +34,5 @@ namespace WebAPI.Models.General
         [JsonProperty("relatedProfiles")]
         [XmlElement(ElementName = "relatedProfiles")]
         public List<KalturaDetachedResponseProfile> RelatedProfiles { get; set; }
-
     }
 }

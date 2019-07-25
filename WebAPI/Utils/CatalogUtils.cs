@@ -498,56 +498,41 @@ namespace WebAPI.Utils
             {
                 return null;
             }
-            return null;
         }
-
-        internal static void SetTopHitCount(KalturaBaseResponseProfile responseProfile, List<Catalog.Response.AggregationResult> aggregationResults, List<KalturaAsset> tempAssets)
+        
+        internal static void SetTopHitCount(KalturaBaseResponseProfile responseProfile, List<AggregationResult> aggregationResults, List<KalturaAsset> tempAssets)
         {
             if (responseProfile != null)
             {
                 string profileName = string.Empty;
-                KalturaDetachedResponseProfile profile = (KalturaDetachedResponseProfile)responseProfile; // always KalturaDetachedResponseProfile
-                if (profile != null)
+                bool isProfileExists = false;
+                if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
                 {
-                    List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
-                    if (profiles != null && profiles.Count > 0)
+                    var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAggregationCountFilter);
+
+                    if (profile != null)
                     {
-                        profileName = profiles.Where(x => x.Filter is KalturaAggregationCountFilter).Select(x => x.Name).FirstOrDefault();
+                        profileName = profile.Name;
+                        isProfileExists = true;
                     }
                 }
 
+                if (!isProfileExists) { return; }
+                
                 for (int i = 0; i < tempAssets.Count; i++)
                 {
-                    var asset = tempAssets[i];
+                    KalturaIntegerValueListResponse res = null;
 
-                    string id = string.Empty;
-
-                    if (asset is KalturaRecordingAsset)
+                    res = new KalturaIntegerValueListResponse()
                     {
-                        id = (asset as KalturaRecordingAsset).RecordingId;
-                    }
-                    else
-                    {
-                        if (asset.Id.HasValue)
-                        {
-                            id = asset.Id.Value.ToString();
-                        }
-                    }
-
-                    asset.relatedObjects = new SerializableDictionary<string, KalturaListResponse>();
-                    KalturaIntegerValueListResponse kiv = new KalturaIntegerValueListResponse()
-                    {
-                        Values = new List<KalturaIntegerValue>()
-                            {
-                                new KalturaIntegerValue()
-                                {
-                                    value = aggregationResults[i].count
-                                }
-                            },
+                        Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = aggregationResults[i].count } },
                         TotalCount = aggregationResults[i].count
                     };
 
-                    asset.relatedObjects.Add(profileName, kiv);
+                    if (res != null)
+                    {
+                        tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                    }
                 }
             }
         }

@@ -1,5 +1,8 @@
-﻿using WebAPI.Managers.Scheme;
+﻿using ApiObjects.Base;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.Domains
 {
@@ -7,15 +10,16 @@ namespace WebAPI.Models.Domains
     /// Kaltura Houseold CouponCode Filter
     /// </summary>
     [SchemeBase(typeof(KalturaRelatedObjectFilter))]
-    public partial class KalturaHouseoldCouponCodeFilter : KalturaFilter<KalturaAggregationCountOrderBy>, KalturaRelatedObjectFilter
+    public partial class KalturaHouseoldCouponCodeFilter : KalturaFilter<KalturaHouseoldCouponCodeOrderBy>, KalturaRelatedObjectFilter
     {
-        internal virtual void Validate()
+        public override KalturaHouseoldCouponCodeOrderBy GetDefaultOrderByValue()
         {
+            return KalturaHouseoldCouponCodeOrderBy.NONE;
         }
+    }
 
-        public override KalturaAggregationCountOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaAggregationCountOrderBy.NONE;
-        }
+    public enum KalturaHouseoldCouponCodeOrderBy
+    {
+        NONE
     }
 }

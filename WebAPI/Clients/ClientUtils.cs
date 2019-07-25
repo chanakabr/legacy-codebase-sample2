@@ -7,8 +7,6 @@ using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
-using ApiObjects.Base;
-using ApiLogic.Base;
 
 namespace WebAPI.Clients
 {
@@ -16,8 +14,7 @@ namespace WebAPI.Clients
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static object handler1;
-
+        
         internal static U GetResponseFromWS<U, T>(U requestObject, Func<T, GenericResponse<T>> funcInWS)
             where U : KalturaOTTObject where T : class
         {

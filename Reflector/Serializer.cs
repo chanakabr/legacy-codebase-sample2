@@ -111,6 +111,7 @@ namespace Reflector
                     continue;
 
                 DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
+                if (dataMember == null) { continue; }
                 string propertyName = property.Name;
                 List<string> conditions = new List<string>();
 

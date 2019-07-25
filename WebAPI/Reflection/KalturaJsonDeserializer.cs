@@ -542,9 +542,6 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroupListResponse":
                     return new KalturaCouponsGroupListResponse(parameters);
                     
-                case "KalturaCrudFilter":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
                 case "KalturaCrudObject":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -6787,12 +6784,6 @@ namespace WebAPI.Models.General
                     ApiVersion = (String) Convert.ChangeType(parameters["apiVersion"], typeof(String));
                 }
             }
-        }
-    }
-    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
-    {
-        public KalturaCrudFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
@@ -15084,12 +15075,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -16206,12 +16197,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17614,12 +17605,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute SegmentsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentsCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17644,12 +17635,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -18789,20 +18780,6 @@ namespace WebAPI.Models.Pricing
     {
         public KalturaCouponListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        Objects = buildList<KalturaCoupon>(typeof(KalturaCoupon), (JArray) parameters["objects"]);
-                    }
-                    else if (parameters["objects"] is IList)
-                    {
-                        Objects = buildList(typeof(KalturaCoupon), parameters["objects"] as object[]);
-                    }
-                }
-            }
         }
     }
     public partial class KalturaCouponsGroup
@@ -25951,20 +25928,6 @@ namespace WebAPI.Models.Domains
     {
         public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        Objects = buildList<KalturaHouseholdCoupon>(typeof(KalturaHouseholdCoupon), (JArray) parameters["objects"]);
-                    }
-                    else if (parameters["objects"] is IList)
-                    {
-                        Objects = buildList(typeof(KalturaHouseholdCoupon), parameters["objects"] as object[]);
-                    }
-                }
-            }
         }
     }
     public partial class KalturaHouseholdDevice

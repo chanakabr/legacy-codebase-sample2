@@ -12,6 +12,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.Domains
 {
@@ -59,23 +60,29 @@ namespace WebAPI.Models.Domains
 
     public partial class KalturaHouseholdCouponListResponse : KalturaListResponse<KalturaHouseholdCoupon>
     {
-        /// <summary>
-        /// Household coupon
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty(PropertyName = "objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaHouseholdCoupon> Objects { get; set; }
-
-        internal override void SetData(KalturaGenericListResponse<KalturaHouseholdCoupon> kalturaGenericList)
+        public KalturaHouseholdCouponListResponse() : base() { }
+        
+        public override void SetRelatedObjects(ContextData contextData, KalturaDetachedResponseProfile profile)
         {
-            this.Objects = kalturaGenericList.Objects;
-            this.TotalCount = kalturaGenericList.TotalCount;
-        }
+            if (Objects != null && Objects.Count > 0)
+            {
+                foreach (var householdCoupon in Objects)
+                {
+                    var res = PricingUtils.GetCouponListResponse(contextData, householdCoupon);
+                    if (res != null)
+                    {
+                        if (householdCoupon.relatedObjects == null)
+                        {
+                            householdCoupon.relatedObjects = new SerializableDictionary<string, IKalturaListResponse>();
+                        }
 
-        public KalturaHouseholdCouponListResponse(): base()
-        {
+                        if (!householdCoupon.relatedObjects.ContainsKey(profile.Name))
+                        {
+                            householdCoupon.relatedObjects.Add(profile.Name, res);
+                        }
+                    }
+                }
+            }
         }
     }
 }

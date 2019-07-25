@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Base;
+using ApiObjects.Base;
 using ApiObjects.Pricing;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
@@ -38,7 +39,7 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(MinInteger = 1)]
         public long BusinessModuleIdEqual { get; set; }
 
-        internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
+        public override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
         {
             get
             {
@@ -46,17 +47,31 @@ namespace WebAPI.Models.Domains
             }
         }
 
+        private static readonly Type relatedObjectFilterType = typeof(KalturaHouseoldCouponCodeFilter);
+
+        public override Type RelatedObjectFilterType
+        {
+            get
+            {
+                return relatedObjectFilterType;
+            }
+        }
+        
         public override KalturaHouseholdCouponOrderBy GetDefaultOrderByValue()
         {
             return KalturaHouseholdCouponOrderBy.NONE;
         }
 
-        internal override void Validate()
+        public override void Validate()
         {
             if (BusinessModuleIdEqual == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHouseholdCouponFilter.businessModuleIdEqual");
             }
+        }
+
+        public KalturaHouseholdCouponFilter() : base()
+        {
         }
     }
 

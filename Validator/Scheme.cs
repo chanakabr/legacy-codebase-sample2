@@ -672,12 +672,11 @@ namespace Validator.Managers.Scheme
             {
                 var baseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
 
-                WriteCrudAction(AddActionAttribute.Add, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(UpdateActionAttribute.Update, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(DeleteActionAttribute.Delete, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(GetActionAttribute.Get, controller, crudActionAttributes, baseCrudActions);
-                // TODO SHIR - finish to WriteCrudAction for LIST action
-                WriteCrudAction(ListActionAttribute.List, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(AddActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(UpdateActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(DeleteActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(GetActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
+                WriteCrudAction(ListActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
             }
 
             writer.WriteEndElement(); // service
@@ -767,7 +766,7 @@ namespace Validator.Managers.Scheme
             var actionAttribute = crudActionAttributes[actionName];
 
             string serviceId = SchemeManager.getServiceId(controller);
-            string actionId = actionAttribute.Name;
+            string actionId = actionAttribute.GetName();
             
             writer.WriteStartElement("action");
             writer.WriteAttributeString("name", actionId);
@@ -784,13 +783,14 @@ namespace Validator.Managers.Scheme
                 writer.WriteAttributeString("name", param.Name);
                 appendType(param.ParameterType);
 
-                if (param.IsOptional)
+                var isOptional = SchemeManager.IsParameterOptional(param, actionAttribute.GetOptionalParameters());
+                if (isOptional)
                 {
-                    writer.WriteAttributeString("default", param.DefaultValue == null ? "null" : (param.DefaultValue is bool ? param.DefaultValue.ToString().ToLower() : param.DefaultValue.ToString()));
+                    writer.WriteAttributeString("default", SchemeManager.VarToString(param.DefaultValue));
                 }
-
+                
                 writer.WriteAttributeString("description", actionAttribute.GetDescription(param.Name));
-                writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
+                writer.WriteAttributeString("optional", isOptional ? "1" : "0");
                 writer.WriteEndElement(); // param
             }
 
@@ -857,6 +857,7 @@ namespace Validator.Managers.Scheme
 
         internal string getDescription(Type type)
         {
+
             return getDescription(string.Format("//member[@name='T:{0}']", type.FullName));
         }
 
@@ -1007,7 +1008,29 @@ namespace Validator.Managers.Scheme
 
             writer.WriteStartElement("class");
             writer.WriteAttributeString("name", typeName);
-            writer.WriteAttributeString("description", getDescription(type));
+
+            string description = string.Empty;
+            if (SchemeManager.IsNewListResponse(type, out ListResponseAttribute listResponseAttribute))
+            {
+                if (listResponseAttribute != null)
+                {
+                    description = listResponseAttribute.ObjectsDescription;
+                }
+                else if (type.BaseType.IsGenericType)
+                {
+                    description = getDescription(type.BaseType.GetGenericTypeDefinition());
+                }
+                else
+                {
+                    description = getDescription(type.BaseType);
+                }
+            }
+            else
+            {
+                description = getDescription(type);
+            }
+            
+            writer.WriteAttributeString("description", description);
 
             SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
             if (schemeBaseAttribute != null)
