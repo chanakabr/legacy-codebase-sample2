@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DAL;
-using System.Data;
-using System.Xml;
-using KLogMonitor;
-using System.Reflection;
-using System.IO;
+﻿using ApiObjects;
 using ApiObjects.Roles;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using ApiObjects;
 using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using QueueWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace PermissionsManager
 {
@@ -261,10 +259,9 @@ namespace PermissionsManager
                         int sourceType = Convert.ToInt32(sourceRow["type"]);
                         object sourceUsersGroupObject = sourceRow["users_group"];
                         object friendlyNameObject = sourceRow["friendly_name"];
-                        object dependsOnPermissionNamesObject = sourceRow["DEPENDS_ON_PERMISSION_NAMES"];
                         string sourceUsersGroup = null;
                         string friendlyName = friendlyNameObject != null && friendlyNameObject != DBNull.Value ? Convert.ToString(friendlyNameObject) : string.Empty;
-                        string dependsOnPermissionNames = dependsOnPermissionNamesObject != null && dependsOnPermissionNamesObject != DBNull.Value ? Convert.ToString(dependsOnPermissionNamesObject) : string.Empty;
+                        string dependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(sourceRow, "DEPENDS_ON_PERMISSION_NAMES");
 
                         if (sourceUsersGroupObject != null && sourceUsersGroupObject != DBNull.Value)
                         {
