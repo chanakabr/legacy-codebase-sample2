@@ -62,8 +62,6 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public bool Ping()
         {
-            log.Error("in rest method");
-
             return true;
         }
 

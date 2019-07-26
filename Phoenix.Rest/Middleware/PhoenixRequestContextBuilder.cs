@@ -96,10 +96,12 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request)
         {
-            var qsParsedActionParams = GetActionParamsFromQueryString(request);
-            var bodyParsedActionParams = await GetActionParamsFromPostBody(request);
-
-            var parsedActionParams = qsParsedActionParams.Concat(bodyParsedActionParams).ToDictionary(k=>k.Key,v=>v.Value);
+            var parsedActionParams = GetActionParamsFromQueryString(request);
+            if (httpMethod == HttpMethods.Post)
+            {
+                var bodyParsedActionParams = await GetActionParamsFromPostBody(request);
+                parsedActionParams = parsedActionParams.Concat(bodyParsedActionParams).ToDictionary(k => k.Key, v => v.Value);
+            }
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
         }
