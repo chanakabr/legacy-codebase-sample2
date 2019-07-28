@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +33,15 @@ namespace Phoenix.Rest
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UsePhoenix();
+            app.Map("/api_v3", apiApp =>
+            {
+                apiApp.UsePhoenix();
+            });
+            app.Use(async (context, next) =>
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                await context.Response.WriteAsync("");
+            });
         }
     }
 }
