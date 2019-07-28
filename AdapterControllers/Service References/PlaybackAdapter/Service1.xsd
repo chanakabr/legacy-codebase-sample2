@@ -142,6 +142,7 @@
           <xs:element minOccurs="0" name="OutputProtecationLevel" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="StartDate" nillable="true" type="xs:long" />
           <xs:element minOccurs="0" name="Status" nillable="true" type="xs:boolean" />
+          <xs:element minOccurs="0" name="Type" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="TypeId" nillable="true" type="xs:int" />
         </xs:sequence>
       </xs:extension>
