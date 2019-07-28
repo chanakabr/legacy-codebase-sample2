@@ -266,7 +266,7 @@ namespace AdapterControllers
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols,
-                            Type= x.Type,
+                            Type= x.Type
                         }).ToList();
                 }
 
