@@ -8776,11 +8776,13 @@ namespace Core.Catalog
             return cutType;
         }
 
-        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group, int groupId, bool doesGroupUsesTemplates)
+        public static UnifiedSearchDefinitions BuildInternalChannelSearchObjectWithBaseRequest(GroupsCacheManager.Channel channel, BaseRequest request, Group group, int groupId, bool doesGroupUsesTemplates, bool isAllowedToViewInactiveAssets)
         {
             InternalChannelRequest channelRequest = new InternalChannelRequest(channel.m_nChannelID.ToString(), string.Empty, doesGroupUsesTemplates ? groupId : group.m_nParentGroupID, request.m_nPageSize,
                                                                                 request.m_nPageIndex, request.m_sUserIP, request.m_sSignature, request.m_sSignString, request.m_oFilter, string.Empty,
                                                                                 new OrderObj() { });
+
+            channelRequest.isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets;
 
             return BuildInternalChannelSearchObject(channel, channelRequest, group, groupId);
         }
