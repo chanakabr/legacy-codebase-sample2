@@ -215,7 +215,7 @@ namespace Core.Catalog
 
             if (isInsertAction || (this.Name != null && this.Name.Values != null && this.Name.Values.Count > 0))
             {
-                Status nameValidationStatus = this.Name.Validate("media.basic.name", cache);
+                Status nameValidationStatus = this.Name.Validate("media.basic.name", cache, isInsertAction);
                 if (!nameValidationStatus.IsOkStatusCode())
                 {
                     return nameValidationStatus;
@@ -240,7 +240,7 @@ namespace Core.Catalog
         [XmlElement("value")]
         public List<IngestLanguageValue> Values { get; set; }
 
-        public Status Validate(string parameterName, CatalogGroupCache cache)
+        public Status Validate(string parameterName, CatalogGroupCache cache, bool validateText = false)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -263,6 +263,12 @@ namespace Core.Catalog
                 if (!cache.LanguageMapByCode.ContainsKey(ingestLanguageValue.LangCode))
                 {
                     status.Set((int)eResponseStatus.Error, string.Format("language: {0} is not part of group supported languages", ingestLanguageValue.LangCode));
+                    return status;
+                }
+
+                if (validateText && string.IsNullOrEmpty(ingestLanguageValue.Text))
+                {
+                    status.Set((int)eResponseStatus.NameRequired, parameterName + " cannot be empty");
                     return status;
                 }
 
