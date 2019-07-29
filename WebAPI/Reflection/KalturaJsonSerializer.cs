@@ -23877,6 +23877,11 @@ namespace WebAPI.Models.Upload
 
             ret.Add("action", "\"action\": " + "\"" + Enum.GetName(typeof(KalturaBulkUploadJobAction), Action) + "\"");
             ret.Add("createDate", "\"createDate\": " + CreateDate);
+            if(Errors != null)
+            {
+                propertyValue = "[" + String.Join(", ", Errors.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("errors", "\"errors\": " + propertyValue);
+            }
             if(FileName != null)
             {
                 ret.Add("fileName", "\"fileName\": " + "\"" + EscapeJson(FileName) + "\"");
@@ -23905,6 +23910,11 @@ namespace WebAPI.Models.Upload
 
             ret.Add("action", "<action>" + "" + Enum.GetName(typeof(KalturaBulkUploadJobAction), Action) + "" + "</action>");
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            if(Errors != null)
+            {
+                propertyValue = Errors.Count > 0 ? "<item>" + String.Join("</item><item>", Errors.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("errors", "<errors>" + propertyValue + "</errors>");
+            }
             if(FileName != null)
             {
                 ret.Add("fileName", "<fileName>" + EscapeXml(FileName) + "</fileName>");

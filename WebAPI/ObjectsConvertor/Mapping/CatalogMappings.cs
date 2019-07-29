@@ -982,7 +982,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UploadedByUserId, opt => opt.MapFrom(src => src.UpdaterId))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
-               .ForMember(dest => dest.Results, opt => opt.MapFrom(src => src.Results));
+               .ForMember(dest => dest.Results, opt => opt.MapFrom(src => src.Results))
+               .ForMember(dest => dest.Errors, opt => opt.MapFrom(src => src.Errors))
+               ;
 
             cfg.CreateMap<BulkUploadJobStatus, KalturaBulkUploadJobStatus>()
                .ConvertUsing(bulkUploadJobStatus =>
@@ -1055,7 +1057,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                            return KalturaBulkUploadJobAction.Delete;
                        default:
                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown bulkUploadJobAction value : {0}", bulkUploadJobAction.ToString()));
-                           break;
                    }
                });
 

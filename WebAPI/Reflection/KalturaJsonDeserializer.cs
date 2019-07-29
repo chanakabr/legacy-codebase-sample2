@@ -24012,6 +24012,16 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaBulkUpload(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -24105,6 +24115,21 @@ namespace WebAPI.Models.Upload
                     else if (parameters["results"] is IList)
                     {
                         Results = buildList(typeof(KalturaBulkUploadResult), parameters["results"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("errors") && parameters["errors"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ErrorsSchemaProperty.Validate("errors", parameters["errors"]);
+                    }
+                    if (parameters["errors"] is JArray)
+                    {
+                        Errors = buildList<KalturaMessage>(typeof(KalturaMessage), (JArray) parameters["errors"]);
+                    }
+                    else if (parameters["errors"] is IList)
+                    {
+                        Errors = buildList(typeof(KalturaMessage), parameters["errors"] as object[]);
                     }
                 }
             }
