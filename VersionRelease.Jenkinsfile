@@ -39,9 +39,9 @@ pipeline {
         stage("Version Patch"){
             steps{
                 dir("core"){ bat "sh DllVersioning.Core.sh ." }
-                dir("remotetasks") { bat "sh ../core/DllVersioning.Core.sh ."} }
-                dir("tvpapi_rest") { bat "sh ../core/DllVersioning.Core.sh ."} }
-                dir("ws_ingest") { bat "sh ../core/DllVersioning.Core.sh ."} }
+                dir("remotetasks") { bat "sh ../core/DllVersioning.Core.sh ."}
+                dir("tvpapi_rest") { bat "sh ../core/DllVersioning.Core.sh ."}
+                dir("ws_ingest") { bat "sh ../core/DllVersioning.Core.sh ."}
             }        
         }
         stage("Nuget Restore"){
