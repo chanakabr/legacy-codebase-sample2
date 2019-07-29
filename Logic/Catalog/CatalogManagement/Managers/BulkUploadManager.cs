@@ -1,19 +1,19 @@
-﻿using ApiObjects;
+﻿using ApiLogic;
+using ApiObjects;
+using ApiObjects.BulkUpload;
+using ApiObjects.EventBus;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using EventBus.RabbitMQ;
 using KLogMonitor;
 using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using System.Linq;
-using System.IO;
-using ApiObjects.BulkUpload;
-using ApiObjects.EventBus;
-using CachingProvider.LayeredCache;
-using EventBus.RabbitMQ;
-using ApiLogic;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -158,7 +158,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!CatalogDAL.SaveBulkUploadCB(response.Object, BULK_UPLOAD_CB_TTL))
                 {
-                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
+                    log.ErrorFormat("Error while saving BulkUpload to CB. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);                    
                     return response;
                 }
 
@@ -193,6 +193,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         var msg = $"AddBulkUpload > GroupId :[{groupId}]. epg ingest using bulk upload is not supported for this account";
                         log.Warn(msg);
+                        response.Object.AddError(eResponseStatus.Error, msg);
                         response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Fatal);
                         response.SetStatus(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, msg);
                         return response;
@@ -251,8 +252,10 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
+                    string msg = string.Format("Failed to enqueue BulkUpload, BulkUpload.Id:{0}", response.Object.Id);
+                    response.Object.AddError(eResponseStatus.Error, msg);
                     response = UpdateBulkUploadStatusWithVersionCheck(response.Object, BulkUploadJobStatus.Fatal);
-                    response.SetStatus(eResponseStatus.EnqueueFailed, string.Format("Failed to enqueue BulkUpload, BulkUpload.Id:{0}", response.Object.Id));
+                    response.SetStatus(eResponseStatus.EnqueueFailed, msg);
                 }
             }
 
@@ -303,8 +306,10 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
+                string msg = $"An Exception was occurred in ProcessBulkUpload. groupId:{groupId}, userId:{userId}, bulkUploadId:{bulkUpload.Id}.";
+                bulkUploadResponse.Object.AddError(eResponseStatus.Error, msg);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal);
-                log.Error(string.Format("An Exception was occurred in ProcessBulkUpload. groupId:{0}, userId:{1}, bulkUploadId:{2}.", groupId, userId, bulkUpload.Id), ex);
+                log.Error(msg, ex);
                 bulkUploadResponse.SetStatus(eResponseStatus.Error);
             }
 
@@ -321,6 +326,7 @@ namespace Core.Catalog.CatalogManagement
             // else update the bulk upload object that an error occured
             var errorMessage = string.Format("ProcessBulkUpload cannot Deserialize file because JobData or ObjectData are null for groupId:{0}, bulkUploadId:{1}.", groupId, bulkUpload.Id);
             log.Error(errorMessage);
+            bulkUploadResponse.Object.AddError(eResponseStatus.Error, $"Error validate bulk upload. groupId: {groupId}, bulkUploadId: {bulkUpload.Id}");
             UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal);
             bulkUploadResponse.SetStatus(eResponseStatus.Error, errorMessage);
             return bulkUploadResponse.Status;
@@ -340,6 +346,7 @@ namespace Core.Catalog.CatalogManagement
             var errorMessage = string.Format("Error while trying to deserialize file. bulkUpload.Id:[{0}],  bulkUploadResponse.Status.Code:[{1}] bulkUploadResponse.Status.Message:[{2}].",
                 bulkUpload.Id, bulkUploadResponse.Status.Code, bulkUploadResponse.Status.Message);
             log.Error(errorMessage);
+            bulkUploadResponse.Object.AddError(eResponseStatus.Error, errorMessage);
             UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
 
             return objectsListResponse;
@@ -514,7 +521,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
-                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
+                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();                            
                         }
                     }
                 }
