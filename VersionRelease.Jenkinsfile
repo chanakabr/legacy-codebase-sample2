@@ -162,7 +162,7 @@ pipeline {
 
         stage("Zip and Publish"){
             steps{
-                dir("punlished"){  
+                dir("published"){  
                     // \\34.252.63.117\version_release\mediahub\5_2_4\SP0\5_2_4_SP0.zip
                     bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip *"
                     bat "xcopy ${params.branch}_${release_name}${release_number}.zip c:\\version_release\\mediahub\\${release_name}${release_number}\\ /E /O /X /K /D /H /Y"
