@@ -58,7 +58,7 @@ namespace Phoenix.Rest.Middleware
         {
             var context = ctx as HttpContext;
 
-            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), _Response);
+            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, (float)_PhoenixCtx.ExecutionTime, _Response);
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
 
