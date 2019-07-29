@@ -372,10 +372,6 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
                     {
-                        log.Debug("CouchBase : ClientFailure detected. " +
-                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
-                            "it will be reinitialized later.");
-
                         // remove bucket
                         lock (locker)
                         {
@@ -383,6 +379,10 @@ namespace CouchbaseManager
                             // to avoid problems with resource concurrency (dispose and use at same time)
                             if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
                             {
+                                log.Debug("CouchBase : ClientFailure detected. " +
+                                    "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
+                                    "it will be reinitialized later.");
+
                                 lastInitializationTime = DateTime.Now;
                                 ClusterHelper.RemoveBucket(bucketName);
                             }
@@ -418,10 +418,6 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
                     {
-                        log.Debug("CouchBase : OperationTimeout detected. " +
-                            "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
-                            "it will be reinitialized later.");
-
                         // remove bucket
                         lock (locker)
                         {
@@ -429,6 +425,10 @@ namespace CouchbaseManager
                             // to avoid problems with resource concurrency (dispose and use at same time)
                             if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
                             {
+                                log.Debug("CouchBase : OperationTimeout detected. " +
+                                    "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
+                                    "it will be reinitialized later.");
+
                                 lastInitializationTime = DateTime.Now;
                                 ClusterHelper.RemoveBucket(bucketName);
                             }
