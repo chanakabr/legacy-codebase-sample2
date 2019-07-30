@@ -11,26 +11,22 @@ using ApiObjects;
 using System.Collections.Generic;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
-using DalCB;
 using Newtonsoft.Json.Linq;
 using Core.Catalog;
 using Core.Profiles;
 using CouchbaseManager;
 using ApiObjects.Response;
 using ConfigurationManager;
-using Polly;
-using Polly.Retry;
 using ApiObjects.SearchObjects;
 using ApiLogic;
 using Core.GroupManagers;
-using TVinciShared;
+using IngestHandler.Common;
 using ApiObjects.Epg;
 using EpgBL;
 using ESUtils = ElasticSearch.Common.Utils;
-using System.Globalization;
 using ApiObjects.Catalog;
 using Tvinci.Core.DAL;
-using CachingProvider.LayeredCache;
+using EventBus.RabbitMQ;
 
 namespace IngestHandler
 {
@@ -38,8 +34,6 @@ namespace IngestHandler
 	{
 		private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-		private static readonly string DEFAULT_INDEX_MAPPING_TYPE = "epg";
-		public static readonly int DEFAULT_CATCHUP_DAYS = 7;
 		public const string LOWERCASE_ANALYZER =
 			"\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
 
@@ -55,7 +49,6 @@ namespace IngestHandler
 			"\"char_filter\":[\"html_strip\"]}";
 
 		protected const string ANALYZER_VERSION = "2";
-		private static readonly int EXPIRY_DATE_DELTA = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
 
 		private readonly ElasticSearchApi _ElasticSearchClient = null;
 		private readonly CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
@@ -79,125 +72,87 @@ namespace IngestHandler
 			_CouchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
 		}
 
-		public async Task Handle(BulkUploadIngestEvent serviceEvent)
-		{
-			try
-			{
-				_Logger.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
-				_EpgBL = new TvinciEpgBL(serviceEvent.GroupId);
-				_EventData = serviceEvent;
-				_BulkUploadObject = GetBulkUploadData();
-				BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Processing);
+        public async Task Handle(BulkUploadIngestEvent serviceEvent)
+        {
+            try
+            {
+                _Logger.Debug($"Starting BulkUploadIngestHandler  requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
+                _EpgBL = new TvinciEpgBL(serviceEvent.GroupId);
+                _EventData = serviceEvent;
+                _BulkUploadObject = BulkUploadMethods.GetBulkUploadData(serviceEvent.GroupId, serviceEvent.BulkUploadId);
+                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Processing);
 
-				_BulkUploadJobData = _BulkUploadObject.JobData as BulkUploadIngestJobData;
-				_IngestProfile = GetIngestProfile();
-				_Languages = GetGroupLanguages(out _DefaultLanguage);
-				_NonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
-				_GroupRatioNamesToImageTypes = EpgImageManager.GetImageTypesMapBySystemName(serviceEvent.GroupId);
-				_IsOpc = GroupSettingsManager.IsOpc(serviceEvent.GroupId);
+                _BulkUploadJobData = _BulkUploadObject.JobData as BulkUploadIngestJobData;
+                _IngestProfile = GetIngestProfile();
+                _Languages = GetGroupLanguages(out _DefaultLanguage);
+                _NonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
+                _GroupRatioNamesToImageTypes = EpgImageManager.GetImageTypesMapBySystemName(serviceEvent.GroupId);
+                _IsOpc = GroupSettingsManager.IsOpc(serviceEvent.GroupId);
 
-				ValidateServiceEvent();
+                ValidateServiceEvent();
 
-				_Results = GetProgramAssetResults();
-				AddEpgCBObjects(_Results);
+                _Results = GetProgramAssetResults();
+                AddEpgCBObjects(_Results);
 
-				var programsToIngest = _Results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
-				await UploadEpgImages(programsToIngest);
-				var minStartDate = programsToIngest.Min(p => p.StartDate);
-				var maxEndDate = programsToIngest.Max(p => p.EndDate);
-				var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
+                var programsToIngest = _Results.Values.Select(r => r.Object).Cast<EpgProgramBulkUploadObject>().ToList();
+                await UploadEpgImages(programsToIngest);
+                var minStartDate = programsToIngest.Min(p => p.StartDate);
+                var maxEndDate = programsToIngest.Max(p => p.EndDate);
+                var currentPrograms = GetCurrentProgramsByDate(minStartDate, maxEndDate);
 
-				var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
+                var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
 
-				var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, programsToIngest, crudOperations);
+                var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, programsToIngest, crudOperations);
 
-				var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
+                var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
 
-				ValidateProgramDates(finalEpgState, _Results);
-				await UpdateCouchbase(finalEpgState, _Results);
+                ValidateProgramDates(finalEpgState, _Results);
+                await BulkUploadMethods.UpdateCouchbase(finalEpgState, _Results, serviceEvent.GroupId);
 
-				CloneExistingIndex();
-				UpdateClonedIndex(finalEpgState, crudOperations.ItemsToDelete);
+                CloneExistingIndex();
+                var updater = new UpdateClonedIndex(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
+                updater.Update(finalEpgState, crudOperations.ItemsToDelete);
 
-                // TODO: publish using EventBus to a new consumer with a new event ValidateIngest
+                // publish using EventBus to a new consumer with a new event ValidateIngest
+                var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
 
-				var indexIsValid = ValidateClonedIndex(finalEpgState);
-				_Logger.Debug($"Index validation done with result:[{indexIsValid}]");
+                var bulkUploadIngestValidationEvent = new BulkUploadIngestValidationEvent
+                {
+                    BulkUploadId = serviceEvent.BulkUploadId,
+                    GroupId = serviceEvent.GroupId,
+                    RequestId = KLogger.GetRequestId(),
+                    DateOfProgramsToIngest = serviceEvent.DateOfProgramsToIngest,
+                    EPGs = finalEpgState,
+                    EdgeProgramsToUpdate = edgeProgramsToUpdate,
+                    Languages = _Languages,
+                    Results = _Results
+                };
 
-				if (indexIsValid)
-				{
-					UpdateBulkUploadResults(_Results, finalEpgState);
-					SwitchAliases();
-					BulkUploadManager.UpdateBulkUploadResults(_Results.Values);
-					BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
+                publisher.Publish(bulkUploadIngestValidationEvent);
+            }
+            catch (Exception ex)
+            {
+                _Logger.Error($"An Exception occurred in BulkUploadIngestHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", ex);
+                try
+                {
+                    _Logger.Debug($"Trying to set fatal status on bulk");
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
+                }
+                catch (Exception innerEx)
+                {
+                    _Logger.Error($"An Exception occurred when trying to set FATAL status on bulkUpload. requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", innerEx);
+                    throw;
+                }
+                throw;
+            }
 
-					// Update edgs if there are any updates to be made dure to overlap
-					if (edgeProgramsToUpdate.Any())
-					{
-						await UpdateCouchbase(edgeProgramsToUpdate, _Results);
-						UpdateClonedIndex(edgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
-					}
+            return;
+        }
 
-
-					InvalidateEpgAssets(finalEpgState.Concat(edgeProgramsToUpdate));
-				}
-				else
-				{
-					BulkUploadManager.UpdateBulkUploadResults(_Results.Values);
-					BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
-				}
-
-			}
-			catch (Exception ex)
-			{
-				_Logger.Error($"An Exception occurred in BulkUploadIngestHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", ex);
-				try
-				{
-					_Logger.Debug($"Trying to set fatal status on bulk");
-					BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
-				}
-				catch (Exception innerEx)
-				{
-					_Logger.Error($"An Exception occurred when trying to set FATAL status on bulkUpload. requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", innerEx);
-					throw;
-				}
-				throw;
-			}
-
-			return;
-		}
-
-		private async Task UploadEpgImages(List<EpgProgramBulkUploadObject> programsToIngest)
+        private async Task UploadEpgImages(List<EpgProgramBulkUploadObject> programsToIngest)
 		{
 			var pics = programsToIngest.SelectMany(p => p.EpgCbObjects).SelectMany(p => p.pictures);
 			var results = await EpgImageManager.UploadEPGPictures(_EventData.GroupId, pics);
-		}
-
-		public static void InvalidateEpgAssets(IEnumerable<EpgProgramBulkUploadObject> programs)
-		{
-			foreach (var prog in programs)
-			{
-				string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(eAssetTypes.EPG.ToString(), (long)prog.EpgId);
-
-				if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-				{
-					_Logger.ErrorFormat("Failed to invalidate asset with id: {0}, assetType: {1}, invalidationKey: {2} after EpgIngest", prog.EpgId, eAssetType.PROGRAM.ToString(), invalidationKey);
-				}
-
-				_Logger.Debug($"SetInvalidationKey done with result:[{invalidationKey}]");
-			}
-		}
-
-		private void UpdateBulkUploadResults(Dictionary<string, BulkUploadProgramAssetResult> results, List<EpgProgramBulkUploadObject> finalEpgState)
-		{
-			foreach (var prog in finalEpgState)
-			{
-				var resultObj = results[prog.EpgExternalId];
-				resultObj.ObjectId = (long)prog.EpgId;
-				resultObj.Status = BulkUploadResultStatus.Ok;
-				// TODO: allow updating results in bulk
-				//BulkUploadManager.UpdateBulkUploadResult(_EventData.GroupId, _BulkUploadObject.Id, resultObj.Index, Status.Ok, resultObj.ObjectId, resultObj.Warnings);
-			}
 		}
 
 		private void AddEpgCBObjects(Dictionary<string, BulkUploadProgramAssetResult> results)
@@ -267,41 +222,6 @@ namespace IngestHandler
 			return epgItem;
 		}
 
-		private static void SetSearchEndDate(List<EpgCB> lEpg, int groupID)
-		{
-			try
-			{
-				var days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
-				days = days == 0 ? DEFAULT_CATCHUP_DAYS : days;
-
-				List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
-				var linearChannelSettings = BulkUploadIngestJobData.GetLinearChannelSettings(groupID, epgChannelIds);
-
-				Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
-				{
-					var channel = linearChannelSettings.FirstOrDefault(c => c.ChannelID.Equals(currentElement.ChannelID));
-					if (channel == null)
-					{
-						currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
-					}
-					else if (channel.EnableCatchUp)
-					{
-						currentElement.SearchEndDate =
-							currentElement.EndDate.AddMinutes(channel.CatchUpBuffer);
-					}
-					else
-					{
-						currentElement.SearchEndDate = currentElement.EndDate;
-					}
-				});
-			}
-			catch (Exception ex)
-			{
-				_Logger.Error($"Error EPG ingest threw an exception. (in GetSearchEndDate). Exception={ex.Message};Stack={ex.StackTrace}", ex);
-				throw ex;
-			}
-		}
-
 		private void PrepareEpgItemImages(icon[] icons, EpgCB epgItem, BulkUploadProgramAssetResult bulkUploadResultItem)
 		{
 			if (icons?.Any() != true)
@@ -334,7 +254,6 @@ namespace IngestHandler
 					ratioId = long.Parse(_NonOpcGroupRatios.FirstOrDefault(r => r.Value == icon.ratio).Key);
 				}
 
-
 				epgPicture.Url = imgUrl;
 				epgPicture.PicID = -1;
 				epgPicture.Ratio = icon.ratio;
@@ -365,10 +284,6 @@ namespace IngestHandler
 				//    }
 				//}
 			}
-
-
-
-
 		}
 
 		private static string GetEpgCBDocumentId(string external_id, string langCode, long bulkUploadId)
@@ -390,7 +305,7 @@ namespace IngestHandler
 				_Logger.Warn($"Received bulk upload ingest event with 0 programs to insert. group id ={_EventData.GroupId} id = {_EventData.BulkUploadId}");
 			}
 
-			var targetIndex = GetIngestDraftTargetIndexName();
+			var targetIndex = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
 			if (_ElasticSearchClient.IndexExists(targetIndex))
 			{
 				_Logger.Warn($"already found index:[{targetIndex}], removing it before ingest starts");
@@ -412,7 +327,6 @@ namespace IngestHandler
 				programAssetResultsDictionary[programToIngest.ParsedProgramObject.external_id].Object = programToIngest;
 			}
 
-
 			// Select only results that have objects asspciated with them, 
 			// and ignore other results, theey should probably be handled by a different event
 			programAssetResultsDictionary = programAssetResultsDictionary
@@ -420,25 +334,6 @@ namespace IngestHandler
 				.ToDictionary(k => k.Key, v => v.Value);
 
 			return programAssetResultsDictionary;
-		}
-
-		private BulkUpload GetBulkUploadData()
-		{
-			var bulkUploadData = BulkUploadManager.GetBulkUpload(_EventData.GroupId, _EventData.BulkUploadId);
-
-			if (bulkUploadData?.Object == null)
-			{
-				string message = string.Empty;
-
-				if (bulkUploadData != null && bulkUploadData.Status != null)
-				{
-					message = bulkUploadData.Status.Message;
-				}
-
-				throw new Exception($"Received invalid bulk upload. group id = {_EventData.GroupId} id = {_EventData.BulkUploadId} message = {message}");
-			}
-
-			return bulkUploadData.Object;
 		}
 
 		private List<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(DateTime minStartDate, DateTime maxEndDate)
@@ -455,8 +350,6 @@ namespace IngestHandler
 			}
 
 			_Logger.Debug($"GetCurrentProgramsByDate > index alias:[{index}] found, searching current programs, minStartDate:[{minStartDate}], maxEndDate:[{maxEndDate}]");
-			// type represens the language, the default is the main language
-			string type = DEFAULT_INDEX_MAPPING_TYPE;
 
 			var query = new FilteredQuery(true);
 
@@ -485,7 +378,7 @@ namespace IngestHandler
 
 			// get the epg document ids from elasticsearch
 			var searchQuery = query.ToString();
-			var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
+			var searchResult = _ElasticSearchClient.Search(index, UpdateClonedIndex.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
 
 			List<string> documentIds = new List<string>();
 
@@ -719,41 +612,6 @@ namespace IngestHandler
 		}
 
 		/// <summary>
-		/// create new documents for ALL epgs - generate document key {epg_id}_{language}_{bulk_upload_id}
-		/// </summary>
-		/// <param name="groupId"></param>
-		/// <param name="calculatedPrograms"></param>
-		/// <param name="bulkUploadId"></param>
-		private async Task UpdateCouchbase(List<EpgProgramBulkUploadObject> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary)
-		{
-			var dal = new EpgDal_Couchbase(_EventData.GroupId);
-			// tcm configurable?
-			int retryCount = 3;
-			var policy = Policy.Handle<Exception>()
-				.WaitAndRetryAsync(retryCount, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (ex, time, attempt, ctx) =>
-				{
-					// TODO: improve logging
-					_Logger.Warn("Error while trying to upsert EPG to couchbase", ex);
-					_Logger.Warn($"couchbase upsert retry attempt:[{attempt}/{retryCount}]");
-				}
-			);
-
-			var insertResult = false;
-			await policy.ExecuteAsync(async () =>
-			{
-				var epgCbObjectToInsert = calculatedPrograms.SelectMany(p => p.EpgCbObjects).ToList();
-				SetSearchEndDate(epgCbObjectToInsert, _EventData.GroupId);
-				insertResult = await dal.InsertPrograms(epgCbObjectToInsert, EXPIRY_DATE_DELTA);
-
-			});
-
-			if (!insertResult)
-			{
-				_Logger.Error($"Failed inserting program. group:[{_EventData.GroupId}] bulkUploadId:[{_EventData.GroupId}]");
-			}
-		}
-
-		/// <summary>
 		/// real name: epg_203_20190422_123456
 		/// alias: epg_203_20190422
 		/// reindex epg_203_20190422 to epg_203_20190422_current_bulk_upload_id
@@ -764,8 +622,8 @@ namespace IngestHandler
 		private bool CloneExistingIndex()
 		{
 			var result = true;
-			string source = GetIngestCurrentProgramsAliasName();
-			string destination = GetIngestDraftTargetIndexName();
+			string source = BulkUploadMethods.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
+			string destination = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
 
 			if (_ElasticSearchClient.IndexExists(source))
 			{
@@ -796,203 +654,6 @@ namespace IngestHandler
 			_Logger.Debug($"Clone and Reindex {source} to {destination} success");
 		}
 
-		private void UpdateClonedIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
-		{
-			var bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-			var index = GetIngestDraftTargetIndexName();
-			var bulkRequests = new List<ESBulkRequestObj<string>>();
-			var serializer = new ESSerializerV2();
-			var isOpc = GroupSettingsManager.IsOpc(_EventData.GroupId);
-			var metasToPad = GetMetasToPad(_EventData.GroupId);
-
-			var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
-			foreach (var program in programTranslationsToIndex)
-			{
-				program.PadMetas(metasToPad);
-				var suffix = program.Language;
-				var language = _Languages[program.Language];
-
-				// Serialize EPG object to string
-				var serializedEpg = serializer.SerializeEpgObject(program, suffix, isOpc);
-				var epgType = GetTanslationType(DEFAULT_INDEX_MAPPING_TYPE, language);
-
-				var totalMinutes = GetTTLMinutes(program);
-				// TODO: what should we do if someone trys to ingest something to the past ... :\
-				totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
-
-				var ttl = string.Format("{0}m", totalMinutes);
-
-				var bulkRequest = new ESBulkRequestObj<string>()
-				{
-					docID = program.EpgID.ToString(),
-					document = serializedEpg,
-					index = index,
-					Operation = eOperation.index,
-					routing = program.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-					type = epgType,
-					ttl = ttl
-				};
-
-				bulkRequests.Add(bulkRequest);
-
-				// If we exceeded maximum size of bulk 
-				if (bulkRequests.Count >= bulkSize)
-				{
-					// create bulk request now and clear list
-					var invalidResults = _ElasticSearchClient.CreateBulkRequest(bulkRequests);
-
-					if (invalidResults != null && invalidResults.Count > 0)
-					{
-						foreach (var item in invalidResults)
-						{
-							_Logger.Error($"Could not add EPG to ES index. GroupID={_EventData.GroupId} epgId={item.Key} error={item.Value}");
-						}
-					}
-
-					bulkRequests.Clear();
-				}
-			}
-
-			var programIds = programsToDelete.Select(program => program.EpgId);
-			_Logger.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
-			if (programIds.Any())
-			{
-				var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds);
-				_ElasticSearchClient.DeleteDocsByQuery(index, "", ref deleteQuery);
-			}
-
-			// If we have anything left that is less than the size of the bulk
-			if (bulkRequests.Count > 0)
-			{
-				var invalidResults = _ElasticSearchClient.CreateBulkRequest(bulkRequests);
-
-				if (invalidResults != null && invalidResults.Count > 0)
-				{
-					foreach (var item in invalidResults)
-					{
-						_Logger.Error($"Could not add EPG to ES index. GroupID={_EventData.GroupId} epgId={item.Key} error={item.Value}");
-					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// TODO: DO THIS
-		/// </summary>
-		/// <param name="groupId"></param>
-		/// <returns></returns>
-		private HashSet<string> GetMetasToPad(int groupId)
-		{
-			return new HashSet<string>();
-		}
-
-		private bool ValidateClonedIndex(List<EpgProgramBulkUploadObject> calculatedPrograms)
-		{
-			// Wait time is 2 sec + 50ms for every program that was indexed
-			// TODO: make configurable
-			var delayMsBeforeValidation = 2000 + (calculatedPrograms.Count * 10);
-			var result = false;
-			int retryCount = 5; // TODO: Tcm configuration?
-
-			var policy = RetryPolicy.Handle<Exception>()
-				.WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-				{
-					// TODO: improve logging
-					_Logger.Warn($"Validation Attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-				}
-			);
-
-			var index = GetIngestDraftTargetIndexName();
-
-			// Checking all languages by searhcing for all types
-			var type = string.Empty;
-			var isValid = true;
-			policy.Execute(() =>
-			{
-				isValid = true;
-				var programIds = calculatedPrograms.Select(program => program.EpgId);
-				var searchQuery = GetElasticsearchQueryForEpgIDs(programIds);
-
-				var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
-
-				var jsonResult = JObject.Parse(searchResult);
-				var tempToken = jsonResult.SelectToken("hits.total");
-				int totalItems = tempToken?.Value<int>() ?? 0;
-
-				var expectedItemsCount = calculatedPrograms.SelectMany(p => p.EpgCbObjects).Count();
-				if (totalItems != expectedItemsCount)
-				{
-					isValid = false;
-				}
-
-
-				if (!isValid)
-				{
-					_Logger.Warn($"Missing program from ES index.");
-					throw new Exception("Missing program from ES index");
-				}
-			});
-
-			result = isValid;
-
-			return result;
-		}
-
-		private static string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds)
-		{
-			// Build query for getting programs
-			var query = new FilteredQuery(true);
-			var filter = new QueryFilter();
-
-			// basic initialization
-			query.PageIndex = 0;
-			query.PageSize = 1;
-			query.ReturnFields.Clear();
-
-			var composite = new FilterCompositeType(CutWith.AND);
-
-			// build terms query: epg_id IN (1, 2, 3 ... bulkSize)
-
-			var terms = ESTerms.GetSimpleNumericTerm("epg_id", programIds);
-			composite.AddChild(terms);
-
-			filter.FilterSettings = composite;
-			query.Filter = filter;
-
-			var searchQuery = query.ToString();
-			return searchQuery;
-		}
-
-		/// <summary>
-		/// switch aliases - 
-		/// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
-		/// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
-		/// </summary>
-		/// <param name="bulkUploadId"></param>
-		/// <param name="dateOfIngest"></param>
-		private void SwitchAliases()
-		{
-			string currentProgramsAlias = GetIngestCurrentProgramsAliasName();
-			string globalAlias = _EpgBL.GetProgramIndexAlias();
-
-
-			// Should only be one but we will loop anyway ...
-			var previousIndices = _ElasticSearchClient.GetAliases(currentProgramsAlias);
-			_Logger.Debug($"Removing alias:[{currentProgramsAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
-			foreach (var index in previousIndices)
-			{
-				_ElasticSearchClient.RemoveAlias(index, globalAlias);
-				_ElasticSearchClient.RemoveAlias(index, currentProgramsAlias);
-			}
-
-
-
-			string newIndex = GetIngestDraftTargetIndexName();
-			_Logger.Debug($"Adding alias:[{currentProgramsAlias}, {globalAlias}] To:[{string.Join(",", newIndex)}].");
-			_ElasticSearchClient.AddAlias(newIndex, currentProgramsAlias);
-			_ElasticSearchClient.AddAlias(newIndex, globalAlias);
-		}
-
 		private IngestProfile GetIngestProfile()
 		{
 			var ingestProfile = IngestProfileManager.GetIngestProfileById(_EventData.GroupId, _BulkUploadJobData.IngestProfileId)?.Object;
@@ -1007,48 +668,8 @@ namespace IngestHandler
 			return ingestProfile;
 		}
 
-		/// <summary>
-		/// This is the main alias of all programs
-		/// </summary>
-		//private string GetProgramIndexAlias()
-		//{
-
-		//    return $"{_EventData.GroupId}_epg_v2";
-		//}
-
-		/// <summary>
-		/// This is the index name of exsisting programs
-		/// </summary>
-		private string GetIngestCurrentProgramsAliasName()
-		{
-			string dateString = _EventData.DateOfProgramsToIngest.ToString(ESUtils.ES_DATEONLY_FORMAT);
-			return $"{_EventData.GroupId}_epg_v2_{dateString}";
-		}
-
-		/// <summary>
-		/// This is the index name that we will ingest into
-		/// </summary>
-		private string GetIngestDraftTargetIndexName()
-		{
-			string dateString = _EventData.DateOfProgramsToIngest.ToString(ESUtils.ES_DATEONLY_FORMAT);
-			return $"{_EventData.GroupId}_epg_v2_{dateString}_{_EventData.BulkUploadId}";
-		}
-
-		public static string GetTanslationType(string type, LanguageObj language)
-		{
-			if (language.IsDefault)
-			{
-				return type;
-			}
-			else
-			{
-				return string.Concat(type, "_", language.Code);
-			}
-		}
-
 		private bool BuildNewIndex(string newIndexName)
 		{
-			GetIngestDraftTargetIndexName();
 			GetAnalyzers(out var analyzers, out var filters, out var tokenizers);
 
 			var sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
@@ -1105,11 +726,5 @@ namespace IngestHandler
 
 			}
 		}
-
-		protected virtual double GetTTLMinutes(EpgCB epg)
-		{
-			return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE_DELTA) - DateTime.UtcNow).TotalMinutes);
-		}
 	}
-
 }

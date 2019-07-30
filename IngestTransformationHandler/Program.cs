@@ -11,7 +11,6 @@ namespace EPGTransformationHandler
             var builder = new HostBuilder()
                 .ConfigureEventBustConsumer();
             await builder.RunConsoleAsync();
-
         }
     }
 }

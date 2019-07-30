@@ -2,7 +2,7 @@
 using EventBus.RabbitMQ;
 using Microsoft.Extensions.Hosting;
 
-namespace EPGTransformationHandler
+namespace IngestValidtionHandler
 {
     internal static class Program
     {

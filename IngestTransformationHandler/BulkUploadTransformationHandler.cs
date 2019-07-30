@@ -34,12 +34,6 @@ namespace IngestTransformationHandler
                 _Logger.Error($"An Exception occurred in BulkUploadTransformationHandler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}].", ex);
                 return Task.FromException(ex);
             }
-
-
-            
-            
         }
-     
     }
-
 }

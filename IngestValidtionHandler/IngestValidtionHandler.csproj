@@ -1,15 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>5.2.0.848</Version>
-    <Description>2019-05-16 18:23:45 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-101-g73e441e-dirty</Description>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <LangVersion>7.1</LangVersion>
@@ -30,19 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
-    <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
-    <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
-    <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
-    <ProjectReference Include="..\..\Core\FTPUploadQueue\UploadQueue.csproj" />
-    <ProjectReference Include="..\..\Core\ImageManager\ImageManager.csproj" />
-    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
-    <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
+    <PackageReference Include="Polly" Version="7.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
+    <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
+    <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
   </ItemGroup>
 
 </Project>
