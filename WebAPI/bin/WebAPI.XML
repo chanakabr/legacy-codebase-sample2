@@ -15213,6 +15213,11 @@
             A list of results
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Upload.KalturaBulkUpload.Errors">
+            <summary>
+            A list of errors
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Upload.KalturaBulkUploadFilter">
             <summary>
             Bulk Upload Filter

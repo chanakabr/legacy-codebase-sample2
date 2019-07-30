@@ -949,6 +949,8 @@ namespace WebAPI.Reflection
                             return "action";
                         case "CreateDate":
                             return "createDate";
+                        case "Errors":
+                            return "errors";
                         case "FileName":
                             return "fileName";
                         case "Id":

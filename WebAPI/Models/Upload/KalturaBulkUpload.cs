@@ -95,6 +95,16 @@ namespace WebAPI.Models.Upload
         [XmlArrayItem(ElementName = "item")]
         [SchemeProperty(ReadOnly = true)]
         public List<KalturaBulkUploadResult> Results { get; set; }
+
+        /// <summary>
+        /// A list of errors
+        /// </summary>
+        [DataMember(Name = "errors")]
+        [JsonProperty("error")]
+        [XmlArray(ElementName = "error", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        [SchemeProperty(ReadOnly = true)]
+        public List<KalturaMessage> Errors { get; set; }
     }
 
     public enum KalturaBulkUploadJobStatus

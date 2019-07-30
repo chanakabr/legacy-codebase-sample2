@@ -28,14 +28,11 @@ namespace Phoenix.Rest.Middleware
         private PhoenixRequestContext _PhoenixCtx;
         private readonly IResponseFromatterProvider _FormatterProvider;
 
-
-
         public PhoenixRequestExecutor(RequestDelegate next, IResponseFromatterProvider formatterProvider)
         {
             _Next = next;
             _FormatterProvider = formatterProvider;
         }
-
 
         public async Task InvokeAsync(HttpContext context)
         {
@@ -51,7 +48,6 @@ namespace Phoenix.Rest.Middleware
                 _Response = await ctr.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
 
             }
-
 
             context.Response.OnStarting(HandleResponse, context);
 
@@ -72,10 +68,8 @@ namespace Phoenix.Rest.Middleware
             context.Response.ContentType = formatter.AcceptContentTypes[0];
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-
             await context.Response.WriteAsync(responseJson);
         }
     }
-
 }
 
