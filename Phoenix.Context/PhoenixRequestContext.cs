@@ -10,7 +10,6 @@ using TVinciShared;
 using System.Collections;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
-using System.Diagnostics;
 
 namespace Phoenix.Context
 {
@@ -49,19 +48,11 @@ namespace Phoenix.Context
         public string RequestContentType { get; set; }
         public Version RequestVersion { get; set; }
 
-        public double ExecutionTime => _RequestWatch.Elapsed.TotalSeconds;
-        private Stopwatch _RequestWatch;
-
-        public PhoenixRequestContext()
-        {
-            _RequestWatch = Stopwatch.StartNew();
-        }
-
-        ~PhoenixRequestContext()
-        {
-            _RequestWatch.Stop();
-        }
-
+        /// <summary>
+        /// This property is set by the SessionId middleware only to allow access to the elapes time from anywere in the
+        /// Request proccessing pipeline.
+        /// </summary>
+        public KMonitor ApiMonitorLog { get; set; }
 
         /// <summary>
         /// This method sets all required HttpContext.Current.Items to suppport backward compatibility

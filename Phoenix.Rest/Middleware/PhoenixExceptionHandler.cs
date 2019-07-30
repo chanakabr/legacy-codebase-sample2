@@ -67,7 +67,7 @@ namespace Phoenix.Rest.Middleware
 
                     KalturaApiExceptionHelpers.HandleError(message, stackTrace);
                     var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
-                    errorResponse = new StatusWrapper(code, ctx.SessionId.Value, (float)ctx.ExecutionTime, content, message);
+                    errorResponse = new StatusWrapper(code, ctx.SessionId.Value, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
 
 
                     // get proper response formatter but make sure errors should be only xml or json ...
