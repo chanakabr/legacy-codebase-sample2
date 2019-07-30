@@ -158,3 +158,5 @@ foreach ($ProjectFile in $ProjectFilesList) {
     Write-Host "Patching Done"
     Write-Host ""
 }
+
+exit 0

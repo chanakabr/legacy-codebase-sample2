@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Core.ConditionalAccess
 {
-    public class EntitelemantManager
+    public class EntitlementManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

@@ -1743,9 +1743,8 @@ namespace Core.Billing
             try
             {
                 // get payment GW ID and external transaction ID
-                List<PaymentDetails> PaymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
-                
-                PaymentDetails pd = PaymentDetails != null ? PaymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+                List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
+                PaymentDetails pd = paymentDetails?.FirstOrDefault(x => x.BillingGuid == billingGuid);
 
                 if (pd == null)
                 {

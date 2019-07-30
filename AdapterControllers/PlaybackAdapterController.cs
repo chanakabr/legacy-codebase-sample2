@@ -275,7 +275,7 @@ namespace AdapterControllers
                             Drm = x.Drm == null ? null : ParseDrm(x.Drm),
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
-                            Protocols = x.Protocols                            
+                            Protocols = x.Protocols
                         }).ToList();
                 }
 
@@ -298,7 +298,7 @@ namespace AdapterControllers
             }
 
             return kalturaPlaybackContext;
-        }       
+        }
 
         private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(List<PlaybackAdapter.DrmPlaybackPluginData> drms)
         {
@@ -430,7 +430,8 @@ namespace AdapterControllers
                             Drm = x.Drm == null ? null : ParseDrm(x.Drm),
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
-                            Protocols = x.Protocols
+                            Protocols = x.Protocols,
+                            Type = x.Type
                         }).ToList();
                 }
 
@@ -470,7 +471,7 @@ namespace AdapterControllers
                         StreamerType = tmp.StreamerType,
                         URL = tmp.URL
                     };
-                }                
+                }
                 else
                 {
                     playbackPluginData = new PlaybackAdapter.PlaybackPluginData();
@@ -497,7 +498,7 @@ namespace AdapterControllers
                         StreamerType = tmp.StreamerType,
                         URL = tmp.URL
                     };
-                }               
+                }
                 else
                 {
                     playbackPluginData = new ApiObjects.PlaybackAdapter.BumperPlaybackPluginData();

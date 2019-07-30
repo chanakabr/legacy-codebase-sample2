@@ -372,10 +372,6 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
                     {
-                        log.Debug("CouchBase : ClientFailure detected. " +
-                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
-                            "it will be reinitialized later.");
-
                         // remove bucket
                         lock (locker)
                         {
@@ -383,6 +379,10 @@ namespace CouchbaseManager
                             // to avoid problems with resource concurrency (dispose and use at same time)
                             if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
                             {
+                                log.Debug("CouchBase : ClientFailure detected. " +
+                                    "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
+                                    "it will be reinitialized later.");
+
                                 lastInitializationTime = DateTime.Now;
                                 ClusterHelper.RemoveBucket(bucketName);
                             }
@@ -418,10 +418,6 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
                     {
-                        log.Debug("CouchBase : OperationTimeout detected. " +
-                            "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
-                            "it will be reinitialized later.");
-
                         // remove bucket
                         lock (locker)
                         {
@@ -429,6 +425,10 @@ namespace CouchbaseManager
                             // to avoid problems with resource concurrency (dispose and use at same time)
                             if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
                             {
+                                log.Debug("CouchBase : OperationTimeout detected. " +
+                                    "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
+                                    "it will be reinitialized later.");
+
                                 lastInitializationTime = DateTime.Now;
                                 ClusterHelper.RemoveBucket(bucketName);
                             }
@@ -1961,27 +1961,30 @@ namespace CouchbaseManager
 
                 foreach (var item in getResult)
                 {
+                    var operationResult = item.Value;
+                    operationResult = HandleNodeUnavailable(item.Key, bucket, operationResult, cbDescription);
+
                     // handle exception if there is one
-                    if (item.Value.Exception != null && item.Value.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        HandleException(item.Key, item.Value);
+                    if (operationResult.Exception != null && operationResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        HandleException(item.Key, operationResult);
 
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
-                    if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
+                    if (operationResult.Status != Couchbase.IO.ResponseStatus.Success)
                     {
-                        if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound || item.Value.Status == Couchbase.IO.ResponseStatus.OperationTimeout)
+                        if (operationResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound || operationResult.Status == Couchbase.IO.ResponseStatus.OperationTimeout)
                         {
-                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, operationResult.Status);
                         }
                         else
                         {
-                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, operationResult.Status, operationResult.Message);
 
                             // Throw exception if there is one
-                            if (item.Value.Exception != null)
-                                throw item.Value.Exception;
+                            if (operationResult.Exception != null)
+                                throw operationResult.Exception;
                         }
 
-                        status = item.Value.Status;
+                        status = operationResult.Status;
 
                         if (!shouldAllowPartialQuery)
                             break;
@@ -2047,30 +2050,33 @@ namespace CouchbaseManager
 
                 foreach (var item in getResult)
                 {
+                    var operationResult = item.Value;
+                    operationResult = HandleNodeUnavailable(item.Key, bucket, operationResult, cbDescription);
+
                     // Handle exception if there is one
-                    if (item.Value.Exception != null && item.Value.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
-                        HandleException(item.Key, item.Value);
+                    if (operationResult.Exception != null && operationResult.Status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        HandleException(item.Key, operationResult);
 
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
-                    if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
+                    if (operationResult.Status != Couchbase.IO.ResponseStatus.Success)
                     {
-                        if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (operationResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, operationResult.Status);
                         }
                         else
                         {
-                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, operationResult.Status, operationResult.Message);
                         }
 
-                        status = item.Value.Status;
+                        status = operationResult.Status;
 
                         if (!shouldAllowPartialQuery)
                             break;
                     }
                     else
                     {
-                        log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
+                        log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, operationResult.Status);
                     }
                 }
 
