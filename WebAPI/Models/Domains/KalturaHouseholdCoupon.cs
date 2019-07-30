@@ -4,6 +4,7 @@ using ApiObjects.Pricing;
 using Core.Pricing.Handlers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -19,6 +20,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household Coupon details
     /// </summary>
+    [Serializable]
     public partial class KalturaHouseholdCoupon : KalturaCrudObject<CouponWallet, string, CouponWalletFilter>
     {        
         /// <summary>

@@ -14,8 +14,6 @@ namespace Reflector
 {
     class DataModel : Base
     {
-        public Dictionary<string, MethodInfo> BaseCrudActions;
-
         public static string GetDataModelCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
@@ -250,19 +248,18 @@ namespace Reflector
 
                     WriteActionParams(actionAttribute, action, schemeArgumentProperties, serviceAttribute);
                 }
-                
-                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes))
-                {
-                    if (BaseCrudActions == null)
-                    {
-                        BaseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
-                    }
 
-                    WriteCrudActionParams(AddActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(UpdateActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(DeleteActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(GetActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
-                    WriteCrudActionParams(ListActionAttribute.Name, crudActionAttributes, BaseCrudActions, schemeArgumentProperties, serviceAttribute);
+                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
+                {
+                    foreach (var crudActionAttribute in crudActionAttributes)
+                    {
+                        if (crudActions.ContainsKey(crudActionAttribute.Key))
+                        {
+                            var crudAction = crudActions[crudActionAttribute.Key];
+                            var actionAttribute = crudAction.GetCustomAttribute<ActionAttribute>(true);
+                            WriteActionParams(actionAttribute, crudAction, schemeArgumentProperties, serviceAttribute, crudActionAttribute.Value.GetOptionalParameters());
+                        }
+                    }
                 }
 
                 file.WriteLine("                    }");
@@ -276,16 +273,7 @@ namespace Reflector
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
-
-        private void WriteCrudActionParams(string actionName, Dictionary<string, CrudActionAttribute> crudActionAttributes, Dictionary<string, MethodInfo> crudActions, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute)
-        {
-            if (crudActionAttributes.ContainsKey(actionName) && crudActions.ContainsKey(actionName))
-            {
-                var actionAttribute = crudActions[actionName].GetCustomAttribute<ActionAttribute>(true);
-                WriteActionParams(actionAttribute, crudActions[actionName], schemeArgumentProperties, serviceAttribute, crudActionAttributes[actionName].GetOptionalParameters());
-            }
-        }
-
+        
         private void WriteActionParams(ActionAttribute actionAttribute, MethodInfo action, List<PropertyInfo> schemeArgumentProperties, ServiceAttribute serviceAttribute, HashSet<string> optionalParameters = null)
         {
             file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
@@ -628,19 +616,16 @@ namespace Reflector
                     file.WriteLine("                            break;");
                     file.WriteLine("                            ");
                 }
-                
-                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes))
+
+                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
                 {
-                    if (BaseCrudActions == null)
+                    foreach (var crudActionAttribute in crudActionAttributes)
                     {
-                        BaseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
+                        if (crudActions.ContainsKey(crudActionAttribute.Key))
+                        {
+                            WriteCrudAction(controller, serviceName, crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
+                        }
                     }
-                        
-                    WriteCrudAction(AddActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(UpdateActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(DeleteActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(GetActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
-                    WriteCrudAction(ListActionAttribute.Name, controller, serviceName, crudActionAttributes, BaseCrudActions);
                 }
 
                 file.WriteLine("                    }");
@@ -655,27 +640,25 @@ namespace Reflector
             file.WriteLine("        ");
         }
 
-        private void WriteCrudAction(string actionName, Type crudController, string serviceName, Dictionary<string, CrudActionAttribute> crudActionAttributes, Dictionary<string, MethodInfo> crudActions)
+        private void WriteCrudAction(Type controller, string serviceName, CrudActionAttribute crudActionAttribute, MethodInfo crudAction)
         {
-            if (!crudActionAttributes.ContainsKey(actionName) || !crudActions.ContainsKey(actionName)) { return; }
-            var crudAction = crudActions[actionName];
-
+            var actionName = crudActionAttribute.GetName();
             file.WriteLine("                        case \"" + actionName + "\":");
             file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceName + "\", \"" + actionName + "\");");
             
             string args = String.Join(", ", crudAction.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
             if (crudAction.IsGenericMethod)
             {
-                file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + crudController.Name + ").GetMethod(\"" + crudAction.Name + "\"), methodParams);");
+                file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + crudAction.Name + "\"), methodParams);");
             }
             else if (crudAction.ReturnType == typeof(void))
             {
-                file.WriteLine("                            " + crudController.Name + "." + crudAction.Name + "(" + args + ");");
+                file.WriteLine("                            " + controller.Name + "." + crudAction.Name + "(" + args + ");");
                 file.WriteLine("                            return null;");
             }
             else
             {
-                file.WriteLine("                            return " + crudController.Name + "." + crudAction.Name + "(" + args + ");");
+                file.WriteLine("                            return " + controller.Name + "." + crudAction.Name + "(" + args + ");");
             }
             
             file.WriteLine("                            ");

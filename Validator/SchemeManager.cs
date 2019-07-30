@@ -47,7 +47,7 @@ namespace Validator.Managers.Scheme
             "NotContains",
             "Empty"
         };
-
+        
         private static string GetProjectDir()
         {
             string filename = Assembly.GetExecutingAssembly().CodeBase;
@@ -715,9 +715,10 @@ namespace Validator.Managers.Scheme
             return Char.ToUpper(str[0]) + str.Substring(1);
         }
 
-        public static bool IsCrudController(Type controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes)
+        public static bool IsCrudController(Type controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions)
         {
             crudActionAttributes = null;
+            crudActions = null;
             if (controller.BaseType != null && controller.BaseType.IsGenericType && controller.BaseType.GetGenericTypeDefinition() == typeof(KalturaCrudController<,,,,,>))
             {
                 var actionAttributes = controller.GetCustomAttributes<CrudActionAttribute>(true).ToDictionary(x => x.GetName(), x => x);
@@ -725,6 +726,7 @@ namespace Validator.Managers.Scheme
                 if (actionAttributes != null && actionAttributes.Count > 0)
                 {
                     crudActionAttributes = actionAttributes;
+                    crudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
                     return true;
                 }
             }

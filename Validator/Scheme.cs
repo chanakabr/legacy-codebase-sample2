@@ -159,7 +159,7 @@ namespace Validator.Managers.Scheme
                 var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
                 if (apiExplorerSettings != null && apiExplorerSettings.IgnoreApi)
                     continue;
-
+                
                 var methods = controller.GetMethods();
                 foreach (var method in methods)
                 {
@@ -181,6 +181,22 @@ namespace Validator.Managers.Scheme
                         LoadType(method.ReturnType);
                     }
                 };
+
+                if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
+                {
+                    foreach (var crudActionAttribute in crudActionAttributes)
+                    {
+                        foreach (var param in crudActions[crudActionAttribute.Key].GetParameters())
+                        {
+                            LoadType(param.ParameterType);
+                        }
+
+                        if (crudActions[crudActionAttribute.Key].ReturnType != null)
+                        {
+                            LoadType(crudActions[crudActionAttribute.Key].ReturnType);
+                        }
+                    }
+                }
             }
 
             var filters = assembly.GetTypes().Where(myType => myType.IsClass && typeof(IKalturaFilter).IsAssignableFrom(myType));
@@ -194,7 +210,6 @@ namespace Validator.Managers.Scheme
                         enums.Add(orderBy);
                 }
             }
-
             types = FixTypeDependencies(Field.loadedTypes.Values);
         }
 
@@ -495,7 +510,6 @@ namespace Validator.Managers.Scheme
 
                 writeType(type);
             }
-
             writer.WriteEndElement(); // classes
 
             //Running on methods
@@ -668,15 +682,15 @@ namespace Validator.Managers.Scheme
                 writeAction(method);
             };
 
-            if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes))
+            if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
             {
-                var baseCrudActions = controller.BaseType.GetMethods().ToDictionary(x => x.Name.ToLower(), x => x);
-
-                WriteCrudAction(AddActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(UpdateActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(DeleteActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(GetActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
-                WriteCrudAction(ListActionAttribute.Name, controller, crudActionAttributes, baseCrudActions);
+                foreach (var crudActionAttribute in crudActionAttributes)
+                {
+                    if (crudActions.ContainsKey(crudActionAttribute.Key))
+                    {
+                        WriteCrudAction(controller, crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
+                    }
+                }
             }
 
             writer.WriteEndElement(); // service
@@ -760,51 +774,48 @@ namespace Validator.Managers.Scheme
             writer.WriteEndElement(); // action
         }
 
-        private void WriteCrudAction(string actionName, Type controller, Dictionary<string, CrudActionAttribute> crudActionAttributes, Dictionary<string, MethodInfo> baseCrudActions)
+        private void WriteCrudAction(Type controller, CrudActionAttribute crudActionAttribute, MethodInfo crudAction)
         {
-            if (!crudActionAttributes.ContainsKey(actionName) || !baseCrudActions.ContainsKey(actionName)) { return; }
-            var actionAttribute = crudActionAttributes[actionName];
-
             string serviceId = SchemeManager.getServiceId(controller);
-            string actionId = actionAttribute.GetName();
+            string actionId = crudActionAttribute.GetName();
             
             writer.WriteStartElement("action");
             writer.WriteAttributeString("name", actionId);
             writer.WriteAttributeString("enableInMultiRequest", "1");
             writer.WriteAttributeString("supportedRequestFormats", "json");
             writer.WriteAttributeString("supportedResponseFormats", "json,xml");
-            writer.WriteAttributeString("description", actionAttribute.Summary);
+            writer.WriteAttributeString("description", crudActionAttribute.Summary);
             writer.WriteAttributeString("sessionRequired", "always");
 
-            var parameters = baseCrudActions[actionName].GetParameters();
+            var parameters = crudAction.GetParameters();
             foreach (var param in parameters)
             {
                 writer.WriteStartElement("param");
                 writer.WriteAttributeString("name", param.Name);
                 appendType(param.ParameterType);
 
-                var isOptional = SchemeManager.IsParameterOptional(param, actionAttribute.GetOptionalParameters());
+                var isOptional = SchemeManager.IsParameterOptional(param, crudActionAttribute.GetOptionalParameters());
                 if (isOptional)
                 {
                     writer.WriteAttributeString("default", SchemeManager.VarToString(param.DefaultValue));
                 }
                 
-                writer.WriteAttributeString("description", actionAttribute.GetDescription(param.Name));
+                writer.WriteAttributeString("description", crudActionAttribute.GetDescription(param.Name));
                 writer.WriteAttributeString("optional", isOptional ? "1" : "0");
                 writer.WriteEndElement(); // param
             }
 
             writer.WriteStartElement("result");
-            if (baseCrudActions[actionName].ReturnType != typeof(void))
+            if (crudAction.ReturnType != typeof(void))
             {
-                appendType(baseCrudActions[actionName].ReturnType);
+                appendType(crudAction.ReturnType);
             }
             writer.WriteEndElement(); // result
 
             // write throws
-            if (actionAttribute.ApiThrows != null && actionAttribute.ApiThrows.Length > 0)
+            if (crudActionAttribute.ApiThrows != null && crudActionAttribute.ApiThrows.Length > 0)
             {
-                foreach (var apiCode in actionAttribute.ApiThrows)
+                foreach (var apiCode in crudActionAttribute.ApiThrows)
                 {
                     if (errors.ContainsKey((int)apiCode))
                     {
@@ -816,9 +827,9 @@ namespace Validator.Managers.Scheme
                 }
             }
 
-            if ((actionAttribute.ClientThrows != null && actionAttribute.ClientThrows.Length > 0))
+            if ((crudActionAttribute.ClientThrows != null && crudActionAttribute.ClientThrows.Length > 0))
             {
-                foreach (var clientCode in actionAttribute.ClientThrows)
+                foreach (var clientCode in crudActionAttribute.ClientThrows)
                 {
                     if (errors.ContainsKey((int)clientCode))
                     {
