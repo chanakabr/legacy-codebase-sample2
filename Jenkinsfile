@@ -5,8 +5,8 @@ pipeline {
              parallel {
                 stage('Build and Push Windows Docker') {
                     agent { label 'Jenkins-Docker-Windows' } 
+                    environment{ DOCKER_BUILD_TAG = UUID.randomUUID().toString() }
                     steps {
-                        env.DOCKER_BUILD_TAG = UUID.randomUUID().toString()
                         sh label: "Docker build core:$DOCKER_BUILD_TAG", script: "docker build -t core:win-$DOCKER_BUILD_TAG -f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$USERNAME:$TOKEN ."
 
                         script {
@@ -18,6 +18,7 @@ pipeline {
                 }
                 stage('Build and Push Linux Docker') {
                     agent { label 'Ubuntu' } 
+                    environment{ DOCKER_BUILD_TAG = UUID.randomUUID().toString() }
                     steps {
                         sh label: "Docker build core:$DOCKER_BUILD_TAG", script: "docker build -t core:$DOCKER_BUILD_TAG -f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME --build-arg BITBUCKET_TOKEN=$USERNAME:$TOKEN ."
                         script {
