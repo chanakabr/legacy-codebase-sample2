@@ -5,10 +5,10 @@ pipeline {
         stage('Build Remote-tasks dockers'){
             steps {
                 sh (label: "Docker pull 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:${BRANCH_NAME}", 
-                    script: "docker build -t remote-tasks:${DOCKER_BUILD_TAG} --build-arg CORE_BUILD_TAG=${BRANCH_NAME} ."
+                    script: "docker build -t dev-remote-tasks:${DOCKER_BUILD_TAG} --build-arg CORE_BUILD_TAG=${BRANCH_NAME} ."
                 )
-                sh (label: "Docker build remote-tasks:$DOCKER_BUILD_TAG", 
-                    script: "docker build -t remote-tasks:${DOCKER_BUILD_TAG} --build-arg CORE_BUILD_TAG=${BRANCH_NAME} ."
+                sh (label: "Docker build dev-remote-tasks:$DOCKER_BUILD_TAG", 
+                    script: "docker build -t dev-remote-tasks:${DOCKER_BUILD_TAG} --build-arg CORE_BUILD_TAG=${BRANCH_NAME} ."
                 )
             }
         }
@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry("https://870777418594.dkr.ecr.eu-west-1.amazonaws.com", "ecr:eu-west-1:dev") {
-                        docker.image("remote-tasks:$DOCKER_BUILD_TAG").push("$BRANCH_NAME")
+                        docker.image("dev-remote-tasks:$DOCKER_BUILD_TAG").push("$BRANCH_NAME")
                     }
                 }
             }
