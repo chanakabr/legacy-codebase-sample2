@@ -364,6 +364,7 @@ namespace APILogic.Api.Managers
         private static Tuple<Dictionary<string, Permission>, bool> BuildGroupFeatures(Dictionary<string, object> funcParams)
         {
             Dictionary<string, Permission> result = new Dictionary<string, Permission>();
+            bool success = false;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -372,6 +373,7 @@ namespace APILogic.Api.Managers
                     if (groupId.HasValue)
                     {
                         result = GetGroupPermissionFeatures(groupId.Value);
+                        success = true;
                     }
                 }
             }
@@ -380,7 +382,7 @@ namespace APILogic.Api.Managers
                 log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, Permission>, bool>(result, result != null && result.Count > 0);
+            return new Tuple<Dictionary<string, Permission>, bool>(result, success);
         }
 
         public static Dictionary<string, Permission> GetGroupPermissionFeatures(int groupId)

@@ -1069,14 +1069,25 @@ namespace Core.Api.Managers
                                 }
 
                                 List<long> ruleIds = null;
+                                bool filterActions = false;
                                 var rulesTypes = ApiDAL.GetAssetRuleTypeCB(filteredAssetRules.Select(x => x.Id));
                                 if (rulesTypes != null && rulesTypes.Count > 0)
                                 {
-                                    ruleIds = rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType) &&
-                                                                                   (x.ActionTypeIdIn == null ? true :
-                                                                                        ruleActionType.HasValue ? x.ActionTypeIdIn.Contains((int)ruleActionType) : true &&
-                                                                                        x.ActionTypeIdIn.All(y => RuleActionsTypes.Contains(y))))
-                                                                       .Select(x => x.Id).ToList();
+                                    filterActions = ruleActionType.HasValue && rulesTypes.Count(x => x.ActionTypeIdIn == null || x.ActionTypeIdIn.Count == 0) > 0;
+
+                                    if (!filterActions)
+                                    {
+                                        ruleIds = rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType) &&
+                                                                                       (x.ActionTypeIdIn == null ? true :
+                                                                                            ruleActionType.HasValue ? x.ActionTypeIdIn.Contains((int)ruleActionType) : true &&
+                                                                                            x.ActionTypeIdIn.All(y => RuleActionsTypes.Contains(y))))
+                                                                           .Select(x => x.Id).ToList();
+                                    }
+                                    else
+                                    {
+                                        ruleIds = rulesTypes.Where(x => x.TypeIdIn.Contains((int)assetRuleConditionType)).Select(x => x.Id).ToList();
+                                    }
+
                                 }
 
                                 if (ruleIds != null)
@@ -1085,6 +1096,11 @@ namespace Core.Api.Managers
                                     if (assetRulesCB != null && assetRulesCB.Count > 0)
                                     {
                                         allAssetRules = assetRulesCB;
+
+                                        if (filterActions)
+                                        {
+                                            allAssetRules = allAssetRules.Where(x => x.Actions.Any(a => a.Type == ruleActionType.Value)).ToList();
+                                        }
                                     }
                                 }
                             }
