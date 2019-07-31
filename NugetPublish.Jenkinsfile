@@ -42,6 +42,7 @@ pipeline {
                 bat "dotnet pack Core/ApiObjects/ApiObjects.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/EventBus.Abstraction/EventBus.Abstraction.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/EventManager/EventManager.csproj -o ${WORKSPACE}/nugets/"
+				bat "dotnet pack Core/QueueWrapper/QueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
             }        
         }
@@ -60,6 +61,7 @@ pipeline {
                     bat "nuget push ApiObjects*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push EventBus.Abstraction*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push EventManager*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+					bat "nuget push QueueWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push RabbitQueueWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                 }
             }
