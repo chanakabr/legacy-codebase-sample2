@@ -76,6 +76,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WAP_TVPApi", "WAP_TVPApi\WAP_TVPApi.csproj", "{3500A840-C10F-4904-95D8-62D9ED6A0116}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AllClients|Any CPU = AllClients|Any CPU
@@ -354,6 +356,20 @@ Global
 		{23FA1EBA-D2D0-4F86-96A4-46C5BE96C780}.test|Any CPU.Build.0 = Release|Any CPU
 		{23FA1EBA-D2D0-4F86-96A4-46C5BE96C780}.Yes|Any CPU.ActiveCfg = Release|Any CPU
 		{23FA1EBA-D2D0-4F86-96A4-46C5BE96C780}.Yes|Any CPU.Build.0 = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Local|Any CPU.Build.0 = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.test|Any CPU.Build.0 = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{3500A840-C10F-4904-95D8-62D9ED6A0116}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -378,9 +394,10 @@ Global
 		{6409DA6B-D48D-43A2-9217-02B25D4ED5E3} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{18F39282-8646-41CC-8E56-600087A2A9AC} = {75C2CAD2-4BA9-4D93-8D14-5C005BEC0D7F}
 		{23FA1EBA-D2D0-4F86-96A4-46C5BE96C780} = {173647D2-B5B7-46DC-80FB-0326B428418A}
+		{3500A840-C10F-4904-95D8-62D9ED6A0116} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
