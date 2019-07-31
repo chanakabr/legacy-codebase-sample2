@@ -22,8 +22,6 @@ namespace KLogMonitor
 
         private const string MUTLIREQUEST_ACTION = "multirequest";
 
-        SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
-
         [Newtonsoft.Json.JsonProperty(PropertyName = "m")]
         [DataMember(Name = "z")]
         public string IsMultiRequest { get; set; }
@@ -198,7 +196,6 @@ namespace KLogMonitor
 
             if (disposing)
             {
-                handle.Dispose();
                 //dispose managed resources
                 this.Watch.Stop();
 
