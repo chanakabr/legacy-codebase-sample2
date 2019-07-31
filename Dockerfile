@@ -2,16 +2,18 @@
 ARG CORE_IMAGE=870777418594.dkr.ecr.eu-west-1.amazonaws.com/core
 FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 
-ARG BRANCH=master
-
 WORKDIR /src
 COPY [".", "RemoteTasks"]
 
 WORKDIR /src/RemoteTasks
 
 RUN bash /src/Core/DllVersioning.Core.sh .
+
+RUN dotnet publish -c Release "./HealthCheck/HealthCheck.csproj" -o /src/published/HealthCheck
 RUN dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/published/IngestHandler
 RUN dotnet publish -c Release "./IngestTransformationHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler
+RUN dotnet publish -c Release "./IngestValidtionHandler/IngestValidtionHandler.csproj" -o /src/published/IngestValidtionHandler
+
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
