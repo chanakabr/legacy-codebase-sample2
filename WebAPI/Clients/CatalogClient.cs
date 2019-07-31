@@ -2851,7 +2851,8 @@ namespace WebAPI.Clients
                 m_sMediaType = mediaTypes != null ? string.Join(";", mediaTypes.ToArray()) : null,
                 m_dServerTime = getServerTime(),
                 m_eBundleType = bundleType == KalturaBundleType.collection ? eBundleType.COLLECTION : eBundleType.SUBSCRIPTION,
-                m_nBundleID = id
+                m_nBundleID = id,
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
 
             // build failover cache key
