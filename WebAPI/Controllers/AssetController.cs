@@ -318,7 +318,7 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                        bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
                         response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy,
                                                                 channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets);
                     }
@@ -326,7 +326,7 @@ namespace WebAPI.Controllers
                 else if (filter is KalturaBundleFilter)
                 {
                     KalturaBundleFilter bundleFilter = (KalturaBundleFilter)filter;
-                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID);
+                    bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
                     response = ClientsManager.CatalogClient().GetBundleAssets(groupId, userID, domainId, udid, language,
                        pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual,
                        isAllowedToViewInactiveAssets, bundleFilter.DynamicOrderBy);
