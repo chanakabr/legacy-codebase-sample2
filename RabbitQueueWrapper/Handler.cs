@@ -11,7 +11,7 @@ namespace RabbitQueueWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public string CeleryDateFormat
+        public static string CeleryDateFormat
         {
             get { return BaseCeleryData.CELERY_DATE_FORMAT; }
         }
