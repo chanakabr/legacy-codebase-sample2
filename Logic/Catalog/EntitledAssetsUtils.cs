@@ -89,7 +89,7 @@ namespace Core.Catalog
                 if (allChannels != null && allChannels.Count > 0)
                 {
                     // Build search object for each channel
-                    var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order, groupId, doesGroupUsesTemplates);
+                    var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, order, groupId, doesGroupUsesTemplates, false);
                     result.AddRange(searchObjects);
                 }
             }
