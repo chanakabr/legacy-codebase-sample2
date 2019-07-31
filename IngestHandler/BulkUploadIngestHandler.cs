@@ -102,7 +102,7 @@ namespace IngestHandler
 
                 var crudOperations = CalculateCRUDOperations(currentPrograms, programsToIngest);
 
-                var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, programsToIngest, crudOperations);
+                var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, crudOperations);
 
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
 
@@ -444,29 +444,29 @@ namespace IngestHandler
 			return crudOperations;
 		}
 
-		private List<EpgProgramBulkUploadObject> CalculateRequiredUpdatesToEdgesDueToOverlap(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
+		private List<EpgProgramBulkUploadObject> CalculateRequiredUpdatesToEdgesDueToOverlap(IList<EpgProgramBulkUploadObject> currentPrograms, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
 		{
 			var result = new List<EpgProgramBulkUploadObject>();
 			// If overlaps are allowed we have to check the edges of the give range for overlap and cut the source or the target
 			if (_IngestProfile.DefaultOverlapPolicy != eIngestProfileOverlapPolicy.Reject)
 			{
 				_Logger.Debug($"CalculateCRUDOperations > _IngestProfile.DefaultOverlapPolicy:[{_IngestProfile.DefaultOverlapPolicy}], calculating required update to edge programs");
-				result = CutSourceOrTargetOverlappingDates(currentPrograms, programsToIngest);
+				result = CutSourceOrTargetOverlappingDates(currentPrograms.Except(crudOperations.ItemsToDelete), crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate));
 				_Logger.Debug($"CalculateCRUDOperations > after edge overlap calculations add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
 			}
 
 			return result;
 		}
 
-		private List<EpgProgramBulkUploadObject> CutSourceOrTargetOverlappingDates(IList<EpgProgramBulkUploadObject> currentPrograms, IList<EpgProgramBulkUploadObject> programsToIngest)
+		private List<EpgProgramBulkUploadObject> CutSourceOrTargetOverlappingDates(IEnumerable<EpgProgramBulkUploadObject> currentPrograms, IEnumerable<EpgProgramBulkUploadObject> programsToIngest)
 		{
 			var result = new List<EpgProgramBulkUploadObject>();
 			var orderedCurrentPrograms = currentPrograms.OrderBy(p => p.StartDate);
 			var orderedProgramsToIngest = programsToIngest.OrderBy(p => p.StartDate);
 			var firstCurrentProgram = currentPrograms.FirstOrDefault();
-			var firstProgramToIngest = orderedProgramsToIngest.FirstOrDefault();
+			var firstProgramToIngest = orderedProgramsToIngest.FirstOrDefault(p=>p.EpgId != firstCurrentProgram?.EpgId);
 			var lastCurrentProgram = orderedCurrentPrograms.LastOrDefault();
-			var lastProgramToIngest = orderedProgramsToIngest.LastOrDefault();
+			var lastProgramToIngest = orderedProgramsToIngest.LastOrDefault(p => p.EpgId != lastCurrentProgram?.EpgId);
 
 			_Logger.Debug($"CutSourceOrTargetOverlappingDates > firstCurrentProgram:[{firstCurrentProgram}],lastCurrentProgram:[{lastCurrentProgram}],firstProgramToIngest:[{firstProgramToIngest}],lastProgramToIngest:[{lastProgramToIngest}]");
 			if (firstCurrentProgram != null && firstProgramToIngest != null)
