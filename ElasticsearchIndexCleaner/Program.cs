@@ -21,6 +21,9 @@ namespace ElasticsearchIndexCleaner
 
             [Option('c', "commit", HelpText = "if set to false then no changes will be made (fry run)", Required = false, Default = false)]
             public bool Commit { get; set; }
+
+            [Option('s', "save last X indexes", HelpText = "if set won't delete the last X indexes", Required = false)]
+            public int SaveLastXIndexes { get; set; }
         }
 
         public static void Main(string[] args)
@@ -38,6 +41,14 @@ namespace ElasticsearchIndexCleaner
                    _Logger.Info($"Starting ElasticsearchIndexCleaner for gropu:[{groupId}]");
                    var indices = _ESClient.ListIndices($"{groupId}_epg_*");
                    var indicesToDelete = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
+
+                   if (o.SaveLastXIndexes < indicesToDelete.Count)
+                   {
+                       var counter = indicesToDelete.ToDictionary(x => int.Parse(x.Split('_').Last()), y => y);
+                       var sorted = new SortedDictionary<int,string>(counter, Comparer<int>.Default);
+                       indicesToDelete = sorted.Take(indicesToDelete.Count - o.SaveLastXIndexes).Select(x=>x.Value).ToList();
+                   }
+
                    _Logger.Info($"Deleting indices:[{string.Join(",", indicesToDelete)}] ");
                    if (o.Commit)
                    {
