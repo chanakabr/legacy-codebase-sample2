@@ -1,64 +1,34 @@
-﻿ARG BUILD_TAG=latest
-ARG IIS_TAG=windowsservercore-ltsc2019
-FROM 870777418594.dkr.ecr.eu-west-1.amazonaws.com/core:${BUILD_TAG} AS builder
-SHELL ["powershell"]
-WORKDIR /
+﻿ARG CORE_BUILD_TAG=netcore-latest
+ARG CORE_IMAGE=870777418594.dkr.ecr.eu-west-1.amazonaws.com/core
+FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 
-ADD . tvpapi_rest
+ARG BRANCH=master
 
-#version patch assemblies
-WORKDIR /tvpapi_rest
-RUN  ../Core/DllVersioning.ps1 .
-WORKDIR /
+WORKDIR /src
+COPY [".", "phoenix-rest"]
+WORKDIR /src/phoenix-rest
 
-RUN msbuild -p:Configuration=Release -t:restore,build tvpapi_rest/TVPProAPIs.sln
+RUN bash /src/Core/DllVersioning.Core.sh .
+RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
 
-RUN msbuild -t:WebPublish -p:Configuration=Release -p:DeployOnBuild=True -p:WebPublishMethod=FileSystem -p:PublishUrl=C:/WebAPI -p:Profile=FolderProfile tvpapi_rest/Phoenix.Legacy/Phoenix.Legacy.csproj
-RUN dotnet tvpapi_rest/Generator/bin/Release/netcoreapp2.0\Generator.dll
+# Cannot use alpine base runtime image because of this issue:
+# https://github.com/dotnet/corefx/issues/29147
+# Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
+WORKDIR /opt
 
-RUN mkdir C:\WebAPI\clientlibs
-RUN mv KalturaClient.xml C:\WebAPI\clientlibs\KalturaClient.xml
-
-
-
-FROM mcr.microsoft.com/windows/servercore/iis:${IIS_TAG}
-SHELL ["powershell"]
-
-RUN Install-WindowsFeature NET-Framework-45-ASPNET
-RUN Install-WindowsFeature Web-Asp-Net45
-
-COPY --from=builder WebAPI WebAPI
-
-RUN Remove-WebSite -Name 'Default Web Site'; \
-	New-Website -Name WebAPI -Port 80 -PhysicalPath 'C:\WebAPI'
-
-RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
-	$doc = New-Object System.Xml.XmlDocument; \
-	$doc.Load($filePath); \
-	$child = $doc.CreateElement(\"logFile\"); \
-	$child.SetAttribute(\"directory\", \"C:\log\iis\%COMPUTERNAME%\"); \
-	$site = $doc.SelectSingleNode(\"//site[@name='WebAPI']\"); \
-	$site.AppendChild($child); \
-	$doc.Save($filePath)
-	
-RUN mkdir C:\log
-RUN mkdir C:\log\api
-
-ARG API_LOG_DIR=C:\\log\\api\\%COMPUTERNAME%
+ARG API_LOG_DIR=/var/log/remote-tasks/
 ENV API_LOG_DIR ${API_LOG_DIR}
+ENV API_STD_OUT_LOG_LEVEL "Trace"
 
-RUN mv /WebAPI/ssl-dev /Certificate
+COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
+WORKDIR /opt/phoenix-rest
 
-RUN import-module webadministration; \
-    $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
-    $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
-    New-Item -path IIS:\SslBindings\0.0.0.0!443 -value $cert; \
-    New-WebBinding -Name "WebAPI" -IP "*" -Port 443 -Protocol https
-
+ENV ARGS "--urls http://0.0.0.0:80"
 
 EXPOSE 80
 EXPOSE 443
 
-RUN $version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo('C:\WebAPI\bin\WebAPI.dll').FileVersion; \
-	Set-Content -Path 'C:\VERSION' -Value $version
-	
+ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll ${ARGS}" ]
+
+
