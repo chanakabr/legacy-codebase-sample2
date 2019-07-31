@@ -48,43 +48,43 @@ namespace RabbitQueueWrapper
                 log.Error("Enqueue - \"objectToEnqueue\" could not be empty.");
                 throw new ArgumentNullException("objectToEnqueue");
             }
-
-            var data = new BaseCeleryData()
-            {
-                id = Guid.NewGuid().ToString(),
-                task = task,
-                // primary args object is the notified object itself, it will be a complete json object
-                args = new List<object>()
-                {
-                    groupId,
-                    objectToEnqueue
-                },
-                GroupId = groupId
-            };
             
-            if (extraArgs != null && extraArgs.Count > 0)
-            {
-                data.args.AddRange(extraArgs);
-            }
-
-            data.args.Add(data.RequestId);
-
-            if (eta != null && eta.HasValue)
-            {
-                data.eta = eta.Value.ToString(BaseCeleryData.CELERY_DATE_FORMAT);
-            }
-
             try
             {
+                var data = new BaseCeleryData()
+                {
+                    id = Guid.NewGuid().ToString(),
+                    task = task,
+                    // primary args object is the notified object itself, it will be a complete json object
+                    args = new List<object>()
+                    {
+                        groupId,
+                        objectToEnqueue
+                    },
+                    GroupId = groupId
+                };
+
+                if (extraArgs != null && extraArgs.Count > 0)
+                {
+                    data.args.AddRange(extraArgs);
+                }
+
+                data.args.Add(data.RequestId);
+
+                if (eta != null && eta.HasValue)
+                {
+                    data.eta = eta.Value.ToString(BaseCeleryData.CELERY_DATE_FORMAT);
+                }
+
                 var queue = new GenericCeleryQueue();
                 enqueueSuccessful = queue.Enqueue(data, routingKey);
                 if (enqueueSuccessful)
                 {
-                    log.DebugFormat("Success to enqueue BulkUpload. data: {0}", data);
+                    log.DebugFormat("Success to enqueue object to RabbitMQ. data: {0}", data);
                 }
                 else
                 {
-                    log.ErrorFormat("Failed to enqueue BulkUpload. data: {0}", data);
+                    log.ErrorFormat("Failed to enqueue object to RabbitMQ. data: {0}", data);
                 }
             }
             catch (Exception ex)
