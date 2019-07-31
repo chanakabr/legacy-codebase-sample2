@@ -468,6 +468,7 @@ namespace WebAPI.Managers
         private static Tuple<Dictionary<string, List<string>>, bool> BuildPermissionItemsToFeaturesDictionary(Dictionary<string, object> funcParams)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            bool success = false;
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("groupId"))
@@ -476,6 +477,7 @@ namespace WebAPI.Managers
                     if (groupId.HasValue)
                     {
                         result = ClientsManager.ApiClient().GetPermissionItemsToFeatures(groupId.Value);
+                        success = true;
                     }
                 }
             }
@@ -484,7 +486,7 @@ namespace WebAPI.Managers
                 log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, List<string>>, bool>(result, result != null && result.Count > 0);
+            return new Tuple<Dictionary<string, List<string>>, bool>(result, success);
         }
 
         
