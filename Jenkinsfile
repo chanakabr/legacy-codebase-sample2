@@ -7,7 +7,7 @@ pipeline {
                     agent { label 'Jenkins-Docker-Windows' } 
                     environment{ DOCKER_BUILD_TAG = UUID.randomUUID().toString() }
                     steps {
-                        sh label: "Docker build core:$DOCKER_BUILD_TAG", script: "docker build -t core:win-$DOCKER_BUILD_TAG -f NetCore.Dockerfile --build-arg BRANCH=$BRANCH_NAME ."
+                        sh label: "Docker build core:win-$DOCKER_BUILD_TAG", script: "docker build -t core:win-$DOCKER_BUILD_TAG --build-arg BRANCH=$BRANCH_NAME ."
 
                         script {
                             docker.withRegistry("https://870777418594.dkr.ecr.eu-west-1.amazonaws.com", "ecr:eu-west-1:dev") {
