@@ -79,15 +79,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouchbaseManager", "Couchba
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UsersCoreToPS", "UsersCoreToPS", "{E7876CD5-00AB-4F3A-990E-6CF8DE540F33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaCorp", "UsersCoreToPS\MediaCorp\MediaCorp.csproj", "{AD8E1BFD-BA7B-4DDB-8D55-876AFE16CB65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaCorp", "UsersCoreToPS\MediaCorp\MediaCorp.csproj", "{AD8E1BFD-BA7B-4DDB-8D55-876AFE16CB65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSOKdgImplementation", "UsersCoreToPS\SSOKdgImplementation\SSOKdgImplementation.csproj", "{F4946ECD-BD5B-4ADB-8057-840767297FA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSOKdgImplementation", "UsersCoreToPS\SSOKdgImplementation\SSOKdgImplementation.csproj", "{F4946ECD-BD5B-4ADB-8057-840767297FA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSOOAuthImplementation", "UsersCoreToPS\SSOOAuthImplementation\SSOOAuthImplementation.csproj", "{449165B0-160A-4913-AA0C-A916063AB1DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSOOAuthImplementation", "UsersCoreToPS\SSOOAuthImplementation\SSOOAuthImplementation.csproj", "{449165B0-160A-4913-AA0C-A916063AB1DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSOTvinciImplementation", "UsersCoreToPS\SSOTvinciImplementation\SSOTvinciImplementation.csproj", "{3A72DA66-73A1-40AD-B583-2433F5381C8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SSOTvinciImplementation", "UsersCoreToPS\SSOTvinciImplementation\SSOTvinciImplementation.csproj", "{3A72DA66-73A1-40AD-B583-2433F5381C8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kaltura", "UsersCoreToPS\Kaltura\Kaltura.csproj", "{190501C5-91F6-489D-BC5A-2D80E7AB179F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kaltura", "UsersCoreToPS\Kaltura\Kaltura.csproj", "{190501C5-91F6-489D-BC5A-2D80E7AB179F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationManager", "ConfigurationManager\ConfigurationManager.csproj", "{27CC9E99-D886-4403-899B-1E0769FDB649}"
 EndProject
@@ -127,6 +127,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestAdaptersCommon", "RestAdaptersCommon\RestAdaptersCommon.csproj", "{1BB51501-BFC7-4E0A-8754-35F1769D5A83}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaticHttpContextForNetCore", "StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj", "{8F3EB1F3-721B-44DF-A326-900F6E2FAA8B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitQueueWrapper", "RabbitQueueWrapper\RabbitQueueWrapper.csproj", "{5A431435-6605-4A09-B4AC-89B78B90B08B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -528,6 +530,14 @@ Global
 		{8F3EB1F3-721B-44DF-A326-900F6E2FAA8B}.Local|Any CPU.Build.0 = Debug|Any CPU
 		{8F3EB1F3-721B-44DF-A326-900F6E2FAA8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F3EB1F3-721B-44DF-A326-900F6E2FAA8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -581,6 +591,7 @@ Global
 		{F4DE2F6A-9D0B-4501-BB48-16B5B464DF7B} = {22B83C36-DB9F-4099-99D1-84023E417D49}
 		{1BB51501-BFC7-4E0A-8754-35F1769D5A83} = {22B83C36-DB9F-4099-99D1-84023E417D49}
 		{8F3EB1F3-721B-44DF-A326-900F6E2FAA8B} = {63B50E12-C9CE-4393-97F7-992586DB1E96}
+		{5A431435-6605-4A09-B4AC-89B78B90B08B} = {AD962D33-E896-463E-9743-283E07C70A02}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6783CBD0-A186-4CD4-A8B5-8787B947A127}
