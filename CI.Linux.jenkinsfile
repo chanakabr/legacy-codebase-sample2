@@ -6,10 +6,10 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         skipDefaultCheckout true
     }
-    parameters {
-    }
-    environment {
-    }
+    // parameters {
+    // }
+    // environment {
+    // }
     stages {
         stage("Checkout"){
             steps{
