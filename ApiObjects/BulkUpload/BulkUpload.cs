@@ -30,7 +30,7 @@ namespace ApiObjects.BulkUpload
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUpload
+    public class BulkUpload : CoreObject
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -104,6 +104,28 @@ namespace ApiObjects.BulkUpload
             var errorStatus = new Status((int)errorCode, msg);
 
             AddError(errorStatus);
+        }
+
+        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success || Status == BulkUploadJobStatus.Failed || Status == BulkUploadJobStatus.Partial;
+
+        public override CoreObject CoreClone()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoDelete()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoInsert()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoUpdate()
+        {
+            throw new NotImplementedException();
         }
     }
 }
