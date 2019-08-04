@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using EventBus.RabbitMQ;
 using Microsoft.Extensions.Hosting;
+using WebAPI.Filters;
 
 namespace IngestValidtionHandler
 {
@@ -9,6 +10,8 @@ namespace IngestValidtionHandler
         public static async Task Main(string[] args)
         {
             var builder = new HostBuilder()
+                .ConfigureMappings()
+                .ConfigureEventNotificationsConfig()
                 .ConfigureEventBustConsumer();
             await builder.RunConsoleAsync();
         }

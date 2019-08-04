@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.EventBus;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
@@ -26,6 +27,8 @@ namespace IngestValidtionHandler
     public class BulkUploadIngestValidationHandler : IServiceEventHandler<BulkUploadIngestValidationEvent>
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly string event_name = "KalturaBulkUpload";
 
         private BulkUploadIngestValidationEvent _EventData;
 
@@ -54,12 +57,14 @@ namespace IngestValidtionHandler
                 var indexIsValid = ValidateClonedIndex(eventData);
                 _Logger.Debug($"Index validation done with result:[{indexIsValid}]");
 
+                GenericResponse<BulkUpload> bulkUploadResultAfterUpdate = null;
+
                 if (indexIsValid)
                 {
                     UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
                     SwitchAliases();
                     BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values);
-                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
+                    bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
 
                     // Update edgs if there are any updates to be made dure to overlap
                     if (eventData.EdgeProgramsToUpdate.Any())
@@ -74,7 +79,13 @@ namespace IngestValidtionHandler
                 else
                 {
                     BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values);
-                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
+                    bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
+                }
+
+                // fire ps event
+                if (bulkUploadResultAfterUpdate.Object.IsProcessCompleted)
+                {
+                    _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
                 }
             }
             catch (Exception ex)
