@@ -7,8 +7,8 @@ pipeline {
         skipDefaultCheckout true
     }
     parameters {
-        booleanParam(name: 'build_phoenix', defaultValue: false, description: 'Build Phoenix?')
-        booleanParam(name: 'build_remote_tasks', defaultValue: false, description: 'Build Remote Tasks?')
+        booleanParam(name: 'build_phoenix', defaultValue: true, description: 'Build Phoenix?')
+        booleanParam(name: 'build_remote_tasks', defaultValue: true, description: 'Build Remote Tasks?')
         booleanParam(name: 'build_ws_ingest', defaultValue: true, description: 'Build WSIngest?')
         booleanParam(name: 'build_tvpapi', defaultValue: true, description: 'Build TvpAPI?')
         booleanParam(name: 'build_celery_tasks', defaultValue: true, description: 'Build Celery Tasks?')
@@ -16,7 +16,7 @@ pipeline {
     }
     environment {
         WORKSPACE = sh(script: 'pwd', , returnStdout: true).trim()
-        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
     }
     stages {
         stage("Checkout"){
