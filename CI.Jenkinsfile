@@ -21,19 +21,19 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
-                dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}" credentialsId: "github-ott-ci-cd") }
-                dir('remotetasks') { git(url: 'https://bitbucket.org/tvinci_dev/remotetasks.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
-                dir('tvmapps') { git(url: 'https://bitbucket.org/tvinci_dev/tvmapps.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
-                dir('tvpapi_rest') { git(url: 'https://bitbucket.org/tvinci_dev/tvpapi_rest.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
-                dir('ws_ingest') { git(url: 'https://bitbucket.org/tvinci_dev/ws_ingest.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
+                dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('remotetasks') { git(url: 'https://bitbucket.org/tvinci_dev/remotetasks.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvmapps') { git(url: 'https://bitbucket.org/tvinci_dev/tvmapps.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvpapi_rest') { git(url: 'https://bitbucket.org/tvinci_dev/tvpapi_rest.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('ws_ingest') { git(url: 'https://bitbucket.org/tvinci_dev/ws_ingest.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
                 
-                dir('tvpapi') { git(url: 'https://bitbucket.org/tvinci_dev/tvpapi.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
-                dir('tvplibs') { git(url: 'https://bitbucket.org/tvinci_dev//tvplibs.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
-                dir('tvincicommon') { git(url: 'https://bitbucket.org/tvinci_dev/tvincicommon.git', branch: "${BRANCH_NAME}" credentialsId: "bitbucket-arthur") }
+                dir('tvpapi') { git(url: 'https://bitbucket.org/tvinci_dev/tvpapi.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvplibs') { git(url: 'https://bitbucket.org/tvinci_dev//tvplibs.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvincicommon') { git(url: 'https://bitbucket.org/tvinci_dev/tvincicommon.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
                 
-                dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git' credentialsId: "github-ott-ci-cd") }
+                dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', credentialsId: "github-ott-ci-cd") }
 
-                dir('celery_tasks'){ git(url: 'https://bitbucket.org/tvinci_dev/celery_tasks.git', branch: "${BRANCH_NAME}") }
+                dir('celery_tasks'){ git(url: 'https://bitbucket.org/tvinci_dev/celery_tasks.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
             }
         }
         stage("Version Patch"){
