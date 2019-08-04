@@ -9,7 +9,7 @@ pipeline {
     // parameters {
     // }
     environment {
-        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
         NUGET = 'c:\\nuget.exe'
     }
     stages {
