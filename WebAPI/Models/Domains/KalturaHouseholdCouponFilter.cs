@@ -47,7 +47,7 @@ namespace WebAPI.Models.Domains
             }
         }
 
-        private static readonly Type relatedObjectFilterType = typeof(KalturaHouseoldCouponCodeFilter);
+        private static readonly Type relatedObjectFilterType = typeof(KalturaHouseholdCouponCodeFilter);
 
         public override Type RelatedObjectFilterType
         {

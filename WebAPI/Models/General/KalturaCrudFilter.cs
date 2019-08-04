@@ -27,8 +27,8 @@ namespace WebAPI.Models.General
         public abstract ICrudHandler<ICrudHandeledObject, IdentifierT, ICrudFilter> Handler { get; }
         public abstract void Validate();
 
-        public KalturaCrudFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
+        //public KalturaCrudFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        //{
+        //}
     }
 }

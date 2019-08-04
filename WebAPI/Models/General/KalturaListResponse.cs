@@ -30,7 +30,7 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "totalCount")]
         [ValidationException(SchemeValidationType.NULLABLE)]
         public int TotalCount { get; set; }
-
+        
         /// <summary>
         /// A list of objects
         /// </summary>
@@ -40,28 +40,28 @@ namespace WebAPI.Models.General
         [XmlArrayItem("item")]
         public List<KalturaT> Objects { get; set; }
         
-        public KalturaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
-                {
-                    if (parameters["objects"] is JArray)
-                    {
-                        Objects = buildList<KalturaT>(typeof(KalturaT), (JArray)parameters["objects"]);
-                    }
-                    else if (parameters["objects"] is IList)
-                    {
-                        Objects = buildList(typeof(KalturaT), parameters["objects"] as object[]);
-                    }
-                }
+        //public KalturaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        //{
+        //    if (parameters != null)
+        //    {
+        //        if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+        //        {
+        //            if (parameters["objects"] is JArray)
+        //            {
+        //                Objects = buildList<KalturaT>(typeof(KalturaT), (JArray)parameters["objects"]);
+        //            }
+        //            else if (parameters["objects"] is IList)
+        //            {
+        //                Objects = buildList(typeof(KalturaT), parameters["objects"] as object[]);
+        //            }
+        //        }
 
-                if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
-                {
-                    TotalCount = (Int32)Convert.ChangeType(parameters["totalCount"], typeof(Int32));
-                }
-            }
-        }
+        //        if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
+        //        {
+        //            TotalCount = (Int32)Convert.ChangeType(parameters["totalCount"], typeof(Int32));
+        //        }
+        //    }
+        //}
 
         protected override void Init()
         {

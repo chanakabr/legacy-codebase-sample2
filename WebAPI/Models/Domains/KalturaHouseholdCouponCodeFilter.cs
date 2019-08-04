@@ -7,7 +7,7 @@ namespace WebAPI.Models.Domains
     /// Kaltura Houseold CouponCode Filter
     /// </summary>
     [SchemeBase(typeof(KalturaRelatedObjectFilter))]
-    public partial class KalturaHouseoldCouponCodeFilter : KalturaFilter<KalturaHouseoldCouponCodeOrderBy>, KalturaRelatedObjectFilter
+    public partial class KalturaHouseholdCouponCodeFilter : KalturaFilter<KalturaHouseoldCouponCodeOrderBy>, KalturaRelatedObjectFilter
     {
         public override KalturaHouseoldCouponCodeOrderBy GetDefaultOrderByValue()
         {

@@ -11400,6 +11400,11 @@
             Coupon code
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Domains.KalturaHouseholdCouponCodeFilter">
+            <summary>
+            Kaltura Houseold CouponCode Filter
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Domains.KalturaHouseholdCouponFilter.BusinessModuleTypeEqual">
             <summary>
             Indicates which household coupons list to return by their business module type.
@@ -11603,11 +11608,6 @@
         <member name="T:WebAPI.Models.Domains.KalturaHouseholdWithHolder">
             <summary>
             Holder object for Household With enum
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Domains.KalturaHouseoldCouponCodeFilter">
-            <summary>
-            Kaltura Houseold CouponCode Filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaAggregationCountFilter">

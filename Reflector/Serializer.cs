@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using WebAPI.Models.Renderers;
 using WebAPI.Managers.Models;
+using Validator.Managers.Scheme;
 
 namespace Reflector
 {
@@ -90,6 +91,80 @@ namespace Reflector
             }
             return null;
         }
+        
+        private static bool doesPropertyRequiresReadPermission(PropertyInfo arg)
+        {
+            return arg.CustomAttributes.Any(ca =>
+                    ca.AttributeType.IsEquivalentTo(typeof(SchemePropertyAttribute))
+                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && na.TypedValue.Value.Equals(1)));
+        }
+        
+        private void writeUsing()
+        {
+            HashSet<string> namespaces = new HashSet<string>();
+            foreach (Type type in types)
+            {
+                if (!namespaces.Contains(type.Namespace))
+                {
+                    namespaces.Add(type.Namespace);
+                    file.WriteLine("using " + type.Namespace + ";");
+                }
+            }
+        }
+
+        private void writePartialClasses()
+        {
+            HashSet<string> namespaces = new HashSet<string>();
+            foreach (Type type in types)
+            {
+                if (!namespaces.Contains(type.Namespace))
+                {
+                    namespaces.Add(type.Namespace);
+                    writeNamespace(type.Namespace);
+                }
+            }
+        }
+
+        private void writeNamespace(string namespaceName)
+        {
+            file.WriteLine("");
+            file.WriteLine("namespace " + namespaceName);
+            file.WriteLine("{");
+
+            foreach (Type type in types)
+            {
+                if (type.Namespace == namespaceName)
+                {
+                    writePartialClass(type);
+                }
+            }
+
+            file.WriteLine("}");
+        }
+
+        private void writePartialClass(Type type)
+        {
+            file.WriteLine("    public partial class " + SchemeManager.GetTypeName(type, true));
+            file.WriteLine("    {");
+            file.WriteLine("        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        {");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
+            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
+            file.WriteLine("            string propertyValue;");
+            writeSerializeTypeProperties(type, SerializeType.JSON);
+            file.WriteLine("            return ret;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+            file.WriteLine("        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)");
+            file.WriteLine("        {");
+            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
+            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);");
+            file.WriteLine("            string propertyValue;");
+            writeSerializeTypeProperties(type, SerializeType.XML);
+            file.WriteLine("            return ret;");
+            file.WriteLine("        }");
+            file.WriteLine("    }");
+        }
 
         private void writeSerializeTypeProperties(Type type, SerializeType serializeType)
         {
@@ -97,7 +172,7 @@ namespace Reflector
 
             List<PropertyInfo> properties = type.GetProperties().ToList();
             properties.Sort(new PropertyInfoComparer());
-            
+
             if (properties.Any(doesPropertyRequiresReadPermission))
             {
                 file.WriteLine("            var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;");
@@ -112,10 +187,11 @@ namespace Reflector
 
                 DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>(false);
                 if (dataMember == null) { continue; }
+
                 string propertyName = property.Name;
                 List<string> conditions = new List<string>();
 
-                if(type.BaseType != null && type.BaseType.GetProperty(propertyName) != null)
+                if (type.BaseType != null && type.BaseType.GetProperty(propertyName) != null)
                 {
                     conditions.Add("!ret.ContainsKey(\"" + dataMember.Name + "\")");
                 }
@@ -132,10 +208,10 @@ namespace Reflector
                 }
 
                 string deprecationVersion = DeprecationVersion(property);
-                if(deprecationVersion != null)
+                if (deprecationVersion != null)
                 {
                     conditions.Add("!DeprecatedAttribute.IsDeprecated(\"" + deprecationVersion + "\", currentVersion)");
-                }                
+                }
 
                 PropertyType propertyType = PropertyType.NATIVE;
                 string tab = "";
@@ -144,7 +220,7 @@ namespace Reflector
                 if (typeof(IKalturaSerializable).IsAssignableFrom(property.PropertyType))
                 {
                     propertyType = PropertyType.OBJECT;
-                    if((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) || (serializeType == SerializeType.XML && property.PropertyType.GetMethod("ToCustomXml") != null))
+                    if ((serializeType == SerializeType.JSON && property.PropertyType.GetMethod("ToCustomJson") != null) || (serializeType == SerializeType.XML && property.PropertyType.GetMethod("ToCustomXml") != null))
                     {
                         propertyType = PropertyType.CUSTOM;
                     }
@@ -374,80 +450,6 @@ namespace Reflector
                 if (tab.Length > 0)
                 {
                     file.WriteLine("            }");
-                }
-            }
-        }
-
-        private static bool doesPropertyRequiresReadPermission(PropertyInfo arg)
-        {
-            return arg.CustomAttributes.Any(ca =>
-                    ca.AttributeType.IsEquivalentTo(typeof(SchemePropertyAttribute))
-                    && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && na.TypedValue.Value.Equals(1)));
-        }
-
-        private void writePartialClass(Type type)
-        {
-            file.WriteLine("    public partial class " + GetTypeName(type, true));
-            file.WriteLine("    {");
-            file.WriteLine("        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
-            file.WriteLine("        {");
-            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);");
-            file.WriteLine("            string propertyValue;");
-            writeSerializeTypeProperties(type, SerializeType.JSON);
-            file.WriteLine("            return ret;");
-            file.WriteLine("        }");
-            file.WriteLine("        ");
-            file.WriteLine("        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)");
-            file.WriteLine("        {");
-            file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
-            file.WriteLine("            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);");
-            file.WriteLine("            string propertyValue;");
-            writeSerializeTypeProperties(type, SerializeType.XML);
-            file.WriteLine("            return ret;");
-            file.WriteLine("        }");
-            file.WriteLine("    }");
-        }
-
-        private void writeNamespace(string namespaceName)
-        {
-            file.WriteLine("");
-            file.WriteLine("namespace " + namespaceName);
-            file.WriteLine("{");
-
-            foreach (Type type in types)
-            {
-                if (type.Namespace == namespaceName)
-                {
-                    writePartialClass(type);
-                }
-            }
-
-            file.WriteLine("}");
-        }
-
-        private void writeUsing()
-        {
-            HashSet<string> namespaces = new HashSet<string>();
-            foreach (Type type in types)
-            {
-                if (!namespaces.Contains(type.Namespace))
-                {
-                    namespaces.Add(type.Namespace);
-                    file.WriteLine("using " + type.Namespace + ";");
-                }
-            }
-        }
-
-        private void writePartialClasses()
-        {
-            HashSet<string> namespaces = new HashSet<string>();
-            foreach (Type type in types)
-            {
-                if (!namespaces.Contains(type.Namespace))
-                {
-                    namespaces.Add(type.Namespace);
-                    writeNamespace(type.Namespace);
                 }
             }
         }

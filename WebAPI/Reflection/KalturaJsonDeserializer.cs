@@ -542,6 +542,9 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroupListResponse":
                     return new KalturaCouponsGroupListResponse(parameters);
                     
+                case "KalturaCrudFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaCrudObject":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -782,6 +785,9 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdCoupon":
                     return new KalturaHouseholdCoupon(parameters);
                     
+                case "KalturaHouseholdCouponCodeFilter":
+                    return new KalturaHouseholdCouponCodeFilter(parameters);
+                    
                 case "KalturaHouseholdCouponFilter":
                     return new KalturaHouseholdCouponFilter(parameters);
                     
@@ -838,9 +844,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaHouseholdWithHolder":
                     return new KalturaHouseholdWithHolder(parameters);
-                    
-                case "KalturaHouseoldCouponCodeFilter":
-                    return new KalturaHouseoldCouponCodeFilter(parameters);
                     
                 case "KalturaHttpNotification":
                     return new KalturaHttpNotification(parameters);
@@ -6786,6 +6789,12 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaCrudFilter<KalturaOrderByT, ICrudHandeledObject, IdentifierT, ICrudFilter>
+    {
+        public KalturaCrudFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT, ICrudFilter>
     {
         public KalturaCrudObject(Dictionary<string, object> parameters = null) : base(parameters)
@@ -6967,6 +6976,30 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
                 {
                     TotalCount = (Int32) Convert.ChangeType(parameters["totalCount"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaListResponse<KalturaT>
+    {
+        public KalturaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("totalCount") && parameters["totalCount"] != null)
+                {
+                    TotalCount = (Int32) Convert.ChangeType(parameters["totalCount"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaT>(typeof(KalturaT), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaT), parameters["objects"] as object[]);
+                    }
                 }
             }
         }
@@ -15075,12 +15108,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute CountriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCountryCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -25928,6 +25961,12 @@ namespace WebAPI.Models.Domains
             }
         }
     }
+    public partial class KalturaHouseholdCouponCodeFilter
+    {
+        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaHouseholdCouponFilter
     {
         private static RuntimeSchemePropertyAttribute BusinessModuleIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCouponFilter")
@@ -26707,12 +26746,6 @@ namespace WebAPI.Models.Domains
                     }
                 }
             }
-        }
-    }
-    public partial class KalturaHouseoldCouponCodeFilter
-    {
-        public KalturaHouseoldCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
 }

@@ -8,12 +8,12 @@ using WebAPI.Models.General;
 using WebAPI.App_Start;
 using System.Collections;
 using System.IO;
+using Validator.Managers.Scheme;
 
 namespace Reflector
 {
     class Deserializer : Base
     {
-
         public static string GetJsonDeserializerCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
@@ -28,8 +28,6 @@ namespace Reflector
             types.Remove(typeof(KalturaApiExceptionArg));
             types.Remove(typeof(KalturaFilter<>));
             types.Remove(typeof(KalturaGenericListResponse<>));
-            types.Remove(typeof(KalturaListResponse<>));
-            types.Remove(typeof(KalturaCrudFilter<,,,>));
         }
         
         protected override void writeHeader()
@@ -102,7 +100,7 @@ namespace Reflector
                 if (typeof(IList).IsAssignableFrom(propertyType)) // list
                 {
                     Type genericParam = propertyType.GetGenericArguments()[0];
-                    string genericParamName = GetTypeName(genericParam);
+                    string genericParamName = SchemeManager.GetTypeName(genericParam);
                     file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JArray)");
                     file.WriteLine("                    {");
                     if (typeof(IKalturaOTTObject).IsAssignableFrom(genericParam))
@@ -129,7 +127,7 @@ namespace Reflector
                 }
                 else if (typeof(IDictionary).IsAssignableFrom(propertyType)) // map
                 {
-                    string genericParamName = GetTypeName(propertyType.GetGenericArguments()[1]);
+                    string genericParamName = SchemeManager.GetTypeName(propertyType.GetGenericArguments()[1]);
                     file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JObject)");
                     file.WriteLine("                    {");
                     file.WriteLine("                        " + property.Name + " = buildDictionary<" + genericParamName + ">(typeof(" + genericParamName + "), ((JObject) parameters[\"" + apiName + "\"]).ToObject<Dictionary<string, object>>());");
@@ -345,10 +343,10 @@ namespace Reflector
 
         private void wrtiePartialClass(Type type)
         {
-            file.WriteLine("    public partial class " + GetTypeName(type, true));
+            file.WriteLine("    public partial class " + SchemeManager.GetTypeName(type, true));
             file.WriteLine("    {");
             wrtieDeserializeTypeSchemaProperties(type);
-            file.WriteLine("        public " + GetTypeName(type) + "(Dictionary<string, object> parameters = null) : base(parameters)");
+            file.WriteLine("        public " + SchemeManager.GetTypeName(type) + "(Dictionary<string, object> parameters = null) : base(parameters)");
             file.WriteLine("        {");
             wrtieDeserializeTypeProperties(type);
             file.WriteLine("        }");
@@ -405,11 +403,14 @@ namespace Reflector
 
             foreach (Type type in types)
             {
-                file.WriteLine("                case \"" + GetTypeName(type) + "\":");
+                var typeName = SchemeManager.GetTypeName(type);
+                if (typeName == "KalturaListResponse" && type.IsAbstract) { continue; }
+                
+                file.WriteLine("                case \"" + typeName + "\":");
                 NewObjectTypeAttribute newObjectTypeAttribue = type.GetCustomAttribute<NewObjectTypeAttribute>(false);
                 if (newObjectTypeAttribue != null)
                 {
-                    file.WriteLine("                    return new " + GetTypeName(newObjectTypeAttribue.type) + "(parameters);");
+                    file.WriteLine("                    return new " + SchemeManager.GetTypeName(newObjectTypeAttribue.type) + "(parameters);");
                 }
                 else if (type.IsAbstract)
                 {
@@ -417,7 +418,7 @@ namespace Reflector
                 }
                 else
                 {
-                    file.WriteLine("                    return new " + GetTypeName(type) + "(parameters);");
+                    file.WriteLine("                    return new " + typeName + "(parameters);");
                 }
                 file.WriteLine("                    ");
             }

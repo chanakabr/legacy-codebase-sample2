@@ -3,16 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Controllers;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using WebAPI.Models.Renderers;
 
 namespace Reflector
 {
@@ -84,35 +77,5 @@ namespace Reflector
         protected abstract void writeHeader();
         protected abstract void writeBody();
         protected abstract void writeFooter();
-
-        protected string GetTypeName(Type type, bool addGenericDefinition = false)
-        {
-            if (type == typeof(String))
-                return "string";
-            if (type == typeof(DateTime))
-                return "int";
-            if (type == typeof(long) || type == typeof(Int64))
-                return "long";
-            if (type == typeof(Int32))
-                return "int";
-            if (type == typeof(double))
-                return "double";
-            if (type == typeof(float))
-                return "float";
-            if (type == typeof(bool))
-                return "bool";
-            if (type.IsEnum)
-                return type.Name;
-
-            Regex regex = new Regex("^[^`]+");
-            Match match = regex.Match(type.Name);
-
-            if (type.IsGenericType && addGenericDefinition)
-            {
-                return match.Value + "<" + String.Join(", ", type.GetGenericArguments().Select(t => GetTypeName(t))) + ">";
-            }
-
-            return match.Value;
-        }
     }
 }

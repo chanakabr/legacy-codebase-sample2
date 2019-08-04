@@ -134,9 +134,9 @@ namespace Validator.Managers.Scheme
 
         public void RemoveInvalidObjects()
         {
-            controllers = controllers.Where(controller => SchemeManager.Validate(controller, false));
-            enums = enums.Where(type => SchemeManager.Validate(type, false)).ToList();
-            types = types.Where(type => SchemeManager.Validate(type, false)).ToList();
+            controllers = controllers.Where(controller => SchemeManager.Validate(controller, false, assemblyXml));
+            enums = enums.Where(type => SchemeManager.Validate(type, false, assemblyXml)).ToList();
+            types = types.Where(type => SchemeManager.Validate(type, false, assemblyXml)).ToList();
         }
 
         private void Load()
@@ -288,6 +288,7 @@ namespace Validator.Managers.Scheme
                 enums.Add(type);
                 return;
             }
+
             if (Field.loadedTypes.ContainsKey(type.Name))
             {
                 return;
@@ -299,7 +300,7 @@ namespace Validator.Managers.Scheme
                 return;
             }
 
-            string typeName = getTypeName(type);
+            string typeName = SchemeManager.GetTypeName(type);
             if (typeof(IKalturaOTTObject).IsAssignableFrom(type) && !Field.loadedTypes.ContainsKey(typeName))
             {
                 Field.loadedTypes.Add(typeName, new Field(type));
@@ -339,6 +340,7 @@ namespace Validator.Managers.Scheme
         private void LoadTypeProperties(Type type)
         {
             List<PropertyInfo> properties = type.GetProperties().ToList();
+            
             foreach (var property in properties)
             {
                 if (property.DeclaringType == type)
@@ -406,9 +408,9 @@ namespace Validator.Managers.Scheme
 
             try
             {
-                foreach (Type type in enums.OrderBy(myType => myType.Name))
+                foreach (Type enumType in enums.OrderBy(myType => myType.Name))
                 {
-                    if (!SchemeManager.Validate(type, false))
+                    if (!SchemeManager.Validate(enumType, false, assemblyXml))
                         valid = false;
                 }
 
@@ -418,7 +420,7 @@ namespace Validator.Managers.Scheme
                     if (type == typeof(KalturaOTTObject))
                         continue;
 
-                    if (!SchemeManager.Validate(type, false))
+                    if (!SchemeManager.Validate(type, false, assemblyXml))
                         valid = false;
                 }
 
@@ -429,7 +431,7 @@ namespace Validator.Managers.Scheme
                     if (controllerAttr != null && controllerAttr.IgnoreApi)
                         continue;
 
-                    if (!SchemeManager.Validate(controller, false))
+                    if (!SchemeManager.Validate(controller, false, assemblyXml))
                         valid = false;
                 }
 
@@ -467,48 +469,21 @@ namespace Validator.Managers.Scheme
             writer.WriteStartElement("enums");
             foreach (Type type in enums.OrderBy(myType => myType.Name))
             {
-                if (!SchemeManager.Validate(type, true))
+                if (!SchemeManager.Validate(type, true, assemblyXml))
                     continue;
 
                 writeEnum(type);
             }
-
-            //Hardcoding the status codes
-            //var statusCodes = ClientsManager.ApiClient().GetErrorCodesDictionary();
-            //writer.WriteStartElement("enum");
-            //writer.WriteAttributeString("name", "KalturaStatusCodes");
-            //writer.WriteAttributeString("enumType", "int");
-            //foreach (var enumValue in statusCodes)
-            //{
-            //    writer.WriteStartElement("const");
-            //    writer.WriteAttributeString("name", enumValue.Key);
-            //    writer.WriteAttributeString("value", enumValue.Value.ToString());
-            //    writer.WriteEndElement(); // const
-            //}
-            //foreach (var enumValue in Enum.GetValues(typeof(StatusCode)))
-            //{
-            //    int eVal = (int)Enum.Parse(typeof(StatusCode), enumValue.ToString());
-
-            //    if (statusCodes.Where(status => status.Value == eVal).Count() == 0)
-            //    {
-            //        writer.WriteStartElement("const");
-            //        writer.WriteAttributeString("name", enumValue.ToString());
-            //        writer.WriteAttributeString("value", eVal.ToString());
-            //        writer.WriteEndElement(); // const
-            //    }
-            //}
-            //writer.WriteEndElement(); // enum
-
             writer.WriteEndElement(); // enums
 
             //Running on classes
             writer.WriteStartElement("classes");
             foreach (Type type in types)
             {
-                if (!SchemeManager.Validate(type, true))
+                if (!SchemeManager.Validate(type, true, assemblyXml) || type.Name == "KalturaListResponseT" || type.Name == "KalturaFilterT")
                     continue;
-
-                writeType(type);
+                
+                WriteClass(SchemeManager.GetClassDetails(type, assemblyXml));
             }
             writer.WriteEndElement(); // classes
 
@@ -516,10 +491,10 @@ namespace Validator.Managers.Scheme
             writer.WriteStartElement("services");
             foreach (Type controller in controllers.OrderBy(controller => controller.Name))
             {
-                if (!SchemeManager.Validate(controller, true))
+                if (!SchemeManager.Validate(controller, true, assemblyXml) || controller.IsAbstract)
                     continue;
-
-                writeService(controller);
+                
+                WriteService(SchemeManager.GetControllerDetails(controller, assemblyXml));
             }
             writer.WriteEndElement(); // services
 
@@ -534,8 +509,7 @@ namespace Validator.Managers.Scheme
                 }
                 writer.WriteEndElement(); // errors
             }
-
-
+            
             //Config section
             writer.WriteStartElement("configurations");
 
@@ -553,8 +527,7 @@ namespace Validator.Managers.Scheme
             writer.WriteEndElement(); // apiVersion
 
             writer.WriteEndElement(); // client
-
-
+            
             writer.WriteStartElement("request");
             writer.WriteAttributeString("type", "KalturaRequestConfiguration");
 
@@ -652,430 +625,182 @@ namespace Validator.Managers.Scheme
             }
         }
 
-        private void writeService(Type controller)
+        private void WriteService(KalturaControllerDetails controller)
         {
-            if (controller.IsAbstract) { return ; }
-            var name = controller.Name;
-            var serviceId = SchemeManager.getServiceId(controller);
-
             writer.WriteStartElement("service");
-            writer.WriteAttributeString("name", serviceId);
-            writer.WriteAttributeString("id", serviceId.ToLower());
+            writer.WriteAttributeString("name", controller.ServiceId);
+            writer.WriteAttributeString("id", controller.ServiceId.ToLower());
 
-            var methods = controller.GetMethods().OrderBy(method => method.Name);
-            foreach (MethodInfo method in methods)
+            foreach (var action in controller.Actions)
             {
-                if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
-                    continue;
-
-                if (!SchemeManager.Validate(method, false))
-                    continue;
-
-                //Read only HTTP POST as we will have duplicates otherwise
-                var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
-                if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
-                    continue;
-
-                if (!SchemeManager.Validate(method, true))
-                    continue;
-
-                writeAction(method);
-            };
-
-            if (SchemeManager.IsCrudController(controller, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
-            {
-                foreach (var crudActionAttribute in crudActionAttributes)
-                {
-                    if (crudActions.ContainsKey(crudActionAttribute.Key))
-                    {
-                        WriteCrudAction(controller, crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
-                    }
-                }
+                writeAction(action, controller);
             }
-
+            
             writer.WriteEndElement(); // service
         }
 
-        private void writeAction(MethodInfo action)
+        private void writeAction(KalturaActionDetails action, KalturaControllerDetails controller)
         {
-            ActionAttribute actionAttribute = action.GetCustomAttribute<ActionAttribute>(false);
-            Type controller = action.ReflectedType;
-            string serviceId = SchemeManager.getServiceId(controller);
-            string actionId = actionAttribute.Name;
-
-            // string routePrefix = assembly.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
-
             writer.WriteStartElement("action");
-            writer.WriteAttributeString("name", actionId);
-            if (action.IsGenericMethod)
-            {
-                writer.WriteAttributeString("enableInMultiRequest", "0");
-            }
-            else
-            {
-                writer.WriteAttributeString("enableInMultiRequest", "1");
-            }
+            writer.WriteAttributeString("name", action.Name);
+            writer.WriteAttributeString("enableInMultiRequest", action.IsGenericMethod ? "0" : "1");
             writer.WriteAttributeString("supportedRequestFormats", "json");
             writer.WriteAttributeString("supportedResponseFormats", "json,xml");
-            writer.WriteAttributeString("description", getDescription(action));
-            // writer.WriteAttributeString("path", string.Format("/{0}/{1}/{2}", routePrefix, serviceId, actionId));
-            if (action.GetCustomAttribute<ObsoleteAttribute>() != null)
+            writer.WriteAttributeString("description", action.Description);
+            
+            if (action.IsDeprecated)
             {
                 writer.WriteAttributeString("deprecated", "1");
             }
 
-            if (action.GetCustomAttribute<ApiAuthorizeAttribute>() != null)
-            {
-                writer.WriteAttributeString("sessionRequired", "always");
-            }
-            else
-            {
-                writer.WriteAttributeString("sessionRequired", "none");
-            }
+            writer.WriteAttributeString("sessionRequired", action.IsSessionRequired ? "always" : "none");
 
-            foreach (var param in action.GetParameters())
+            foreach (var param in action.Prameters)
             {
                 writer.WriteStartElement("param");
                 writer.WriteAttributeString("name", param.Name);
-                appendType(param.ParameterType);
-
+                foreach (var prameterType in param.ParameterTypes)
+                {
+                    writer.WriteAttributeString(prameterType.Key, prameterType.Value);
+                }
+                
                 if (param.IsOptional)
                 {
-                    writer.WriteAttributeString("default", param.DefaultValue == null ? "null" : (param.DefaultValue is bool ? param.DefaultValue.ToString().ToLower() : param.DefaultValue.ToString()));
+                    writer.WriteAttributeString("default", param.DefaultValue);
                 }
 
-                writer.WriteAttributeString("description", getDescription(action, param));
+                writer.WriteAttributeString("description", param.Description);
                 writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
                 writer.WriteEndElement(); // param
             }
 
             writer.WriteStartElement("result");
-            if (action.ReturnType != typeof(void))
-                appendType(action.ReturnType);
-            writer.WriteEndElement(); // result
-
-            IEnumerable<ThrowsAttribute> actionErrors = action.GetCustomAttributes<ThrowsAttribute>(false);
-            foreach (ThrowsAttribute error in actionErrors)
+            foreach (var returnedType in action.ReturnedTypes)
             {
-                writer.WriteStartElement("throws");
-                if (error.ApiCode.HasValue && errors.ContainsKey((int)error.ApiCode.Value))
-                {
-                    ApiException.ApiExceptionType exceptionType = errors[(int)error.ApiCode.Value] as ApiException.ApiExceptionType;
-                    writer.WriteAttributeString("name", exceptionType.name);
-                }
-                else if (error.ClientCode.HasValue && errors.ContainsKey((int)error.ClientCode.Value))
-                {
-                    ApiException.ClientExceptionType exceptionType = errors[(int)error.ClientCode.Value] as ApiException.ClientExceptionType;
-                    writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
-                }
-                writer.WriteEndElement(); // throws
-            }
-
-            writer.WriteEndElement(); // action
-        }
-
-        private void WriteCrudAction(Type controller, CrudActionAttribute crudActionAttribute, MethodInfo crudAction)
-        {
-            string serviceId = SchemeManager.getServiceId(controller);
-            string actionId = crudActionAttribute.GetName();
-            
-            writer.WriteStartElement("action");
-            writer.WriteAttributeString("name", actionId);
-            writer.WriteAttributeString("enableInMultiRequest", "1");
-            writer.WriteAttributeString("supportedRequestFormats", "json");
-            writer.WriteAttributeString("supportedResponseFormats", "json,xml");
-            writer.WriteAttributeString("description", crudActionAttribute.Summary);
-            writer.WriteAttributeString("sessionRequired", "always");
-
-            var parameters = crudAction.GetParameters();
-            foreach (var param in parameters)
-            {
-                writer.WriteStartElement("param");
-                writer.WriteAttributeString("name", param.Name);
-                appendType(param.ParameterType);
-
-                var isOptional = SchemeManager.IsParameterOptional(param, crudActionAttribute.GetOptionalParameters());
-                if (isOptional)
-                {
-                    writer.WriteAttributeString("default", SchemeManager.VarToString(param.DefaultValue));
-                }
-                
-                writer.WriteAttributeString("description", crudActionAttribute.GetDescription(param.Name));
-                writer.WriteAttributeString("optional", isOptional ? "1" : "0");
-                writer.WriteEndElement(); // param
-            }
-
-            writer.WriteStartElement("result");
-            if (crudAction.ReturnType != typeof(void))
-            {
-                appendType(crudAction.ReturnType);
+                writer.WriteAttributeString(returnedType.Key, returnedType.Value);
             }
             writer.WriteEndElement(); // result
 
             // write throws
-            if (crudActionAttribute.ApiThrows != null && crudActionAttribute.ApiThrows.Length > 0)
+            foreach (var apiCode in action.ApiThrows)
             {
-                foreach (var apiCode in crudActionAttribute.ApiThrows)
+                if (errors.ContainsKey((int)apiCode))
                 {
-                    if (errors.ContainsKey((int)apiCode))
-                    {
-                        writer.WriteStartElement("throws");
-                        var exceptionType = errors[(int)apiCode] as ApiException.ApiExceptionType;
-                        writer.WriteAttributeString("name", exceptionType.name);
-                        writer.WriteEndElement(); // throws
-                    }
+                    writer.WriteStartElement("throws");
+                    var exceptionType = errors[(int)apiCode] as ApiException.ApiExceptionType;
+                    writer.WriteAttributeString("name", exceptionType.name);
+                    writer.WriteEndElement(); // throws apiCode
                 }
             }
 
-            if ((crudActionAttribute.ClientThrows != null && crudActionAttribute.ClientThrows.Length > 0))
+            foreach (var clientCode in action.ClientThrows)
             {
-                foreach (var clientCode in crudActionAttribute.ClientThrows)
+                if (errors.ContainsKey((int)clientCode))
                 {
-                    if (errors.ContainsKey((int)clientCode))
-                    {
-                        writer.WriteStartElement("throws");
-                        var exceptionType = errors[(int)clientCode] as ApiException.ClientExceptionType;
-                        writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
-                        writer.WriteEndElement(); // throws
-                    }
+                    writer.WriteStartElement("throws");
+                    var exceptionType = errors[(int)clientCode] as ApiException.ClientExceptionType;
+                    writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
+                    writer.WriteEndElement(); // throws clientCode
                 }
             }
-           
+            
             writer.WriteEndElement(); // action
+        }
+        
+        internal string getDescription(MethodInfo method, ParameterInfo param)
+        {
+            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name), assemblyXml);
         }
 
         internal string getDescription(PropertyInfo property)
         {
-            try
-            {
-                if (property.ReflectedType.IsGenericType)
-                {
-                    Regex regex = new Regex(@"^[^\[]+");
-                    string name = regex.Match(property.ReflectedType.FullName).Value;
-                    return getDescription(string.Format("//member[@name='P:{0}.{1}']", name, property.Name));
-                }
-                else
-                {
-                    return getDescription(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name));
-                }
-            }
-            catch (Exception ex)
-            {
-                return string.Empty;
-                //throw;
-            }
+            return SchemeManager.GetPropertyDescription(property, assemblyXml);
         }
 
-        internal string getDescription(Type type)
+        private void WriteClass(KalturaClassDetails classDetails)
         {
-
-            return getDescription(string.Format("//member[@name='T:{0}']", type.FullName));
-        }
-
-        internal string getDescription(MethodInfo method)
-        {
-            string description = string.Empty;
-            if (method.GetParameters().Length > 0)
+            writer.WriteStartElement("class");
+            writer.WriteAttributeString("name", classDetails.Name);
+            writer.WriteAttributeString("description", classDetails.Description);
+            if (!string.IsNullOrEmpty(classDetails.BaseName))
             {
-                description = getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}(')]", method.ReflectedType.FullName, method.Name));
-                if (string.IsNullOrEmpty(description))
-                {
-                    description = getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}``1(')]", method.ReflectedType.FullName, method.Name));
-                }
+                writer.WriteAttributeString("base", classDetails.BaseName);
             }
-            else
+            
+            if (classDetails.IsAbstract)
             {
-                description = getDescription(string.Format("//member[@name='M:{0}.{1}']", method.ReflectedType.FullName, method.Name));
+                writer.WriteAttributeString("abstract", "1");
             }
-            return description;
-        }
-
-        internal string getDescription(MethodInfo method, ParameterInfo param)
-        {
-            return getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name));
-        }
-
-        private string getDescription(string xPath)
-        {
-            var classNode = assemblyXml.SelectNodes(xPath);
-            if (classNode == null || classNode.Count == 0 || classNode[0].ChildNodes == null)
-                return "";
-
-            foreach (XmlNode child in classNode[0].ChildNodes)
+            
+            foreach (var property in classDetails.Properties)
             {
-                if (child.Name == "summary")
-                    return HttpUtility.HtmlEncode(child.InnerText.Trim());
+                WriteProperty(classDetails.Name, property);
             }
 
-            return classNode[0].InnerText.Trim();
+            writer.WriteEndElement(); // class
         }
 
-        private void writeProperty(string typeName, PropertyInfo property, Type type = null, string name = null, SchemePropertyAttribute schemeProperty = null)
+        private void WriteProperty(string typeName, KalturaPropertyDetails propertyDetails)
         {
-            ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
-            if (obsolete != null)
+            if (propertyDetails.Obsolete != null || 
+                propertyDetails.JsonIgnore != null || 
+                propertyDetails.Deprecated != null || 
+                propertyDetails.DataMember == null)
+            {
                 return;
-
-            JsonIgnoreAttribute jsonIgnore = property.GetCustomAttribute<JsonIgnoreAttribute>(true);
-            if (jsonIgnore != null)
-                return;
-
-            DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>(true);
-            if (deprecated != null)
-                return;
-
-            var dataMemberAttr = property.GetCustomAttribute<DataMemberAttribute>();
-            if (dataMemberAttr == null)
-                return;
-
-            if (schemeProperty == null)
-            {
-                schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
             }
-
-            if (name == null)
-            {
-                name = dataMemberAttr.Name;
-            }
-
-            if (type == null)
-            {
-                if (typeName == "KalturaFilter" && dataMemberAttr.Name == "orderBy")
-                {
-                    writeProperty(typeName, property, typeof(string));
-                    return;
-                }
-                else if (property.PropertyType == typeof(KalturaMultilingualString))
-                {
-                    if(schemeProperty == null)
-                    {
-                        schemeProperty = new SchemePropertyAttribute();
-                    }
-                    schemeProperty.ReadOnly = true;
-                    writeProperty(typeName, property, typeof(string), null, schemeProperty);
-                    writeProperty(typeName, property, typeof(List<KalturaTranslationToken>), KalturaMultilingualString.GetMultilingualName(name));
-                    return;
-                }
-                else
-                {
-                    type = property.PropertyType;
-                }
-            }
-
+            
             writer.WriteStartElement("property");
-            writer.WriteAttributeString("name", name);
-            appendType(type);
+            writer.WriteAttributeString("name", propertyDetails.Name);
+            AppendType(propertyDetails.PropertyType);
 
-            writer.WriteAttributeString("description", getDescription(property));
+            writer.WriteAttributeString("description", propertyDetails.Description);
 
-            if (schemeProperty == null)
+            if (propertyDetails.SchemeProperty == null)
             {
                 writer.WriteAttributeString("readOnly", "0");
                 writer.WriteAttributeString("insertOnly", "0");
             }
             else
             {
-                writer.WriteAttributeString("readOnly", schemeProperty.ReadOnly ? "1" : "0");
-                writer.WriteAttributeString("insertOnly", schemeProperty.InsertOnly ? "1" : "0");
-                writer.WriteAttributeString("writeOnly", schemeProperty.WriteOnly ? "1" : "0");
-                writer.WriteAttributeString("nullable", schemeProperty.IsNullable ? "1" : "0");
+                writer.WriteAttributeString("readOnly", propertyDetails.SchemeProperty.ReadOnly ? "1" : "0");
+                writer.WriteAttributeString("insertOnly", propertyDetails.SchemeProperty.InsertOnly ? "1" : "0");
+                writer.WriteAttributeString("writeOnly", propertyDetails.SchemeProperty.WriteOnly ? "1" : "0");
+                writer.WriteAttributeString("nullable", propertyDetails.SchemeProperty.IsNullable ? "1" : "0");
 
-                if (schemeProperty.DynamicType != null)
-                    writer.WriteAttributeString("valuesEnumType", schemeProperty.DynamicType.Name);
+                if (propertyDetails.SchemeProperty.DynamicType != null)
+                    writer.WriteAttributeString("valuesEnumType", propertyDetails.SchemeProperty.DynamicType.Name);
 
-                if (schemeProperty.DynamicMinInt > int.MinValue)
-                    writer.WriteAttributeString("valuesMinValue", schemeProperty.DynamicMinInt.ToString());
-                if (schemeProperty.DynamicMaxInt < int.MaxValue)
-                    writer.WriteAttributeString("valuesMaxValue", schemeProperty.DynamicMaxInt.ToString());
+                if (propertyDetails.SchemeProperty.DynamicMinInt > int.MinValue)
+                    writer.WriteAttributeString("valuesMinValue", propertyDetails.SchemeProperty.DynamicMinInt.ToString());
+                if (propertyDetails.SchemeProperty.DynamicMaxInt < int.MaxValue)
+                    writer.WriteAttributeString("valuesMaxValue", propertyDetails.SchemeProperty.DynamicMaxInt.ToString());
 
-                if (schemeProperty.RequiresPermission > 0)
+                if (propertyDetails.SchemeProperty.RequiresPermission > 0)
                 {
-                    RequestType[] validPermissions = new RequestType[] { RequestType.READ, RequestType.UPDATE, RequestType.INSERT };
-                    string[] permissions = (string[])validPermissions.Where((t, i) => ((int)t & schemeProperty.RequiresPermission) > 0).Select(t => t.ToString().ToLower()).ToArray();
+                    var validPermissions = new RequestType[] { RequestType.READ, RequestType.UPDATE, RequestType.INSERT };
+                    var permissions = validPermissions.Where((t, i) => ((int)t & propertyDetails.SchemeProperty.RequiresPermission) > 0).Select(t => t.ToString().ToLower()).ToArray();
                     writer.WriteAttributeString("requiresPermissions", string.Join(",", permissions));
                 }
 
-                if (schemeProperty.MaxInteger < int.MaxValue)
-                    writer.WriteAttributeString("maxValue", schemeProperty.MaxInteger.ToString());
-                else if (schemeProperty.MaxLong < long.MaxValue)
-                    writer.WriteAttributeString("maxValue", schemeProperty.MaxLong.ToString());
-                else if (schemeProperty.MaxFloat < float.MaxValue)
-                    writer.WriteAttributeString("maxValue", schemeProperty.MaxFloat.ToString());
+                if (propertyDetails.SchemeProperty.MaxInteger < int.MaxValue)
+                    writer.WriteAttributeString("maxValue", propertyDetails.SchemeProperty.MaxInteger.ToString());
+                else if (propertyDetails.SchemeProperty.MaxLong < long.MaxValue)
+                    writer.WriteAttributeString("maxValue", propertyDetails.SchemeProperty.MaxLong.ToString());
+                else if (propertyDetails.SchemeProperty.MaxFloat < float.MaxValue)
+                    writer.WriteAttributeString("maxValue", propertyDetails.SchemeProperty.MaxFloat.ToString());
 
-                if (schemeProperty.MinInteger < int.MinValue)
-                    writer.WriteAttributeString("minValue", schemeProperty.MinInteger.ToString());
-                else if (schemeProperty.MinLong < long.MinValue)
-                    writer.WriteAttributeString("minValue", schemeProperty.MinLong.ToString());
-                else if (schemeProperty.MinFloat < float.MinValue)
-                    writer.WriteAttributeString("minValue", schemeProperty.MinFloat.ToString());
+                if (propertyDetails.SchemeProperty.MinInteger < int.MinValue)
+                    writer.WriteAttributeString("minValue", propertyDetails.SchemeProperty.MinInteger.ToString());
+                else if (propertyDetails.SchemeProperty.MinLong < long.MinValue)
+                    writer.WriteAttributeString("minValue", propertyDetails.SchemeProperty.MinLong.ToString());
+                else if (propertyDetails.SchemeProperty.MinFloat < float.MinValue)
+                    writer.WriteAttributeString("minValue", propertyDetails.SchemeProperty.MinFloat.ToString());
 
             }
             writer.WriteEndElement(); // property
         }
-
-        private void writeType(Type type)
-        {
-            string typeName = getTypeName(type);
-
-            writer.WriteStartElement("class");
-            writer.WriteAttributeString("name", typeName);
-
-            string description = string.Empty;
-            if (SchemeManager.IsNewListResponse(type, out ListResponseAttribute listResponseAttribute))
-            {
-                if (listResponseAttribute != null)
-                {
-                    description = listResponseAttribute.ObjectsDescription;
-                }
-                else if (type.BaseType.IsGenericType)
-                {
-                    description = getDescription(type.BaseType.GetGenericTypeDefinition());
-                }
-                else
-                {
-                    description = getDescription(type.BaseType);
-                }
-            }
-            else
-            {
-                description = getDescription(type);
-            }
-            
-            writer.WriteAttributeString("description", description);
-
-            SchemeBaseAttribute schemeBaseAttribute = type.GetCustomAttribute<SchemeBaseAttribute>();
-            if (schemeBaseAttribute != null)
-            {
-                writer.WriteAttributeString("base", getTypeName(schemeBaseAttribute.BaseType));
-            }
-            else if (type.BaseType != null && type.BaseType != typeof(KalturaOTTObject))
-            {
-                writer.WriteAttributeString("base", getTypeName(type.BaseType));
-            }
-
-            if (type.IsInterface || type.IsAbstract)
-                writer.WriteAttributeString("abstract", "1");
-
-
-            List<PropertyInfo> properties = type.GetProperties().ToList();
-
-            if (type.BaseType != null)
-            {
-                //Remove properties from base
-                List<PropertyInfo> baseProps = type.BaseType.GetProperties().ToList();
-                baseProps.RemoveAll(myProperty => myProperty.GetCustomAttribute<ObsoleteAttribute>(false) != null);
-                List<string> basePropsNames = baseProps.Select(myProperty => myProperty.Name).ToList();
-                properties.RemoveAll(myProperty => basePropsNames.Contains(myProperty.Name));
-            }
-
-            foreach (var property in properties)
-            {
-                writeProperty(typeName, property);
-            }
-
-            writer.WriteEndElement(); // class
-        }
-
+        
         private void writeEnum(Type type)
         {
             bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
@@ -1104,36 +829,8 @@ namespace Validator.Managers.Scheme
 
             writer.WriteEndElement(); // enum
         }
-
-        private string getTypeName(Type type)
-        {
-            if (type == typeof(String))
-                return "string";
-            if (type == typeof(DateTime))
-                return "int";
-            if (type == typeof(long) || type == typeof(Int64))
-                return "bigint";
-            if (type == typeof(Int32))
-                return "int";
-            if (type == typeof(double) || type == typeof(float))
-                return "float";
-            if (type == typeof(bool))
-                return "bool";
-            if (type.IsEnum)
-                return type.Name;
-
-            if (type == typeof(KalturaOTTFile))
-                return "file";
-
-            if (typeof(KalturaRenderer).IsAssignableFrom(type))
-                return "file";
-
-            Regex regex = new Regex("^[^`]+");
-            Match match = regex.Match(type.Name);
-            return match.Value;
-        }
-
-        private void appendType(Type type)
+        
+        private void AppendType(Type type)
         {
             //Handling nullables
             if (Nullable.GetUnderlyingType(type) != null)
@@ -1148,7 +845,7 @@ namespace Validator.Managers.Scheme
                 var etype = isIntEnum ? "int" : "string";
 
                 writer.WriteAttributeString("type", isIntEnum ? "int" : "string");
-                writer.WriteAttributeString("enumType", getTypeName(type));
+                writer.WriteAttributeString("enumType", SchemeManager.GetTypeName(type));
                 return;
             }
 
@@ -1156,7 +853,7 @@ namespace Validator.Managers.Scheme
             if (type.IsArray)
             {
                 writer.WriteAttributeString("type", "array");
-                writer.WriteAttributeString("arrayType", getTypeName(type.GetElementType()));
+                writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetElementType()));
                 return;
             }
 
@@ -1167,19 +864,19 @@ namespace Validator.Managers.Scheme
                 if (genericTypeDefinition == typeof(List<>))
                 {
                     writer.WriteAttributeString("type", "array");
-                    writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[0]));
+                    writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetGenericArguments()[0]));
                     return;
                 }
 
                 if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
                 {
                     writer.WriteAttributeString("type", "map");
-                    writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[1]));
+                    writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetGenericArguments()[1]));
                     return;
                 }
             }
 
-            writer.WriteAttributeString("type", getTypeName(type));
+            writer.WriteAttributeString("type", SchemeManager.GetTypeName(type));
         }
     }
 }
