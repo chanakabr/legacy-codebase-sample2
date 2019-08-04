@@ -230,13 +230,17 @@ namespace Core.Pricing.Handlers
                 }
 
                 // Get Household's Wallet
-                var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
-                if (couponWallet?.Count > 0 && couponGroupIds.Count > 0)
+                if (couponGroupIds.Count > 0)
                 {
-                    couponWallet = couponWallet.Where(x => couponGroupIds.Contains(x.CouponGroupId)).ToList();
-                }
+                    var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                    if (couponWallet?.Count > 0)
+                    {
+                        couponWallet = couponWallet.Where(x => couponGroupIds.Contains(x.CouponGroupId)).ToList();
+                    }
 
-                response.Objects = couponWallet;
+                    response.Objects = couponWallet;
+                }
+                
                 response.TotalItems = response.Objects != null ? 0 : response.Objects.Count;
                 response.Status.Set(eResponseStatus.OK);
             }
