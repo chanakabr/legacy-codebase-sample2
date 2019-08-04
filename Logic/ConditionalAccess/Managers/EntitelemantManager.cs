@@ -1057,7 +1057,15 @@ namespace Core.ConditionalAccess
                     status.Set(entitlement.Status);
                     return status;
                 }
-                
+
+                var subscriptionId = int.Parse(entitlement.Object.entitlementId);
+                var subscription = Utils.GetSubscription(groupId, subscriptionId);
+                if (subscription == null)
+                {
+                    status.Set(eResponseStatus.SubscriptionDoesNotExist, "ProductId doesn't exist");
+                    return status;
+                }
+
                 // validate coupon
                 var couponData = Utils.GetCouponData(groupId, couponCode, domainId);
                 if (couponData == null)
@@ -1066,17 +1074,42 @@ namespace Core.ConditionalAccess
                     return status;
                 }
 
-                var subscriptionId = int.Parse(entitlement.Object.entitlementId);
                 var renewData = ConditionalAccessDAL.GetRecurringRenewDetails(purchaseId);
+
+                if (renewData != null && renewData.LeftCouponRecurring > 0)
+                {
+                    status.Set(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription);
+                    return status;
+                }
+
+                bool validCoupon = false;
+                // look if this coupon group id exsits in coupon list 
+                if (
+                        (
+                            subscription.m_oCouponsGroup != null
+                            && 
+                            subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponData.m_oCouponGroup.m_sGroupCode)
+                        )
+                        ||
+                        (
+                            subscription.CouponsGroups != null
+                            && 
+                            subscription.CouponsGroups.Count(x => x.m_sGroupCode.Equals(couponData.m_oCouponGroup.m_sGroupCode)
+                                                             && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)) > 0
+                        )
+                   )
+                {
+                    validCoupon = true;
+                }
+
+                if (!validCoupon)
+                {
+                    status.Set(eResponseStatus.CouponNotValid);
+                    return status;
+                }
+
                 if (renewData == null)
                 {
-                    var subscription = Utils.GetSubscription(groupId, subscriptionId);
-                    if (subscription == null)
-                    {
-                        status.Set(eResponseStatus.SubscriptionDoesNotExist, "ProductId doesn't exist");
-                        return status;
-                    }
-
                     if (!subscription.m_bIsRecurring)
                     {
                         status.Set(eResponseStatus.SubscriptionNotRenewable);
@@ -1088,12 +1121,6 @@ namespace Core.ConditionalAccess
                     renewData = InitializeRecurringRenewDetails(groupId, renewDetailsRow, purchaseId, subscription);
                 }
 
-                if (renewData.LeftCouponRecurring > 0)
-                {
-                    status.Set(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription);
-                    return status;
-                }
-                
                 renewData.CouponCode = couponCode;
                 renewData.CouponRemainder = 0;
                 renewData.IsCouponHasEndlessRecurring = couponData.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0;
