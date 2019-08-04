@@ -1,0 +1,73 @@
+pipeline {
+    agent {
+        label 'Windows'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        skipDefaultCheckout true
+    }
+    parameters {
+    }
+    environment {
+        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        NUGET = 'c:\\nuget.exe'
+    }
+    stages {
+        stage("Checkout"){
+            steps{
+                dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('tvpapi_rest') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvpapi_rest.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+            }
+        }
+        stage("Version Patch"){
+            steps{
+                dir("core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                    bat "sh DllVersioning.Core.sh ../tvpapi_rest" 
+                    powershell "../Core/DllVersioning.ps1 ."
+                }
+            }        
+        }
+        stage("Nuget Restore"){
+            steps{
+                dir("core"){ bat ("${NUGET} restore") }
+                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
+            }        
+        }
+        stage("Publish Localy"){
+            steps{
+                dir("tvpapi_rest"){
+                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${WORKSPACE}/published/tvpapi_rest/"
+                        )
+                }
+            }        
+        }
+        stage("Generate KalturaClient.xml"){
+            steps { 
+                dir("tvpapi_rest"){
+                    dir("Generator"){
+                        bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                        dir("bin/Release/netcoreapp2.0"){
+                            bat ("dotnet Generator.dll")
+                            bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\tvpapi_rest\\clientlibs\\")
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage("Publish To S3"){
+            steps { 
+                dir("published/tvpapi_rest"){
+                    echo ("Here we push to s3")
+                }
+            }
+        }
+    }
+}
