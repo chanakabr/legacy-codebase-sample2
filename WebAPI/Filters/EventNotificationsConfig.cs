@@ -6,12 +6,25 @@ using EventManager;
 using KLogMonitor;
 using System.IO;
 using ConfigurationManager;
+using Microsoft.Extensions.Hosting;
 
 namespace WebAPI.Filters
 {
-    public class EventNotificationsConfig
+    public static class EventNotificationsConfig
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static IHostBuilder ConfigureEventNotificationsConfig(this IHostBuilder builder)
+        {
+            builder.ConfigureServices((hostContext, services) =>
+            {
+                ApplicationConfiguration.Initialize(true, true);
+
+                SubscribeConsumers();
+            });
+
+            return builder;
+        }
 
         public static void SubscribeConsumers()
         {
