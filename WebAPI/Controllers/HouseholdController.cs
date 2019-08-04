@@ -425,7 +425,6 @@ namespace WebAPI.Controllers
         static public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;
-
             var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             // no household to update - return forbidden

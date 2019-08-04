@@ -49,7 +49,7 @@ namespace WebAPI.EventNotifications
             }
 
             string systemName = objectEvent.GetSystemName();
-            var userIp = HttpContext.Current.Items[RequestContext.USER_IP]?.ToString();
+            var userIp = HttpContext.Current?.Items[RequestContext.USER_IP]?.ToString();
 
             KalturaNotification eventWrapper = new KalturaNotification()
             {
@@ -59,7 +59,7 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                SequenceId = HttpContext.Current.Items[Constants.REQUEST_ID_KEY]?.ToString()
+                SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString()
             };
 
             return eventWrapper;

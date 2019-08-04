@@ -1,13 +1,24 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration;
+using Microsoft.Extensions.Hosting;
 using ObjectsConvertor.Mapping;
 using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Filters
 {
-    public class AutoMapperConfig
+    public static class AutoMapperConfig
     {
+        public static IHostBuilder ConfigureMappings(this IHostBuilder builder)
+        {
+            builder.ConfigureServices((hostContext, services) =>
+            {
+                RegisterMappings();
+            });
+
+            return builder;
+        }
+
         public static void RegisterMappings()
         {
             MapperConfigurationExpression cfg = new MapperConfigurationExpression();
