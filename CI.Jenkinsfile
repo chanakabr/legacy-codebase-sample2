@@ -6,8 +6,8 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         skipDefaultCheckout true
     }
-    parameters {
-    }
+    // parameters {
+    // }
     environment {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
         NUGET = 'c:\\nuget.exe'
