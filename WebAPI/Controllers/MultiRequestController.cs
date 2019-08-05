@@ -336,9 +336,14 @@ namespace WebAPI.Controllers
             {
                 try
                 {
+                    if (type.IsEnum)
+                    {
+                        return Enum.Parse(type, value);
+                    }
+
                     return Convert.ChangeType(value, type);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     return null;
                 }
