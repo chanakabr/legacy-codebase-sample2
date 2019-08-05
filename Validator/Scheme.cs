@@ -491,7 +491,7 @@ namespace Validator.Managers.Scheme
             writer.WriteStartElement("services");
             foreach (Type controller in controllers.OrderBy(controller => controller.Name))
             {
-                if (!SchemeManager.Validate(controller, true, assemblyXml) || controller.IsAbstract)
+                if (controller.IsAbstract || !SchemeManager.Validate(controller, true, assemblyXml))
                     continue;
                 
                 WriteService(GetControllerDetails(controller));
@@ -933,6 +933,9 @@ namespace Validator.Managers.Scheme
                 //Read only HTTP POST as we will have duplicates otherwise
                 var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
                 if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
+                    continue;
+
+                if (!SchemeManager.ValidateMethod(method, true, assemblyXml))
                     continue;
 
                 controllerDetails.Actions.Add(GetActionDetails(method));
