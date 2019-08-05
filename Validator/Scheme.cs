@@ -300,7 +300,7 @@ namespace Validator.Managers.Scheme
                 return;
             }
 
-            string typeName = SchemeManager.GetTypeName(type);
+            string typeName = GetTypeName(type);
             if (typeof(IKalturaOTTObject).IsAssignableFrom(type) && !Field.loadedTypes.ContainsKey(typeName))
             {
                 Field.loadedTypes.Add(typeName, new Field(type));
@@ -483,7 +483,7 @@ namespace Validator.Managers.Scheme
                 if (!SchemeManager.Validate(type, true, assemblyXml) || type.Name == "KalturaListResponseT" || type.Name == "KalturaFilterT")
                     continue;
                 
-                WriteClass(SchemeManager.GetClassDetails(type, assemblyXml));
+                WriteClass(GetClassDetails(type));
             }
             writer.WriteEndElement(); // classes
 
@@ -494,7 +494,7 @@ namespace Validator.Managers.Scheme
                 if (!SchemeManager.Validate(controller, true, assemblyXml) || controller.IsAbstract)
                     continue;
                 
-                WriteService(SchemeManager.GetControllerDetails(controller, assemblyXml));
+                WriteService(GetControllerDetails(controller));
             }
             writer.WriteEndElement(); // services
 
@@ -711,12 +711,7 @@ namespace Validator.Managers.Scheme
         {
             return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name), assemblyXml);
         }
-
-        internal string getDescription(PropertyInfo property)
-        {
-            return SchemeManager.GetPropertyDescription(property, assemblyXml);
-        }
-
+        
         private void WriteClass(KalturaClassDetails classDetails)
         {
             writer.WriteStartElement("class");
@@ -845,7 +840,7 @@ namespace Validator.Managers.Scheme
                 var etype = isIntEnum ? "int" : "string";
 
                 writer.WriteAttributeString("type", isIntEnum ? "int" : "string");
-                writer.WriteAttributeString("enumType", SchemeManager.GetTypeName(type));
+                writer.WriteAttributeString("enumType", GetTypeName(type));
                 return;
             }
 
@@ -853,7 +848,7 @@ namespace Validator.Managers.Scheme
             if (type.IsArray)
             {
                 writer.WriteAttributeString("type", "array");
-                writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetElementType()));
+                writer.WriteAttributeString("arrayType", GetTypeName(type.GetElementType()));
                 return;
             }
 
@@ -864,19 +859,403 @@ namespace Validator.Managers.Scheme
                 if (genericTypeDefinition == typeof(List<>))
                 {
                     writer.WriteAttributeString("type", "array");
-                    writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetGenericArguments()[0]));
+                    writer.WriteAttributeString("arrayType", GetTypeName(type.GetGenericArguments()[0]));
                     return;
                 }
 
                 if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
                 {
                     writer.WriteAttributeString("type", "map");
-                    writer.WriteAttributeString("arrayType", SchemeManager.GetTypeName(type.GetGenericArguments()[1]));
+                    writer.WriteAttributeString("arrayType", GetTypeName(type.GetGenericArguments()[1]));
                     return;
                 }
             }
 
-            writer.WriteAttributeString("type", SchemeManager.GetTypeName(type));
+            writer.WriteAttributeString("type", GetTypeName(type));
+        }
+
+        private string GetTypeName(Type type)
+        {
+            if (type == typeof(String))
+                return "string";
+            if (type == typeof(DateTime))
+                return "int";
+            if (type == typeof(long) || type == typeof(Int64))
+                return "bigint";
+            if (type == typeof(Int32))
+                return "int";
+            if (type == typeof(double) || type == typeof(float))
+                return "float";
+            if (type == typeof(bool))
+                return "bool";
+            if (type.IsEnum)
+                return type.Name;
+
+            if (type == typeof(KalturaOTTFile))
+                return "file";
+
+            if (typeof(KalturaRenderer).IsAssignableFrom(type))
+                return "file";
+
+            Regex regex = new Regex("^[^`]+");
+            Match match = regex.Match(type.Name);
+            return match.Value;
+        }
+
+        private KalturaControllerDetails GetControllerDetails(Type controllerType)
+        {
+            var controllerDetails = new KalturaControllerDetails()
+            {
+                ServiceId = SchemeManager.getServiceId(controllerType),
+            };
+
+            if (SchemeManager.IsCrudController(controllerType, out Dictionary<string, CrudActionAttribute> crudActionAttributes, out Dictionary<string, MethodInfo> crudActions))
+            {
+                controllerDetails.IsCrudController = true;
+                foreach (var crudActionAttribute in crudActionAttributes)
+                {
+                    if (crudActions.ContainsKey(crudActionAttribute.Key))
+                    {
+                        controllerDetails.Actions.Add(GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]));
+                    }
+                }
+            }
+
+            var methods = controllerType.GetMethods().OrderBy(method => method.Name);
+            foreach (var method in methods)
+            {
+                if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
+                    continue;
+
+                if (!SchemeManager.ValidateMethod(method, false, assemblyXml))
+                    continue;
+
+                //Read only HTTP POST as we will have duplicates otherwise
+                var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
+                if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
+                    continue;
+
+                controllerDetails.Actions.Add(GetActionDetails(method));
+            };
+
+            return controllerDetails;
+        }
+
+        private KalturaActionDetails GetCrudActionDetails(CrudActionAttribute actionAttribute, MethodInfo method)
+        {
+            var crudActionDetails = new KalturaActionDetails()
+            {
+                Name = actionAttribute.GetName(),
+                Description = actionAttribute.Summary,
+                IsGenericMethod = false,
+                IsDeprecated = false,
+                IsSessionRequired = true,
+            };
+
+            var parameters = method.GetParameters();
+            foreach (var parameter in parameters)
+            {
+                crudActionDetails.Prameters.Add(GetCrudPrameterDetails(parameter, method, actionAttribute));
+            }
+
+            if (method.ReturnType != typeof(void))
+            {
+                crudActionDetails.ReturnedTypes = GetParameterTypes(method.ReturnType);
+            }
+
+            // write throws
+            if (actionAttribute.ApiThrows != null && actionAttribute.ApiThrows.Length > 0)
+            {
+                crudActionDetails.ApiThrows.AddRange(actionAttribute.ApiThrows);
+            }
+
+            if ((actionAttribute.ClientThrows != null && actionAttribute.ClientThrows.Length > 0))
+            {
+                crudActionDetails.ClientThrows.AddRange(actionAttribute.ClientThrows);
+            }
+
+            return crudActionDetails;
+        }
+
+        private KalturaActionDetails GetActionDetails(MethodInfo method)
+        {
+            var actionDetails = new KalturaActionDetails()
+            {
+                IsGenericMethod = method.IsGenericMethod,
+                Description = SchemeManager.GetMethodDescription(method, assemblyXml),
+                IsDeprecated = method.GetCustomAttribute<ObsoleteAttribute>() != null,
+                IsSessionRequired = method.GetCustomAttribute<ApiAuthorizeAttribute>() != null,
+            };
+
+            var actionAttribute = method.GetCustomAttribute<ActionAttribute>(false);
+            if (actionAttribute != null)
+            {
+                actionDetails.Name = actionAttribute.Name;
+            }
+
+            var parameters = method.GetParameters();
+            foreach (var parameter in parameters)
+            {
+                actionDetails.Prameters.Add(GetPrameterDetails(parameter, method));
+            }
+
+            if (method.ReturnType != typeof(void))
+            {
+                actionDetails.ReturnedTypes = GetParameterTypes(method.ReturnType);
+            }
+
+            IEnumerable<ThrowsAttribute> actionErrors = method.GetCustomAttributes<ThrowsAttribute>(false);
+            foreach (ThrowsAttribute error in actionErrors)
+            {
+                if (error.ApiCode.HasValue)
+                {
+                    actionDetails.ApiThrows.Add(error.ApiCode.Value);
+                }
+                else if (error.ClientCode.HasValue)
+                {
+                    actionDetails.ClientThrows.Add(error.ClientCode.Value);
+                }
+            }
+
+            return actionDetails;
+        }
+
+        private KalturaPrameterDetails GetPrameterDetails(ParameterInfo parameter, MethodInfo method)
+        {
+            var prameterDetails = new KalturaPrameterDetails()
+            {
+                Name = parameter.Name,
+                ParameterTypes = GetParameterTypes(parameter.ParameterType),
+                IsOptional = parameter.IsOptional,
+                Description = GetParameterDescription(parameter, method)
+            };
+
+            if (parameter.IsOptional)
+            {
+                prameterDetails.DefaultValue = parameter.DefaultValue == null ? "null" : (parameter.DefaultValue is bool ? parameter.DefaultValue.ToString().ToLower() : parameter.DefaultValue.ToString());
+            }
+
+            return prameterDetails;
+        }
+
+        private KalturaPrameterDetails GetCrudPrameterDetails(ParameterInfo parameter, MethodInfo method, CrudActionAttribute actionAttribute)
+        {
+            var prameterDetails = new KalturaPrameterDetails()
+            {
+                Name = parameter.Name,
+                ParameterTypes = GetParameterTypes(parameter.ParameterType),
+                IsOptional = SchemeManager.IsParameterOptional(parameter, actionAttribute.GetOptionalParameters()),
+                Description = actionAttribute.GetDescription(parameter.Name),
+            };
+
+            if (parameter.IsOptional)
+            {
+                prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
+            }
+
+            return prameterDetails;
+        }
+
+        private KalturaClassDetails GetClassDetails(Type classType)
+        {
+            var kalturaClassDetails = new KalturaClassDetails()
+            {
+                Name = GetTypeName(classType),
+                Description = GetTypeDescription(classType),
+                IsAbstract = classType.IsInterface || classType.IsAbstract
+            };
+
+            var schemeBaseAttribute = classType.GetCustomAttribute<SchemeBaseAttribute>();
+            if (schemeBaseAttribute != null)
+            {
+                kalturaClassDetails.BaseName = GetTypeName(schemeBaseAttribute.BaseType);
+            }
+            else if (classType.BaseType != null && classType.BaseType != typeof(KalturaOTTObject))
+            {
+                kalturaClassDetails.BaseName = GetTypeName(classType.BaseType);
+            }
+
+            var properties = classType.GetProperties().ToList();
+            ListResponseAttribute listResponseAttribute = null;
+            if (classType.BaseType != null)
+            {
+                //Remove properties from base
+                var baseProps = classType.BaseType.GetProperties().ToList();
+                baseProps.RemoveAll(myProperty => myProperty.GetCustomAttribute<ObsoleteAttribute>(false) != null);
+                if (baseProps.Count > 0)
+                {
+                    var basePropsNames = new HashSet<string>(baseProps.Select(myProperty => myProperty.Name));
+                    properties.RemoveAll(myProperty => basePropsNames.Contains(myProperty.Name));
+                }
+            }
+
+            var propertyToDescription = new Dictionary<PropertyInfo, string>();
+            foreach (var property in properties)
+            {
+                propertyToDescription.Add(property, GetPropertyDescription(property));
+            }
+
+            if (SchemeManager.IsGenericListResponse(classType, out listResponseAttribute, out PropertyInfo objectsProperty))
+            {
+                if (objectsProperty != null)
+                {
+                    string description = string.Empty;
+                    if (listResponseAttribute != null)
+                    {
+                        description = listResponseAttribute.ObjectsDescription;
+                    }
+                    else
+                    {
+                        description = GetPropertyDescription(objectsProperty);
+                    }
+
+                    propertyToDescription.Add(objectsProperty, description);
+                }
+            }
+
+            kalturaClassDetails.Properties = GetPropertiesDetails(propertyToDescription, kalturaClassDetails.Name);
+
+            return kalturaClassDetails;
+        }
+
+        private List<KalturaPropertyDetails> GetPropertiesDetails(Dictionary<PropertyInfo, string> propertiesToDescription, string typeName)
+        {
+            var propertiesDetails = new List<KalturaPropertyDetails>();
+            foreach (var property in propertiesToDescription)
+            {
+                if (property.Key.PropertyType == typeof(KalturaMultilingualString))
+                {
+                    var propertyDetailsString = GetPropertyDetails(property.Key, property.Value);
+                    if (propertyDetailsString.SchemeProperty == null)
+                    {
+                        propertyDetailsString.SchemeProperty = new SchemePropertyAttribute();
+                    }
+                    propertyDetailsString.SchemeProperty.ReadOnly = true;
+                    propertyDetailsString.PropertyType = typeof(string);
+                    propertiesDetails.Add(propertyDetailsString);
+
+                    var propertyDetailsKalturaTranslationTokenList = GetPropertyDetails(property.Key, property.Value);
+                    propertyDetailsKalturaTranslationTokenList.PropertyType = typeof(List<KalturaTranslationToken>);
+                    propertyDetailsKalturaTranslationTokenList.Name = KalturaMultilingualString.GetMultilingualName(propertyDetailsKalturaTranslationTokenList.Name);
+                    propertiesDetails.Add(propertyDetailsKalturaTranslationTokenList);
+                }
+                else
+                {
+                    var propertyDetails = GetPropertyDetails(property.Key, property.Value);
+                    if (typeName == "KalturaFilter" && propertyDetails.DataMember != null && propertyDetails.DataMember.Name == "orderBy")
+                    {
+                        propertyDetails.PropertyType = typeof(string);
+                    }
+                    else
+                    {
+                        propertyDetails.PropertyType = property.Key.PropertyType;
+                    }
+
+                    propertiesDetails.Add(propertyDetails);
+                }
+            }
+
+            return propertiesDetails;
+        }
+
+        private static KalturaPropertyDetails GetPropertyDetails(PropertyInfo propertyInfo, string description)
+        {
+            var propertyDetails = new KalturaPropertyDetails()
+            {
+                Obsolete = propertyInfo.GetCustomAttribute<ObsoleteAttribute>(true),
+                JsonIgnore = propertyInfo.GetCustomAttribute<JsonIgnoreAttribute>(true),
+                Deprecated = propertyInfo.GetCustomAttribute<DeprecatedAttribute>(true),
+                DataMember = propertyInfo.GetCustomAttribute<DataMemberAttribute>(),
+                SchemeProperty = propertyInfo.GetCustomAttribute<SchemePropertyAttribute>(),
+                Description = description
+            };
+
+            propertyDetails.Name = propertyDetails.DataMember != null ? propertyDetails.DataMember.Name : null;
+
+            return propertyDetails;
+        }
+
+        private Dictionary<string, string> GetParameterTypes(Type type)
+        {
+            var parameterTypes = new Dictionary<string, string>();
+
+            //Handling nullables
+            if (Nullable.GetUnderlyingType(type) != null)
+            {
+                type = type.GetGenericArguments()[0];
+            }
+
+            //Handling Enums
+            if (type.IsEnum)
+            {
+                bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
+                var etype = isIntEnum ? "int" : "string";
+                parameterTypes.Add("type", isIntEnum ? "int" : "string");
+                parameterTypes.Add("enumType", GetTypeName(type));
+                return parameterTypes;
+            }
+
+            //Handling arrays
+            if (type.IsArray)
+            {
+                parameterTypes.Add("type", "array");
+                parameterTypes.Add("arrayType", GetTypeName(type.GetElementType()));
+                return parameterTypes;
+            }
+
+            if (type.IsGenericType)
+            {
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+
+                if (genericTypeDefinition == typeof(List<>))
+                {
+                    parameterTypes.Add("type", "array");
+                    parameterTypes.Add("arrayType", GetTypeName(type.GetGenericArguments()[0]));
+                    return parameterTypes;
+                }
+
+                if (genericTypeDefinition == typeof(Dictionary<,>) || genericTypeDefinition == typeof(SerializableDictionary<,>))
+                {
+                    parameterTypes.Add("type", "map");
+                    parameterTypes.Add("arrayType", GetTypeName(type.GetGenericArguments()[1]));
+                    return parameterTypes;
+                }
+            }
+
+            parameterTypes.Add("type", GetTypeName(type));
+            return parameterTypes;
+        }
+
+        private string GetParameterDescription(ParameterInfo param, MethodInfo method)
+        {
+            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name), assemblyXml);
+        }
+
+        private string GetTypeDescription(Type type)
+        {
+            return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='T:{0}']", type.FullName), assemblyXml);
+        }
+
+        internal string GetPropertyDescription(PropertyInfo property)
+        {
+            try
+            {
+                if (property.ReflectedType.IsGenericType)
+                {
+                    Regex regex = new Regex(@"^[^\[]+");
+                    string name = regex.Match(property.ReflectedType.FullName).Value;
+                    return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='P:{0}.{1}']", name, property.Name), assemblyXml);
+                }
+                else
+                {
+                    return SchemeManager.GetDescriptionByAssemblyXml(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name), assemblyXml);
+                }
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+                //throw;
+            }
         }
     }
 }

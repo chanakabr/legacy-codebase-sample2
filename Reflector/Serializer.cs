@@ -144,7 +144,7 @@ namespace Reflector
 
         private void writePartialClass(Type type)
         {
-            file.WriteLine("    public partial class " + SchemeManager.GetTypeName(type, true));
+            file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
             file.WriteLine("        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)");
             file.WriteLine("        {");

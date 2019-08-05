@@ -100,7 +100,7 @@ namespace Reflector
                 if (typeof(IList).IsAssignableFrom(propertyType)) // list
                 {
                     Type genericParam = propertyType.GetGenericArguments()[0];
-                    string genericParamName = SchemeManager.GetTypeName(genericParam);
+                    string genericParamName = GetTypeName(genericParam);
                     file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JArray)");
                     file.WriteLine("                    {");
                     if (typeof(IKalturaOTTObject).IsAssignableFrom(genericParam))
@@ -127,7 +127,7 @@ namespace Reflector
                 }
                 else if (typeof(IDictionary).IsAssignableFrom(propertyType)) // map
                 {
-                    string genericParamName = SchemeManager.GetTypeName(propertyType.GetGenericArguments()[1]);
+                    string genericParamName = GetTypeName(propertyType.GetGenericArguments()[1]);
                     file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JObject)");
                     file.WriteLine("                    {");
                     file.WriteLine("                        " + property.Name + " = buildDictionary<" + genericParamName + ">(typeof(" + genericParamName + "), ((JObject) parameters[\"" + apiName + "\"]).ToObject<Dictionary<string, object>>());");
@@ -343,10 +343,10 @@ namespace Reflector
 
         private void wrtiePartialClass(Type type)
         {
-            file.WriteLine("    public partial class " + SchemeManager.GetTypeName(type, true));
+            file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
             wrtieDeserializeTypeSchemaProperties(type);
-            file.WriteLine("        public " + SchemeManager.GetTypeName(type) + "(Dictionary<string, object> parameters = null) : base(parameters)");
+            file.WriteLine("        public " + GetTypeName(type) + "(Dictionary<string, object> parameters = null) : base(parameters)");
             file.WriteLine("        {");
             wrtieDeserializeTypeProperties(type);
             file.WriteLine("        }");
@@ -403,14 +403,14 @@ namespace Reflector
 
             foreach (Type type in types)
             {
-                var typeName = SchemeManager.GetTypeName(type);
+                var typeName = GetTypeName(type);
                 if (typeName == "KalturaListResponse" && type.IsAbstract) { continue; }
                 
                 file.WriteLine("                case \"" + typeName + "\":");
                 NewObjectTypeAttribute newObjectTypeAttribue = type.GetCustomAttribute<NewObjectTypeAttribute>(false);
                 if (newObjectTypeAttribue != null)
                 {
-                    file.WriteLine("                    return new " + SchemeManager.GetTypeName(newObjectTypeAttribue.type) + "(parameters);");
+                    file.WriteLine("                    return new " + GetTypeName(newObjectTypeAttribue.type) + "(parameters);");
                 }
                 else if (type.IsAbstract)
                 {

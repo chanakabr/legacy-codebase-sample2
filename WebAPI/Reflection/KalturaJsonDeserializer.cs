@@ -8409,13 +8409,13 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowTvSeries")
         {
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaFollowTvSeries(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -8751,6 +8751,7 @@ namespace WebAPI.Models.Notification
         private static RuntimeSchemePropertyAttribute PushStartHourSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
             ReadOnly = false,
+            MinInteger = 0,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
@@ -8758,11 +8759,11 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 24,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute PushEndHourSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
             ReadOnly = false,
+            MinInteger = 0,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
@@ -8770,11 +8771,11 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 24,
-            MinInteger = 0,
         };
         private static RuntimeSchemePropertyAttribute MessageTTLDaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
@@ -8782,11 +8783,11 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 90,
-            MinInteger = 1,
         };
         private static RuntimeSchemePropertyAttribute ReminderOffsetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
             ReadOnly = false,
+            MinInteger = 0,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
@@ -8794,7 +8795,6 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 3600,
-            MinInteger = 0,
         };
         public KalturaNotificationsPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9560,13 +9560,13 @@ namespace WebAPI.Models.Catalog
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetComment")
         {
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaAssetComment(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9607,13 +9607,13 @@ namespace WebAPI.Models.Catalog
         private static RuntimeSchemePropertyAttribute AssetIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetCommentFilter")
         {
             ReadOnly = false,
+            MinInteger = 1,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
-            MinInteger = 1,
         };
         public KalturaAssetCommentFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -16230,12 +16230,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
+            DynamicMinInt = 1,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17638,12 +17638,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute SegmentsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentsCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };
@@ -17668,12 +17668,12 @@ namespace WebAPI.Models.API
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCondition")
         {
+            DynamicMinInt = 0,
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
-            DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
         };

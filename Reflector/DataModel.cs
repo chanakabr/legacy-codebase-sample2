@@ -349,19 +349,19 @@ namespace Reflector
                     else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(List<>))
                     {
                         file.WriteLine("                                IsList = true,");
-                        file.WriteLine("                                GenericType = typeof(" + SchemeManager.GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + "),");
-                        file.WriteLine("                                Type = typeof(List<" + SchemeManager.GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + ">),");
+                        file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + "),");
+                        file.WriteLine("                                Type = typeof(List<" + GetTypeName(parameter.ParameterType.GetGenericArguments()[0]) + ">),");
                     }
                     else if (parameter.ParameterType.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
                     {
                         file.WriteLine("                                IsMap = true,");
-                        file.WriteLine("                                GenericType = typeof(" + SchemeManager.GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + "),");
-                        file.WriteLine("                                Type = typeof(SerializableDictionary<string, " + SchemeManager.GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + ">),");
+                        file.WriteLine("                                GenericType = typeof(" + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + "),");
+                        file.WriteLine("                                Type = typeof(SerializableDictionary<string, " + GetTypeName(parameter.ParameterType.GetGenericArguments()[1]) + ">),");
                     }
                     else if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)))
                     {
                         file.WriteLine("                                IsKalturaObject = true,");
-                        file.WriteLine("                                Type = typeof(" + SchemeManager.GetTypeName(parameter.ParameterType) + "<>),");
+                        file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "<>),");
                     }
                 }
                 else if (parameter.ParameterType.IsEnum)
@@ -383,7 +383,7 @@ namespace Reflector
                     {
                         file.WriteLine("                                IsDateTime = true,");
                     }
-                    file.WriteLine("                                Type = typeof(" + SchemeManager.GetTypeName(parameter.ParameterType) + "),");
+                    file.WriteLine("                                Type = typeof(" + GetTypeName(parameter.ParameterType) + "),");
                 }
 
                 foreach (SchemeArgumentAttribute schemaArgument in schemaArguments)
@@ -510,7 +510,7 @@ namespace Reflector
                 file.WriteLine(tab + "                            HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
             }
 
-            string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + SchemeManager.GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+            string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
             if (action.IsGenericMethod)
             {
                 file.WriteLine(tab + "                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + action.Name + "\"), methodParams);");
@@ -650,7 +650,7 @@ namespace Reflector
             file.WriteLine("                        case \"" + actionName + "\":");
             file.WriteLine("                            RolesManager.ValidateActionPermitted(\"" + serviceName + "\", \"" + actionName + "\");");
             
-            string args = String.Join(", ", crudAction.GetParameters().Select(paramInfo => "(" + SchemeManager.GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
+            string args = String.Join(", ", crudAction.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
             if (crudAction.IsGenericMethod)
             {
                 file.WriteLine("                            return ServiceController.ExecGeneric(typeof(" + controller.Name + ").GetMethod(\"" + crudAction.Name + "\"), methodParams);");

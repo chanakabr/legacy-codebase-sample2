@@ -6,6 +6,7 @@ using System.Reflection;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Controllers;
+using System.Text.RegularExpressions;
 
 namespace Reflector
 {
@@ -77,5 +78,35 @@ namespace Reflector
         protected abstract void writeHeader();
         protected abstract void writeBody();
         protected abstract void writeFooter();
+
+        protected string GetTypeName(Type type, bool addGenericDefinition = false)
+        {
+            if (type == typeof(String))
+                return "string";
+            if (type == typeof(DateTime))
+                return "int";
+            if (type == typeof(long) || type == typeof(Int64))
+                return "long";
+            if (type == typeof(Int32))
+                return "int";
+            if (type == typeof(double))
+                return "double";
+            if (type == typeof(float))
+                return "float";
+            if (type == typeof(bool))
+                return "bool";
+            if (type.IsEnum)
+                return type.Name;
+
+            var regex = new Regex("^[^`]+");
+            var match = regex.Match(type.Name);
+
+            if (type.IsGenericType && addGenericDefinition)
+            {
+                return match.Value + "<" + String.Join(", ", type.GetGenericArguments().Select(t => GetTypeName(t))) + ">";
+            }
+
+            return match.Value;
+        }
     }
 }
