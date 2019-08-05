@@ -167,11 +167,12 @@ namespace Core.Pricing.Handlers
                 }
 
                 householdId = contextData.DomainId.Value;
-
-                HashSet<string> couponGroupIds = new HashSet<string>();
+                var shouldFilterByCouponGroupIds = false;
+                var couponGroupIds = new HashSet<string>();
 
                 if (filter != null && filter.BusinessModuleId > 0 )
                 {
+                    shouldFilterByCouponGroupIds = true;
                     switch (filter.BusinessModuleType)
                     {
                         case ApiObjects.eTransactionType.PPV:
@@ -229,15 +230,16 @@ namespace Core.Pricing.Handlers
                     }
                 }
 
-                // Get Household's Wallet
-                if (couponGroupIds.Count > 0)
+                var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
+                if (shouldFilterByCouponGroupIds)
                 {
-                    var couponWallet = PricingDAL.GetHouseholdCouponWalletCB(householdId.Value);
-                    if (couponWallet?.Count > 0)
+                    if (couponGroupIds.Count > 0 && couponWallet?.Count > 0)
                     {
-                        couponWallet = couponWallet.Where(x => couponGroupIds.Contains(x.CouponGroupId)).ToList();
+                        response.Objects = couponWallet.Where(x => couponGroupIds.Contains(x.CouponGroupId)).ToList();
                     }
-
+                }
+                else
+                {
                     response.Objects = couponWallet;
                 }
                 
