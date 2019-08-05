@@ -243,7 +243,6 @@ namespace Core.Pricing.Handlers
                     response.Objects = couponWallet;
                 }
                 
-                response.TotalItems = response.Objects != null ? 0 : response.Objects.Count;
                 response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
