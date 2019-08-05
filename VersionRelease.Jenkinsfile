@@ -170,4 +170,15 @@ pipeline {
             }        
         }
     }
+    post {
+        always {
+            emailext (
+                subject: " [${currentBuild.currentResult}] Job: [${env.JOB_NAME}]",
+                to: "ott.rnd.core@kaltura.com",
+                mimeType : "text/html",
+                body: "${currentBuild.currentResult}: Job ${env.JOB_NAME}\nbuild:<a href='${env.BUILD_URL}'>${env.BUILD_NUMBER}</a>\nPath:\\\\34.252.63.117\\mediahub\\${release_name}${release_number}\\${params.branch}_${release_name}${release_number}.zip \n"
+            )
+
+        }
+    }
 }
