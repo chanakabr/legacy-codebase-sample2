@@ -71,12 +71,12 @@ namespace WebAPI.Models.General
 
         public string ToJson(Version currentVersion, bool omitObsolete)
         {
-            return this.ToJson(currentVersion, omitObsolete);
+            return base.ToJson(currentVersion, omitObsolete);
         }
 
         public string ToXml(Version currentVersion, bool omitObsolete)
         {
-            return this.ToXml(currentVersion, omitObsolete);
+            return base.ToXml(currentVersion, omitObsolete);
         }
     }
     
@@ -93,12 +93,12 @@ namespace WebAPI.Models.General
         
         public string ToJson(Version currentVersion, bool omitObsolete)
         {
-            return this.ToJson(currentVersion, omitObsolete);
+            return base.ToJson(currentVersion, omitObsolete);
         }
 
         public string ToXml(Version currentVersion, bool omitObsolete)
         {
-            return this.ToXml(currentVersion, omitObsolete);
+            return base.ToXml(currentVersion, omitObsolete);
         }
     }
 }
