@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-#if NET452
+#if NETFRAMEWORK
 using System.Web;
 using System.Web.SessionState;
 #endif
@@ -19,7 +19,7 @@ namespace TVinciShared
 {
     public static class HttpContextUtils
     {
-#if NET452
+#if NETFRAMEWORK
         public static object Get(this HttpSessionState session, string key)
         {
             return session[key];
