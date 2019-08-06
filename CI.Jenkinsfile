@@ -164,7 +164,7 @@ pipeline {
             steps{
                 dir("published"){  
                     bat "7z.exe a -r ${BRANCH_NAME}.zip *"
-                    withAWS(region:'eu-west-1', credentials:'aws-jenkins') {
+                    withAWS(region:'eu-west-1') {
                         s3Upload(file:"${BRANCH_NAME}.zip", bucket:'ott-be-builds', path:"mediahub/${BRANCH_NAME}/build/${BRANCH_NAME}.zip")
                     }
                     echo "upload to S3 here"
