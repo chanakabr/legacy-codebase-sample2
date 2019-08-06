@@ -319,18 +319,10 @@ namespace APILogic.CRUD
 
             if (assetTypes != null)
             {
-                Dictionary<int, string> mediaTypesIdToName;
-                Dictionary<string, int> mediaTypesNameToId;
-                Dictionary<int, int> mediaTypeParents;
-                List<int> linearMediaTypes;
+                Group group = new GroupManager().GetGroup(groupID);
+                group.GetMediaTypes();
 
-                CatalogDAL.GetMediaTypes(groupID,
-                    out mediaTypesIdToName,
-                    out mediaTypesNameToId,
-                    out mediaTypeParents,
-                    out linearMediaTypes);
-
-                HashSet<int> groupMediaTypes = new HashSet<int>(mediaTypesIdToName.Keys);
+                HashSet<int> groupMediaTypes = new HashSet<int>(group.GetMediaTypes());
 
                 var channelsMediaTypes = assetTypes.Where(type => type != EPG_ASSET_TYPE);
 
