@@ -29,6 +29,8 @@ namespace Core.Catalog.Request
         public OrderObj m_oOrderObj;
         [DataMember]
         public string m_sMediaType;
+        [DataMember]
+        public bool isAllowedToViewInactiveAssets;
 
         private const string SUB_DATA_TABLE = "subscriptions";
         private const string COL_DATA_TABLE = "collections";
@@ -110,14 +112,8 @@ namespace Core.Catalog.Request
                             sMediaTypesFromRequest = request.m_sMediaType.Split(';');
                         }
 
-                        int[] deviceRuleIds = null;
-
-                        if (request.m_oFilter != null)
-                        {
-                            deviceRuleIds = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
-                        }
-
-                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj, parentGroupId, doesGroupUsesTemplates);
+                        List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, request.m_oOrderObj, parentGroupId, 
+                            doesGroupUsesTemplates, isAllowedToViewInactiveAssets);
 
                         if (searchObjectsList != null && searchObjectsList.Count > 0)
                         {
@@ -173,7 +169,7 @@ namespace Core.Catalog.Request
         }
 
         public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
-            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order, int groupId, bool doesGroupUsesTemplates)
+            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, OrderObj order, int groupId, bool doesGroupUsesTemplates, bool isAllowedToViewInactiveAssets = false)
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
 
@@ -217,7 +213,7 @@ namespace Core.Catalog.Request
                                      // or if at least one of the media types of the channel exists in the request
                                      typeIntersection.Count() > 0)
                                  {
-                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId, doesGroupUsesTemplates);
+                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId, doesGroupUsesTemplates, isAllowedToViewInactiveAssets);
 
                                      // If specific types were requested
                                      if (mediaTypes.Length > 0 && !mediaTypes.Contains("0"))
