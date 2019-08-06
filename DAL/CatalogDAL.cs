@@ -4266,7 +4266,7 @@ namespace Tvinci.Core.DAL
             string cdvrId = string.Empty;
 
             object value =
-                ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", epgChannelId, 60, "MAIN_CONNECTION_STRING");
+                ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", epgChannelId, 600, "MAIN_CONNECTION_STRING");
 
             if (value != DBNull.Value)
             {
