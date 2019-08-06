@@ -2523,7 +2523,7 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        public static RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, string adapterData, TstvRecordingStatus[] recordingStatuses, int pageIndex, int pageSize)
+        public static RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData, TstvRecordingStatus[] recordingStatuses, int pageIndex, int pageSize)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
@@ -2537,7 +2537,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public static SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, string adapterData)
+        public static SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);

@@ -672,10 +672,10 @@ namespace AdapterControllers.cdvrAdap
         System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.RecordingResponse> GetRecordingLinksAsync(string recordingId, string channelId, long domainId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetCloudRecording", ReplyAction="http://tempuri.org/IService/GetCloudRecordingResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalRecordingResponse> GetCloudRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalRecordingResponse> GetCloudRecordingAsync(string userId, long domainId, System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> adapterData, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetCloudSeriesRecording", ReplyAction="http://tempuri.org/IService/GetCloudSeriesRecordingResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse> GetCloudSeriesRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse> GetCloudSeriesRecordingAsync(string userId, long domainId, System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> adapterData, int adapterId, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -763,12 +763,12 @@ namespace AdapterControllers.cdvrAdap
             return base.Channel.GetRecordingLinksAsync(recordingId, channelId, domainId, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalRecordingResponse> GetCloudRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature)
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalRecordingResponse> GetCloudRecordingAsync(string userId, long domainId, System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> adapterData, int adapterId, long timeStamp, string signature)
         {
             return base.Channel.GetCloudRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse> GetCloudSeriesRecordingAsync(string userId, long domainId, string adapterData, int adapterId, long timeStamp, string signature)
+        public System.Threading.Tasks.Task<AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse> GetCloudSeriesRecordingAsync(string userId, long domainId, System.Collections.Generic.List<AdapterControllers.cdvrAdap.KeyValue> adapterData, int adapterId, long timeStamp, string signature)
         {
             return base.Channel.GetCloudSeriesRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, signature);
         }
@@ -801,7 +801,7 @@ namespace AdapterControllers.cdvrAdap
         {
             if ((endpointConfiguration == EndpointConfiguration.BasicHttpBinding_IService))
             {
-                return new System.ServiceModel.EndpointAddress("http://172.31.6.89:90/CdvrAdapter/Service.svc");
+                return new System.ServiceModel.EndpointAddress("http://localhost:86/CDVR/Service.svc");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }

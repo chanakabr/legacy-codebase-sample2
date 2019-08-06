@@ -14036,7 +14036,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, string adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
+        internal RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
         {
             RecordingResponse response = new RecordingResponse();
 
@@ -14081,7 +14081,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, string adapterData)
+        internal SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData)
         {
             SeriesResponse response = new SeriesResponse();
 

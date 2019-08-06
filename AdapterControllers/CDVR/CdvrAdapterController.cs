@@ -804,7 +804,7 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public ApiObjects.TimeShiftedTv.RecordingResponse SearchCloudRecordings(int adapterId, int partnerId, string userId, long domainId, string adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
+        public ApiObjects.TimeShiftedTv.RecordingResponse SearchCloudRecordings(int adapterId, int partnerId, string userId, long domainId, Dictionary<string, string> adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
         {
             var recordingResult = new ApiObjects.TimeShiftedTv.RecordingResponse();
 
@@ -823,11 +823,18 @@ namespace AdapterControllers.CDVR
             string cdvrAdapterUrl = adapter.AdapterUrl;
             var client = GetCDVRAdapterServiceClient(cdvrAdapterUrl);
 
+            
+            var adapterdDataToSend = adapterData != null ? adapterData.Select(x => new KeyValue()
+                {
+                    Key = x.Key,
+                    Value = x.Value
+                }).ToList() : null;
+            
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(userId, domainId, adapterData, adapterId, timeStamp);
+            string signature = string.Concat(userId, domainId, adapterdDataToSend != null ? string.Concat(adapterdDataToSend.Select(kv => string.Concat(kv.Key, kv.Value))) : string.Empty, adapterId, timeStamp);
 
             try
             {
@@ -842,7 +849,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         adapterResponse = client
-                            .GetCloudRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .GetCloudRecordingAsync(userId, domainId, adapterdDataToSend, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
                             .ExecuteAndWait();
                     }
                     catch (Exception ex)
@@ -851,8 +858,7 @@ namespace AdapterControllers.CDVR
                     }
                 }
 
-                LogAdapterResponse(adapterResponse, "GetCloudRecording", adapterId,
-                    string.Format("adapterData = {0}", adapterData));
+                LogAdapterResponse(adapterResponse, "GetCloudRecording", adapterId);
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -876,7 +882,7 @@ namespace AdapterControllers.CDVR
                         try
                         {
                             adapterResponse = client
-                                .GetCloudRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                                .GetCloudRecordingAsync(userId, domainId, adapterdDataToSend, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
                                 .ExecuteAndWait();
                         }
                         catch (Exception ex)
@@ -885,8 +891,7 @@ namespace AdapterControllers.CDVR
                         }
                     }
 
-                    LogAdapterResponse(adapterResponse, "GetCloudRecording", adapterId,
-                        string.Format("adapterData = {0}", adapterData));
+                    LogAdapterResponse(adapterResponse, "GetCloudRecording", adapterId);
 
                     #endregion
                 }
@@ -914,9 +919,9 @@ namespace AdapterControllers.CDVR
             return recordingResult;
         }
 
-        public ApiObjects.TimeShiftedTv.SeriesResponse SearchCloudSeriesRecordings(int adapterId, int partnerId, string userId, long domainId, string adapterData)
+        public ApiObjects.TimeShiftedTv.SeriesResponse SearchCloudSeriesRecordings(int adapterId, int partnerId, string userId, long domainId, Dictionary<string, string> adapterData)
         {
-            var recordingResult = new ApiObjects.TimeShiftedTv.SeriesResponse();
+            var externalSeriesRecordingResult = new ApiObjects.TimeShiftedTv.SeriesResponse();
 
             CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
@@ -936,13 +941,19 @@ namespace AdapterControllers.CDVR
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
+            var adapterdDataToSend = adapterData != null ? adapterData.Select(x => new KeyValue()
+            {
+                Key = x.Key,
+                Value = x.Value
+            }).ToList() : null;
+
             //TODO: verify that signature is correct
-            string signature = string.Concat(userId, domainId, adapterData, adapterId, timeStamp);
+            string signature = string.Concat(userId, domainId, adapterdDataToSend != null ? string.Concat(adapterdDataToSend.Select(kv => string.Concat(kv.Key, kv.Value))) : string.Empty, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, adapterData = {2}",
-                    partnerId, adapter.ID, adapterData);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}",
+                    partnerId, adapter.ID);
 
                 var adapterResponse = new AdapterControllers.cdvrAdap.ExternalSeriesRecordingResponse();
 
@@ -952,7 +963,7 @@ namespace AdapterControllers.CDVR
                     try
                     {
                         adapterResponse = client
-                            .GetCloudSeriesRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            .GetCloudSeriesRecordingAsync(userId, domainId, adapterdDataToSend, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
                             .ExecuteAndWait();
                     }
                     catch (Exception ex)
@@ -961,8 +972,7 @@ namespace AdapterControllers.CDVR
                     }
                 }
 
-                LogAdapterResponse(adapterResponse, "SearchCloudSeriesRecordings", adapterId,
-                    string.Format("adapterData = {0}", adapterData));
+                LogAdapterResponse(adapterResponse, "SearchCloudSeriesRecordings", adapterId);
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -984,7 +994,7 @@ namespace AdapterControllers.CDVR
                         //call Adapter GetRecordingLinks
                         try
                         {
-                            adapterResponse = client.GetCloudSeriesRecordingAsync(userId, domainId, adapterData, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
+                            adapterResponse = client.GetCloudSeriesRecordingAsync(userId, domainId, adapterdDataToSend, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature))
                                 .ExecuteAndWait();
                         }
                         catch (Exception ex)
@@ -993,8 +1003,7 @@ namespace AdapterControllers.CDVR
                         }
                     }
 
-                    LogAdapterResponse(adapterResponse, "SearchCloudSeriesRecordings", adapterId,
-                        string.Format("adapterData = {0}", adapterData));
+                    LogAdapterResponse(adapterResponse, "SearchCloudSeriesRecordings", adapterId);
 
                     #endregion
                 }
@@ -1008,7 +1017,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.ExternalSeriesRecordings != null)
                     {
-                        recordingResult = CreateSeriesResponse(adapterResponse.ExternalSeriesRecordings);
+                        externalSeriesRecordingResult = CreateSeriesResponse(adapterResponse.ExternalSeriesRecordings);
                     }
                 }
             }
@@ -1019,7 +1028,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Adapter failed completing request", (int)eResponseStatus.AdapterAppFailure);
             }
 
-            return recordingResult;
+            return externalSeriesRecordingResult;
         }
 
         #endregion
@@ -1074,7 +1083,7 @@ namespace AdapterControllers.CDVR
             {
                 try
                 {
-                    response.SeriesRecordings.Add(new SeriesRecording
+                    response.SeriesRecordings.Add(new ExternalSeriesRecording
                     {
                         EpgChannelId = item.EpgChannelId,
                         CreateDate = FromUnixTime(item.CreateDate),
@@ -1083,8 +1092,9 @@ namespace AdapterControllers.CDVR
                         Type = (RecordingType)item.Type,
                         UpdateDate = FromUnixTime(item.UpdateDate),
                         SeasonNumber = item.SeasonNumber,
-                        SeriesId = item.SeriesId
-                        //MetaData = item.MetaData.ToDictionary(x => x.Key, y => y.Value)
+                        SeriesId = item.SeriesId,
+                        MetaData = item.MetaData != null ? item.MetaData.ToDictionary(x => x.Key, y => y.Value) : null,
+                        isExternalRecording = true
                     });
                 }
                 catch { }
@@ -1208,8 +1218,7 @@ namespace AdapterControllers.CDVR
             log.Debug(logMessage);
         }
 
-        private void LogAdapterResponse(ExternalRecordingResponse adapterResponse, string action,
-            int adapterId, string inputParameters)
+        private void LogAdapterResponse(ExternalRecordingResponse adapterResponse, string action, int adapterId)
         {
             string logMessage = string.Empty;
 
@@ -1248,7 +1257,7 @@ namespace AdapterControllers.CDVR
         }
 
         private void LogAdapterResponse(ExternalSeriesRecordingResponse adapterResponse, string action,
-            int adapterId, string inputParameters)
+            int adapterId)
         {
             string logMessage = string.Empty;
 
