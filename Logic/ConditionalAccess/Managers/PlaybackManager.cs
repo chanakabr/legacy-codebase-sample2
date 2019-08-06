@@ -243,7 +243,8 @@ namespace Core.ConditionalAccess
                             }
                             else if (assetType == eAssetTypes.NPVR)
                             {
-                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
+                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR,
+                                    recording.Id.ToString());
                             }
                             else
                             {
