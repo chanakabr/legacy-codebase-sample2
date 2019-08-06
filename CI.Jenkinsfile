@@ -10,7 +10,6 @@ pipeline {
     // }
     environment {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
-        NUGET = 'c:\\nuget.exe'
     }
     stages {
         stage("Checkout"){
@@ -47,12 +46,12 @@ pipeline {
         }
         stage("Nuget Restore"){
             steps{
-                dir("core"){ bat ("${NUGET} restore") }
-                dir("remotetasks"){ bat ("${NUGET} restore") }
-                dir("tvmapps"){ bat ("${NUGET} restore") }
-                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
-                dir("ws_ingest"){ bat ("${NUGET} restore") }
-                dir("tvpapi"){ bat ("${NUGET} restore") }
+                dir("core"){ bat ("nuget restore") }
+                dir("remotetasks"){ bat ("nuget restore") }
+                dir("tvmapps"){ bat ("nuget restore") }
+                dir("tvpapi_rest"){ bat ("nuget restore") }
+                dir("ws_ingest"){ bat ("nuget restore") }
+                dir("tvpapi"){ bat ("nuget restore") }
             }        
         }
         stage("Build"){
