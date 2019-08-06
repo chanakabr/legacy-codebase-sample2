@@ -1114,11 +1114,11 @@ namespace APILogic
             {
                 case eBulkExportDataType.VOD:
                     {
-                        filter = string.Format("(and {0} asset_type='media'", filter);
+                        filter = string.Format("(and {0} asset_type='media')", filter);
                     }
                     break;
                 case eBulkExportDataType.EPG:
-                    filter = string.Format("(and {0} asset_type='epg'", filter);
+                    filter = string.Format("(and {0} asset_type='epg')", filter);
                     break;
                 case eBulkExportDataType.Users:
                     throw new Exception("Export: users export date type not supported");
