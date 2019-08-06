@@ -2646,6 +2646,10 @@ namespace Core.Catalog.CatalogManagement
                     if (assets != null && assets.Count == 1)
                     {
                         result = new MediaObj(groupId, assets[0] as MediaAsset);
+                        if (assets[0] is LiveAsset)
+                        {
+                            result.m_ExternalIDs = (assets[0] as LiveAsset).EpgChannelId.ToString();
+                        }
                     }
                 }
             }
