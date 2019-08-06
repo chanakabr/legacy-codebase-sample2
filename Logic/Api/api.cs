@@ -11061,6 +11061,7 @@ namespace Core.Api
         private static Tuple<DeviceConcurrencyPriority, bool> GetDeviceConcurrencyPriorityCB(Dictionary<string, object> funcParams)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = null;
+            bool success = false;
 
             try
             {
@@ -11073,6 +11074,7 @@ namespace Core.Api
                         if (groupId.HasValue)
                         {
                             deviceConcurrencyPriority = ApiDAL.GetDeviceConcurrencyPriorityCB(groupId.Value);
+                            success = true;
                         }
                     }
                 }
@@ -11082,7 +11084,7 @@ namespace Core.Api
                 log.Error(string.Format("GetDeviceConcurrencyPriorityCB faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<DeviceConcurrencyPriority, bool>(deviceConcurrencyPriority, deviceConcurrencyPriority != null);
+            return new Tuple<DeviceConcurrencyPriority, bool>(deviceConcurrencyPriority, success);
         }
 
         public static DrmAdapterListResponse GetDrmAdapters(int groupID)
