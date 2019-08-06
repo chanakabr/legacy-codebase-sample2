@@ -571,13 +571,21 @@ namespace Core.ConditionalAccess
                 string fileCoGuid = string.Empty;
                 int programId = -1;
                 int.TryParse(sProgramId, out programId);
-                
-                List<SlimAsset> assetsToCheck;
+
+                long recordingEpgId = 0;
+                List<SlimAsset> assetsToCheck = null;
+                string npvrId = string.Empty;
+
                 if (eformat == eEPGFormatType.NPVR)
                 {
-                    // get program from recording by externalId
-                    long recordingEpgId = RecordingsManager.GetProgramIdByExternalRecordingId(m_nGroupID, sProgramId, domainId);
-                    assetsToCheck = AssetRuleManager.GetNpvrAssetsForValidation(m_nGroupID, recordingEpgId, 0, nMediaFileID);
+                    if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
+                    {
+                        // get program from recording by externalId
+                        recordingEpgId = RecordingsManager.GetProgramIdByExternalRecordingId(m_nGroupID, sProgramId, domainId);
+                        assetsToCheck = AssetRuleManager.GetNpvrAssetsForValidation(m_nGroupID, recordingEpgId, 0, nMediaFileID);
+                    }
+
+                    npvrId = programId.ToString();
                 }
                 else
                 {
@@ -592,10 +600,10 @@ namespace Core.ConditionalAccess
                     response.status = eResponseStatus.NetworkRuleBlock.ToString();
                     return response;
                 }
-
+                
                 LicensedLinkResponse licensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, 
                                                                              sCouponCode, eformat == eEPGFormatType.NPVR ? eObjectType.Recording : eObjectType.EPG, 
-                                                                             ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, programId);
+                                                                             ref fileMainStreamingCoID, ref mediaId, ref fileType, out drmId, ref fileCoGuid, programId, npvrId);
 
                 //GetLicensedLink return empty link no need to continue
                 if (licensedLinkResponse == null || licensedLinkResponse.Status == null)
