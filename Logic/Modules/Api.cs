@@ -1955,9 +1955,9 @@ namespace Core.Api
             if (deviceConcurrencyPriority != null)
             {
                 response.Objects.Add(deviceConcurrencyPriority);
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response;
         }
 
