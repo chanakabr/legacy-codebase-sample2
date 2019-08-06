@@ -464,7 +464,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannelState, opt => opt.Ignore())
                 .ForMember(dest => dest.EnableStartOverState, opt => opt.Ignore())
                 .ForMember(dest => dest.EnableTrickPlayState, opt => opt.Ignore())
-                .ForMember(dest => dest.ExternalCdvrId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExternalCdvrId, opt => opt.MapFrom(src => src.ExternalCdvrId))
                 .ForMember(dest => dest.ExternalEpgIngestId, opt => opt.Ignore())
                 .ForMember(dest => dest.RecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.EnableStartOver))
