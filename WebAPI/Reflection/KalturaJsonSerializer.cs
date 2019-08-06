@@ -1073,7 +1073,8 @@ namespace WebAPI.Models.ConditionalAccess
 
             if(AdapterData != null)
             {
-                ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
+                propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("adapterData", "\"adapterData\": " + propertyValue);
             }
             return ret;
         }
@@ -1086,7 +1087,8 @@ namespace WebAPI.Models.ConditionalAccess
 
             if(AdapterData != null)
             {
-                ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
+                propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
             }
             return ret;
         }
@@ -1101,7 +1103,8 @@ namespace WebAPI.Models.ConditionalAccess
 
             if(AdapterData != null)
             {
-                ret.Add("adapterData", "\"adapterData\": " + "\"" + EscapeJson(AdapterData) + "\"");
+                propertyValue = "{" + String.Join(", ", AdapterData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("adapterData", "\"adapterData\": " + propertyValue);
             }
             return ret;
         }
@@ -1114,7 +1117,8 @@ namespace WebAPI.Models.ConditionalAccess
 
             if(AdapterData != null)
             {
-                ret.Add("adapterData", "<adapterData>" + EscapeXml(AdapterData) + "</adapterData>");
+                propertyValue = AdapterData.Count > 0 ? "<item>" + String.Join("</item><item>", AdapterData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("adapterData", "<adapterData>" + propertyValue + "</adapterData>");
             }
             return ret;
         }
@@ -1898,6 +1902,36 @@ namespace WebAPI.Models.ConditionalAccess
         }
     }
     public partial class KalturaExternalRecordingFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(MetaData != null)
+            {
+                propertyValue = "{" + String.Join(", ", MetaData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("metaData", "\"metaData\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(MetaData != null)
+            {
+                propertyValue = MetaData.Count > 0 ? "<item>" + String.Join("</item><item>", MetaData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("metaData", "<metaData>" + propertyValue + "</metaData>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaExternalSeriesRecording
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {

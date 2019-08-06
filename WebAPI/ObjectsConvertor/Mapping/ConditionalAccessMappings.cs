@@ -433,6 +433,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.ExcludedSeasons, opt => opt.MapFrom(src => src.ExcludedSeasons));
+
+            cfg.CreateMap<ExternalSeriesRecording, KalturaExternalSeriesRecording>()
+               .IncludeBase<SeriesRecording, KalturaSeriesRecording>()
+               .ForMember(dest => dest.MetaData, opt => opt.ResolveUsing(src => ConvertMetaData(src.MetaData)))
+               .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
             #endregion
 
             #region Household Quota

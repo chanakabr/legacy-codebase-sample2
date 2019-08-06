@@ -2400,6 +2400,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaExternalSeriesRecording":
+                    switch(property.Name)
+                    {
+                        case "MetaData":
+                            return "metaData";
+                    }
+                    break;
+                    
                 case "KalturaFacebookPost":
                     switch(property.Name)
                     {

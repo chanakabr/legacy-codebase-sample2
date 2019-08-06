@@ -10130,6 +10130,11 @@
             MetaData filtering 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaExternalSeriesRecording.MetaData">
+            <summary>
+            MetaData filtering 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
             <summary>
             Houshold premium service

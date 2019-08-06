@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -21,18 +22,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty(PropertyName = "adapterData")]
         [XmlArray(ElementName = "adapterData", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string AdapterData { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> AdapterData { get; set; }
 
-        new internal void Validate()
-        {
-            try
-            {
-                var json = JObject.Parse(AdapterData);
-            }
-            catch
-            {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaCloudRecordingFilter.AdapterData");
-            }
-        }
     }
 }

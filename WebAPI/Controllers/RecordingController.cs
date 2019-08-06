@@ -204,10 +204,15 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    cloudFilter.Validate();
+                    Dictionary<string, string> adapterData = null;
+                    if (cloudFilter.AdapterData != null)
+                    {
+                        adapterData =
+                            cloudFilter.AdapterData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
+                    }
 
                     response = ClientsManager.ConditionalAccessClient().SearchCloudRecordings(groupId, userId, domainId,
-                        cloudFilter.AdapterData, cloudFilter.ConvertStatusIn(),
+                        adapterData, cloudFilter.ConvertStatusIn(),
                         pager.getPageIndex(), pager.PageSize);
                 }
             }

@@ -1382,7 +1382,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecordingListResponse SearchCloudRecordings(int groupId, string userId, long domainId, string adapterData, List<KalturaRecordingStatus> recordingStatuses, int pageIndex, int? pageSize)
+        internal KalturaRecordingListResponse SearchCloudRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData, List<KalturaRecordingStatus> recordingStatuses, int pageIndex, int? pageSize)
         {
             KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
             RecordingResponse response = null;
@@ -1429,7 +1429,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSeriesRecordingListResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, string adapterData)
+        internal KalturaSeriesRecordingListResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData)
         {
             KalturaSeriesRecordingListResponse result = new KalturaSeriesRecordingListResponse() { TotalCount = 0 };
             SeriesResponse response = null;
@@ -1438,6 +1438,7 @@ namespace WebAPI.Clients
             {
                 response = Core.ConditionalAccess.Module.SearchCloudSeriesRecordings(groupId, userId, domainId, adapterData);
             }
+
             if (response.SeriesRecordings != null && response.SeriesRecordings.Count > 0)
             {
                 result.TotalCount = response.TotalItems;

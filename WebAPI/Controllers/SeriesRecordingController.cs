@@ -1,5 +1,8 @@
 ﻿using ApiObjects.Response;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -235,7 +238,15 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    response = ClientsManager.ConditionalAccessClient().SearchCloudSeriesRecordings(groupId, userId, domainId, cloudFilter.AdapterData);
+                    Dictionary<string, string> adapterData = null;
+                    if (cloudFilter.AdapterData != null)
+                    {
+                        adapterData =
+                            cloudFilter.AdapterData.ToDictionary(x => x.Key.ToLower(), x => x.Value.value.ToLowerOrNull());
+                    }
+
+
+                    response = ClientsManager.ConditionalAccessClient().SearchCloudSeriesRecordings(groupId, userId, domainId, adapterData);
                 }
             }
             catch (ClientException ex)
