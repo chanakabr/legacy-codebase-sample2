@@ -54,75 +54,78 @@ pipeline {
                 dir("tvpapi"){ bat ("nuget restore") }
             }        
         }
+        stage("Clean"){
+            steps{
+                sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
+                sh(label:"clean published folder", script:"rm -rf ./published")
+            }
+        }
         stage("Build"){
             steps{
-                dir("published") { deleteDir() }
+                
                 dir("tvpapi_rest"){
-                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
+                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
                     )
 
-                    bat ("\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:OutputPath=\"${WORKSPACE}/published/configuration_validator/"
+
+                    bat ("\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
                     )
 
-                    bat ("\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj /m:4"
-                        + " /p:Configuration=Release"
-                        + " /p:DeleteExistingFiles=True"
-                        + " /p:OutputPath=\"${WORKSPACE}/published/permissions/"
+                    bat ("\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
                     )
                 }
 
                 dir("remotetasks"){
-                    bat ("\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/remotetasks/"
+                    bat ("\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/remotetasks/"
                     )
                 }
 
                 dir("tvmapps"){
-                    bat ("\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvm/"
+                    bat ("\"${MSBUILD}\" \"Web Sites\\TVM\\TVM.csproj\" -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/tvm/"
                     )
                 }
 
                 dir("ws_ingest"){
-                    bat ("\"${MSBUILD}\" Ingest\\Ingest.csproj /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/ws_ingest/"
+                    bat ("\"${MSBUILD}\" Ingest\\Ingest.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/ws_ingest/"
                         )
                 }
 
                 dir("tvpapi"){
-                    bat ("\"${MSBUILD}\" TVPProAPIs.sln /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvpapi/"
+                    bat ("\"${MSBUILD}\" WS_TVPApi\\website.publishproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/tvpapi/"
                         )
                 }
+
 
                 dir("celery_tasks"){
                     bat "xcopy tasks ${WORKSPACE}\\published\\tasks\\ /E /O /X /K /D /H /Y"
@@ -133,7 +136,7 @@ pipeline {
         stage("Generate KalturaClient.xml"){
             steps { 
                 dir("tvpapi_rest/Generator"){
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                    bat ("\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
                     dir("bin/Release/netcoreapp2.0"){
                         bat ("dotnet Generator.dll")
                         bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
@@ -143,7 +146,6 @@ pipeline {
         }
 
         stage("Generate Kaltura Clients and Docs"){
-            when { expression { return params.generate_doc_and_clients == true; } }
             steps { 
                 dir("clients-generator"){
                     bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
@@ -155,11 +157,16 @@ pipeline {
         }
 
         stage("Zip and Publish"){
+            environment {
+                    RELEASE_FULL_VERSION = sh(script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+                    RELEASE_MAIN_VERSION = sh(script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
+            }
             steps{
                 dir("published"){  
-                    // \\34.252.63.117\version_release\mediahub\5_2_4\SP0\5_2_4_SP0.zip
-                    //bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip *"
-                    //bat "xcopy ${params.branch}_${release_name}${release_number}.zip c:\\version_release\\mediahub\\${release_name}${release_number}\\ /O /X /K /D /H /Y"
+                    bat "7z.exe a -r ${BRANCH_NAME}.zip *"
+                    withAWS(region:'eu-west-1', credentials:'aws-jenkins') {
+                        s3Upload(file:"${BRANCH_NAME}.zip", bucket:'ott-be-builds', path:"mediahub/${BRANCH_NAME}/build/${BRANCH_NAME}.zip")
+                    }
                     echo "upload to S3 here"
                 }
             }        
