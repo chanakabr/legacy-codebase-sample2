@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -108,7 +109,7 @@ namespace WebAPI.Controllers
 
                 var withTypes = with.Select(x => x.type);
 
-                #if NET452
+                #if NETFRAMEWORK
                 // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                 HttpContext ctx = HttpContext.Current;
                 #endif
@@ -121,7 +122,7 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
-                        #if NET452
+                        #if NETFRAMEWORK
                         // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = ctx;
                         #endif
@@ -154,7 +155,7 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
-                        #if NET452
+                        #if NETFRAMEWORK
                         // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = ctx;
                         #endif
@@ -176,7 +177,7 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
-                        #if NET452
+                        #if NETFRAMEWORK
                         // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = ctx;
                         #endif

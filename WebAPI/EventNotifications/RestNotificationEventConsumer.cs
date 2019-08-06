@@ -265,9 +265,9 @@ namespace WebAPI
                     try
                     {
                         contextData.Load();
-                        
-                        
-                        #if NET452
+
+
+                        #if NETFRAMEWORK
                         // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = currentHttpContext;
                         #endif

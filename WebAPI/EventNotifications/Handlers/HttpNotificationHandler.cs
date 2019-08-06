@@ -201,7 +201,7 @@ namespace WebAPI.EventNotifications
         {
             int statusCode = -1;
 
-            #if NET452
+            #if NETFRAMEWORK
             System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
             #endif
 
@@ -477,7 +477,7 @@ namespace WebAPI.EventNotifications
         }
     }
 
-    #if NET452
+    #if NETFRAMEWORK
     public class KalturaPolicy : ICertificatePolicy
     {
         #region ICertificatePolicy Members
