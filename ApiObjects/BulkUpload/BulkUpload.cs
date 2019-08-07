@@ -82,7 +82,7 @@ namespace ApiObjects.BulkUpload
         [JsonProperty("Errors")]
         // This is an array and not a list becasue it curntlly serlized by .net core and deserlized with .net45
         // any generic collection will cause a deserlization error
-        public Status[] Errors { get; private set; }
+        public Status[] Errors { get; set; }
 
         public void AddError(Status errorStatus)
         {
