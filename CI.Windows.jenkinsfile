@@ -41,7 +41,7 @@ pipeline {
             steps{
                 
                 dir("tvpapi_rest"){
-                    bat (label:"Build Phoenix Windows" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                    bat (label:"Run MSBuild Phoenix" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
                             + " -p:Configuration=Release"
                             + " -p:DeployOnBuild=True"
                             + " -p:WebPublishMethod=FileSystem"
@@ -50,13 +50,13 @@ pipeline {
                     )
 
 
-                    bat (label:"Build Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
+                    bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
                             + " -p:Configuration=Release"
                             + " -p:DeleteExistingFiles=True"
                             + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
                     )
 
-                    bat (label:"Build Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
+                    bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
                             + " -p:Configuration=Release"
                             + " -p:DeleteExistingFiles=True"
                             + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
@@ -88,7 +88,6 @@ pipeline {
                     withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
                         s3Upload(file:"phoenix-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/phoenix-windows-${BRANCH_NAME}.zip")
                     }
-                    echo "upload to S3 here"
                 }
             }        
         }
