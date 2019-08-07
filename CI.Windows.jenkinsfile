@@ -65,9 +65,9 @@ pipeline {
             }
             steps{
                 dir("published"){  
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r phownix-windows-${BRANCH_NAME}.zip *")
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks-windows-${BRANCH_NAME}.zip *")
                     withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"phownix-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/phownix-windows-${BRANCH_NAME}.zip")
+                        s3Upload(file:"remote-tasks-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/remote-tasks-windows-${BRANCH_NAME}.zip")
                     }
                     echo "upload to S3 here"
                 }
