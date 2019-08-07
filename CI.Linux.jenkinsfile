@@ -20,8 +20,8 @@ pipeline {
         stage("Version Patch"){
             steps{
                 dir("core"){
-                    sh "sh DllVersioning.Core.sh ." 
-                    sh "sh DllVersioning.Core.sh ../tvpapi_rest" 
+                    sh "bash DllVersioning.Core.sh ." 
+                    sh "bash DllVersioning.Core.sh ../tvpapi_rest" 
                 }
             }        
         }
