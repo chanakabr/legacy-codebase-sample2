@@ -61,7 +61,7 @@ pipeline {
 
         stage("Zip and Publish"){
             environment {
-                    RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+                    RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd tvpapi && ../Core/get-version-tag.sh', , returnStdout: true).trim()
                     RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
             }
             steps{
