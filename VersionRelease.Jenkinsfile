@@ -165,9 +165,21 @@ pipeline {
                 dir("published"){  
                     // \\34.252.63.117\version_release\mediahub\5_2_4\SP0\5_2_4_SP0.zip
                     bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip *"
-                    bat "xcopy ${params.branch}_${release_name}${release_number}.zip c:\\version_release\\mediahub\\${release_name}${release_number}\\ /E /O /X /K /D /H /Y"
+                    bat "xcopy ${params.branch}_${release_name}${release_number}.zip c:\\version_release\\mediahub\\${release_name}${release_number}\\ /O /X /K /D /H /Y"
                 }
             }        
+        }
+    }
+    post {
+        always {
+            emailext (
+                subject: " [${currentBuild.currentResult}] Job: [${env.JOB_NAME}]",
+                to: "ott.rnd.core@kaltura.com",
+                mimeType : "text/html",
+                body: "[${currentBuild.currentResult}] <a href='${env.BUILD_URL}'>Job: ${env.JOB_NAME} Build#: ${env.BUILD_NUMBER} </a><br/>"+
+                "Path:\\\\34.252.63.117\\version_release\\mediahub\\${release_name}${release_number}\\${params.branch}_${release_name}${release_number}.zip <br/>"
+            )
+
         }
     }
 }

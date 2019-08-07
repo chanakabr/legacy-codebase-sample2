@@ -6,7 +6,7 @@ using System.Web;
 using KLogMonitor;
 using System.Reflection;
 
-#if NET452
+#if NETFRAMEWORK
 using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -86,7 +86,7 @@ namespace TVinciShared
             //HttpContext.Current.Response.Cookies["ASP.NET_SessionId"].Domain = sDomain;
         }
 
-#if NET452
+#if NETFRAMEWORK
         static public bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
         {
             try

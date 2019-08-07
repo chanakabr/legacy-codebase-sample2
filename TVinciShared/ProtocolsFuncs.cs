@@ -8895,7 +8895,7 @@ namespace TVinciShared
             }
         }
 
-#if NET452
+#if NETFRAMEWORK
         static public string GetCastUpToken(string sIP, Int32 nGroupID, ref DateTime ticketExp)
         {
             string sSecretCode = "";
@@ -14189,7 +14189,7 @@ namespace TVinciShared
             return retVal;
         }
 
-#if NET452
+#if NETFRAMEWORK
 
         static public string SubscriptionMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache,
@@ -15062,7 +15062,7 @@ namespace TVinciShared
             return bConcurrent;
         }
 
-//#if NET452
+//#if NETFRAMEWORK
 //        //Get Media with Lucene Search , then complite media data with ProtocolsFuncs.GetMediaTag
 //        static public string GetSearchMediaWithLucene(int nStartIndex, int nNumOfItems, int nMediaID, Int32 nGroupID, string sMediaTypeID, string sName, bool bAnd, bool bExact,
 //            string sDescription, ref XmlNodeList theMetaList, ref XmlNodeList theTagsList,

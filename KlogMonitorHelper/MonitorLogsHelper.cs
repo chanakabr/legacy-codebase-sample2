@@ -15,7 +15,7 @@ namespace KlogMonitorHelper
 {
     public class MonitorLogsHelper
     {
-        #if NET452
+        #if NETFRAMEWORK
         private static HttpRequest _CurrentRequest => HttpContext.Current?.Request;
         #endif
 
@@ -28,7 +28,7 @@ namespace KlogMonitorHelper
         private const string PREFIX_METHOD_NAME = @"urn:Iservice/";
         private const int MAX_LOG_REQUEST_SIZE = 30000;
 
-         #if NET452
+         #if NETFRAMEWORK
 
         // TODO: Move this to a different helper, this is not related to logs its simply reads the body of an http request
         public static string GetWebServiceRequestString()

@@ -79,6 +79,8 @@ namespace Core.Catalog.Response
         public long TrickPlayBuffer;
         [DataMember]
         public bool EnableRecordingPlaybackNonEntitledChannel;
+        [DataMember]
+        public string ExternalCdvrId;
 
         [DataMember]
         public string WatchPermissionRule;

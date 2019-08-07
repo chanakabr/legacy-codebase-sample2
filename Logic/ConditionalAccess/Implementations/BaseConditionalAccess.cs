@@ -10689,7 +10689,7 @@ namespace Core.ConditionalAccess
         
         public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
                                                              string languageCode, string udid, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId, 
-                                                             ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid, long programId = 0)
+                                                             ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid, long programId = 0, string npvrId = "")
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
             drmId = 0;
@@ -10805,7 +10805,7 @@ namespace Core.ConditionalAccess
                         playType = ePlayType.NPVR;
                     }
                     
-                    ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, nMediaID, 0, programId, playType);
+                    ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, nMediaID, 0, programId, playType, npvrId);
 
                     if (concurrencyResponse.Status != DomainResponseStatus.OK)
                     {
@@ -10977,7 +10977,8 @@ namespace Core.ConditionalAccess
             }
         }
 
-        internal ConcurrencyResponse CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, int domainId, long programId, ePlayType playType)
+        internal ConcurrencyResponse CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
+            int domainId, long programId, ePlayType playType, string npvrId = "")
         {
             ConcurrencyResponse response = new ConcurrencyResponse()
             {
@@ -10987,7 +10988,8 @@ namespace Core.ConditionalAccess
                     AssetId = mediaId,
                     DomainId = domainId,
                     ProgramId = programId,
-                    playType = playType.ToString()
+                    playType = playType.ToString(),
+                    NpvrId = npvrId
                 }
             };
             
@@ -14036,7 +14038,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, string adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
+        internal RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
         {
             RecordingResponse response = new RecordingResponse();
 
@@ -14081,7 +14083,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, string adapterData)
+        internal SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData)
         {
             SeriesResponse response = new SeriesResponse();
 
@@ -16742,7 +16744,8 @@ namespace Core.ConditionalAccess
                         return response;
                     }
                     
-                    ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, linearMediaId, (int)domainId, recording.EpgId, ePlayType.NPVR);
+                    ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, linearMediaId, (int)domainId, recording.EpgId, ePlayType.NPVR, 
+                        recording.Id.ToString());
                     if (concurrencyResponse.Status != DomainResponseStatus.OK)
                     {
                         log.Debug("GetRecordingLicensedLink - " + string.Format("{0}, user:{1}, MFID:{2}", concurrencyResponse.ToString(), userId, mediaFileId));

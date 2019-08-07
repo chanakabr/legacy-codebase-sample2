@@ -513,6 +513,7 @@ namespace Core.Catalog
                                 oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
                                 oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
                                 oMediaObj.EnableRecordingPlaybackNonEntitledChannel = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableRecordingPlaybackNonEntitledChannel;
+                                oMediaObj.ExternalCdvrId = CatalogDAL.GetEPGChannelCDVRId(0, long.Parse(oMediaObj.m_ExternalIDs));
                             }
                         }
                     }

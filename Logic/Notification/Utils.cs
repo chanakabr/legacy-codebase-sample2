@@ -94,7 +94,7 @@ namespace Core.Notification
         {
             
             byte[] encbuff = Encoding.UTF8.GetBytes(str);
-            #if NET452
+            #if NETFRAMEWORK
             return HttpServerUtility.UrlTokenEncode(encbuff);
             #endif
             #if NETSTANDARD2_0

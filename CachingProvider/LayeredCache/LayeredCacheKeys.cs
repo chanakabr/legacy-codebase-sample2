@@ -333,7 +333,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetAssetWithLanguageKey(string assetType, string id, int languageId)
         {
-            return string.Format("Asset_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
+            return string.Format("Asset_V1_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
         }
 
         public static string GetGroupImageTypesKey(int groupId)

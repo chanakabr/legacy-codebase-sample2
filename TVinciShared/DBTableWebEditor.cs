@@ -4,7 +4,7 @@ using System.Web;
 using System.IO;
 using System.Text;
 
-#if NET452
+#if NETFRAMEWORK
 using System.Web.UI.WebControls;
 using System.Web.UI;
 #endif
@@ -1667,7 +1667,7 @@ namespace TVinciShared
             return sTable;
         }
 
-        #if NET452
+        #if NETFRAMEWORK
         public string OpenCSV()
         {
             if (m_theDataTable == null)

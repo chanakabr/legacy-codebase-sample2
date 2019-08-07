@@ -7,6 +7,7 @@ using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Users;
 using ElasticSearch.Utilities;
+using GroupsCacheManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -231,29 +232,6 @@ namespace APILogic
             return language != null ? language.Code : string.Empty;
         }
 
-        public static int[] GetGroupMediaTypesIds(int groupId)
-        {
-            int[] ids = null;
-
-            try
-            {
-                Dictionary<int, string> idToName;
-                Dictionary<string, int> nameToId;
-                Dictionary<int, int> parentMediaTypes;
-                List<int> linearMediaTypes;
-
-                CatalogDAL.GetMediaTypes(groupId, out idToName, out nameToId, out parentMediaTypes, out linearMediaTypes);
-                if (idToName != null)
-                {
-                    ids = idToName.Keys.ToArray();
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("failed to get media types ids for group {0} with error", groupId), ex);
-            }
-            return ids;
-        }
 
         /// <summary>
         /// Compress a given file
