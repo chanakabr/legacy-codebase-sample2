@@ -372,10 +372,6 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
                     {
-                        log.Debug("CouchBase : ClientFailure detected. " +
-                            "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket now - : " +
-                            "it will be reinitialized later.");
-
                         // remove bucket
                         lock (locker)
                         {
@@ -383,6 +379,9 @@ namespace CouchbaseManager
                             // to avoid problems with resource concurrency (dispose and use at same time)
                             if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
                             {
+                                log.DebugFormat("CouchBase : ClientFailure detected. " +
+                                    "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket {0} now - : " +
+                                    "it will be reinitialized later.", bucketName);
                                 lastInitializationTime = DateTime.Now;
                                 ClusterHelper.RemoveBucket(bucketName);
                             }
@@ -418,10 +417,6 @@ namespace CouchbaseManager
                     break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
                     {
-                        log.Debug("CouchBase : OperationTimeout detected. " +
-                            "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket now - : " +
-                            "it will be reinitialized later.");
-
                         // remove bucket
                         lock (locker)
                         {
@@ -429,6 +424,9 @@ namespace CouchbaseManager
                             // to avoid problems with resource concurrency (dispose and use at same time)
                             if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
                             {
+                                log.DebugFormat("CouchBase : OperationTimeout detected. " +
+                                    "Due to SDK bug, most likely the timeout will repeat infinitely until restart. Therefore, removing bucket {0} now - : " +
+                                    "it will be reinitialized later.", bucketName);
                                 lastInitializationTime = DateTime.Now;
                                 ClusterHelper.RemoveBucket(bucketName);
                             }
@@ -458,16 +456,19 @@ namespace CouchbaseManager
 
         private IOperationResult<T> HandleNodeUnavailable<T>(string key, Couchbase.Core.IBucket bucket, IOperationResult<T> getResult, string cbDescription)
         {
-            // for node unavailable on regular of ephemeral buckets - try to get from replica
-            if (getResult.Status == Couchbase.IO.ResponseStatus.NodeUnavailable && 
-                (bucket.BucketType == Couchbase.Core.Buckets.BucketTypeEnum.Couchbase ||
-                bucket.BucketType == Couchbase.Core.Buckets.BucketTypeEnum.Ephemeral))
+            // for node unavailable or operation timeout on regular or ephemeral buckets - try to get from replica
+            if ((getResult.Status == Couchbase.IO.ResponseStatus.NodeUnavailable || getResult.Status == Couchbase.IO.ResponseStatus.OperationTimeout)
+                && (bucket.BucketType == Couchbase.Core.Buckets.BucketTypeEnum.Couchbase || bucket.BucketType == Couchbase.Core.Buckets.BucketTypeEnum.Ephemeral))
             {
-                log.ErrorFormat("CouchbaseManager..Get failed because of Node Unavailable. Trying GetFromReplica. Bucket = {0} , Key = {1}", bucketName, key);
+                log.ErrorFormat("CouchbaseManager..Get failed because of {0}. Trying GetFromReplica. Bucket = {1} , Key = {2}", getResult.Status, bucketName, key);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.GetFromReplica<T>(key);
+                    if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        log.DebugFormat("successfully get document from replica, Bucket = {0} , Key = {1}", bucketName, key);
+                    }
                 }
             }
 
