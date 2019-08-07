@@ -35,7 +35,6 @@ pipeline {
             steps{
                 dir("core"){ bat ("nuget restore") }
                 dir("tvpapi"){ bat ("nuget restore") }
-                dir("tvplibs"){ bat ("nuget restore") }
             }        
         }
         stage("Clean"){
