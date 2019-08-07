@@ -18,7 +18,7 @@ namespace Core.Catalog.Request
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
          
         [DataMember]
-        string[] scids { get; set; }
+        public List<string> scids { get; set; }
        
 
         public EPGProgramsByScidsRequest()
@@ -46,7 +46,9 @@ namespace Core.Catalog.Request
                 EpgProgramsResponse response = new EpgProgramsResponse();
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);              
 
-                List<EPGChannelProgrammeObject> retList = epgBL.GetEPGProgramsByScids(request.m_nGroupID, request.scids, request.eLang, request.duration);
+                List<EPGChannelProgrammeObject> retList = epgBL.GetEPGProgramsByScids(request.m_nGroupID, 
+                    request.scids == null ? null : request.scids.ToArray(),
+                    request.eLang, request.duration);
                 if (retList != null && retList.Count > 0)
                 {
                     response.lEpgList = retList;

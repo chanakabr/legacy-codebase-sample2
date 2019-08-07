@@ -132,17 +132,6 @@ namespace ApiObjects
         }
     }
 
-    public class EPGMultiChannelProgrammeObject
-    {
-        public string EPG_CHANNEL_ID;
-        public List<EPGChannelProgrammeObject> EPGChannelProgrammeObject;
-        public void Initialize(string nEPG_CHANNEL_ID, List<EPGChannelProgrammeObject> oEPGChannelProgrammeObject)
-        {
-            EPG_CHANNEL_ID = nEPG_CHANNEL_ID;
-            EPGChannelProgrammeObject = oEPGChannelProgrammeObject;
-        }
-    }
-
     public class RecordedEPGChannelProgrammeObject : EPGChannelProgrammeObject
     {
         public string RecordingID;

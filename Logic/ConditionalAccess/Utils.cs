@@ -9307,7 +9307,7 @@ namespace Core.ConditionalAccess
                 EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest();
                 request.m_nGroupID = nGroupID;
                 //don't get the same EPG from catalog
-                request.pids = epgExternalIds.ToArray();
+                request.pids = epgExternalIds;
                 request.m_oFilter = new Filter();
                 FillCatalogSignature(request);
 
