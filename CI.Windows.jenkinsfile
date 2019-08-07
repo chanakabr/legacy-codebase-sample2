@@ -84,9 +84,9 @@ pipeline {
             }
             steps{
                 dir("published"){  
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r phownix-windows-${BRANCH_NAME}.zip *")
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix-windows-${BRANCH_NAME}.zip *")
                     withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"phownix-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/phownix-windows-${BRANCH_NAME}.zip")
+                        s3Upload(file:"phoenix-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/phoenix-windows-${BRANCH_NAME}.zip")
                     }
                     echo "upload to S3 here"
                 }
