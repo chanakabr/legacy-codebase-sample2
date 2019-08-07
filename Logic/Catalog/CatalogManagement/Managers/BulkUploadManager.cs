@@ -459,7 +459,7 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.Status = newStatus;
 
                 BulkUploadJobStatus updatedStatus;
-                if (!CatalogDAL.SaveBulkUploadStatusCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
+                if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
                     log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
@@ -521,7 +521,8 @@ namespace Core.Catalog.CatalogManagement
                         {
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
-                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();                            
+                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
+                            bulkUpload.Errors = bulkUploadWithResults.Errors;
                         }
                     }
                 }

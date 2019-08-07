@@ -5836,7 +5836,7 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
-        public static bool SaveBulkUploadStatusCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
+        public static bool SaveBulkUploadStatusAndErrorsCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
             updatedStatus = bulkUploadToSave.Status;
@@ -5846,6 +5846,7 @@ namespace Tvinci.Core.DAL
                 bulkUpload.Status = bulkUploadToSave.Status;
                 bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
                 statusThatWasActuallyUpdated = bulkUpload.Status;
+                bulkUpload.Errors = bulkUploadToSave.Errors;
             });
             updatedStatus = statusThatWasActuallyUpdated;
 
