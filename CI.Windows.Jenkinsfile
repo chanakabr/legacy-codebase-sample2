@@ -45,7 +45,7 @@ pipeline {
                             + " -p:DeployOnBuild=True"
                             + " -p:WebPublishMethod=FileSystem"
                             + " -p:DeleteExistingFiles=True"
-                            + " -p:publishUrl=\"${WORKSPACE}/published/ws_ingest/"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/"
                         )
                 }
             }        
