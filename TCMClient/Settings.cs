@@ -221,9 +221,10 @@ namespace TCMClient
                 httpWebRequest.Method = "GET";
                 httpWebRequest.ContentType = "application/json";
                 httpWebRequest.Timeout = 10000;
+                httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
                 httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                _Logger.Info($"TCM Response Status ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
+                _Logger.Info($"TCM Response Status: ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
 
                 using (StreamReader sr = new StreamReader(httpWebResponse.GetResponseStream()))
                 {
@@ -239,7 +240,7 @@ namespace TCMClient
             }
             catch (Exception e)
             {
-                _Logger.Error($"Error while trying to get TCM data", e);
+                _Logger.Error($"Error while trying to get TCM data:", e);
             }
             finally
             {
