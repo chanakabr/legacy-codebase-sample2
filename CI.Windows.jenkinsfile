@@ -47,7 +47,7 @@ pipeline {
             steps{
                 
                 dir("remotetasks"){
-                    bat (label:"Build Phoenix Windows" , script:"\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                    bat (label:"Run MSBuild" , script:"\"${MSBUILD}\" RemoteTasksService\\RemoteTasksService.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
                             + " -p:Configuration=Release"
                             + " -p:DeployOnBuild=True"
                             + " -p:WebPublishMethod=FileSystem"
@@ -69,7 +69,6 @@ pipeline {
                     withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
                         s3Upload(file:"remote-tasks-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/remote-tasks-windows-${BRANCH_NAME}.zip")
                     }
-                    echo "upload to S3 here"
                 }
             }        
         }
