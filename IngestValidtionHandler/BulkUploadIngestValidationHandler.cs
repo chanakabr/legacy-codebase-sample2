@@ -85,6 +85,7 @@ namespace IngestValidtionHandler
                 // fire ps event
                 if (bulkUploadResultAfterUpdate.Object.IsProcessCompleted)
                 {
+                    _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
                     _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
                 }
             }
