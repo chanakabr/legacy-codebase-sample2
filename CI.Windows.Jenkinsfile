@@ -46,7 +46,7 @@ pipeline {
                             + " -p:DeployOnBuild=True"
                             + " -p:WebPublishMethod=FileSystem"
                             + " -p:DeleteExistingFiles=True"
-                            + " -p:publishUrl=\"${WORKSPACE}/"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/"
                     )
                 }
             }        
