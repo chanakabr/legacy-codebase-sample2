@@ -6,11 +6,8 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         skipDefaultCheckout true
     }
-    // parameters {
-    // }
     environment {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
-        NUGET = 'c:\\nuget.exe'
     }
     stages {
         stage("Checkout"){
@@ -21,53 +18,79 @@ pipeline {
         }
         stage("Version Patch"){
             steps{
-                dir("core"){
-                    bat "sh DllVersioning.Core.sh ." 
-                    bat "sh DllVersioning.Core.sh ../tvpapi_rest" 
+                dir("core"){ bat "sh DllVersioning.Core.sh ." }
+                dir("tvpapi_rest") { 
+                    bat "sh ../core/DllVersioning.Core.sh ."
                     powershell "../Core/DllVersioning.ps1 ."
                 }
             }        
         }
         stage("Nuget Restore"){
             steps{
-                dir("core"){ bat ("${NUGET} restore") }
-                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
+                dir("core"){ bat ("nuget restore") }
+                dir("tvpapi_rest"){ bat ("nuget restore") }
             }        
         }
-        stage("Publish Localy"){
+        stage("Clean"){
             steps{
+                sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
+                sh(label:"clean published folder", script:"rm -rf ./published")
+            }
+        }
+        stage("Build"){
+            steps{
+                
                 dir("tvpapi_rest"){
-                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvpapi_rest/"
-                        )
+                    bat (label:"Build Phoenix Windows" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                            + " -p:Configuration=Release"
+                            + " -p:DeployOnBuild=True"
+                            + " -p:WebPublishMethod=FileSystem"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
+                    )
+
+
+                    bat (label:"Build Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
+                    )
+
+                    bat (label:"Build Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
+                            + " -p:Configuration=Release"
+                            + " -p:DeleteExistingFiles=True"
+                            + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
+                    )
                 }
             }        
         }
+
         stage("Generate KalturaClient.xml"){
             steps { 
-                dir("tvpapi_rest"){
-                    dir("Generator"){
-                        bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                        dir("bin/Release/netcoreapp2.0"){
-                            bat ("dotnet Generator.dll")
-                            bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\tvpapi_rest\\clientlibs\\")
-                        }
+                dir("tvpapi_rest/Generator"){
+                    bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
+                    dir("bin/Release/netcoreapp2.0"){
+                        bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
+                        bat (label"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
                 }
             }
         }
-        
-        stage("Publish To S3"){
-            steps { 
-                dir("published/tvpapi_rest"){
-                    echo ("Here we push to s3")
-                }
+
+        stage("Zip and Publish"){
+            environment {
+                    RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd tvpapi_rest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
+                    RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
             }
+            steps{
+                dir("published"){  
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r phownix-windows-${BRANCH_NAME}.zip *")
+                    withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
+                        s3Upload(file:"phownix-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/phownix-windows-${BRANCH_NAME}.zip")
+                    }
+                    echo "upload to S3 here"
+                }
+            }        
         }
     }
 }
