@@ -300,9 +300,17 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 bulkUploadResponse.Object.Results = objectsListResponse.Objects;
-                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
-                bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
-                bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
+                var hasErrors = bulkUploadResponse.Object.Results.Any(o => o.Errors?.Any() == true);
+                if (hasErrors)
+                {
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
+                }
+                else
+                {
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
+                    bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
+                    bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
+                }
             }
             catch (Exception ex)
             {
