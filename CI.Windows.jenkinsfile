@@ -20,10 +20,7 @@ pipeline {
         stage("Version Patch"){
             steps{
                 dir("core"){ bat "sh DllVersioning.Core.sh ." }
-                dir("tvpapi_rest") { 
-                    bat "sh ../core/DllVersioning.Core.sh ."
-                    powershell "../Core/DllVersioning.ps1 ."
-                }
+                dir("tvpapi_rest") { bat "sh ../core/DllVersioning.Core.sh ." }
             }        
         }
         stage("Nuget Restore"){
@@ -70,8 +67,8 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp2.0"){
-                        bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
+                    dir("bin/Release"){
+                        bat (label:"Generate KalturaClient.xml", script:"Generator.exe")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
                 }
