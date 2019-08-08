@@ -300,9 +300,17 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 bulkUploadResponse.Object.Results = objectsListResponse.Objects;
-                bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
-                bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
-                bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
+                var hasErrors = bulkUploadResponse.Object.Results.Any(o => o.Errors?.Any() == true);
+                if (hasErrors)
+                {
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
+                }
+                else
+                {
+                    bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
+                    bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
+                    bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
+                }
             }
             catch (Exception ex)
             {
@@ -459,7 +467,7 @@ namespace Core.Catalog.CatalogManagement
                 response.Object.Status = newStatus;
 
                 BulkUploadJobStatus updatedStatus;
-                if (!CatalogDAL.SaveBulkUploadStatusCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
+                if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
                     log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck - Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
@@ -521,7 +529,8 @@ namespace Core.Catalog.CatalogManagement
                         {
                             bulkUpload.JobData = bulkUploadWithResults.JobData;
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
-                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();                            
+                            bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
+                            bulkUpload.Errors = bulkUploadWithResults.Errors;
                         }
                     }
                 }
