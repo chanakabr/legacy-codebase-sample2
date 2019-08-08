@@ -298,7 +298,7 @@ namespace WebAPI.EventNotifications
                         sr = new StreamReader(webResponse.GetResponseStream());
                         res = sr.ReadToEnd();
 
-                        log.DebugFormat("Http request URL = {0} body = {1} response = {2}", this.Url, postBody, res);
+                        log.DebugFormat("Http request URL = {0} body = {1} status code = {2} response = {3}", this.Url, postBody, statusCode, res);
                     }
                     catch (Exception ex)
                     {
