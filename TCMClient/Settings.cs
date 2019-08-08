@@ -213,6 +213,7 @@ namespace TCMClient
                 if (!m_VerifySSL)
                 {
                     ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                    ServicePointManager.CheckCertificateRevocationList = false;
                 }
 
                 string tcmRequesturl = $"{m_URL}/{m_Application}/{m_Host}/{m_Environment}?app_id={m_AppID}&app_secret={m_AppSecret}";
