@@ -646,7 +646,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.StartOverEnabled))
                 .ForMember(dest => dest.SummedTrickPlayBuffer, opt => opt.MapFrom(src => src.SummedTrickPlayBuffer))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.TrickPlayEnabled))
-                .ForMember(dest => dest.ChannelType, opt => opt.ResolveUsing(src => ConvertToKalturaLinearChannelType(src.ChannelType)));
+                .ForMember(dest => dest.ChannelType, opt => opt.ResolveUsing(src => ConvertToKalturaLinearChannelType(src.ChannelType)))
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.EpgChannelId));
 
             cfg.CreateMap<EpgAsset, KalturaProgramAsset>()
                 .IncludeBase<Asset, KalturaAsset>()
