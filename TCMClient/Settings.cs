@@ -221,7 +221,6 @@ namespace TCMClient
                 httpWebRequest.Method = "GET";
                 httpWebRequest.ContentType = "application/json";
                 httpWebRequest.Timeout = 10000;
-                httpWebRequest.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
 
                 httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                 _Logger.Info($"TCM Response Status: ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
