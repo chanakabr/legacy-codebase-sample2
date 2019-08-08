@@ -300,6 +300,10 @@ namespace WebAPI.EventNotifications
 
                         log.DebugFormat("Http request URL = {0} body = {1} response = {2}", this.Url, postBody, res);
                     }
+                    catch (Exception ex)
+                    {
+                        log.Error("Error in SendHttpReq Exception", ex);
+                    }
                     finally
                     {
                         if (sr != null)
