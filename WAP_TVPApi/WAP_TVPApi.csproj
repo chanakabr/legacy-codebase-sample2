@@ -80,9 +80,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
-    <Reference Include="TCMClient">
-      <HintPath>..\..\tvincicommon\External\4.5.2\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
@@ -1109,6 +1106,10 @@
     <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{11a50aa2-138d-46a7-ad98-e5782ec8815f}</Project>
       <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj">
+      <Project>{bac5dc27-79d6-4bfb-8584-dfec4defd696}</Project>
+      <Name>TCMClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Controls.Shared\Tvinci.Web.TVS.Controls.csproj">
       <Project>{18f39282-8646-41cc-8e56-600087a2a9ac}</Project>
