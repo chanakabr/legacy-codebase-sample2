@@ -67,9 +67,9 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <Project>{E53BAE81-A07C-4112-A42D-4E899D6A52FC}</Project>
       <Name>Localization</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\TVPLibs\TVPApi.ODBCWrapper\TVPApi.ODBCWrapper.csproj">
       <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
-      <Name>ODBCWrapper</Name>
+      <Name>TVPApi.ODBCWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
       <Project>{B7DDD3F9-1844-41B1-AE65-68CFE6F95915}</Project>

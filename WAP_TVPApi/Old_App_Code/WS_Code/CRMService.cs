@@ -4,19 +4,16 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
-using ODBCWrapper;
+using TVPApi.ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPPro.SiteManager.Context;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApiModule.Objects.CRM;
 using KLogMonitor;
 using System.Reflection;
@@ -105,7 +102,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject userResponseObject = new ApiUsersService(groupId, PlatformType.Web).GetUserByUsername(request.user_name);
+                    var userResponseObject = new ApiUsersService(groupId, PlatformType.Web).GetUserByUsername(request.user_name);
 
                     response.Initialize(userResponseObject);
                 }
@@ -134,13 +131,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData[] usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
+                    var usersBasicDataTVM = CRMHelper.SearchUsers(groupId, request.text);
 
                     if (usersBasicDataTVM != null)
                     {
                         response.result = new List<TVPApiModule.Objects.CRM.UserBasicData>();
 
-                        foreach (TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicDataTVM in usersBasicDataTVM)
+                        foreach (var userBasicDataTVM in usersBasicDataTVM)
                         {
                             TVPApiModule.Objects.CRM.UserBasicData userResponseObject = new TVPApiModule.Objects.CRM.UserBasicData(userBasicDataTVM);
 

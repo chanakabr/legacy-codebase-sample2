@@ -13,7 +13,7 @@ namespace TVPApiModule.Objects.Responses
 
         }
 
-        public PinResponse(TVPPro.SiteManager.TvinciPlatform.api.PinResponse copy)
+        public PinResponse(ApiObjects.PinResponse copy)
         {
             this.status = new Status(copy.status.Code, copy.status.Message);
             this.pin = copy.pin;

@@ -6,13 +6,18 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPApi;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Responses;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -112,7 +117,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+            UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
 
             if (response.status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
             {
@@ -152,7 +157,7 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
-        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response, out List<MediaObj> medias,
+        protected void GetAssets(string cacheKey, UnifiedSearchResponse response, out List<MediaObj> medias,
                                 out List<ProgramObj> epgs, out List<ProgramObj> recordings)
         {
             // Insert the UnifiedSearchResponse to cache for failover support
@@ -548,11 +553,11 @@ namespace TVPApiModule.CatalogLoaders
             {
                 switch (obj.GetType().ToString())
                 {
-                    case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaSearchExternalRequest":
+                    case "MediaSearchExternalRequest":
                         MediaSearchExternalRequest searchRquest = obj as MediaSearchExternalRequest;
                         sText.AppendFormat("MediaExternalSearchRequest: Query = {0}, GroupID = {1}, PageIndex = {2}, PageSize = {3}", searchRquest.m_sQuery, searchRquest.m_nGroupID, searchRquest.m_nPageIndex, searchRquest.m_nPageSize);
                         break;
-                    case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaIdsStatusResponse":
+                    case "MediaIdsStatusResponse":
                         //MediaIdsStatusResponse mediaIdsResponse = obj as MediaIdsStatusResponse;
                         //sText.AppendFormat("MediaIdsResponse for Ralated: TotalItems = {0}, ", mediaIdsResponse.m_nTotalItems);
                         //sText.AppendLine(mediaIdsResponse.m_nMediaIds.ToStringEx());

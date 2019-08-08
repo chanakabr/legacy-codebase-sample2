@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Core.ConditionalAccess;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -67,7 +67,7 @@ namespace TVPApiModule.Objects.Responses
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes Type
+        public eAssetTypes Type
         {
             get;
             set;

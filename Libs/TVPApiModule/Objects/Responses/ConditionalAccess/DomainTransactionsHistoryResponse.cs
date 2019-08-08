@@ -23,7 +23,7 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
         /// Create an instance of thie response type based on the WS_CAS response
         /// </summary>
         /// <param name="source"></param>
-        public DomainTransactionsHistoryResponse(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.DomainTransactionsHistoryResponse source)
+        public DomainTransactionsHistoryResponse(Core.ConditionalAccess.DomainTransactionsHistoryResponse source)
         {
             if (source != null)
             {
@@ -35,7 +35,8 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
                 if (source.TransactionsHistory != null && source.TransactionsHistory.Count() > 0)
                 {
                     TransactionsHistory = new List<TransactionHistoryContainer>();
-                    foreach (TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.TransactionHistoryContainer sourceContainer in source.TransactionsHistory)
+
+                    foreach (var sourceContainer in source.TransactionsHistory)
                     {
                         TransactionsHistory.Add(new TransactionHistoryContainer(sourceContainer));
                     }
@@ -99,7 +100,7 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
         [JsonProperty(PropertyName = "remarks")]
         public string Remarks;
 
-        public TransactionHistoryContainer(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.TransactionHistoryContainer source)
+        public TransactionHistoryContainer(Core.ConditionalAccess.TransactionHistoryContainer source)
         {
             SiteGuid = source.SiteGuid;
             UserFullName = source.UserFullName;
@@ -108,19 +109,19 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
             PurchasedItemCode = source.m_sPurchasedItemCode;
             switch (source.m_eItemType)
 	        {
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingItemsType.PPV:
+                case ApiObjects.ConditionalAccess.BillingItemsType.PPV:
                     ItemType = BillingItemsType.PPV;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingItemsType.Subscription:
+                case ApiObjects.ConditionalAccess.BillingItemsType.Subscription:
                     ItemType = BillingItemsType.Subscription;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingItemsType.PrePaid:
+                case ApiObjects.ConditionalAccess.BillingItemsType.PrePaid:
                     ItemType = BillingItemsType.PrePaid;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingItemsType.PrePaidExpired:
+                case ApiObjects.ConditionalAccess.BillingItemsType.PrePaidExpired:
                     ItemType = BillingItemsType.PrePaidExpired;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingItemsType.Collection:
+                case ApiObjects.ConditionalAccess.BillingItemsType.Collection:
                     ItemType = BillingItemsType.Collection;
                     break;
                 default:
@@ -129,19 +130,19 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
 	        }
             switch (source.m_eBillingAction)
 	        {
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingAction.Purchase:
+                case ApiObjects.ConditionalAccess.BillingAction.Purchase:
                     BillingAction = Objects.BillingAction.Purchase;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingAction.RenewPayment:
+                case ApiObjects.ConditionalAccess.BillingAction.RenewPayment:
                     BillingAction = Objects.BillingAction.RenewPayment;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingAction.RenewCancledSubscription:
+                case ApiObjects.ConditionalAccess.BillingAction.RenewCancledSubscription:
                     BillingAction = Objects.BillingAction.RenewCancledSubscription;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingAction.CancelSubscriptionOrder:
+                case ApiObjects.ConditionalAccess.BillingAction.CancelSubscriptionOrder:
                     BillingAction = Objects.BillingAction.CancelSubscriptionOrder;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.BillingAction.SubscriptionDateChanged:
+                case ApiObjects.ConditionalAccess.BillingAction.SubscriptionDateChanged:
                     BillingAction = Objects.BillingAction.SubscriptionDateChanged;
                     break;
                 default:
@@ -154,43 +155,43 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
             EndDate = source.m_dtEndDate;
             switch (source.m_ePaymentMethod)
 	        {
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.CreditCard:
+                case ApiObjects.Billing.ePaymentMethod.CreditCard:
                     PaymentMethod = Objects.PaymentMethod.CreditCard;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.SMS:
+                case ApiObjects.Billing.ePaymentMethod.SMS:
                     PaymentMethod = Objects.PaymentMethod.SMS;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.PayPal:
+                case ApiObjects.Billing.ePaymentMethod.PayPal:
                     PaymentMethod = Objects.PaymentMethod.PayPal;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.DebitCard:
+                case ApiObjects.Billing.ePaymentMethod.DebitCard:
                     PaymentMethod = Objects.PaymentMethod.DebitCard;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Ideal:
+                case ApiObjects.Billing.ePaymentMethod.Ideal:
                     PaymentMethod = Objects.PaymentMethod.Ideal;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Incaso:
+                case ApiObjects.Billing.ePaymentMethod.Incaso:
                     PaymentMethod = Objects.PaymentMethod.Incaso;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Gift:
+                case ApiObjects.Billing.ePaymentMethod.Gift:
                     PaymentMethod = Objects.PaymentMethod.Gift;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Visa:
+                case ApiObjects.Billing.ePaymentMethod.Visa:
                     PaymentMethod = Objects.PaymentMethod.Visa;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.MasterCard:
+                case ApiObjects.Billing.ePaymentMethod.MasterCard:
                     PaymentMethod = Objects.PaymentMethod.MasterCard;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.InApp:
+                case ApiObjects.Billing.ePaymentMethod.InApp:
                     PaymentMethod = Objects.PaymentMethod.InApp;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.M1:
+                case ApiObjects.Billing.ePaymentMethod.M1:
                     PaymentMethod = Objects.PaymentMethod.M1;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.ChangeSubscription:
+                case ApiObjects.Billing.ePaymentMethod.ChangeSubscription:
                     PaymentMethod = Objects.PaymentMethod.ChangeSubscription;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Offline:
+                case ApiObjects.Billing.ePaymentMethod.Offline:
                     PaymentMethod = Objects.PaymentMethod.Offline;
                     break;
                 default:

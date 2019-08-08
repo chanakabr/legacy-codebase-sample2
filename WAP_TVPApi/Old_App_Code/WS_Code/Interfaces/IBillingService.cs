@@ -1,7 +1,7 @@
-﻿using System.ServiceModel;
+﻿using Core.Billing;
+using System.ServiceModel;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
 
 namespace TVPApiServices
 {

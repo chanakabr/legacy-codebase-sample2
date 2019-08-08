@@ -75,11 +75,11 @@ namespace TVPApiModule.Objects
             result.TranslationKey = this.TranslationCulture;
 
             logger.Info("Start syncing site languages");
-            ODBCWrapper.DataSetSelectQuery mainQuery = null;
+            TVPApi.ODBCWrapper.DataSetSelectQuery mainQuery = null;
 
             try
             {
-                mainQuery = new ODBCWrapper.DataSetSelectQuery();
+                mainQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery();
                 mainQuery.SetConnectionString(connectionString);
                 string translationPart = string.IsNullOrEmpty(TranslationCulture) ? "" : string.Format("or culture = '{0}'", TranslationCulture);
                 mainQuery += string.Format("select ID, CULTURE, NAME, DIRECTION, isUsed, isDefault, TVMValue from LU_LANGUAGES where (isUsed = 1 {0})", translationPart);
@@ -127,11 +127,11 @@ namespace TVPApiModule.Objects
                             DataTable languageData = null;
                             if ((bool)oRow["IsUsed"])
                             {
-                                ODBCWrapper.DataSetSelectQuery subQuery = new ODBCWrapper.DataSetSelectQuery();
+                                TVPApi.ODBCWrapper.DataSetSelectQuery subQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery();
                                 subQuery.SetConnectionString(connectionString);
                                 subQuery += "select t.CategoryToken '" + LanguageHelper.CategoryTokenKey + "', t.titleID '" + LanguageHelper.ItemTokenKey + "', ISNULL(NULLIF(tm.TEXT, ''), tm.OriginalText) 'TEXT' ";
                                 subQuery += "from translationMetadata tm left join translation t on t.id = tm.translationid where ";
-                                subQuery += ODBCWrapper.Parameter.NEW_PARAM("tm.Culture", "=", culture);
+                                subQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("tm.Culture", "=", culture);
 
                                 logger.DebugFormat("Trying to extract translation for culture '{0}'", culture);
                                 string tableName = oRow["CULTURE"].ToString();

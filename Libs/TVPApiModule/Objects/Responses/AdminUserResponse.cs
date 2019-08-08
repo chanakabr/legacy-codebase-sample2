@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TVPPro.SiteManager.TvinciPlatform.api;
 
 namespace TVPApiModule.Objects.Responses
 {

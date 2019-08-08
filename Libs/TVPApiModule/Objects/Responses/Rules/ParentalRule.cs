@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -77,7 +78,7 @@ namespace TVPApiModule.Objects.Responses
         /// Create a parental rule based on a WS_API rule object
         /// </summary>
         /// <param name="rule"></param>
-        public ParentalRule(TVPPro.SiteManager.TvinciPlatform.api.ParentalRule rule)
+        public ParentalRule(ApiObjects.ParentalRule rule)
         {
             this.id = rule.id;
             this.name = rule.name;
@@ -89,17 +90,17 @@ namespace TVPApiModule.Objects.Responses
 
             switch (rule.ruleType)
             {
-                case TVPPro.SiteManager.TvinciPlatform.api.eParentalRuleType.All:
+                case ApiObjects.eParentalRuleType.All:
                 {
                     this.ruleType = eParentalRuleType.All;
                     break;
                 }
-                case TVPPro.SiteManager.TvinciPlatform.api.eParentalRuleType.Movies:
+                case ApiObjects.eParentalRuleType.Movies:
                 {
                     this.ruleType = eParentalRuleType.Movies;
                     break;
                 }
-                case TVPPro.SiteManager.TvinciPlatform.api.eParentalRuleType.TVSeries:
+                case ApiObjects.eParentalRuleType.TVSeries:
                 {
                     this.ruleType = eParentalRuleType.TVSeries;
                     break;
@@ -118,7 +119,7 @@ namespace TVPApiModule.Objects.Responses
             this.isDefault = rule.isDefault;
         }
 
-        public static eRuleLevel ConvertRuleLevelEnum(TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel? originLevel)
+        public static eRuleLevel ConvertRuleLevelEnum(ApiObjects.eRuleLevel? originLevel)
         {
             eRuleLevel outLevel = eRuleLevel.User;
 
@@ -126,17 +127,17 @@ namespace TVPApiModule.Objects.Responses
             {
                 switch (originLevel)
                 {
-                    case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.User:
+                    case ApiObjects.eRuleLevel.User:
                     {
                         outLevel = eRuleLevel.User;
                         break;
                     }
-                    case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.Domain:
+                    case ApiObjects.eRuleLevel.Domain:
                     {
                         outLevel = eRuleLevel.Domain;
                         break;
                     }
-                    case TVPPro.SiteManager.TvinciPlatform.api.eRuleLevel.Group:
+                    case ApiObjects.eRuleLevel.Group:
                     {
                         outLevel = eRuleLevel.Group;
                         break;

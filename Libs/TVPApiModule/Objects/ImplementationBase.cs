@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ApiObjects;
+using Core.ConditionalAccess;
+using Core.Users;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +11,7 @@ using TVPApiModule.Interfaces;
 using TVPApiModule.Services;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
+using InitializationObject = TVPApi.InitializationObject;
 
 namespace TVPApiModule.Objects
 {
@@ -131,16 +133,16 @@ namespace TVPApiModule.Objects
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
-                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK.ToString()
+                    ResponseStatus = ResponseStatus.OK,
+                    Message = ResponseStatus.OK.ToString()
                 };
             }
             else
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
-                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString()
+                    ResponseStatus = ResponseStatus.InternalError,
+                    Message = ResponseStatus.InternalError.ToString()
                 };
             }
             return retVal;

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Web;
 using System.ServiceModel;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Social;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Objects;
+using Core.Users;
+using ApiObjects;
+using InitializationObject = TVPApi.InitializationObject;
+using ApiObjects.Billing;
 
 namespace TVPApiServices
 {
@@ -14,28 +16,28 @@ namespace TVPApiServices
     public interface IUsersService
     {
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
+        UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId);
+        UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByUsername(InitializationObject initObj, string userName);
+        UserResponseObject GetUserByUsername(InitializationObject initObj, string userName);
 
         [OperationContract]
         void Logout(InitializationObject initObj, string sSiteGuid);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
+        UserResponseObject ActivateAccount(InitializationObject initObj, string sUserName, string sToken);
 
         [OperationContract]
         bool ResendActivationMail(InitializationObject initObj, string sUserName, string sNewPassword);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.Country[] GetCountriesList(InitializationObject initObj);
+        Core.Users.Country[] GetCountriesList(InitializationObject initObj);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserType[] GetGroupUserTypes(InitializationObject initObj);
+        UserType[] GetGroupUserTypes(InitializationObject initObj);
 
         [OperationContract]
         string CheckTemporaryToken(InitializationObject initObj, string sToken);
@@ -44,25 +46,25 @@ namespace TVPApiServices
         string RenewUserPIN(InitializationObject initObj, string sSiteGUID, int ruleID);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
+        UserResponseObject ActivateAccountByDomainMaster(InitializationObject initObj, string masterUserName, string userName, string token);
 
         [OperationContract]
         bool SendPasswordMail(InitializationObject initObj, string userName);
 
         [OperationContract]
-        bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType);
 
         [OperationContract]
-        bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType);
 
         [OperationContract]
-        bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType);
 
         [OperationContract]
-        UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType);
+        KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType);
 
         [OperationContract]
         TVPApiModule.Objects.UserResponse SetUserDynamicDataEx(InitializationObject initObj, string key, string value);

@@ -14,7 +14,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "status")]
         public Status Status { get; set; }
 
-        public UserResponse(TVPPro.SiteManager.TvinciPlatform.Users.UserResponse user)
+        public UserResponse(Core.Users.UserResponse user)
         {
             if (user != null)
             {
@@ -32,9 +32,9 @@ namespace TVPApiModule.Objects.Responses
     public class UserResult
     {
         [JsonProperty(PropertyName = "user")]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject user { get; set; }
+        public Core.Users.UserResponseObject user { get; set; }
 
-        public UserResult(TVPPro.SiteManager.TvinciPlatform.Users.UserResponse userResponse)
+        public UserResult(Core.Users.UserResponse userResponse)
         {
             this.user = userResponse.user;
         }

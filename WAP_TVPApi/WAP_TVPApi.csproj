@@ -43,33 +43,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\tvincicommon\External\4.5.2\Couchbase.NetClient.dll</HintPath>
-    </Reference>
-    <Reference Include="CouchBaseExtensions">
-      <HintPath>..\..\tvincicommon\External\4.5.2\CouchBaseExtensions.dll</HintPath>
-    </Reference>
-    <Reference Include="CouchbaseManager">
-      <HintPath>..\..\tvincicommon\External\4.5.2\CouchbaseManager.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\4.5.2\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="KLogMonitor">
-      <HintPath>..\..\tvincicommon\External\4.5.2\KLogMonitor.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\tvincicommon\External\4.5.2\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTracing">
-      <HintPath>..\..\tvincicommon\External\4.5.2\OpenTracing.dll</HintPath>
+    <Reference Include="OpenTracing, Version=0.12.0.0, Culture=neutral, PublicKeyToken=61503406977abdaf, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenTracing.0.12.0\lib\net45\OpenTracing.dll</HintPath>
     </Reference>
     <Reference Include="Sigil, Version=4.7.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <HintPath>..\packages\Sigil.4.7.0\lib\net45\Sigil.dll</HintPath>
@@ -202,6 +187,9 @@
     </Compile>
     <Compile Include="Gateways\ximon_init.aspx.designer.cs">
       <DependentUpon>ximon_init.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="MappingConfig.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -403,6 +391,7 @@
     <Content Include="Service.asmx" />
     <Content Include="TechnicalSupport.aspx" />
     <Content Include="TestPage.aspx" />
+    <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -990,7 +979,9 @@
     <Content Include="Web References\il.co.smscenter.www\SendSMSMessagesReturenMessageID.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="web.config" />
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -1087,6 +1078,38 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{80e18813-371f-4f6c-8646-6d70faceb219}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
+      <Project>{077732d7-e13b-4b91-9356-8ac454f26c65}</Project>
+      <Name>ConfigurationManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\CouchBaseExtensions\CouchBaseExtensions.csproj">
+      <Project>{1543408f-0b7c-4f47-b696-8eebdf54ba96}</Project>
+      <Name>CouchBaseExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{3c7c3f29-198b-45cc-9f31-9ace194e37e8}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{18062be9-51db-414a-9372-9cdf8b5ddd3c}</Project>
+      <Name>KLogMonitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{30B747E2-22E4-407E-BB76-83B3479C8132}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\NPVR\NPVR.csproj">
+      <Project>{939556AF-A17E-4719-B87C-7C0916602FA3}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{11a50aa2-138d-46a7-ad98-e5782ec8815f}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Controls.Shared\Tvinci.Web.TVS.Controls.csproj">
       <Project>{18f39282-8646-41cc-8e56-600087a2a9ac}</Project>
       <Name>Tvinci.Web.TVS.Controls</Name>
@@ -1107,9 +1130,9 @@
       <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>
       <Name>Localization</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\TVPLibs\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>ODBCWrapper</Name>
+      <Name>TVPApi.ODBCWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj">
       <Project>{b7ddd3f9-1844-41b1-ae65-68cfe6f95915}</Project>

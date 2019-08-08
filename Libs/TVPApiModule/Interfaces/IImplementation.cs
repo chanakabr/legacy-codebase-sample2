@@ -1,11 +1,12 @@
-﻿using System.Collections.Specialized;
+﻿using Core.Users;
+using System.Collections.Specialized;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Services;
 using TVPApiModule.yes.tvinci.ITProxy;
 using TVPPro.Configuration.OrcaRecommendations;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
+using UserResponse = TVPApiModule.Objects.UserResponse;
 
 namespace TVPApiModule.Interfaces
 {

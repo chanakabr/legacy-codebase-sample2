@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
+using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -118,7 +123,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+            UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
 
             if (response.status.Code != (int)eStatus.OK) // Bad response from Catalog - return the status
             {

@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPPro.SiteManager.DataEntities;
 
 /// <summary>
@@ -64,8 +68,5 @@ namespace TVPApi
             MediaCount = 0;
             PicURL = string.Empty;
         }
-
-
-
     }
 }

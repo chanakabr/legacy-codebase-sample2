@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using Core.Billing;
+using KLogMonitor;
 using System;
 using System.Reflection;
 using System.Web;
@@ -8,7 +9,6 @@ using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
 
 namespace TVPApiServices
 {
@@ -83,7 +83,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public AdyenBillingDetail GetLastBillingTypeUserInfo(InitializationObject initObj, string sSiteGuid)
         {
-            TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail response = null;
+            AdyenBillingDetail response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetClientMerchantSig", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -156,7 +156,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public ClientResponseStatus SetChargeID(InitializationObject initObj, string pg_ext_id, int domain_id, string charge_id)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+            ClientResponseStatus response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SetChargeID", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -176,14 +176,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response = new ClientResponseStatus();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
-                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response = new ClientResponseStatus();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 

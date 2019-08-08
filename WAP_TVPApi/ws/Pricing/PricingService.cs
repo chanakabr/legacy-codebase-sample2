@@ -10,10 +10,11 @@ using System.Web.Services;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using System.Web;
 using KLogMonitor;
 using System.Reflection;
+using Core.Pricing;
+using ApiObjects.Pricing;
 
 namespace TVPApiServices
 {
@@ -32,9 +33,9 @@ namespace TVPApiServices
         #region public methods
 
         [WebMethod(EnableSession = true, Description = "Get PPV Module data")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode)
+        public PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule response = null;
+            PPVModule response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetPPVModuleData", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -58,9 +59,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get all subscriptions contains media file")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
+        public Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] subs = null;
+            Subscription[] subs = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetSubscriptionsContainingMedia", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -110,9 +111,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get Coupon status according to coupon code")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
+        public CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData couponData = null;
+            CouponData couponData = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCouponStatus", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -137,9 +138,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Set Coupon used")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus SetCouponUsed(InitializationObject initObj, string sCouponCode)
+        public CouponsStatus SetCouponUsed(InitializationObject initObj, string sCouponCode)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus couponStatus = TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus.NotExists;
+            CouponsStatus couponStatus = CouponsStatus.NotExists;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "SetCouponUsed", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -163,9 +164,9 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get campaigns by type")]
-        public TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive)
+        public Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive)
         {
-            TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] campaigns = null;
+            Campaign[] campaigns = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetCampaignsByType", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

@@ -82,7 +82,7 @@ public partial class Gateways_RSSGateway : System.Web.UI.Page
         XmlTextWriter writer = new XmlTextWriter(Response.OutputStream, System.Text.Encoding.UTF8);
         RSSWriter rssWriter = new RSSWriter(writer);
         
-        rssWriter.WritePageRSS(page, string.Concat(ConfigurationManager.AppSettings["RSSGatewayPath"],"PTVGateway.aspx?op=GetMainGallery&id={0}&pageid={1}"));
+        rssWriter.WritePageRSS(page, string.Concat(System.Configuration.ConfigurationManager.AppSettings["RSSGatewayPath"],"PTVGateway.aspx?op=GetMainGallery&id={0}&pageid={1}"));
 
         writer.Flush();
 

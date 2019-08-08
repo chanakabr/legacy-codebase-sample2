@@ -4,16 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TVPApi;
-using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+using Core.Users;
+using ApiObjects;
+using ApiObjects.Response;
+using TVPApiModule.Objects.Responses;
+using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
+using Status = TVPApiModule.Objects.Responses.Status;
+using PinCodeResponse = TVPApiModule.Objects.Responses.PinCodeResponse;
+using UserResponse = TVPApiModule.Objects.Responses.UserResponse;
 
 namespace TVPApiModule.Services
 {
     public class ApiUsersService : ApiBase
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private TVPPro.SiteManager.TvinciPlatform.Users.UsersService m_Module;
 
         private string m_wsUserName;
         private string m_wsPassword;
@@ -25,14 +30,12 @@ namespace TVPApiModule.Services
         {
             public string SiteGuid;
             public int DomainID;
-            public ResponseStatus LoginStatus;
+            public ApiObjects.ResponseStatus LoginStatus;
             public User UserData;
         }
 
         public ApiUsersService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Users.UsersService();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.URL;
             m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultUser;
             m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultPassword;
 
@@ -47,7 +50,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.CheckUserPassword(m_wsUserName, m_wsPassword, userName, password, isDoubleLogin);
+                    response = Core.Users.Module.CheckUserPassword(m_groupID, userName, password, isDoubleLogin);
                 }
             }
             catch (Exception ex)
@@ -76,7 +79,8 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    UserResponseObject response = m_Module.SignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList.ToArray());
+                    UserResponseObject response = Core.Users.Module.SignIn(
+                        m_groupID, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList.ToArray());
 
                     if (response != null && response.m_user != null)
                     {
@@ -106,7 +110,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.AddNewUser(m_wsUserName, m_wsPassword, userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                    response = Core.Users.Module.AddNewUser(m_groupID, userBasicData, userDynamicData, sPassword, sAffiliateCode);
                 }
             }
             catch (Exception ex)
@@ -123,7 +127,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    UserResponseObject uro = m_Module.SignOut(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
+                    UserResponseObject uro = Core.Users.Module.SignOut(m_groupID, sSiteGuid, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bPreventDoubleLogin);
                 }
             }
             catch (Exception ex)
@@ -139,7 +143,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    UserState response = m_Module.GetUserInstanceState(m_wsUserName, m_wsPassword, sSiteGuid, sSessionID, sDeviceID, sIP);
+                    UserState response = Core.Users.Module.GetUserInstanceState(m_groupID, sSiteGuid, sSessionID, sDeviceID, sIP);
 
                     if (response == UserState.Activated || (response == UserState.SingleSignIn && bPreventDoubleLogin) ||
                         (!bPreventDoubleLogin && (response == UserState.SingleSignIn || response == UserState.DoubleSignIn)))
@@ -164,9 +168,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, SiteHelper.GetClientIP(), iFavoriteID);
+                    var res = Core.Users.Module.RemoveUserFavorit(m_groupID, SiteHelper.GetClientIP(), iFavoriteID.Select(i => (long)i).ToArray());
 
-                    if (res != null && res.Code == (int)eStatus.OK)
+                    if (res != null && res.Code == (int)eResponseStatus.OK)
                     {
                         IsRemoved = true;
                     }
@@ -192,7 +196,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType,  FavoriteOrderBy.CreateDateAsc);
+                    var res = Core.Users.Module.GetUserFavorites(m_groupID, sSiteGuid, iDomainID, string.Empty, sItemType,  FavoriteOrderBy.CreateDateAsc);
                     response = res.Favorites;
                 }
             }
@@ -212,8 +216,8 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.AddUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
-                    if (res != null && res.Code == (int)eStatus.OK)
+                    var res = Core.Users.Module.AddUserFavorit(m_groupID, sSiteGuid, iDomainID, sUDID, sMediaType, sMediaID, sExtra);
+                    if (res != null && res.Code == (int)eResponseStatus.OK)
                     {
                         bRet = true;
                     }
@@ -231,13 +235,13 @@ namespace TVPApiModule.Services
             return bRet;
         }
 
-        public void RemoveUserFavorite(string sSiteGuid, int[] mediaID)
+        public void RemoveUserFavorite(string sSiteGuid, long[] mediaID)
         {
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    m_Module.RemoveUserFavorit(m_wsUserName, m_wsPassword, sSiteGuid, mediaID);
+                    Core.Users.Module.RemoveUserFavorit(m_groupID, sSiteGuid, mediaID);
 
                 }
             }
@@ -255,7 +259,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    UserResponseObject response = m_Module.SSOSignIn(m_wsUserName, m_wsPassword, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
+                    UserResponseObject response = Core.Users.Module.SSOSignIn(m_groupID, sUserName, sPassword, nProviderID, sSessionID, sIP, sDeviceID, bIsPreventDoubleLogins);
 
                     if (response != null && response.m_user != null)
                     {
@@ -286,7 +290,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                    response = Core.Users.Module.SSOCheckLogin(m_groupID, sUserName, nProviderID);
                 }
             }
             catch (Exception ex)
@@ -305,7 +309,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.SSOCheckLogin(m_wsUserName, m_wsPassword, sUserName, nProviderID);
+                    response = Core.Users.Module.SSOCheckLogin(m_groupID, sUserName, nProviderID);
                 }
             }
             catch (Exception ex)
@@ -324,7 +328,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUserData(m_wsUserName, m_wsPassword, sSiteGuid, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
+                    response = Core.Users.Module.GetUserData(m_groupID, sSiteGuid, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -343,7 +347,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUsersData(m_wsUserName, m_wsPassword, siteGuids, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
+                    var resp = Core.Users.Module.GetUsersData(m_groupID, siteGuids, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP());
+
+                    if (resp != null)
+                    {
+                        response = resp.ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -362,7 +371,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.SetUserData(m_wsUserName, m_wsPassword, sSiteGuid, userBasicData, userDynamicData);
+                    response = Core.Users.Module.SetUserData(m_groupID, sSiteGuid, userBasicData, userDynamicData);
                 }
             }
             catch (Exception ex)
@@ -381,7 +390,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                    var res = Core.Users.Module.ActivateAccount(m_groupID, sUserName, sToken);
                     if (res != null)
                         response = res.user;
                 }
@@ -402,8 +411,8 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
-                    if (res != null && res.Code == (int)eStatus.OK)
+                    var res = Core.Users.Module.ResendActivationMail(m_groupID, sUserName, sNewPassword);
+                    if (res != null && res.Code == (int)eResponseStatus.OK)
                         response = true;
                 }
             }
@@ -423,7 +432,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetAllUserOfflineAssets(m_wsUserName, m_wsPassword, sSiteGuid);
+                    response = Core.Users.Module.GetAllUserOfflineAssets(m_groupID, sSiteGuid);
                 }
             }
             catch (Exception ex)
@@ -442,7 +451,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.AddUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                    response = Core.Users.Module.AddUserOfflineAsset(m_groupID, siteGuid, mediaID.ToString());
                 }
             }
             catch (Exception ex)
@@ -461,7 +470,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.RemoveUserOfflineAsset(m_wsUserName, m_wsPassword, siteGuid, mediaID.ToString());
+                    response = Core.Users.Module.RemoveUserOfflineAsset(m_groupID, siteGuid, mediaID.ToString());
                 }
             }
             catch (Exception ex)
@@ -480,7 +489,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.ClearUserOfflineAssets(m_wsUserName, m_wsPassword, siteGuid);
+                    response = Core.Users.Module.ClearUserOfflineAssets(m_groupID, siteGuid);
                 }
             }
             catch (Exception ex)
@@ -497,8 +506,8 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    UserResponseObject uro = m_Module.ForgotPassword(m_wsUserName, m_wsPassword, UserName);
-                    if (uro.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
+                    UserResponseObject uro = Core.Users.Module.ForgotPassword(m_groupID, UserName);
+                    if (uro.m_RespStatus == ResponseStatus.OK)
                     {
                         logger.InfoFormat("Sent new temp password protocol ForgotPassword, Parameters : User name {0}: ", true, UserName);
                         return true;
@@ -525,7 +534,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    Country response = m_Module.GetIPToCountry(m_wsUserName, m_wsPassword, sIP);
+                    var response = Core.Users.Module.GetIPToCountry(m_groupID, sIP);
                     sRet = response.m_sCountryName;
                 }
             }
@@ -550,16 +559,16 @@ namespace TVPApiModule.Services
             return true;
         }
 
-        private TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData cloneDynamicData(TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData curDynamicData, bool isAddNew)
+        private UserDynamicData cloneDynamicData(UserDynamicData curDynamicData, bool isAddNew)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData newDynamicData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicData();
-            TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData;
-            newDynamicData.m_sUserData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer[curDynamicData.m_sUserData.Count() + (isAddNew ? 1 : 0)];
+            UserDynamicData newDynamicData = new UserDynamicData();
+            UserDynamicDataContainer dData;
+            newDynamicData.m_sUserData = new UserDynamicDataContainer[curDynamicData.m_sUserData.Count() + (isAddNew ? 1 : 0)];
             int idx = 0;
 
             foreach (var UserData in curDynamicData.m_sUserData)
             {
-                dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
+                dData = new UserDynamicDataContainer();
                 dData.m_sDataType = UserData.m_sDataType;
                 dData.m_sValue = UserData.m_sValue;
                 newDynamicData.m_sUserData[idx] = dData;
@@ -580,7 +589,7 @@ namespace TVPApiModule.Services
 
                 if (!isOfflineMode)
                 {
-                    TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dData = new TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer();
+                    UserDynamicDataContainer dData = new UserDynamicDataContainer();
                     dData.m_sDataType = "IsOfflineMode";
                     dData.m_sValue = "true";
                     newDynamicData.m_sUserData[newDynamicData.m_sUserData.Count() - 1] = dData;
@@ -608,7 +617,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.SetUserDynamicData(m_wsUserName, m_wsPassword, sSiteGuid, sKey, sValue);
+                    bRet = Core.Users.Module.SetUserDynamicData(m_groupID, sSiteGuid, sKey, sValue);
                 }
             }
             catch (Exception ex)
@@ -627,7 +636,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetUserDataByCoGuid(m_wsUserName, m_wsPassword, coGuid, operatorID);
+                    response = Core.Users.Module.GetUserDataByCoGuid(m_groupID, coGuid, operatorID);
                 }
             }
             catch (Exception ex)
@@ -645,7 +654,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.ChangeUserPassword(m_wsUserName, m_wsPassword, sUN, sOldPass, sPass);
+                    bRet = Core.Users.Module.ChangeUserPassword(m_groupID, sUN, sOldPass, sPass);
                 }
             }
             catch (Exception ex)
@@ -663,7 +672,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.GetUserByFacebookID(m_wsUserName, m_wsPassword, facebookId);
+                    bRet = Core.Users.Module.GetUserByFacebookID(m_groupID, facebookId);
                 }
             }
             catch (Exception ex)
@@ -681,7 +690,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.GetUserByUsername(m_wsUserName, m_wsPassword, userName);
+                    bRet = Core.Users.Module.GetUserByUsername(m_groupID, userName);
                 }
             }
             catch (Exception ex)
@@ -700,7 +709,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.SearchUsers(m_wsUserName, m_wsPassword, sTerms, sFields, bIsExact);
+                    var users = Core.Users.Module.SearchUsers(m_groupID, sTerms, sFields, bIsExact);
+
+                    if (users != null)
+                    {
+                        bRet = users.ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -717,7 +731,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    m_Module.Logout(m_wsUserName, m_wsPassword, sSiteGuid);
+                    Core.Users.Module.Logout(m_groupID, sSiteGuid);
                 }
             }
             catch (Exception ex)
@@ -726,14 +740,14 @@ namespace TVPApiModule.Services
             }
         }
 
-        public Country[] GetCountriesList()
+        public Core.Users.Country[] GetCountriesList()
         {
-            Country[] bRet = null;
+            Core.Users.Country[] bRet = null;
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.GetCountryList(m_wsUserName, m_wsPassword);
+                    bRet = Core.Users.Module.GetCountryList(m_groupID);
                 }
             }
             catch (Exception ex)
@@ -751,7 +765,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.CheckTemporaryToken(m_wsUserName, m_wsPassword, sToken);
+                    bRet = Core.Users.Module.CheckTemporaryToken(m_groupID, sToken);
                 }
             }
             catch (Exception ex)
@@ -769,7 +783,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.GetGroupUserTypes(m_wsUserName, m_wsPassword);
+                    bRet = Core.Users.Module.GetGroupUserTypes(m_groupID);
                 }
             }
             catch (Exception ex)
@@ -787,7 +801,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.RenewUserPassword(m_wsUserName, m_wsPassword, sUN, sPass);
+                    bRet = Core.Users.Module.RenewUserPassword(m_groupID, sUN, sPass);
                 }
             }
             catch (Exception ex)
@@ -806,7 +820,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.SendChangedPinMail(m_wsUserName, m_wsPassword, sSiteGuid, ruleID);
+                    bRet = Core.Users.Module.SendChangedPinMail(m_groupID, sSiteGuid, ruleID);
                 }
             }
             catch (Exception ex)
@@ -827,7 +841,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.ActivateAccountByDomainMaster(m_wsUserName, m_wsPassword, masterUserName, userName, token);
+                    res = Core.Users.Module.ActivateAccountByDomainMaster(m_groupID, masterUserName, userName, token);
                 }
             }
             catch (Exception ex)
@@ -847,7 +861,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.SendPasswordMail(m_wsUserName, m_wsPassword, userName);
+                    res = Core.Users.Module.SendPasswordMail(m_groupID, userName);
                 }
             }
             catch (Exception ex)
@@ -859,24 +873,30 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool AddItemToList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool AddItemToList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool res = false;
 
             try
             {
+                List<ItemObj> itemObjectsList = new List<ItemObj>();
+
+                if (itemObjects != null)
+                {
+                    itemObjectsList = itemObjects.ToList();
+                }
+
                 UserItemList userItemList = new UserItemList()
                 {
-                    itemObj = itemObjects,
-                    itemType = ConvertItemTypeToListItemType(itemType),
+                    itemObj = itemObjectsList,
+                    itemType = itemType,
                     listType = listType,
                     siteGuid = siteGuid
-
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.AddItemToList(m_wsUserName, m_wsPassword, userItemList);
+                    res = Core.Users.Module.AddItemToList(m_groupID, userItemList);
                 }
             }
             catch (Exception ex)
@@ -888,16 +908,23 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool RemoveItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool RemoveItemFromList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool res = false;
 
             try
             {
+                List<ItemObj> itemObjectsList = new List<ItemObj>();
+
+                if (itemObjects != null)
+                {
+                    itemObjectsList = itemObjects.ToList();
+                }
+
                 UserItemList userItemList = new UserItemList()
                 {
-                    itemObj = itemObjects,
-                    itemType = ConvertItemTypeToListItemType(itemType),
+                    itemObj = itemObjectsList,
+                    itemType = itemType,
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -905,7 +932,7 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.RemoveItemFromList(m_wsUserName, m_wsPassword, userItemList);
+                    res = Core.Users.Module.RemoveItemFromList(m_groupID, userItemList);
                 }
             }
             catch (Exception ex)
@@ -917,16 +944,23 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool UpdateItemInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool UpdateItemInList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool res = false;
 
             try
             {
+                List<ItemObj> itemObjectsList = new List<ItemObj>();
+
+                if (itemObjects != null)
+                {
+                    itemObjectsList = itemObjects.ToList();
+                }
+
                 UserItemList userItemList = new UserItemList()
                 {
-                    itemObj = itemObjects,
-                    itemType = ConvertItemTypeToListItemType(itemType),
+                    itemObj = itemObjectsList,
+                    itemType = itemType,
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -934,7 +968,7 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.UpdateItemInList(m_wsUserName, m_wsPassword, userItemList);
+                    res = Core.Users.Module.UpdateItemInList(m_groupID, userItemList);
                 }
             }
             catch (Exception ex)
@@ -946,16 +980,23 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserItemList[] GetItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public UserItemList[] GetItemFromList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             UserItemList[] res = null;
 
             try
             {
+                List<ItemObj> itemObjectsList = new List<ItemObj>();
+
+                if (itemObjects != null)
+                {
+                    itemObjectsList = itemObjects.ToList();
+                }
+
                 UserItemList userItemList = new UserItemList()
                 {
-                    itemObj = itemObjects,
-                    itemType = ConvertItemTypeToListItemType(itemType),
+                    itemObj = itemObjectsList,
+                    itemType = itemType,
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -963,9 +1004,9 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var response = m_Module.GetItemFromList(m_wsUserName, m_wsPassword, userItemList);
-                    if (response != null)
-                        res = response.UserItemLists;
+                    var response = Core.Users.Module.GetItemFromList(m_groupID, userItemList);
+                    if (response != null && response.UserItemLists != null)
+                        res = response.UserItemLists.ToArray();
                 }
             }
             catch (Exception ex)
@@ -977,16 +1018,23 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public KeyValuePair[] IsItemExistsInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public KeyValuePair[] IsItemExistsInList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             KeyValuePair[] res = null;
 
             try
             {
+                List<ItemObj> itemObjectsList = new List<ItemObj>();
+
+                if (itemObjects != null)
+                {
+                    itemObjectsList = itemObjects.ToList();
+                }
+
                 UserItemList userItemList = new UserItemList()
                 {
-                    itemObj = itemObjects,
-                    itemType = ConvertItemTypeToListItemType(itemType),
+                    itemObj = itemObjectsList,
+                    itemType = itemType,
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -994,7 +1042,12 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.IsItemExistsInList(m_wsUserName, m_wsPassword, userItemList);
+                    var result = Core.Users.Module.IsItemExistsInList(m_groupID, userItemList);
+
+                    if (result != null)
+                    {
+                        res = result.ToArray();
+                    }
                 }
             }
             catch (Exception ex)
@@ -1005,21 +1058,7 @@ namespace TVPApiModule.Services
 
             return res;
         }
-
-        private ListItemType ConvertItemTypeToListItemType(ItemType itemType)
-        {
-            switch (itemType)
-            {
-                case ItemType.All:
-                    return ListItemType.All;
-                case ItemType.Media:
-                    return ListItemType.Media;
-                default:
-                    logger.ErrorFormat("Unknown itemType: {0}", itemType.ToString());
-                    throw new Exception(string.Format("Unknown itemType: {0}", itemType.ToString()));
-            }
-        }
-
+        
         public ResponseStatus SetUserTypeByUserID(string sSiteGuid, int userTypeID)
         {
             ResponseStatus bRet = ResponseStatus.OK;
@@ -1027,7 +1066,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    bRet = m_Module.SetUserTypeByUserID(m_wsUserName, m_wsPassword, sSiteGuid, userTypeID);
+                    bRet = Core.Users.Module.SetUserTypeByUserID(m_groupID, sSiteGuid, userTypeID);
                 }
             }
             catch (Exception ex)
@@ -1045,7 +1084,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    UserResponseObject response = m_Module.SignInWithToken(m_wsUserName, m_wsPassword, sToken, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
+                    UserResponseObject response = Core.Users.Module.SignInWithToken(m_groupID, sToken, sSessionID, sIP, sDeviceID, bPreventDoubleLogins);
 
                     if (response != null && response.m_user != null)
                     {
@@ -1067,29 +1106,29 @@ namespace TVPApiModule.Services
             return loginData;
         }
 
-        public TVPApiModule.Objects.Responses.PinCodeResponse GenerateLoginPIN(string siteGuid, string secret)
+        public PinCodeResponse GenerateLoginPIN(string siteGuid, string secret)
         {
-            TVPApiModule.Objects.Responses.PinCodeResponse response = null;
+            PinCodeResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.GenerateLoginPIN(m_wsUserName, m_wsPassword, siteGuid, secret);
-                    response = new TVPApiModule.Objects.Responses.PinCodeResponse(result);
+                    var innerResponse = Core.Users.Module.GenerateLoginPIN(m_groupID, siteGuid, secret);
+                    response = new PinCodeResponse(innerResponse);
                 }
             }
             catch (Exception ex)
             {
-                logger.Error("Error while trying to get regions.", ex);
-                response = new TVPApiModule.Objects.Responses.PinCodeResponse();
-                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                logger.Error("Error while trying to GenerateLoginPIN.", ex);
+                response = new PinCodeResponse();
+                response.Status = new Status((int)eResponseStatus.Error, "Error while calling webservice");
             }
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.UserResponse LoginWithPIN(string PIN, string secret, string deviceID, System.Collections.Specialized.NameValueCollection extraParams)
+        public UserResponse LoginWithPIN(string PIN, string secret, string deviceID, System.Collections.Specialized.NameValueCollection extraParams)
         {
-            TVPApiModule.Objects.Responses.UserResponse response = null;
+            UserResponse response = null;
             try
             {
                 List<KeyValuePair> keyValueList = new List<KeyValuePair>();
@@ -1105,37 +1144,35 @@ namespace TVPApiModule.Services
                 string sessionID = "0";
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.LoginWithPIN(m_wsUserName, m_wsPassword, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, keyValueList.ToArray(), secret);
-                    response = new TVPApiModule.Objects.Responses.UserResponse(result);
+                    var innerResponse = Core.Users.Module.LoginWithPIN(m_groupID, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, keyValueList, secret);
                 }
             }
             catch (Exception ex)
             {
                 logger.Error("Error while trying to get regions.", ex);
-                response = new TVPApiModule.Objects.Responses.UserResponse();
-                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                response = new UserResponse();
+                response.Status = new Status((int)eResponseStatus.Error, "Error while calling webservice");
             }
             return response;
         }
 
-        public TVPApiModule.Objects.Responses.PinCodeResponse SetLoginPIN(string siteGuid, string PIN, string secret)
+        public PinCodeResponse SetLoginPIN(string siteGuid, string PIN, string secret)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.PinCodeResponse wsResponse = null;
-            TVPApiModule.Objects.Responses.PinCodeResponse response;
+            PinCodeResponse response;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    wsResponse = m_Module.SetLoginPIN(m_wsUserName, m_wsPassword, siteGuid, PIN, secret);
-                    response = new TVPApiModule.Objects.Responses.PinCodeResponse(wsResponse);
+                    var innerResponse = Core.Users.Module.SetLoginPIN(m_groupID, siteGuid, PIN, secret);
+                    response = new PinCodeResponse(innerResponse);
                 }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SetLoginPIN, Error Message: {0}, Parameters: PIN Id: {1}, secret: {2}, siteGuid : {3}", ex.Message, PIN, secret, siteGuid);
-                response = new TVPApiModule.Objects.Responses.PinCodeResponse();
-                response.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                response = new PinCodeResponse();
+                response.Status = new Status((int)eResponseStatus.Error, "Error while calling webservice");
             }
 
             return response;
@@ -1143,30 +1180,32 @@ namespace TVPApiModule.Services
 
         public ClientResponseStatus ClearLoginPINs(string siteGuid, string pinCode)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
-            ClientResponseStatus clientResponse;
+            ClientResponseStatus clientResponse = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    result = m_Module.ClearLoginPIN(m_wsUserName, m_wsPassword, siteGuid, pinCode);
-                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                    var result = Core.Users.Module.ClearLoginPIN(m_groupID, siteGuid, pinCode);
+
+                    if (result != null)
+                    {
+                        clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : ClearLoginPIN, Error Message: {0}, Parameters: siteGuid : {1}", ex.Message, siteGuid);
-                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+                clientResponse = new ClientResponseStatus() { Status = new Status((int)eResponseStatus.Error, "Error while calling webservice") };
             }
 
             return clientResponse;
         }
-
+        
         public ClientResponseStatus DeleteUser(string siteGuid)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
-            ClientResponseStatus clientResponse;
+            ClientResponseStatus clientResponse = null;
             int userid = 0;
 
             try
@@ -1175,21 +1214,25 @@ namespace TVPApiModule.Services
                 {
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                     {
-                        result = m_Module.DeleteUser(m_wsUserName, m_wsPassword, userid);
-                        clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                        var result = Core.Users.Module.DeleteUser(m_groupID, userid);
+
+                        if (result != null)
+                        {
+                            clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                        }
                     }
                 }
                 else
                 {
                     logger.ErrorFormat("Error while trying to delete user {0}", siteGuid != null ? siteGuid : "null");
-                    clientResponse = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    clientResponse = new ClientResponseStatus();
                     clientResponse.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : DeleteUser, Error Message: {0}, Parameters: siteGuid : {1}", ex.Message, siteGuid);
-                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+                clientResponse = new ClientResponseStatus() { Status = new Status((int)eResponseStatus.Error, "Error while calling webservice") };
             }
 
             return clientResponse;
@@ -1197,29 +1240,28 @@ namespace TVPApiModule.Services
 
         public ClientResponseStatus ChangeUsers(string initSiteGuid, string siteGuid, string udid)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
             ClientResponseStatus clientResponse;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    result = m_Module.ChangeUsers(m_wsUserName, m_wsPassword, initSiteGuid, siteGuid, udid);
-                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
+                    var result = Core.Users.Module.ChangeUsers(m_groupID, initSiteGuid, siteGuid, udid);
+                    clientResponse = new ClientResponseStatus() { Status = new Status(result.Code, result.Message) };
                 }
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : ChangeUsers, Error Message: {0}, Parameters: initSiteGuid : {1}, siteGuid: {2}", ex.Message, initSiteGuid, siteGuid);
-                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+                clientResponse = new ClientResponseStatus() { Status = new Status((int)eResponseStatus.Error, "Error while calling webservice") };
             }
 
             return clientResponse;
         }
 
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponse LogIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin, System.Collections.Specialized.NameValueCollection extraParams)
+        public Core.Users.UserResponse LogIn(string sUserName, string sPassword, string sSessionID, string sDeviceID, bool bIsDoubleLogin, System.Collections.Specialized.NameValueCollection extraParams)
         {
-            TVPPro.SiteManager.TvinciPlatform.Users.UserResponse response = new TVPPro.SiteManager.TvinciPlatform.Users.UserResponse();
+            var response = new Core.Users.UserResponse();
 
             try
             {
@@ -1235,7 +1277,7 @@ namespace TVPApiModule.Services
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.LogIn(m_wsUserName, m_wsPassword, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList.ToArray());
+                    response = Core.Users.Module.LogIn(m_groupID, sUserName, sPassword, sSessionID, SiteHelper.GetClientIP(), sDeviceID, bIsDoubleLogin, keyValueList);
                 }
             }
             catch (Exception ex)
@@ -1245,14 +1287,5 @@ namespace TVPApiModule.Services
 
             return response;
         }
-    }
-}
-
-namespace TVPPro.SiteManager.TvinciPlatform.Users
-{
-    public enum ItemType
-    {
-        All = 0,
-        Media = 2
     }
 }

@@ -1,20 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using TVPApi;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
-using TVPPro.SiteManager.TvinciPlatform.Users;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Objects;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects.Requests;
+using Core.Users;
+using ApiObjects.Billing;
+using Core.ConditionalAccess;
+using ApiObjects.CrowdsourceItems.Base;
+using ApiObjects.Statistics;
+using ApiObjects.Catalog;
+using ApiObjects.SearchObjects;
+using ApiObjects;
+using InitializationObject = TVPApi.InitializationObject;
+using Media = TVPApi.Media;
+using MediaMarkObject = ApiObjects.MediaMarkObject;
+using EPGMultiChannelProgrammeObject = ApiLogic.Catalog.EPGMultiChannelProgrammeObject;
+using EPGUnit = ApiObjects.EPGUnit;
+using Core.Catalog;
+using Core.Catalog.Response;
 
 namespace TVPApiServices
 {
@@ -49,7 +59,7 @@ namespace TVPApiServices
         List<Media> GetPeopleWhoWatched(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
-        List<Media> GetUserSocialMedias(InitializationObject initObj, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform, TVPPro.SiteManager.TvinciPlatform.api.SocialAction socialAction, string picSize, int pageSize, int pageIndex);
+        List<Media> GetUserSocialMedias(InitializationObject initObj, SocialPlatform socialPlatform, SocialAction socialAction, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
         List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
@@ -58,7 +68,7 @@ namespace TVPApiServices
         List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         [OperationContract]
-        List<Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
+        List<EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         [OperationContract]
         List<Media> SearchMediaByMeta(InitializationObject initObj, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
@@ -91,7 +101,7 @@ namespace TVPApiServices
         bool ActionDone(InitializationObject initObj, TVPApi.ActionType action, int mediaID, int mediaType, int extraVal);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal);
+        RateMediaObject RateMedia(InitializationObject initObj, int mediaID, int mediaType, int extraVal);
 
         [OperationContract]
         List<Media> GetMediasByMostAction(InitializationObject initObj, TVPApi.ActionType action, int mediaType);
@@ -109,7 +119,7 @@ namespace TVPApiServices
         MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID);
 
         [OperationContract]
-        bool AddUserSocialAction(InitializationObject initObj, int iMediaID, TVPPro.SiteManager.TvinciPlatform.api.SocialAction action, TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform socialPlatform);
+        bool AddUserSocialAction(InitializationObject initObj, int iMediaID, SocialAction action, SocialPlatform socialPlatform);
 
         [OperationContract]
         List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaID, int mediaType, string picSize, bool withDynamic);
@@ -184,7 +194,7 @@ namespace TVPApiServices
         List<Media> SearchMediaByMetasTagsExact(InitializationObject initObj, List<TVPApi.TagMetaPair> tagPairs, List<TVPApi.TagMetaPair> metaPairs, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy);
+        EPGChannelObject[] GetEPGChannels(InitializationObject initObj, string sPicSize, TVPApi.OrderBy orderBy);
 
         [OperationContract]
         EPGChannelProgrammeObject[] GetEPGChannelsPrograms(InitializationObject initObj, string sEPGChannelID, string sPicSize, EPGUnit oUnit, int iFromOffset, int iToOffset, int iUTCOffSet);
@@ -202,7 +212,7 @@ namespace TVPApiServices
         bool AddComment(InitializationObject initObj, int mediaID, int mediaType, string writer, string header, string subheader, string content, bool autoActive);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID);
+        GroupRule[] GetGroupMediaRules(InitializationObject initObj, int mediaID);
 
         [OperationContract]
         string SendToFriend(InitializationObject initObj, int mediaID, string senderName, string senderEmail, string toEmail, string msg);
@@ -232,7 +242,7 @@ namespace TVPApiServices
         string AddEPGComment(InitializationObject initObj, int epgProgramID, string contentText, string header, string subHeader, string writer, bool autoActive);
 
         [OperationContract]
-        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string orderMeta);
+        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<Core.Catalog.KeyValue> orList, List<Core.Catalog.KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string orderMeta);
 
         [OperationContract]
         List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
@@ -257,7 +267,7 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId,
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
+            ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
 
         [OperationContract]
         bool DoesBundleContainMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, int mediaId, string mediaType);
@@ -306,7 +316,7 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleAssets(InitializationObject initObj, eBundleType bundleType, int bundleId,
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
+            ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
 
         [OperationContract]
         string AssetBookmark(InitializationObject initObj, string assetID, string assetType, long fileID, PlayerAssetData PlayerAssetData, long programId,

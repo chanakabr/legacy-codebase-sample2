@@ -1,4 +1,6 @@
-﻿using KLogMonitor;
+﻿using ApiObjects;
+using Core.Users;
+using KLogMonitor;
 using System;
 using System.Configuration;
 using System.Linq;
@@ -10,8 +12,7 @@ using TVPApiModule.Helper;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+using Domain = Core.Users.Domain;
 
 namespace TVPApiModule.Manager
 {
@@ -573,7 +574,7 @@ namespace TVPApiModule.Manager
                 // if udid is not in domain
                 if (!string.IsNullOrEmpty(udid))
                 {
-                    if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Length == 0)
+                    if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
                     {
                         logger.ErrorFormat("ValidateRequestParameters: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
                         returnError(403);

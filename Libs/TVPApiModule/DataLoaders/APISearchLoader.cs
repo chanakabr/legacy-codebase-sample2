@@ -11,6 +11,7 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
 using TVPApiModule.Helper;
 using TVPApiModule.Manager;
+using ApiObjects.SearchObjects;
 
 namespace TVPApi
 {
@@ -154,8 +155,8 @@ namespace TVPApi
                 {
                     m_oCatalogSearchLoader.OrderBy = APICatalogHelper.GetCatalogOrderBy(OrderBy);
                     // XXX: For specific date sorting, make this by Descending
-                    if (m_oCatalogSearchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE || m_oCatalogSearchLoader.OrderBy == Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE)
-                        m_oCatalogSearchLoader.OrderDir = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderDir.DESC;
+                    if (m_oCatalogSearchLoader.OrderBy == ApiObjects.SearchObjects.OrderBy.START_DATE || m_oCatalogSearchLoader.OrderBy == ApiObjects.SearchObjects.OrderBy.CREATE_DATE)
+                        m_oCatalogSearchLoader.OrderDir = OrderDir.DESC;
                     else
                         m_oCatalogSearchLoader.OrderDir = CatalogHelper.GetCatalogOrderDirection(OrderDirection);
                     m_oCatalogSearchLoader.OrderMetaMame = OrderByMeta;

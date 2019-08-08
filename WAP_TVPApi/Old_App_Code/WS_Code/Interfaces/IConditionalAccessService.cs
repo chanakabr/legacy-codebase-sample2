@@ -1,9 +1,16 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
+using Core.ConditionalAccess;
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using static ApiObjects.ConditionalAccess.CampaignActionInfo;
+using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
+using InitializationObject = TVPApi.InitializationObject;
+using LicensedLinkResponse = Core.ConditionalAccess.LicensedLinkResponse;
 
 namespace TVPApiServices
 {
@@ -11,20 +18,24 @@ namespace TVPApiServices
     public interface IConditionalAccessService
     {
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,
-                                                                                                         string senderEmail, string senderName, CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents);
+        CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,
+                                                                                                         string senderEmail, string senderName, 
+                                                                                                         CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents);
         [OperationContract]
-        int AD_GetCustomDataID(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType);
+        int AD_GetCustomDataID(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, 
+            string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType);
 
         [OperationContract]
         bool ActivateCampaign(InitializationObject initObj, int campaignID, string hashCode, int mediaID, string mediaLink, string senderEmail, string senderName,
                                                            CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents);
 
         [OperationContract]
-        MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        MediaFileItemPricesContainer[] GetItemsPricesWithCoupons(InitializationObject initObj, int[] nMediaFiles, string sUserGUID, string sCouponCode,
+            bool bOnlyLowest, string sCountryCd2, string sLanguageCode3, string sDeviceName);
 
         [OperationContract]
-        SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, string sCountryCd2, string sLanguageCode3, string sDeviceName);
+        SubscriptionsPricesContainer[] GetSubscriptionsPricesWithCoupon(InitializationObject initObj, string[] sSubscriptions, string sUserGUID, string sCouponCode, 
+            string sCountryCd2, string sLanguageCode3, string sDeviceName);
 
         [OperationContract]
         bool IsPermittedItem(InitializationObject initObj, int mediaId);
@@ -39,7 +50,8 @@ namespace TVPApiServices
         BillingResponse CC_ChargeUserForPrePaid(InitializationObject initObj, double price, string currency, string productCode, string ppvModuleCode);
 
         [OperationContract]
-        string GetEPGLicensedLink(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
+        string GetEPGLicensedLink(InitializationObject initObj, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, 
+            string refferer, string countryCd2, string languageCode3, string deviceName, int formatType);
 
         [OperationContract]
         UserBillingTransactionsResponse[] GetUsersBillingHistory(InitializationObject initObj, string[] siteGuids, DateTime startDate, DateTime endDate);
@@ -54,25 +66,30 @@ namespace TVPApiServices
         PermittedSubscriptionContainer[] GetDomainPermittedSubscriptions(InitializationObject initObj);
 
         [OperationContract]
-        string ChargeUserForMediaFileUsingCC(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, string sUserIP, string sCoupon, string sPaymentMethodID, string sEncryptedCVV);
+        string ChargeUserForMediaFileUsingCC(InitializationObject initObj, double iPrice, string sCurrency, int iFileID, string sPPVModuleCode, 
+            string sUserIP, string sCoupon, string sPaymentMethodID, string sEncryptedCVV);
 
         [OperationContract]
-        string ChargeUserForSubscriptionByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sExtraParameters, string sPaymentMethodID, string sEncryptedCVV);
+        string ChargeUserForSubscriptionByPaymentMethod(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, 
+            string sCouponCode, string sExtraParameters, string sPaymentMethodID, string sEncryptedCVV);
 
         [OperationContract]
         ChangeSubscriptionStatus ChangeSubscription(InitializationObject initObj, string sSiteGuid, int nOldSubscription, int nNewSubscription);
 
         [OperationContract]
-        string ChargeUserForMediaSubscriptionUsingCC(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, string sUserIP, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV);
+        string ChargeUserForMediaSubscriptionUsingCC(InitializationObject initObj, double iPrice, string sCurrency, string sSubscriptionID, string sCouponCode, 
+            string sUserIP, string sExtraParameters, string sUDID, string sPaymentMethodID, string sEncryptedCVV);
 
         [OperationContract]
-        int CreatePurchaseToken(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate, string previewModuleID);
+        int CreatePurchaseToken(InitializationObject initObj, double price, string currencyCode3, int assetId, string ppvModuleCode, string campaignCode, 
+            string couponCode, string paymentMethod, string userIp, string countryCd2, string languageCode3, string deviceName, int assetType, string overrideEndDate, string previewModuleID);
 
         [OperationContract]
         CollectionsPricesContainer[] GetCollectionsPrices(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3);
 
         [OperationContract]
-        CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, string languageCode3, string couponCode);
+        CollectionsPricesContainer[] GetCollectionsPricesWithCoupon(InitializationObject initObj, string[] collections, string userGuid, string countryCode2, 
+            string languageCode3, string couponCode);
 
         [OperationContract]
         PermittedCollectionContainer[] GetUserPermittedCollections(InitializationObject initObj, string siteGuid);
@@ -81,10 +98,12 @@ namespace TVPApiServices
         PermittedCollectionContainer[] GetDomainPermittedCollections(InitializationObject initObj);
 
         [OperationContract]
-        BillingResponse ChargeUserForCollection(InitializationObject initObj, double price, string currencyCode3, string collectionCode, string couponCode, string extraParameters, string countryCode2, string languageCode3, string paymentMethodID, string encryptedCvv);
+        BillingResponse ChargeUserForCollection(InitializationObject initObj, double price, string currencyCode3, string collectionCode, string couponCode, 
+            string extraParameters, string countryCode2, string languageCode3, string paymentMethodID, string encryptedCvv);
 
         [OperationContract]
-        string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode, string userIP, string extraParameters, string countryCode2, string languageCode3);
+        string DummyChargeUserForCollection(InitializationObject initObj, double price, string currency, string collectionCode, string couponCode,
+            string userIP, string extraParameters, string countryCode2, string languageCode3);
 
         [OperationContract]
         bool CancelTransaction(InitializationObject initObj, string siteGuid, int assetId, eTransactionType transactionType, bool bIsForce);
@@ -96,7 +115,7 @@ namespace TVPApiServices
         PermittedCollectionContainer[] GetUserExpiredCollections(InitializationObject initObj, string siteGuid, int numOfItems);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink);
+        LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink);
 
         [OperationContract]
         RecordResponse RecordAsset(InitializationObject initObj, string epgId, int? version);

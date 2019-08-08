@@ -1,4 +1,6 @@
-﻿using KLogMonitor;
+﻿using ApiObjects;
+using Core.Users;
+using KLogMonitor;
 using System;
 using System.Configuration;
 using System.Reflection;
@@ -11,7 +13,9 @@ using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
+using Country = Core.Users.Country;
+using InitializationObject = TVPApi.InitializationObject;
 
 namespace TVPApiServices
 {
@@ -80,7 +84,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Get user facebook ID")]
         [PrivateMethod]
-        public TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
+        public UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId)
         {
             UserResponseObject response = new UserResponseObject();
 
@@ -227,8 +231,8 @@ namespace TVPApiServices
                 try
                 {
                     SiteService siteSvc = new SiteService();
-                    string privateKey = ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-                    string IV = ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    string privateKey = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidKey"];
+                    string IV = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidIV"];
                     string sClearPassword = SecurityHelper.DecryptSiteGuid(privateKey, IV, sEncryptedPassword);
 
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
@@ -422,7 +426,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Adds Item To List")]
         [PrivateMethod]
-        public bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -449,7 +453,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Removes Item From List")]
         [PrivateMethod]
-        public bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -476,7 +480,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Updates Item In List")]
         [PrivateMethod]
-        public bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -502,7 +506,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets Item From List")]
-        public UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             UserItemList[] response = null;
 
@@ -529,7 +533,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
         [PrivateMethod]
-        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             KeyValuePair[] response = null;
 
@@ -754,7 +758,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public ClientResponseStatus ClearLoginPIN(InitializationObject initObj, string pinCode)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = new ClientResponseStatus(); ;
+            ClientResponseStatus response = new ClientResponseStatus();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "LoginWithPIN", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -773,14 +777,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items.Add("Error", ex);
-                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response = new ClientResponseStatus();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items.Add("Error", "Unknown group");
-                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response = new ClientResponseStatus();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
@@ -791,7 +795,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public ClientResponseStatus ClearLoginPINs(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+            ClientResponseStatus response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ClearLoginPINs", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -804,14 +808,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response = new ClientResponseStatus();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
-                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response = new ClientResponseStatus();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
@@ -822,7 +826,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public ClientResponseStatus DeleteUser(InitializationObject initObj)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+            ClientResponseStatus response = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "DeleteUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             bool isTokenizationValid = false;
@@ -851,14 +855,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response = new ClientResponseStatus();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
-                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response = new ClientResponseStatus();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 

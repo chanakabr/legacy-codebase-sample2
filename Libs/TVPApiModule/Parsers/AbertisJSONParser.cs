@@ -5,10 +5,11 @@ using System.Text;
 using System.Web.Script.Serialization;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Services;
-using ODBCWrapper;
+using TVPApi.ODBCWrapper;
 using TVPPro.SiteManager.DataLoaders;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
+using Core.Pricing;
+
 namespace TVPApi
 {
     public class AbertisJSONParser : IParser
@@ -388,7 +389,7 @@ namespace TVPApi
             ConnectionManager connMngr = new ConnectionManager(121, PlatformType.STB, false);
             DataSetSelectQuery selectQuery = new DataSetSelectQuery(connMngr.GetTvinciConnectionString());
             selectQuery += " select COMMERCIAL_BREAK_POINTS, COMMERCIAL_TYPE_BREAK_ID, COMMERCIAL_TYPE_POST_ID, COMMERCIAL_TYPE_PRE_ID from media_files where ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", fileID);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("id", "=", fileID);
             if (selectQuery.Execute("query", true) != null)
             {
                 int count = selectQuery.Table("query").DefaultView.Count;

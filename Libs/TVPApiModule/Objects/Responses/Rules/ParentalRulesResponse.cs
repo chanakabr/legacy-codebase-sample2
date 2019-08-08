@@ -25,7 +25,7 @@ namespace TVPApiModule.Objects.Responses
         /// Create a response based on a response from WS_API
         /// </summary>
         /// <param name="copy"></param>
-        public ParentalRulesResponse(TVPPro.SiteManager.TvinciPlatform.api.ParentalRulesResponse copy)
+        public ParentalRulesResponse(ApiObjects.ParentalRulesResponse copy)
         {
             this.status = new Status(copy.status.Code, copy.status.Message);
 

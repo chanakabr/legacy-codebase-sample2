@@ -584,7 +584,7 @@ public partial class MethodFinder
 
     private class ParameterJsonInit : ParameterInitBase
     {
-        private static List<string> _authorizationUnsupportedGroupsPlatforms = string.IsNullOrEmpty(ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"]) ? null : ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"].Split(',').ToList();
+        private static List<string> _authorizationUnsupportedGroupsPlatforms = string.IsNullOrEmpty(System.Configuration.ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"]) ? null : System.Configuration.ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"].Split(',').ToList();
 
         /// <summary>
         /// enumerate over the parameter of type Object to check it has properties of type enum

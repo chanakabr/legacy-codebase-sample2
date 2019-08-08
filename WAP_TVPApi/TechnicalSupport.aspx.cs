@@ -22,7 +22,7 @@ public partial class TechnicalSupport : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        //string mode = ConfigurationManager.AppSettings["Tvp.Demo.ExposeTechnicalAbilities"] as string;
+        //string mode = System.Configuration.ConfigurationManager.AppSettings["Tvp.Demo.ExposeTechnicalAbilities"] as string;
         //if (string.IsNullOrEmpty(mode) || mode.ToLower() != "true")
         //{
         //    Response.Write("Permission denied (Tvp.Demo.ExposeTechnicalAbilities)");

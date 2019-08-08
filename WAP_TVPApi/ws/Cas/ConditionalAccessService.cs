@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.ConditionalAccess;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -10,7 +11,15 @@ using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
+using static ApiObjects.ConditionalAccess.CampaignActionInfo;
+using System.Linq;
+using Core.ConditionalAccess;
+using NPVR;
+using LicensedLinkResponse = Core.ConditionalAccess.LicensedLinkResponse;
+using ApiObjects;
+using InitializationObject = TVPApi.InitializationObject;
+using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
+using ApiObjects.Billing;
 
 namespace TVPApiServices
 {
@@ -25,8 +34,9 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Activate Campaign with information")]
         [PrivateMethod]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,
-                                                                                                                string senderEmail, string senderName, CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
+        public CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,
+                                                                                                                string senderEmail, string senderName, 
+                                                                                                                CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
         {
             CampaignActionInfo campaignActionInfo = null;
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "ActivateCampaignWithInfo", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -134,13 +144,13 @@ namespace TVPApiServices
                     CampaignActionInfo actionInfo = new CampaignActionInfo()
                     {
                         m_siteGuid = int.Parse(initObj.SiteGuid),
-                        m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new SocialInviteInfo() { m_hashCode = hashCode } : null,
+                        m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? new SocialInviteInfo() { m_hashCode = hashCode } : default(SocialInviteInfo),
                         m_mediaID = mediaID,
                         m_mediaLink = mediaLink,
                         m_senderEmail = senderEmail,
                         m_senderName = senderName,
                         m_status = status,
-                        m_voucherReceipents = voucherReceipents
+                        m_voucherReceipents = voucherReceipents == null ? null : voucherReceipents.ToList()
                     };
 
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).ActivateCampaign(initObj.SiteGuid, campaignID, actionInfo);
@@ -1015,9 +1025,9 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Returns the CDN URLs to use in case one fails")]
         [PrivateMethod]
-        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
+        public LicensedLinkResponse GetLicensedLinks(InitializationObject initObj, int mediaFileID, string baseLink)
         {
-            TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.LicensedLinkResponse links = null;
+            LicensedLinkResponse links = null;
 
             string clientIp = SiteHelper.GetClientIP();
 
@@ -1301,7 +1311,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    List<TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.NPVRRecordingStatus> status = new List<NPVRRecordingStatus>();
+                    List<NPVRRecordingStatus> status = new List<NPVRRecordingStatus>();
                     if (byStatus == null || byStatus.Count == 0)
                     {
                         status = null;
@@ -1673,7 +1683,7 @@ namespace TVPApiServices
         [PrivateMethod]
         public ClientResponseStatus GrantEntitlements(InitializationObject initObj, string user_id, int content_id, int product_id, string product_type, bool history)
         {
-            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+            ClientResponseStatus response = null;
 
             if (string.IsNullOrEmpty(product_type) || !Enum.IsDefined(typeof(eTransactionType), product_type))
             {
@@ -1703,14 +1713,14 @@ namespace TVPApiServices
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response = new ClientResponseStatus();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
-                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response = new ClientResponseStatus();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 

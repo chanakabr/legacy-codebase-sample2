@@ -46,7 +46,7 @@ namespace TVPApiModule.Objects.Responses
             DeviceFamilyLimitations = new List<DeviceFamilyLimitations>();
         }
 
-        public LimitationsManager(TVPPro.SiteManager.TvinciPlatform.Domains.LimitationsManager limitationManager)
+        public LimitationsManager(Core.Users.LimitationsManager limitationManager)
         {
             if (limitationManager != null)
             {
@@ -56,7 +56,7 @@ namespace TVPApiModule.Objects.Responses
                 if (limitationManager.lDeviceFamilyLimitations != null)
                 {
                     DeviceFamilyLimitations = new List<DeviceFamilyLimitations>();
-                    foreach (TVPPro.SiteManager.TvinciPlatform.Domains.DeviceFamilyLimitations dl in limitationManager.lDeviceFamilyLimitations)
+                    foreach (var dl in limitationManager.lDeviceFamilyLimitations)
                     {
                         DeviceFamilyLimitations.Add(new DeviceFamilyLimitations(dl));
                     }

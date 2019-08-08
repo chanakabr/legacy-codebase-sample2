@@ -11,7 +11,7 @@ namespace TVPApiModule.Objects.CRM
         public User user;
         public string user_instance_id;
 
-        public UserResponseObject(TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject userResponseObject)
+        public UserResponseObject(Core.Users.UserResponseObject userResponseObject)
         {
             this.response_status = (TVPApiModule.Objects.CRM.ResponseStatus)userResponseObject.m_RespStatus;
             this.user_instance_id = userResponseObject.m_userInstanceID;

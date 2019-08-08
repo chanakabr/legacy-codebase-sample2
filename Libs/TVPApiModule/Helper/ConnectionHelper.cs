@@ -88,12 +88,12 @@ namespace TVPApi
         {
             Dictionary<string, int> retVal = null;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select * from groups_modules_ips where is_active=1 and status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
             selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
 
             DataTable dt = selectQuery.Execute("query", true);
             if (dt != null)
@@ -175,7 +175,7 @@ namespace TVPApi
         {
             Dictionary<string, string> retval = null;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select * from lu_platform";
 
@@ -206,12 +206,12 @@ namespace TVPApi
             sApiUser = string.Empty;
             sApiPass = string.Empty;
 
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select API_USERNAME, API_PASSWORD from crm_users where is_active=1 and status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
             selectQuery += "and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
+            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
 
             System.Data.DataTable dt = selectQuery.Execute("query", true);
             if (dt != null)

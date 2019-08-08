@@ -21,7 +21,7 @@ namespace TVPApiModule.Objects.Responses.Pricing
             currency = new Currency();
         }
 
-        public Price(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Price sourcePrice)
+        public Price(Core.Pricing.Price sourcePrice)
         {            
             this.price = sourcePrice.m_dPrice;
             this.currency = new Currency(sourcePrice.m_oCurrency);

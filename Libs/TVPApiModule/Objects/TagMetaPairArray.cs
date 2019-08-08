@@ -8,6 +8,6 @@ namespace TVPApi
     public struct TagMetaPairArray
     {
         public string Key { get; set; }
-        public string[] Values { get; set; }
+        public List<string> Values { get; set; }
     }
 }

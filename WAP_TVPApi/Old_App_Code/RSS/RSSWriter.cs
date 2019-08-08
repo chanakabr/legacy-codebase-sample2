@@ -79,7 +79,7 @@ public class RSSWriter
                 UserItemType userItemType = (UserItemType)galleryItem.NumericParam;
                 string picSize = galleryItem.PictureSize;
                 string[] picStr = picSize.ToLower().Split('x');
-               // m_writer.WriteElementString("link", string.Concat(LinkHelper.ParseURL(ConfigurationManager.AppSettings["RSSGatewayPath"]), string.Format("PTVGateway.aspx?op=GetFavoriteItems&height={0}&width={1}&itemtype=3", picStr[0], picStr[1])));
+               // m_writer.WriteElementString("link", string.Concat(LinkHelper.ParseURL(System.Configuration.ConfigurationManager.AppSettings["RSSGatewayPath"]), string.Format("PTVGateway.aspx?op=GetFavoriteItems&height={0}&width={1}&itemtype=3", picStr[0], picStr[1])));
                 
                 MediaService mediaService = new MediaService();
                 InitializationObject initObj = new InitializationObject();

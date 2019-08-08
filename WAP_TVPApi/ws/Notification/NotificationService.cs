@@ -8,14 +8,13 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
-
+using ApiObjects.Notification;
+using Notification = TVPApiModule.Objects.Notification;
 
 namespace TVPApiServices
 {

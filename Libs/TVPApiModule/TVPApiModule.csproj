@@ -65,20 +65,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ApiObjects">
-      <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
-    </Reference>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging.Core, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Common.Logging.Core.3.4.1\lib\net40\Common.Logging.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Couchbase.NetClient, Version=2.7.4.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CouchbaseNetClient.2.7.4\lib\net452\Couchbase.NetClient.dll</HintPath>
-    </Reference>
-    <Reference Include="CouchbaseManager">
-      <HintPath>..\..\..\tvincicommon\External\4.5.2\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="DeepCloner, Version=0.10.0.0, Culture=neutral, PublicKeyToken=dc0b95cf99bf4e99, processorArchitecture=MSIL">
       <HintPath>..\..\packages\DeepCloner.0.10.2\lib\net40\DeepCloner.dll</HintPath>
@@ -221,13 +212,17 @@
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
     <Compile Include="Manager\TextLocalizationManager.cs" />
+    <Compile Include="Objects\AdvertisingProvider.cs" />
     <Compile Include="Objects\Authorization\APIToken.cs" />
     <Compile Include="Objects\Authorization\AppCredentials.cs" />
-    <Compile Include="Objects\Authorization\UserDeviceTokensView.cs" />
-    <Compile Include="Objects\Authorization\RefreshToken.cs" />
     <Compile Include="Objects\Authorization\DeviceToken.cs" />
     <Compile Include="Objects\Authorization\GroupConfiguration.cs" />
     <Compile Include="Objects\Authorization\PrivateMethodAttribute.cs" />
+    <Compile Include="Objects\Authorization\RefreshToken.cs" />
+    <Compile Include="Objects\Authorization\UserDeviceTokensView.cs" />
+    <Compile Include="Objects\Category.cs" />
+    <Compile Include="Objects\Channel.cs" />
+    <Compile Include="Objects\Comment.cs" />
     <Compile Include="Objects\CRM\Country.cs" />
     <Compile Include="Objects\CRM\enums.cs" />
     <Compile Include="Objects\CRM\State.cs" />
@@ -237,16 +232,33 @@
     <Compile Include="Objects\CRM\UserDynamicDataContainer.cs" />
     <Compile Include="Objects\CRM\UserResponseObject.cs" />
     <Compile Include="Objects\CRM\UserType.cs" />
+    <Compile Include="Objects\DynamicData.cs" />
     <Compile Include="Objects\Enums.cs" />
     <Compile Include="Objects\External.cs" />
+    <Compile Include="Objects\ExtraParameters.cs" />
+    <Compile Include="Objects\FBConnectObjects.cs" />
+    <Compile Include="Objects\ImplementationBase.cs" />
+    <Compile Include="Objects\ImplementationYes.cs" />
+    <Compile Include="Objects\InitializationObject.cs" />
+    <Compile Include="Objects\Locale.cs" />
+    <Compile Include="Objects\Media.cs" />
+    <Compile Include="Objects\Menu.cs" />
+    <Compile Include="Objects\MenuItem.cs" />
+    <Compile Include="Objects\Notification.cs" />
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
+    <Compile Include="Objects\PageData.cs" />
+    <Compile Include="Objects\PageInfo.cs" />
+    <Compile Include="Objects\PermittedPackages.cs" />
+    <Compile Include="Objects\Profile.cs" />
+    <Compile Include="Objects\ProfileInfo.cs" />
     <Compile Include="Objects\Requests\SlimAssetRequest.cs" />
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
+    <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\AssetsBookmarksResponse.cs" />
+    <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\Billing\PaymentGatewayChargeIdResponse.cs" />
-    <Compile Include="Objects\Responses\Pricing\Currency.cs" />
-    <Compile Include="Objects\Responses\Pricing\Price.cs" />
+    <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\DomainsBillingTransactionsResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\DomainTransactionsHistoryResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResponse.cs">
@@ -255,66 +267,45 @@
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResult.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Objects\Responses\DomainLastPositionResponse.cs" />
-    <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
-    <Compile Include="Objects\Responses\AssetInfo.cs" />
-    <Compile Include="Objects\Responses\PersonalAssetListResponse.cs" />
-    <Compile Include="Objects\Responses\PersonalAssetRequest.cs" />
-    <Compile Include="Objects\Responses\Rules\GenericRule.cs" />
-    <Compile Include="Objects\Responses\Rules\GenericRulesResponse.cs" />
-    <Compile Include="Objects\Responses\Rules\PinResponse.cs" />
-    <Compile Include="Objects\Responses\Program.cs" />
-    <Compile Include="Objects\Responses\Rules\ParentalRule.cs" />
-    <Compile Include="Objects\Responses\Rules\ParentalRulesResponse.cs" />
-    <Compile Include="Objects\Responses\Rules\PurchaseSettingsResponse.cs" />
-    <Compile Include="Objects\Responses\UnifiedSearchResponseWithRequestId.cs" />
-    <Compile Include="Objects\Responses\WatchHistory.cs" />
-    <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />
+    <Compile Include="Objects\Responses\DomainLastPositionResponse.cs" />
     <Compile Include="Objects\Responses\DomainLimitationModuleResponse.cs" />
     <Compile Include="Objects\Responses\File.cs" />
+    <Compile Include="Objects\Responses\Image.cs" />
     <Compile Include="Objects\Responses\LicensedLink.cs" />
     <Compile Include="Objects\Responses\LicensedLinkResponse.cs" />
     <Compile Include="Objects\Responses\LimitationsManager.cs" />
-    <Compile Include="Objects\Responses\ClientResponseStatus.cs" />
+    <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
+    <Compile Include="Objects\Responses\PersonalAssetListResponse.cs" />
+    <Compile Include="Objects\Responses\PersonalAssetRequest.cs" />
     <Compile Include="Objects\Responses\PinCodeResponse.cs" />
+    <Compile Include="Objects\Responses\Pricing\Currency.cs" />
+    <Compile Include="Objects\Responses\Pricing\Price.cs" />
+    <Compile Include="Objects\Responses\Program.cs" />
     <Compile Include="Objects\Responses\Region.cs" />
     <Compile Include="Objects\Responses\RegionsResponse.cs" />
-    <Compile Include="Objects\Responses\Image.cs" />
     <Compile Include="Objects\Responses\ResponseUtils.cs" />
+    <Compile Include="Objects\Responses\Rules\GenericRule.cs" />
+    <Compile Include="Objects\Responses\Rules\GenericRulesResponse.cs" />
+    <Compile Include="Objects\Responses\Rules\ParentalRule.cs" />
+    <Compile Include="Objects\Responses\Rules\ParentalRulesResponse.cs" />
+    <Compile Include="Objects\Responses\Rules\PinResponse.cs" />
+    <Compile Include="Objects\Responses\Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Objects\Responses\ServiceObject.cs" />
     <Compile Include="Objects\Responses\ServicesResponse.cs" />
-    <Compile Include="Objects\Responses\UserResponse.cs" />
     <Compile Include="Objects\Responses\SlimAssetInfo.cs" />
     <Compile Include="Objects\Responses\Statistics.cs" />
     <Compile Include="Objects\Responses\Status.cs" />
     <Compile Include="Objects\Responses\UnifiedSearchResponse.cs" />
-    <Compile Include="Objects\TagMetaIntPairArray.cs" />
-    <Compile Include="Objects\ExtraParameters.cs" />
-    <Compile Include="Objects\Notification.cs" />
-    <Compile Include="Objects\TagMetaPairArray.cs" />
-    <Compile Include="Objects\AdvertisingProvider.cs" />
-    <Compile Include="Objects\ImplementationBase.cs" />
-    <Compile Include="Objects\Category.cs" />
-    <Compile Include="Objects\Channel.cs" />
-    <Compile Include="Objects\Comment.cs" />
-    <Compile Include="Objects\DynamicData.cs" />
-    <Compile Include="Objects\FBConnectObjects.cs" />
-    <Compile Include="Objects\InitializationObject.cs" />
-    <Compile Include="Objects\Locale.cs" />
-    <Compile Include="Objects\Media.cs" />
-    <Compile Include="Objects\Menu.cs" />
-    <Compile Include="Objects\MenuItem.cs" />
-    <Compile Include="Objects\PageData.cs" />
-    <Compile Include="Objects\PageInfo.cs" />
-    <Compile Include="Objects\PermittedPackages.cs" />
-    <Compile Include="Objects\Profile.cs" />
-    <Compile Include="Objects\ProfileInfo.cs" />
+    <Compile Include="Objects\Responses\UnifiedSearchResponseWithRequestId.cs" />
+    <Compile Include="Objects\Responses\UserResponse.cs" />
+    <Compile Include="Objects\Responses\WatchHistory.cs" />
     <Compile Include="Objects\SafeDictionary.cs" />
     <Compile Include="Objects\SiteMap.cs" />
     <Compile Include="Objects\SubscriptionPrice.cs" />
+    <Compile Include="Objects\TagMetaIntPairArray.cs" />
     <Compile Include="Objects\TagMetaPair.cs" />
-    <Compile Include="Objects\ImplementationYes.cs" />
+    <Compile Include="Objects\TagMetaPairArray.cs" />
     <Compile Include="Objects\TextLocalization.cs" />
     <Compile Include="Objects\Translation.cs" />
     <Compile Include="Objects\UserResponse.cs" />
@@ -348,9 +339,25 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\TVPLibs\ODBCWrapper\ODBCWrapper.csproj">
+    <ProjectReference Include="..\..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{80e18813-371f-4f6c-8646-6d70faceb219}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{3c7c3f29-198b-45cc-9f31-9ace194e37e8}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{30b747e2-22e4-407e-bb76-83b3479c8132}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\NPVR\NPVR.csproj">
+      <Project>{939556AF-A17E-4719-B87C-7C0916602FA3}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\TVPLibs\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
-      <Name>ODBCWrapper</Name>
+      <Name>TVPApi.ODBCWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj">
       <Project>{C14818ED-F1A0-4CDB-85DF-4F8018F60C31}</Project>

@@ -46,8 +46,8 @@
 
 //        pd = SiteMapManager.GetInstance.GetPageData(accessInfo.GroupID, devType);
 
-//        int pageID = int.Parse(ConfigurationManager.AppSettings[string.Format("{0}_STBPageID", accessInfo.GroupID.ToString())]);
-//        string lang = ConfigurationManager.AppSettings[string.Format("{0}_Lang", accessInfo.GroupID.ToString())];
+//        int pageID = int.Parse(System.Configuration.ConfigurationManager.AppSettings[string.Format("{0}_STBPageID", accessInfo.GroupID.ToString())]);
+//        string lang = System.Configuration.ConfigurationManager.AppSettings[string.Format("{0}_Lang", accessInfo.GroupID.ToString())];
 //        pc = pd.GetPageByID(lang, pageID);
 
 //        xmlDoc = new XmlDocument();
@@ -72,7 +72,7 @@
 
 //        serv.date = epoch.ToString();
 
-//        string baseURL = ConfigurationManager.AppSettings["BaseNetGemURL"];
+//        string baseURL = System.Configuration.ConfigurationManager.AppSettings["BaseNetGemURL"];
 //        serv.settings.urlCollection = new XmlModels.GetServiceURLs.urlCollection();
 //        serv.settings.urlCollection.Add(createSettingsUrl("base", baseURL + "/tvpapi"));
 //        serv.settings.urlCollection.Add(createSettingsUrl("image", string.Empty));
@@ -195,7 +195,7 @@
 //        XmlModels.GetChannelMedias chMedias = new XmlModels.GetChannelMedias();
 
 //        long mediaCount = 0;
-//        string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
+//        string picSize = System.Configuration.ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
 //        List<Media> lstMedias = m_MediaService.GetChannelMediaListWithMediaCount(accessInfo.initObj, (long)prms[0], picSize, 50, 0, ref mediaCount);        
         
 //        if (lstMedias != null)
@@ -231,7 +231,7 @@
 
 //    public object GetMediaInfo(params object[] prms)
 //    {
-//        string picSize = ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
+//        string picSize = System.Configuration.ConfigurationManager.AppSettings[string.Format("{0}_PicSize", accessInfo.GroupID.ToString())];
 
 //        Media media = m_MediaService.GetMediaInfo(accessInfo.initObj, (long)prms[0], (int)prms[1], picSize, true);
 

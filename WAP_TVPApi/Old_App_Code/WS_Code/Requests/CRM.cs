@@ -4,7 +4,6 @@ using System.Linq;
 using System.Web;
 using Newtonsoft.Json;
 using TVPApiModule.Objects.CRM;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiServices
 {

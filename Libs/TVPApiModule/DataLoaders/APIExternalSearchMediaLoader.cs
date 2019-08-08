@@ -9,7 +9,11 @@
 //using System.Configuration;
 //using TVPPro.SiteManager.Helper;
 //using TVPApiModule.Manager;
-//using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+//using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 
 //namespace TVPApi
 //{

@@ -139,7 +139,7 @@ public partial class Gateways_JsonPostGW : BaseGateway
     {
         string plaintext = null;
         //var message = "this is my message"
-        var key = ConfigurationManager.AppSettings["initObj_key"];
+        var key = System.Configuration.ConfigurationManager.AppSettings["initObj_key"];
         var sha256 = new SHA256CryptoServiceProvider();
         var pwBytes = Encoding.UTF8.GetBytes(key);
         var res = sha256.ComputeHash(pwBytes);

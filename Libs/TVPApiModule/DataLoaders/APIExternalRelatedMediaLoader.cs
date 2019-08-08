@@ -9,7 +9,10 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
 
 namespace TVPApi
 {

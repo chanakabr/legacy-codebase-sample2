@@ -13,7 +13,6 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using TVPPro.SiteManager.TvinciPlatform.Social;
 using System.Configuration;
 using TVPApiModule.Services;
 using System.Web;
@@ -21,7 +20,12 @@ using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
-
+using ApiObjects;
+using InitializationObject = TVPApi.InitializationObject;
+using Core.Social;
+using Core.Social.Responses;
+using ApiObjects.Social;
+using eSocialPlatform = ApiObjects.Social.eSocialPlatform;
 
 namespace TVPApiServices
 {
@@ -499,7 +503,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
         [PrivateMethod]
-        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, TVPPro.SiteManager.TvinciPlatform.Social.eSocialPlatform socialPlatform, int numOfItems, long epochStartTime)
+        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime)
         {
             SocialFeed resSocialFeed = new SocialFeed();
 
@@ -525,7 +529,7 @@ namespace TVPApiServices
                         webClient.QueryString.Add("groupId", groupId.ToString());
                         webClient.QueryString.Add("siteGuid", initObj.SiteGuid);
                         webClient.QueryString.Add("platform", socialPlatform.ToString());
-                        using (StreamReader streamReader = new StreamReader(webClient.OpenRead(ConfigurationManager.AppSettings["SocialFeedProxy"])))
+                        using (StreamReader streamReader = new StreamReader(webClient.OpenRead(System.Configuration.ConfigurationManager.AppSettings["SocialFeedProxy"])))
                         {
                             string socialFeedStr = streamReader.ReadToEnd();
                             try

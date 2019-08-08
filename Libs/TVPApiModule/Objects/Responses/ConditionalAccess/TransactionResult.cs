@@ -26,7 +26,7 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
         [JsonProperty(PropertyName = "created_at")]
         public long CreatedAt { get; set; }
 
-        public TransactionResult(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.TransactionResponse transactionResponse)
+        public TransactionResult(ApiObjects.Billing.TransactionResponse transactionResponse)
         {
             if (transactionResponse != null)
             {

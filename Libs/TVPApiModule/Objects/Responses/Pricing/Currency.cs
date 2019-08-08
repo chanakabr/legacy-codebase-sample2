@@ -29,7 +29,7 @@ namespace TVPApiModule.Objects.Responses.Pricing
             currencySign = string.Empty;
         }
 
-        public Currency(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Currency sourceCurrency)
+        public Currency(Core.Pricing.Currency sourceCurrency)
         {
             currencyID = sourceCurrency.m_nCurrencyID;
             currencySign = sourceCurrency.m_sCurrencySign;
@@ -39,12 +39,12 @@ namespace TVPApiModule.Objects.Responses.Pricing
 
         public void InitializeById(Int32 nID)
         {
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select * from lu_currency with (nolock) where";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
+                selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -68,12 +68,12 @@ namespace TVPApiModule.Objects.Responses.Pricing
 
         public void InitializeByCode3(string sCode3)
         {
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select * from lu_currency with (nolock) where";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("code3", "=", sCode3);
+                selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("code3", "=", sCode3);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -98,12 +98,12 @@ namespace TVPApiModule.Objects.Responses.Pricing
 
         public void InitializeByCode2(string sCode2)
         {
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery();
                 selectQuery += "select * from lu_currency with (nolock) where";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("code2", "=", sCode2);
+                selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("code2", "=", sCode2);
                 if (selectQuery.Execute("query", true) != null)
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;

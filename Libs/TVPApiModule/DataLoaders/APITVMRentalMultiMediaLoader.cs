@@ -7,7 +7,6 @@ using Tvinci.Data.DataLoader;
 using TVPApi;
 using Tvinci.Data.TVMDataLoader.Protocols.SingleMedia;
 using TVPPro.SiteManager.DataEntities;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -94,7 +93,7 @@ namespace TVPApiModule.DataLoaders
             if (MediasIdCotainer != null)
             {
                 string[] MediaArrayID = new string[MediasIdCotainer.Count()];
-                foreach (PermittedMediaContainer MediaObj in MediasIdCotainer)
+                foreach (var MediaObj in MediasIdCotainer)
                 {
                     MediaArrayID[index] = MediaObj.m_nMediaID.ToString();
                     index++;

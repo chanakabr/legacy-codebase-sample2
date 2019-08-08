@@ -1,4 +1,6 @@
-﻿using KLogMonitor;
+﻿using ApiObjects;
+using Core.Users;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -7,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Helper;
 using TVPApiModule.Objects.ORCARecommendations;
@@ -16,8 +17,7 @@ using TVPApiModule.yes.tvinci.ITProxy;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+using InitializationObject = TVPApi.InitializationObject;
 
 namespace TVPApiModule.Objects
 {
@@ -40,9 +40,9 @@ namespace TVPApiModule.Objects
         }
 
 
-        public override TVPPro.SiteManager.TvinciPlatform.Domains.DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
+        public override DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID)
         {
-            DomainResponseObject resp = base.AddDeviceToDomain(sDeviceName, nDeviceBrandID);
+            var resp = base.AddDeviceToDomain(sDeviceName, nDeviceBrandID);
             if (resp.m_oDomainResponseStatus == DomainResponseStatus.OK)
             {
                 ApiDomainsService domainsService = new ApiDomainsService(_nGroupID, _initObj.Platform);
@@ -54,15 +54,15 @@ namespace TVPApiModule.Objects
                     string sAccountNumber = resp.m_oDomain.m_sCoGuid;
                     if (!string.IsNullOrEmpty(sAccountNumber) && userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oBasicData != null)
                     {
-                        Domain domain = domainsService.GetDomainInfo(userResponseObject.m_user.m_domianID);
+                        var domain = domainsService.GetDomainInfo(userResponseObject.m_user.m_domianID);
                         int deviceFamilyID = 0;
                         if (domain != null)
                         {
-                            foreach (DeviceContainer dc in domain.m_deviceFamilies)
+                            foreach (var dc in domain.m_deviceFamilies)
                             {
                                 if (dc != null)
                                 {
-                                    foreach (TVPPro.SiteManager.TvinciPlatform.Domains.Device device in dc.DeviceInstances)
+                                    foreach (var device in dc.DeviceInstances)
                                     {
                                         if (device.m_deviceUDID.ToLower().Equals(_initObj.UDID.ToLower()))
                                         {
@@ -252,7 +252,7 @@ namespace TVPApiModule.Objects
             }
             if (retVal == null ||
                 retVal.Content == null ||
-                (retVal.Content is List<EPGChannelProgrammeObject> && (retVal.Content as List<EPGChannelProgrammeObject>).Count == 0) ||
+                (retVal.Content is List<ApiObjects.EPGChannelProgrammeObject> && (retVal.Content as List<ApiObjects.EPGChannelProgrammeObject>).Count == 0) ||
                 (retVal.Content is List<Media> && (retVal.Content as List<Media>).Count == 0))
             {
                 // get data from configuration
@@ -526,7 +526,7 @@ namespace TVPApiModule.Objects
                             UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
                             if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null && userResponseObject.m_user.m_oDynamicData.m_sUserData != null)
                             {
-                                TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
+                                var dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
                                 if (dynamicData != null)
                                 {
                                     string sAccountUuid = dynamicData.m_sValue;
@@ -681,7 +681,7 @@ namespace TVPApiModule.Objects
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK,
+                    ResponseStatus = ResponseStatus.OK,
                     Message = eulaResMsg,
                     StatusCode = eulaResCode
 
@@ -691,7 +691,7 @@ namespace TVPApiModule.Objects
             {
                 retVal = new UserResponse()
                 {
-                    ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
+                    ResponseStatus = ResponseStatus.InternalError,
                     Message = eulaResMsg,
                     StatusCode = eulaResCode
                 };

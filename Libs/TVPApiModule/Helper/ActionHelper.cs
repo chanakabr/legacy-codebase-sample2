@@ -5,13 +5,13 @@ using System.Web;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.tvapi;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApiModule.DataLoaders;
 using System.Configuration;
 using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.SendToFriend;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -58,7 +58,7 @@ namespace TVPApi
                     }
                 case ActionType.RemoveFavorite:
                     {
-                        new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, new int[] { mediaID });
+                        new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, new long[] { mediaID });
                         retVal = true;
 
                         if (!string.IsNullOrEmpty(isOfflineSync))
@@ -69,8 +69,7 @@ namespace TVPApi
                     }
                 case ActionType.Rate:
                     {
-
-                        TVPPro.SiteManager.TvinciPlatform.api.RateMediaObject rro = new ApiApiService(groupID, platform).RateMedia(sUserID, mediaID, extraVal);
+                        RateMediaObject rro = new ApiApiService(groupID, platform).RateMedia(sUserID, mediaID, extraVal);
                         retVal = rro.oStatus != null && rro.oStatus.m_nStatusCode == 0;
                         break;
 
@@ -91,13 +90,13 @@ namespace TVPApi
                                        long iMediaID, long iFileID, bool isReportingMode, eAssetTypes assetType = eAssetTypes.UNKNOWN, int avgBitRate = 0, int currentBitRate = 0,
                                        int totalBitRate = 0)
         {
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status status =
+            Status status =
                 new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID,
                                                                       npvrID, avgBitRate, currentBitRate, iLocation, totalBitRate, Action.ToString(), string.Empty,
                                                                       string.Empty, string.Empty, string.Empty, programId, isReportingMode, assetType)
                 {
                     Platform = platform.ToString()
-                }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status;
+                }.Execute() as Status;
 
             switch (status.Code)
             {

@@ -11,7 +11,8 @@ using System.Configuration;
 using TVPApiModule.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog;
 
 namespace TVPApi
 {
@@ -81,7 +82,7 @@ namespace TVPApi
             }
         }
 
-        public List<KeyValue> TagsMetas { get; set; }
+        public List<Core.Catalog.KeyValue> TagsMetas { get; set; }
         public CutWith CutWith { get; set; }
 
         public string Language
@@ -138,7 +139,8 @@ namespace TVPApi
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, OrderObj, PicSize, TagsMetas, CutWith)
+                m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, 
+                    OrderObj, PicSize, TagsMetas, CutWith)
                 {
                     Culture = Language,
                     DeviceId = DeviceUDID,

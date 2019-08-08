@@ -1,10 +1,12 @@
-﻿using System;
+﻿using ApiObjects.CrowdsourceItems.Base;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Tvinci.Data.DataLoader;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Manager;
 

@@ -3,6 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using ApiObjects.Epg;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -30,7 +35,7 @@ namespace TVPApiModule.Objects.Responses
         public int Version { get; set; }
 
 
-        public Image(Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture picture)
+        public Image(Picture picture)
         {
             if (picture != null)
             {
@@ -60,7 +65,7 @@ namespace TVPApiModule.Objects.Responses
             }
         }
 
-        public Image(Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgPicture picture)
+        public Image(EpgPicture picture)
         {
             if (picture != null)
             {

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
 using TVPApiModule.Objects;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.Notification;
+using Notification = TVPApiModule.Objects.Notification;
 
 namespace TVPApiModule.Services
 {
@@ -17,14 +18,9 @@ namespace TVPApiModule.Services
         private PlatformType m_platform;
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
-        private NotificationServiceClient m_Client;
 
         public ApiNotificationService(int groupID, PlatformType platform)
         {
-            m_Client = new NotificationServiceClient(string.Empty, ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.NotificationService.URL);
-
             m_wsUserName = ConfigManager.GetInstance()
                            .GetConfig(groupID, platform)
                            .PlatformServicesConfiguration.Data.NotificationService.DefaultUser;
@@ -44,7 +40,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var notificationMessages = m_Client.GetDeviceNotifications(m_wsUserName, m_wsPassword, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
+                    var notificationMessages = Core.Notification.Module.GetDeviceNotifications(m_groupID, sGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
                     if (notificationMessages != null)
                     {
                         foreach (var message in notificationMessages)
@@ -66,10 +62,11 @@ namespace TVPApiModule.Services
                                 UserID = message.UserID,
                                 TagNotificationParams = message.TagNotificationParams != null ? new ExtraParameters()
                                 {
-                                    mediaID = message.TagNotificationParams.mediaIDk__BackingField,
-                                    mediaPicURL = message.TagNotificationParams.mediaPicURLk__BackingField,
-                                    TagDict = message.TagNotificationParams.TagDictk__BackingField != null ? message.TagNotificationParams.TagDictk__BackingField.Select(x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value }).ToList() : null,
-                                    templateEmail = message.TagNotificationParams.templateEmailk__BackingField
+                                    mediaID = message.TagNotificationParams.mediaID,
+                                    mediaPicURL = message.TagNotificationParams.mediaPicURL,
+                                    TagDict = message.TagNotificationParams.TagDict != null ? message.TagNotificationParams.TagDict.Select(
+                                        x => new TagMetaIntPairArray() { Key = x.Key, Values = x.Value.ToArray() }).ToList() : null,
+                                    templateEmail = message.TagNotificationParams.templateEmail
                                 } : null,
                                 PublishDate = message.PublishDate,
                                 ViewStatus = message.ViewStatus,
@@ -94,7 +91,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Client.SetNotificationMessageViewStatus(m_wsUserName, m_wsPassword, sGuid, notificationRequestID, notificationMessageID, viewStatus);
+                    res = Core.Notification.Module.SetNotificationMessageViewStatus(m_groupID, sGuid, notificationRequestID, notificationMessageID, viewStatus);
                 }
             }
             catch (Exception e)
@@ -112,7 +109,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Client.AddNotificationRequest(m_wsUserName, m_wsPassword, sGuid, triggerType, mediaId);
+                    res = Core.Notification.Module.AddNotificationRequest(m_groupID, sGuid, triggerType, mediaId);
                 }
             }
             catch (Exception e)
@@ -128,10 +125,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
+                Dictionary<string, List<string>> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values.ToList());
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Client.SubscribeByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                    res = Core.Notification.Module.SubscribeByTag(m_groupID, sGuid, dictTags);
                 }
             }
             catch (Exception e)
@@ -147,10 +144,10 @@ namespace TVPApiModule.Services
             bool res = false;
             try
             {
-                Dictionary<string, string[]> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values);
+                Dictionary<string, List<string>> dictTags = tags.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Values.ToList());
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Client.UnsubscribeFollowUpByTag(m_wsUserName, m_wsPassword, sGuid, dictTags);
+                    res = Core.Notification.Module.UnsubscribeFollowUpByTag(m_groupID, sGuid, dictTags);
                 }
             }
             catch (Exception e)
@@ -163,13 +160,13 @@ namespace TVPApiModule.Services
 
         public List<TVPApi.TagMetaPairArray> GetUserStatusSubscriptions(string sGuid)
         {
-            Dictionary<string, string[]> clientRes = new Dictionary<string, string[]>();
+            Dictionary<string, List<string>> clientRes = new Dictionary<string, List<string>>();
             List<TVPApi.TagMetaPairArray> finalRes = new List<TagMetaPairArray>();
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    clientRes = m_Client.GetUserStatusSubscriptions(m_wsUserName, m_wsPassword, sGuid);
+                    clientRes = Core.Notification.Module.GetUserStatusSubscriptions(m_groupID, sGuid);
                 }
 
                 // convert to list

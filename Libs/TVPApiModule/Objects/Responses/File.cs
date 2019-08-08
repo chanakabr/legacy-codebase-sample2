@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Core.Catalog;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +23,8 @@ namespace TVPApiModule.Objects.Responses
 
         [JsonProperty(PropertyName = "catalogEndDate")]
         public string CatalogEndDate { get; internal set; }
-
-
-        public File(Tvinci.Data.Loaders.TvinciPlatform.Catalog.FileMedia file)
+        
+        public File(FileMedia file)
         {
             if (file != null)
             {

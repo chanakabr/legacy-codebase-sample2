@@ -15,6 +15,8 @@ using TVPPro.Configuration.Technical;
 using TVPApiModule.Interfaces;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
+using InitializationObject = TVPApi.InitializationObject;
 
 namespace TVPApiServices
 {
@@ -40,7 +42,7 @@ namespace TVPApiServices
         public class MediaWrapper
         {
             public Media Media { get; set; }
-            public TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] Rules { get; set; }
+            public GroupRule[] Rules { get; set; }
         }
         
         /// <summary>
@@ -168,7 +170,7 @@ namespace TVPApiServices
             string sLastPosition = "0";
             if (MediaId != 0)
             {
-                TVPPro.SiteManager.TvinciPlatform.api.MediaMarkObject mediaMark = null;
+                MediaMarkObject mediaMark = null;
 
                 int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

@@ -10,6 +10,8 @@ using System.Text;
 using System.Runtime.Serialization.Json;
 using TVPApi;
 using KLogMonitor;
+using ApiObjects;
+using InitializationObject = TVPApi.InitializationObject;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {
@@ -45,13 +47,13 @@ public partial class Gateways_JsonGateway : BaseGateway
                     CallParameters[i] = GetInitObj2();
                 else if (TargetParameter.ParameterType == typeof(Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action))
                     CallParameters[i] = parseAction(RawParameter);
-                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.eUserAction))
+                else if (TargetParameter.ParameterType == typeof(eUserAction))
                     CallParameters[i] = parseSocialAction(RawParameter);
-                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialAction))
+                else if (TargetParameter.ParameterType == typeof(SocialAction))
                     CallParameters[i] = parseApiSocialAction(RawParameter);
-                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform))
-                    CallParameters[i] = (TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialPlatform), RawParameter);
-                else if (TargetParameter.ParameterType == typeof(TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform))
+                else if (TargetParameter.ParameterType == typeof(SocialPlatform))
+                    CallParameters[i] = (SocialPlatform)Enum.Parse(typeof(SocialPlatform), RawParameter);
+                else if (TargetParameter.ParameterType == typeof(SocialPlatform))
                     CallParameters[i] = parseSocialPlatform(RawParameter);
                 else if (TargetParameter.ParameterType == typeof(TVPApi.ActionType))
                     CallParameters[i] = parseActionType(RawParameter);
@@ -97,25 +99,25 @@ public partial class Gateways_JsonGateway : BaseGateway
         return action;
     }
 
-    private TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform parseSocialPlatform(string param)
+    private SocialPlatform parseSocialPlatform(string param)
     {
         if (param.ToLower() == "facebook")
-            return TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.FACEBOOK;
+            return SocialPlatform.FACEBOOK;
 
-        return TVPPro.SiteManager.TvinciPlatform.Social.SocialPlatform.UNKNOWN;
+        return SocialPlatform.UNKNOWN;
     }
 
-    private TVPPro.SiteManager.TvinciPlatform.api.SocialAction parseApiSocialAction(string param)
+    private SocialAction parseApiSocialAction(string param)
     {
-        return (TVPPro.SiteManager.TvinciPlatform.api.SocialAction)Enum.Parse(typeof(TVPPro.SiteManager.TvinciPlatform.api.SocialAction), param);
+        return (SocialAction)Enum.Parse(typeof(SocialAction), param);
     }
 
-    private TVPPro.SiteManager.TvinciPlatform.Social.eUserAction parseSocialAction(string param)
+    private eUserAction parseSocialAction(string param)
     {
         if (param.ToLower() == "post")
-            return TVPPro.SiteManager.TvinciPlatform.Social.eUserAction.POST;
+            return eUserAction.POST;
 
-        return TVPPro.SiteManager.TvinciPlatform.Social.eUserAction.UNKNOWN;
+        return eUserAction.UNKNOWN;
     }
 
     private Tvinci.Data.TVMDataLoader.Protocols.MediaMark.action parseAction(String param)

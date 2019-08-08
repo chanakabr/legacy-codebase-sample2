@@ -7,11 +7,9 @@ using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
 using System.Web.Services;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
 using System.Web;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Objects.Responses;
@@ -19,6 +17,7 @@ using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
+using Core.Users;
 
 namespace TVPApiServices
 {
@@ -1089,7 +1088,7 @@ namespace TVPApiServices
                 if (AuthorizationManager.IsTokenizationEnabled() &&
                     !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, nGroupId, initObj.Platform))
                 {
-                    clientResponse = new TVPApiModule.Objects.Responses.ClientResponseStatus((int)eStatus.Unauthorized, "User is not in domain");
+                    clientResponse = new ClientResponseStatus((int)eStatus.Unauthorized, "User is not in domain");
                 }
                 try
                 {

@@ -1,17 +1,16 @@
-﻿using KLogMonitor;
+﻿using Core.Billing;
+using KLogMonitor;
 using System;
 using System.Reflection;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
 
 namespace TVPApiModule.Services
 {
     public class ApiBillingService : ApiBase
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        private TVPPro.SiteManager.TvinciPlatform.Billing.module m_Module;
+        
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
         private int m_groupID;
@@ -19,8 +18,6 @@ namespace TVPApiModule.Services
 
         public ApiBillingService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Billing.module();
-            m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.URL;
             m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.DefaultUser;
             m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.DefaultPassword;
 
@@ -35,7 +32,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetLastBillingUserInfo(m_wsUserName, m_wsPassword, siteGuid, billingMethod);
+                    response = Core.Billing.Module.GetLastBillingUserInfo(m_groupID, siteGuid, billingMethod);
                 }
             }
             catch (Exception ex)
@@ -53,7 +50,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetClientMerchantSig(m_wsUserName, m_wsPassword, sParamaters);
+                    response = Core.Billing.Module.GetClientMerchantSig(m_groupID, sParamaters);
                 }
             }
             catch (Exception ex)
@@ -66,12 +63,12 @@ namespace TVPApiModule.Services
 
         public AdyenBillingDetail GetLastBillingTypeUserInfo(string sSiteGuid)
         {
-            TVPPro.SiteManager.TvinciPlatform.Billing.AdyenBillingDetail lastBillingInfo = null;
+            AdyenBillingDetail lastBillingInfo = null;
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    lastBillingInfo = m_Module.GetLastBillingTypeUserInfo(m_wsUserName, m_wsPassword, sSiteGuid);
+                    lastBillingInfo = Core.Billing.Module.GetLastBillingTypeUserInfo(m_groupID, sSiteGuid);
                 }
             }
             catch (Exception ex)
@@ -89,7 +86,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.GetHouseholdChargeID(m_wsUserName, m_wsPassword, externalIdentifier, householdId);
+                    var result = Core.Billing.Module.GetHouseholdChargeID(m_groupID, externalIdentifier, householdId);
                     response = new TVPApiModule.Objects.Responses.Billing.PaymentGatewayChargeIdResponse(result);                    
 
                 }
@@ -111,7 +108,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.SetHouseholdChargeID(m_wsUserName, m_wsPassword, externalIdentifier, householdId, chargeID);
+                    var result = Core.Billing.Module.SetHouseholdChargeID(m_groupID, externalIdentifier, householdId, chargeID);
                     clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }

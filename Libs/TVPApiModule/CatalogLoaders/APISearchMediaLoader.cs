@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Helper;
@@ -10,6 +9,11 @@ using TVPApi;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.Configuration.Technical;
 using TVPApiModule.Manager;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using OrderBy = ApiObjects.SearchObjects.OrderBy;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -39,7 +43,8 @@ namespace TVPApiModule.CatalogLoaders
             Platform = platform.ToString();
         }
 
-        public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
+        public APISearchMediaLoader(int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize, bool exact, bool and, 
+            OrderBy orderBy, OrderDir orderDir, string orderValue, string name,
             string description, List<int> mediaIDs, List<int> mediaTypes, List<KeyValue> metas, List<KeyValue> tags) 
             : base(groupID, userIP, pageSize, pageIndex, picSize, exact, and, orderBy, orderDir, orderValue, name, description, mediaIDs, mediaTypes, metas, tags)
         {

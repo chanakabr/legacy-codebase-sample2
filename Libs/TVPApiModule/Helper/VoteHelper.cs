@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TVPApiModule.Objects;
-using ODBCWrapper;
+using TVPApi.ODBCWrapper;
 using TVPPro.SiteManager.Services;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using TVPApi;
 using TVPApiModule.Services;
 using Tvinci.Data.DataLoader.PredefinedAdapters;
@@ -13,6 +12,7 @@ using Tvinci.Helpers;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.ConditionalAccess;
 
 namespace TVPApiModule.Helper
 {
@@ -36,14 +36,14 @@ namespace TVPApiModule.Helper
                     if (!IsAlreadyVoted(mediaId, siteGuid, groupID, platform))
                     {
                         ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
-                        ODBCWrapper.Connection.GetDefaultConnectionStringMethod = delegate() { return connMng.GetClientConnectionString(); };
+                        TVPApi.ODBCWrapper.Connection.GetDefaultConnectionStringMethod = delegate() { return connMng.GetClientConnectionString(); };
                         InsertQuery query = new InsertQuery("tvp_elisa.dbo.UserVote");
-                        query += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", mediaId);
-                        query += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", siteGuid);
-                        query += ODBCWrapper.Parameter.NEW_PARAM("SCORE", GetVotingRatio(siteGuid, groupID, platform));
-                        query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "1");
-                        query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", DateTime.Now);
-                        query += ODBCWrapper.Parameter.NEW_PARAM("PLATFORM", platform);
+                        query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("MEDIA", mediaId);
+                        query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", siteGuid);
+                        query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("SCORE", GetVotingRatio(siteGuid, groupID, platform));
+                        query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("STATUS", "1");
+                        query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", DateTime.Now);
+                        query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("PLATFORM", platform);
 
                         if (!query.Execute())
                         {
@@ -84,16 +84,16 @@ namespace TVPApiModule.Helper
 
             ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
             DataTable dt = new DataTable("UserVote");
-            new DatabaseDirectAdapter(delegate(ODBCWrapper.DataSetSelectQuery query)
+            new DatabaseDirectAdapter(delegate(TVPApi.ODBCWrapper.DataSetSelectQuery query)
             {
                 query.SetConnectionString(connMng.GetClientConnectionString());
                 query += "select STATUS, VOTE_DATE from tvp_elisa.dbo.UserVote where";
-                //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
-                query += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", siteGuid);
+                //selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
+                query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", siteGuid);
                 //query += " and ";
-                //query += ODBCWrapper.Parameter.NEW_PARAM("MEDIA", "=", mediaId);
+                //query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("MEDIA", "=", mediaId);
                 query += " and ";
-                query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 query += " order by VOTE_DATE desc ";
             }, dt).Execute();
 
@@ -148,14 +148,14 @@ namespace TVPApiModule.Helper
             ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
 
             DataTable dt;
-            ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
             query += "select * from tvp_elisa.dbo.UserVote where";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
-            query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", ">=", WSUtils.FromUnixTime(unixTimeStart));
+            //selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
+            query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", ">=", WSUtils.FromUnixTime(unixTimeStart));
             query += " and ";
-            query += ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", "<=", WSUtils.FromUnixTime(unixTimeEnd));
+            query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("VOTE_DATE", "<=", WSUtils.FromUnixTime(unixTimeEnd));
             query += " and ";
-            query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
             query += " order by VOTE_DATE desc ";
             dt = query.Execute("query", true);
             query.Finish();
@@ -184,12 +184,12 @@ namespace TVPApiModule.Helper
             ConnectionManager connMng = new ConnectionManager(groupID, platform, false);
 
             DataTable dt;
-            ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
+            TVPApi.ODBCWrapper.DataSetSelectQuery query = new DataSetSelectQuery(connMng.GetClientConnectionString());
             query += "select sum(score) from tvp_elisa.dbo.UserVote where";
-            //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
-            query += ODBCWrapper.Parameter.NEW_PARAM("Media", "=", mediaId.ToString());
+            //selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("UserIdentifier", "=", UsersService.Instance.GetUserID());
+            query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("Media", "=", mediaId.ToString());
             query += " and ";
-            query += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            query += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
             dt = query.Execute("query", true);
             query.Finish();
 

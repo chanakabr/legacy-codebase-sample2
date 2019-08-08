@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using ApiObjects;
+using Core.Catalog;
+using Core.Catalog.Response;
 using KLogMonitor;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
 using TVPApiModule.Objects.Responses;
+using UnifiedSearchResponse = Core.Catalog.Response.UnifiedSearchResponse;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -47,7 +50,7 @@ namespace TVPApiModule.CatalogLoaders
                 }
             }
 
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse response = (Tvinci.Data.Loaders.TvinciPlatform.Catalog.UnifiedSearchResponse)m_oResponse;
+            UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
 
             // Bad response from Catalog - return the status
             if (response.status.Code != (int)eStatus.OK)
@@ -135,7 +138,7 @@ namespace TVPApiModule.CatalogLoaders
                 MediaObj media = null;
                 ProgramObj epg = null;
 
-                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
+                if (item.AssetType == eAssetTypes.MEDIA)
                 {
                     if (idToMedia.ContainsKey(item.AssetId))
                     {
@@ -147,7 +150,7 @@ namespace TVPApiModule.CatalogLoaders
                         media = null;
                     }
                 }
-                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
+                else if (item.AssetType == eAssetTypes.EPG)
                 {
                     if (idToEpg.ContainsKey(item.AssetId))
                     {

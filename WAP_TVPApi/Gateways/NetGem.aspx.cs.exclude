@@ -242,7 +242,7 @@ public partial class Gateways_NetGem : BaseGateway
                 XTM.WriteEndDocument();
                 break;
             default:
-                string baseURL = ConfigurationManager.AppSettings["BaseNetGemURL"];
+                string baseURL = System.Configuration.ConfigurationManager.AppSettings["BaseNetGemURL"];
                 XTM.WriteStartElement("service");
                 XTM.WriteAttributeString("date", epoch.ToString());
                 XTM.WriteStartElement("settings");

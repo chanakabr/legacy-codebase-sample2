@@ -18,7 +18,7 @@ namespace TVPApiModule.Objects.Responses
         {
         }
 
-        public GenericRulesResponse(TVPPro.SiteManager.TvinciPlatform.api.GenericRuleResponse response)
+        public GenericRulesResponse(ApiObjects.Rules.GenericRuleResponse response)
         {
             Status = new Status(response.Status.Code, response.Status.Message);
 

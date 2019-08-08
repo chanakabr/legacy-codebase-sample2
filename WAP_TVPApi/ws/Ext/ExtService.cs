@@ -7,10 +7,10 @@ using TVPApi.External;
 using System.Configuration;
 using TVPApiModule.Services;
 using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.Helper;
 using KLogMonitor;
 using System.Reflection;
+using Core.Users;
 
 namespace TVPApiServices
 {
@@ -36,12 +36,12 @@ namespace TVPApiServices
                 {
                     //TODO: Change db query to domains method
                     string sAccUuid = string.Empty;
-                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(ConnectionHelper.GetTvinciConnectionString());
+                    TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(ConnectionHelper.GetTvinciConnectionString());
 
                     selectQuery += "Select [Data_Value] from [Users].[dbo].[users_dynamic_data] where USER_ID in ";
                     selectQuery += "(SELECT top 1 [USER_ID]";
                     selectQuery += "FROM [Users].[dbo].[users_dynamic_data] where ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("[DATA_VALUE]", "=", sAccountID.ToString());
+                    selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("[DATA_VALUE]", "=", sAccountID.ToString());
                     selectQuery += ") and [DATA_TYPE] = 'AccountUuid'";
 
                     if (selectQuery.Execute("query", true) != null)
@@ -62,7 +62,7 @@ namespace TVPApiServices
                     domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainInfo(iDomainID);
                 }
                 catch (Exception ex) { logger.Error("", ex); }
-                if (domain != null && domain.m_deviceFamilies.Length > 0)
+                if (domain != null && domain.m_deviceFamilies.Count > 0)
                 {
                     foreach (DeviceContainer dc in domain.m_deviceFamilies)
                     {
@@ -160,12 +160,12 @@ namespace TVPApiServices
             {
                 //TODO: Change db query to domains method
                 string sAccUuid = string.Empty;
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery(ConnectionHelper.GetTvinciConnectionString());
+                TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(ConnectionHelper.GetTvinciConnectionString());
 
                 selectQuery += "Select [Data_Value] from [Users].[dbo].[users_dynamic_data] where USER_ID in ";
                 selectQuery += "(SELECT top 1 [USER_ID]";
                 selectQuery += "FROM [Users].[dbo].[users_dynamic_data] where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("[DATA_VALUE]", "=", sAccountID.ToString());
+                selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("[DATA_VALUE]", "=", sAccountID.ToString());
                 selectQuery += ") and [DATA_TYPE] = 'AccountUuid'";
 
                 if (selectQuery.Execute("query", true) != null)

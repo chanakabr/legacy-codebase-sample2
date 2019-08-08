@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ApiObjects;
+using Core.Social.Responses;
+using Core.Users;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -8,8 +11,7 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Social;
+using InitializationObject = TVPApi.InitializationObject;
 
 namespace TVPApiServices
 {
@@ -68,28 +70,28 @@ namespace TVPApiServices
         bool SetUserGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive, string siteGuid);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetUserGroupRules(InitializationObject initObj);
+        GroupRule[] GetUserGroupRules(InitializationObject initObj);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetGroupRules(InitializationObject initObj);
+        GroupRule[] GetGroupRules(InitializationObject initObj);
 
         [OperationContract]
         bool CheckParentalPIN(InitializationObject initObj, int ruleID, string PIN);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Users.UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
+        UserResponseObject GetUserDataByCoGuid(InitializationObject initObj, string coGuid, int operatorID);
 
         [OperationContract]
         bool SetRuleState(InitializationObject initObj, int ruleID, int isActive, string siteGuid);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetDomainGroupRules(InitializationObject initObj);
+        GroupRule[] GetDomainGroupRules(InitializationObject initObj);
 
         [OperationContract]
         bool SetDomainGroupRule(InitializationObject initObj, int ruleID, string PIN, int isActive);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.api.GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP);
+        GroupRule[] GetEPGProgramRules(InitializationObject initObj, int MediaId, int programId, string IP);
 
         [OperationContract]
         string[] GetUserStartedWatchingMedias(InitializationObject initObj, int numOfItems);

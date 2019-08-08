@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
+using Core.Catalog;
+using ApiObjects.SearchObjects;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using OrderBy = ApiObjects.SearchObjects.OrderBy;
 
 namespace TVPApiModule.Helper
 {
@@ -33,31 +37,31 @@ namespace TVPApiModule.Helper
             return retVal;
         }
 
-        public static Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy GetCatalogOrderBy(TVPApi.OrderBy orderBy)
+        public static OrderBy GetCatalogOrderBy(TVPApi.OrderBy orderBy)
         {
-            Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy retVal;
+            OrderBy retVal;
             switch (orderBy)
             {
                 case TVPApi.OrderBy.None:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
+                    retVal = OrderBy.CREATE_DATE;
                     break;
                 case TVPApi.OrderBy.Added:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.START_DATE;
+                    retVal = OrderBy.START_DATE;
                     break;
                 case TVPApi.OrderBy.Views:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.VIEWS;
+                    retVal = OrderBy.VIEWS;
                     break;
                 case TVPApi.OrderBy.Rating:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.RATING;
+                    retVal = OrderBy.RATING;
                     break;
                 case TVPApi.OrderBy.ABC:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.NAME;
+                    retVal = OrderBy.NAME;
                     break;
                 case TVPApi.OrderBy.Meta:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.META;
+                    retVal = OrderBy.META;
                     break;
                 default:
-                    retVal = Tvinci.Data.Loaders.TvinciPlatform.Catalog.OrderBy.CREATE_DATE;
+                    retVal = OrderBy.CREATE_DATE;
                     break;
             }
             return retVal;

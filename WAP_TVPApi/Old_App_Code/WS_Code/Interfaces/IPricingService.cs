@@ -6,9 +6,10 @@ using System.ServiceModel;
 using System.Text;
 using TVPApi;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
-using TVPPro.SiteManager.TvinciPlatform.Pricing;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
+using Core.Pricing;
+using ApiObjects.Pricing;
 
 namespace TVPApiServices
 {
@@ -16,19 +17,19 @@ namespace TVPApiServices
     public interface IPricingService
     {
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Pricing.PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode);
+        PPVModule GetPPVModuleData(InitializationObject initObj, int ppvCode);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Pricing.Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
+        Subscription[] GetSubscriptionsContainingMediaFile(InitializationObject initObj, int iMediaID, int iFileID);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Pricing.CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode);
+        CouponData GetCouponStatus(InitializationObject initObj, string sCouponCode);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Pricing.CouponsStatus SetCouponUsed(InitializationObject initObj, string sCouponCode);
+        CouponsStatus SetCouponUsed(InitializationObject initObj, string sCouponCode);
 
         [OperationContract]
-        TVPPro.SiteManager.TvinciPlatform.Pricing.Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive);
+        Campaign[] GetCampaignsByType(InitializationObject initObj, CampaignTrigger trigger, bool isAlsoInactive);
 
         [OperationContract]
         List<Subscription> GetSubscriptionData(InitializationObject initObj, int[] subIDs);
@@ -41,9 +42,5 @@ namespace TVPApiServices
 
         [OperationContract]
         Collection GetCollectionData(InitializationObject initObj, string collectionId, string countryCd2, string languageCode3, string deviceName, bool bGetAlsoUnActive);
-
-
-
-
     }
 }

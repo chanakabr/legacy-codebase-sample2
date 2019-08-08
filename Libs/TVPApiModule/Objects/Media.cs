@@ -7,10 +7,9 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using System.Configuration;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 using KLogMonitor;
 using System.Reflection;
+using Core.ConditionalAccess;
 
 /// <summary>
 /// Summary description for Media
@@ -626,18 +625,18 @@ namespace TVPApi
                             price = mediaPriceCont.m_oItemPrices[0].m_oPrice.m_dPrice.ToString();
                             switch (mediaPriceCont.m_oItemPrices[0].m_PriceReason)
                             {
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.ForPurchase:
+                                case ApiObjects.ConditionalAccess.PriceReason.ForPurchase:
                                     {
                                         reason = PriceReason.ForPurchase;
                                         break;
                                     }
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.Free:
+                                case ApiObjects.ConditionalAccess.PriceReason.Free:
                                     {
                                         reason = PriceReason.Free;
                                         break;
                                     }
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.PPVPurchased:
-                                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PriceReason.SubscriptionPurchased:
+                                case ApiObjects.ConditionalAccess.PriceReason.PPVPurchased:
+                                case ApiObjects.ConditionalAccess.PriceReason.SubscriptionPurchased:
                                     {
                                         reason = PriceReason.PPVPurchased;
                                         break;

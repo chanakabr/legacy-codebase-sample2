@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiModule.Objects.CRM
 {
@@ -278,7 +277,7 @@ namespace TVPApiModule.Objects.CRM
             }
         }
 
-        public UserBasicData(TVPPro.SiteManager.TvinciPlatform.Users.UserBasicData userBasicData)
+        public UserBasicData(Core.Users.UserBasicData userBasicData)
         {
             this.address = userBasicData.m_sAddress;
             this.affiliate_code = userBasicData.m_sAffiliateCode;
@@ -324,14 +323,14 @@ namespace TVPApiModule.Objects.CRM
 
             this.user_name = userBasicData.m_sUserName;
 
-            if (userBasicData.m_UserType != null)
-            {
-                this.user_type = new TVPApiModule.Objects.CRM.UserType();
+            //if (userBasicData.m_UserType != null)
+            //{
+            this.user_type = new TVPApiModule.Objects.CRM.UserType();
 
-                this.user_type.description = userBasicData.m_UserType.Description;
-                this.user_type.id = userBasicData.m_UserType.ID;
-                this.user_type.is_default = userBasicData.m_UserType.IsDefault;
-            }
+            this.user_type.description = userBasicData.m_UserType.Description;
+            this.user_type.id = userBasicData.m_UserType.ID;
+            this.user_type.is_default = userBasicData.m_UserType.IsDefault;
+            //}
 
             this.zip = userBasicData.m_sZip;
         }

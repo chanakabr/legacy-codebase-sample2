@@ -18,7 +18,7 @@ namespace TVPApiModule.Objects.Responses
         {
         }
 
-        public ServiceObject(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ServiceObject service)
+        public ServiceObject(ApiObjects.Pricing.ServiceObject service)
         {
             if (service != null)
             {

@@ -13,7 +13,7 @@ namespace TVPApiModule.Objects.Responses
 
         }
 
-        public PurchaseSettingsResponse(TVPPro.SiteManager.TvinciPlatform.api.PurchaseSettingsResponse copy)
+        public PurchaseSettingsResponse(ApiObjects.PurchaseSettingsResponse copy)
         {
             this.status = new Status(copy.status.Code, copy.status.Message);
 
@@ -26,17 +26,17 @@ namespace TVPApiModule.Objects.Responses
             {
                 switch (copy.type)
                 {
-                    case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Block:
+                    case ApiObjects.ePurchaeSettingsType.Block:
                     {
                         this.type = ePurchaeSettingsType.Block;
                         break;
                     }
-                    case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Ask:
+                    case ApiObjects.ePurchaeSettingsType.Ask:
                     {
                         this.type = ePurchaeSettingsType.Ask;
                         break;
                     }
-                    case TVPPro.SiteManager.TvinciPlatform.api.ePurchaeSettingsType.Allow:
+                    case ApiObjects.ePurchaeSettingsType.Allow:
                     {
                         this.type = ePurchaeSettingsType.Allow;
                         break;

@@ -27,7 +27,7 @@ namespace TVPApiModule.Objects.Responses
         {
         }
 
-        public DeviceFamilyLimitations(TVPPro.SiteManager.TvinciPlatform.Domains.DeviceFamilyLimitations deviceFamilyLimitations)
+        public DeviceFamilyLimitations(Core.Users.DeviceFamilyLimitations deviceFamilyLimitations)
         {
             if (deviceFamilyLimitations != null)
             {

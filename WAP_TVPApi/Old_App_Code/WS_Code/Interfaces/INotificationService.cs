@@ -5,9 +5,8 @@ using System.Web;
 using System.ServiceModel;
 using TVPApi;
 using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Social;
-using TVPPro.SiteManager.TvinciPlatform.Users;
-using TVPPro.SiteManager.TvinciPlatform.Notification;
+using ApiObjects.Notification;
+using Notification = TVPApiModule.Objects.Notification;
 
 namespace TVPApiServices
 {

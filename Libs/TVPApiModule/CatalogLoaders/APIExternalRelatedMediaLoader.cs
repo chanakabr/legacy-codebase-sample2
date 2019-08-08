@@ -6,7 +6,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Tvinci.Data.Loaders;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using Core.Catalog;
+using ApiObjects;
+using ApiObjects.Response;
 using TVPApi;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Responses;
@@ -111,7 +115,7 @@ namespace TVPApiModule.CatalogLoaders
             return result;
         }
 
-        protected void GetAssets(string cacheKey, Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaIdsStatusResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
+        protected void GetAssets(string cacheKey, MediaIdsStatusResponse response, out List<MediaObj> medias, out List<ProgramObj> epgs)
         {
             // Insert the UnifiedSearchResponse to cache for failover support
             CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
@@ -170,7 +174,7 @@ namespace TVPApiModule.CatalogLoaders
             // Build the AssetInfo objects
             foreach (var item in order)
             {
-                if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
+                if (item.AssetType == eAssetTypes.MEDIA)
                 {
                     media = medias.Where(m => m != null && m.AssetId == item.AssetId).FirstOrDefault();
                     if (media != null)
@@ -187,7 +191,7 @@ namespace TVPApiModule.CatalogLoaders
                         media = null;
                     }
                 }
-                else if (item.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
+                else if (item.AssetType == eAssetTypes.EPG)
                 {
                     epg = epgs.Where(p => p != null && p.AssetId == item.AssetId).FirstOrDefault();
                     if (epg != null)
@@ -319,12 +323,12 @@ namespace TVPApiModule.CatalogLoaders
                 {
                     key = new CacheKey(id.AssetId, id.m_dUpdateDate);
 
-                    if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA)
+                    if (id.AssetType == eAssetTypes.MEDIA)
                     {
                         mediaKeys.Add(key);
                     }
 
-                    else if (id.AssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG)
+                    else if (id.AssetType == eAssetTypes.EPG)
                     {
                         epgKeys.Add(key);
                     }
