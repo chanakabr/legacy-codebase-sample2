@@ -74,22 +74,8 @@
     <Reference Include="DeepCloner, Version=0.10.0.0, Culture=neutral, PublicKeyToken=dc0b95cf99bf4e99, processorArchitecture=MSIL">
       <HintPath>..\..\packages\DeepCloner.0.10.2\lib\net40\DeepCloner.dll</HintPath>
     </Reference>
-    <Reference Include="Enyim.Caching">
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching.Log4NetAdapter">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.Log4NetAdapter.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching.NLogAdapter">
-      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.NLogAdapter.dll</HintPath>
-    </Reference>
-    <Reference Include="KLogMonitor, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\4.5.2\KLogMonitor.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\4.5.2\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -346,6 +332,10 @@
     <ProjectReference Include="..\..\..\Core\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{3c7c3f29-198b-45cc-9f31-9ace194e37e8}</Project>
       <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\KLogMonitor\KLogMonitor.csproj">
+      <Project>{18062be9-51db-414a-9372-9cdf8b5ddd3c}</Project>
+      <Name>KLogMonitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\Logic\ApiLogic.csproj">
       <Project>{30b747e2-22e4-407e-bb76-83b3479c8132}</Project>
