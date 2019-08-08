@@ -127,6 +127,12 @@ namespace WebAPI
                 clearCache.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                 clearCache.ProcessRequest(context);
             }
+            else if (!string.IsNullOrEmpty(context.Request.ApplicationPath) && context.Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains("notification"))
+            {
+                Page noti = new WS_API.notification();
+                noti.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
+                noti.ProcessRequest(context);
+            }
         }
     }
 }
