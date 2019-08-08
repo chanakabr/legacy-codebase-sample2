@@ -21,9 +21,10 @@ pipeline {
         stage("Version Patch"){
             steps{
                 dir("core"){ bat "sh DllVersioning.Core.sh ." }
-                dir("ws_ingest") { bat "sh ../core/DllVersioning.Core.sh ." }
                 dir("tvmcore") { bat "sh ../core/DllVersioning.Core.sh ." }
-                dir("cdntokenizers") { bat "sh ../core/DllVersioning.Core.sh" }        
+                dir("cdntokenizers") { bat "sh ../core/DllVersioning.Core.sh ." }
+                dir("ws_ingest") { bat "sh ../core/DllVersioning.Core.sh ." }
+            }        
         }
         stage("Nuget Restore"){
             steps{
