@@ -36,6 +36,8 @@ namespace WS_API
                     {
                         JObject json = JObject.Parse(requestBody);
 
+                        log.DebugFormat("Notification json is {0}", json);
+
                         var idToken = json.SelectToken("object.id");
 
                         string nowString = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
@@ -80,7 +82,7 @@ namespace WS_API
 
                         ElasticSearch.Common.ElasticSearchApi api = new ElasticSearch.Common.ElasticSearchApi(esURL);
                         var postRequestResult = api.SendPostHttpReq(postURL, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-                        log.DebugFormat("Finished successfully");
+                        log.DebugFormat("Finished successfully - elastic response: {0}", postRequestResult);
                     }
                 }
                 catch (Exception ex)
