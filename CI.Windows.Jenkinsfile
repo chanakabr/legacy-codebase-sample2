@@ -10,11 +10,6 @@ pipeline {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch Name')
     }
     stages {
-        stage ('Set Job Name'){
-            steps{
-                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
-            }
-        }
         stage('Run Parallel Builds') {
             parallel {
                 stage('Remote Tasks') {
