@@ -12,6 +12,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvpapi') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvpapi.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
                 dir('tvplibs') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvplibs.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
