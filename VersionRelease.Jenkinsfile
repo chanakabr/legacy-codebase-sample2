@@ -21,9 +21,17 @@ pipeline {
         FINAL_PUBLISH_DIR = "${ROOT_PUBLISH_DIR}\\${release_name}${release_number}"
     }
     stages {
+        stage("Clean"){
+            steps{
+                deleteDir()
+            }
+        }
         stage("Checkout"){
             steps{
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+                dir('tvmcore') { git(url: 'git@bitbucket.org:tvinci_dev/tvmcore.git', branch: "${params.branch}") }
+                dir('CDNTokenizers') { git(url: 'git@bitbucket.org:tvinci_dev/CDNTokenizers.git', branch: "${params.branch}") }
+                
                 dir('remotetasks') { git(url: 'git@bitbucket.org:tvinci_dev/remotetasks.git', branch: "${params.branch}") }
                 dir('tvmapps') { git(url: 'git@bitbucket.org:tvinci_dev/tvmapps.git', branch: "${params.branch}") }
                 dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
@@ -41,22 +49,19 @@ pipeline {
         stage("Version Patch"){
             steps{
                 dir("core"){ bat "sh DllVersioning.Core.sh ." }
-                dir("remotetasks") { bat "sh ../core/DllVersioning.Core.sh ."}
-                
-                dir("tvpapi_rest") { 
-                    bat "sh ../core/DllVersioning.Core.sh ."
-                    powershell "../Core/DllVersioning.ps1 ."
-                }
-
+                dir("tvmcore") { bat "sh ../core/DllVersioning.Core.sh ."}
+                dir("CDNTokenizers") { bat "sh ../core/DllVersioning.Core.sh ."}
+                dir("remotetasks") { bat "sh ../core/DllVersioning.Core.sh ."} 
+                dir("tvpapi_rest") { bat "sh ../core/DllVersioning.Core.sh ." }
                 dir("ws_ingest") { bat "sh ../core/DllVersioning.Core.sh ."}
-                dir("tvpapi") { powershell "../Core/DllVersioning.ps1 ."}
-                dir("tvmapps") { powershell "../Core/DllVersioning.ps1 ."}
             }        
         }
         stage("Nuget Restore"){
             steps{
-                dir("core"){ bat ("${NUGET} restore") }
-                dir("remotetasks"){ bat ("${NUGET} restore") }
+                dir("core"){ bat ("${NUGET} restore Core.sln") }
+                dir("tvmcore"){ bat ("${NUGET} restore") }
+                dir("CDNTokenizers"){ bat ("${NUGET} restore") }
+                dir("remotetasks"){ bat ("${NUGET} restore RemoteTasksService.sln") }
                 dir("tvmapps"){ bat ("${NUGET} restore") }
                 dir("tvpapi_rest"){ bat ("${NUGET} restore") }
                 dir("ws_ingest"){ bat ("${NUGET} restore") }
@@ -67,7 +72,7 @@ pipeline {
             steps{
                 dir("published") { deleteDir() }
                 dir("tvpapi_rest"){
-                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
+                    bat ("\"${MSBUILD}\" WebAPI\\WebAPI.csproj /m:4"
                             + " /p:Configuration=Release"
                             + " /p:DeployDefaultTarget=WebPublish"
                             + " /p:WebPublishMethod=FileSystem"
@@ -143,8 +148,8 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
-                    dir("bin/Release/netcoreapp2.0"){
-                        bat ("dotnet Generator.dll")
+                    dir("bin/Release"){
+                        bat ("Generator.exe")
                         bat ("xcopy KalturaClient.xml ${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\")
                     }
                 }
