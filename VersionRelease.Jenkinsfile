@@ -18,6 +18,11 @@ pipeline {
         NUGET = 'c:\\nuget.exe'
     }
     stages {
+        stage("Clean"){
+            steps{
+                deleteDir()
+            }
+        }
         stage("Checkout"){
             steps{
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
