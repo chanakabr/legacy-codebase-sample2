@@ -213,6 +213,7 @@ namespace TCMClient
                 if (!m_VerifySSL)
                 {
                     ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                    ServicePointManager.CheckCertificateRevocationList = false;
                 }
 
                 string tcmRequesturl = $"{m_URL}/{m_Application}/{m_Host}/{m_Environment}?app_id={m_AppID}&app_secret={m_AppSecret}";
@@ -223,7 +224,7 @@ namespace TCMClient
                 httpWebRequest.Timeout = 10000;
 
                 httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                _Logger.Info($"TCM Response Status ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
+                _Logger.Info($"TCM Response Status: ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
 
                 using (StreamReader sr = new StreamReader(httpWebResponse.GetResponseStream()))
                 {
@@ -239,7 +240,7 @@ namespace TCMClient
             }
             catch (Exception e)
             {
-                _Logger.Error($"Error while trying to get TCM data", e);
+                _Logger.Error($"Error while trying to get TCM data:", e);
             }
             finally
             {

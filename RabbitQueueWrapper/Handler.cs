@@ -11,9 +11,14 @@ namespace RabbitQueueWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static string CeleryDateFormat
+        public string CeleryDateFormat
         {
             get { return BaseCeleryData.CELERY_DATE_FORMAT; }
+        }
+
+        static Handler()
+        {
+
         }
 
         /// <summary>
@@ -27,7 +32,7 @@ namespace RabbitQueueWrapper
         /// <param name="extraArgs"></param>
         /// <exception cref="ArgumentNullException">task, routingKey or objectToEnqueue is null</exception>
         /// <returns>true if the object was Enqueue successfully; otherwise, false.</returns>
-        public static bool Enqueue(int groupId, string task, string routingKey, object objectToEnqueue, DateTime? eta = null, List<object> extraArgs = null)
+        public bool Enqueue(int groupId, string task, string routingKey, object objectToEnqueue, DateTime? eta = null, List<object> extraArgs = null)
         {
             bool enqueueSuccessful = false;
 

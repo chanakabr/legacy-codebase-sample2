@@ -5805,7 +5805,7 @@ namespace TvinciImporter
                 log.DebugFormat("calling cas.IngestRecording: {0}, {1}", action, string.Join(", ", epgIds));
                 System.Threading.Tasks.Task ingestRecordingAsync = System.Threading.Tasks.Task.Factory.StartNew(() =>
                 {
-                    Core.ConditionalAccess.Module.IngestRecording(groupId, epgIds.Cast<long>().ToArray(), action);
+                    Core.ConditionalAccess.Module.IngestRecording(groupId, epgIds.Select(x => (long)x).ToArray(), action);
                 });
 
             }
