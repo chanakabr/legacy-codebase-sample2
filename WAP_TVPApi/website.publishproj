@@ -59,10 +59,6 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <Project>{C14818ED-F1A0-4CDB-85DF-4F8018F60C31}</Project>
       <Name>Tvinci.Data.DataLoader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\iucon\iucon.Framework.csproj">
-      <Project>{5D400DB4-C756-4B5C-8359-FE55084043F4}</Project>
-      <Name>iucon.Framework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Localization\Localization.csproj">
       <Project>{E53BAE81-A07C-4112-A42D-4E899D6A52FC}</Project>
       <Name>Localization</Name>
