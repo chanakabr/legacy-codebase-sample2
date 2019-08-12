@@ -12,10 +12,9 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
-                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvpapi_rest') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvpapi_rest.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('remotetasks') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/remotetasks.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('remotetasks') { git(url: 'https://github.com/kaltura/RemoteTasks.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
             }
         }
         stage("Version Patch"){
@@ -67,9 +66,7 @@ pipeline {
             steps{
                 dir("published"){  
                     bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks-windows-${BRANCH_NAME}.zip *")
-                    withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"remote-tasks-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/remote-tasks-windows-${BRANCH_NAME}.zip")
-                    }
+                    sh (label:"upload to s3", script:"aws s3 cp remote-tasks-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks-windows-${BRANCH_NAME}.zip")
                 }
             }        
         }
