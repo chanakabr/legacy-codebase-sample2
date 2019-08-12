@@ -26,18 +26,18 @@ pipeline {
         stage("Checkout"){
             steps{
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
-                dir('remotetasks') { git(url: 'git@bitbucket.org:tvinci_dev/remotetasks.git', branch: "${params.branch}") }
-                dir('tvmapps') { git(url: 'git@bitbucket.org:tvinci_dev/tvmapps.git', branch: "${params.branch}") }
-                dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
-                dir('ws_ingest') { git(url: 'git@bitbucket.org:tvinci_dev/ws_ingest.git', branch: "${params.branch}") }
+                dir('remotetasks') { git(url: 'git@github.com:kaltura/RemoteTasks.git', branch: "${params.branch}") }
+                dir('tvmapps') { git(url: 'git@github.com:kaltura/tvmapps.git', branch: "${params.branch}") }
+                dir('tvpapi_rest') { git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
+                dir('ws_ingest') { git(url: 'git@github.com:kaltura/WS_Ingest.git', branch: "${params.branch}") }
                 
-                dir('tvpapi') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi.git', branch: "${params.branch}") }
-                dir('tvplibs') { git(url: 'git@bitbucket.org:tvinci_dev/tvplibs.git', branch: "${params.branch}") }
-                dir('tvincicommon') { git(url: 'git@bitbucket.org:tvinci_dev/tvincicommon.git', branch: "${params.branch}") }
+                dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
+                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
+                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 
                 dir('clients-generator'){ git(url: 'git@github.com:kaltura/clients-generator.git') }
 
-                dir('celery_tasks'){ git(url: 'git@bitbucket.org:tvinci_dev/celery_tasks.git', branch: "${params.branch}") }
+                dir('celery_tasks'){ git(url: 'git@github.com:kaltura/ott-celery-tasks.git', branch: "${params.branch}") }
             }
         }
         stage("Version Patch"){
