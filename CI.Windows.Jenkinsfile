@@ -12,8 +12,9 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvmapps') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvmapps.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvmapps') { git(url: 'https://github.com/kaltura/tvmapps.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
             }
         }
         stage("Version Patch"){
@@ -60,9 +61,7 @@ pipeline {
             steps{
                 dir("published"){  
                     bat (label:"Zip Artifacts", script:"7z.exe a -r tvm-${BRANCH_NAME}.zip *")
-                    withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"tvm-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/tvm-${BRANCH_NAME}.zip")
-                    }
+                    sh (label:"upload to s3", script:"aws s3 cp tvm-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm-${BRANCH_NAME}.zip")
                 }
             }        
         }
