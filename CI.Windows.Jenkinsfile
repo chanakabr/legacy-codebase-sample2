@@ -14,11 +14,11 @@ pipeline {
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvmcore') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvmcore.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('cdntokenizers') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/CDNTokenizers.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('tvpapi') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvpapi.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('tvplibs') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvplibs.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('tvincicommon') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvincicommon.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvmcore') { git(url: 'https://github.com/kaltura/tvmcore.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('cdntokenizers') { git(url: 'https://github.com/kaltura/CDNTokenizers.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('tvpapi') { git(url: 'https://github.com/kaltura/tvpapi.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('tvplibs') { git(url: 'https://github.com/kaltura/tvplibs.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('tvincicommon') { git(url: 'https://github.com/kaltura/TvinciCommon.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
             }
         }
         stage("Version Patch"){
@@ -63,9 +63,7 @@ pipeline {
             steps{
                 dir("published"){  
                     bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi-windows-${BRANCH_NAME}.zip *")
-                    withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"tvpapi-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/tvpapi-windows-${BRANCH_NAME}.zip")
-                    }
+                    sh (label:"upload to s3", script:"aws s3 cp tvpapi-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi-windows-${BRANCH_NAME}.zip")
                 }
             }        
         }
