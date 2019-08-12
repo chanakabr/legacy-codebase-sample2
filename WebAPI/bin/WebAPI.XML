@@ -5931,6 +5931,11 @@
             Ingest profile default Overlap policy
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaIngestProfile.OverlapChannels">
+            <summary>
+            Ingest profile overlap channels
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaIngestProfileListResponse.Objects">
             <summary>
             Adapters
