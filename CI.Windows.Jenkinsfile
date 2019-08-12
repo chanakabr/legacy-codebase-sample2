@@ -14,7 +14,7 @@ pipeline {
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('ws_ingest') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/ws_ingest.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('ws_ingest') { git(url: 'https://github.com/kaltura/WS_Ingest.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
             }
         }
         stage("Version Patch"){
@@ -53,16 +53,10 @@ pipeline {
         }
 
         stage("Zip and Publish"){
-            environment {
-                    RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd ws_ingest && ../Core/get-version-tag.sh', , returnStdout: true).trim()
-                    RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
-            }
             steps{
                 dir("published"){  
                     bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest-windows-${BRANCH_NAME}.zip *")
-                    withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"ws-ingest-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/ws-ingest-windows-${BRANCH_NAME}.zip")
-                    }
+                    sh (label:"upload to s3", script:"aws s3 cp ws-ingest-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest-windows-${BRANCH_NAME}.zip")
                 }
             }        
         }
