@@ -225,9 +225,12 @@ namespace Core.Profiles
 
         private static bool IsIngestProfileExternalIdExists(int groupId, string externalId, int profileId)
         {
-            var profileById = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
             var profileByExternalId = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
-            return profileById?.Id != profileByExternalId?.Id;
+            if (profileByExternalId == null)
+                return false;
+            
+            var profileById = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
+            return profileById?.Id != profileByExternalId.Id;
         }
 
         private static bool IsIngestProfileIdExists(int groupId, int id)

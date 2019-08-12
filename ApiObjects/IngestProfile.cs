@@ -34,6 +34,9 @@ namespace ApiObjects
         [DBFieldMapping("default_overlap_policy")]
         public eIngestProfileOverlapPolicy DefaultOverlapPolicy { get; set; }
 
+        [DBFieldMapping("overlap_channels")]
+        public IList<int> OverlapChannels { get; set; }
+
         public override string ToString()
         {
             return $"{{ id:'{Id}', groupId:'{GroupId}', name:'{Name}', assetType:'{AssetTypeId}' }}";
