@@ -14,9 +14,9 @@ pipeline {
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvmcore') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/tvmcore.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('cdntokenizers') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/CDNTokenizers.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
-                dir('ws_ingest') { git(url: 'https://arthurvaverko@bitbucket.org/tvinci_dev/ws_ingest.git', branch: "${BRANCH_NAME}", credentialsId: "bitbucket-arthur") }
+                dir('tvmcore') { git(url: 'https://github.com/kaltura/tvmcore.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('cdntokenizers') { git(url: 'https://github.com/kaltura/CDNTokenizers.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+                dir('ws_ingest') { git(url: 'https://github.com/kaltura/WS_Ingest.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
             }
         }
         stage("Version Patch"){
@@ -59,9 +59,7 @@ pipeline {
             steps{
                 dir("published"){  
                     bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest-windows-${BRANCH_NAME}.zip *")
-                    withAWS(region:"${S3_BUILD_BUCKET_REGION}") {
-                        s3Upload(file:"ws-ingest-windows-${BRANCH_NAME}.zip", bucket:"${S3_BUILD_BUCKET_NAME}", path:"mediahub/${BRANCH_NAME}/build/ws-ingest-windows-${BRANCH_NAME}.zip")
-                    }
+                    sh (label:"upload to s3", script:"aws s3 cp ws-ingest-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest-windows-${BRANCH_NAME}.zip")
                 }
             }        
         }
