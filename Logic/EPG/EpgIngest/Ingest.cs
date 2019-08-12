@@ -472,7 +472,7 @@ namespace EpgIngest
             {
                 List<string> docIds = Utils.BuildDocIdsToRemoveGroupPrograms(lProgramsID, lLanguage);
                 oEpgBL.RemoveGroupPrograms(docIds);
-                bool resultEpgIndex = UpdateEpgIndex(lProgramsID.Cast<ulong>().ToList(), m_Channels.parentgroupid, ApiObjects.eAction.Delete);
+                bool resultEpgIndex = UpdateEpgIndex(lProgramsID.Select(i => (ulong)i).ToList(), m_Channels.parentgroupid, ApiObjects.eAction.Delete);
                 if (resultEpgIndex)
                     log.DebugFormat("Succeeded. delete programIds:[{0}], kalturaChannelID:{1}", string.Join(",", lProgramsID), kalturaChannelID);
                 else

@@ -16,23 +16,31 @@ pipeline {
     environment {
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
         NUGET = 'c:\\nuget.exe'
+        ROOT_PUBLISH_DIR = "c:\\version_release\\mediahub\\${params.branch}"
+        TEMP_PUBLISH_DIR = "${ROOT_PUBLISH_DIR}\\${BUILD_TIMESTAMP}"
+        FINAL_PUBLISH_DIR = "${ROOT_PUBLISH_DIR}\\${release_name}${release_number}"
     }
     stages {
+        stage("Clean"){
+            steps{
+                deleteDir()
+            }
+        }
         stage("Checkout"){
             steps{
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
-                dir('remotetasks') { git(url: 'git@bitbucket.org:tvinci_dev/remotetasks.git', branch: "${params.branch}") }
-                dir('tvmapps') { git(url: 'git@bitbucket.org:tvinci_dev/tvmapps.git', branch: "${params.branch}") }
-                dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
-                dir('ws_ingest') { git(url: 'git@bitbucket.org:tvinci_dev/ws_ingest.git', branch: "${params.branch}") }
+                dir('remotetasks') { git(url: 'git@github.com:kaltura/RemoteTasks.git', branch: "${params.branch}") }
+                dir('tvmapps') { git(url: 'git@github.com:kaltura/tvmapps.git', branch: "${params.branch}") }
+                dir('tvpapi_rest') { git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
+                dir('ws_ingest') { git(url: 'git@github.com:kaltura/WS_Ingest.git', branch: "${params.branch}") }
                 
-                dir('tvpapi') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi.git', branch: "${params.branch}") }
-                dir('tvplibs') { git(url: 'git@bitbucket.org:tvinci_dev/tvplibs.git', branch: "${params.branch}") }
-                dir('tvincicommon') { git(url: 'git@bitbucket.org:tvinci_dev/tvincicommon.git', branch: "${params.branch}") }
+                dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
+                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
+                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 
                 dir('clients-generator'){ git(url: 'git@github.com:kaltura/clients-generator.git') }
 
-                dir('celery_tasks'){ git(url: 'git@bitbucket.org:tvinci_dev/celery_tasks.git', branch: "${params.branch}") }
+                dir('celery_tasks'){ git(url: 'git@github.com:kaltura/ott-celery-tasks.git', branch: "${params.branch}") }
             }
         }
         stage("Version Patch"){
@@ -70,19 +78,19 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\"
                     )
 
                     bat ("\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj /m:4"
                             + " /p:Configuration=Release"
                             + " /p:DeleteExistingFiles=True"
-                            + " /p:OutputPath=\"${WORKSPACE}/published/configuration_validator/"
+                            + " /p:OutputPath=${TEMP_PUBLISH_DIR}\\configuration_validator\\"
                     )
 
                     bat ("\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj /m:4"
                         + " /p:Configuration=Release"
                         + " /p:DeleteExistingFiles=True"
-                        + " /p:OutputPath=\"${WORKSPACE}/published/permissions/"
+                        + " /p:OutputPath=${TEMP_PUBLISH_DIR}\\permissions\\"
                     )
                 }
 
@@ -93,7 +101,7 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/remotetasks/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\remotetasks\\"
                     )
                 }
 
@@ -104,7 +112,7 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvm/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\tvm\\"
                     )
                 }
 
@@ -115,7 +123,7 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/ws_ingest/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\ws_ingest\\"
                         )
                 }
 
@@ -126,12 +134,12 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvpapi/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\tvpapi\\"
                         )
                 }
 
                 dir("celery_tasks"){
-                    bat "xcopy tasks ${WORKSPACE}\\published\\tasks\\ /E /O /X /K /D /H /Y"
+                    bat "xcopy tasks ${TEMP_PUBLISH_DIR}\\tasks\\ /E /O /X /K /D /H /Y"
                 }
             }        
         }
@@ -142,7 +150,7 @@ pipeline {
                     bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
                     dir("bin/Release/netcoreapp2.0"){
                         bat ("dotnet Generator.dll")
-                        bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                        bat ("xcopy KalturaClient.xml ${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\")
                     }
                 }
             }
@@ -152,9 +160,9 @@ pipeline {
             when { expression { return params.generate_doc_and_clients == true; } }
             steps { 
                 dir("clients-generator"){
-                    bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
+                    bat ("php exec.php --dont-gzip -x${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
                         +"-tott ottTestme,testmeDoc,php5,php53,php5Zend,php4,csharp,ruby,java,android,python,objc,cli,node,ajax " 
-                        +"${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\"
+                        +"${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\"
                     )
                 }
             }
@@ -162,10 +170,11 @@ pipeline {
 
         stage("Zip and Publish"){
             steps{
-                dir("published"){  
+                dir("${ROOT_PUBLISH_DIR}"){  
                     // \\34.252.63.117\version_release\mediahub\5_2_4\SP0\5_2_4_SP0.zip
-                    bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip *"
-                    bat "xcopy ${params.branch}_${release_name}${release_number}.zip c:\\version_release\\mediahub\\${release_name}${release_number}\\ /O /X /K /D /H /Y"
+                    bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip ${BUILD_TIMESTAMP}"
+                    bat "if not exist ${FINAL_PUBLISH_DIR} mkdir ${FINAL_PUBLISH_DIR}"
+                    bat "move /Y ${params.branch}_${release_name}${release_number}.zip ${FINAL_PUBLISH_DIR}\\"
                 }
             }        
         }
