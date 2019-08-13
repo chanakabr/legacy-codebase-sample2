@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -87,7 +90,6 @@ namespace WebAPI.Models.API
         [XmlElement("transformationAdapterSettings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
-
         /// <summary>
         /// Transformation Adapter shared secret
         /// </summary>
@@ -111,5 +113,36 @@ namespace WebAPI.Models.API
         [JsonProperty("defaultOverlapPolicy")]
         [XmlElement(ElementName = "defaultOverlapPolicy")]
         public KalturaIngestProfileOverlapPolicy DefaultOverlapPolicy { get; set; }
+
+        /// <summary>
+        /// Ingest profile overlap channels
+        /// </summary>
+        [DataMember(Name = "overlapChannels")]
+        [JsonProperty("overlapChannels")]
+        [XmlElement("overlapChannels")]
+        public string OverlapChannels { get; set; }
+
+        public List<int> GetOverlapChannels()
+        {
+            List<int> list = new List<int>();
+
+            if (!string.IsNullOrEmpty(OverlapChannels))
+            {
+                string[] stringValues = OverlapChannels.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string value in stringValues)
+                {
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        list.Add(int.Parse(value));
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaLanguageFilter.OverlapChannels");
+                    }
+                }
+            }
+
+            return list;
+        }
     }
 }

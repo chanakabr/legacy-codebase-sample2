@@ -3053,6 +3053,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
+                        case "OverlapChannels":
+                            return "overlapChannels";
                         case "Settings":
                             return "transformationAdapterSettings";
                         case "TransformationAdapterSharedSecret":

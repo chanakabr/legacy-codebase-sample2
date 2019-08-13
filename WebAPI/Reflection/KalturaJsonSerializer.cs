@@ -15422,6 +15422,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
+            if(OverlapChannels != null)
+            {
+                ret.Add("overlapChannels", "\"overlapChannels\": " + "\"" + EscapeJson(OverlapChannels) + "\"");
+            }
             if(Settings != null)
             {
                 propertyValue = "{" + String.Join(", ", Settings.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
@@ -15458,6 +15462,10 @@ namespace WebAPI.Models.API
             if(Name != null)
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(OverlapChannels != null)
+            {
+                ret.Add("overlapChannels", "<overlapChannels>" + EscapeXml(OverlapChannels) + "</overlapChannels>");
             }
             if(Settings != null)
             {

@@ -1633,9 +1633,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<IngestProfile, KalturaIngestProfile>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.ToDictionary(k => k.Key, v => v.Value) : null))
+                .ForMember(dest => dest.OverlapChannels, opt => opt.MapFrom(src => string.Join(",", src.OverlapChannels)))
                 .ForMember(dest => dest.DefaultAutoFillPolicy, opt => opt.MapFrom(src => (int)src.DefaultAutoFillPolicy))
-                .ForMember(dest => dest.DefaultOverlapPolicy, opt => opt.MapFrom(src => (int)src.DefaultOverlapPolicy))
-            ;
+                .ForMember(dest => dest.DefaultOverlapPolicy, opt => opt.MapFrom(src => (int)src.DefaultOverlapPolicy));
+
             cfg.CreateMap<KalturaIngestProfile, IngestProfile>()
                 .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings != null ? src.Settings.Select(s => new IngestProfileAdapterParam
                 {
@@ -1643,9 +1644,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     Key = s.Key,
                     Value = s.Value == null ? "" : s.Value.value,
                 }) : null))
+                .ForMember(dest => dest.OverlapChannels, opt => opt.MapFrom(src => src.OverlapChannels.Split(',').ToList()))
                 .ForMember(dest => dest.DefaultAutoFillPolicy, opt => opt.MapFrom(src => (int)src.DefaultAutoFillPolicy))
-                .ForMember(dest => dest.DefaultOverlapPolicy, opt => opt.MapFrom(src => (int)src.DefaultOverlapPolicy))
-            ;
+                .ForMember(dest => dest.DefaultOverlapPolicy, opt => opt.MapFrom(src => (int)src.DefaultOverlapPolicy));
 
             #endregion
 

@@ -15880,6 +15880,10 @@ namespace WebAPI.Models.API
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", DefaultOverlapPolicy, typeof(KalturaIngestProfileOverlapPolicy)));
                     }
                 }
+                if (parameters.ContainsKey("overlapChannels") && parameters["overlapChannels"] != null)
+                {
+                    OverlapChannels = (String) Convert.ChangeType(parameters["overlapChannels"], typeof(String));
+                }
             }
         }
     }
