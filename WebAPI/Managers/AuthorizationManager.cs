@@ -107,31 +107,38 @@ namespace WebAPI.Managers
                 RefreshToken = token.RefreshToken
             };
         }
-
-        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string,string> privileges = null)
+        
+        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, int domainId, string udid = null, Dictionary<string, string> privileges = null)
         {
-            KalturaLoginSession session = new KalturaLoginSession();
-
             if (string.IsNullOrEmpty(userId))
             {
                 log.ErrorFormat("GenerateSession: userId is missing");
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
             }
+            
+            // generate access token and refresh token pair
+            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
 
             // get group configurations
-            Group group = GetGroupConfiguration(groupId);
+            var group = GetGroupConfiguration(groupId);
 
-            // generate access token and refresh token pair
-            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, privileges);
+            var token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, regionId, privileges);
+            return GenerateSessionByApiToken(token, group);
+        }
+
+        private static KalturaLoginSession GenerateSessionByApiToken(ApiToken token, Group group)
+        {
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
-                log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
+                log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", token.UserId);
                 throw new InternalServerErrorException();
             }
+
+            KalturaLoginSession session = new KalturaLoginSession();
 
             if (group.IsRefreshTokenEnabled)
             {
@@ -210,10 +217,10 @@ namespace WebAPI.Managers
             }
 
             if (household != null &&
-                ((household.Users != null && household.Users.Where(u => u.Id == userId).FirstOrDefault() != null) ||
-                (household.DefaultUsers != null && household.DefaultUsers.Where(u => u.Id == userId).FirstOrDefault() != null) ||
-                (household.MasterUsers != null && household.MasterUsers.Where(u => u.Id == userId).FirstOrDefault() != null) ||
-                (household.PendingUsers != null && household.PendingUsers.Where(u => u.Id == userId).FirstOrDefault() != null)))
+                ((household.Users != null && household.Users.FirstOrDefault(u => u.Id == userId) != null) ||
+                (household.DefaultUsers != null && household.DefaultUsers.FirstOrDefault(u => u.Id == userId) != null) ||
+                (household.MasterUsers != null && household.MasterUsers.FirstOrDefault(u => u.Id == userId) != null) ||
+                (household.PendingUsers != null && household.PendingUsers.FirstOrDefault(u => u.Id == userId) != null)))
             {
                 return true;
             }
@@ -248,7 +255,7 @@ namespace WebAPI.Managers
 
         #region AppToken
 
-        internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, string id, string tokenHash, string userId, string udid, KalturaSessionType? type, int? expiry)
+        internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, string id, string tokenHash, string userId, string udid, KalturaSessionType? type, int? expiry, int domainId)
         {
             KalturaSessionInfo response = null;
 
@@ -280,9 +287,7 @@ namespace WebAPI.Managers
                 throw new ForbiddenException(ForbiddenException.INVALID_APP_TOKEN_HASH);
             }
 
-            // 5. get token expiration:
-
-            // the session duration will be the minimum between the token session duration and the token left expiration time
+            // 5. get token expiration: the session duration will be the minimum between the token session duration and the token left expiration time
             long sessionDuration = 0;
             if (appToken.Expiry > 0)
             {
@@ -299,25 +304,13 @@ namespace WebAPI.Managers
                 log.ErrorFormat("StartSessionWithAppToken: AppToken expired, id = {0}", id);
                 throw new ForbiddenException(ForbiddenException.APP_TOKEN_EXPIRED);
             }
-
-
+            
             // if expiry was supplied - take the minimum
             if (expiry != null && expiry.Value > 0)
             {
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
-
-            //ValidateUser(groupId, userId);
-            //ValidateUdid(groupId, udid);
-
-            // set udid in payload
-            WebAPI.Managers.Models.KS.KSData ksData = new WebAPI.Managers.Models.KS.KSData()
-            {
-                UDID = udid,
-                CreateDate = (int)DateUtils.GetUtcUnixTimestampNow()
-            };
-            string payload = KSUtils.PrepareKSPayload(ksData);
-
+            
             // 6. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
@@ -365,6 +358,9 @@ namespace WebAPI.Managers
                 }
             }
 
+            // set udid in payload
+            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
+            var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
@@ -372,15 +368,8 @@ namespace WebAPI.Managers
             }
 
             // 10. build the ks:
-            KS ks = new KS(
-                secret,
-                groupId.ToString(),
-                userId,
-                (int)sessionDuration,
-                sessionType,
-                payload,
-                privilagesList,
-                Models.KS.KSVersion.V2);
+            var payload = KSUtils.PrepareKSPayload(ksData);
+            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, payload, privilagesList, KS.KSVersion.V2);
 
             // 11. build the response from the ks:
             response = new KalturaSessionInfo(ks);
@@ -419,7 +408,7 @@ namespace WebAPI.Managers
 
             int utcNow = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
-            if (appToken.getExpiry() == 0 && userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() == 0)
+            if (appToken.getExpiry() == 0 && userRoles.Count(ur => ur > RolesManager.MASTER_ROLE_ID) == 0)
             {
                 appToken.Expiry = utcNow + group.AppTokenMaxExpirySeconds;
             }
@@ -527,15 +516,16 @@ namespace WebAPI.Managers
                 Group group = GroupsManager.GetGroup(ks.GroupId);
                 int revokedKsMaxTtlSeconds = GetRevokedKsMaxTtlSeconds(group);
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
+                var payload = KSUtils.ExtractKSPayload();
 
-
-                ApiToken revokedToken = new ApiToken()
+                var revokedToken = new ApiToken()
                 {
                     GroupID = ks.GroupId,
                     AccessTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
                     KS = ks.ToString(),
-                    Udid = KSUtils.ExtractKSPayload().UDID,
-                    UserId = ks.UserId
+                    Udid = payload.UDID,
+                    UserId = ks.UserId,
+                    RegionId = payload.RegionId
                 };
 
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
@@ -747,7 +737,7 @@ namespace WebAPI.Managers
             }
         }
 
-        public static KalturaLoginSession SwitchUser(string userId, int groupId, string udid, Dictionary<string, string> privileges)
+        public static KalturaLoginSession SwitchUser(string userId, int groupId, string udid, Dictionary<string, string> privileges, int regionId, Group group)
         {
             KalturaLoginSession loginSession = null;
 
@@ -762,7 +752,8 @@ namespace WebAPI.Managers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            loginSession = AuthorizationManager.GenerateSession(userId, groupId, false, false, udid, privileges);
+            var apiToken = new ApiToken(userId, groupId, udid, false, group, false, regionId, privileges);
+            loginSession = AuthorizationManager.GenerateSessionByApiToken(apiToken, group);
 
             return loginSession;
         }
@@ -832,6 +823,5 @@ namespace WebAPI.Managers
 
             return session;
         }
-
     }
 }

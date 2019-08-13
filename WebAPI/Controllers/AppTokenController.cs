@@ -108,9 +108,9 @@ namespace WebAPI.Controllers
         [Action("startSession")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        [Throws(WebAPI.Managers.Models.StatusCode.InvalidAppTokenHash)]
-        [Throws(WebAPI.Managers.Models.StatusCode.NotActiveAppToken)]
-        [Throws(WebAPI.Managers.Models.StatusCode.ExpiredAppToken)]
+        [Throws(StatusCode.InvalidAppTokenHash)]
+        [Throws(StatusCode.NotActiveAppToken)]
+        [Throws(StatusCode.ExpiredAppToken)]
         static public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
         {
             KalturaSessionInfo response = null;
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry);
+                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry, (int)HouseholdUtils.GetHouseholdIDByKS());
                 
             }
             catch (ClientException ex)

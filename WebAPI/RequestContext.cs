@@ -279,7 +279,7 @@ namespace WebAPI
         {
             // get token from CB
             string tokenKey = string.Format(accessTokenKeyFormat, ksVal);
-            ApiToken token = cbManager.Get<ApiToken>(tokenKey, true);
+            var token = cbManager.Get<ApiToken>(tokenKey, true);
 
             if (token == null)
             {
@@ -294,7 +294,6 @@ namespace WebAPI
             }
 
             ks.SaveOnRequest();
-
         }
     }
 }

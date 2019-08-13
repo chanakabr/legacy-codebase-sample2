@@ -37,10 +37,22 @@ namespace WebAPI.Managers.Models
         {
             public string UDID { get; set; }
             public int CreateDate { get; set; }
+            public int RegionId { get; set; }
+
+            public KSData()
+            {
+            }
+
+            public KSData(string udid, int createDate, int regionId)
+            {
+                this.UDID = udid;
+                this.CreateDate = createDate;
+                this.RegionId = regionId;
+            }
         }
 
         public KSVersion ksVersion { get; private set; }
-
+        
         public bool IsValid
         {
             get { return AuthorizationManager.IsKsValid(this); }
@@ -269,15 +281,18 @@ namespace WebAPI.Managers.Models
             return string.Join(";;", pairs.Select(x => string.Format("{0}={1}", x.Key, x.Value)));
         }
 
-        public static List<KeyValuePair<string, string>> ExtractPayloadData(string payload)
+        public static Dictionary<string, string> ExtractPayloadData(string payload)
         {
-            List<KeyValuePair<string, string>> pairs = new List<KeyValuePair<string, string>>();
+            var pairs = new Dictionary<string, string>();
             if (!string.IsNullOrEmpty(payload))
             {
                 foreach (var token in payload.Split(new string[] { ";;" }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     var t = token.Split('=');
-                    pairs.Add(new KeyValuePair<string, string>(t[0], t[1]));
+                    if (!pairs.ContainsKey(t[0]))
+                    {
+                        pairs.Add(t[0], t[1]);
+                    }
                 }
             }
 
@@ -321,9 +336,9 @@ namespace WebAPI.Managers.Models
             {
                 groupId = token.GroupID,
                 userId = token.UserId,
-                sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(token.AccessTokenExpiration),
-                data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid }),
+                sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                data = KSUtils.PrepareKSPayload(new KS.KSData() { UDID = token.Udid, RegionId = token.RegionId }),
                 encryptedValue = tokenVal
             };
 

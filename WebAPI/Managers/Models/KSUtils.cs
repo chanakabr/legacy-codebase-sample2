@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace WebAPI.Managers.Models
 {
@@ -7,43 +6,51 @@ namespace WebAPI.Managers.Models
     {
         public const string PAYLOAD_UDID = "UDID";
         public const string PAYLOAD_CREATE_DATE = "CreateDate";
+        public const string PAYLOAD_REGION = "Region";
 
-        public static string PrepareKSPayload(WebAPI.Managers.Models.KS.KSData pl)
+        public static string PrepareKSPayload(KS.KSData pl)
         {
-            var l = new List<KeyValuePair<string, string>>();
-            l.Add(new KeyValuePair<string, string>(PAYLOAD_UDID, pl.UDID));
-            l.Add(new KeyValuePair<string, string>(PAYLOAD_CREATE_DATE, pl.CreateDate.ToString()));
-            string payload = WebAPI.Managers.Models.KS.preparePayloadData(l);
+            var ksDataList = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>(PAYLOAD_UDID, pl.UDID),
+                new KeyValuePair<string, string>(PAYLOAD_CREATE_DATE, pl.CreateDate.ToString()),
+                new KeyValuePair<string, string>(PAYLOAD_REGION, pl.RegionId.ToString())
+            };
+            var payload = KS.preparePayloadData(ksDataList);
             return payload;
         }
 
-        public static WebAPI.Managers.Models.KS.KSData ExtractKSPayload(KS ks)
+        public static KS.KSData ExtractKSPayload(KS ks)
         {
             if (ks == null)
             {
                 return new KS.KSData();
             }
 
-            var pl = WebAPI.Managers.Models.KS.ExtractPayloadData(ks.Data);
+            var pl = KS.ExtractPayloadData(ks.Data);
+
             string udid = "";
+            if (pl.ContainsKey(PAYLOAD_UDID))
+            {
+                udid = pl[PAYLOAD_UDID];
+            }
+
             int createDate = 0;
-            var udidRes = pl.Where(x => x.Key == PAYLOAD_UDID).FirstOrDefault();
-
-            if (udidRes.Key != null)
+            if (pl.ContainsKey(PAYLOAD_CREATE_DATE))
             {
-                udid = udidRes.Value;
+                int.TryParse(pl[PAYLOAD_CREATE_DATE], out createDate);
             }
 
-            var createDateTimeStr = pl.Where(x => x.Key == PAYLOAD_CREATE_DATE).FirstOrDefault();
-            if (createDateTimeStr.Key != null)
+            int regionId = 0;
+            if (pl.ContainsKey(PAYLOAD_REGION))
             {
-                int.TryParse(createDateTimeStr.Value, out createDate);
+                int.TryParse(pl[PAYLOAD_REGION], out regionId);
             }
 
-            return new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = createDate };
+            return new KS.KSData(udid, createDate, regionId);
         }
 
-        internal static WebAPI.Managers.Models.KS.KSData ExtractKSPayload()
+        internal static KS.KSData ExtractKSPayload()
         {
             return ExtractKSPayload(KS.GetFromRequest());
         }

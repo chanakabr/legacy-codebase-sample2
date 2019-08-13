@@ -49,16 +49,21 @@ namespace WebAPI.ClientManagers
             }
 
             Group group = null;
-
-            string groupKey = string.Format(groupKeyFormat, groupId);
-            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
-            if (!LayeredCache.Instance.Get<Group>(groupKey, ref group, BuildGroup, funcParams, groupId, LayeredCacheConfigNames.PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME,
-                                                            new List<string>() { LayeredCacheKeys.PhoenixGroupsManagerInvalidationKey(groupId) }))
+            var groupKey = string.Format(groupKeyFormat, groupId);
+            var invalidationKey = LayeredCacheKeys.PhoenixGroupsManagerInvalidationKey(groupId);
+            
+            if (!LayeredCache.Instance.Get(groupKey, 
+                                           ref group, 
+                                           BuildGroup,
+                                           new Dictionary<string, object>() { { "groupId", groupId } }, 
+                                           groupId, 
+                                           LayeredCacheConfigNames.PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME,
+                                           new List<string>() { invalidationKey }))
             {
                 log.ErrorFormat("Failed building Phoenix group object for groupId: {0}", groupId);
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
             }
-
+            
             return group;
         }
 
@@ -193,8 +198,5 @@ namespace WebAPI.ClientManagers
 
         //    return tempGroup;
         //}        
-
-
     }
-
 }

@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaLoginSession AnonymousLogin(int partnerId, string udid = null)
         {
-            return AuthorizationManager.GenerateSession("0", partnerId, false, false, udid);
+            return AuthorizationManager.GenerateSession("0", partnerId, false, false, 0, udid);
         }
 
         /// <summary>
@@ -95,8 +95,12 @@ namespace WebAPI.Controllers
                 priviliges = (Dictionary<string, string>)tmp;
                 HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
-
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid, priviliges), User = response };
+            
+            return new KalturaLoginResponse()
+            {
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, priviliges),
+                User = response
+            };
         }
 
         /// <summary>
@@ -166,8 +170,12 @@ namespace WebAPI.Controllers
                 priviliges = (Dictionary<string, string>)tmp;
                 HttpContext.Current.Items.Remove(KLogMonitor.Constants.PRIVILIGES);
             }
-
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid, priviliges), User = response };
+            
+            return new KalturaLoginResponse()
+            {
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, priviliges),
+                User = response
+            };
         }
 
         /// <summary>
@@ -180,9 +188,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize(true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("refreshToken", "refresh_token")]
-        [Throws(WebAPI.Managers.Models.StatusCode.InvalidRefreshToken)]
-        [Throws(WebAPI.Managers.Models.StatusCode.InvalidKS)]
-        [Throws(WebAPI.Managers.Models.StatusCode.RefreshTokenFailed)]
+        [Throws(StatusCode.InvalidRefreshToken)]
+        [Throws(StatusCode.InvalidKS)]
+        [Throws(StatusCode.RefreshTokenFailed)]
         [Obsolete]
         static public KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
@@ -244,8 +252,12 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
+            
+            return new KalturaLoginResponse()
+            {
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid),
+                User = response
+            };
         }
 
         /// <summary>
@@ -758,7 +770,7 @@ namespace WebAPI.Controllers
             int userId = int.Parse(ks.UserId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string ip = Utils.Utils.GetClientIP();
-
+            
             try
             {
                 response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid);
