@@ -387,6 +387,7 @@
     <Content Include="TestPage.aspx" />
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -875,7 +876,6 @@
     <Content Include="MappingConfig.xss">
       <DependentUpon>MappingConfig.xsd</DependentUpon>
     </Content>
-    <Content Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
     <Content Include="obj\Debug\WAP_TVPApi.csproj.CopyComplete" />
     <Content Include="obj\Debug\WAP_TVPApi.csproj.CoreCompileInputs.cache" />
     <Content Include="obj\Debug\WAP_TVPApi.csprojAssemblyReference.cache" />
