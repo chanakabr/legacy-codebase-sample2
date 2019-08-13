@@ -25,6 +25,8 @@ def getJobName(repoName) {
     switch (repoName) {
         case 'Core':
             return 'OTT-BE-Core-Windows'
+        case 'Phoenix':
+            return 'OTT-BE-Phoenix-Windows'
         case 'RemoteTasks':
             return 'OTT-BE-Remote-Tasks-Windows'
         case 'tvmapps':
@@ -37,3 +39,4 @@ def getJobName(repoName) {
             return 'OTT-BE-WS-Ingest-Windows'
     }   
 }
+
