@@ -190,9 +190,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>MappingConfig.xsd</DependentUpon>
     </Compile>
-    <Compile Include="obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs" />
-    <Compile Include="obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs" />
-    <Compile Include="obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs" />
     <Compile Include="Old_App_Code\BaseClasses\BaseGateway.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -876,48 +873,6 @@
     <Content Include="MappingConfig.xss">
       <DependentUpon>MappingConfig.xsd</DependentUpon>
     </Content>
-    <Content Include="obj\Debug\WAP_TVPApi.csproj.CopyComplete" />
-    <Content Include="obj\Debug\WAP_TVPApi.csproj.CoreCompileInputs.cache" />
-    <Content Include="obj\Debug\WAP_TVPApi.csprojAssemblyReference.cache" />
-    <Content Include="obj\Debug\TempPE\App_Code.MappingConfig.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.doPurchase.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.GetAccountInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.GetAllChannels.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.GetChannelInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.GetChannelMedias.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.GetMediaInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.GetServiceURLs.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.MediaMark.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.PurchaseAuth.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.PurchaseStatus.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\App_Code.XmlModels.SearchTitles.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\MappingConfig.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.MappingConfig.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.doPurchase.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.GetAccountInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.GetAllChannels.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.GetChannelInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.GetChannelMedias.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.GetMediaInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.GetServiceURLs.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.MediaMark.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.PurchaseAuth.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.PurchaseStatus.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\Old_App_Code.XmlModels.SearchTitles.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.doPurchase.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.GetAccountInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.GetAllChannels.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.GetChannelInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.GetChannelMedias.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.GetMediaInfo.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.GetServiceURLs.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.MediaMark.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.PurchaseAuth.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.PurchaseStatus.Designer.cs.dll" />
-    <Content Include="obj\Debug\TempPE\XmlModels.SearchTitles.Designer.cs.dll" />
-    <Content Include="obj\Debug\WAP_TVPApi.csproj.FileListAbsolute.txt" />
-    <Content Include="obj\Debug\WAP_TVPApi.dll" />
-    <Content Include="obj\Debug\WAP_TVPApi.pdb" />
     <Content Include="ws\Billing\Service.asmx" />
     <Content Include="ws\Cas\Service.asmx" />
     <Content Include="ws\Domains\Service.asmx" />
