@@ -49,6 +49,7 @@ namespace ConfigurationManager.Types
             ShouldDeleteSourceFile = new BooleanConfigurationValue("shouldDeleteSourceFile", this)
             {
                 DefaultValue = false,
+                ShouldAllowEmpty = true
             };
         }
 
