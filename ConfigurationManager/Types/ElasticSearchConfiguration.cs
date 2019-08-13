@@ -28,6 +28,7 @@ namespace ConfigurationManager
             {
                 DefaultValue = "",
                 OriginalKey = "ES_URL_V1",
+                ShouldAllowEmpty = true
             };
             URLV2 = new StringConfigurationValue("url_v2", this)
             {
