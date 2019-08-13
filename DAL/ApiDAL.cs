@@ -5591,6 +5591,8 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Insert_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", profileToAdd.Name);
                 sp.AddParameter("@externalIdentifier", profileToAdd.ExternalId);
@@ -5601,9 +5603,14 @@ namespace DAL
                 sp.AddParameter("@defaultOverlapPolicy", (int)profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
+                if (profileToAdd.OverlapChannels != null)
+                {
+                    sp.AddParameter("@overlapChannels", string.Join(",", profileToAdd.OverlapChannels));
+                }
 
                 var adapaterId = sp.ExecuteReturnValue<int>();
                 MergeIngestProfileAdapaterSettings(groupId, adapaterId, userId, profileToAdd.Settings);
+
                 return adapaterId;
 
             }
@@ -5617,11 +5624,15 @@ namespace DAL
         private static List<IngestProfileAdapterParam> MergeIngestProfileAdapaterSettings(int groupId, int adapaterId, int updaterId, IList<IngestProfileAdapterParam> settings)
         {
             var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
+
             var sp = new StoredProcedure("Merge_IngestProfileTransformationAdapterSettings");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@ingestProfileId", adapaterId);
             sp.AddParameter("@updaterId", updaterId);
             sp.AddKeyValueListParameter("@KeyValueList", settingsTbl, "key", "value");
+
             var resp = sp.ExecuteDataSet();
             return resp.Tables[0].ToList<IngestProfileAdapterParam>();
         }
@@ -5631,6 +5642,8 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Update_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@profileId", profileId);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", profileToAdd.Name);
@@ -5641,6 +5654,11 @@ namespace DAL
                 sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
                 sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
+
+                if (profileToAdd.OverlapChannels != null)
+                {
+                    sp.AddParameter("@overlapChannels", string.Join(",", profileToAdd.OverlapChannels));
+                }
 
                 MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
 
@@ -5659,6 +5677,8 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Delete_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileId", profileId);
                 sp.AddParameter("@updaterId", userId);
@@ -5676,11 +5696,14 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Get_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileExternalId", externalId);
                 sp.AddParameter("@profileId", profileId);
                 var dbResponse = sp.ExecuteDataSet();
-                var profiles =  dbResponse.Tables[0].ToList<IngestProfile>();
+
+                List<IngestProfile> profiles = CreateIngestProfiles(dbResponse.Tables[0]);
                 var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
 
                 // Map settings to relevent profile
@@ -5690,25 +5713,40 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, ex:{1} ", groupId , ex);
+                log.ErrorFormat("Error while GetIngestProfiles in DB, groupId: {0}, ex:{1} ", groupId , ex);
                 throw;
             }
         }
 
-        public static bool GetIngestProfileByExternalId(string externalId, int groupId)
+        private static List<IngestProfile> CreateIngestProfiles(DataTable dataTable)
         {
-            try
+            List<IngestProfile> res = new List<IngestProfile>();
+
+            foreach (DataRow row in dataTable?.Rows)
             {
-                var sp = new StoredProcedure("Get_IngestProfile");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@externalId", externalId);
-                return sp.ExecuteReturnValue<int>() > 0;
+                var ip = new IngestProfile
+                {
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "groupId"),
+                    Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                    ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_identifier"),
+                    TransformationAdapterUrl = ODBCWrapper.Utils.GetSafeStr(row, "transformation_adapter_url"),
+                    TransformationAdapterSharedSecret = ODBCWrapper.Utils.GetSafeStr(row, "transformation_adapter_shared_secret"),
+                    AssetTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "asset_type"),
+                    DefaultAutoFillPolicy = (eIngestProfileAutofillPolicy)ODBCWrapper.Utils.GetIntSafeVal(row, "default_autofill_policy"),
+                    DefaultOverlapPolicy = (eIngestProfileOverlapPolicy)ODBCWrapper.Utils.GetIntSafeVal(row, "default_overlap_policy"),
+                };
+
+                var overlapChannels = ODBCWrapper.Utils.GetSafeStr(row, "overlap_channels");
+                if (!string.IsNullOrEmpty(overlapChannels))
+                {
+                    ip.OverlapChannels = overlapChannels.Split(',').Select(x => int.Parse(x)).ToList();
+                }
+
+                res.Add(ip);
             }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, externalId: {1}, ex:{2} ", groupId, externalId , ex);
-                throw;
-            }
+
+            return res;
         }
 
         public static DataTable GetPermission(int groupId, long id)
