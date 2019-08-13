@@ -3099,6 +3099,75 @@ namespace Core.Catalog.CatalogManagement
 
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
         }
+        
+        internal static List<int> GetRegions(int groupId)
+        {
+            List<int> result = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetRegionsKey(groupId);
+                if (!LayeredCache.Instance.Get<List<int>>(key, 
+                                                          ref result, 
+                                                          GetRegionsFromDB, 
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId, 
+                                                          LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
+                {
+                    log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<int>, bool> GetRegionsFromDB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId;
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        var ds = ApiDAL.Get_Regions(groupId.Value, null);
+
+                        if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                        {
+                            if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                            {
+                                res = true;
+
+                                if (result == null)
+                                {
+                                    result = new List<int>();
+                                }
+
+                                foreach (DataRow dr in ds.Tables[0].Rows)
+                                {
+                                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                                    result.Add(id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(result, res);
+        }
 
         #endregion
     }

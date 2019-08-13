@@ -123,7 +123,7 @@ namespace Core.Users
                 if (regionId.HasValue)
                 {
                     // validate region exists
-                    if (!domain.GetRegions().Contains(regionId.Value))
+                    if (!Catalog.CatalogManagement.CatalogManager.GetRegions(m_nGroupID).Contains(regionId.Value))
                     {
                         return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
                     }

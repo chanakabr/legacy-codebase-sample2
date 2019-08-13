@@ -2083,13 +2083,13 @@ namespace Core.Catalog
                 }
             }
         }
-
-        private static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group)
+        
+        public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group = null)
         {
             int regionId = -1;
-
             Domain domain = null;
-            var domainRes = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
+
             if (domainRes != null)
             {
                 domain = domainRes.Domain;
@@ -2098,11 +2098,14 @@ namespace Core.Catalog
             // If the domain is not associated to a domain - get default region
             if (domain.m_nRegion == 0)
             {
-                int defaultRegion = group.defaultRegion;
-
-                if (defaultRegion != 0)
+                if (group == null)
                 {
-                    regionId = defaultRegion;
+                    group = GroupsCache.Instance().GetGroup(groupId);
+                }
+                
+                if (group != null && group.defaultRegion != 0)
+                {
+                    regionId = group.defaultRegion;
                 }
             }
             else

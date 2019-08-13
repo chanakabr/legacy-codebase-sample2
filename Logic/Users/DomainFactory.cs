@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
+using Core.Catalog.CatalogManagement;
 
 namespace Core.Users
 {
@@ -100,7 +101,7 @@ namespace Core.Users
             if (regionId.HasValue)
             {
                 // validate region exists
-                if (!domain.GetRegions().Contains(regionId.Value))
+                if (!CatalogManager.GetRegions(nGroupID).Contains(regionId.Value))
                 {
                     domain.m_DomainStatus = DomainStatus.RegionDoesNotExist;
                     return domain;
