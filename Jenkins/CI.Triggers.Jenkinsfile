@@ -12,7 +12,7 @@ node {
     }
     stage('Trigger Relevant Job'){
         build (
-            job: 'OTT-BE-WS-Ingest-Windows', 
+            job: "${JOB_TO_RUN}", 
             wait: false,
             parameters: [
                 [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
