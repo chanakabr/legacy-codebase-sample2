@@ -1108,21 +1108,9 @@
       <Project>{bac5dc27-79d6-4bfb-8584-dfec4defd696}</Project>
       <Name>TCMClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Controls.Shared\Tvinci.Web.TVS.Controls.csproj">
-      <Project>{18f39282-8646-41cc-8e56-600087a2a9ac}</Project>
-      <Name>Tvinci.Web.TVS.Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\Controls\Tvinci.Web.Controls.csproj">
-      <Project>{6409da6b-d48d-43a2-9217-02b25d4ed5e3}</Project>
-      <Name>Tvinci.Web.Controls</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj">
       <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
       <Name>Tvinci.Data.DataLoader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TVPLibs\iucon\iucon.Framework.csproj">
-      <Project>{5d400db4-c756-4b5c-8359-fe55084043f4}</Project>
-      <Name>iucon.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\TVPLibs\Localization\Localization.csproj">
       <Project>{e53bae81-a07c-4112-a42d-4e899d6a52fc}</Project>

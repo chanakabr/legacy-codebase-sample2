@@ -13,7 +13,7 @@ using TVPPro.Configuration.PlatformServices;
 using TVPApi.Configuration.OrcaConfiguration;
 using KLogMonitor;
 using System.Reflection;
-
+using TVinciShared;
 
 /// <summary>
 /// Summary description for ConfigurationManager
@@ -125,7 +125,7 @@ namespace TVPApi
         private ConfigType FileGetConfig(int groupID, PlatformType platform)
         {
             ConfigType configType = new ConfigType();
-            string parentDirectoryStr = HttpContext.Current.Server.MapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
+            string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
             string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
             string directoryStr = string.Concat(parentDirectoryStr, platform);
 

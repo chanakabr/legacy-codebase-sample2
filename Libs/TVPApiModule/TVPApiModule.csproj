@@ -345,6 +345,10 @@
       <Project>{939556AF-A17E-4719-B87C-7C0916602FA3}</Project>
       <Name>NPVR</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj">
+      <Project>{d29ef6ea-805e-4a3a-8af0-7e360ec12c12}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\TVPLibs\ODBCWrapper\TVPApi.ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>TVPApi.ODBCWrapper</Name>
