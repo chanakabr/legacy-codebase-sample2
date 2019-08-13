@@ -14,6 +14,10 @@ namespace ConfigurationManager
         internal string Key;
         internal object ObjectValue;
         internal string Description;
+        /// <summary>
+        /// Describes if the configured property must be defined in TCM or not.
+        /// Usually should be true if the property doesn't have a default value
+        /// </summary>
         internal bool ShouldAllowEmpty;
         public object DefaultValue;
         internal ConfigurationValue Parent;

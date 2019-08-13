@@ -25,6 +25,7 @@ namespace ConfigurationManager
             };
             TempUploadFolder = new StringConfigurationValue("tempUploadFolder", this)
             {
+                DefaultValue = "c:\\tmp\\src",
                 ShouldAllowEmpty = false
             };
         }
