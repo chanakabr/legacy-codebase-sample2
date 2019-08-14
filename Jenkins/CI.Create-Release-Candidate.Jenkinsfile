@@ -7,9 +7,11 @@ node{
     }
     
     // If no missing artifacts, stop the job now and return Success
-     if (missingArtifacts.isEmpty()){
-        echo("nothing left to build, copying artifacts to release candidate folder")
-        sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+    if (missingArtifacts.isEmpty()){
+        stage('Sync S3 Release Candidate Folder'){
+            echo("nothing left to build, copying artifacts to release candidate folder")
+            sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+        }
         currentBuild.result = 'SUCCESS'
         return
     }
@@ -28,14 +30,17 @@ node{
         missingArtifacts = FindMissingArtifacts();
         if (missingArtifacts.isEmpty()){
             echo("All missing artifacts were delivered, copying artifacts to release candidate folder")
-            sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-            currentBuild.result = 'SUCCESS'
-            return
+        }
+        else{
+            error("Failed to build missing artifacts")
         }
     }
     
-    
-
+    stage('Sync S3 Release Candidate Folder'){
+        sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+    }
+    currentBuild.result = 'SUCCESS'
+        return
 }
 
 
