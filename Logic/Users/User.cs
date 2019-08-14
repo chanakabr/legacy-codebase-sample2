@@ -552,14 +552,15 @@ namespace Core.Users
         {
             return "";
         }
-        
-        public int Save(Int32 groupId, bool bIsSetUserActive = false)
+
+        public int Save(Int32 groupId, bool bIsSetUserActive = false, bool isSetFailCount = false)
         {
             try
             {
                 this.GroupId = groupId;
                 this.shouldRemoveFromCache = true;
                 this.shouldSetUserActive = bIsSetUserActive;
+                this.resetFailCount = isSetFailCount;
 
                 // New user - Insert
                 if (string.IsNullOrEmpty(m_sSiteGUID))
@@ -602,7 +603,7 @@ namespace Core.Users
 
             this.userId = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
                                                   m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted, m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
-                                                  m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity, countryID, stateID, 
+                                                  m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity, countryID, stateID,
                                                   m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode, m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
 
             if (this.userId > 0)
@@ -628,7 +629,7 @@ namespace Core.Users
                 {
                     log.ErrorFormat("User created with no role. userId = {0}", m_sSiteGUID);
                 }
-                
+
                 success = true;
             }
             else
@@ -636,7 +637,7 @@ namespace Core.Users
                 this.userId = -1;
                 return success;
             }
-            
+
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
                 m_oDynamicData.UserId = this.userId;
@@ -670,7 +671,7 @@ namespace Core.Users
             // update
             else
             {
-                bool saved = m_oBasicData.Save(this.userId, this.GroupId);
+                bool saved = m_oBasicData.Save(this.userId, this.GroupId, this.resetFailCount);
 
                 if (!saved)
                 {
@@ -732,7 +733,7 @@ namespace Core.Users
             if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
             {
                 m_oDynamicData.UserId = int.Parse(m_sSiteGUID);
-                m_oDynamicData.GroupId = nGroupID;                
+                m_oDynamicData.GroupId = nGroupID;
                 saved = m_oDynamicData.Save();
             }
 
@@ -1211,6 +1212,9 @@ namespace Core.Users
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
         public bool shouldSetUserActive;
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
+        public bool resetFailCount;
         [System.Xml.Serialization.XmlIgnore]
         [JsonIgnore()]
         public bool shouldRemoveFromCache;

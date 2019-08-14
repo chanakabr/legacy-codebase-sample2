@@ -1198,7 +1198,7 @@ namespace Core.Users
                 return ret;
             }
 
-            u.Save(m_nGroupID, false);
+            u.Save(m_nGroupID, false, true);
             ret.m_user = u;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;
