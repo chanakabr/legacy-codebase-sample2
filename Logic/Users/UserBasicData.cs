@@ -110,8 +110,8 @@ namespace Core.Users
             bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
             DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE");
-            DateTime lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATA");
-            int failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAILED_LOGIN_COUNT");
+            DateTime lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATE");
+            int failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAIL_COUNT");
 
 
             int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "user_type_id");
