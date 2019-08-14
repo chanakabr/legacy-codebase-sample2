@@ -80,7 +80,10 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)))
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => string.Join(",", src.m_user.m_oBasicData.RoleIds)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.CreateDate.ToUtcUnixTimestampSeconds()))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.UpdateDate.ToUtcUnixTimestampSeconds()));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.UpdateDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.m_user.m_oBasicData.LastLoginDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.FailedLoginCount, opt => opt.MapFrom(src => src.m_user.m_oBasicData.FailedLoginCount))
+                ;
 
             // User to KalturaOTTUser
             cfg.CreateMap<User, KalturaOTTUser>()
@@ -109,7 +112,9 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserState, opt => opt.ResolveUsing(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))) // for activation status
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => string.Join(",", src.m_oBasicData.RoleIds)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.m_oBasicData.CreateDate.ToUtcUnixTimestampSeconds()))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_oBasicData.UpdateDate.ToUtcUnixTimestampSeconds()));
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.m_oBasicData.UpdateDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.m_oBasicData.LastLoginDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.FailedLoginCount, opt => opt.MapFrom(src => src.m_oBasicData.FailedLoginCount));
 
             // KalturaOTTUser to KalturaBaseOTTUser
             cfg.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()
@@ -142,6 +147,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.GetRoleIds()))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)));
+
 
             // Country
             cfg.CreateMap<KalturaCountry, Core.Users.Country>()

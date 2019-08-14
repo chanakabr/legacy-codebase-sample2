@@ -216,6 +216,24 @@ namespace WebAPI.Models.Users
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        /// <summary>
+        ///  The date of the last successful login 
+        /// </summary>
+        [DataMember(Name = "lastLoginDate")]
+        [JsonProperty("lastLoginDate")]
+        [XmlElement(ElementName = "lastLoginDate")]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
+        public long LastLoginDate { get; set; }
+
+        /// <summary>
+        ///  The number of failed login attempts since the last successful login 
+        /// </summary>
+        [DataMember(Name = "failedLoginCount")]
+        [JsonProperty("failedLoginCount")]
+        [XmlElement(ElementName = "failedLoginCount")]
+        [SchemeProperty(ReadOnly = true, RequiresPermission = (int)RequestType.READ)]
+        public int FailedLoginCount { get; set; }
+
         internal int getHouseholdID()
         {
             return HouseholdID.HasValue ? (int) HouseholdID : 0;
