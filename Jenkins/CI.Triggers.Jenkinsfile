@@ -6,7 +6,7 @@ node {
         JOB_TO_RUN = getJobName(REPOSITORY_NAME)
         echo "extracted branch from ref:[${REF}] ==> [${BRANCH_NAME}] "
         echo "extracted job name from repository_name[${REPOSITORY_NAME}] ==> [${JOB_TO_RUN}] "
-        if (BRANCH_NAME.isAllWhitespace() || JOB_TO_RUN.isAllWhitespace()){
+        if (BRANCH_NAME?.isAllWhitespace() || JOB_TO_RUN?.isAllWhitespace()){
             error("Could not identify job or/and branch to trigger...");
         }
     }
