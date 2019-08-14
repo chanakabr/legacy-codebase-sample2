@@ -1,51 +1,62 @@
 
 node{
-    def s3ListCommand = '''
-        aws s3 ls s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ | awk '{print $4}' | grep -oE '(.*)(-)' | sed 's/-$//g'
-    '''
-    def s3CopyBuildToRcCommand = '''
-        aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/
-    '''
-    def foundArtifacts = []
-    def requiredArtifacts=['celery-tasks','phoenix-windows','remote-tasks-windows','tvm','tvpapi-windows','ws-ingest-windows']
-    def missingArtifacts=requiredArtifacts.collect()
-
-    stage('Collect Build Artifacts')
-    {
-        foundArtifacts = sh(label:"Get Current Artifacts from S3", script: s3ListCommand, returnStdout: true).split()
-    }
-
+    def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
+    def missingArtifacts = []
     stage('Identify Missing Artifacts') {
-        for(artifact in foundArtifacts) {
-            println("found: [${artifact}]")
-            missingArtifacts.remove(artifact)
-        }
-
-        echo("missingArtifacts: ${missingArtifacts}")
-        echo("foundArtifacts: ${foundArtifacts}")
-        echo("requiredArtifacts: ${requiredArtifacts}")
+        missingArtifacts = FindMissingArtifacts();
     }
     
+    // If no missing artifacts, stop the job now and return Success
+     if (missingArtifacts.isEmpty()){
+        echo("nothing left to build, copying artifacts to release candidate folder")
+        sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+        currentBuild.result = 'SUCCESS'
+        return
+    }
+
     stage('Build Missing Artifacts'){
+       def jobsToBuild = [:]
+        for(missingArtifact in missingArtifacts){
+            def jobName = getJobNameFromArtifactName(missingArtifact)
+            jobsToBuild["Build ${missingArtifact}"] = generateStage("Build ${missingArtifact}", jobName)
+        }
+
+        parallel jobsToBuild
+    }
+
+    stage('Validate Artifacts Built'){
+        missingArtifacts = FindMissingArtifacts();
         if (missingArtifacts.isEmpty()){
-            echo("notinght left to build, coping artifacts to release candidate folder")
+            echo("All missing artifacts were delivered, copying artifacts to release candidate folder")
             sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
             currentBuild.result = 'SUCCESS'
             return
         }
     }
     
-    def jobsToBuild = [:]
-    for(missingArtifact in missingArtifacts){
-        def jobName = getJobNameFromArtifactName(missingArtifact)
-        jobsToBuild["Build ${missingArtifact}"] = generateStage("Build ${missingArtifact}", jobName)
+    
 
-        parallel jobsToBuild
+}
+
+
+
+
+def FindMissingArtifacts(){
+    def s3ListCommand = "aws s3 ls s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ | awk '{print \$4}' | grep -oE '(.*)(-)' | sed 's/-\$//g'"
+    def foundArtifacts = []
+    def requiredArtifacts = ['celery-tasks','phoenix-windows','remote-tasks-windows','tvm','tvpapi-windows','ws-ingest-windows']
+    def missingArtifacts = requiredArtifacts.collect()
+
+    foundArtifacts = sh(label:"Get Current Artifacts from S3", script: s3ListCommand, returnStdout: true).split()
+    for(artifact in foundArtifacts) {
+        println("found: [${artifact}]")
+        missingArtifacts.remove(artifact)
     }
 
-    
-    sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-
+    echo("missingArtifacts: ${missingArtifacts}")
+    echo("foundArtifacts: ${foundArtifacts}")
+    echo("requiredArtifacts: ${requiredArtifacts}")
+    return missingArtifacts
 }
 
 def generateStage(stageName, jobName) {
