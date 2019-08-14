@@ -59,7 +59,7 @@ namespace Kaltura
                 if (userResponse != null && userResponse.resp != null && userResponse.resp.Code == (int)eResponseStatus.OK)
                 {
                     // add domain 
-                    DomainStatusResponse domainStatusResponse = Core.Domains.Module.AddDomain(this.GroupId, "domainname", "domainDescroption", int.Parse(userResponse.user.m_user.m_sSiteGUID));
+                    DomainStatusResponse domainStatusResponse = Core.Domains.Module.AddDomain(this.GroupId, "domainname", "domainDescroption", int.Parse(userResponse.user.m_user.m_sSiteGUID), null);
                     if (domainStatusResponse != null && domainStatusResponse.Status != null && domainStatusResponse.Status.Code == (int)eResponseStatus.OK)
                     {
                         // create pin code                     

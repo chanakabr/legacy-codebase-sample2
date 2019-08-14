@@ -17,8 +17,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
@@ -1923,6 +1925,5 @@ namespace Core.Catalog
 
             return new Tuple<Dictionary<string, ProgramObj>, bool>(result, res);
         }
-
     }
 }

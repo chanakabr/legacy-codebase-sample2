@@ -745,7 +745,6 @@ namespace ODBCWrapper
         /// <returns></returns>
         static public T ExtractValue<T>(DataRow p_drSource, string p_sFieldName)
         {
-            // TODO SHIR - USE ExtractValue
             T oResult = default(T);
 
             try

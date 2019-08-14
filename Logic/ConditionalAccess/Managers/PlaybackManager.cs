@@ -7,6 +7,7 @@ using ApiObjects.Response;
 using ApiObjects.Rules;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.Pricing;
@@ -243,7 +244,8 @@ namespace Core.ConditionalAccess
                             }
                             else if (assetType == eAssetTypes.NPVR)
                             {
-                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR);
+                                concurrencyResponse = cas.CheckMediaConcurrency(userId, udid, prices, (int)mediaId, (int)domainId, recording != null ? recording.EpgId : -1, ePlayType.NPVR,
+                                    recording.Id.ToString());
                             }
                             else
                             {
@@ -321,11 +323,23 @@ namespace Core.ConditionalAccess
 
                                     if (context != PlayContextType.Download)
                                     {
-                                        // HandlePlayUses
-                                        if (domainId > 0 && Utils.IsItemPurchased(filePrice))
+                                        // HandlePlayUses + DevicePlayData
+                                        if (domainId > 0)
                                         {
-                                            PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, 
+                                            if (Utils.IsItemPurchased(filePrice))
+                                            {
+                                                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, (int)file.Id, ip, string.Empty, string.Empty, udid,
                                                                            string.Empty, domainId, groupId);
+                                            }
+                                            // item must be free otherwise we wouldn't get this far
+                                            else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && filePrice.m_oItemPrices?.Length > 0)
+                                                     
+                                            {
+                                                bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
+                                                        new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, 
+                                                        eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate));
+                                            }
+
                                             cas.InsertDevicePlayData(concurrencyResponse.Data, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
 
                                             log.Debug("PlaybackManager.GetPlaybackContext - exec PlayUsesManager.HandlePlayUses and cas.InsertDevicePlayData methods");
@@ -474,22 +488,28 @@ namespace Core.ConditionalAccess
                         break;
                 }
 
-                if (response.Status.Code == (int)eResponseStatus.OK)
+                if (response.Status.Code == (int)eResponseStatus.OK && domainId > 0)
                 {
                     // HandlePlayUses
-                    if (domainId > 0)
+                    if (Utils.IsItemPurchased(price))
                     {
-                        if (Utils.IsItemPurchased(price))
-                        {
-                            PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
-                        }
-
-                        if (playbackContextResponse.ConcurrencyData != null)
-                        {
-                            cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
-                            log.Debug("PlaybackManager.GetPlayManifest - exec cas.InsertDevicePlayData method");
-                        }
+                        PlayUsesManager.HandlePlayUses(cas, price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId, groupId);
                     }
+                    // item must be free otherwise we wouldn't get this far
+                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && price.m_oItemPrices?.Length > 0)
+
+                    {
+                        bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, (int)file.Id,
+                                new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
+                                eTransactionType.PPV, null, price.m_oItemPrices[0].m_dtEndDate));
+                    }
+
+                    if (playbackContextResponse.ConcurrencyData != null)
+                    {
+                        cas.InsertDevicePlayData(playbackContextResponse.ConcurrencyData, (int)file.Id, ip, ApiObjects.Catalog.eExpirationTTL.Long);
+                        log.Debug("PlaybackManager.GetPlayManifest - exec cas.InsertDevicePlayData method");
+                    }
+
                 }
             }
             catch (Exception ex)

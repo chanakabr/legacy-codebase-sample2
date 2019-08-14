@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace ApiObjects.Response
 {
@@ -28,6 +29,7 @@ namespace ApiObjects.Response
         }
 
         [DataMember]
+        [JsonProperty("Code")]
         public int Code
         {
             get
@@ -45,6 +47,7 @@ namespace ApiObjects.Response
         }
 
         [DataMember]
+        [JsonProperty("Message")]
         public string Message
         {
             get
@@ -58,6 +61,7 @@ namespace ApiObjects.Response
         }
 
         [DataMember]
+        [JsonProperty("Args")]
         public List<KeyValuePair> Args
         {
             get
@@ -95,6 +99,16 @@ namespace ApiObjects.Response
             else
             {
                 this.message = responseMessage;
+            }
+        }
+
+        public void Set(Status newStatus)
+        {
+            if (newStatus != null)
+            {
+                this.code = newStatus.code;
+                this.message = newStatus.message;
+                this.args = newStatus.args;
             }
         }
 

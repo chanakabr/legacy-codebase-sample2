@@ -44,6 +44,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
+using TVinciShared;
 
 namespace Core.Api
 {
@@ -114,6 +115,8 @@ namespace Core.Api
         private const string PROFILE_NOT_EXIST = "profile doesn't exist";
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
+
+        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";        
         #endregion
 
         protected api() { }
@@ -2296,7 +2299,7 @@ namespace Core.Api
 
             }
             return res;
-        }
+        }        
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -6300,19 +6303,20 @@ namespace Core.Api
                     string signature = string.Concat(ossAdapter.ID, ossAdapter.Settings != null ? string.Concat(ossAdapter.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
                         groupId, unixTimestamp);
 
-                    using (APILogic.OSSAdapterService.ServiceClient client = new APILogic.OSSAdapterService.ServiceClient(string.Empty, ossAdapter.AdapterUrl))
+                    using (var client = AdaptersController.GetOSSAdapaterServiceClient(ossAdapter.AdapterUrl))
                     {
                         if (!string.IsNullOrEmpty(ossAdapter.AdapterUrl))
                         {
                             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(ossAdapter.AdapterUrl);
                         }
 
-                        APILogic.OSSAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-                            ossAdapter.ID,
-                            ossAdapter.Settings != null ? ossAdapter.Settings.Select(s => new APILogic.OSSAdapterService.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
-                            groupId,
-                            unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        APILogic.OSSAdapterService.AdapterStatus adapterResponse = client.SetConfigurationAsync(
+                                ossAdapter.ID,
+                                ossAdapter.Settings != null ? ossAdapter.Settings.Select(s => new APILogic.OSSAdapterService.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
+                                groupId,
+                                unixTimestamp,
+                                Convert.ToBase64String(EncryptUtils.AesEncrypt(ossAdapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                            ).ExecuteAndWait();
 
                         if (adapterResponse != null && adapterResponse.Code == (int)OSSAdapterStatus.OK)
                         {
@@ -6654,7 +6658,9 @@ namespace Core.Api
 
             HouseholdBillingRequest request = new HouseholdBillingRequest() { OSSAdapter = ossAdapter, HouseholdId = householdId, UserIP = userIP };
 
-            APILogic.OSSAdapterService.HouseholdPaymentGatewayResponse adapterResponse = AdaptersController.GetInstance(ossAdapter.ID).GetHouseholdPaymentGatewaySettings(request);
+            var adapterResponse = AdaptersController
+                .GetInstance(ossAdapter.ID, ossAdapter.AdapterUrl)
+                .GetHouseholdPaymentGatewaySettings(request);
 
             response = ValidateAdapterResponse(adapterResponse, logString);
 
@@ -7162,19 +7168,22 @@ namespace Core.Api
                     string signature = string.Concat(recommendationEngine.ID, recommendationEngine.Settings != null ? string.Concat(recommendationEngine.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
                         groupId, unixTimestamp);
 
-                    using (AdapterControllers.RecommendationEngineAdapter.ServiceClient client = new AdapterControllers.RecommendationEngineAdapter.ServiceClient(string.Empty, recommendationEngine.AdapterUrl))
+
+
+                    using (var client = RecommendationAdapterController.GetREAdapterServiceClient(recommendationEngine.AdapterUrl))
                     {
                         if (!string.IsNullOrEmpty(recommendationEngine.AdapterUrl))
                         {
                             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(recommendationEngine.AdapterUrl);
                         }
 
-                        AdapterControllers.RecommendationEngineAdapter.AdapterStatus adapterResponse = client.SetConfiguration(
+                        var adapterResponse = client.SetConfigurationAsync(
                             recommendationEngine.ID,
-                            recommendationEngine.Settings != null ? recommendationEngine.Settings.Select(s => new AdapterControllers.RecommendationEngineAdapter.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
+                            recommendationEngine.Settings != null ? recommendationEngine.Settings.Select(s => new AdapterControllers.RecommendationEngineAdapter.KeyValue() { Key = s.key, Value = s.value }).ToList() : null,
                             groupId,
                             unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(recommendationEngine.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(recommendationEngine.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))))
+                            .ExecuteAndWait();
 
                         if (adapterResponse != null && adapterResponse.Code == (int)OSSAdapterStatus.OK)
                         {
@@ -8449,7 +8458,15 @@ namespace Core.Api
 
             try
             {
-                response.Permissions = APILogic.Api.Managers.RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+                response.Permissions = RolesPermissionsManager.GetGroupPermissions(groupId, roleIdIn);
+
+                // Merge permission with type features
+                Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
+                if(groupFeatures?.Count > 0)
+                {
+                    response.Permissions.AddRange(groupFeatures.Values.ToList());
+                }
+
                 if (response.Permissions != null)
                 {
                     response.Permissions = response.Permissions.OrderBy(x => x.Id).ToList();
@@ -8462,7 +8479,7 @@ namespace Core.Api
             }
 
             return response;
-        }
+        }        
 
         public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
@@ -8488,28 +8505,28 @@ namespace Core.Api
             return response;
         }
 
-        public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            PermissionResponse response = new PermissionResponse()
-            {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+        //public static PermissionResponse AddPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
+        //{
+        //    PermissionResponse response = new PermissionResponse()
+        //    {
+        //        Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+        //    };
 
-            try
-            {
-                response.Permission = DAL.ApiDAL.InsertPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
-                if (response.Permission != null)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error while adding permission. group id = {0}", groupId), ex);
-            }
+        //    try
+        //    {
+        //        response.Permission = DAL.ApiDAL.InsertPermission(groupId, name, permissionItemsIds, type, usersGroup, updaterId);
+        //        if (response.Permission != null)
+        //        {
+        //            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(string.Format("Error while adding permission. group id = {0}", groupId), ex);
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}        
 
         public static ApiObjects.Response.Status AddPermissionToRole(int groupId, long roleId, long permissionId)
         {
@@ -8638,7 +8655,8 @@ namespace Core.Api
                     return response;
                 }
 
-                APILogic.OSSAdapterService.EntitlementsResponse adapterResponse = AdaptersController.GetInstance(ossAdapter.ID).GetEntitlements(groupID, ossAdapter, userId);
+                var adapterResponse = AdaptersController.GetInstance(ossAdapter.ID, ossAdapter.AdapterUrl)
+                    .GetEntitlements(groupID, ossAdapter, userId);
 
                 if (adapterResponse == null || adapterResponse.Status == null)
                 {
@@ -10019,12 +10037,29 @@ namespace Core.Api
             return result;
         }
 
-        public static bool DoActionRules()
-        {
+        public static bool DoActionRules(bool isSingleRun)
+        { 
             double alcrScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
+            int impactedItems = 0;
             try
             {
+                if (isSingleRun)
+                {
+                    impactedItems = AssetLifeCycleRuleManager.DoActionRules();
+
+                    if (impactedItems > 0)
+                    {
+                        log.DebugFormat("Successfully applied asset life cycle rules on: {0} assets", impactedItems);
+                    }
+                    else
+                    {
+                        log.DebugFormat("No assets were modified on DoActionRules");
+                    }
+
+                    return true;
+                }
+
                 // try to get interval for next run take default
                 BaseScheduledTaskLastRunDetails assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
 
@@ -10053,7 +10088,7 @@ namespace Core.Api
                     alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = AssetLifeCycleRuleManager.DoActionRules();
+                impactedItems = AssetLifeCycleRuleManager.DoActionRules();
 
                 if (impactedItems > 0)
                 {
@@ -10797,12 +10832,30 @@ namespace Core.Api
             return AssetRuleManager.UpdateAssetRule(groupId, assetRule);
         }
 
-        internal static bool DoActionAssetRules()
+        internal static bool DoActionAssetRules(bool isSingleRun)
         {
             double assetRuleScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
+            int impactedItems = 0;
             try
             {
+
+                if (isSingleRun)
+                {
+                    impactedItems = AssetRuleManager.DoActionRules();
+
+                    if (impactedItems > 0)
+                    {
+                        log.DebugFormat("Successfully applied asset rules on: {0} assets", impactedItems);
+                    }
+                    else
+                    {
+                        log.DebugFormat("No assets were modified on DoActionRules");
+                    }
+
+                    return true;
+                }
+
                 // try to get interval for next run take default
                 BaseScheduledTaskLastRunDetails assetRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetRuleScheduledTasks);
 
@@ -10831,7 +10884,7 @@ namespace Core.Api
                     assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = AssetRuleManager.DoActionRules();
+                impactedItems = AssetRuleManager.DoActionRules();
 
                 if (impactedItems > 0)
                 {
@@ -11865,6 +11918,132 @@ namespace Core.Api
             }
 
             return assetResponse.Object;
+        }
+
+        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        {
+            GenericResponse<Permission> response = new GenericResponse<Permission>();
+
+            try
+            {
+                // Validate permissnio Name (Must be unique per group)
+                if(ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
+                {
+                    response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
+                    log.ErrorFormat("AddPermission failed. PermissionNameAlreadyInUse.groupId = {0}, permissionName: {1}", groupId, permission.Name);
+                    return response;
+                }
+
+                permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName,
+                    permission.DependsOnPermissionNames, groupId);
+                if (permission.Id > 0)
+                {
+                    response.Object = permission;
+                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                    }
+                }
+                else
+                {
+                    response.SetStatus((int)eResponseStatus.Error, "failed to insert new permission");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddPermission failed groupId = {0}, permissionName: {1} ex = {2}", groupId, permission.Name, ex);
+                return response;
+            }
+
+            return response;
+        }
+
+        internal static Permission GetPermission(int groupId, long id)
+        {
+            Permission permission = null;
+
+            try
+            {
+                DataTable dt = ApiDAL.GetPermission(groupId, id);
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permission = new Permission()
+                    {
+                        GroupId = groupId,
+                        DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DEPENDS_ON_PERMISSION_NAMES"),
+                        FriendlyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FRIENDLY_NAME"),
+                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID")
+                    };
+                }
+                else
+                {
+                    log.ErrorFormat("No permissionId found {0}, groupId: {1}", id, groupId);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("GetPermission Failed. permissionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+            }
+
+            return permission;
+        }
+
+        internal static Status DeletePermission(int groupId, long id)
+        {
+            try
+            {
+                Permission permission = GetPermission(groupId, id);
+                if(permission == null)
+                {
+                    log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
+                }
+
+                // delete topicNotification from DB
+                if (!ApiDAL.DeletePermission(id))
+                {
+                    log.ErrorFormat("Error while trying to delete Permission. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on permission key = {0}", invalidationKey);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("DeletePermission Failed. permissionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+                return new Status((int)eResponseStatus.Error); ;
+            }
+
+            return new Status((int)eResponseStatus.OK);
+        }
+
+        public static Dictionary<string, Permission> GetGroupFeatures(int groupId)
+        {
+            return RolesPermissionsManager.GetGroupFeatures(groupId);
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> response = new Dictionary<string, List<string>>();
+
+            try
+            {
+                response = DAL.ApiDAL.GetPermissionItemsToFeatures(groupId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting Permission Items To Features. group id = {0}", groupId), ex);
+            }
+
+            return response;
         }
     }
 }

@@ -22,18 +22,18 @@ then
 	major=${TAG[0]}
 	minor=${COMMITS[0]}
 	build=${COMMITS[1]}
-    revision=${commitCount}
+	revision=${commitCount}
 	version="${major}"."${minor}"."${build}"."${revision}"
-    description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
+	description="$(date +'%Y-%m-%d %H:%M:%S') \| Hostname:$(hostname) \| Published by:${commiter} \| Tag:${tag}"
 	echo "Identified Version: $version"
-    echo "Identified Description: $description"
+	echo "Identified Description: $description"
 	echo 
 
 
-    for projFilePath in $allProjFiles; do
-        echo "Patching project: $projFilePath"
-        sed -i "s|\(<Version>\)[^<]*\(<\/Version>\)|\1$version\2|gi" $projFilePath
-        sed -i "s|\(<Description>\)[^<]*\(<\/Description>\)|\1$description\2|gi" $projFilePath
-    done
+	for projFilePath in $allProjFiles; do
+		echo "Patching project: $projFilePath"
+		sed -i "s|\(<Version>\)[^<]*\(<\/Version>\)|\1$version\2|gi" $projFilePath
+		sed -i "s|\(<Description>\)[^<]*\(<\/Description>\)|\1$description\2|gi" $projFilePath
+	done
 
 fi

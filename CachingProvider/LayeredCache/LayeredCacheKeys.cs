@@ -54,7 +54,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("ip_{0}", ip);
         }
-
+        
         public static string GetKeyForCountryName(string countryName)
         {
             return string.Format("countryName_{0}", countryName);
@@ -94,6 +94,16 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupPermissionItemsDictionaryKey(int groupId)
         {
             return string.Format("groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
+        }
+
+        public static string GetPermissionItemsToFeaturesDictionaryKey(int groupId)
+        {
+            return string.Format("permissionItemsToFeaturesDictionaryKey_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupFeaturesKey(int groupId)
+        {
+            return string.Format("groupFeaturesKey_groupId_{0}", groupId);
         }
 
         public static string GetFileCdnDataKey(int fileId)
@@ -296,9 +306,14 @@ namespace CachingProvider.LayeredCache
             return string.Format("DoesGroupUsesTemplates_groupId_{0}", groupId);
         }
 
+        public static string GetLinearMediaRegionsKey(int groupId)
+        {
+            return string.Format("LinearMediaRegions_groupId_{0}", groupId);
+        }
+
         public static string GetCatalogGroupCacheKey(int groupId)
         {
-            return string.Format("CatalogGroupCacheV3_groupId_{0}", groupId);
+            return string.Format("CatalogGroupCacheV4_groupId_{0}", groupId);
         }
 
         public static string GetGroupDeviceRulesKey(int groupId)
@@ -318,7 +333,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetAssetWithLanguageKey(string assetType, string id, int languageId)
         {
-            return string.Format("Asset_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
+            return string.Format("Asset_V1_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
         }
 
         public static string GetGroupImageTypesKey(int groupId)
@@ -610,6 +625,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("business_module_rules_by_mediaId_{0}", mediaId);
         }
 
+        public static string GetRegionsKey(int groupId)
+        {
+            return string.Format("Regions_{0}", groupId);
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -782,6 +802,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
+        }
+
+        public static string GetLinearMediaRegionsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyLinearMediaRegions_groupId_{0}", groupId);
         }
 
         public static string GetGroupDeviceRulesInvalidationKey(int groupId)
@@ -1083,7 +1108,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyTopicNotifications_groupId_{0}_type_{1}", groupId, SubscribeReferenceType);
         }
-        
+
+        public static string GetRegionsKeyInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_Regions_{0}", groupId);
+        }
+
         public static string PermissionsManagerInvalidationKey()
         {
             return PERMISSION_MANAGER_INVALIDATION_KEY;

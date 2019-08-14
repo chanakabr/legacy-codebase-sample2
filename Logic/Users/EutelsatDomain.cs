@@ -26,7 +26,7 @@ namespace Core.Users
             return InitializeDomain(nGroupID, nDomainID);
         }
 
-        public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
+        public override DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid, int? regionId)
         {
             //Create new domain
             Domain domain = new Domain();

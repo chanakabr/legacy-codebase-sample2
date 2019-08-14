@@ -210,8 +210,7 @@ namespace Core.Pricing
             }
         }
 
-        public static Subscription GetSubscriptionData(int nGroupID, string sSubscriptionCode
-            , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
+        public static Subscription GetSubscriptionData(int nGroupID, string sSubscriptionCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
             BaseSubscription t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1351,7 +1350,6 @@ namespace Core.Pricing
             return response;
         }
 
-
         public static SubscriptionSetsResponse GetSubscriptionSetsByBaseSubscriptionIds(int groupId, List<long> subscriptionIds, SubscriptionSetType? setType)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
@@ -1735,6 +1733,11 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public static GenericListResponse<CouponData> GetCoupons(int groupId, List<string> couponCodes, long householdId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

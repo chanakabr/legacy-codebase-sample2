@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+using System;
 using System.Web.Services.Protocols;
 using System.Threading;
 using KLogMonitor;
@@ -54,4 +55,4 @@ namespace ServiceExtensions
         }
     }
 }
-
+#endif

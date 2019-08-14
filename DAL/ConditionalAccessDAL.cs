@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.ConditionalAccess;
 using ApiObjects.SubscriptionSet;
 using ConfigurationManager;
 using KLogMonitor;
@@ -3070,16 +3071,15 @@ namespace DAL
             return compensation;
         }
 
-        public static bool UpdateSubscriptionCompensationUse(long subscriptionCompernsationId, long transactionId, int renewalNumber)
+        public static bool UpdateSubscriptionCompensationUse(RenewDetails renewDetails, long transactionId)
         {
-            int rowCount = 0;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionCompernsationUse");
+            var sp = new StoredProcedure("UpdateSubscriptionCompernsationUse");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
-            sp.AddParameter("@subscriptionCompernsationId", subscriptionCompernsationId);
+            sp.AddParameter("@subscriptionCompernsationId", renewDetails.RecurringData.Compensation.Id);
             sp.AddParameter("@transactionId", transactionId);
-            sp.AddParameter("@renewalNumber", renewalNumber);
+            sp.AddParameter("@renewalNumber", renewDetails.RecurringData.Compensation.Renewals);
 
-            rowCount = sp.ExecuteReturnValue<int>();
+            var rowCount = sp.ExecuteReturnValue<int>();
             return rowCount > 0;
         }
 
@@ -3443,13 +3443,7 @@ namespace DAL
 
             return result;
         }
-
-        public static bool SaveCouponRemainder(long purchaseId, double couponRemainder)
-        {
-            string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);
-            return UtilsDal.SaveObjectInCB<double>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, couponRemainder);
-        }
-
+        
         public static double GetCouponRemainder(long purchaseId)
         {
             string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);
@@ -3460,6 +3454,18 @@ namespace DAL
         {
             string key = UtilsDal.GetPurchaseCouponRemainderKey(purchaseId);
             return UtilsDal.DeleteObjectFromCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SaveRecurringRenewDetails(RecurringRenewDetails recurringRenewDetails, long purchaseId)
+        {
+            string key = UtilsDal.GetRecurringRenewDetailsKey(purchaseId);
+            return UtilsDal.SaveObjectInCB(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key, recurringRenewDetails);
+        }
+
+        public static RecurringRenewDetails GetRecurringRenewDetails(long purchaseId)
+        {
+            string key = UtilsDal.GetRecurringRenewDetailsKey(purchaseId);
+            return UtilsDal.GetObjectFromCB<RecurringRenewDetails>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

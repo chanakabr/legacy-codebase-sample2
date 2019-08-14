@@ -137,6 +137,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue MediaMarksListLength;
         public static NumericConfigurationValue MediaMarksTTL;
         public static NumericConfigurationValue EpgInitialId;
+        public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
 
         #endregion
 
@@ -602,6 +603,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 100000000
             };
+            ShouldAddInvalidationKeysToHeader = new BooleanConfigurationValue("add_invalidation_keys_to_header")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -713,7 +719,8 @@ namespace ConfigurationManager
                     ShouldSubscriptionOverlapConsiderDLM,
                     MediaMarksListLength,
                     MediaMarksTTL,
-                    EpgInitialId
+                    EpgInitialId,
+                    ShouldAddInvalidationKeysToHeader
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
@@ -764,14 +771,14 @@ namespace ConfigurationManager
                     }
                     catch (Exception ex)
                     {
-                        WriteToLog(string.Format("Exception when validating: {0}", ex.Message));
+                        WriteToLog(string.Format("Exception when validating: {0}", ex));
                         result = false;
                     }
                 }
             }
             catch (Exception ex)
             {
-                WriteToLog(string.Format("Exception when validating: {0}", ex.Message));
+                WriteToLog(string.Format("Exception when validating: {0}", ex));
                 result = false;
             }
 

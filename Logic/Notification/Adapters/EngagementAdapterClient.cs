@@ -9,12 +9,20 @@ using ApiObjects.Notification;
 using KLogMonitor;
 using Newtonsoft.Json;
 using TVinciShared;
+using Core;
 
 namespace APILogic.Notification.Adapters
 {
     public class EngagementAdapterClient
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static ServiceClient GetEngagementAdapterServiceClient(string adapterUrl)
+        {
+            var client = new ServiceClient(ServiceClient.EndpointConfiguration.BasicHttpBinding_IService, adapterUrl);
+            client.ConfigureServiceClient();
+            return client;
+        }
 
         public static bool SendConfigurationToAdapter(int groupId, EngagementAdapter engagementAdapter)
         {
@@ -35,15 +43,16 @@ namespace APILogic.Notification.Adapters
                 string signature = string.Concat(engagementAdapter.ID, engagementAdapter.ProviderUrl, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
                     groupId, unixTimestamp);
 
-                using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
+                using (var client = GetEngagementAdapterServiceClient(engagementAdapter.AdapterUrl))
                 {
-                    APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-                        engagementAdapter.ID,
-                        engagementAdapter.ProviderUrl,
-                        engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.EngagementAdapterService.KeyValue() { Key = s.Key, Value = s.Value }).ToArray() : null,
-                        groupId,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                    var adapterResponse = client.SetConfigurationAsync(
+                            engagementAdapter.ID,
+                            engagementAdapter.ProviderUrl,
+                            engagementAdapter.Settings?.Select(s => new KeyValue() { Key = s.Key, Value = s.Value }).ToArray(),
+                            groupId,
+                            unixTimestamp,
+                            Convert.ToBase64String(EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                        ).ExecuteAndWait();
 
                     if (adapterResponse != null && adapterResponse.Code == (int)EngagementAdapterStatus.OK)
                     {
@@ -84,11 +93,14 @@ namespace APILogic.Notification.Adapters
                 long unixTimeNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 // set signature
-                string signature = System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow))));
-                using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
+                string signature = Convert.ToBase64String(EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, EncryptUtils.HashSHA1(string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow))));
+                using (var client = GetEngagementAdapterServiceClient(engagementAdapter.AdapterUrl))
                 {
                     // get list
-                    adapterResponse = client.GetList(engagementAdapter.ID, adapterDynamicData, unixTimeNow, signature);
+                    adapterResponse = client
+                        .GetListAsync(engagementAdapter.ID, adapterDynamicData, unixTimeNow, signature)
+                        .ExecuteAndWait();
+
                     if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)EngagementAdapterStatus.OK)
                     {
                         log.DebugFormat("Successfully received engagement Adapter List Result: AdapterID = {0}, AdapterStatus = {1}, number of results: {2}",

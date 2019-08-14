@@ -1,5 +1,6 @@
 ﻿using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Pricing;
+using CouchbaseManager;
 using KLogMonitor;
 using ODBCWrapper;
 using System;
@@ -1808,6 +1809,23 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public static List<CouponWallet> GetHouseholdCouponWalletCB(long householdId)
+        {
+            string key = GetCouponWalletKey(householdId);
+            return UtilsDal.GetObjectFromCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, true);
+        }
+
+        public static bool SaveHouseholdCouponWalletCB(long householdId, List<CouponWallet> couponWalletList)
+        {
+            string key = GetCouponWalletKey(householdId);
+            return UtilsDal.SaveObjectInCB<List<CouponWallet>>(eCouchbaseBucket.OTT_APPS, key, couponWalletList, true);
+        }
+
+        private static string GetCouponWalletKey(long householdId)
+        {
+            return string.Format("household_coupon_wallet:{0}", householdId);
         }
     }
 }

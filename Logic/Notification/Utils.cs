@@ -17,6 +17,7 @@ using Core.Catalog;
 using ConfigurationManager;
 using TVinciShared;
 using Core.Catalog.CatalogManagement;
+using System.Net;
 
 namespace Core.Notification
 {
@@ -91,19 +92,28 @@ namespace Core.Notification
         ///<returns>The Base64 encoded string</returns>
         public static string Base64ForUrlEncode(string str)
         {
+            
             byte[] encbuff = Encoding.UTF8.GetBytes(str);
+            #if NETFRAMEWORK
             return HttpServerUtility.UrlTokenEncode(encbuff);
+            #endif
+            #if NETSTANDARD2_0
+            return Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlEncode(encbuff);
+            #endif
+
         }
-        ///<summary>
-        /// Decode Base64 encoded string with URL and Filename Safe Alphabet using UTF-8.
-        ///</summary>
-        ///<param name="str">Base64 code</param>
-        ///<returns>The decoded string.</returns>
-        public static string Base64ForUrlDecode(string str)
-        {
-            byte[] decbuff = HttpServerUtility.UrlTokenDecode(str);
-            return Encoding.UTF8.GetString(decbuff);
-        }
+
+        // Removed as it is not in use in REST Slution and HttpServerUtility.UrlTokenDecode(str) is not supported in net core
+        /////<summary>
+        ///// Decode Base64 encoded string with URL and Filename Safe Alphabet using UTF-8.
+        /////</summary>
+        /////<param name="str">Base64 code</param>
+        /////<returns>The decoded string.</returns>
+        //public static string Base64ForUrlDecode(string str)
+        //{
+        //    byte[] decbuff = HttpServerUtility.UrlTokenDecode(str);
+        //    return Encoding.UTF8.GetString(decbuff);
+        //}
 
 
         public static List<Core.Catalog.Response.UnifiedSearchResult> SearchSeriesEpisodes(int groupId, string seriesId, long? seasonNumber, long epgChannelId)

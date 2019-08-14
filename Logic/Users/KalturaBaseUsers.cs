@@ -15,7 +15,6 @@ namespace Core.Users
         protected Int32 changePinTokenValidityHours;
         protected int mailSSL = 0;
         protected int mailPort = 0;
-        protected BaseNewsLetterImpl newsLetterImpl;
         protected BaseMailImpl mailImpl;
         protected bool? isActivationNeededProp;
 
@@ -81,12 +80,6 @@ namespace Core.Users
         public abstract void PreDefaultRules(ref UserResponseObject userResponse, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList);
         internal abstract bool MidCreateDefaultRules(ref UserResponseObject userResponse, string siteGuid, int groupId, ref User userBo);
         public abstract void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList);
-
-        // Newsletter
-        internal abstract void InitSubscribeToNewsLetter(ref UserResponseObject userResponse, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe);
-        public abstract void PreSubscribeToNewsLetter(ref UserResponseObject userResponse, ref UserDynamicData dynamicData, ref User user, ref bool shouldSubscribe, ref List<KeyValuePair> keyValueList);
-        internal abstract bool MidSubscribeToNewsLetter(ref UserResponseObject userResponse, UserDynamicData dynamicData, User user, ref bool shouldSubscribe);
-        public abstract void PostSubscribeToNewsLetter(ref UserResponseObject userResponse, bool passed, ref UserDynamicData dynamicData, ref User user, ref List<KeyValuePair> keyValueList);
 
         // save user
         public abstract void PreSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, ref List<KeyValuePair> keyValueList);

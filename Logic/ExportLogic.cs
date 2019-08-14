@@ -1109,6 +1109,23 @@ namespace APILogic
                 filter = AppendUpdateDateToFilter(filter, since);
             }
 
+            // set the request assetTypes parameter
+            switch (assetType)
+            {
+                case eBulkExportDataType.VOD:
+                    {
+                        filter = string.Format("(and {0} asset_type='media')", filter);
+                    }
+                    break;
+                case eBulkExportDataType.EPG:
+                    filter = string.Format("(and {0} asset_type='epg')", filter);
+                    break;
+                case eBulkExportDataType.Users:
+                    throw new Exception("Export: users export date type not supported");
+                default:
+                    throw new Exception("Export: unknown export date type");
+            }
+
             // build unified search request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
@@ -1124,43 +1141,6 @@ namespace APILogic
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);
-            
-            // set the request assetTypes parameter
-            switch (assetType)
-            {
-                case eBulkExportDataType.VOD:
-                    {
-                        List<int> mediaTypes;
-                        // if type is VOD and no VOD types supplied - get all available media types for the group
-                        if (vodTypes == null || vodTypes.Count == 0)
-                        {
-                            // get media types IDs
-                            mediaTypes = Utils.GetGroupMediaTypesIds(groupId).ToList();
-                        }
-                        else
-                        {
-                            mediaTypes = vodTypes;
-                        }
-                        
-                        // if types not found - search cannot be performed (will return all asset types including epg) 
-                        // throw exception and fail the process
-                        if (mediaTypes == null || mediaTypes.Count == 0)
-                        {
-                            throw new Exception(string.Format("Export: no media types were found for group {0}", groupId));
-                        }
-
-                        request.assetTypes = mediaTypes;
-                    }
-                    break;
-                case eBulkExportDataType.EPG:
-                    // epg type = 0
-                    request.assetTypes = new List<int> {0};
-                    break;
-                case eBulkExportDataType.Users:
-                    throw new Exception("Export: users export date type not supported");
-                default:
-                    throw new Exception("Export: unknown export date type");
-            }
 
             // perform the search
             UnifiedSearchResponse response = request.GetResponse(request) as UnifiedSearchResponse;

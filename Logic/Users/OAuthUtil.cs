@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web.Script.Serialization;
+
 using System.Net;
 using System.IO;
 using System.Data;
@@ -11,6 +11,7 @@ using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
+using Newtonsoft.Json;
 
 namespace TVinciShared
 {
@@ -19,8 +20,6 @@ namespace TVinciShared
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static byte[] data;
-        private static JavaScriptSerializer serializer = new JavaScriptSerializer();
-
         // Get OAuth provider details
         public static ProviderObject GetProviderDetails(int providerId)
         {
@@ -63,7 +62,7 @@ namespace TVinciShared
             CredentialObject credObj = null;
             if (!string.IsNullOrEmpty(sCredsJSON))
             {
-                credObj = serializer.Deserialize<CredentialObject>(sCredsJSON);
+                credObj = JsonConvert.DeserializeObject<CredentialObject>(sCredsJSON);
             }
 
             return credObj;
@@ -77,7 +76,7 @@ namespace TVinciShared
             log.Debug("oAuth - " + sAuthenticationJSON + ":" + prov.GroupID);
             if (!string.IsNullOrEmpty(sAuthenticationJSON))
             {
-                AuthenticationObj = serializer.Deserialize<AuthenticationObject>(sAuthenticationJSON);
+                AuthenticationObj = JsonConvert.DeserializeObject<AuthenticationObject>(sAuthenticationJSON);
             }
             return AuthenticationObj;
         }
@@ -125,7 +124,7 @@ namespace TVinciShared
                 if (wsRespObject.m_RespStatus != ResponseStatus.UserExists)
                 {
                     Domain d = new Domain();
-                    d.CreateNewDomain(credsObj.Customer_ID + "'s Domain", string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), "");
+                    d.CreateNewDomain(credsObj.Customer_ID + "'s Domain", string.Empty, prov.GroupID, int.Parse(wsRespObject.m_user.m_sSiteGUID), null, "");
                     domain_id = d.m_nDomainID;
                 }
                 else

@@ -1,15 +1,14 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.Roles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
-using ApiObjects;
 
 namespace APILogic.Api.Managers
 {
@@ -335,5 +334,92 @@ namespace APILogic.Api.Managers
             return result;
         }
 
+        public static Dictionary<string, Permission> GetGroupFeatures(int groupId)
+        {
+            Dictionary<string, Permission> result = new Dictionary<string, Permission>();
+
+            try
+            {
+                string key = LayeredCacheKeys.GetGroupFeaturesKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
+                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Permission>>(key, ref result, BuildGroupFeatures,
+                                                                                                                new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                                                                                                                LayeredCacheConfigNames.GET_GROUP_FEATURES,
+                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                new List<string>() { invalidationKey }))
+                {
+                    log.ErrorFormat("Failed getting GetGroupFeatures from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupFeatures, groupId: {0}", groupId), ex);
+            }
+
+            return result;
+
+        }
+
+
+        private static Tuple<Dictionary<string, Permission>, bool> BuildGroupFeatures(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, Permission> result = new Dictionary<string, Permission>();
+            bool success = false;
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        result = GetGroupPermissionFeatures(groupId.Value);
+                        success = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("BuildPermissionItemsToFeaturesDictionary failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, Permission>, bool>(result, success);
+        }
+
+        public static Dictionary<string, Permission> GetGroupPermissionFeatures(int groupId)
+        {
+            Dictionary<string, Permission> features = new Dictionary<string, Permission>();
+            Permission permission = null;
+
+            try
+            {
+                DataTable dt = ApiDAL.GetGroupFeatures(groupId);
+                if (dt?.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        permission = new Permission()
+                        {
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                            DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES"),
+                            FriendlyName = ODBCWrapper.Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                            Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                            Type = ePermissionType.SpecialFeature
+                        };
+
+                        if (!string.IsNullOrEmpty(permission.Name) && !features.ContainsKey(permission.Name.ToLower()))
+                        {
+                            features.Add(permission.Name.ToLower(), permission);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting Group features. group id = {0}", groupId), ex);
+            }
+
+            return features;
+        }
     }
 }

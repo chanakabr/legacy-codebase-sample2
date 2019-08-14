@@ -262,16 +262,6 @@ namespace Core.Users
             }
         }
 
-        static public BaseNewsLetterImpl GetBaseImpl(string apiKey, string listID, int implID)
-        {
-            BaseNewsLetterImpl retVal = null;
-            if (implID == 1)
-            {
-                retVal = new MCNewsLetterImpl(apiKey, listID);
-            }
-            return retVal;
-        }
-
         static public Country[] GetCountryList()
         {
             Country[] ret = null;
@@ -920,6 +910,10 @@ namespace Core.Users
                 case DomainResponseStatus.UserAlreadyInDomain:
                     result.Code = (int)eResponseStatus.UserAlreadyInDomain;
                     result.Message = "User already in Household";
+                    break;
+                case DomainResponseStatus.RegionDoesNotExist:
+                    result.Code = (int)eResponseStatus.RegionDoesNotExist;
+                    result.Message = "Region does not exist";
                     break;
                 default:
                     result.Code = (int)eResponseStatus.Error;

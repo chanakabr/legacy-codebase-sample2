@@ -1,76 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ImageResizer;
 using System.Net;
 using System.IO;
 using KLogMonitor;
 using System.Reflection;
+using SkiaSharp;
 
 namespace ImageManager
 {
     public class ImageHelper
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         static public bool DownloadAndCropImage(int nGroupID, string sURL, string sBasePath, List<ImageObj> images, string sPicBaseName, string sUploadedFileExt)
         {
-            log.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, images:{1}", nGroupID, images.Count));
+            _Logger.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, images:{1}", nGroupID, images.Count));
 
-            string name = string.Format("{0}_original.{1}", sPicBaseName, sUploadedFileExt.Replace(".", string.Empty));
-            string originalPath = string.Format("{0}\\{1}", sBasePath, name);
+            var name = string.Format("{0}_original.{1}", sPicBaseName, sUploadedFileExt.Replace(".", string.Empty));
+            var originalPath = string.Format("{0}\\{1}", sBasePath, name);
 
             bool res = DownloadImage(sURL, originalPath);
             if (!res)
             {
-                log.Debug("DownloadAndCropImage - " + string.Format("Error : Exception while download img"));
+                _Logger.Debug("DownloadAndCropImage - " + string.Format("Error : Exception while download img"));
                 return res;
             }
 
-            foreach (ImageObj image in images)
+            foreach (var image in images)
             {
                 string dest = string.Format("{0}\\{1}", sBasePath, image.ToString());
                 try
                 {
-                    ImageResizer.ImageBuilder.Current.Build(originalPath, dest, image.oResizeSettings, false);
+                    ResizeOrCropAndSaveImage(originalPath, dest, image.oResizeSettings);
                     image.eResizeStatus = ResizeStatus.SUCCESS;
                 }
                 catch (Exception ex)
                 {
                     image.eResizeStatus = ResizeStatus.FAILED;
-                    log.Error("DownloadAndCropImage - " + string.Format("(Resize) Exception:{0}", ex.Message), ex);
+                    _Logger.Error("DownloadAndCropImage - " + string.Format("(Resize) Exception:{0}", ex.Message), ex);
                 }
-                log.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, Image:{1}, {2}", nGroupID, image.ToString(), image.eResizeStatus));
+                _Logger.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, Image:{1}, {2}", nGroupID, image.ToString(), image.eResizeStatus));
             }
 
             RemoveImage(originalPath);
             return res;
         }
 
+
+
         static public bool DownloadImage(string sURL, string dest)
         {
             bool res = false;
             try
             {
-                log.Debug("DownloadOriginlImage - " + string.Format("url:{0}, dest:{1}", sURL, dest));
+                _Logger.Debug("DownloadOriginlImage - " + string.Format("url:{0}, dest:{1}", sURL, dest));
 
-                Uri uri = new Uri(sURL);
-                HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
-                HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+                var uri = new Uri(sURL);
+                var httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
+                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 
-                using (Stream imageStream = httpResponse.GetResponseStream())
+                using (var imageStream = httpResponse.GetResponseStream())
                 {
                     try
                     {
-                        ResizeSettings oResizeSettings = new ResizeSettings();
-                        oResizeSettings.Quality = 100;
-                        ImageResizer.ImageBuilder.Current.Build(imageStream, dest, oResizeSettings, false);
+                        var oResizeSettings = new ResizeSettings { Quality = 100 };
+                        ResizeOrCropAndSaveImage(imageStream, dest, oResizeSettings);
                         res = true;
                     }
                     catch (Exception ex)
                     {
-                        log.Error("DownloadOriginlImage - " + string.Format("(imageStream) Exception:{0}", ex.Message), ex);
+                        _Logger.Error("DownloadOriginlImage - " + string.Format("(imageStream) Exception:{0}", ex.Message), ex);
                         dest = string.Empty;
                     }
                     finally
@@ -81,7 +80,7 @@ namespace ImageManager
             }
             catch (Exception ex)
             {
-                log.Error("DownloadOriginlImage - " + string.Format("Exception:{0}", ex.Message), ex);
+                _Logger.Error("DownloadOriginlImage - " + string.Format("Exception:{0}", ex.Message), ex);
                 res = false;
             }
 
@@ -92,19 +91,64 @@ namespace ImageManager
         {
             try
             {
-                FileInfo fileInf = new FileInfo(sImagePath);
+                var fileInf = new FileInfo(sImagePath);
                 if (!fileInf.Exists)
                 {
                     throw new Exception("File does not exist : " + sImagePath);
                 }
                 fileInf.Delete();
-                log.Debug("RemoveOriginalImage - " + string.Format("Delete:{0}", sImagePath));
+                _Logger.Debug("RemoveOriginalImage - " + string.Format("Delete:{0}", sImagePath));
             }
             catch (Exception ex)
             {
-                log.Error("RemoveOriginalImage - " + string.Format("(Delete) Exception:{0}", ex.Message), ex);
+                _Logger.Error("RemoveOriginalImage - " + string.Format("(Delete) Exception:{0}", ex.Message), ex);
+            }
+        }
+
+
+        private static void ResizeOrCropAndSaveImage(Stream inputImageStream, string destinationPath, ResizeSettings resizeSettings)
+        {
+            var bitmap = SKBitmap.Decode(inputImageStream);
+            ResizeOrCropSKBitmap(destinationPath, resizeSettings, bitmap);
+        }
+
+        private static void ResizeOrCropAndSaveImage(string imagePath, string destinationPath, ResizeSettings resizeSettings)
+        {
+            var bitmap = SKBitmap.Decode(imagePath);
+            ResizeOrCropSKBitmap(destinationPath, resizeSettings, bitmap);
+        }
+
+        private static void ResizeOrCropSKBitmap(string destinationPath, ResizeSettings resizeSettings, SKBitmap bitmap)
+        {
+            var image = SKImage.FromBitmap(bitmap);
+
+            if (resizeSettings.FitMode == FitMode.Crop)
+            {
+                var subset = image.Subset(SKRectI.Create(20, 20, 90, 90));
+                using (var imageData = subset.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
+                {
+                    SaveImageDataToFile(imageData, destinationPath);
+                }
+            }
+            else if (resizeSettings.FitMode == FitMode.Resize)
+            {
+                var resizeInfo = new SKImageInfo(resizeSettings.Width, resizeSettings.Height);
+                using (var resizedBitmap = bitmap.Resize(resizeInfo, SKFilterQuality.High))
+                using (var newImg = SKImage.FromPixels(resizedBitmap.PeekPixels()))
+                using (var imageData = newImg.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
+                {
+                    SaveImageDataToFile(imageData, destinationPath);
+
+                }
+            }
+        }
+
+        private static void SaveImageDataToFile(SKData data, string destPath)
+        {
+            using (var fs = new FileStream(destPath, FileMode.Create))
+            {
+                data.SaveTo(fs);
             }
         }
     }
-
 }

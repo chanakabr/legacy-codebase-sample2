@@ -49,10 +49,13 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_UNIFIED_BILLING_CYCLE = "GetGroupUnifiedBillingCycle";        
         public const string GET_ROLES_BY_GROUP_ID = "GetRolesByGroupId";
         public const string GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID = "GetGroupPermissionItemsDictionary";
+        public const string GET_PERMISSION_ITEMS_TO_FEATURES = "GetPermissionItemsToFeaturesDictionary";
+        public const string GET_GROUP_FEATURES = "GetGroupFeatures";
         public const string DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "DrmAdapter";
         public const string GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "GroupDrmAdapter";
         public const string DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME = "DoesGroupUsesTemplates";
         public const string GET_CATALOG_GROUP_CACHE_CONFIG_NAME = "GetCatalogGroupCache";
+        public const string GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME = "GetLinearMediaRegions";
         public const string GET_GROUP_DEVICE_RULES_CACHE_CONFIG_NAME = "GetGroupDeviceRules";
         public const string GET_GROUP_GEO_BLOCK_RULES_CACHE_CONFIG_NAME = "GetGroupGeoBlockRules";        
         public const string GET_ASSETS_LIST_CACHE_CONFIG_NAME = "GetAssets";
@@ -113,7 +116,7 @@ namespace CachingProvider.LayeredCache
         #region Constant Invalidation Keys
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
-        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";        
+        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";
 
         #endregion
     }

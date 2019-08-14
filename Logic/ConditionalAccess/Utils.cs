@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Web;
@@ -996,16 +997,15 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        private static void HandleBundleCreditNeedToDownloadedQuery(List<string> subsToBundleCreditDownloadedQuery,
-            List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, List<int> lstUserIDs, List<int> relatedMediaFileIDs,
-            ref List<int> subsToSendToCatalog, ref List<int> collsToSendToCatalog)
+        private static void HandleBundleCreditNeedToDownloadedQuery(List<string> subsToBundleCreditDownloadedQuery, List<string> colsToBundleCreditDownloadedQuery, int nMediaFileID, int nGroupID, 
+                                                                    List<int> lstUserIDs, List<int> relatedMediaFileIDs, ref List<int> subsToSendToCatalog, ref List<int> collsToSendToCatalog)
         {
             if (subsToBundleCreditDownloadedQuery.Count > 0 || colsToBundleCreditDownloadedQuery.Count > 0)
             {
                 Dictionary<string, bool> subsRes = null;
                 Dictionary<string, bool> colsRes = null;
-                DoBundlesCreditNeedToBeDownloaded(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID,
-                    nGroupID, lstUserIDs, relatedMediaFileIDs, ref subsRes, ref colsRes);
+                DoBundlesCreditNeedToBeDownloaded(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID, nGroupID, lstUserIDs, relatedMediaFileIDs, ref subsRes, ref colsRes);
+
                 if (subsRes.Count > 0)
                 {
                     foreach (KeyValuePair<string, bool> kvp in subsRes)
@@ -1018,6 +1018,7 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
+
                 if (colsRes.Count > 0)
                 {
                     foreach (KeyValuePair<string, bool> kvp in colsRes)
@@ -1594,9 +1595,9 @@ namespace Core.ConditionalAccess
             List<long> segmentIds = new List<long>();
             if (allUserIdsInDomain != null && allUserIdsInDomain.Count > 0)
             {
-                foreach (var userId in allUserIdsInDomain)
+                foreach (var userInDomain in allUserIdsInDomain)
                 {
-                    var userSegments = Api.Module.GetUserSegments(groupId, userId, 0, 0);
+                    var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, 0, 0);
                     if (userSegments != null && userSegments.HasObjects())
                     {
                         segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
@@ -1610,7 +1611,7 @@ namespace Core.ConditionalAccess
             }
 
             log.DebugFormat("Utils.GetLowestPrice - segmentIds: {0}", string.Join(", ", segmentIds));
-
+            
             // calc lowest price
             ConditionScope filter = new ConditionScope()
             {
@@ -1623,7 +1624,7 @@ namespace Core.ConditionalAccess
                 MediaId = mediaId
             };
 
-            var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter);
+            var businessModuleRules = BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, RuleActionType.ApplyDiscountModuleRule);
             if (businessModuleRules.HasObjects())
             {
                 log.DebugFormat("Utils.GetLowestPrice - businessModuleRules count: {0}", businessModuleRules.Objects.Count);
@@ -1631,116 +1632,44 @@ namespace Core.ConditionalAccess
                 {
                     if (businessModuleRule.Actions != null && businessModuleRule.Actions.Count == 1)
                     {
-                        if (businessModuleRule.Actions[0].Type == RuleActionType.ApplyDiscountModuleRule)
+                        var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
+                        if (discountModule != null)
                         {
-                            DiscountModule discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(businessModuleRule.Actions[0] as ApplyDiscountModuleRuleAction).DiscountModuleId, countryCode, currencyCode);
-                            if (discountModule != null)
+                            var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
+                            if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
                             {
-                                var tempPrice = GetPriceAfterDiscount(currentPrice, discountModule, 1);
-                                if (tempPrice != null && tempPrice.m_dPrice < lowestPrice.m_dPrice)
-                                {
-                                    lowestPrice = tempPrice;
-                                }
+                                lowestPrice = tempPrice;
                             }
                         }
                     }
                 }
             }
 
-            if (transactionType != eTransactionType.PPV && !string.IsNullOrEmpty(couponCode))
+            if (lowestPrice.IsFree() || transactionType == eTransactionType.PPV || string.IsNullOrEmpty(couponCode)) { return lowestPrice; }
+            
+            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
+            if (couponGroupId > 0)
             {
-                long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
-
-                if (couponGroupId > 0)
+                // look if this coupon group id exsits in coupon list 
+                CouponsGroup currCouponGroup = null;
+                if (couponsGroup != null && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
                 {
-                    // look if this coupon group id exsits in coupon list 
-                    CouponsGroup currCouponGroup = null;
-                    if (couponsGroup != null && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
-                    {
-                        currCouponGroup = ObjectCopier.Clone(couponsGroup);
-                    }
-                    else if (subscriptionCouponGroups != null)
-                    {
-                        currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscriptionCouponGroups.FirstOrDefault
-                            (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)));
-                    }
-
-                    lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
+                    currCouponGroup = ObjectCopier.Clone(couponsGroup);
                 }
+                else if (subscriptionCouponGroups != null)
+                {
+                    currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscriptionCouponGroups.FirstOrDefault
+                        (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)));
+                }
+
+                lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);
             }
 
             return lowestPrice;
         }
-
-        internal static List<RenewSubscriptionDetails> BuildSubscriptionPurchaseDetails(DataTable subscriptionPurchaseDt, int groupId, BaseConditionalAccess cas)
-        {
-            try
-            {
-                DateTime minStartDate = DateTime.UtcNow;
-                List<RenewSubscriptionDetails> renewSubscriptionDetails = new List<RenewSubscriptionDetails>();
-                int numOfPayments, paymentNumber;
-
-                foreach (DataRow dr in subscriptionPurchaseDt.Rows)
-                {
-                    RenewSubscriptionDetails rsd = new RenewSubscriptionDetails
-                    {
-                        ProductId = ODBCWrapper.Utils.ExtractString(dr, "subscription_code"),
-                        PurchaseId = ODBCWrapper.Utils.ExtractInteger(dr, "id"),
-                        CouponCode = ODBCWrapper.Utils.ExtractString(dr, "coupon_code"),
-                        EndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "end_date"),
-                        UserId = ODBCWrapper.Utils.ExtractString(dr, "site_user_guid"),
-                        BillingGuid = ODBCWrapper.Utils.ExtractString(dr, "billing_guid"),
-                        CustomData = ODBCWrapper.Utils.ExtractString(dr, "customdata"),
-                        CountryName = ODBCWrapper.Utils.ExtractString(dr, "country_code"), // country code on db is really country name 
-                        Currency = ODBCWrapper.Utils.ExtractString(dr, "currency_cd"),
-                        PaymentMethodId = ODBCWrapper.Utils.ExtractInteger(dr, "payment_method_id"),
-                        ExternalTransactionId = ODBCWrapper.Utils.ExtractString(dr, "external_transaction_id"),
-                        TotalNumOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "total_number_of_payments"),
-                        SubscriptionStatus = (SubscriptionPurchaseStatus)ODBCWrapper.Utils.ExtractInteger(dr, "subscription_status")
-                    };
-
-                    rsd.CountryCode = Utils.GetCountryCodeByCountryName(groupId, rsd.CountryName);
-
-                    // get compensation data
-                    rsd.Compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(rsd.PurchaseId);
-
-                    // check if purchased with preview module                    
-                    rsd.IsPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(groupId, rsd.BillingGuid, (int)rsd.PurchaseId);
-
-                    numOfPayments = ODBCWrapper.Utils.ExtractInteger(dr, "number_of_payments");
-                    paymentNumber = ODBCWrapper.Utils.ExtractInteger(dr, "payment_number");
-
-                    paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, rsd.IsPurchasedWithPreviewModule);
-                    if (numOfPayments > 0 && paymentNumber > numOfPayments)
-                    {
-                        // Subscription ended
-                        log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, paymentNumber, numOfPayments);
-                        cas.WriteToUserLog(rsd.UserId, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
-                            rsd.ProductId, numOfPayments, paymentNumber, numOfPayments, rsd.BillingGuid));
-
-                        continue; // won't insert this row details to the list ! 
-                    }
-                    paymentNumber++;
-
-                    rsd.NumOfPayments = numOfPayments;
-                    rsd.PaymentNumber = paymentNumber;
-
-                    renewSubscriptionDetails.Add(rsd);
-                }
-
-                return renewSubscriptionDetails;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("BuildSubscriptionPurchaseDetails failed ex = {0}", ex);
-            }
-
-            return null;
-        }
-
-        internal static void GetMultiSubscriptionUsageModule(List<RenewSubscriptionDetails> rsDetails, string userIp, List<Subscription> subscriptions,
-                                                             BaseConditionalAccess cas, ref UnifiedBillingCycle unifiedBillingCycle, int householdId, int groupId,
-                                                             bool isRenew = true)
+        
+        internal static void GetMultiSubscriptionUsageModule(List<RenewDetails> rsDetails, string userIp, Dictionary<long, Subscription> subscriptions, BaseConditionalAccess cas, 
+                                                             ref UnifiedBillingCycle unifiedBillingCycle, int householdId, int groupId, bool isRenew = true)
         {
             try
             {
@@ -1748,16 +1677,16 @@ namespace Core.ConditionalAccess
                 int recPeriods = 0;
                 bool isMPPRecurringInfinitely = false;
                 string previousPurchaseCurrencyCode = string.Empty;
-                List<RenewSubscriptionDetails> rsDetailsToRemove = new List<RenewSubscriptionDetails>();
+                List<RenewDetails> rsDetailsToRemove = new List<RenewDetails>();
 
-                Subscription subscription;
-                foreach (RenewSubscriptionDetails rsDetail in rsDetails)
+                foreach (RenewDetails rsDetail in rsDetails)
                 {
-                    previousPurchaseCurrencyCode = rsDetail.Currency;
-
-                    subscription = subscriptions.FirstOrDefault(x => x.m_SubscriptionCode == rsDetail.ProductId);
-                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle,
-                                                             previousPurchaseCurrencyCode, groupId, householdId, true, isRenew))
+                    rsDetail.PreviousPurchaseCurrencyCode = rsDetail.Currency;
+                    var subscription = subscriptions[rsDetail.ProductId];
+                    rsDetail.DomainId = householdId;
+                    rsDetail.GroupId = groupId;
+                    
+                    if (!cas.GetMultiSubscriptionUsageModule(rsDetail, userIp, ref recPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, groupId, true, isRenew))
                     {
                         // "Error while trying to get Price plan
                         log.ErrorFormat("Error while trying to get Price plan to renew productId : {0}, purchaseId : {1}, householdId : {2}", rsDetail.ProductId, rsDetail.PurchaseId, householdId);
@@ -2063,6 +1992,8 @@ namespace Core.ConditionalAccess
                 dRet = dRet.AddYears(mulFactor * 5);
             else if (nVal == 100000000)
                 dRet = dRet.AddYears(mulFactor * 10);
+            else if (nVal == 999999999)
+                dRet = dRet.AddYears(mulFactor * 100);
             else
                 dRet = dRet.AddMinutes(mulFactor * nVal);
             return dRet;
@@ -2606,8 +2537,8 @@ namespace Core.ConditionalAccess
                     Price discountPrice =
                         GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, couponCode, groupID, string.Empty, out dtDiscountEndDate, domainID);
 
-                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID,
-                                           countryCode, ref couponCode, null, null, allUserIDsInDomain.ConvertAll(x => x.ToString()), mediaID);
+                    price = GetLowestPrice(groupID, price, domainID, discountPrice, eTransactionType.PPV, currencyCode, ppvID, countryCode, ref couponCode, null, null, 
+                                           allUserIDsInDomain.ConvertAll(x => x.ToString()), mediaID);
 
                     if (IsFreeMediaFile(theReason, price))
                     {
@@ -2952,7 +2883,7 @@ namespace Core.ConditionalAccess
                         sBasicLink = sBasicLink.Replace(BASIC_LINK_CONFIG_DATA, "brt=");
                     }
                 }
-                sBasicLink = HttpContext.Current.Server.HtmlDecode(sBasicLink).Replace("''", "\"");
+                sBasicLink = WebUtility.HtmlDecode(sBasicLink).Replace("''", "\"");
             }
             return sBasicLink;
         }
@@ -4248,78 +4179,31 @@ namespace Core.ConditionalAccess
                                                 Dictionary<int, List<Subscription>> channelsToSubscriptionMappings, Dictionary<int, List<Collection>> channelsToCollectionsMappings,
                                                 ref Subscription[] relevantValidSubscriptions, ref Collection[] relevantValidCollections)
         {
-            List<string> subsToBundleCreditDownloadedQuery = new List<string>();
-            List<string> colsToBundleCreditDownloadedQuery = new List<string>();
-            List<int> subsToGetFromSubsDictionary = new List<int>();
-            List<int> collsToGetFromDictionary = new List<int>();
+            var subsToBundleCreditDownloadedQuery = new List<string>();
+            var colsToBundleCreditDownloadedQuery = new List<string>();
+            var subsToGetFromSubsDictionary = new List<int>();
+            var collsToGetFromDictionary = new List<int>();
 
             if (subsPurchase?.Count > 0 && fileTypeIdToSubscriptionMappings.Count > 0)
             {
+                // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media given as input belongs to it.                
+                var subscriptionsToCheck = new List<UserBundlePurchase>();
+
+                // subscriptions with all fileTypes
                 int allFileTypeIDs_key = 0;
-                List<UserBundlePurchase> subscriptionsToCheck = new List<UserBundlePurchase>();
+                AddSubscriptionsToCheck(allFileTypeIDs_key, ref subscriptionsToCheck, fileTypeIdToSubscriptionMappings, subsPurchase);
+                
+                // subscriptions with the current fileTypeID
                 foreach (int filetypeID in fileTypes)
                 {
-                    // the subscriptions and collections we add to those list will be sent to the Catalog in order to determine whether the media
-                    // given as input belongs to it.                
-
-                    // subscriptions with all fileTypes
-                    if (fileTypeIdToSubscriptionMappings.ContainsKey(allFileTypeIDs_key))
-                    {
-                        foreach (Subscription subscription in fileTypeIdToSubscriptionMappings[allFileTypeIDs_key])
-                        {
-                            subscriptionsToCheck.Add(subsPurchase[subscription.m_SubscriptionCode]);
-                        }
-                    }
-                    // subscriptions with the current fileTypeID
-                    if (fileTypeIdToSubscriptionMappings.ContainsKey(filetypeID))
-                    {
-                        foreach (Subscription subscription in fileTypeIdToSubscriptionMappings[filetypeID])
-                        {
-                            subscriptionsToCheck.Add(subsPurchase[subscription.m_SubscriptionCode]);
-                        }
-                    }
+                    AddSubscriptionsToCheck(filetypeID, ref subscriptionsToCheck, fileTypeIdToSubscriptionMappings, subsPurchase);
                 }
 
-                foreach (UserBundlePurchase bundle in subscriptionsToCheck)
-                {
-                    // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
-                    //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
-                    if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(bundle.nNumOfUses, bundle.nMaxNumOfUses))
-                    {
-                        subsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
-                    }
-                    else
-                    {
-                        // add to Catalog's BundlesContainingMediaRequest
-                        int subCode = 0;
-                        if (Int32.TryParse(bundle.sBundleCode, out subCode) && subCode > 0)
-                        {
-                            subsToGetFromSubsDictionary.Add(subCode);
-                        }
-                    }
-                }
+                AddUserBundlePurchasesToReleventList(subscriptionsToCheck, eMediaFileStatus, ref subsToBundleCreditDownloadedQuery, ref subsToGetFromSubsDictionary);
             }
 
-            foreach (UserBundlePurchase bundle in collPurchases.Values)
-            {
-                // add to bulk query of Bundle_DoesCreditNeedToDownload to DB
-                //afterwards, the colls which pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
-                // finally, the colls which pass the catalog need to be validated against PPV_DoesCreditNeedToDownloadedUsingCollection
-                if (eMediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(bundle.nNumOfUses, bundle.nMaxNumOfUses))
-                {
-                    colsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
-                }
-                else
-                {
-                    // add to Catalog's BundlesContainingMediaRequest
-                    int collCode = 0;
-                    if (Int32.TryParse(bundle.sBundleCode, out collCode) && collCode > 0)
-                    {
-                        collsToGetFromDictionary.Add(collCode);
-                    }
-                }
-            }
-
+            AddUserBundlePurchasesToReleventList(collPurchases.Values.ToList(), eMediaFileStatus, ref colsToBundleCreditDownloadedQuery, ref collsToGetFromDictionary);
+            
             // check if credit need to be downloaded for specific mediaFileID 
             HandleBundleCreditNeedToDownloadedQuery(subsToBundleCreditDownloadedQuery, colsToBundleCreditDownloadedQuery, nMediaFileID, nGroupID, allUserIDsInDomain,
                                                     relatedMediaFileIDs, ref subsToGetFromSubsDictionary, ref collsToGetFromDictionary);
@@ -4350,20 +4234,19 @@ namespace Core.ConditionalAccess
             else // only if in the gap between end date to final end date - continue the check
             {
                 // get distinct subs from subs list, same for collection
-
                 List<int> validatedColls = new List<int>();
-                List<int> channelsToCheck = new List<int>();
-                int[] validatedChannels = null;
-
+                var channelsToCheck = new HashSet<int>();
+                
                 foreach (int subsCode in subsToGetFromSubsDictionary.Distinct().ToList())
                 {
                     if (subscriptionsData[subsCode].m_sCodes != null)
                     {
-                        foreach (BundleCodeContainer bundleCode in subscriptionsData[subsCode].m_sCodes)
+                        foreach (var bundleCode in subscriptionsData[subsCode].m_sCodes)
                         {
-                            int channelID;
-                            if (int.TryParse(bundleCode.m_sCode, out channelID))
+                            if (int.TryParse(bundleCode.m_sCode, out int channelID) && !channelsToCheck.Contains(channelID))
+                            {
                                 channelsToCheck.Add(channelID);
+                            }
                         }
                     }
                 }
@@ -4372,18 +4255,20 @@ namespace Core.ConditionalAccess
                 {
                     if (collectionsData[collCode].m_sCodes != null)
                     {
-                        foreach (BundleCodeContainer bundleCode in collectionsData[collCode].m_sCodes)
+                        foreach (var bundleCode in collectionsData[collCode].m_sCodes)
                         {
-                            int channelID;
-                            if (int.TryParse(bundleCode.m_sCode, out channelID))
+                            if (int.TryParse(bundleCode.m_sCode, out int channelID) && !channelsToCheck.Contains(channelID))
+                            {
                                 channelsToCheck.Add(channelID);
+                            }
                         }
                     }
                 }
 
+                List<int> validatedChannels = null;
                 if (channelsToCheck.Count > 0)
                 {
-                    ValidateMediaContainedInChannels(mediaID, nGroupID, channelsToCheck.Distinct().ToList(), ref validatedChannels);
+                    validatedChannels = ValidateMediaContainedInChannels(mediaID, nGroupID, channelsToCheck);
                 }
 
                 if (validatedChannels != null)
@@ -4431,6 +4316,43 @@ namespace Core.ConditionalAccess
                         }
 
                         relevantValidCollections = relevantValidCollectionsList.ToArray();
+                    }
+                }
+            }
+        }
+
+        private static void AddSubscriptionsToCheck(int fileTypeIdKey, ref List<UserBundlePurchase> subscriptionsToCheck,
+                                                    Dictionary<int, List<Subscription>> fileTypeIdToSubscriptionMappings, Dictionary<string, UserBundlePurchase> subsPurchase)
+        {
+            if (fileTypeIdToSubscriptionMappings.ContainsKey(fileTypeIdKey))
+            {
+                foreach (var subscription in fileTypeIdToSubscriptionMappings[fileTypeIdKey])
+                {
+                    if (subsPurchase.ContainsKey(subscription.m_SubscriptionCode))
+                    {
+                        subscriptionsToCheck.Add(subsPurchase[subscription.m_SubscriptionCode]);
+                    }
+                }
+            }
+        }
+
+        private static void AddUserBundlePurchasesToReleventList(List<UserBundlePurchase> userBundlePurchaseToCheck, MediaFileStatus mediaFileStatus, 
+                                                                 ref List<string> itemsToBundleCreditDownloadedQuery, ref List<int> itemsToGetFromSubsDictionary)
+        {
+            foreach (UserBundlePurchase bundle in userBundlePurchaseToCheck)
+            {
+                // add to bulk query of Bundle_DoesCreditNeedToDownloaded to DB
+                //afterwards, the subs who pass the Bundle_DoesCreditNeedToDownloaded to DB test add to Catalog request.
+                if (mediaFileStatus == MediaFileStatus.ValidOnlyIfPurchase || !IsUserCanStillUseEntitlement(bundle.nNumOfUses, bundle.nMaxNumOfUses))
+                {
+                    itemsToBundleCreditDownloadedQuery.Add(bundle.sBundleCode);
+                }
+                else
+                {
+                    // add to Catalog's BundlesContainingMediaRequest
+                    if (Int32.TryParse(bundle.sBundleCode, out int subCode) && subCode > 0)
+                    {
+                        itemsToGetFromSubsDictionary.Add(subCode);
                     }
                 }
             }
@@ -4631,38 +4553,39 @@ namespace Core.ConditionalAccess
             return domainBundles;
         }
 
-        private static ChannelsContainingMediaRequest InitializeCatalogChannelsRequest(int nGroupID, int nMediaID, List<int> channelsToCheck)
+        private static ChannelsContainingMediaRequest InitializeCatalogChannelsRequest(int nGroupID, int nMediaID, HashSet<int> channelsToCheck)
         {
-            ChannelsContainingMediaRequest request = new ChannelsContainingMediaRequest();
-            request.m_nGroupID = nGroupID;
-            request.m_nMediaID = nMediaID;
-            request.m_oFilter = new Filter();
-            FillCatalogSignature(request);
-            request.m_lChannles = new List<int>();
-            for (int i = 0; i < channelsToCheck.Count; i++)
+            var request = new ChannelsContainingMediaRequest
             {
-                request.m_lChannles.Add(channelsToCheck[i]);
-            }
-
+                m_nGroupID = nGroupID,
+                m_nMediaID = nMediaID,
+                m_oFilter = new Filter(),
+                m_lChannles = new List<int>(channelsToCheck)
+            };
+            FillCatalogSignature(request);
+            
             return request;
         }
-
-        private static void ValidateMediaContainedInChannels(int mediaID, int nGroupID, List<int> channelsToCheck, ref int[] validChannels)
+        
+        public static List<int> ValidateMediaContainedInChannels(int mediaID, int nGroupID, HashSet<int> channelsToCheck)
         {
-            ChannelsContainingMediaRequest request = InitializeCatalogChannelsRequest(nGroupID, mediaID, channelsToCheck);
+            var request = InitializeCatalogChannelsRequest(nGroupID, mediaID, channelsToCheck);
 
             try
             {
-                ChannelsContainingMediaResponse response = request.GetResponse(request) as ChannelsContainingMediaResponse;
+                var response = request.GetResponse(request) as ChannelsContainingMediaResponse;
                 if (response != null && response.m_lChannellList != null && response.m_lChannellList.Count > 0)
                 {
-                    validChannels = response.m_lChannellList.ToArray();
+                    // valid Channels
+                    return response.m_lChannellList;
                 }
             }
             catch (Exception ex)
             {
                 log.Error("Failed ValidateMediaContainedInChannels Request To Catalog", ex);
             }
+
+            return null;
         }
 
         internal static bool ValidateFileTypesConatainedInGroup(int m_nGroupID, int[] fileTypeIDs)
@@ -8520,23 +8443,37 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle)
+        internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle, DateTime? endDate = null)
         {
             // Default is 2 days
-            TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+            TimeSpan freeTimeSpan = new TimeSpan(2, 0, 0, 0);
+            DateTime now = DateTime.UtcNow;
 
             // Get the group's configuration for free view life cycle
-            string sFreeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
-
-            if (!string.IsNullOrEmpty(sFreeLeftView))
+            string freeLeftView = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("free_left_view_{0}", groupId));
+            if (!string.IsNullOrEmpty(freeLeftView))
             {
-                DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
-                ts = dEndDate.Subtract(DateTime.UtcNow);
+                DateTime tcmEndDate = Utils.GetEndDateTime(now, int.Parse(freeLeftView), true);
+                freeTimeSpan = tcmEndDate.Subtract(now);
             }
 
-            p_strViewLifeCycle = ts.ToString();
+            if (endDate.HasValue)
+            {
+                var ts = endDate.Value.Subtract(now);
+                if (ts < freeTimeSpan)
+                {
+                    freeTimeSpan = ts;
+                }
+            }
+
+            if (freeTimeSpan.TotalSeconds < 0)
+            {
+                freeTimeSpan = new TimeSpan();
+            }
+
+            p_strViewLifeCycle = freeTimeSpan.ToString();
             // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
-            p_strFullLifeCycle = ts.ToString();
+            p_strFullLifeCycle = freeTimeSpan.ToString();
         }
 
         public static bool IsFreeItem(MediaFileItemPricesContainer container)
@@ -9460,6 +9397,27 @@ namespace Core.ConditionalAccess
             }
 
             return currencies;
+        }
+
+        internal static long GetCouponGroupIdForFirstCoupon(int groupId, Subscription subscription, ref string couponCode, long purchaseId)
+        {
+            // get all SubscriptionsCouponGroup (with expiry date !!!!)
+            var allCoupons = Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(subscription.m_SubscriptionCode), groupId, false);
+
+            if ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_oDiscountCode != null) ||
+                (allCoupons != null && allCoupons.Count > 0 && allCoupons.Count(x => x.m_oDiscountCode == null) == 0))
+            {
+                // check if coupon related to subscription the type is coupon gift card or coupon                        
+                long couponGroupId = Utils.GetSubscriptiopnPurchaseCoupon(ref couponCode, purchaseId, groupId); // return only if valid .
+
+                if (couponGroupId > 0 && ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponGroupId.ToString())) ||
+                                          (allCoupons != null && allCoupons.Count(x => x.m_sGroupCode.Equals(couponGroupId.ToString())) > 0)))
+                {
+                    return couponGroupId;
+                }
+            }
+
+            return 0;
         }
     }
 }

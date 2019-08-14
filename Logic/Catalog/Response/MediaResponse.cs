@@ -79,6 +79,8 @@ namespace Core.Catalog.Response
         public long TrickPlayBuffer;
         [DataMember]
         public bool EnableRecordingPlaybackNonEntitledChannel;
+        [DataMember]
+        public string ExternalCdvrId;
 
         [DataMember]
         public string WatchPermissionRule;
@@ -92,6 +94,8 @@ namespace Core.Catalog.Response
         [DataMember]
         public LanguageContainer[] Description;
 
+        [DataMember]
+        public AssetIndexStatus IndexStatus { get; set; }
 
         public MediaObj()
             : base()

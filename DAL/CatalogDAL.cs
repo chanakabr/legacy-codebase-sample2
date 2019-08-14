@@ -2155,7 +2155,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsertUsersNpvrMark(UserMediaMark userNpvrMark, bool isFirstPlay)
         {
-            string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.AssetID.ToString());
+            string mmKey = UtilsDal.GetUserNpvrMarkDocKey(userNpvrMark.UserID, userNpvrMark.NpvrID.ToString());
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -4266,7 +4266,7 @@ namespace Tvinci.Core.DAL
             string cdvrId = string.Empty;
 
             object value =
-                ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", epgChannelId, 60, "MAIN_CONNECTION_STRING");
+                ODBCWrapper.Utils.GetTableSingleVal("epg_channels", "CDVR_ID", epgChannelId, 600, "MAIN_CONNECTION_STRING");
 
             if (value != DBNull.Value)
             {
@@ -5836,7 +5836,7 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
-        public static bool SaveBulkUploadStatusCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
+        public static bool SaveBulkUploadStatusAndErrorsCB(BulkUpload bulkUploadToSave, uint ttl, out BulkUploadJobStatus updatedStatus)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
             updatedStatus = bulkUploadToSave.Status;
@@ -5846,6 +5846,7 @@ namespace Tvinci.Core.DAL
                 bulkUpload.Status = bulkUploadToSave.Status;
                 bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
                 statusThatWasActuallyUpdated = bulkUpload.Status;
+                bulkUpload.Errors = bulkUploadToSave.Errors;
             });
             updatedStatus = statusThatWasActuallyUpdated;
 

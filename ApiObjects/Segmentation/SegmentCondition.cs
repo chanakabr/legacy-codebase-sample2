@@ -68,6 +68,9 @@ namespace ApiObjects.Segmentation
 
         [JsonProperty()]
         public MathemticalOperatorType Operator;
+
+        [JsonProperty()]
+        public List<int> BusinessModuleIds;
     }
     
 }

@@ -7,9 +7,8 @@ using EventBus.Abstraction;
 
 namespace ApiObjects.EventBus
 {
-    public class BulkUploadTransformationEvent : ServiceEvent
+    public class BulkUploadTransformationEvent : BulkUploadEvent
     {
-        public long BulkUploadId { get; set; }
-    }
 
+    }
 }

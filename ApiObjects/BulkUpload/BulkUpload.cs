@@ -1,6 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Response;
+using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace ApiObjects.BulkUpload
 {
@@ -26,8 +30,10 @@ namespace ApiObjects.BulkUpload
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BulkUpload
+    public class BulkUpload : CoreObject
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         [JsonProperty("Id")]
         public long Id { get; set; }
 
@@ -72,5 +78,54 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("ObjectData")]
         public BulkUploadObjectData ObjectData { get; set; }
+
+        [JsonProperty("Errors")]
+        // This is an array and not a list becasue it curntlly serlized by .net core and deserlized with .net45
+        // any generic collection will cause a deserlization error
+        public Status[] Errors { get; set; }
+
+        public void AddError(Status errorStatus)
+        {
+            if (errorStatus != null)
+            {
+                if (Errors == null)
+                {
+                    Errors = new[] { errorStatus };
+                }
+                else
+                {
+                    Errors = Errors.Concat(new[] { errorStatus }).ToArray();
+                }
+            }
+        }
+
+        public void AddError(eResponseStatus errorCode, string msg = "")
+        {
+            var errorStatus = new Status((int)errorCode, msg);
+
+            AddError(errorStatus);
+        }
+
+        public bool IsProcessCompleted => Status == BulkUploadJobStatus.Success || Status == BulkUploadJobStatus.Failed || Status == BulkUploadJobStatus.Partial;
+
+        public override CoreObject CoreClone()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoDelete()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoInsert()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoUpdate()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

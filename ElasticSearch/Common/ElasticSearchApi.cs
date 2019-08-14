@@ -54,15 +54,27 @@ namespace ElasticSearch.Common
             bool result = false;
             try
             {
-                string urlGetSettings = string.Format("{0}/{1}/_settings", baseUrl, source);
-                int nStatus = 0;
-                string settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus, string.Empty, string.Empty, true);
+                var nStatus = 0;
 
-                var jsonResult = JObject.Parse(settingsResponse);
-                var settingsStr = jsonResult.First.First["settings"].ToString(Formatting.None);
+                // Get source index settings
+                var urlGetSettings = string.Format("{0}/{1}/_settings", baseUrl, source);
+                var settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus, string.Empty, string.Empty, true);
+                var settingsJobject = JObject.Parse(settingsResponse).First.First["settings"];
 
-                string urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
-                string createIndexResponse = SendPostHttpReq(urlSetSettings, ref nStatus, string.Empty, string.Empty, settingsStr, true);
+                // Get source index mappings
+                var urlGetMappings = string.Format("{0}/{1}/_mapping", baseUrl, source);
+                var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus, string.Empty, string.Empty, true);
+                var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
+
+                
+                var clonedIndexMappings = new JObject();
+                clonedIndexMappings["settings"] = settingsJobject;
+                clonedIndexMappings["mappings"] = mappingsJobject;
+                
+                // Create Dest index with source settings
+                var urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
+                var createIndexResponse = SendPutHttpRequest(urlSetSettings, clonedIndexMappings.ToString());
+                log.Debug($"CloneIndexWithoutData> createIndexResponse:[{createIndexResponse}]");
 
                 var createIndexResponseJson = JObject.Parse(createIndexResponse);
                 result = createIndexResponseJson["acknowledged"].Value<bool>();
@@ -73,7 +85,7 @@ namespace ElasticSearch.Common
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("error when cloning index src {0} to desc {1}, ex {2} ", source, dest, ex);
+                log.ErrorFormat("error when cloning index src {0} to desc {1}, ex {2}", source, dest, ex);
             }
 
             return result;
@@ -193,7 +205,9 @@ namespace ElasticSearch.Common
             return result;
         }
 
-        public bool Reindex(string source, string destination)
+
+
+        public bool Reindex(string source, string destination, string filterQuery = null)
         {
             bool result = false;
             /*
@@ -201,6 +215,7 @@ namespace ElasticSearch.Common
             {
               "source": {
                 "index": "twitter"
+                "query": .... <Optional>
               },
               "dest": {
                 "index": "new_twitter"
@@ -211,16 +226,28 @@ namespace ElasticSearch.Common
             {
                 string url = $"{baseUrl}/_reindex";
 
-                var jsonBody = new
-                {
-                    source = new { index = source },
-                    dest = new { index = destination }
-                };
+                var jsonBody = new JObject();
 
-                string body = JsonConvert.SerializeObject(jsonBody);
+                jsonBody["source"] = new JObject();
+                jsonBody["source"]["index"] = source;
+                
+                if (!string.IsNullOrEmpty(filterQuery))
+                {
+                    var filterQueryObject = JObject.Parse(filterQuery);
+                    jsonBody["source"]["query"] = new JObject();
+                    jsonBody["source"]["query"]["filtered"] = filterQueryObject;
+                }
+
+                jsonBody["dest"] = new JObject();
+                jsonBody["dest"]["index"] = destination;
+                
+
+               
+
+                string body = jsonBody.ToString();
                 int status = 0;
                 string postResult = SendPostHttpReq(url, ref status, string.Empty, string.Empty, body, true);
-
+                log.Debug($"Reindex > result:[{postResult}]");
                 if (!string.IsNullOrEmpty(postResult))
                 {
                     /*
@@ -1321,8 +1348,8 @@ namespace ElasticSearch.Common
                 httpResponse = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
 
-            log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, response = {3}",
-                requestGuid, url, parameters, httpResponse);
+            log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, body length = {3}, response = {4}",
+                requestGuid, url, parameters, parameters.Length, httpResponse);
 
             status = nStatusCode;
             return httpResponse;

@@ -1551,6 +1551,20 @@ namespace DAL
         }
 
         /// <summary>
+        /// Return regions of medias 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static DataTable GetMediaRegions(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaRegions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+
+            return sp.Execute();
+        }
+
+        /// <summary>
         /// Return Regions accroding to External Regions List
         /// </summary>
         /// <param name="groupId"></param>
@@ -2772,6 +2786,7 @@ namespace DAL
         }
 
         #region Bulk Export
+
         public static BulkExportTask InsertBulkExportTask(int groupId, string externalKey, string name, eBulkExportDataType dataType, string filter, eBulkExportExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, string version, bool isActive)
         {
@@ -3180,6 +3195,8 @@ namespace DAL
                         permission.FriendlyName = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "FRIENDLY_NAME");
                         permission.GroupId = groupId;
                         permission.isExcluded = isExcluded;
+                        permission.Type = permissionType;
+                        permission.DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(permissionItemsRow, "DEPENDS_ON_PERMISSION_NAMES");
 
                         if (permissionPermissionItems != null && permissionPermissionItems.ContainsKey(permission.Id) && permissionPermissionItems[permission.Id] != null)
                         {
@@ -3332,46 +3349,46 @@ namespace DAL
 
         }
         
-        public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
-        {
-            Permission permission = new Permission();
-            Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
-            Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
+        //public static Permission InsertPermission(int groupId, string name, List<long> permissionItemsIds, ePermissionType type, string usersGroup, long updaterId)
+        //{
+        //    Permission permission = new Permission();
+        //    Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+        //    Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Permission");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@type", (int)type);
-                sp.AddParameter("@users_group", usersGroup);
-                sp.AddParameter("@updater_id", updaterId);
-                sp.AddIDListParameter<long>("@permission_item_ids", permissionItemsIds, "ID");
+        //    try
+        //    {
+        //        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Permission");
+        //        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //        sp.AddParameter("@group_id", groupId);
+        //        sp.AddParameter("@name", name);
+        //        sp.AddParameter("@type", (int)type);
+        //        sp.AddParameter("@users_group", usersGroup);
+        //        sp.AddParameter("@updater_id", updaterId);
+        //        sp.AddIDListParameter<long>("@permission_item_ids", permissionItemsIds, "ID");
 
-                DataSet ds = sp.ExecuteDataSet();
+        //        DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    DataTable permissionsTable = ds.Tables[0];
-                    DataTable permissionItemsTable = ds.Tables[1];
+        //        if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+        //        {
+        //            DataTable permissionsTable = ds.Tables[0];
+        //            DataTable permissionItemsTable = ds.Tables[1];
 
-                    permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
+        //            permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
 
-                    rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
+        //            rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
 
-                    if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null && rolesPermissions[0].Count > 0)
-                        permission = rolesPermissions[0][0];
-                }
-            }
-            catch (Exception ex)
-            {
-                permission = null;
-                log.Error(string.Format("Error while inserting new permission to DB, group id = {0}", groupId), ex);
-            }
+        //            if (rolesPermissions != null && rolesPermissions.Count > 0 && rolesPermissions[0] != null && rolesPermissions[0].Count > 0)
+        //                permission = rolesPermissions[0][0];
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        permission = null;
+        //        log.Error(string.Format("Error while inserting new permission to DB, group id = {0}", groupId), ex);
+        //    }
 
-            return permission;
-        }
+        //    return permission;
+        //}
 
         public static int InsertRolePermission(int groupId, long roleId, long permissionId)
         {
@@ -4869,24 +4886,25 @@ namespace DAL
             return result;
         }
 
-        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName)
+        public static int InsertPermission(string name, int type, string usersGroup, string friendlyName, string dependsOnPermissionNames, int groupId = 0)
         {
             int result = 0;
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_Permission");
+            StoredProcedure storedProcedure = new StoredProcedure("Insert_Permission");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-            storedProcedure.AddParameter("@groupId", 0);
+            storedProcedure.AddParameter("@groupId", groupId);
             storedProcedure.AddParameter("@name", name);
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
             storedProcedure.AddParameter("@friendlyName", friendlyName);
+            storedProcedure.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
 
             result = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
-            
-            return result;
+
+            return result;            
         }
 
-        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName)
+        public static bool UpdatePermission(int id, string name, int type, string usersGroup,string friendlyName, string dependsOnPermissionNames)
         {
             bool result = false;
 
@@ -4897,6 +4915,7 @@ namespace DAL
             storedProcedure.AddParameter("@type", type);
             storedProcedure.AddParameter("@usersGroup", usersGroup);
             storedProcedure.AddParameter("@friendlyName", friendlyName);
+            storedProcedure.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
 
             int executionValue = Convert.ToInt32(storedProcedure.ExecuteReturnValue());
 
@@ -4908,7 +4927,7 @@ namespace DAL
             return result;
         }
 
-        public static bool DeletePermission(int id)
+        public static bool DeletePermission(long id)
         {
             bool result = false;
 
@@ -5524,19 +5543,27 @@ namespace DAL
             if (partnerConfig.MainLanguage.HasValue)
                 sp.AddParameter("@mainLanguage", partnerConfig.MainLanguage);
             sp.AddParameter("@secondaryLanguagesExist", partnerConfig.SecondaryLanguages != null && partnerConfig.SecondaryLanguages.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter<int>("@secondaryLanguages", partnerConfig.SecondaryLanguages, "Id");
+            if (partnerConfig.SecondaryLanguages?.Count > 0)
+            {
+                sp.AddIDListParameter<int>("@secondaryLanguages", partnerConfig.SecondaryLanguages, "Id");
+            }
             if (partnerConfig.DeleteMediaPolicy.HasValue)
                 sp.AddParameter("@deleteMediaPolicy", partnerConfig.DeleteMediaPolicy.Value);
             if (partnerConfig.MainCurrency.HasValue)
                 sp.AddParameter("@mainCurrency", partnerConfig.MainCurrency);
             sp.AddParameter("@secondaryCurrencysExist", partnerConfig.SecondaryCurrencies != null && partnerConfig.SecondaryCurrencies.Count > 0 ? 1 : 0);
-            sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencies, "Id");            
+            if (partnerConfig.SecondaryCurrencies?.Count > 0)
+            {
+                sp.AddIDListParameter<int>("@secondaryCurrencys", partnerConfig.SecondaryCurrencies, "Id");
+            }
             if (partnerConfig.DowngradePolicy.HasValue)
                 sp.AddParameter("@downgradePolicy", partnerConfig.DowngradePolicy.Value);
             sp.AddParameter("@mailSettings", partnerConfig.MailSettings);
             sp.AddParameter("@dateFormat", partnerConfig.DateFormat);            
             if (partnerConfig.HouseholdLimitationModule.HasValue)
-                sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);            
+                sp.AddParameter("@domainLimitionModule", partnerConfig.HouseholdLimitationModule);
+            sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
+            sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -5564,6 +5591,8 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Insert_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", profileToAdd.Name);
                 sp.AddParameter("@externalIdentifier", profileToAdd.ExternalId);
@@ -5574,9 +5603,14 @@ namespace DAL
                 sp.AddParameter("@defaultOverlapPolicy", (int)profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
+                if (profileToAdd.OverlapChannels != null)
+                {
+                    sp.AddParameter("@overlapChannels", string.Join(",", profileToAdd.OverlapChannels));
+                }
 
                 var adapaterId = sp.ExecuteReturnValue<int>();
                 MergeIngestProfileAdapaterSettings(groupId, adapaterId, userId, profileToAdd.Settings);
+
                 return adapaterId;
 
             }
@@ -5590,11 +5624,15 @@ namespace DAL
         private static List<IngestProfileAdapterParam> MergeIngestProfileAdapaterSettings(int groupId, int adapaterId, int updaterId, IList<IngestProfileAdapterParam> settings)
         {
             var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
+
             var sp = new StoredProcedure("Merge_IngestProfileTransformationAdapterSettings");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@ingestProfileId", adapaterId);
             sp.AddParameter("@updaterId", updaterId);
             sp.AddKeyValueListParameter("@KeyValueList", settingsTbl, "key", "value");
+
             var resp = sp.ExecuteDataSet();
             return resp.Tables[0].ToList<IngestProfileAdapterParam>();
         }
@@ -5604,6 +5642,8 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Update_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@profileId", profileId);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", profileToAdd.Name);
@@ -5614,6 +5654,11 @@ namespace DAL
                 sp.AddParameter("@defaultAutoFillPolicy", profileToAdd.DefaultAutoFillPolicy);
                 sp.AddParameter("@defaultOverlapPolicy", profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
+
+                if (profileToAdd.OverlapChannels != null)
+                {
+                    sp.AddParameter("@overlapChannels", string.Join(",", profileToAdd.OverlapChannels));
+                }
 
                 MergeIngestProfileAdapaterSettings(groupId, profileToAdd.Id, userId, profileToAdd.Settings);
 
@@ -5632,6 +5677,8 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Delete_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileId", profileId);
                 sp.AddParameter("@updaterId", userId);
@@ -5649,11 +5696,14 @@ namespace DAL
             try
             {
                 var sp = new StoredProcedure("Get_IngestProfile");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileExternalId", externalId);
                 sp.AddParameter("@profileId", profileId);
                 var dbResponse = sp.ExecuteDataSet();
-                var profiles =  dbResponse.Tables[0].ToList<IngestProfile>();
+
+                List<IngestProfile> profiles = CreateIngestProfiles(dbResponse.Tables[0]);
                 var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
 
                 // Map settings to relevent profile
@@ -5663,25 +5713,218 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, ex:{1} ", groupId , ex);
+                log.ErrorFormat("Error while GetIngestProfiles in DB, groupId: {0}, ex:{1} ", groupId , ex);
                 throw;
             }
         }
 
-        public static bool GetIngestProfileByExternalId(string externalId, int groupId)
+        private static List<IngestProfile> CreateIngestProfiles(DataTable dataTable)
+        {
+            List<IngestProfile> res = new List<IngestProfile>();
+
+            foreach (DataRow row in dataTable?.Rows)
+            {
+                var ip = new IngestProfile
+                {
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "groupId"),
+                    Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                    ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_identifier"),
+                    TransformationAdapterUrl = ODBCWrapper.Utils.GetSafeStr(row, "transformation_adapter_url"),
+                    TransformationAdapterSharedSecret = ODBCWrapper.Utils.GetSafeStr(row, "transformation_adapter_shared_secret"),
+                    AssetTypeId = ODBCWrapper.Utils.GetIntSafeVal(row, "asset_type"),
+                    DefaultAutoFillPolicy = (eIngestProfileAutofillPolicy)ODBCWrapper.Utils.GetIntSafeVal(row, "default_autofill_policy"),
+                    DefaultOverlapPolicy = (eIngestProfileOverlapPolicy)ODBCWrapper.Utils.GetIntSafeVal(row, "default_overlap_policy"),
+                };
+
+                var overlapChannels = ODBCWrapper.Utils.GetSafeStr(row, "overlap_channels");
+                if (!string.IsNullOrEmpty(overlapChannels))
+                {
+                    ip.OverlapChannels = overlapChannels.Split(',').Select(x => int.Parse(x)).ToList();
+                }
+
+                res.Add(ip);
+            }
+
+            return res;
+        }
+
+        public static DataTable GetPermission(int groupId, long id)
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                { "@groupId", groupId }
+                ,{ "@id", id }
+
+            };
+
+            return UtilsDal.Execute("Get_PermissionById", parameters);
+        }
+
+        public static DataTable GetGroupFeatures(int groupId)
         {
             try
             {
-                var sp = new StoredProcedure("Get_IngestProfile");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@externalId", externalId);
-                return sp.ExecuteReturnValue<int>() > 0;
+                // get the roles, permissions, permission items tables 
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                return UtilsDal.Execute("Get_GroupFeatures", parameters);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteIngestProfile in DB, groupId: {0}, externalId: {1}, ex:{2} ", groupId, externalId , ex);
-                throw;
+                log.Error(string.Format("Error while Get_Groupfeatures from DB, group id = {0}", groupId), ex);
             }
+
+            return null;
+        }
+
+        public static Dictionary<string, List<string>> GetPermissionItemsToFeatures(int groupId)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
+                DataTable dt = UtilsDal.Execute("Get_PermissionItemsToFeatures", parameters);
+
+                if (dt?.Rows.Count > 0)
+                {
+                    string key = string.Empty;
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        string dopn = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES");
+                        string service = Utils.GetSafeStr(dr, "SERVICE");
+                        string action = Utils.GetSafeStr(dr, "ACTION");
+                        string parameter = Utils.GetSafeStr(dr, "PARAMETER");
+                        string objectName = Utils.GetSafeStr(dr, "OBJECT");
+                        ePermissionItemType permissionItemType = (ePermissionItemType)Utils.GetIntSafeVal(dr, "TYPE");
+
+                        switch (permissionItemType)
+                        {
+                            case ePermissionItemType.Action:
+                                key = string.Format("{0}_{1}", service, action).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            case ePermissionItemType.Parameter:
+                                int actionNumeric = 0;
+                                int.TryParse(action, out actionNumeric);
+
+                                if (actionNumeric > 0)
+                                {
+                                    ParameterPermissionItemAction actionEnum = (ParameterPermissionItemAction)actionNumeric;
+                                    switch (actionEnum)
+                                    {
+                                        case ParameterPermissionItemAction.READ:                                            
+                                        case ParameterPermissionItemAction.INSERT:                                            
+                                        case ParameterPermissionItemAction.UPDATE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, actionEnum).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        case ParameterPermissionItemAction.WRITE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.INSERT).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.UPDATE).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        case ParameterPermissionItemAction.USAGE:
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.INSERT).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.UPDATE).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+
+                                            key = string.Format("{0}_{1}_{2}", objectName, parameter, ParameterPermissionItemAction.READ).ToLower();
+                                            AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                                break;
+                            case ePermissionItemType.Argument:
+                                key = string.Format("{0}_{1}_{2}", service, action, parameter).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            case ePermissionItemType.Priviliges:
+                                key = string.Format("{0}_{1}", objectName, parameter).ToLower();
+                                AddToPermissionItemsToFeatures(ref result, key, dopn);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while Get_PermissionItemsToFeatures from DB, group id = {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        public static void AddToPermissionItemsToFeatures(ref Dictionary<string, List<string>> result, 
+            string key, string dependsOnPermissionNames)
+        {
+            if (!string.IsNullOrEmpty(dependsOnPermissionNames))
+            {
+
+                if (!result.ContainsKey(key))
+                {
+                    result.Add(key, new List<string>());
+                }
+
+                result[key].AddRange(dependsOnPermissionNames.Split(',').Select(p => p.Trim().ToLower()));
+            }
+        }
+
+        public static List<Permission> GetPermissions(int groupId)
+        {
+            List<Permission> permissions = null;
+            Permission permission = null;
+            try
+            {
+
+                StoredProcedure sp = new StoredProcedure("Get_Permissions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataTable dt = sp.Execute();
+
+                if (dt?.Rows.Count > 0)
+                {
+                    permissions = new List<Permission>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        permission = new Permission
+                        {
+                            Id = Utils.GetLongSafeVal(dr, "ID"),
+                            Name = Utils.GetSafeStr(dr, "NAME"),
+                            FriendlyName = Utils.GetSafeStr(dr, "FRIENDLY_NAME"),
+                            GroupId = groupId,                            
+                            Type = (ePermissionType)Utils.GetIntSafeVal(dr, "TYPE"),
+                            DependsOnPermissionNames = Utils.GetSafeStr(dr, "DEPENDS_ON_PERMISSION_NAMES")
+                        };
+
+                        permissions.Add(permission);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred in GetPermissions. groupId:{0}. ex: {1}", groupId, ex);
+            }
+
+            return permissions;
+        }
+
+        public static DataTable GetIpv6ToCountryTable()
+        {
+            var storedProcedure = new StoredProcedure("GetIpv6ToCountry");
+            storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            var table = storedProcedure.Execute();
+            return table;
         }
     }
 }

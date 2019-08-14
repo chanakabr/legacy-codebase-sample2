@@ -1,4 +1,5 @@
-﻿using System.ServiceModel.Dispatcher;
+﻿#if NETFRAMEWORK
+using System.ServiceModel.Dispatcher;
 using System.ServiceModel.Channels;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -30,3 +31,4 @@ namespace ServiceExtensions
         }
     }
 }
+#endif

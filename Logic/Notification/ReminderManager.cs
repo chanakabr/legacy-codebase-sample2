@@ -541,7 +541,7 @@ namespace Core.Notification
                 List<DbReminder> reminders = Utils.GetReminders(groupId, userNotificationData.Reminders.Select(r => r.AnnouncementId).ToList());
                 if (reminders != null && reminders.Count > 0)
                 {
-                    List<ProgramObj> programs = GetEpgPrograms(groupId, reminders.Select(r => (int)r.Reference).ToList());
+                    List<ProgramObj> programs = GetEpgPrograms(groupId, reminders.Select(r => (ulong)r.Reference).ToList());
                     if (programs != null && programs.Count > 0)
                     {
                         List<ProgramObj> episodesToRemove = new List<ProgramObj>();
@@ -656,7 +656,7 @@ namespace Core.Notification
             List<UnifiedSearchResult> episodeResults = Utils.SearchSeriesEpisodes(groupId, seriesId, seasonNumber, epgChannelId);
             if (episodeResults != null && episodeResults.Count > 0)
             {
-                List<ProgramObj> programs = GetEpgPrograms(groupId, episodeResults.Select(p => Convert.ToInt32(p.AssetId)).ToList());
+                List<ProgramObj> programs = GetEpgPrograms(groupId, episodeResults.Select(p => Convert.ToUInt64(p.AssetId)).ToList());
 
                 if (programs != null && programs.Count > 0)
                 {
@@ -741,7 +741,7 @@ namespace Core.Notification
             return response;
         }
 
-        private static List<ProgramObj> GetEpgPrograms(int groupId, List<int> assetIds)
+        private static List<ProgramObj> GetEpgPrograms(int groupId, List<ulong> assetIds)
         {
             List<ProgramObj> programs = null;
             EpgProgramResponse epgProgramResponse = null;
@@ -752,7 +752,7 @@ namespace Core.Notification
                 // get EPG information
                 epgRequest = new EpgProgramDetailsRequest()
                 {
-                    m_lProgramsIds = assetIds,
+                    m_lProgramsIds = assetIds.Cast<int>().ToList(),
                     m_nGroupID = groupId,
                     m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
                     m_sSignString = CatalogSignString
@@ -1565,7 +1565,7 @@ namespace Core.Notification
             return res;
         }
 
-        public static bool HandleEpgEvent(int partnerId, List<int> programIds)
+        public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
         {
             // get partner notifications settings
             var partnerSettings = NotificationSettings.GetPartnerNotificationSettings(partnerId);

@@ -30,9 +30,9 @@ namespace Core.Users
         }
 
         #region Public Abstract
-        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid);
+        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid, int? regionId);
 
-        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID);
+        public abstract DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, int? regionId);
 
         public abstract DomainResponseObject SubmitAddUserToDomainRequest(int nGroupID, int nUserGuid, string sMasterUsername);
 
@@ -93,7 +93,7 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription, string externalId = null)
+        public virtual DomainResponseObject SetDomainInfo(int nDomainID, string sDomainName, int nGroupID, string sDomainDescription, int? regionId, string externalId = null)
         {
             DomainResponseObject res = null;
 
@@ -117,6 +117,18 @@ namespace Core.Users
                     {
                         domain.m_sCoGuid = externalId;
                     }
+                }
+
+
+                if (regionId.HasValue)
+                {
+                    // validate region exists
+                    if (!domain.GetRegions().Contains(regionId.Value))
+                    {
+                        return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
+                    }
+
+                    domain.m_nRegion = regionId.Value;
                 }
 
                 domain.shouldUpdateInfo = true;

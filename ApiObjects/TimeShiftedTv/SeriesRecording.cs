@@ -17,6 +17,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public RecordingType Type { get; set; }
 
+        public bool isExternalRecording { get; set; }
+
         public SeriesRecording()
             : base()
         {

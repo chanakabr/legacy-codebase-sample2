@@ -466,7 +466,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                 // notify purchase
-                                if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userId, udid))
+                                if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userId, udid, userIp))
                                 {
                                     log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", transactionResponse.Status.Message, logString);
                                 }
@@ -518,7 +518,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // cancel existing subscription
-                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true, udid);
+                    Status cancelSubscriptionStatus = cas.CancelServiceNow((int)domainId, int.Parse(subscriptionInTheSameSet.m_SubscriptionCode), eTransactionType.Subscription, true, udid, userIp);
                     if (cancelSubscriptionStatus == null && cancelSubscriptionStatus.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_SubscriptionCode);
@@ -968,7 +968,7 @@ namespace Core.ConditionalAccess
                                 };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, siteguid, deviceName))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -1304,11 +1304,22 @@ namespace Core.ConditionalAccess
                                     cas.WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
-                                    if (couponRemainder > 0)
+                                    var recurringRenewDetails = new RecurringRenewDetails()
                                     {
-                                        ConditionalAccessDAL.SaveCouponRemainder(purchaseID, couponRemainder);
-                                    }
+                                        CouponCode = couponCode,
+                                        CouponRemainder = couponRemainder,
+                                        IsCouponGiftCard = isGiftCard,
+                                        IsPurchasedWithPreviewModule = entitleToPreview,
+                                        LeftCouponRecurring = coupon != null ? coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon : 0,
+                                        TotalNumOfRenews = 0,
+                                        IsCouponHasEndlessRecurring = coupon != null && coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon == 0
+                                    };
 
+                                    if (!ConditionalAccessDAL.SaveRecurringRenewDetails(recurringRenewDetails, purchaseID))
+                                    {
+                                        log.ErrorFormat("Error to Insert RecurringRenewDetails to CB, purchaseId:{0}.", purchaseID);
+                                    }
+                                    
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0 && !IsDoublePurchase)
                                     {
@@ -1417,7 +1428,7 @@ namespace Core.ConditionalAccess
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, siteguid, deviceName))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }
@@ -1890,11 +1901,12 @@ namespace Core.ConditionalAccess
                                         {"SiteGUID", siteguid},
                                         {"CouponCode", couponCode},
                                         {"CustomData", customData},
-                                        {"PurchaseID", purchaseId}
+                                        {"PurchaseID", purchaseId},
+                                        {"ClientIp", userIp}
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, siteguid, deviceName))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData, siteguid, deviceName, userIp))
                                     {
                                         log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }

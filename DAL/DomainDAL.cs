@@ -571,8 +571,7 @@ namespace DAL
             return retVal;
         }
 
-
-        public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, ref int nDbDomainID, string sCoGuid = null, int? nOperatorID = null)
+        public static bool InsertNewDomain(string sName, string sDescription, int nGroupID, DateTime dDateTime, int nDomainLimitID, ref int nDbDomainID, int regionId, string sCoGuid = null, int? nOperatorID = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertNewDomain");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -584,6 +583,11 @@ namespace DAL
             sp.AddParameter("@DateTime", dDateTime);
             sp.AddParameter("@CoGuid", sCoGuid);
             sp.AddParameter("@OperatorID", nOperatorID);
+
+            if (regionId > 0)
+            {
+                sp.AddParameter("@RegionId", regionId);
+            }
 
             DataTable dt = sp.Execute();
 
@@ -897,7 +901,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0, string coGuid = null)
+        public static bool UpdateDomain(string sName, string sDescription, int nDomainID, int nGroupID, int nDomainRestriciton = 0, int nRegion = -1, string coGuid = null)
         {
             bool res = false;
 
@@ -910,6 +914,11 @@ namespace DAL
             spUpdateDomain.AddParameter("@description", sDescription);
             spUpdateDomain.AddParameter("@restriction", nDomainRestriciton);
             spUpdateDomain.AddParameter("@CoGuid", coGuid);
+
+            if (nRegion != -1)
+            {
+                spUpdateDomain.AddParameter("@region", nRegion);
+            }
 
             int rowCount = spUpdateDomain.ExecuteReturnValue<int>();
             res = rowCount > 0;

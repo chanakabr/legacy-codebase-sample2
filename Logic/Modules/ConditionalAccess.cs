@@ -15,6 +15,7 @@ using System.Text;
 using System.Web;
 using ApiObjects.TimeShiftedTv;
 using APILogic.ConditionalAccess.Response;
+using ApiObjects.SearchObjects;
 
 namespace Core.ConditionalAccess
 {
@@ -1297,7 +1298,6 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-
         public static BillingResponse CC_ChargeUserForCollection(int groupID, string sSiteGUID, double dPrice, string sCurrencyCode3, string sCollectionCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sPaymentMethodID, string sEncryptedCVV)
         {
@@ -1321,7 +1321,6 @@ namespace Core.ConditionalAccess
                 return null;
             }
         }
-
 
         public static BillingResponse PU_GetPPVPopupPaymentMethodURL(int groupID,
             string sSiteGUID, double dPrice, string sCurrencyCode3, Int32 nMediaFileID, string sPPVModuleCode,
@@ -1691,8 +1690,7 @@ namespace Core.ConditionalAccess
 
             return objResponse;
         }
-
-
+        
         public static BillingResponse InApp_ChargeUserForMediaFile(int groupID, string sSiteGUID, double dPrice, string sCurrencyCode3, string sProductCode, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string ReceiptData)
         {
@@ -1821,7 +1819,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, udid);
+                return t.CancelServiceNow(nDomainId, nAssetID, transactionType, bIsForce, udid, string.Empty);
             }
             else
             {
@@ -2525,6 +2523,33 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
+        public static RecordingResponse SearchCloudRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData, TstvRecordingStatus[] recordingStatuses, int pageIndex, int pageSize)
+        {
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.SearchCloudRecordings(groupId, userId, domainId, adapterData, recordingStatuses.ToList(), pageIndex, pageSize);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static SeriesResponse SearchCloudSeriesRecordings(int groupId, string userId, long domainId, Dictionary<string, string> adapterData)
+        {
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.SearchCloudSeriesRecordings(groupId, userId, domainId, adapterData);
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         public static ApiObjects.TimeShiftedTv.RecordingResponse SearchDomainRecordings(int groupID, string userID, long domainID, ApiObjects.TstvRecordingStatus[] recordingStatuses, string filter,
                                                         int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, bool shouldIgnorePaging, Dictionary<string, string> metaData, HashSet<string> externalRecordingIds = null)
@@ -3345,6 +3370,13 @@ namespace Core.ConditionalAccess
             Recording response = t.UpdateRecord(userId, recordingId, recordingToUpdate);
 
             return response;
+        }
+
+        public static Status ApplyCoupon(int groupId, long domainId, string userId, long purchaseId, string couponCode)
+        {
+            BaseConditionalAccess ba = null;
+            Utils.GetBaseConditionalAccessImpl(ref ba, groupId);
+            return ba.ApplyCoupon(domainId, userId, purchaseId, couponCode);
         }
     }
 }

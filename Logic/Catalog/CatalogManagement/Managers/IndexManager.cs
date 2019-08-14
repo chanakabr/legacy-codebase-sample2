@@ -819,6 +819,16 @@ namespace Core.Catalog.CatalogManagement
                         List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
                         List<KeyValuePair<string, string>> invalidResults = null;
 
+                        #region Get Linear Channels Regions
+
+                        Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+                        if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
+                        {
+                            linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                        }
+
+                        #endregion
+
                         // Temporarily - assume success
                         bool temporaryResult = true;
 
@@ -847,6 +857,11 @@ namespace Core.Catalog.CatalogManagement
                                     if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
                                     {
                                         epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
+                                    }
+
+                                    if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
+                                    {
+                                        epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
                                     }
 
                                     string serializedEpg = esSerializer.SerializeEpgObject(epg, suffix);

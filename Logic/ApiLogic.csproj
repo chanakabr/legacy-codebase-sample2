@@ -11,98 +11,35 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>net452</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.3.101.9" />
-    <PackageReference Include="EnyimMemcached" Version="2.11" />
-    <PackageReference Include="LinqToTwitter" Version="2.1.11" />
-    <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="SimpleInjector" Version="4.4.3" />
-    <PackageReference Include="SimpleInjector.Integration.Wcf" Version="4.4.3" />
+    <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.5.3" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.5.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
-      <HintPath>..\External\ComponentSpace.SAML2.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="PerceptiveMCAPI, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\External\PerceptiveMCAPI.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Activation" />
-    <Reference Include="System.ServiceModel.Web" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Services" />
-    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.configuration" />
+    <PackageReference Include="LinqToTwitter" Version="4.2.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Service References\AmazonSnsAdapter\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\DmsService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\EngagementAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\MailNotificationsAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\OSSAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\PaymentGWAdapter\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Service References\SSOAdapaterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Update="Web References\AdyenPayAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Update="Web References\AdyenRecAPI\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-    <Compile Update="Web References\tikle\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Include="LinqToTwitter" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities " Version="2.2.0" />    
+    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CDNTokenizers\CDNTokenizers.csproj" />
     <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj" />
-    <ProjectReference Include="..\ADIFeeder\ADIFeeder.csproj" />
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj" />
     <ProjectReference Include="..\CachingHelpers\CachingHelpers.csproj" />
     <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
@@ -112,9 +49,10 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\EpgBL\EpgBL.csproj" />
-    <ProjectReference Include="..\EpgIngest\EpgIngest.csproj" />
+    <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj" />
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\ImageManager\ImageManager.csproj" />
     <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\M1BL\M1BL.csproj" />
@@ -125,11 +63,11 @@
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
     <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
+    <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
     <ProjectReference Include="..\StaticticsBL\StaticticsBL.csproj" />
     <ProjectReference Include="..\StreamingProvider\StreamingProvider.csproj" />
     <ProjectReference Include="..\Synchronizer\Synchronizer.csproj" />
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj" />
-    <ProjectReference Include="..\TvinciImporter\TvinciImporter.csproj" />
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
@@ -139,363 +77,11 @@
     <ProjectReference Include="..\RestAdaptersCommon\RestAdaptersCommon.csproj" />
     <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.AnnouncementSubscriptionData.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.DeviceAppRegistration.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.DeviceAppRegistrationAnnouncementResult.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.UnSubscribe.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.WSEndPointPublishDataResult.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service1.wsdl" />
-    <None Include="Service References\AmazonSnsAdapter\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service51.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service52.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service53.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\AmazonSnsAdapter\Service54.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service11.wsdl" />
-    <None Include="Service References\DmsService\Service44.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service45.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service46.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\DmsService\Service47.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.EngagementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service1.wsdl" />
-    <None Include="Service References\EngagementAdapterService\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service31.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\EngagementAdapterService\Service32.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementListResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\APILogic.MailNotificationsAdapterService.AnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service1.wsdl" />
-    <None Include="Service References\MailNotificationsAdapterService\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service51.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service52.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service53.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MailNotificationsAdapterService\Service54.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.EntitlementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.HouseholdPaymentGatewayResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service.wsdl" />
-    <None Include="Service References\OSSAdapterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service1.wsdl" />
-    <None Include="Service References\OSSAdapterService\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service11.wsdl" />
-    <None Include="Service References\OSSAdapterService\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service41.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service42.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\OSSAdapterService\Service43.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.AdapterStatus.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.ConfigurationResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.PaymentMethodResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\APILogic.PaymentGWAdapter.TransactionResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service.wsdl" />
-    <None Include="Service References\PaymentGWAdapter\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\PaymentGWAdapter\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.AdapterStatusCode.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.PreSignInResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.SSOImplementationsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\SSOAdapaterService\APILogic.SSOAdapaterService.UserResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\SSOAdapaterService\Service.wsdl" />
-    <None Include="Service References\SSOAdapaterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SSOAdapaterService\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SSOAdapaterService\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SSOAdapaterService\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SSOAdapaterService\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Web References\AdyenPayAPI\BalanceCheckResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\DirectDebitResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\FundTransferResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\ModificationResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\Payment.wsdl" />
-    <None Include="Web References\AdyenPayAPI\PaymentResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenPayAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\AdyenRecAPI\DisableResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenRecAPI\Recurring.wsdl" />
-    <None Include="Web References\AdyenRecAPI\RecurringDetailsResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenRecAPI\RecurringResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\AdyenRecAPI\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\AdyenRecAPI\StoreTokenResult.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\tikle\Cinema.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\City.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\Movie.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\MovieOnVision.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\PurchaseResponseInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\tikle\Response.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\tikle\service.disco" />
-    <None Include="Web References\tikle\service.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Service11.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\OSSAdapterService\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\AmazonSnsAdapter\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\PaymentGWAdapter\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\MailNotificationsAdapterService\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SSOAdapaterService\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SSOAdapaterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SSOAdapaterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SSOAdapaterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\DmsService\Service11.disco" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Remove="Catalog\Request\MediaBookmarkData.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
   <!-- This is a workaround that will allow TVM website project to build, if you read this an 

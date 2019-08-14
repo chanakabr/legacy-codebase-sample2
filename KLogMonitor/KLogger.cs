@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using log4net.Core;
 using log4net.Repository;
 using log4net.Util;
+using log4net.Appender;
 
 namespace KLogMonitor
 {
@@ -94,6 +95,8 @@ namespace KLogMonitor
             var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
             var assemblyVersion = $"{fvi.FileMajorPart}_{fvi.FileMinorPart}_{fvi.FileBuildPart}";
             var logDir = Environment.GetEnvironmentVariable("API_LOG_DIR");
+            var stdOutLogLevel = Environment.GetEnvironmentVariable("API_STD_OUT_LOG_LEVEL");
+
             logDir = logDir != null ? Environment.ExpandEnvironmentVariables(logDir) : defaultLogsPath;
             log4net.GlobalContext.Properties["LogDir"] = logDir;
             log4net.GlobalContext.Properties["ApiVersion"] = assemblyVersion;
@@ -101,6 +104,21 @@ namespace KLogMonitor
 
             KMonitor.Configure(logConfigFile, appType);
             KLogger.Configure(logConfigFile, appType);
+
+            if (!string.IsNullOrEmpty(stdOutLogLevel))
+            {
+                var loggerRepo = KLogger.GetLoggerRepository();
+                var stdOutLogLevelThreshold = loggerRepo.LevelMap[stdOutLogLevel];
+                var stdOutAppenders = loggerRepo.GetAppenders()
+                    .Where(a => a is ManagedColoredConsoleAppender || a is ConsoleAppender)
+                    .Cast<AppenderSkeleton>().ToList();
+
+                stdOutAppenders.ForEach(a =>
+                {
+                    _Logger.Info($"Setting log-level threshold for std out logs, appender:[{a.Name}], threshold:[{stdOutLogLevelThreshold}]");
+                    a.Threshold = stdOutLogLevelThreshold;
+                });
+            }
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
@@ -291,6 +309,11 @@ namespace KLogMonitor
         public static string GetRequestId()
         {
             return LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+        }
+
+        public static void SetRequestId(string sessionId)
+        {
+            LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
         }
 
         public void ErrorFormat(string format, params object[] args)

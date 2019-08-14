@@ -16,24 +16,42 @@ using ApiObjects;
 using APILogic.AdyenRecAPI;
 using APILogic.AdyenPayAPI;
 using ApiObjects.Billing;
+using System.ServiceModel.Description;
+using TVinciShared;
 
 namespace Core.Billing
 {
     public class AdyenDirectDebit : BaseDirectDebit
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private readonly RecurringPortTypeClient _RecurringPaymentClient;
+        private readonly PaymentPortTypeClient _PaymentClient;
 
         public AdyenDirectDebit(int groupID)
             : base(groupID)
         {
+
+            var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
+            var paymentServiceUrl = AdyenUtils.GetWSPaymentUrl(groupID);
+            var paymentEndpointConfig = PaymentPortTypeClient.EndpointConfiguration.PaymentHttpPort;
+
+            var recurringPaymentServiceUrl = AdyenUtils.GetWSRecurringUrl(groupID);
+            var recurringPaymentEndpointConfig = RecurringPortTypeClient.EndpointConfiguration.RecurringHttpPort;
+
+            _RecurringPaymentClient = new RecurringPortTypeClient(recurringPaymentEndpointConfig, recurringPaymentServiceUrl);
+            _RecurringPaymentClient.ConfigureServiceClient();
+
+
+            _PaymentClient = new PaymentPortTypeClient(paymentEndpointConfig, paymentServiceUrl);
+            _PaymentClient.ConfigureServiceClient();
         }
+
 
         public override bool CancelPayment(string sPSPReference, string sMerchantAccount, string sSiteGuid, int nGroupID, long lPurchaseID, int nType, int nNumOfCancelOrRefundAttempts, double? dChargePrice, string sCurrencyCode)
         {
             bool retVal = true;
             string sUN = string.Empty;
             string sPass = string.Empty;
-            Payment payApi = null;
             try
             {
                 string sAdyenEventCode = string.Empty;
@@ -42,12 +60,10 @@ namespace Core.Billing
                 string sLast4Digits = string.Empty;
                 bool bIsAdyenFetchedRequest = false;
                 AdyenUtils.GetAccountCredentials(sMerchantAccount, ref sUN, ref sPass);
-                payApi = new Payment();
-                payApi.Credentials = new NetworkCredential(sUN, sPass);
                 ModificationRequest modReq = new ModificationRequest();
                 modReq.merchantAccount = sMerchantAccount;
                 modReq.originalReference = sPSPReference;
-                ModificationResult modRes = payApi.cancel(modReq);
+                ModificationResult modRes = _PaymentClient.cancelAsync(modReq).ExecuteAndWait();
                 bIsAdyenFetchedRequest = modRes != null && modRes.response != null && modRes.response.Trim().ToLower() == "[cancel-received]" && !string.IsNullOrEmpty(modRes.pspReference);
                 if (bIsAdyenFetchedRequest)
                 {
@@ -93,13 +109,6 @@ namespace Core.Billing
                 log.Error("Exception - " + string.Format("Exception in CancelPayment. Exception msg: {0} , PSP Ref: {1} , Site Guid: {2} , Group ID: {3} , Purchase ID: {4}", ex.Message, sPSPReference, sSiteGuid, nGroupID, lPurchaseID), ex);
                 #endregion
             }
-            finally
-            {
-                if (payApi != null)
-                {
-                    payApi.Dispose();
-                }
-            }
 
             return retVal;
         }
@@ -107,10 +116,9 @@ namespace Core.Billing
         public override bool RefundPayment(string sPSPReference, string sSiteGuid, int nGroupID, double dChargePrice, string sCurrencyCode, long lPurchaseID, int nType, int nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne)
         {
             bool retVal = true;
-            Payment payApi = null;
             try
             {
-                payApi = new Payment();
+
                 string sUN = string.Empty;
                 string sPass = string.Empty;
                 string sMerchantAccount = string.Empty;
@@ -120,15 +128,17 @@ namespace Core.Billing
                 string sLast4Digits = string.Empty;
                 bool bIsAdyenFetchedRequest = false;
                 AdyenUtils.GetWSCredentials(m_nGroupID, ref sUN, ref sPass, ref sMerchantAccount);
-                payApi.Credentials = new NetworkCredential(sUN, sPass);
-                payApi.Url = AdyenUtils.GetWSPaymentUrl(m_nGroupID);
                 ModificationRequest modReq = new ModificationRequest();
                 modReq.originalReference = sPSPReference;
                 modReq.merchantAccount = sMerchantAccount;
                 modReq.modificationAmount = new APILogic.AdyenPayAPI.Amount();
                 modReq.modificationAmount.currency = sCurrencyCode;
                 modReq.modificationAmount.value = AdyenUtils.GetAdyenPriceFormat(dChargePrice);
-                ModificationResult modRes = payApi.refund(modReq);
+
+                _PaymentClient.ClientCredentials.UserName.UserName = sUN;
+                _PaymentClient.ClientCredentials.UserName.Password = sPass;
+                ModificationResult modRes = _PaymentClient.refundAsync(modReq).ExecuteAndWait();
+
                 bIsAdyenFetchedRequest = modRes != null && modRes.response != null && modRes.response.Trim().ToLower() == "[refund-received]" && !string.IsNullOrEmpty(modRes.pspReference);
                 if (bIsAdyenFetchedRequest)
                 {
@@ -173,13 +183,6 @@ namespace Core.Billing
                 #region Logging
                 log.Error("Exception - " + string.Format("Exception in RefundPayment. Exception msg: {0} , PSP Ref: {1} , Site Guid: {2} , Group ID: {3} , Purchase ID: {4}", ex.Message, sPSPReference, sSiteGuid, nGroupID, lPurchaseID), ex);
                 #endregion
-            }
-            finally
-            {
-                if (payApi != null)
-                {
-                    payApi.Dispose();
-                }
             }
             return retVal;
         }
@@ -269,7 +272,6 @@ namespace Core.Billing
         private BillingResponse ChargeAdyen(RecurringDetail recRes, string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUN, string sPass, string sCustomData, string sMerchAccount, int nPaymentNumber, int nNumberOfPayments, int nBillingMethod, string sExtraParameters)
         {
             BillingResponse ret = new BillingResponse();
-            Payment payApi = null;
             ODBCWrapper.UpdateQuery updateQuery = null;
             try
             {
@@ -282,8 +284,6 @@ namespace Core.Billing
                     ret.m_sStatusDescription = "Unknown or active user";
                     return ret;
                 }
-                payApi = new Payment();
-                payApi.Url = AdyenUtils.GetWSPaymentUrl(m_nGroupID);
                 //payApi.Url = "https://pal-test.adyen.com/pal/servlet/soap/Payment";
                 PaymentRequest payReq = new PaymentRequest();
                 payReq.amount = new APILogic.AdyenPayAPI.Amount();
@@ -299,8 +299,11 @@ namespace Core.Billing
                 payReq.shopperReference = sSiteGUID;
                 payReq.shopperInteraction = "ContAuth";
                 payReq.shopperEmail = uObj.m_user.m_oBasicData.m_sEmail;
-                payApi.Credentials = new NetworkCredential(sUN, sPass);
-                PaymentResult payRes = payApi.authorise(payReq);
+
+
+                _PaymentClient.ClientCredentials.UserName.UserName = sUN;
+                _PaymentClient.ClientCredentials.UserName.Password = sPass;
+                PaymentResult payRes = _PaymentClient.authoriseAsync(payReq).ExecuteAndWait();
 
                 int customDataID = Utils.AddCustomData(sCustomData);
                 int adyenTransID = 1;
@@ -382,10 +385,6 @@ namespace Core.Billing
             }
             finally
             {
-                if (payApi != null)
-                {
-                    payApi.Dispose();
-                }
                 if (updateQuery != null)
                 {
                     updateQuery.Finish();
@@ -397,22 +396,18 @@ namespace Core.Billing
         private RecurringDetailsResult GetAdyenConract(string merchAcc, string sSiteGUID, string sUN, string sPass)
         {
             RecurringDetailsResult retVal = null;
-            using (APILogic.AdyenRecAPI.Recurring recApi = new APILogic.AdyenRecAPI.Recurring())
-            {
-                RecurringDetailsRequest recRequest = new RecurringDetailsRequest();
-                recRequest.merchantAccount = merchAcc;
-                recRequest.shopperReference = sSiteGUID;
-                recRequest.recurring = new Recurring1();
-                recRequest.recurring.recurringDetailName = "RECURRING";
-                recRequest.recurring.contract = "RECURRING";
+            RecurringDetailsRequest recRequest = new RecurringDetailsRequest();
+            recRequest.merchantAccount = merchAcc;
+            recRequest.shopperReference = sSiteGUID;
+            recRequest.recurring = new APILogic.AdyenRecAPI.Recurring();
+            recRequest.recurring.recurringDetailName = "RECURRING";
+            recRequest.recurring.contract = "RECURRING";
 
-                recApi.Url = AdyenUtils.GetWSRecurringUrl(m_nGroupID);
 
-                recApi.Credentials = new NetworkCredential(sUN, sPass);
-
-                retVal = recApi.listRecurringDetails(recRequest);
-                return retVal;
-            }
+            _RecurringPaymentClient.ClientCredentials.UserName.UserName = sUN;
+            _RecurringPaymentClient.ClientCredentials.UserName.Password = sPass;
+            retVal = _RecurringPaymentClient.listRecurringDetailsAsync(recRequest).ExecuteAndWait();
+            return retVal;
         }
 
         public override AdyenBillingDetail GetLastBillingUserInfo(string sSiteGUID, int nBillingMethod)
@@ -459,7 +454,6 @@ namespace Core.Billing
 
             bool retVal = true;
             int i = 0;
-            Payment payApi = null;
             try
             {
                 string sUN = string.Empty;
@@ -471,18 +465,18 @@ namespace Core.Billing
                 string sAdyenReason = string.Empty;
                 bool bIsAdyenResponseValid = false;
                 AdyenUtils.GetWSCredentials(m_nGroupID, ref sUN, ref sPass, ref sMerchantAccount);
-                payApi = new Payment();
-                payApi.Credentials = new NetworkCredential(sUN, sPass);
                 ModificationRequest modReq = new ModificationRequest();
                 modReq.merchantAccount = sMerchantAccount;
                 modReq.originalReference = sPSPReference;
-                payApi.Url = AdyenUtils.GetWSPaymentUrl(m_nGroupID);
 
                 int nBoundOfNumOfCancelOrRefundAttempts = Utils.GetPreviewModuleNumOfCancelOrRefundAttempts();
                 ModificationResult modRes = null;
                 for (i = nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne; (i < nBoundOfNumOfCancelOrRefundAttempts && bIsCancelOrRefundResultOfPreviewModule) || (i < nHowManyCancelOrRefundAttemptsSoFarNotIncludingThisOne + 1 && !bIsCancelOrRefundResultOfPreviewModule); i++)
                 {
-                    modRes = payApi.cancelOrRefund(modReq);
+
+                    _PaymentClient.ClientCredentials.UserName.UserName = sUN;
+                    _PaymentClient.ClientCredentials.UserName.Password = sPass;
+                    modRes = _PaymentClient.cancelOrRefundAsync(modReq).ExecuteAndWait();
                     bIsAdyenResponseValid = modRes != null && modRes.response != null && modRes.response.Trim().ToLower() == "[cancelorrefund-received]" && !string.IsNullOrEmpty(modRes.pspReference);
                     if (bIsAdyenResponseValid)
                     {
@@ -546,13 +540,7 @@ namespace Core.Billing
                 log.Error("Exception - " + string.Format("Exception at CancelOrRefundPayment. Exception msg: {0} , PSP Ref: {1} , Site Guid: {2} , Purchase ID: {3} , Number of COR attempts (number of for iterations trying to send COR): {4}", ex.Message, sPSPReference, sSiteGuid, lPurchaseID, i), ex);
                 #endregion
             }
-            finally
-            {
-                if (payApi != null)
-                {
-                    payApi.Dispose();
-                }
-            }
+
 
             return retVal;
         }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-#if NET452
+#if NETFRAMEWORK
 using System.Web;
 using System.Web.SessionState;
 #endif
@@ -18,7 +19,7 @@ namespace TVinciShared
 {
     public static class HttpContextUtils
     {
-#if NET452
+#if NETFRAMEWORK
         public static object Get(this HttpSessionState session, string key)
         {
             return session[key];
@@ -69,6 +70,11 @@ namespace TVinciShared
             return req.Form;
         }
 
+        public static NameValueCollection GetHeaders(this HttpRequest req)
+        {
+            return req.Headers;
+        }
+
         public static string GetForwardedForHeader(this HttpRequest req)
         {
             return req.ServerVariables["HTTP_X_FORWARDED_FOR"];
@@ -99,6 +105,36 @@ namespace TVinciShared
         {
             return ctx.Server.MapPath(path);
         }
+
+        public static string GetApplicationPath(this HttpRequest req)
+        {
+            return req.ApplicationPath;
+        }
+
+        /// <summary>
+        /// This is a portability method for getting HttpContext.Current.Items.ContainsKey in bodth net framework and net core
+        /// </summary>
+        public static bool ContainesKey(this IDictionary items, string key)
+        {
+            return items.Contains(key);
+        }
+
+        public static string GetHttpMethod(this HttpRequest req)
+        {
+            return req.HttpMethod;
+        }
+
+        // This is a shim method for .net452 to allow HttpContext.Current.Items.ContainsKey
+        // This is because Items collection is Idictionary in net452 but in netCore its Idictionary<object,object>
+        public static bool ContainsKey(this IDictionary dict, string key)
+        {
+            return dict.Contains(key);
+        }
+
+        public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
+        {
+            return System.Runtime.Caching.MemoryCache.Default;
+        } 
 
 #endif
 
@@ -190,7 +226,17 @@ namespace TVinciShared
                 retVal.Add(formVal.Key, formVal.Value);
             }
             return retVal;
+        }
 
+        public static NameValueCollection GetHeaders(this HttpRequest req)
+        {
+            var headerVals = req.Headers.Select(f => new KeyValuePair<string, string>(f.Key, f.Value.ToString()));
+            var retVal = new NameValueCollection();
+            foreach (var formVal in headerVals)
+            {
+                retVal.Add(formVal.Key, formVal.Value);
+            }
+            return retVal;
         }
 
         public static IFormFileCollection GetFiles(this HttpRequest req)
@@ -204,6 +250,16 @@ namespace TVinciShared
             {
                 file.CopyTo(fileStream);
             }
+        }
+
+        public static string GetApplicationPath(this HttpRequest req)
+        {
+            return req.PathBase.Value;
+        }
+
+        public static string GetHttpMethod(this HttpRequest req)
+        {
+            return req.Method;
         }
 
         /// <summary>
@@ -230,6 +286,11 @@ namespace TVinciShared
         {
             return Path.Combine(System.Web.HostingEnvironment.Current.WebRootPath, path);
         }
+
+        public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
+        {
+            return System.Runtime.Caching.MemoryCache.Default;
+        } 
 
 #endif
     }

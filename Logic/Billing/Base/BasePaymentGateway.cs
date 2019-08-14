@@ -8,12 +8,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Net;
-using System.Web;
-using ApiLogic;
 using APILogic.ConditionalAccess.Modules;
 using System.Xml;
 using TVinciShared;
+using ApiObjects.ConditionalAccess;
 
 namespace Core.Billing
 {
@@ -109,48 +107,48 @@ namespace Core.Billing
                 response.pgw = DAL.BillingDAL.GetPaymentGatewaySettingsList(groupID, 0);
                 if (response.pgw == null || response.pgw.Count == 0)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no payment gateway related to group");
+                    response.resp = new Status((int)eResponseStatus.OK, "no payment gateway related to group");
                 }
                 else
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.resp = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 response = new PaymentGatewaySettingsResponse();
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.resp = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID = {0} ", groupID), ex);
             }
 
             return response;
         }
 
-        public virtual ApiObjects.Response.Status SetPaymentGWSettings(int paymentGWID, List<PaymentGatewaySettings> settings)
+        public virtual Status SetPaymentGWSettings(int paymentGWID, List<PaymentGatewaySettings> settings)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGWID == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                 }
                 else
                 {
                     bool isSet = DAL.BillingDAL.SetPaymentGWSettings(groupID, paymentGWID, settings);
                     if (isSet)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway set changes");
+                        response = new Status((int)eResponseStatus.OK, "payment gateway set changes");
                     }
                     else
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gateway failed set changes, check your params");
+                        response = new Status((int)eResponseStatus.Error, "payment gateway failed set changes, check your params");
                     }
                 }
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID = {0} , paymentGWID={1}", groupID, paymentGWID), ex);
             }
             return response;
@@ -159,36 +157,36 @@ namespace Core.Billing
         public PaymentGatewayItemResponse SetPaymentGateway(int paymentGatewayId, PaymentGateway paymentGateway)
         {
             PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGatewayId == 0) // , name, URL, isDefault, isActive, configs)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
                 if (string.IsNullOrEmpty(paymentGateway.Name))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNameRequired, INVALID_PAYMENT_GATEWAY_NAME);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNameRequired, INVALID_PAYMENT_GATEWAY_NAME);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(paymentGateway.SharedSecret))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySharedSecretRequired, INVALID_PAYMENT_GATEWAY_SHARED_SECRET);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewaySharedSecretRequired, INVALID_PAYMENT_GATEWAY_SHARED_SECRET);
                     return response;
                 }
 
                 if (paymentGateway.RenewalIntervalMinutes < MIN_RENEWAL_INTERVAL_MINUTES)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
+                    response.Status = new Status((int)eResponseStatus.Error,
                         string.Format("Renewal interval must be larger then {0} minutes", MIN_RENEWAL_INTERVAL_MINUTES));
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(paymentGateway.ExternalIdentifier))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                     return response;
                 }
 
@@ -197,7 +195,7 @@ namespace Core.Billing
 
                 if (returnPaymentGatewayId > 0 && paymentGatewayId != returnPaymentGatewayId)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
                 }
 
@@ -214,7 +212,7 @@ namespace Core.Billing
                     {
                         if (paymentGatewayIdentifier == paymentGatewayId)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
+                            response.Status = new Status((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
                             return response;
                         }
                     }
@@ -228,11 +226,11 @@ namespace Core.Billing
                         isSet = DAL.BillingDAL.SetPaymentGWSettings(groupID, paymentGateway.ID, paymentGateway.Settings);
                         if (!isSet)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gateway failed set changes, check your params");
+                            response.Status = new Status((int)eResponseStatus.Error, "payment gateway failed set changes, check your params");
                         }
                     }
 
-                    if (!AdaptersController.GetInstance(paymentGateway.ID).SendConfiguration(paymentGateway, groupID))
+                    if (!AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).SendConfiguration(paymentGateway, groupID))
                     {
                         log.DebugFormat("SetPaymentGateway - SendConfigurationToAdapter failed : AdapterID = {0}", paymentGatewayId);
                     }
@@ -240,24 +238,24 @@ namespace Core.Billing
                     paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, null);
                     if (paymentGateway == null || paymentGateway.ID <= 0)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                        response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                         return response;
                     }
                     else
                     {
                         response.PaymentGateway = paymentGateway;
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway set changes");
+                        response.Status = new Status((int)eResponseStatus.OK, "payment gateway set changes");
                     }
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gateway failed set changes");
+                    response.Status = new Status((int)eResponseStatus.Error, "payment gateway failed set changes");
                 }
 
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGWID={1}, name={2}, adapterUrl={3}, transactUrl={4}, statusUrl={5}, renewUrl={6}, isDefault={7}, isActive={8}",
                     groupID, paymentGatewayId, paymentGateway.Name, paymentGateway.AdapterUrl, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl, paymentGateway.IsDefault,
                     paymentGateway.IsActive), ex);
@@ -265,14 +263,14 @@ namespace Core.Billing
             return response;
         }
 
-        public virtual ApiObjects.Response.Status DeletePaymentGateway(int paymentGatewayId)
+        public virtual Status DeletePaymentGateway(int paymentGatewayId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGatewayId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
@@ -280,42 +278,42 @@ namespace Core.Billing
                 PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, null);
                 if (paymentGateway == null || paymentGateway.ID <= 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
                 bool isSet = DAL.BillingDAL.DeletePaymentGateway(groupID, paymentGatewayId);
                 if (isSet)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway deleted");
+                    response = new Status((int)eResponseStatus.OK, "payment gateway deleted");
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 }
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGWID={1}", groupID, paymentGatewayId), ex);
             }
             return response;
         }
 
-        public virtual ApiObjects.Response.Status DeletePaymentGatewaySettings(int paymentGatewayId, List<PaymentGatewaySettings> settings)
+        public virtual Status DeletePaymentGatewaySettings(int paymentGatewayId, List<PaymentGatewaySettings> settings)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGatewayId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
                 if (settings == null || settings.Count == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_DELETE);
+                    response = new Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_DELETE);
                     return response;
                 }
 
@@ -323,23 +321,23 @@ namespace Core.Billing
                 PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                 if (paymentGateway == null || paymentGateway.ID <= 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
                 bool isSet = DAL.BillingDAL.DeletePaymentGW(groupID, paymentGatewayId, settings);
                 if (isSet)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway configs delete");
+                    response = new Status((int)eResponseStatus.OK, "payment gateway configs delete");
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gateway configs faild delete");
+                    response = new Status((int)eResponseStatus.Error, "payment gateway configs faild delete");
                 }
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGWID={1}", groupID, paymentGatewayId), ex);
             }
             return response;
@@ -353,32 +351,32 @@ namespace Core.Billing
                 response.pgw = DAL.BillingDAL.GetPaymentGWList(groupID);
                 if (response.pgw == null || response.pgw.Count == 0)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no payment gateway related to group");
+                    response.resp = new Status((int)eResponseStatus.OK, "no payment gateway related to group");
                 }
                 else
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.resp = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
             {
                 response = new PaymentGatewayResponse();
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.resp = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}", groupID), ex);
             }
 
             return response;
         }
 
-        public virtual ApiObjects.Response.Status SetHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId)
+        public virtual Status SetHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 // paymentGatewayId validation: not empty
                 if (paymentGatewayId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
@@ -387,7 +385,7 @@ namespace Core.Billing
                 PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                 if (paymentGateway == null || paymentGateway.Status != 1 || paymentGateway.IsActive != 1)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
                     return response;
                 }
                 // check for ENABLE_PAYMENT_GATEWAY_SELECTION- in case in disable return error
@@ -401,12 +399,12 @@ namespace Core.Billing
 
                 if (enablePaymentGatewaySelection == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySelectionIsDisabled, PAYMENT_GATEWAY_SELECTION_IS_DISABLED);
+                    response = new Status((int)eResponseStatus.PaymentGatewaySelectionIsDisabled, PAYMENT_GATEWAY_SELECTION_IS_DISABLED);
                     return response;
                 }
 
                 // check user
-                ApiObjects.Response.Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
+                Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
                 if (userStatus.Code == (int)ResponseStatus.OK && householdId > 0)
                 {
@@ -414,18 +412,18 @@ namespace Core.Billing
 
                     if (householdPaymentGateway != null && householdPaymentGateway.Selected == 1)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdAlreadySetToPaymentGateway, HOUSEHOLD_ALREADY_SET_TO_PAYMENT_GATEWAY);
+                        response = new Status((int)eResponseStatus.HouseholdAlreadySetToPaymentGateway, HOUSEHOLD_ALREADY_SET_TO_PAYMENT_GATEWAY);
                         return response;
                     }
 
                     bool isSet = DAL.BillingDAL.SetPaymentGatewayHousehold(groupID, paymentGatewayId, householdId, 1, null, 1);
                     if (isSet)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway set to household");
+                        response = new Status((int)eResponseStatus.OK, "payment gateway set to household");
                     }
                     else
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorSavingPaymentGatewayHousehold, "payment gateway failed set to household");
+                        response = new Status((int)eResponseStatus.ErrorSavingPaymentGatewayHousehold, "payment gateway failed set to household");
                     }
                 }
                 else if (householdId == 0)
@@ -434,13 +432,13 @@ namespace Core.Billing
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, userStatus.Message.ToString());
+                    response = new Status((int)eResponseStatus.Error, userStatus.Message.ToString());
                 }
 
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGWID={1}, siteGuid= {2}", groupID, paymentGatewayId, siteGuid), ex);
             }
             return response;
@@ -452,7 +450,7 @@ namespace Core.Billing
             try
             {
                 // check user
-                ApiObjects.Response.Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
+                Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
                 if ((userStatus.Code == (int)eResponseStatus.OK || userStatus.Code == (int)eResponseStatus.UserSuspended) && householdId > 0)
                 {
@@ -460,7 +458,7 @@ namespace Core.Billing
 
                     if (dsAllPaymentGateways == null || dsAllPaymentGateways.Tables.Count == 0)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No Payment Gateway found"); // TO DO : right message
+                        response.Status = new Status((int)eResponseStatus.Error, "No Payment Gateway found"); // TO DO : right message
                     }
 
                     if (dsAllPaymentGateways.Tables.Count > 0)
@@ -545,7 +543,7 @@ namespace Core.Billing
                                 if (pms != null && pms.ContainsKey(pgsby.ID))
                                 {
                                     pgsby.PaymentMethods = new List<PaymentGatwayPaymentMethods>();
-                                    List<PaymentMethod> pmList = pms.Where(kvp => kvp.Key == pgsby.ID).SelectMany(kvp => kvp.Value).ToList<PaymentMethod>();
+                                    List<PaymentMethod> pmList = pms.Where(kvp => kvp.Key == pgsby.ID).SelectMany(kvp => kvp.Value).ToList();
                                     pgsby.SupportPaymentMethod = true;
 
                                     foreach (PaymentMethod pm in pmList)
@@ -553,7 +551,7 @@ namespace Core.Billing
                                         PaymentGatwayPaymentMethods pgpm = new PaymentGatwayPaymentMethods();
                                         pgpm.PaymentMethod = pm;
 
-                                        List<HouseholdPaymentMethod> hpList = hpms.Where(kvp => kvp.Key == pm.ID).SelectMany(kvp => kvp.Value).ToList<HouseholdPaymentMethod>();
+                                        List<HouseholdPaymentMethod> hpList = hpms.Where(kvp => kvp.Key == pm.ID).SelectMany(kvp => kvp.Value).ToList();
                                         if (hpList != null && hpList.Count > 0)
                                         {
                                             pgpm.HouseHoldPaymentMethods = new List<HouseholdPaymentMethod>();
@@ -569,7 +567,7 @@ namespace Core.Billing
                         }
                     }
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                 }
                 else
@@ -581,7 +579,7 @@ namespace Core.Billing
             catch (Exception ex)
             {
                 response = new PaymentGatewayListResponse();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, siteGuid= {1}", groupID, siteGuid), ex);
             }
 
@@ -591,37 +589,37 @@ namespace Core.Billing
         public virtual PaymentGatewayItemResponse InsertPaymentGateway(PaymentGateway paymentGateway)
         {
             PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGateway == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoPaymentGatewayToInsert, NO_PAYMENT_GATEWAY_TO_INSERT);
+                    response.Status = new Status((int)eResponseStatus.NoPaymentGatewayToInsert, NO_PAYMENT_GATEWAY_TO_INSERT);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(paymentGateway.Name))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNameRequired, INVALID_PAYMENT_GATEWAY_NAME);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNameRequired, INVALID_PAYMENT_GATEWAY_NAME);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(paymentGateway.SharedSecret))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySharedSecretRequired, INVALID_PAYMENT_GATEWAY_SHARED_SECRET);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewaySharedSecretRequired, INVALID_PAYMENT_GATEWAY_SHARED_SECRET);
                     return response;
                 }
 
                 if (paymentGateway.RenewalIntervalMinutes < MIN_RENEWAL_INTERVAL_MINUTES)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
+                    response.Status = new Status((int)eResponseStatus.Error,
                         string.Format("Renewal interval must be larger then {0} minutes", MIN_RENEWAL_INTERVAL_MINUTES));
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(paymentGateway.ExternalIdentifier))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                     return response;
                 }
 
@@ -630,7 +628,7 @@ namespace Core.Billing
 
                 if (paymentGWID > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
                 }
 
@@ -638,16 +636,16 @@ namespace Core.Billing
                 if (createdPaymentGateway != null)
                 {
                     response.PaymentGateway = createdPaymentGateway;
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new payment gateway insert");
+                    response.Status = new Status((int)eResponseStatus.OK, "new payment gateway insert");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new payment gateway");
+                    response.Status = new Status((int)eResponseStatus.Error, "fail to insert new payment gateway");
                 }
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}", groupID), ex);
             }
             return response;
@@ -656,17 +654,17 @@ namespace Core.Billing
         public virtual PaymentGatewayItemResponse InsertPaymentGatewaySettings(int paymentGatewayId, List<PaymentGatewaySettings> settings)
         {
             PaymentGatewayItemResponse response = new PaymentGatewayItemResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGatewayId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
                 if (settings == null || settings.Count == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_INSERT);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayParamsRequired, NO_PARAMS_TO_INSERT);
                     return response;
                 }
 
@@ -674,7 +672,7 @@ namespace Core.Billing
                 PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                 if (paymentGateway == null || paymentGateway.ID <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
@@ -684,42 +682,42 @@ namespace Core.Billing
                     paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                     if (paymentGateway == null || paymentGateway.ID <= 0)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                        response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                         return response;
                     }
                     else
                     {
                         response.PaymentGateway = paymentGateway;
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway configs insert");
+                        response.Status = new Status((int)eResponseStatus.OK, "payment gateway configs insert");
                     }
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert payment gateway configs");
+                    response.Status = new Status((int)eResponseStatus.Error, "fail to insert payment gateway configs");
                 }
 
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGWID={1}", groupID, paymentGatewayId), ex);
             }
             return response;
         }
 
-        public ApiObjects.Response.Status DeleteHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId)
+        public Status DeleteHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 if (paymentGatewayId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
                 // check user
-                ApiObjects.Response.Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
+                Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
                 if (userStatus.Code != (int)ResponseStatus.OK)
                 {
@@ -730,14 +728,14 @@ namespace Core.Billing
                 PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
                 if (paymentGateway == null)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
                 //check if householed reltaed to PaymentGateway
                 HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(groupID, paymentGatewayId, householdId);
                 if (householdPaymentGateway == null)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY);
+                    response = new Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY);
                     return response;
                 }
 
@@ -751,7 +749,7 @@ namespace Core.Billing
 
                 if (enablePaymentGatewaySelection == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySelectionIsDisabled, PAYMENT_GATEWAY_SELECTION_IS_DISABLED);
+                    response = new Status((int)eResponseStatus.PaymentGatewaySelectionIsDisabled, PAYMENT_GATEWAY_SELECTION_IS_DISABLED);
                     return response;
                 }
 
@@ -760,11 +758,11 @@ namespace Core.Billing
                     bool isSet = DAL.BillingDAL.DeletePaymentGatewayHousehold(groupID, paymentGatewayId, householdId);
                     if (isSet)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway delete from household");
+                        response = new Status((int)eResponseStatus.OK, "payment gateway delete from household");
                     }
                     else
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gateway faild to delete from household");
+                        response = new Status((int)eResponseStatus.Error, "payment gateway faild to delete from household");
                     }
                 }
                 else
@@ -775,27 +773,27 @@ namespace Core.Billing
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGWID={1}, siteGuid={2}", groupID, paymentGatewayId, siteGuid), ex);
             }
             return response;
         }
 
-        public virtual ApiObjects.Response.Status SetHouseholdChargeID(string externalIdentifier, int householdId, string chargeID)
+        public virtual Status SetHouseholdChargeID(string externalIdentifier, int householdId, string chargeID)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             try
             {
                 if (string.IsNullOrEmpty(externalIdentifier))
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    response = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(chargeID))
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
+                    response = new Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
                     return response;
                 }
 
@@ -812,7 +810,7 @@ namespace Core.Billing
 
                         if (householdPaymentGateway != null && householdPaymentGateway.ChargeId == chargeID)
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway, CHARGE_ID_ALREADY_SET_TO_HOUSEHOLD);
+                            response = new Status((int)eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway, CHARGE_ID_ALREADY_SET_TO_HOUSEHOLD);
                             return response;
 
                         }
@@ -820,24 +818,24 @@ namespace Core.Billing
 
                         if (isSet)
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+                            response = new Status((int)eResponseStatus.OK, "OK");
                         }
                         else
                         {
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorSavingPaymentGatewayHousehold, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD);
+                            response = new Status((int)eResponseStatus.ErrorSavingPaymentGatewayHousehold, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD);
                         }
 
                     }
                     else
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                        response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
 
                     }
                 }
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, externalIdentifier={1}, householdID={2}", groupID, externalIdentifier, householdId), ex);
             }
             return response;
@@ -851,7 +849,7 @@ namespace Core.Billing
             {
                 if (string.IsNullOrEmpty(externalIdentifier))
                 {
-                    response.ResponseStatus = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    response.ResponseStatus = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                     return response;
                 }
                 // check domain
@@ -867,16 +865,16 @@ namespace Core.Billing
 
                         if (string.IsNullOrEmpty(response.ChargeID))
                         {
-                            response.ResponseStatus = new ApiObjects.Response.Status((int)eResponseStatus.ChargeIdNotSetToHousehold, CHARGE_ID_NOT_SET);
+                            response.ResponseStatus = new Status((int)eResponseStatus.ChargeIdNotSetToHousehold, CHARGE_ID_NOT_SET);
                         }
                         else
                         {
-                            response.ResponseStatus = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            response.ResponseStatus = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         }
                     }
                     else
                     {
-                        response.ResponseStatus = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                        response.ResponseStatus = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     }
                 }
 
@@ -884,7 +882,7 @@ namespace Core.Billing
             catch (Exception ex)
             {
                 response = new PaymentGatewayChargeIDResponse();
-                response.ResponseStatus = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.ResponseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, externalIdentifier={1}, householdID={2}", groupID, externalIdentifier, householdID), ex);
             }
 
@@ -916,10 +914,10 @@ namespace Core.Billing
 
                 paymentGateway = paymentResponse.PaymentGateway;
                 paymentGatewayId = paymentGateway.ID;
-                
+
                 // Handle  Payment Method
                 //------------------------
-                ApiObjects.Response.Status pghpmStatus = null;
+                Status pghpmStatus = null;
                 if (paymentGateway.SupportPaymentMethod)
                 {
                     pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdID, paymentGatewayId, paymentGatewayHHPaymentMethodId, out pghpm);
@@ -949,7 +947,7 @@ namespace Core.Billing
             catch (Exception ex)
             {
                 response = new TransactResult();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Failed ex={0}, siteGUID={1}, price={2}, currency={3}, customData={4}, productID={5}, transactionType={6}, billingGuid={7}", ex, siteGuid,
                     price, currency, customData, productID, productType, billingGuid);
             }
@@ -976,7 +974,7 @@ namespace Core.Billing
                         paymentGateway = DAL.BillingDAL.GetSelectedHouseholdPaymentGateway(groupID, householdId, ref chargeId, ref isSuspended);
                         if (paymentGateway == null)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                            response.Status = new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                             return response;
                         }
                         else
@@ -993,7 +991,7 @@ namespace Core.Billing
                         //in case paymentGateway not valid
                         if (paymentGateway == null)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                            response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                             return response;
                         }
 
@@ -1002,13 +1000,13 @@ namespace Core.Billing
 
                         if (!isPaymentGWHouseholdExist)
                         {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                            response.Status = new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                             return response;
                         }
                     }
                     if (isSuspended)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+                        response.Status = new Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
                         return response;
                     }
                 }
@@ -1020,7 +1018,7 @@ namespace Core.Billing
 
                 if (string.IsNullOrEmpty(chargeId))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
                     return response;
                 }
             }
@@ -1029,9 +1027,9 @@ namespace Core.Billing
                 log.ErrorFormat("fail to get paymentGateway due to ex:{0}, groupId:{1}, household:{2}, paymentGatewayId:{3}",
                     ex, groupId, householdId, paymentGatewayId);
                 response.PaymentGateway = null;
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             response.PaymentGateway = paymentGateway;
             return response;
         }
@@ -1087,7 +1085,7 @@ namespace Core.Billing
         }
 
         public virtual TransactResult ProcessUnifiedRenewal(long householdId, double totalPrice, string currency, int paymentGatewayId, 
-            int paymentMethodId, string userIp, ref List<RenewSubscriptionDetails> renewUnified, ref PaymentGateway paymentGateway)
+            int paymentMethodId, string userIp, ref List<RenewDetails> renewDetailsList, ref PaymentGateway paymentGateway)
         {
             TransactResult transactionResponse = new TransactResult();
                          
@@ -1110,7 +1108,7 @@ namespace Core.Billing
                 if (paymentGateway == null || paymentGateway.ID <= 0)
                 {
                     log.ErrorFormat("error while getting payment GW ID groupID: {0}, householdId: {1), paymentGatewayId : {2}", groupID, householdId, paymentGatewayId);
-                    transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return transactionResponse;
                 }
 
@@ -1125,7 +1123,7 @@ namespace Core.Billing
                    
                     if (paymentGateway.SupportPaymentMethod)
                     {
-                        ApiObjects.Response.Status pghpmStatus = null;
+                        Status pghpmStatus = null;
                         pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdId, paymentGatewayId, paymentMethodId, out pghpm);
 
                         if (pghpmStatus.Code != (int)eResponseStatus.OK)
@@ -1141,7 +1139,7 @@ namespace Core.Billing
                 log.DebugFormat("paymentGatewayId: {0}, householdId: {1}, isPaymentGWHouseholdExist: {2}, chargeID: {3}",
                     paymentGatewayId, householdId, isPaymentGatewayHouseholdExist, !string.IsNullOrEmpty(chargeId) ? chargeId : string.Empty);
                                 
-               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewUnified);
+               transactionResponse = SendUnifiedRenewalRequestToAdapter(chargeId, totalPrice, currency, householdId, paymentGateway, paymentMethodExternalId, paymentMethodId, userIp, ref renewDetailsList);
 
                 if (isSuspended && transactionResponse != null && transactionResponse.Status != null && transactionResponse.Status.Code == (int)eResponseStatus.OK && transactionResponse.State == eTransactionState.OK)
                 {   
@@ -1157,7 +1155,7 @@ namespace Core.Billing
             {
                 transactionResponse = new TransactResult()
                 {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                    Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
                 };
                 
                 log.ErrorFormat("Failed ex={0}, householdId={1}, totalPrice={2}, currency={3}, ", ex, householdId, totalPrice, !string.IsNullOrEmpty(currency) ? currency : string.Empty);
@@ -1167,7 +1165,7 @@ namespace Core.Billing
         }
 
         private TransactResult SendUnifiedRenewalRequestToAdapter(string chargeId, double totalPrice, string currency, long householdId, PaymentGateway paymentGateway, string paymentMethodExternalId, 
-            int paymentMethodId, string userIP, ref List<RenewSubscriptionDetails> renewUnified)
+            int paymentMethodId, string userIP, ref List<RenewDetails> renewDetailsList)
         {
             TransactResult response = new TransactResult();
 
@@ -1187,37 +1185,38 @@ namespace Core.Billing
                     householdId = householdId,
                     paymentGateway = paymentGateway,
                     totalPrice = totalPrice,
-                    userIP = userIP
+                    userIP = userIP,
+                    renewRequests = new List<TransactionUnifiedRenewalDetails>()
                 };
-
-                request.renewRequests = new List<TransactionUnifiedRenewalDetails>();
-
-                foreach (RenewSubscriptionDetails ru in renewUnified)
+                
+                foreach (RenewDetails renewDetails in renewDetailsList)
                 {
                     request.renewRequests.Add(new TransactionUnifiedRenewalDetails()
                     {
-                        billingGuid = ru.BillingGuid,
-                        customData = ru.CustomData,
-                        price = ru.Price,
-                        productId = int.Parse(ru.ProductId),
+                        billingGuid = renewDetails.BillingGuid,
+                        customData = renewDetails.CustomData,
+                        price = renewDetails.Price,
+                        productId = renewDetails.ProductId,
                         productType = eTransactionType.Subscription,
-                        siteGuid = ru.UserId,
-                        productCode = ru.ProductId,
-                        ExternalTransactionId = ru.ExternalTransactionId,
-                        GracePeriodMinutes = ru.GracePeriodMinutes
+                        siteGuid = renewDetails.UserId,
+                        productCode = renewDetails.ProductId.ToString(),
+                        ExternalTransactionId = renewDetails.ExternalTransactionId,
+                        GracePeriodMinutes = renewDetails.GracePeriodMinutes
                     });
                 }
 
                 // fire request            
 
-                APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).UnifiedProcessRenewal(request);
+                var adapterResponse = AdaptersController
+                    .GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl)
+                    .UnifiedProcessRenewal(request);
                 response = ValidateAdapterResponse(adapterResponse, logString);
                 if (response == null)
                 {
                     log.Error("Error received while trying to process unified renewal");
                     response = new TransactResult()
                     {
-                        Status = new ApiObjects.Response.Status()
+                        Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = "Error validating adapter response"
@@ -1238,7 +1237,7 @@ namespace Core.Billing
                                 log.Debug("process renewal passed - create transaction");
 
                                 int paymentGatewayTransactionId = CreateUnifiedTransaction(ref response, adapterResponse, eTransactionType.Subscription,
-                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewUnified);
+                                     paymentGateway.ID, paymentMethodId, householdId, BILLING_TRANSACTION_SUCCESS_STATUS, ref renewDetailsList);
                                
                                     if (paymentGatewayTransactionId > 0 && response != null && response.Status.Code != (int)eResponseStatus.OK)
                                     {
@@ -1273,9 +1272,9 @@ namespace Core.Billing
 
                             case (int)eTransactionState.Failed:                                
                                 log.Error("process unified renewal failed");                                
-                                foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                                foreach (RenewDetails renewUnifiedData in renewDetailsList)
                                 {
-                                    HandleAdapterTransactionFailed(ref response, adapterResponse, int.Parse(renewUnifiedData.ProductId), eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
+                                    HandleAdapterTransactionFailed(ref response, adapterResponse, renewUnifiedData.ProductId, eTransactionType.Subscription, renewUnifiedData.BillingGuid, 0, paymentGateway.ID, householdId, 
                                         long.Parse(renewUnifiedData.UserId), renewUnifiedData.CustomData, renewUnifiedData.PaymentNumber);
                                 }
                                 break;
@@ -1283,7 +1282,7 @@ namespace Core.Billing
                             default:
 
                                 // process renewal returned an unhandled status
-                                response.Status = new ApiObjects.Response.Status()
+                                response.Status = new Status()
                                 {
                                     Code = (int)eResponseStatus.UnknownTransactionState,
                                     Message = "Unknown transaction state"
@@ -1295,7 +1294,7 @@ namespace Core.Billing
                     else
                     {
                         // general response code is not OK
-                        ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+                        Status status = new Status();
                         switch (adapterResponse.Status.Code)
                         {
                             case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
@@ -1328,9 +1327,9 @@ namespace Core.Billing
             }
             return response;
         }
-
+        
         private int CreateUnifiedTransaction(ref TransactResult response, APILogic.PaymentGWAdapter.TransactionResponse adapterResponse, ApiObjects.eTransactionType transactionType, 
-            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewSubscriptionDetails> renewUnified)
+            int paymentGatewayId, int paymenMethodId, long householdId, int billingTransactionStatus, ref List<RenewDetails> renewUnified)
         {
             PaymentGatewayTransaction paymentGWTransaction = new PaymentGatewayTransaction();
 
@@ -1339,7 +1338,7 @@ namespace Core.Billing
 
             if (adapterResponse == null || adapterResponse.Transaction == null)
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
                 log.ErrorFormat("{0}. adapterResponse or adapterResponse.Transaction are null. log string: {1}",
                     ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION,  // {0}
                     logString);                                // {1}  
@@ -1356,7 +1355,7 @@ namespace Core.Billing
         }
 
         private PaymentGatewayTransaction SaveUnifiedTransaction(ref TransactResult response, string externalTransactionId, string externalStatus, int contentId, string message, int state, int paymentGatewayId, int paymenMethodId, int failReason, 
-            string paymentMethod, string paymentDetails, long householdId, ref List<RenewSubscriptionDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
+            string paymentMethod, string paymentDetails, long householdId, ref List<RenewDetails> renewUnified , int billingTransactionStatus = BILLING_TRANSACTION_SUCCESS_STATUS, long startDateSeconds = 0, long endDateSeconds = 0 , 
             bool autoRenewing = false)
         {
 
@@ -1406,15 +1405,15 @@ namespace Core.Billing
                 if (billingTranactionIds == null || billingTranactionIds.Count == 0 || billingTranactionIds.Where(x=> x.Key < 1).Count() > 0)
                 {
                     // create billing transaction failed
-                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                    response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
                     log.ErrorFormat("Error creating billing transaction. log string: {0}", logString);
                 }
                 else
                 {
                     // create billing transaction passed
-                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+                    response.Status = new Status() { Code = (int)eResponseStatus.OK };
                     // update renew Subscription Details with the billingTransactionId
-                    foreach (RenewSubscriptionDetails renewUnifiedData in renewUnified)
+                    foreach (RenewDetails renewUnifiedData in renewUnified)
                     {
                         if (billingTranactionIds.ContainsKey(renewUnifiedData.PurchaseId))
                         {
@@ -1425,7 +1424,7 @@ namespace Core.Billing
             }
             else
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
                 log.ErrorFormat("{0} log string: {1}",
                     ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION,  // {0}
                     logString);                                // {1}             
@@ -1435,7 +1434,7 @@ namespace Core.Billing
         }
 
 
-        private void BuildBillingTransactionXml(List<RenewSubscriptionDetails> renewUnified, ref XmlDocument xmlDoc)
+        private void BuildBillingTransactionXml(List<RenewDetails> renewUnified, ref XmlDocument xmlDoc)
         {  
             XmlNode rowNode;
             XmlNode rootNode = xmlDoc.CreateElement("root");
@@ -1485,7 +1484,7 @@ namespace Core.Billing
             string prePaidCode = string.Empty;
             string collectionCode = string.Empty;
 
-            foreach (RenewSubscriptionDetails rsd in renewUnified)
+            foreach (RenewDetails rsd in renewUnified)
             {   
 
                 Core.Billing.Utils.SplitRefference(rsd.CustomData, ref mediaFileID, ref mediaID, ref subscriptionCode, ref pPVCode, ref prePaidCode, ref priceCode,
@@ -1581,9 +1580,9 @@ namespace Core.Billing
         {
             try
             {
-                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                XmlDocument doc = new XmlDocument();
                 doc.LoadXml(customData);
-                System.Xml.XmlNode theRequest = doc.FirstChild;
+                XmlNode theRequest = doc.FirstChild;
                 PreivewEnd = TVinciShared.XmlUtils.GetSafeValue("prevlc", ref theRequest);
                 if (price == 0)
                 {
@@ -1633,9 +1632,9 @@ namespace Core.Billing
             return ItemName;
         }
 
-        private ApiObjects.Response.Status GetHouseholdPaymentGatewayPaymentMethod(long householdID, int paymentGatewayId, int paymentGatewayHHPaymentMethodId, out PaymentGatewayHouseholdPaymentMethod pghpm)
+        private Status GetHouseholdPaymentGatewayPaymentMethod(long householdID, int paymentGatewayId, int paymentGatewayHHPaymentMethodId, out PaymentGatewayHouseholdPaymentMethod pghpm)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             pghpm = null;
 
             if (paymentGatewayHHPaymentMethodId == 0)
@@ -1644,7 +1643,7 @@ namespace Core.Billing
                 if (pghpm == null || pghpm.Id <= 0)
                 {
                     log.ErrorFormat("GetSelectedHouseholdPaymentGatewayPaymentMethod no payment method related to payment gateway {0} ", paymentGatewayId);
-                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentMethodNotSetForHousehold, Message = ERROR_NO_PG_PM_RELATED_TO_HOUSEHOLD };
+                    return new Status() { Code = (int)eResponseStatus.PaymentMethodNotSetForHousehold, Message = ERROR_NO_PG_PM_RELATED_TO_HOUSEHOLD };
                 }
             }
             else
@@ -1653,7 +1652,7 @@ namespace Core.Billing
                 if (pghpm == null || pghpm.Id <= 0)
                 {
                     log.ErrorFormat("GetPaymentGatewayHouseholdPaymentMethod Payment Method Not Exist {0} ", paymentGatewayHHPaymentMethodId);
-                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentMethodNotExist, Message = PAYMENT_METHOD_NOT_EXIST };
+                    return new Status() { Code = (int)eResponseStatus.PaymentMethodNotExist, Message = PAYMENT_METHOD_NOT_EXIST };
                 }
             }
 
@@ -1668,7 +1667,7 @@ namespace Core.Billing
             chargeId = string.Empty;
 
             //if configured : get Oss Adapter
-            if (!TvinciCache.WSCache.Instance.TryGet<int>("OSS_ADAPTER_" + groupID, out ossAdapterIdentifier))
+            if (!TvinciCache.WSCache.Instance.TryGet("OSS_ADAPTER_" + groupID, out ossAdapterIdentifier))
             {
                 var ossAdapterId = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "OSS_ADAPTER", "GROUP_ID", "=", groupID, "BILLING_CONNECTION_STRING");
 
@@ -1744,15 +1743,14 @@ namespace Core.Billing
             try
             {
                 // get payment GW ID and external transaction ID
-                List<PaymentDetails> PaymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
-                
-                PaymentDetails pd = PaymentDetails != null ? PaymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+                List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
+                PaymentDetails pd = paymentDetails?.FirstOrDefault(x => x.BillingGuid == billingGuid);
 
                 if (pd == null)
                 {
                     // error while trying to get payment GW ID and external transaction ID
                     log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupID, householdId, billingGuid);
-                    transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return transactionResponse;
                 }
                 
@@ -1773,7 +1771,7 @@ namespace Core.Billing
 
                     if (ossPaymentGateway == null || ossPaymentGateway.ID <= 0)
                     {
-                        transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                        transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                         return transactionResponse;
                     }
                     else
@@ -1794,7 +1792,7 @@ namespace Core.Billing
                     
                     if (isSuspended) // return due to suspend payment gateway !!! 
                     {
-                        transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
+                        transactionResponse.Status = new Status((int)eResponseStatus.PaymentGatewaySuspended, PAYMENT_GATEWAY_SUSPENDED);
 
                        
                         return transactionResponse;
@@ -1804,7 +1802,7 @@ namespace Core.Billing
                     //------------------------
                     if (paymentGateway.SupportPaymentMethod)
                     {
-                        ApiObjects.Response.Status pghpmStatus = null;
+                        Status pghpmStatus = null;
                         pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdId, paymentGatewayId, paymentMethodId, out pghpm);
 
                         if (pghpmStatus.Code != (int)eResponseStatus.OK)
@@ -1837,7 +1835,7 @@ namespace Core.Billing
             catch (Exception ex)
             {
                 transactionResponse = new TransactResult();
-                transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                transactionResponse.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Failed ex={0}, siteGUID={1}, price={2}, currency={3}, customData={4}, householdId={5}, productId={6}, billingGuid={7}," +
                     " productCode={8}, paymentNumber={9}, numberOfPayments={10}, gracePeriodMinutes={11}",
                     ex,                                                                       // {0}
@@ -1895,7 +1893,7 @@ namespace Core.Billing
             {
                 // User validation failed
                 log.ErrorFormat("User validation failed. data: {0}", logString);
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidUser, Message = "Invalid User" };
+                response.Status = new Status() { Code = (int)eResponseStatus.InvalidUser, Message = "Invalid User" };
                 return response;
             }
 
@@ -1922,14 +1920,14 @@ namespace Core.Billing
                 };
 
                 // fire request                       
-                APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).ProcessRenewal(request);
+                var adapterResponse = AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).ProcessRenewal(request);
                 response = ValidateAdapterResponse(adapterResponse, logString);
                 if (response == null)
                 {
                     log.Error("Error received while trying to process renewal");
                     response = new TransactResult()
                     {
-                        Status = new ApiObjects.Response.Status()
+                        Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = "Error validating adapter response"
@@ -1995,7 +1993,7 @@ namespace Core.Billing
                             default:
 
                                 // process renewal returned an unhandled status
-                                response.Status = new ApiObjects.Response.Status()
+                                response.Status = new Status()
                                 {
                                     Code = (int)eResponseStatus.UnknownTransactionState,
                                     Message = "Unknown transaction state"
@@ -2007,7 +2005,7 @@ namespace Core.Billing
                     else
                     {
                         // general response code is not OK
-                        ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+                        Status status = new Status();
                         switch (adapterResponse.Status.Code)
                         {
                             case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
@@ -2067,13 +2065,13 @@ namespace Core.Billing
             long userId = 0;
             if (!long.TryParse(siteGuid, out userId))
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidUser, Message = "Invalid User" };
+                response.Status = new Status() { Code = (int)eResponseStatus.InvalidUser, Message = "Invalid User" };
                 return response;
             }
 
             if (string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
                 return response;
             }
 
@@ -2096,7 +2094,7 @@ namespace Core.Billing
                 adapterData = adapterData
             };
 
-            APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).Transact(request);
+            var adapterResponse = AdaptersController.GetInstance(paymentGateway.ID,paymentGateway.AdapterUrl).Transact(request);
 
             response = ValidateAdapterResponse(adapterResponse, logString);
 
@@ -2104,7 +2102,7 @@ namespace Core.Billing
             {
                 response = new TransactResult()
                 {
-                    Status = new ApiObjects.Response.Status()
+                    Status = new Status()
                     {
                         Code = (int)eResponseStatus.Error,
                         Message = "Error validating adapter response"
@@ -2156,7 +2154,7 @@ namespace Core.Billing
 
                                     if (paymentGWPending.ID == 0)
                                     {
-                                        response.Status = new ApiObjects.Response.Status()
+                                        response.Status = new Status()
                                         {
                                             Code = (int)eResponseStatus.Error,
                                             Message = ERROR_SAVING_PAYMENT_GATEWAY_PENDING
@@ -2200,7 +2198,7 @@ namespace Core.Billing
                             }
                         default:
                             {
-                                response.Status = new ApiObjects.Response.Status()
+                                response.Status = new Status()
                                 {
                                     Code = (int)eResponseStatus.UnknownTransactionState,
                                     Message = "Unknown transaction state"
@@ -2212,7 +2210,7 @@ namespace Core.Billing
                 }
                 else
                 {
-                    ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+                    Status status = new Status();
                     switch (adapterResponse.Status.Code)
                     {
                         case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
@@ -2238,9 +2236,9 @@ namespace Core.Billing
             return response;
         }
 
-        private ApiObjects.Response.Status SendRemoveHouseholdPaymentmethodToAdapter(string chargeId, long householdID, PaymentGateway paymentGateway, string paymentMethodExternalId)
+        private Status SendRemoveHouseholdPaymentmethodToAdapter(string chargeId, long householdID, PaymentGateway paymentGateway, string paymentMethodExternalId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            Status response = new Status();
 
             string logString = string.Format("chargeId: {0}, householdID: {1}, paymentMethodExternalId: {2}",
                 chargeId != null ? chargeId : string.Empty,
@@ -2251,15 +2249,15 @@ namespace Core.Billing
 
             if (string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                response = new Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
                 return response;
             }
 
-            APILogic.PaymentGWAdapter.PaymentMethodResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).RemoveHouseholdPaymentMethod(paymentGateway, groupID, chargeId, paymentMethodExternalId);
+            var adapterResponse = AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).RemoveHouseholdPaymentMethod(paymentGateway, groupID, chargeId, paymentMethodExternalId);
 
             if (adapterResponse == null || adapterResponse.Status == null)
             {
-                response = new ApiObjects.Response.Status()
+                response = new Status()
                 {
                     Code = (int)eResponseStatus.Error,
                     Message = "Error validating adapter response"
@@ -2270,13 +2268,13 @@ namespace Core.Billing
             {
                 if (adapterResponse.IsSuccess)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
                     log.ErrorFormat("RemoveHouseholdPaymentMethod: remove payment method did not succeed for charge id: {0}, payment method: {1}, adapter Status: {2}, adapter Message: {3}",
                         chargeId, paymentMethodExternalId, adapterResponse.PGStatus, adapterResponse.PGMessage);
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, adapterResponse.PGMessage);
+                    response = new Status((int)eResponseStatus.Error, adapterResponse.PGMessage);
                 }
             }
             else
@@ -2314,7 +2312,7 @@ namespace Core.Billing
 
                 if (!failReasonCodeExist)
                 {
-                    response.Status = new ApiObjects.Response.Status()
+                    response.Status = new Status()
                     {
                         Code = (int)eResponseStatus.PaymentGatewayAdapterFailReasonUnknown,
                         Message = "Payment gateway adapter fail reason unknown"
@@ -2338,7 +2336,7 @@ namespace Core.Billing
                     response.FailReasonCode = adapterResponse.Transaction.FailReasonCode;
                     response.PaymentDetails = !string.IsNullOrEmpty(adapterResponse.Transaction.PaymentDetails) ? adapterResponse.Transaction.PaymentDetails : string.Empty;
                     response.PaymentMethod = !string.IsNullOrEmpty(adapterResponse.Transaction.PaymentMethod) ? adapterResponse.Transaction.PaymentMethod : string.Empty;
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.StartDateSeconds = adapterResponse.Transaction.StartDateSeconds;
                     response.EndDateSeconds = adapterResponse.Transaction.EndDateSeconds;
                     response.AutoRenewing = adapterResponse.Transaction.AutoRenewing;
@@ -2348,9 +2346,9 @@ namespace Core.Billing
             return response;
         }
 
-        private ApiObjects.Response.Status CreateResponseStatus(int adapterResponseStatusCode)
+        private Status CreateResponseStatus(int adapterResponseStatusCode)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            Status status = new Status();
             switch (adapterResponseStatusCode)
             {
                 case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
@@ -2392,7 +2390,7 @@ namespace Core.Billing
             if (adapterResponse == null ||
                 adapterResponse.Transaction == null)
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
                 log.ErrorFormat("{0}. adapterResponse or adapterResponse.Transaction are null. log string: {1}",
                     ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION,  // {0}
                     logString);                                // {1}  
@@ -2464,19 +2462,19 @@ namespace Core.Billing
                 if (billingTranactionId < 1)
                 {
                     // create billing transaction failed
-                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                    response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
                     log.ErrorFormat("Error creating billing transaction. log string: {0}", logString);
                 }
                 else
                 {
                     // create billing transaction passed
-                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+                    response.Status = new Status() { Code = (int)eResponseStatus.OK };
                     response.TransactionID = billingTranactionId;
                 }
             }
             else
             {
-                response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
+                response.Status = new Status() { Code = (int)eResponseStatus.Error, Message = ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION };
                 log.ErrorFormat("{0} log string: {1}",
                     ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION,  // {0}
                     logString);                                // {1}             
@@ -2528,13 +2526,13 @@ namespace Core.Billing
         }
 
 
-        public ApiObjects.Response.Status SetPaymentGatewayConfiguration(int paymentGatewayId)
+        public Status SetPaymentGatewayConfiguration(int paymentGatewayId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            Status response = new Status();
 
             if (paymentGatewayId == 0)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                return new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
             }
 
             try
@@ -2552,31 +2550,31 @@ namespace Core.Billing
 
                     if (SendConfigurationToAdapter(paymentGateway))
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     else
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
                 }
             }
 
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Failed ex={0}", ex);
             }
 
             return response;
         }
 
-        public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string paymentGWExternalId, string intent, List<ApiObjects.KeyValuePair> extraParams)
+        public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string paymentGWExternalId, string intent, List<KeyValuePair> extraParams)
         {
             PaymentGatewayConfigurationResponse res = new PaymentGatewayConfigurationResponse();
 
             if (string.IsNullOrEmpty(paymentGWExternalId))
             {
-                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                res.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return res;
             }
 
@@ -2584,7 +2582,7 @@ namespace Core.Billing
 
             if (paymentGWId <= 0)
             {
-                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                res.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return res;
             }
 
@@ -2596,20 +2594,20 @@ namespace Core.Billing
 
                 if (paymentpaymentGatewayList == null || paymentpaymentGatewayList.Count == 0)
                 {
-                    res.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    res.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return res;
                 }
 
                 paymentGateway = paymentpaymentGatewayList[0];
 
-                APILogic.PaymentGWAdapter.ConfigurationResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).GetAdapterConfiguration(paymentGateway, groupID, intent, extraParams);
+                var adapterResponse = AdaptersController.GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl).GetAdapterConfiguration(paymentGateway, groupID, intent, extraParams);
 
                 if (adapterResponse == null || adapterResponse.Status == null)
                 {
                     log.Error("Error received while trying to get configuration");
                     res = new PaymentGatewayConfigurationResponse()
                     {
-                        Status = new ApiObjects.Response.Status()
+                        Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = "Error validating adapter response"
@@ -2621,12 +2619,12 @@ namespace Core.Billing
                 else if (adapterResponse.Status.Code == (int)PaymentGatewayAdapterStatus.OK)
                 {
                     if (adapterResponse.Configuration == null || adapterResponse.Configuration.Length == 0)
-                        res.Configuration = new List<ApiObjects.KeyValuePair>();
+                        res.Configuration = new List<KeyValuePair>();
                     else
-                        res.Configuration = adapterResponse.Configuration.Select(x => new ApiObjects.KeyValuePair(x.Key, x.Value)).ToList();
+                        res.Configuration = adapterResponse.Configuration.Select(x => new KeyValuePair(x.Key, x.Value)).ToList();
                 }
 
-                res.Status = new ApiObjects.Response.Status();
+                res.Status = new Status();
 
                 switch (adapterResponse.Status.Code)
                 {
@@ -2649,7 +2647,7 @@ namespace Core.Billing
 
             catch (Exception ex)
             {
-                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                res.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("GetPaymentGatewayConfiguration Failed ex={0}", ex);
             }
 
@@ -2660,7 +2658,7 @@ namespace Core.Billing
         {
             if (paymentGateway != null && !string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                APILogic.PaymentGWAdapter.ServiceClient client = new APILogic.PaymentGWAdapter.ServiceClient(string.Empty, paymentGateway.AdapterUrl);
+                var client = AdaptersController.GetPGWServiceClient(paymentGateway.AdapterUrl);
                 if (!string.IsNullOrEmpty(paymentGateway.AdapterUrl))
                 {
                     client.Endpoint.Address = new System.ServiceModel.EndpointAddress(paymentGateway.AdapterUrl);
@@ -2676,12 +2674,12 @@ namespace Core.Billing
 
                 //call Adapter Transact
                 APILogic.PaymentGWAdapter.AdapterStatus adapterResponse =
-                    client.SetConfiguration(paymentGateway.ID, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl,
-                    paymentGateway.Settings != null ?
-                        paymentGateway.Settings.Select(s => new APILogic.PaymentGWAdapter.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
-                    this.groupID,
-                    unixTimestamp,
-                    System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        client.SetConfigurationAsync(paymentGateway.ID, paymentGateway.TransactUrl, paymentGateway.StatusUrl, paymentGateway.RenewUrl,
+                        paymentGateway.Settings?.Select(s => new APILogic.PaymentGWAdapter.KeyValue() { Key = s.key, Value = s.value }).ToArray(),
+                        this.groupID,
+                        unixTimestamp,
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature)))
+                    ).ExecuteAndWait();
 
                 if (adapterResponse != null && adapterResponse.Code == (int)PaymentGatewayAdapterStatus.OK)
                 {
@@ -2707,7 +2705,7 @@ namespace Core.Billing
             int pgId = 0;
             if (string.IsNullOrEmpty(paymentGatewayId) || !int.TryParse(paymentGatewayId, out pgId))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoPaymentGateway, NO_PAYMENT_GATEWAY);
+                response.Status = new Status((int)eResponseStatus.NoPaymentGateway, NO_PAYMENT_GATEWAY);
                 return response;
             }
 
@@ -2717,7 +2715,7 @@ namespace Core.Billing
                 eTransactionState transactionStatus;
                 if (!TryConvertTransactionState(adapterTransactionState, out transactionStatus))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.UnknownTransactionState, UNKNOWN_TRANSACTION_STATE);
+                    response.Status = new Status((int)eResponseStatus.UnknownTransactionState, UNKNOWN_TRANSACTION_STATE);
                     return response;
                 }
 
@@ -2728,7 +2726,7 @@ namespace Core.Billing
 
                     if (!failReasonCodeExist)
                     {
-                        response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, Message = "Payment gateway adapter fail reason unknown" };
+                        response.Status = new Status() { Code = (int)eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, Message = "Payment gateway adapter fail reason unknown" };
                         return response;
                     }
                 }
@@ -2736,7 +2734,7 @@ namespace Core.Billing
                 // if status is pending - nothing to do
                 if (transactionStatus == eTransactionState.Pending)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
 
@@ -2752,14 +2750,14 @@ namespace Core.Billing
                 // validate paymentGateway was found
                 if (paymentGateway == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
                 // validate signature
                 if (!TVinciShared.EncryptUtils.IsSignatureValid(string.Concat(paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason), signature, paymentGateway.SharedSecret))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.SignatureDoesNotMatch, SIGNATURE_DOES_NOT_MATCH);
+                    response.Status = new Status((int)eResponseStatus.SignatureDoesNotMatch, SIGNATURE_DOES_NOT_MATCH);
                     return response;
                 }
 
@@ -2768,7 +2766,7 @@ namespace Core.Billing
                 int productType, transactionState, pendingTransactionState, domainId;
                 if (!DAL.BillingDAL.GetPendingPaymentGatewayTransactionDetails(pgId, externalTransactionId, out billingGuid, out productType, out transactionState, out pendingTransactionState, out domainId) || string.IsNullOrEmpty(billingGuid))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayTransactionNotFound, PAYMENT_GATEWAY_TRANSACTION_NOT_FOUND);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayTransactionNotFound, PAYMENT_GATEWAY_TRANSACTION_NOT_FOUND);
                     log.DebugFormat("payment gateway transaction was not found. paymentGatewayId = {0}, adapterTransactionState = {1}, failReason = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}, failReason = {6},",
                         paymentGatewayId, adapterTransactionState, failReason, externalTransactionId, externalStatus, externalMessage, failReason);
                 }
@@ -2777,7 +2775,7 @@ namespace Core.Billing
                 if (transactionState != (int)eTransactionState.Pending || pendingTransactionState != (int)eTransactionState.Pending)
                 {
                     log.DebugFormat("The transaction was not pending. BillingGuid = {0}", billingGuid);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayTransactionIsNotPending, PAYMENT_GATEWAY_TRANSACTION_IS_NOT_PENDING);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayTransactionIsNotPending, PAYMENT_GATEWAY_TRANSACTION_IS_NOT_PENDING);
                     return response;
                 }
 
@@ -2786,14 +2784,14 @@ namespace Core.Billing
                 {
                     response.BillingGuid = billingGuid;
                     response.ProductType = (eTransactionType)productType;
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.TransactionState = (eTransactionState)adapterTransactionState;
                     response.DomainId = (long)domainId;
                 }
                 // update failed
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, ERROR_UPDATING_PENDING_TRANSACTION);
+                    response.Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, ERROR_UPDATING_PENDING_TRANSACTION);
                     log.DebugFormat("Failed to update pending transaction. paymentGatewayId = {0}, adapterTransactionState = {1}, failReason = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}",
                         paymentGatewayId, adapterTransactionState, failReason, externalTransactionId, externalStatus, externalMessage);
                 }
@@ -2801,7 +2799,7 @@ namespace Core.Billing
 
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Failed. ex = {0}", ex);
             }
 
@@ -2826,7 +2824,7 @@ namespace Core.Billing
             try
             {
                 // check Domain
-                ApiObjects.Response.Status domainStatus = Utils.ValidateDomain(groupID, householdId);
+                Status domainStatus = Utils.ValidateDomain(groupID, householdId);
                 if (domainStatus.Code == (int)ResponseStatus.OK)
                 {
                     string chargeId = string.Empty;
@@ -2836,11 +2834,11 @@ namespace Core.Billing
                     {
                         response.PaymentGateway = new PaymentGatewayBase() { ID = paymentGateway.ID, Name = paymentGateway.Name, IsDefault = paymentGateway.IsDefault };
                         response.SelectedBy = paymentGateway.Selected == 1 ? eHouseholdPaymentGatewaySelectedBy.Household : eHouseholdPaymentGatewaySelectedBy.Account;
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                     else
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household Not Set To Payment Gateway");
+                        response.Status = new Status((int)eResponseStatus.HouseholdNotSetToPaymentGateway, "Household Not Set To Payment Gateway");
 
                     }
                 }
@@ -2852,7 +2850,7 @@ namespace Core.Billing
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}", groupID), ex);
             }
 
@@ -2882,7 +2880,7 @@ namespace Core.Billing
                     TransactionID = paymentGatewayTransaction.ID,
                     PaymentDetails = paymentGatewayTransaction.PaymentDetails,
                     PaymentMethod = paymentGatewayTransaction.PaymentMethod,
-                    Status = new ApiObjects.Response.Status()
+                    Status = new Status()
                     {
                         Code = (int)eResponseStatus.OK,
                         Message = string.Empty
@@ -2903,7 +2901,7 @@ namespace Core.Billing
                 if (paymentGatewaysList == null || paymentGatewaysList.Count == 0)
                 {
                     result = new TransactResult();
-                    result.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    result.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return result;
                 }
 
@@ -2923,7 +2921,9 @@ namespace Core.Billing
                     pendingExternalTransactionId = paymentGatewayTransaction.ExternalTransactionId
                 };
 
-                var adapterResponse = AdaptersController.GetInstance(paymentGatewayTransaction.PaymentGatewayID).CheckPendingTransaction(request);
+                var adapterResponse = AdaptersController
+                    .GetInstance(paymentGatewayTransaction.PaymentGatewayID, paymentGateway.AdapterUrl)
+                    .CheckPendingTransaction(request);
 
                 // Basic validation of response
                 result = ValidateAdapterResponse(adapterResponse, logString);
@@ -2932,7 +2932,7 @@ namespace Core.Billing
                 {
                     result = new TransactResult()
                     {
-                        Status = new ApiObjects.Response.Status()
+                        Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = "Error validating adapter response"
@@ -2948,7 +2948,7 @@ namespace Core.Billing
                     {
                         #region Adapter is not OK
 
-                        ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+                        Status status = new Status();
                         switch (adapterResponse.Status.Code)
                         {
                             case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
@@ -3013,7 +3013,7 @@ namespace Core.Billing
                                     PaymentDetails = paymentGatewayTransaction.PaymentDetails,
                                     PaymentMethod = paymentGatewayTransaction.PaymentMethod,
                                     FailReasonCode = BasePaymentGateway.FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE,
-                                    Status = new ApiObjects.Response.Status()
+                                    Status = new Status()
                                     {
                                         Code = (int)eResponseStatus.OK,
                                         Message = string.Empty
@@ -3025,7 +3025,7 @@ namespace Core.Billing
                                     adapterResponse.Transaction.PGStatus, adapterResponse.Transaction.PGMessage,
                                     (int)BasePaymentGateway.FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE))
                                 {
-                                    result.Status = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction,
+                                    result.Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction,
                                         ERROR_UPDATING_PENDING_TRANSACTION);
                                     log.DebugFormat("Failed to update pending transaction. paymentGatewayId = {0}," +
                                     "adapterTransactionState = {1}, failReason = {2}, externalStatus = {3}, externalMessage = {4}",
@@ -3056,7 +3056,7 @@ namespace Core.Billing
                                 // If not succeeded, return error
                                 if (pending.ID == 0)
                                 {
-                                    result.Status = new ApiObjects.Response.Status()
+                                    result.Status = new Status()
                                     {
                                         Code = (int)eResponseStatus.Error,
                                         Message = ERROR_SAVING_PAYMENT_GATEWAY_PENDING
@@ -3102,7 +3102,7 @@ namespace Core.Billing
                                 PaymentDetails = paymentGatewayTransaction.PaymentDetails,
                                 PaymentMethod = paymentGatewayTransaction.PaymentMethod,
                                 FailReasonCode = adapterResponse.Transaction.FailReasonCode,
-                                Status = new ApiObjects.Response.Status()
+                                Status = new Status()
                                 {
                                     Code = (int)eResponseStatus.OK,
                                     Message = string.Empty
@@ -3113,7 +3113,7 @@ namespace Core.Billing
                             if (!DAL.BillingDAL.UpdatePaymentGatewayPendingTransaction(billingGuid, adapterResponse.Transaction.StateCode,
                                 adapterResponse.Transaction.PGStatus, adapterResponse.Transaction.PGMessage, adapterResponse.Transaction.FailReasonCode))
                             {
-                                result.Status = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction,
+                                result.Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction,
                                     ERROR_UPDATING_PENDING_TRANSACTION);
 
                                 log.DebugFormat("Failed to update pending transaction. paymentGatewayId = {0}," +
@@ -3132,7 +3132,7 @@ namespace Core.Billing
                             {
                                 if (!DAL.ApiDAL.Update_BillingStatusAndReason_ByBillingGuid(billingGuid, 1, adapterResponse.Transaction.FailReasonCode.ToString()))
                                 {
-                                    result.Status = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction,
+                                    result.Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction,
                                         ERROR_UPDATING_PENDING_TRANSACTION);
 
                                     log.DebugFormat("Failed to update pending transaction. paymentGatewayId = {0}," +
@@ -3157,7 +3157,7 @@ namespace Core.Billing
             // response is valid until told otherwise
             TransactResult response = new TransactResult()
                 {
-                    Status = new ApiObjects.Response.Status()
+                    Status = new Status()
                     {
                         Code = (int)eResponseStatus.OK
                     }
@@ -3166,7 +3166,7 @@ namespace Core.Billing
             if (adapterResponse == null || adapterResponse.Status == null)
             {
                 // Adapter response is null
-                response.Status = new ApiObjects.Response.Status()
+                response.Status = new Status()
                 {
                     Code = (int)eResponseStatus.Error,
                     Message = "Adapter response is null"
@@ -3183,7 +3183,7 @@ namespace Core.Billing
                    );
 
                 // Adapter transact response is null
-                response.Status = new ApiObjects.Response.Status()
+                response.Status = new Status()
                 {
                     Code = (int)eResponseStatus.Error,
                     Message = "Adapter transact response is null"
@@ -3305,7 +3305,9 @@ namespace Core.Billing
                 };
 
                 // verify receipt
-                APILogic.PaymentGWAdapter.TransactionResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).VerifyReceipt(request);
+                var adapterResponse = AdaptersController
+                    .GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl)
+                    .VerifyReceipt(request);
 
                 // validate response
                 response = ValidateAdapterResponse(adapterResponse, logString);
@@ -3355,7 +3357,7 @@ namespace Core.Billing
                             default:
 
                                 // verify returned state - unknown
-                                response.Status = new ApiObjects.Response.Status()
+                                response.Status = new Status()
                                 {
                                     Code = (int)eResponseStatus.UnknownTransactionState,
                                     Message = "Unknown transaction state"
@@ -3367,7 +3369,7 @@ namespace Core.Billing
                     else
                     {
                         // failed to verify response (received error from external status)
-                        ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+                        Status status = new Status();
                         switch (adapterResponse.Status.Code)
                         {
                             case (int)PaymentGatewayAdapterStatus.NoConfigurationFound:
@@ -3437,7 +3439,7 @@ namespace Core.Billing
             {
                 if (paymentGatewayId <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
@@ -3445,7 +3447,7 @@ namespace Core.Billing
                 PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
                 if (paymentGateway == null || paymentGateway.ID <= 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
@@ -3456,17 +3458,17 @@ namespace Core.Billing
 
                 if (response.PaymentGateway != null && response.PaymentGateway.ID > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "payment gateway generate shared secret");
+                    response.Status = new Status((int)eResponseStatus.OK, "payment gateway generate shared secret");
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "payment gateway failed set changes");
+                    response.Status = new Status((int)eResponseStatus.Error, "payment gateway failed set changes");
                 }
 
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGatewayId={1}", groupID, paymentGatewayId), ex);
             }
             return response;
@@ -3478,7 +3480,7 @@ namespace Core.Billing
         {
             TransactResult response = new TransactResult()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             long siteGuid = 0;
@@ -3498,7 +3500,7 @@ namespace Core.Billing
                 if (paymentGatewayId == 0)
                 {
                     log.DebugFormat("RecordTransaction: payment gateway id = 0");
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
                 // get pg 
@@ -3507,7 +3509,7 @@ namespace Core.Billing
                 if (paymentGateway == null)
                 {
                     log.DebugFormat("RecordTransaction: payment gateway not found. id = {0}", paymentGatewayId);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
@@ -3520,7 +3522,7 @@ namespace Core.Billing
                         if (pghhpm == null || pghhpm.Id <= 0)
                         {
                             log.ErrorFormat("GetPaymentMethodExternalId payment method not exist {0}, log Data {1} ", paymentMethodExternalId, logData);
-                            response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentMethodNotExist, Message = PAYMENT_METHOD_NOT_EXIST };
+                            response.Status = new Status() { Code = (int)eResponseStatus.PaymentMethodNotExist, Message = PAYMENT_METHOD_NOT_EXIST };
                             return response;
                         }
                         else
@@ -3553,7 +3555,7 @@ namespace Core.Billing
 
                     if (paymentGWPending.ID == 0)
                     {
-                        response.Status = new ApiObjects.Response.Status()
+                        response.Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = ERROR_SAVING_PAYMENT_GATEWAY_PENDING
@@ -3607,27 +3609,27 @@ namespace Core.Billing
             return response;
         }
 
-        public ApiObjects.Response.Status SetPaymentGatewayHouseholdPaymentMethod(string externalIdentifier, int householdId,
+        public Status SetPaymentGatewayHouseholdPaymentMethod(string externalIdentifier, int householdId,
             string paymentMethodName, string paymentDetails, string paymentMethodExternalId, out int pghhpmId)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             pghhpmId = 0;
 
             try
             {
                 if (string.IsNullOrEmpty(paymentMethodExternalId))
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodExternalIdRequired, PAYMENT_METHOD_EXTERNAL_ID_REQUIRED);
+                    return new Status((int)eResponseStatus.PaymentMethodExternalIdRequired, PAYMENT_METHOD_EXTERNAL_ID_REQUIRED);
                 }
 
                 if (string.IsNullOrEmpty(externalIdentifier))
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
                 }
 
                 if (string.IsNullOrEmpty(paymentMethodName))
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
+                    return new Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
                 }
 
                 // check domain
@@ -3646,22 +3648,22 @@ namespace Core.Billing
                                                                                                                         paymentMethodName, paymentMethodExternalId);
                 if (pghpm == null || pghpm.PaymentGatewayId == 0)
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    return new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 }
 
                 if (pghpm.HouseholdId == 0)
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                    return new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                 }
 
                 if (pghpm.PaymentMethodId == 0)
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
+                    return new Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
                 }
 
                 if (!string.IsNullOrEmpty(pghpm.PaymentMethodExternalId))
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY);
+                    return new Status((int)eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY);
                 }
 
                 pghhpmId = DAL.BillingDAL.SetPaymentGatewayHouseholdPaymentMethod(groupID, pghpm.PaymentGatewayId, householdId, pghpm.PaymentMethodId, paymentDetails,
@@ -3669,24 +3671,24 @@ namespace Core.Billing
 
                 if (pghhpmId > 0)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD);
+                    status = new Status((int)eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD);
                 }
 
             }
             catch (Exception ex)
             {
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, externalIdentifier={1}, householdID={2}", groupID, externalIdentifier, householdId), ex);
             }
 
             return status;
         }
 
-        private ApiObjects.Response.Status GetPaymentGatewayHousehold(string externalIdentifier, int householdId, string paymentMethodName, string paymentMethodExternalId,
+        private Status GetPaymentGatewayHousehold(string externalIdentifier, int householdId, string paymentMethodName, string paymentMethodExternalId,
             out int paymentGatewayId)
         {
             paymentGatewayId = 0;
@@ -3696,45 +3698,45 @@ namespace Core.Billing
 
             if (pghpm == null || pghpm.PaymentGatewayId == 0)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                return new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
             }
 
             if (pghpm.HouseholdId == 0)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                return new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
             }
 
             if (pghpm.PaymentMethodId == 0)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
+                return new Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
             }
 
             if (!string.IsNullOrEmpty(pghpm.PaymentMethodExternalId))
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
+                return new Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
             }
 
             paymentGatewayId = pghpm.PaymentGatewayId;
-            return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         public PaymentMethodsResponse AddPaymentMethodToPaymentGateway(int paymentGatewayId, string name, bool allowMultiInstance)
         {
             PaymentMethodsResponse response = new PaymentMethodsResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             // validate parameters
             if (paymentGatewayId <= 0)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                 return response;
             }
 
             if (string.IsNullOrEmpty(name))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
                 return response;
             }
 
@@ -3742,7 +3744,7 @@ namespace Core.Billing
             PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
             if (paymentGateway == null || paymentGateway.ID <= 0)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return response;
             }
 
@@ -3750,53 +3752,53 @@ namespace Core.Billing
 
             if (paymentMethod != null)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.PaymentMethods = new List<PaymentMethod>() { paymentMethod };
             }
 
             return response;
         }
 
-        public ApiObjects.Response.Status UpdatePaymentGatewayPaymentMethod(int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance)
+        public Status UpdatePaymentGatewayPaymentMethod(int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // validate parameters
             if (paymentGatewayId <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                 return response;
             }
 
             if (paymentMethodId <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                 return response;
             }
 
             if (string.IsNullOrEmpty(name))
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
+                return new Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
             }
 
             //check payment gateway exists
             PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
             if (paymentGateway == null || paymentGateway.ID <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return response;
             }
 
             //check payment method exists
             if (!DAL.BillingDAL.GetPaymentMethod(groupID, paymentGatewayId, paymentMethodId))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
+                response = new Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
                 return response;
             }
 
             if (DAL.BillingDAL.Update_PaymentMethod(paymentMethodId, name, allowMultiInstance) != null)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return response;
@@ -3806,42 +3808,42 @@ namespace Core.Billing
         {
             PaymentMethodResponse response = new PaymentMethodResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             if (string.IsNullOrEmpty(name))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.PaymentMethodNameRequired, PAYMENT_METHOD_NAME_REQUIRED);
                 return response;
             }
 
             response.PaymentMethod = DAL.BillingDAL.Update_PaymentMethod(paymentMethodId, name, allowMultiInstance);
             if (response.PaymentMethod != null)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             else
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, eResponseStatus.PaymentMethodNotExist.ToString());
+                response.Status = new Status((int)eResponseStatus.PaymentMethodNotExist, eResponseStatus.PaymentMethodNotExist.ToString());
             }
 
             return response;
         }
 
-        public ApiObjects.Response.Status DeletePaymentGatewayPaymentMethod(int paymentGatewayId, int paymentMethodId)
+        public Status DeletePaymentGatewayPaymentMethod(int paymentGatewayId, int paymentMethodId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // validate parameters
             if (paymentGatewayId <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                 return response;
             }
 
             if (paymentMethodId <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                 return response;
             }
 
@@ -3849,42 +3851,42 @@ namespace Core.Billing
             PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
             if (paymentGateway == null || paymentGateway.ID <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return response;
             }
 
             //check payment method exists
             if (!DAL.BillingDAL.GetPaymentMethod(groupID, paymentGatewayId, paymentMethodId))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
+                response = new Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
                 return response;
             }
 
             if (DAL.BillingDAL.Delete_PaymentGatewayPaymentMethod(paymentMethodId))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return response;
         }
 
-        public ApiObjects.Response.Status DeletePaymentMethod(int paymentMethodId)
+        public Status DeletePaymentMethod(int paymentMethodId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             if (paymentMethodId <= 0)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                 return response;
             }
 
             if (DAL.BillingDAL.Delete_PaymentGatewayPaymentMethod(paymentMethodId))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             else
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, eResponseStatus.PaymentMethodNotExist.ToString());
+                response = new Status((int)eResponseStatus.PaymentMethodNotExist, eResponseStatus.PaymentMethodNotExist.ToString());
             }
 
             return response;
@@ -3894,13 +3896,13 @@ namespace Core.Billing
         {
             PaymentMethodsResponse response = new PaymentMethodsResponse()
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
             // validate parameters
             if (paymentGatewayId <= 0)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                 return response;
             }
 
@@ -3908,40 +3910,40 @@ namespace Core.Billing
             PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
             if (paymentGateway == null || paymentGateway.ID <= 0)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return response;
             }
 
             response.PaymentMethods = DAL.BillingDAL.Get_PaymentGatewayPaymentMethods(groupID, paymentGatewayId);
             if (response.PaymentMethods != null)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return response;
         }
 
-        public ApiObjects.Response.Status SetPaymentMethodHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId, int paymentMethodId)
+        public Status SetPaymentMethodHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId, int paymentMethodId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 // paymentGatewayId validation: not empty
                 if (paymentGatewayId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
                 // paymentmethodId validation: not empty
                 if (paymentMethodId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                     return response;
                 }
 
                 // check user
-                ApiObjects.Response.Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
+                Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
                 if (userStatus.Code == (int)ResponseStatus.OK && householdId > 0)
                 {
@@ -3949,34 +3951,34 @@ namespace Core.Billing
                     PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId, 1, 1);
                     if (paymentGateway == null)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
+                        return new Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
                     }
 
                     if (!paymentGateway.SupportPaymentMethod)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSupportPaymentMethod, PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD);
+                        return new Status((int)eResponseStatus.PaymentGatewayNotSupportPaymentMethod, PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD);
                     }
 
                     HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(groupID, paymentGatewayId, householdId, 1);
                     if (householdPaymentGateway == null)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY);
+                        return new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY);
                     }
 
                     PaymentGatewayHouseholdPaymentMethod pghpm = DAL.BillingDAL.GetPaymentGatewayHouseholdPaymentMethod(groupID, paymentGatewayId, householdId, paymentMethodId);
                     if (pghpm == null || pghpm.Id <= 0)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotSetForHousehold, ERROR_NO_PG_PM_RELATED_TO_HOUSEHOLD);
+                        return new Status((int)eResponseStatus.PaymentMethodNotSetForHousehold, ERROR_NO_PG_PM_RELATED_TO_HOUSEHOLD);
                     }
 
                     int pghhpmId = DAL.BillingDAL.SetPaymentGatewayHouseholdPaymentMethod(groupID, paymentGatewayId, householdId, pghpm.PaymentMethodId, null, 1, pghpm.PaymentMethodExternalId);
                     if (pghhpmId > 0)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.OK, pghhpmId.ToString());
+                        return new Status((int)eResponseStatus.OK, pghhpmId.ToString());
                     }
                     else
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD);
+                        return new Status((int)eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD);
                     }
                 }
                 else if (householdId == 0)
@@ -3985,39 +3987,39 @@ namespace Core.Billing
                 }
                 else
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, userStatus.Message.ToString());
+                    return new Status((int)eResponseStatus.Error, userStatus.Message.ToString());
                 }
 
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Failed groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupID, paymentGatewayId, siteGuid, paymentMethodId, ex);
             }
             return response;
         }
 
-        public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId, int paymentMethodId, bool force)
+        public Status RemovePaymentMethodHouseholdPaymentGateway(int paymentGatewayId, string siteGuid, int householdId, int paymentMethodId, bool force)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
                 // paymentGatewayId validation: not empty
                 if (paymentGatewayId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
                 // paymentmethodId validation: not empty
                 if (paymentMethodId == 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                    response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                     return response;
                 }
 
                 // check user
-                ApiObjects.Response.Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
+                Status userStatus = Utils.ValidateUserAndDomain(groupID, siteGuid, ref householdId);
 
                 if (userStatus.Code == (int)ResponseStatus.OK && householdId > 0)
                 {
@@ -4026,7 +4028,7 @@ namespace Core.Billing
 
                     if (paymentpaymentGatewayList == null || paymentpaymentGatewayList.Count == 0 || paymentpaymentGatewayList[0] == null)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                        response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                         return response;
                     }
 
@@ -4035,16 +4037,16 @@ namespace Core.Billing
                     HouseholdPaymentGateway householdPaymentGateway = DAL.BillingDAL.GetHouseholdPaymentGateway(groupID, paymentGatewayId, householdId, 1);
                     if (householdPaymentGateway == null)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY);
+                        return new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY);
                     }
 
                     PaymentGatewayHouseholdPaymentMethod pghpm = DAL.BillingDAL.GetPaymentGatewayHouseholdPaymentMethod(groupID, paymentGatewayId, householdId, paymentMethodId);
                     if (pghpm == null || pghpm.Id <= 0)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotSetForHousehold, ERROR_NO_PG_PM_RELATED_TO_HOUSEHOLD);
+                        return new Status((int)eResponseStatus.PaymentMethodNotSetForHousehold, ERROR_NO_PG_PM_RELATED_TO_HOUSEHOLD);
                     }
 
-                    ApiObjects.Response.Status sendToAdapterStatus = SendRemoveHouseholdPaymentmethodToAdapter(householdPaymentGateway.ChargeId, householdId, paymentGateway, pghpm.PaymentMethodExternalId);
+                    Status sendToAdapterStatus = SendRemoveHouseholdPaymentmethodToAdapter(householdPaymentGateway.ChargeId, householdId, paymentGateway, pghpm.PaymentMethodExternalId);
 
                     if (sendToAdapterStatus.Code != (int)eResponseStatus.OK)
                     {
@@ -4054,11 +4056,11 @@ namespace Core.Billing
                     bool isSet = DAL.BillingDAL.RemovePaymentGatewayHouseholdPaymentMethod(paymentMethodId);
                     if (isSet)
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+                        return new Status((int)eResponseStatus.OK, "OK");
                     }
                     else
                     {
-                        return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
+                        return new Status((int)eResponseStatus.Error, "Internal Error");
                     }
                 }
                 else if (householdId == 0)
@@ -4067,22 +4069,22 @@ namespace Core.Billing
                 }
                 else
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, userStatus.Message.ToString());
+                    return new Status((int)eResponseStatus.Error, userStatus.Message.ToString());
                 }
 
             }
             catch (Exception ex)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("Failed groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupID, paymentGatewayId, siteGuid, paymentMethodId, ex);
             }
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecordedTransaction(int householdId, string externalTransactionId, string paymentDetails, string paymentMethod, int paymentGatewayId,
+        public Status UpdateRecordedTransaction(int householdId, string externalTransactionId, string paymentDetails, string paymentMethod, int paymentGatewayId,
             string paymentMethodExternalId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             string logData = string.Format("externalTransactionId: {0}, paymentDetails: {1}, paymentMethod: {2}, paymentGatewayId: {3}, paymentMethodExternalId: {4}",
                externalTransactionId, paymentDetails, paymentMethod, paymentGatewayId, paymentMethodExternalId);
@@ -4093,7 +4095,7 @@ namespace Core.Billing
             if (paymentGateway == null)
             {
                 log.DebugFormat("UpdateRecordedTransaction: payment gateway not found. id = {0}", paymentGatewayId);
-                return new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                return new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
             }
 
             if (paymentGateway.SupportPaymentMethod)
@@ -4101,7 +4103,7 @@ namespace Core.Billing
                 if (string.IsNullOrEmpty(paymentMethodExternalId))
                 {
                     log.ErrorFormat("GetPaymentMethodExternalId PaymentMethodExternalIdRequired {0} ", logData);
-                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentMethodExternalIdRequired, Message = PAYMENT_METHOD_EXTERNAL_ID_REQUIRED };
+                    return new Status() { Code = (int)eResponseStatus.PaymentMethodExternalIdRequired, Message = PAYMENT_METHOD_EXTERNAL_ID_REQUIRED };
                 }
 
                 PaymentGatewayHouseholdPaymentMethod pghhpm = DAL.BillingDAL.GetPaymentGatewayHouseholdPaymentMethod(groupID, paymentGatewayId, householdId, paymentMethodExternalId);
@@ -4109,25 +4111,25 @@ namespace Core.Billing
                 if (pghhpm == null || pghhpm.Id <= 0)
                 {
                     log.ErrorFormat("GetPaymentMethodExternalId payment method not exist {0}, log Data {1} ", paymentMethodExternalId, logData);
-                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.PaymentMethodNotExist, Message = PAYMENT_METHOD_NOT_EXIST };
+                    return new Status() { Code = (int)eResponseStatus.PaymentMethodNotExist, Message = PAYMENT_METHOD_NOT_EXIST };
                 }
 
                 if (DAL.BillingDAL.UpdatePaymentGatewayTransaction(groupID, paymentGatewayId, externalTransactionId, paymentDetails, paymentMethod, pghhpm.Id))
                 {
-                    return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
 
             return response;
         }
 
-        public PaymentGatewayConfigurationResponse PaymentGatewayInvoke(int paymentGatewayId, string intent, List<ApiObjects.KeyValuePair> extraParams)
+        public PaymentGatewayConfigurationResponse PaymentGatewayInvoke(int paymentGatewayId, string intent, List<KeyValuePair> extraParams)
         {
             PaymentGatewayConfigurationResponse res = new PaymentGatewayConfigurationResponse();
 
             if (paymentGatewayId <= 0)
             {
-                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                res.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                 return res;
             }
 
@@ -4139,20 +4141,22 @@ namespace Core.Billing
 
                 if (paymentpaymentGatewayList == null || paymentpaymentGatewayList.Count == 0)
                 {
-                    res.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    res.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return res;
                 }
 
                 paymentGateway = paymentpaymentGatewayList[0];
 
-                APILogic.PaymentGWAdapter.ConfigurationResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).GetAdapterConfiguration(paymentGateway, groupID, intent, extraParams);
+                var adapterResponse = AdaptersController
+                    .GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl)
+                    .GetAdapterConfiguration(paymentGateway, groupID, intent, extraParams);
 
                 if (adapterResponse == null || adapterResponse.Status == null)
                 {
                     log.Error("Error received while trying to get configuration");
                     res = new PaymentGatewayConfigurationResponse()
                     {
-                        Status = new ApiObjects.Response.Status()
+                        Status = new Status()
                         {
                             Code = (int)eResponseStatus.Error,
                             Message = "Error validating adapter response"
@@ -4164,12 +4168,12 @@ namespace Core.Billing
                 else if (adapterResponse.Status.Code == (int)PaymentGatewayAdapterStatus.OK)
                 {
                     if (adapterResponse.Configuration == null || adapterResponse.Configuration.Length == 0)
-                        res.Configuration = new List<ApiObjects.KeyValuePair>();
+                        res.Configuration = new List<KeyValuePair>();
                     else
-                        res.Configuration = adapterResponse.Configuration.Select(x => new ApiObjects.KeyValuePair(x.Key, x.Value)).ToList();
+                        res.Configuration = adapterResponse.Configuration.Select(x => new KeyValuePair(x.Key, x.Value)).ToList();
                 }
 
-                res.Status = new ApiObjects.Response.Status();
+                res.Status = new Status();
 
                 switch (adapterResponse.Status.Code)
                 {
@@ -4192,7 +4196,7 @@ namespace Core.Billing
 
             catch (Exception ex)
             {
-                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                res.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.ErrorFormat("GetPaymentGatewayConfiguration Failed ex={0}", ex);
             }
 
@@ -4201,7 +4205,7 @@ namespace Core.Billing
 
         public HouseholdPaymentMethodResponse AddPaymentGatewayPaymentMethodToHousehold(HouseholdPaymentMethod paymentMethod, int householdId)
         {
-            HouseholdPaymentMethodResponse response = new HouseholdPaymentMethodResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            HouseholdPaymentMethodResponse response = new HouseholdPaymentMethodResponse() { Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
             try
             {
@@ -4212,19 +4216,19 @@ namespace Core.Billing
 
                 if (paymentMethod.PaymentMethodId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                     return response;
                 }
 
                 if (paymentMethod.PaymentGatewayId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayIdRequired, PAYMENT_GATEWAY_ID_REQUIRED);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(paymentMethod.ExternalId))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodExternalIdRequired, PAYMENT_METHOD_EXTERNAL_ID_REQUIRED);
+                    response.Status = new Status((int)eResponseStatus.PaymentMethodExternalIdRequired, PAYMENT_METHOD_EXTERNAL_ID_REQUIRED);
                     return response;
                 }
 
@@ -4244,25 +4248,25 @@ namespace Core.Billing
                     paymentMethod.PaymentMethodId, paymentMethod.ExternalId);
                 if (pghpm == null || pghpm.PaymentGatewayId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
                 if (pghpm.HouseholdId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                    response.Status = new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                     return response;
                 }
 
                 if (pghpm.PaymentMethodId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
+                    response.Status = new Status((int)eResponseStatus.PaymentMethodNotExist, ERROR_PAYMENT_METHOD_NOT_EXIST);
                     return response;
                 }
 
                 if (!string.IsNullOrEmpty(pghpm.PaymentMethodExternalId))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY);
+                    response.Status = new Status((int)eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY);
                     return response;
                 }
 
@@ -4270,25 +4274,25 @@ namespace Core.Billing
 
                 if (response.PaymentMethod != null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD);
+                    response.Status = new Status((int)eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD);
                 }
             }
             catch (Exception ex)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, paymentGaytewayId={1}, householdID={2}", groupID, paymentMethod.PaymentGatewayId, householdId), ex);
             }
 
             return response;
         }
 
-        public ApiObjects.Response.Status RemoveAccount(int householdId)
+        public Status RemoveAccount(int householdId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             DataTable dt = DAL.BillingDAL.GetHouseholdPaymentMethods(householdId);
 
@@ -4303,7 +4307,7 @@ namespace Core.Billing
 
                 Dictionary<int, KeyValuePair<PaymentGateway, List<string>>> householdPaymentgatewayPaymentMethodExternalIds = new Dictionary<int, KeyValuePair<PaymentGateway, List<string>>>();
                 Dictionary<int, string> paymentGatewayIdToHouseholdChargeIdMap = new Dictionary<int, string>();
-                ApiObjects.Response.Status sendToAdapterStatus;
+                Status sendToAdapterStatus;
 
                 foreach (DataRow row in dt.Rows)
                 {
@@ -4350,9 +4354,9 @@ namespace Core.Billing
             return response;
         }
 
-        private ApiObjects.Response.Status SendRemoveAccountToAdapter(string chargeId, long householdID, PaymentGateway paymentGateway, List<string> paymentMethodExternalIds)
+        private Status SendRemoveAccountToAdapter(string chargeId, long householdID, PaymentGateway paymentGateway, List<string> paymentMethodExternalIds)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+            Status response = new Status();
 
             string logString = string.Format("chargeId: {0}, householdID: {1}, paymentMethodExternalIds: {2}",
                 chargeId != null ? chargeId : string.Empty,
@@ -4363,15 +4367,17 @@ namespace Core.Billing
 
             if (string.IsNullOrEmpty(paymentGateway.AdapterUrl))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                response = new Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
                 return response;
             }
 
-            APILogic.PaymentGWAdapter.PaymentMethodResponse adapterResponse = AdaptersController.GetInstance(paymentGateway.ID).RemoveAccount(paymentGateway, groupID, chargeId, paymentMethodExternalIds);
+            var adapterResponse = AdaptersController
+                .GetInstance(paymentGateway.ID, paymentGateway.AdapterUrl)
+                .RemoveAccount(paymentGateway, groupID, chargeId, paymentMethodExternalIds);
 
             if (adapterResponse == null || adapterResponse.Status == null)
             {
-                response = new ApiObjects.Response.Status()
+                response = new Status()
                 {
                     Code = (int)eResponseStatus.Error,
                     Message = "Error validating adapter response"
@@ -4382,13 +4388,13 @@ namespace Core.Billing
             {
                 if (adapterResponse.IsSuccess)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
                 else
                 {
                     log.ErrorFormat("RemoveAccount failed for charge id: {0}, payment methods: {1}, adapter Status: {2}, adapter Message: {3}",
                         chargeId, paymentMethodExternalIds != null ? string.Join(", ", paymentMethodExternalIds) : string.Empty, adapterResponse.PGStatus, adapterResponse.PGMessage);
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, adapterResponse.PGMessage);
+                    response = new Status((int)eResponseStatus.Error, adapterResponse.PGMessage);
                 }
             }
             else
@@ -4423,7 +4429,7 @@ namespace Core.Billing
                 if (string.IsNullOrEmpty(billingGuid))
                 {
                     log.ErrorFormat("error - billingGuid is null or empty");
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while getting payment details");
+                    response = new Status((int)eResponseStatus.Error, "error while getting payment details");
                     return response;
                 }
 
@@ -4431,7 +4437,7 @@ namespace Core.Billing
                 PaymentGateway newPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, newPaymentGatewayId);
                 if (newPaymentGateway == null)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return response;
                 }
 
@@ -4441,7 +4447,7 @@ namespace Core.Billing
 
                 if (!isPaymentGWHouseholdExist)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotSetForHousehold, ERROR_NO_PGW_RELATED_TO_HOUSEHOLD);
                     return response;
                 }
 
@@ -4449,12 +4455,12 @@ namespace Core.Billing
                 {
                     if (newPaymentMethodId == 0)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
+                        response = new Status((int)eResponseStatus.PaymentMethodIdRequired, PAYMENT_METHOD_ID_REQUIRED);
                         return response;
                     }
                     // check if payment method valid for household
                     PaymentGatewayHouseholdPaymentMethod pghpm = null;
-                    ApiObjects.Response.Status pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdId, newPaymentGatewayId, newPaymentMethodId, out pghpm);
+                    Status pghpmStatus = GetHouseholdPaymentGatewayPaymentMethod(householdId, newPaymentGatewayId, newPaymentMethodId, out pghpm);
 
                     if (pghpmStatus.Code != (int)eResponseStatus.OK)
                     {
@@ -4464,20 +4470,20 @@ namespace Core.Billing
                 }
                 else if (newPaymentMethodId > 0)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotSupportPaymentMethod, PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotSupportPaymentMethod, PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD);
                     return response;
                 }
 
                 // check if IsVerificationPaymentGateway
                 if (IsVerificationPaymentGateway(newPaymentGateway))
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(chargeId))
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
+                    response = new Status((int)eResponseStatus.PaymentGatewayChargeIdRequired, ERROR_CHARGE_ID_MISSING);
                     return response;
                 }
 
@@ -4502,7 +4508,7 @@ namespace Core.Billing
                     // check if IsVerificationPaymentGateway
                     if (IsVerificationPaymentGateway(currentPaymentGateway))
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
+                        response = new Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
                         return response;
                     }
 
@@ -4516,14 +4522,14 @@ namespace Core.Billing
                 {
                     if (DAL.BillingDAL.SetTransactionPaymentDetails(groupID, billingGuid, newPaymentGatewayId, newPaymentMethodId) == 0)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         log.ErrorFormat("error fail save new payment details groupID={0}, billingGuid={1}, newPaymentGatewayId={2}, newPaymentMethodId={3}",
                             groupID, billingGuid, newPaymentGatewayId, newPaymentMethodId);
                         return response;
                     }
                 }
 
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -4609,7 +4615,7 @@ namespace Core.Billing
 
         public Status GetPaymentGatewayVerificationStatus(string billingGuid, ref PaymentDetails paymentDetails)
         {
-            Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             List<PaymentDetails> paymentDetailsResult = GetPaymentDetails(new List<string>() { billingGuid });               
 
@@ -4624,13 +4630,13 @@ namespace Core.Billing
                 PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
                 if (currentPaymentGateway.ExternalVerification)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayExternalVerification, "PaymentGateway is an External Verification");
+                    response = new Status((int)eResponseStatus.PaymentGatewayExternalVerification, "PaymentGateway is an External Verification");
                     return response;
                 }
                 // check if IsVerificationPaymentGateway
                 if (IsVerificationPaymentGateway(currentPaymentGateway))
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid for action");
+                    response = new Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid for action");
                 }
             }
 

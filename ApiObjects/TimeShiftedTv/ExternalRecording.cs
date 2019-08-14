@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 namespace ApiObjects.TimeShiftedTv
 {
 
-    public class ExternalRecording: Recording
+    public class ExternalRecording : Recording
     {
         private static readonly KLogger _log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
