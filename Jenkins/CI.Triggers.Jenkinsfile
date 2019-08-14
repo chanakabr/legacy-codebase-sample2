@@ -23,20 +23,16 @@ node {
 
 def getJobName(repoName) {
     switch (repoName) {
-        case 'Core':
-            return 'OTT-BE-Core-Windows'
-        case 'Phoenix':
-            return 'OTT-BE-Phoenix-Windows'
-        case 'RemoteTasks':
-            return 'OTT-BE-Remote-Tasks-Windows'
-        case 'tvmapps':
-            return 'OTT-BE-TVM'
+        case 'Core': return 'OTT-BE-Core-Windows'
+        case 'Phoenix': return 'OTT-BE-Phoenix-Windows'
+        case 'RemoteTasks': return 'OTT-BE-Remote-Tasks-Windows'
+        case 'tvmapps': return 'OTT-BE-TVM'
+        case 'ott-celery-tasks': return 'OTT-BE-Celery-Tasks'
+        case 'WS_Ingest': return 'OTT-BE-WS-Ingest-Windows'
+        
+        case 'tvplibs':
         case 'tvpapi':
             return 'OTT-BE-Tvpapi-Windows'
-        case 'ott-celery-tasks':
-            return 'OTT-BE-Celery-Tasks'
-        case 'WS_Ingest':
-            return 'OTT-BE-WS-Ingest-Windows'
     }   
 }
 
