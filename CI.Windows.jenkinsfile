@@ -9,6 +9,10 @@ pipeline {
     environment {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
     }
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
+        booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
+    }
     stages {
         stage("Checkout"){
             steps{
@@ -69,7 +73,6 @@ pipeline {
                 }
             }        
         }
-
         stage("Generate KalturaClient.xml"){
             steps { 
                 dir("tvpapi_rest/Generator"){
@@ -81,7 +84,6 @@ pipeline {
                 }
             }
         }
-
         stage("Generate Kaltura Clients and Docs"){
             steps { 
                 dir("clients-generator"){
@@ -92,7 +94,6 @@ pipeline {
                 }
             }
         }
-
         stage("Zip and Publish"){
             steps{
                 dir("published"){  
@@ -100,6 +101,18 @@ pipeline {
                     sh (label:"upload to s3", script:"aws s3 cp phoenix-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix-windows-${BRANCH_NAME}.zip")
                 }
             }        
+        }
+        stage("Trigger Release Candidate"){
+            when { expression { params.TRIGGER_RC == true } }
+            steps{
+                build (
+                    job: "OTT-BE-Create-Release-Candidate", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                    ]
+                )
+            }
         }
     }
 }
