@@ -84,7 +84,7 @@ namespace TVinciShared
         {
             return req.ServerVariables["REMOTE_ADDR"];
         }
-
+        
         public static string GetRemoteHost(this HttpRequest req)
         {
             return req.ServerVariables["REMOTE_HOST"];
@@ -134,8 +134,23 @@ namespace TVinciShared
         public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
         {
             return System.Runtime.Caching.MemoryCache.Default;
-        } 
+        }
 
+        public static string GetValue(this HttpCookieCollection collection, string name)
+        {
+            return collection[name].Value;
+        }
+
+        public static void SetValue(this HttpCookieCollection collection, string key, string value)
+        {
+            collection.Add(new HttpCookie(key));
+            collection[key].Value = value;
+        }
+
+        public static bool IsVirtualDirectory()
+        {
+            return HttpRuntime.AppDomainAppVirtualPath != "/";
+        }
 #endif
 
 #if NETSTANDARD2_0
@@ -290,8 +305,39 @@ namespace TVinciShared
         public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
         {
             return System.Runtime.Caching.MemoryCache.Default;
-        } 
+        }
 
+        public static void Add(this IResponseCookies cookies, object cookie)
+        {
+            cookies.Append(Guid.NewGuid().ToString(), cookie.ToString());
+        }
+
+        public static string GetValue(this IRequestCookieCollection cookies, string key)
+        {
+            string value = string.Empty;
+            cookies.TryGetValue(key, out value);
+            return value;
+        }
+
+        public static void SetValue(this IRequestCookieCollection cookies, string key, string value)
+        {
+            //cookies = cookies.Union(new List<KeyValuePair<string, string>>() { new KeyValuePair<string, string>(key, value) });
+        }
+
+        public static void SetValue(this IResponseCookies cookies, string key, string value)
+        {
+            cookies.Append(key, value);
+        }
+
+        public static void Remove(this IResponseCookies cookies, string key)
+        {
+            cookies.Delete(key);
+        }
+
+        public static bool IsVirtualDirectory()
+        {
+            return false;
+        }
 #endif
     }
 }
