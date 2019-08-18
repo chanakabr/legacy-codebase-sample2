@@ -45,6 +45,12 @@ namespace ProfessionalServicesHandler
             {
                 log.InfoFormat("Sending POST to url:[{0}], with data:[{1}]", setting.HandlerUrl, data);
                 result = HttpPost(setting.HandlerUrl, data, "application/json");
+
+                if (string.IsNullOrEmpty(result) || result.Trim() != "0")
+                {
+                    log.ErrorFormat("Received error from PS event handler. Response: [{0}]", result == null ? "null" : result);
+                    throw new Exception(string.Format("Received error from PS event handler. Response: [{0}]", result == null ? "null" : result));
+                }
             }
             else
             {
