@@ -16,19 +16,19 @@ namespace ConfigurationManager
         {
             FtpServerPort = new NumericConfigurationValue("ftp_server_port", this)
             {
-                ShouldAllowEmpty = false,
+                ShouldAllowEmpty = true,
                 DefaultValue = 21,
             };
 
             FtpServerAddress = new StringConfigurationValue("ftp_server_address", this)
             {
-                ShouldAllowEmpty = false,
+                ShouldAllowEmpty = true,
                 DefaultValue = "localhost",
             };
 
             PhoenixServerUrl = new StringConfigurationValue("phoenix_server_url", this)
             {
-                ShouldAllowEmpty = false,
+                ShouldAllowEmpty = true,
                 DefaultValue = "localhost:8080",
             };
         }
