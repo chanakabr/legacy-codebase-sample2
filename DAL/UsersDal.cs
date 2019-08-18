@@ -549,7 +549,7 @@ namespace DAL
             return nAllowedLogins;
         }
 
-        public static bool UpdateFailCount(int nUserID, int nAdd)
+        public static bool UpdateFailCount(int nUserID, int nAdd, bool setLoginDate)
         {
             bool updateRes = false;
             ODBCWrapper.DirectQuery directQuery = null;
@@ -567,6 +567,10 @@ namespace DAL
                 else
                 {
                     directQuery += "FAIL_COUNT=0 ";
+                }
+                if (setLoginDate)
+                {
+                    directQuery += ",LAST_LOGIN_DATE=getdate()";
                 }
                 directQuery += " where ";
                 directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);
@@ -1354,7 +1358,7 @@ namespace DAL
         public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                         DateTime updateDate, string sCoGuid, string externalToken)
+                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount)
         {
             try
             {
@@ -1399,6 +1403,11 @@ namespace DAL
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PHONE", "=", sPhone);
                 updateQuery += Parameter.NEW_PARAM("UPDATE_DATE", "=", updateDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
+
+                if (resetFailCount)
+                {
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                }
 
                 updateQuery += "WHERE";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
