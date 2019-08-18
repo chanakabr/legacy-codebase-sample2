@@ -48,7 +48,7 @@ namespace IngestHandler.Common
         /// <param name="groupId"></param>
         /// <param name="calculatedPrograms"></param>
         /// <param name="bulkUploadId"></param>
-        public static async Task UpdateCouchbase(List<EpgProgramBulkUploadObject> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary, int groupId)
+        public static async Task UpdateCouchbase(List<EpgProgramBulkUploadObject> calculatedPrograms, int groupId)
         {
             var dal = new EpgDal_Couchbase(groupId);
             // tcm configurable?

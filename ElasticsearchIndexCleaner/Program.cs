@@ -42,7 +42,7 @@ namespace ElasticsearchIndexCleaner
                    var indices = _ESClient.ListIndices($"{groupId}_epg_*");
                    var indicesToDelete = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
 
-                   if (o.SaveLastXIndexes < indicesToDelete.Count)
+                   if (o.SaveLastXIndexes > 0 && o.SaveLastXIndexes < indicesToDelete.Count)
                    {
                        var counter = indicesToDelete.ToDictionary(x => int.Parse(x.Split('_').Last()), y => y);
                        var sorted = new SortedDictionary<int,string>(counter, Comparer<int>.Default);

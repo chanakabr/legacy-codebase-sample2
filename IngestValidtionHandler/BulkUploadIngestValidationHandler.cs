@@ -69,7 +69,7 @@ namespace IngestValidtionHandler
                     // Update edgs if there are any updates to be made dure to overlap
                     if (eventData.EdgeProgramsToUpdate.Any())
                     {
-                        await BulkUploadMethods.UpdateCouchbase(eventData.EdgeProgramsToUpdate, eventData.Results, eventData.GroupId);
+                        await BulkUploadMethods.UpdateCouchbase(eventData.EdgeProgramsToUpdate, eventData.GroupId);
                         var updater = new UpdateClonedIndex(eventData.GroupId, eventData.BulkUploadId, eventData.DateOfProgramsToIngest, eventData.Languages);
                         updater.Update(eventData.EdgeProgramsToUpdate, new List<EpgProgramBulkUploadObject>());
                     }
@@ -189,11 +189,14 @@ namespace IngestValidtionHandler
         {
             foreach (var prog in epgs)
             {
-                var resultObj = results[prog.EpgExternalId];
-                resultObj.ObjectId = (long)prog.EpgId;
-                resultObj.Status = BulkUploadResultStatus.Ok;
-                // TODO: allow updating results in bulk
-                //BulkUploadManager.UpdateBulkUploadResult(_EventData.GroupId, _BulkUploadObject.Id, resultObj.Index, Status.Ok, resultObj.ObjectId, resultObj.Warnings);
+                if (prog.EpgExternalId != null && results.ContainsKey(prog.EpgExternalId))
+                {
+                    var resultObj = results[prog.EpgExternalId];
+                    resultObj.ObjectId = (long)prog.EpgId;
+                    resultObj.Status = BulkUploadResultStatus.Ok;
+                    // TODO: allow updating results in bulk
+                    //BulkUploadManager.UpdateBulkUploadResult(_EventData.GroupId, _BulkUploadObject.Id, resultObj.Index, Status.Ok, resultObj.ObjectId, resultObj.Warnings);
+                }
             }
         }
 

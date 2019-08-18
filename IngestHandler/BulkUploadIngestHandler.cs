@@ -104,12 +104,14 @@ namespace IngestHandler
 
                 var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, crudOperations);
 
-                var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
+                HandleOverlapsAndGaps(crudOperations, _Results);
 
-                ValidateProgramDates(finalEpgState, _Results);
-                await BulkUploadMethods.UpdateCouchbase(finalEpgState, _Results, serviceEvent.GroupId);
+                var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
+                
+                await BulkUploadMethods.UpdateCouchbase(finalEpgState, serviceEvent.GroupId);
 
                 CloneExistingIndex();
+
                 var updater = new UpdateClonedIndex(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
                 updater.Update(finalEpgState, crudOperations.ItemsToDelete);
 
@@ -286,7 +288,7 @@ namespace IngestHandler
 			}
 		}
 
-		private static string GetEpgCBDocumentId(string external_id, string langCode, long bulkUploadId)
+		public static string GetEpgCBDocumentId(string external_id, string langCode, long bulkUploadId)
 		{
 			// TODO: validate if key need specific prefix
 			return $"epg_{bulkUploadId}_{langCode}_{external_id}";
@@ -375,9 +377,10 @@ namespace IngestHandler
 			query.AddReturnField("start_date");
 			query.AddReturnField("end_date");
 			query.AddReturnField("epg_identifier");
+			query.AddReturnField("is_auto_fill");
 
-			// get the epg document ids from elasticsearch
-			var searchQuery = query.ToString();
+            // get the epg document ids from elasticsearch
+            var searchQuery = query.ToString();
 			var searchResult = _ElasticSearchClient.Search(index, UpdateClonedIndex.DEFAULT_INDEX_MAPPING_TYPE, ref searchQuery);
 
 			List<string> documentIds = new List<string>();
@@ -397,8 +400,9 @@ namespace IngestHandler
 					epgItem.StartDate = ESUtils.ExtractDateFromToken(hit["fields"], "start_date");
 					epgItem.EndDate = ESUtils.ExtractDateFromToken(hit["fields"], "end_date");
 					epgItem.EpgId = ESUtils.ExtractValueFromToken<ulong>(hitFields, "epg_id");
+                    epgItem.IsAutoFill = ESUtils.ExtractValueFromToken<bool>(hitFields, "is_auto_fill");
 
-					result.Add(epgItem);
+                    result.Add(epgItem);
 				}
 			}
 
@@ -410,7 +414,9 @@ namespace IngestHandler
 			_Logger.Debug($"CalculateCRUDOperations > currentPrograms.count:[{currentPrograms.Count}] programsToIngest.count:[{programsToIngest.Count}]");
 			var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
 
-			var currentProgramsDictionary = currentPrograms.ToDictionary(epg => epg.EpgExternalId);
+            crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.IsAutoFill).ToList();
+
+            var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => epg.EpgExternalId);
 			_Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
 
 			// we cannot use the programs to ingest as a dictioanry becuse there are multiple translation with same external id
@@ -437,7 +443,7 @@ namespace IngestHandler
 			}
 
 			// all update or add programs were removed form list so we left with items to delete
-			crudOperations.ItemsToDelete = currentProgramsDictionary.Values.ToList();
+			crudOperations.ItemsToDelete.AddRange(currentProgramsDictionary.Values.ToList());
 
 			_Logger.Debug($"CalculateCRUDOperations > add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
 
@@ -447,11 +453,15 @@ namespace IngestHandler
 		private List<EpgProgramBulkUploadObject> CalculateRequiredUpdatesToEdgesDueToOverlap(IList<EpgProgramBulkUploadObject> currentPrograms, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
 		{
 			var result = new List<EpgProgramBulkUploadObject>();
+
 			// If overlaps are allowed we have to check the edges of the give range for overlap and cut the source or the target
 			if (_IngestProfile.DefaultOverlapPolicy != eIngestProfileOverlapPolicy.Reject)
 			{
 				_Logger.Debug($"CalculateCRUDOperations > _IngestProfile.DefaultOverlapPolicy:[{_IngestProfile.DefaultOverlapPolicy}], calculating required update to edge programs");
-				result = CutSourceOrTargetOverlappingDates(currentPrograms.Except(crudOperations.ItemsToDelete), crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate));
+
+                result = CutSourceOrTargetOverlappingDates(currentPrograms.Except(crudOperations.ItemsToDelete), 
+                    crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate));
+
 				_Logger.Debug($"CalculateCRUDOperations > after edge overlap calculations add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
 			}
 
@@ -552,74 +562,110 @@ namespace IngestHandler
 			return result;
 		}
 
-		private bool ValidateProgramDates(List<EpgProgramBulkUploadObject> calculatedPrograms, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary)
-		{
-			// TODO: consider returning false if should reject .. review ...
-			bool isValid = true;
+        private bool HandleOverlapsAndGaps(CRUDOperations<EpgProgramBulkUploadObject> crudOperations, Dictionary<string, BulkUploadProgramAssetResult> programAssetResultsDictionary)
+        {
+            bool isValid = true;
 
-			bool checkOverlap = _IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject;
-			bool checkGaps = _IngestProfile.DefaultAutoFillPolicy == eIngestProfileAutofillPolicy.Reject;
+            List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
 
-			// if at least one of the policies means rejecting, we will go over the programs and validate them
-			if (checkOverlap || checkGaps)
-			{
-				for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
-				{
-					var currentProgram = calculatedPrograms[programIndex];
+            for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
+            {
+                var currentProgram = calculatedPrograms[programIndex];
 
-					bool continueCheckingOverlap = true;
+                // we check the next SEVERAL programs because some of them might be overlapping the current one
+                for (int secondaryIndex = programIndex + 1; (secondaryIndex < calculatedPrograms.Count) && isValid; secondaryIndex++)
+                {
+                    var nextProgram = calculatedPrograms[secondaryIndex];
 
-					// we check the next SEVERAL programs because some of them might be overlapping the current one
-					for (int secondaryIndex = programIndex + 1; (secondaryIndex < calculatedPrograms.Count) && continueCheckingOverlap; secondaryIndex++)
-					{
-						var nextProgram = calculatedPrograms[secondaryIndex];
+                    // if the current program ends when the next one starts - we're valid
+                    if (currentProgram.EndDate != nextProgram.StartDate)
+                    {
+                        // if the next program starts before the current ends, it means we have an overlap
+                        if (currentProgram.EndDate > nextProgram.StartDate)
+                        {
+                            if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject)
+                            {
+                                programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                                programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
 
-						// if the current program ends when the next one starts - we're valid
-						// TODO minor : only equals? we need to think about it
-						if (currentProgram.EndDate == nextProgram.StartDate)
-						{
-							// we don't need to continue checking overlaps/gaps if the programs are valid
-							continueCheckingOverlap = false;
-						}
-						// if they're different, we're not valid. let's see if it's a gap or an overlap
-						else
-						{
-							// if the next program starts before the current ends, it means we have an overlap
-							if (checkOverlap && currentProgram.EndDate > nextProgram.StartDate)
-							{
-								programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
-								programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
-							}
+                                isValid = false;
+                            }
+                        }
+                        // if the next program starts after the current ends, it means we have a gap
+                        else
+                        {
+                            switch (_IngestProfile.DefaultAutoFillPolicy)
+                            {
+                                case eIngestProfileAutofillPolicy.Reject:
+                                    programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                    programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
 
-							// if the next program starts after the current ends, it means we have a gap
-							if (currentProgram.StartDate > currentProgram.EndDate)
-							{
-								// we don't need to check anymore overlaps when we have a gap
-								continueCheckingOverlap = false;
+                                    isValid = false;
+                                    break;
+                                case eIngestProfileAutofillPolicy.Autofill:
+                                    if (_IngestProfile.OverlapChannels == null || _IngestProfile.OverlapChannels.Contains(currentProgram.ChannelId))
+                                    {
+                                        crudOperations.ItemsToAdd.Add(GetDefaultGapProgram(currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId));
+                                    }
+                                    break;
+                                case eIngestProfileAutofillPolicy.KeepHoles:
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
 
-								if (checkGaps)
-								{
-									programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
-									programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
-								}
-							}
-						}
-					}
-				}
-			}
+            return isValid;
+        }
 
-			return isValid;
-		}
+        private EpgProgramBulkUploadObject GetDefaultGapProgram(DateTime start, DateTime end, int channelId)
+        {
+            var epgExternalId = Guid.NewGuid().ToString();
 
-		/// <summary>
-		/// real name: epg_203_20190422_123456
-		/// alias: epg_203_20190422
-		/// reindex epg_203_20190422 to epg_203_20190422_current_bulk_upload_id
-		/// </summary>
-		/// <param name="groupId"></param>
-		/// <param name="bulkUploadId"></param>
-		/// <param name="dateOfIngest"></param>
-		private bool CloneExistingIndex()
+            return new EpgProgramBulkUploadObject()
+            {
+                StartDate = start,
+                EndDate = end,
+                IsAutoFill = true,
+                ChannelId = channelId,
+                EpgExternalId = epgExternalId,
+                ParentGroupId = _BulkUploadObject.GroupId,
+                GroupId = _BulkUploadObject.GroupId,
+
+                // TODO : get from configuration
+                EpgCbObjects = new List<EpgCB>()
+                {
+                    new EpgCB()
+                    {
+                        Name = "GAP",
+                        StartDate = start,
+                        EndDate = end,
+                        Language = "eng",
+                        IsAutoFill = true,
+                        ChannelID = channelId,
+                        EpgIdentifier = epgExternalId,
+                        Crid = epgExternalId,
+                        DocumentId = GetEpgCBDocumentId(epgExternalId, "eng", _BulkUploadObject.Id),
+                        IsActive = true,
+                        GroupID = _BulkUploadObject.GroupId,
+                        ParentGroupID = _BulkUploadObject.GroupId
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// real name: epg_203_20190422_123456
+        /// alias: epg_203_20190422
+        /// reindex epg_203_20190422 to epg_203_20190422_current_bulk_upload_id
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="bulkUploadId"></param>
+        /// <param name="dateOfIngest"></param>
+        private bool CloneExistingIndex()
 		{
 			var result = true;
 			string source = BulkUploadMethods.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
