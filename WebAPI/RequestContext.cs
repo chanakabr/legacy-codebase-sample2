@@ -62,6 +62,7 @@ namespace WebAPI
             SetRequestTypeContext(action);
             SetResponseProfile(requestParams, globalScope);
             SetUserIpContext();
+            SetRequestVersion(requestParams);
 
             var loggingContext = new ContextData();
             loggingContext.Load();
@@ -295,6 +296,22 @@ namespace WebAPI
 
             ks.SaveOnRequest();
 
+        }
+
+        private static void SetRequestVersion(IDictionary<string, object> requestParams)
+        {
+            if (requestParams.ContainsKey("apiVersion"))
+            {
+                Version versionFromParams;
+                if (Version.TryParse((string)requestParams["apiVersion"], out versionFromParams))
+                {
+                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = versionFromParams;
+                }
+                else
+                {
+                    throw new RequestParserException(RequestParserException.INVALID_VERSION, requestParams["apiVersion"]);
+                }
+            }
         }
     }
 }

@@ -52,10 +52,9 @@ namespace Phoenix.Rest.Middleware
 
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
-            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
-            phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);
-
             RequestContext.SetContext(parsedActionParams, service, action);
+            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
+            phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);            
 
             phoenixCtx.SetHttpContextForBackwardCompatibility();
 
@@ -64,15 +63,16 @@ namespace Phoenix.Rest.Middleware
 
         private Version GetRequestVersion(IDictionary<string, object> parsedActionParams)
         {
-            if (parsedActionParams.TryGetValue("apiVersion", out var versionFromParams))
+            if (parsedActionParams.ContainsKey("apiVersion"))
             {
-                if (Version.TryParse((string)versionFromParams, out var parsedVersion))
+                Version versionFromParams;
+                if (Version.TryParse((string)parsedActionParams["apiVersion"], out versionFromParams))
                 {
-                    return parsedVersion;
+                    return versionFromParams;
                 }
                 else
                 {
-                    throw new RequestParserException(RequestParserException.INVALID_VERSION, versionFromParams);
+                    throw new RequestParserException(RequestParserException.INVALID_VERSION, parsedActionParams["apiVersion"]);
                 }
             }
 
