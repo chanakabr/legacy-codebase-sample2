@@ -775,9 +775,9 @@ namespace Core.Users
             return res;
         }
 
-        static protected bool UpdateFailCount(Int32 nAdd, Int32 nUserID)
+        static protected bool UpdateFailCount(Int32 nAdd, Int32 nUserID, bool setLoginDate = false)
         {
-            bool updateRes = DAL.UsersDal.UpdateFailCount(nUserID, nAdd);
+            bool updateRes = DAL.UsersDal.UpdateFailCount(nUserID, nAdd, setLoginDate);
             return updateRes;
         }
 

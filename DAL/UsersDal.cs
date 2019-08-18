@@ -549,7 +549,7 @@ namespace DAL
             return nAllowedLogins;
         }
 
-        public static bool UpdateFailCount(int nUserID, int nAdd)
+        public static bool UpdateFailCount(int nUserID, int nAdd, bool setLoginDate)
         {
             bool updateRes = false;
             ODBCWrapper.DirectQuery directQuery = null;
@@ -567,6 +567,10 @@ namespace DAL
                 else
                 {
                     directQuery += "FAIL_COUNT=0 ";
+                }
+                if (setLoginDate)
+                {
+                    directQuery += ",LAST_LOGIN_DATE=getdate()";
                 }
                 directQuery += " where ";
                 directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nUserID);

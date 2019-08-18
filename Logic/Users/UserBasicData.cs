@@ -41,6 +41,8 @@ namespace Core.Users
         public List<long> RoleIds;
         public DateTime CreateDate;
         public DateTime UpdateDate;
+        public DateTime LastLoginDate;
+        public int FailedLoginCount;
 
         public UserBasicData()
         {
@@ -69,6 +71,8 @@ namespace Core.Users
             RoleIds = new List<long>();
             CreateDate = DateTime.MinValue;
             UpdateDate = DateTime.MinValue;
+            LastLoginDate = DateTime.MinValue;
+            FailedLoginCount = 0;
         }
 
         public bool Initialize(Int32 nUserID, Int32 nGroupID)
@@ -105,8 +109,11 @@ namespace Core.Users
             string sUserType = ODBCWrapper.Utils.GetSafeStr(drUserBasicData, "user_type_desc"); 
             bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
-            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE"); 
-            
+            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE");
+            DateTime lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATE");
+            int failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAIL_COUNT");
+
+
             int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "user_type_id");
             if (nUserTypeID.HasValue && nUserTypeID.Value == 0)
             {
@@ -117,7 +124,7 @@ namespace Core.Users
 
             res = Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone, sFacebookID, 
                              bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken, userType, nUserID, nGroupID,
-                             createDate, updateDate);
+                             createDate, updateDate, lastLoginDate, failedLoginCount);
 
             return res;
         }
@@ -125,7 +132,7 @@ namespace Core.Users
         public bool Initialize(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
                                int nStateID, Int32 nCountryID, string sZip, string sPhone, string sFacebookID, bool bIsFacebookImagePermitted, string sFacebookImageURL, 
                                string sAffiliate, string sFacebookToken, string sCoGuid, string sExternalToken, UserType userType, Int32 userId, Int32 groupId, 
-                               DateTime createDate, DateTime updateDate)
+                               DateTime createDate, DateTime updateDate, DateTime lastLoginDate, int failedLoginCount)
         {
             bool res = true;
 
@@ -150,7 +157,9 @@ namespace Core.Users
             //m_sTwitterTokenSecret = string.Empty;
             m_UserType = userType;
             CreateDate = createDate;
-            UpdateDate = updateDate;                        
+            UpdateDate = updateDate;
+            LastLoginDate = lastLoginDate;
+            FailedLoginCount = failedLoginCount;
 
             if (nStateID != 0)
             {
