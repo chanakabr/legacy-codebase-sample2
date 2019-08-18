@@ -21814,6 +21814,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;
 
             if(Address != null)
             {
@@ -21886,6 +21887,10 @@ namespace WebAPI.Models.Users
                     ret.Add("facebook_token", "\"facebook_token\": " + "\"" + EscapeJson(FacebookToken) + "\"");
                 }
             }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUser", "FailedLoginCount", requestType.Value)))
+            {
+                ret.Add("failedLoginCount", "\"failedLoginCount\": " + FailedLoginCount);
+            }
             if(HouseholdID.HasValue)
             {
                 ret.Add("householdId", "\"householdId\": " + HouseholdID);
@@ -21901,6 +21906,10 @@ namespace WebAPI.Models.Users
                 {
                     ret.Add("is_household_master", "\"is_household_master\": " + IsHouseholdMaster.ToString().ToLower());
                 }
+            }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUser", "LastLoginDate", requestType.Value)))
+            {
+                ret.Add("lastLoginDate", "\"lastLoginDate\": " + LastLoginDate);
             }
             if(Phone != null)
             {
@@ -21946,6 +21955,7 @@ namespace WebAPI.Models.Users
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;
 
             if(Address != null)
             {
@@ -22018,6 +22028,10 @@ namespace WebAPI.Models.Users
                 ret.Add("facebook_token", "<facebook_token>" + EscapeXml(FacebookToken) + "</facebook_token>");
                 }
             }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUser", "FailedLoginCount", requestType.Value)))
+            {
+                ret.Add("failedLoginCount", "<failedLoginCount>" + FailedLoginCount + "</failedLoginCount>");
+            }
             if(HouseholdID.HasValue)
             {
                 ret.Add("householdId", "<householdId>" + HouseholdID + "</householdId>");
@@ -22033,6 +22047,10 @@ namespace WebAPI.Models.Users
                 {
                 ret.Add("is_household_master", "<is_household_master>" + IsHouseholdMaster.ToString().ToLower() + "</is_household_master>");
                 }
+            }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUser", "LastLoginDate", requestType.Value)))
+            {
+                ret.Add("lastLoginDate", "<lastLoginDate>" + LastLoginDate + "</lastLoginDate>");
             }
             if(Phone != null)
             {
