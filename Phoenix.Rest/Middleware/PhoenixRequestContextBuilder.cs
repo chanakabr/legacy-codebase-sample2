@@ -174,14 +174,14 @@ namespace Phoenix.Rest.Middleware
 
             var urlSegments = request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries);
 
-            routeData.Service = urlSegments.ElementAtOrDefault(1);
+            routeData.Service = urlSegments.ElementAtOrDefault(2);
             var isRoutDataFoundInUrl = routeData.Service != null;
             if (isRoutDataFoundInUrl)
             {
-                routeData.Action = urlSegments.ElementAtOrDefault(3);
+                routeData.Action = urlSegments.ElementAtOrDefault(4);
             }
 
-            routeData.PathData = string.Join('/', urlSegments.Skip(3));
+            routeData.PathData = string.Join('/', urlSegments.Skip(4));
 
             return isRoutDataFoundInUrl;
         }
