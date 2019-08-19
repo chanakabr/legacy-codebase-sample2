@@ -7,11 +7,9 @@ using System.Text;
 using TVPApi;
 using TVPApiModule.Interfaces;
 using TVPPro.SiteManager.Helper;
-using System.Web.Services;
 using System.Configuration;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
-using System.Web.UI;
 using System.Web;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
@@ -23,6 +21,8 @@ using Core.Social.Responses;
 using ApiObjects;
 using InitializationObject = TVPApi.InitializationObject;
 using ApiObjects.ConditionalAccess;
+using TVinciShared;
+using Menu = TVPApi.Menu;
 
 namespace TVPApiServices
 {
@@ -312,7 +312,7 @@ namespace TVPApiServices
                 try
                 {
                     //XXX: Patch for ximon
-                    if (HttpContext.Current.Request.Url.ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)
+                    if (HttpContext.Current.Request.GetUrl().ToString().ToLower().Contains("v1_6/") && groupID == 109 && initObj.Platform == PlatformType.iPad)
                         pageIndex = pageIndex / pageSize;
 
                     lstMedia = PageGalleryHelper.GetGalleryItemContent(initObj, PageID, GalleryID, ItemID, picSize, groupID, pageSize, pageIndex, orderBy);
@@ -665,13 +665,13 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-                if (groupID > 0)
+            if (groupID > 0)
             {
                 try
                 {
                     //XXX: Do the UDID empty stuff
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    responseData = impl.SignIn(userName, password, System.Web.HttpContext.Current.Request.Headers);
+                    responseData = impl.SignIn(userName, password, System.Web.HttpContext.Current.Request.GetHeaders());
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID,initObj.UDID, initObj.Platform);
@@ -702,7 +702,8 @@ namespace TVPApiServices
                 try
                 {
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithToken(token, HttpContext.Current.Session.SessionID, SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
+                    responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).
+                        SignInWithToken(token, HttpContext.Current.Session.GetSessionID(), SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID, initObj.Platform);
@@ -812,7 +813,8 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).IsUserLoggedIn(initObj.SiteGuid, System.Web.HttpContext.Current.Session.SessionID, initObj.UDID, SiteHelper.GetClientIP(), isSingleLogin);
+                    bRet = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).
+                        IsUserLoggedIn(initObj.SiteGuid, System.Web.HttpContext.Current.Session.GetSessionID(), initObj.UDID, SiteHelper.GetClientIP(), isSingleLogin);
                 }
                 catch (Exception ex)
                 {
@@ -1301,62 +1303,7 @@ namespace TVPApiServices
 
             return response;
         }
-
-
-        [PrivateMethod]
-        public TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
-        {
-            TVPApiModule.yes.tvinci.ITProxy.RecordAllResult response = null;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RecordAll", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                try
-                {
-                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    response = impl.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId, serialNumber);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items["Error"] = ex;
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items["Error"] = "Unknown group";
-            }
-
-            return response;
-        }
-
-        [PrivateMethod]
-        public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId)
-        {
-            TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAccountSTBs", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                try
-                {
-                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    response = impl.GetMemirDetails(accountNumber, serviceAddressId);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items["Error"] = ex;
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items["Error"] = "Unknown group";
-            }
-
-            return response;
-        }
-
+        
         #endregion
 
         //public string GenerateDeviceToken(InitializationObject initObj, string appId)

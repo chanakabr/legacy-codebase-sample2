@@ -30,7 +30,7 @@ public partial class DocGenerator : BaseGateway
 "Equals",
 "GetHashCode",
 "GetType" };
-        System.Web.Services.WebService[] ws = { m_MediaService,
+        object[] ws = { m_MediaService,
                                                         m_SiteService,
                                                         m_PricingService,
                                                         m_DomainService,

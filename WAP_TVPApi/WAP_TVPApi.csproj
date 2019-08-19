@@ -199,25 +199,9 @@
     <Compile Include="Old_App_Code\BaseClasses\JsonSerializer.cs" />
     <Compile Include="Old_App_Code\GWFrontController.cs" />
     <Compile Include="Old_App_Code\MappingManager.cs" />
-    <Compile Include="Old_App_Code\MessageBox.cs" />
     <Compile Include="Old_App_Code\RSS\RSSWriter.cs" />
     <Compile Include="Old_App_Code\WS_Code\CRMService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IBillingService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IConditionalAccessService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\ICRMService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IDomainService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IMediaService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\INotificationService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IPlayerService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IPricingService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\ISiteService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\ISocialService.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Interfaces\IUsersService.cs" />
     <Compile Include="Old_App_Code\WS_Code\RequestDescription.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Requests\CRM.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Requests\OrderObj.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Responses\CRM.cs" />
-    <Compile Include="Old_App_Code\WS_Code\Responses\SocialFeed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -253,50 +237,6 @@
     </Compile>
     <Compile Include="whoami.aspx.designer.cs">
       <DependentUpon>whoami.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="ws\Billing\BillingService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Cas\ConditionalAccessService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Domains\DomainService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Ext\ExtService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Media\MediaService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Notification\NotificationService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Player\PlayerService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Pricing\PricingService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Site\SiteService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Social\SocialService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ws\Users\UsersService.cs">
-      <DependentUpon>Service.asmx</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="XmlModels\doPurchase.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -916,17 +856,6 @@
     <Content Include="obj\Debug\WAP_TVPApi.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Debug\WAP_TVPApi.dll" />
     <Content Include="obj\Debug\WAP_TVPApi.pdb" />
-    <Content Include="ws\Billing\Service.asmx" />
-    <Content Include="ws\Cas\Service.asmx" />
-    <Content Include="ws\Domains\Service.asmx" />
-    <Content Include="ws\Ext\Service.asmx" />
-    <Content Include="ws\Media\Service.asmx" />
-    <Content Include="ws\Notification\Service.asmx" />
-    <Content Include="ws\Player\Service.asmx" />
-    <Content Include="ws\Pricing\Service.asmx" />
-    <Content Include="ws\Site\Service.asmx" />
-    <Content Include="ws\Social\Service.asmx" />
-    <Content Include="ws\Users\Service.asmx" />
     <Content Include="XmlModels\SearchTitles.xsc">
       <DependentUpon>SearchTitles.xsd</DependentUpon>
     </Content>

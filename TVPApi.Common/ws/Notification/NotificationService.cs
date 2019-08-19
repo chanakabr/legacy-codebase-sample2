@@ -7,7 +7,6 @@ using System.Text;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.Helper;
-using System.Web.Services;
 using System.Configuration;
 using TVPApiModule.Services;
 using TVPApiModule.Objects.Authorization;
@@ -18,10 +17,7 @@ using Notification = TVPApiModule.Objects.Notification;
 
 namespace TVPApiServices
 {
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    [System.Web.Script.Services.ScriptService]
     public class NotificationService : INotificationService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

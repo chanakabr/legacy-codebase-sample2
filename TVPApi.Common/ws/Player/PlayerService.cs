@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Services;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.DataLoaders;
@@ -20,14 +19,9 @@ using InitializationObject = TVPApi.InitializationObject;
 
 namespace TVPApiServices
 {
-    /// <summary>
-    /// Summary description for PlayerService
-    /// </summary>
-    [WebService(Namespace = "http://tempuri.org/")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
-    public class PlayerService : WebService, IPlayerService
+    public class PlayerService : IPlayerService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
@@ -51,7 +45,6 @@ namespace TVPApiServices
         /// <param name="meidaID"></param>
         /// <param name="playerParams"></param>
         /// <returns></returns>
-        [System.Web.Script.Services.ScriptMethod()]
         [System.Xml.Serialization.XmlInclude(typeof(XmlDocument))]
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         [System.Xml.Serialization.XmlInclude(typeof(Media.File))]
@@ -159,7 +152,6 @@ namespace TVPApiServices
         /// <summary>
         /// Get media Last Position
         /// </summary>    
-        [System.Web.Script.Services.ScriptMethod()]
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         public string MediaLastPosition(InitializationObject initObj, int MediaId)
         {
@@ -256,16 +248,14 @@ namespace TVPApiServices
 
         /// <summary>
         /// Log
-        /// </summary>    
-        [System.Web.Script.Services.ScriptMethod()]
+        /// </summary>
         [System.Xml.Serialization.XmlInclude(typeof(ErrorMessageWrapper))]
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         public void Log(InitializationObject initObj, ErrorMessageWrapper message)
         {
             logger.DebugFormat(String.Format("Silverlight Player Log: {0}", message.Message));
         }
-
-        [System.Web.Script.Services.ScriptMethod()]
+        
         [System.Xml.Serialization.XmlInclude(typeof(InitializationObject))]
         public bool CheckParentalPIN(InitializationObject initObj, int ruleID, string parentalPIN)
         {

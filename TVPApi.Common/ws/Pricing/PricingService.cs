@@ -6,7 +6,6 @@ using System.ServiceModel;
 using System.Text;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
-using System.Web.Services;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects;
@@ -18,14 +17,7 @@ using ApiObjects.Pricing;
 
 namespace TVPApiServices
 {
-    /// <summary>
-    /// Summary description for Service
-    /// </summary>
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    [System.Web.Script.Services.ScriptService]
     public class PricingService : IPricingService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

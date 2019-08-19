@@ -6,13 +6,11 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
-using System.Web.Script.Serialization;
 using Tvinci.Data.TVMDataLoader.Protocols.ChannelsMedia;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPPro.SiteManager.DataLoaders;
 using TVPPro.SiteManager.Helper;
-using System.Web.Services;
 using System.Configuration;
 using TVPApiModule.Services;
 using System.Web;
@@ -26,13 +24,12 @@ using Core.Social;
 using Core.Social.Responses;
 using ApiObjects.Social;
 using eSocialPlatform = ApiObjects.Social.eSocialPlatform;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 namespace TVPApiServices
 {
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    [System.Web.Script.Services.ScriptService]
     public class SocialService : ISocialService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -257,7 +254,10 @@ namespace TVPApiServices
                     ApiSocialService service = new ApiSocialService(groupId, initObj.Platform);
                     var oExtra = new List<KeyValuePair>() { new KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, 
                         new KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" }, new KeyValuePair() { key = "email", value = email } };
-                    return service.FBUserRegister(sToken, "0", oExtra, Context.Request.UserHostAddress);
+                    return service.FBUserRegister(sToken, "0", oExtra,
+                        SiteHelper.GetClientIP()
+                        //Context.Request.UserHostAddress
+                        );
 
                 }
                 catch (Exception ex)
@@ -515,7 +515,7 @@ namespace TVPApiServices
                             string socialFeedStr = streamReader.ReadToEnd();
                             try
                             {
-                                Dictionary<string, List<SocialFeedItem>> respFeed = new JavaScriptSerializer().Deserialize<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr)
+                                Dictionary<string, List<SocialFeedItem>> respFeed = JsonConvert.DeserializeObject<SerializableDictionary<string, List<SocialFeedItem>>>(socialFeedStr)
                                     .ToDictionary(item => item.Key, item => item.Value);
 
                                 foreach (KeyValuePair<string, List<SocialFeedItem>> item in respFeed)

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Web;
-using System.Web.Services;
-using System.Web.Services.Protocols;
 using System.Collections.Generic;
 using TVPApi.External;
 using System.Configuration;
@@ -14,12 +12,8 @@ using Core.Users;
 
 namespace TVPApiServices
 {
-    [WebService(Namespace = "http://tvpapi.tvinci.com/")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    [System.Web.Script.Services.ScriptService]
-    public class ExtService : System.Web.Services.WebService
+    public class ExtService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

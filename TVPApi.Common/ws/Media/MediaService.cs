@@ -7,7 +7,6 @@ using System.Text;
 using TVPApi.ODBCWrapper;
 using TVPApi;
 using TVPPro.SiteManager.Helper;
-using System.Web.Services;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPPro.SiteManager.Context;
@@ -51,17 +50,12 @@ using MediaMarkObject = ApiObjects.MediaMarkObject;
 using Media = TVPApi.Media;
 using EPGUnit = ApiObjects.EPGUnit;
 using EPGMultiChannelProgrammeObject = ApiLogic.Catalog.EPGMultiChannelProgrammeObject;
+using TVinciShared;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace TVPApiServices
 {
-    /// <summary>
-    /// Summary description for Service
-    /// </summary>
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    [System.Web.Script.Services.ScriptService]
     public class MediaService : IMediaService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -857,7 +851,8 @@ namespace TVPApiServices
             return lstMedia;
         }
 
-        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string orderMeta)
+        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, 
+            OrderDir orderDir, string orderMeta)
         {
             List<Media> lstMedia = null;
 
@@ -4094,7 +4089,7 @@ namespace TVPApiServices
 
                     #endregion
 
-                    string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+                    string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
 
                     response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utc_offset, string.Empty, string.Empty, free_param)
@@ -4253,7 +4248,11 @@ namespace TVPApiServices
                 {
                     try
                     {
-                        HttpContext.Current = ctx;
+                        HttpContext.Current.Items.Clear();
+                        foreach (var item in ctx.Items.Keys)
+                        {
+                            HttpContext.Current.Items.Add(item, ctx.Items[item]);
+                        }
 
                         pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
                             string.Empty, initObj.UDID, assetFiles);
@@ -4268,7 +4267,11 @@ namespace TVPApiServices
                 {
                     try
                     {
-                        HttpContext.Current = ctx;
+                        HttpContext.Current.Items.Clear();
+                        foreach (var item in ctx.Items.Keys)
+                        {
+                            HttpContext.Current.Items.Add(item, ctx.Items[item]);
+                        }
 
                         List<AssetBookmarkRequest> assetsToSend = new List<AssetBookmarkRequest>();
                         foreach (PersonalAssetRequest asset in assets)

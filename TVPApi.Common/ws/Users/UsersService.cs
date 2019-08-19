@@ -5,7 +5,6 @@ using System;
 using System.Configuration;
 using System.Reflection;
 using System.Web;
-using System.Web.Services;
 using TVPApi;
 using TVPApiModule.Interfaces;
 using TVPApiModule.Manager;
@@ -16,13 +15,11 @@ using TVPPro.SiteManager.Helper;
 using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
 using Country = Core.Users.Country;
 using InitializationObject = TVPApi.InitializationObject;
+using TVinciShared;
 
 namespace TVPApiServices
 {
-    [WebService(Namespace = "http://platform-us.tvinci.com/tvpapi/ws")]
-    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
-    [System.Web.Script.Services.ScriptService]
     public class UsersService : IUsersService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -642,7 +639,8 @@ namespace TVPApiServices
                 {
                     if (!string.IsNullOrEmpty(PIN))
                     {
-                        response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, secret, initObj.UDID, System.Web.HttpContext.Current.Request.Headers);
+                        response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).LoginWithPIN(PIN, secret, initObj.UDID, 
+                            System.Web.HttpContext.Current.Request.GetHeaders());
                     }
                     else
                     {
@@ -651,7 +649,7 @@ namespace TVPApiServices
                                        .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
 
                         var logInResponse = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).
-                            LogIn(string.Empty, string.Empty, string.Empty, initObj.UDID, isSingleLogin, System.Web.HttpContext.Current.Request.Headers);
+                            LogIn(string.Empty, string.Empty, string.Empty, initObj.UDID, isSingleLogin, System.Web.HttpContext.Current.Request.GetHeaders());
 
                         if (logInResponse != null)
                         {

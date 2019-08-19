@@ -11,14 +11,6 @@
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Interfaces\**" />
-    <Compile Remove="ws\**" />
-    <EmbeddedResource Remove="Interfaces\**" />
-    <EmbeddedResource Remove="ws\**" />
-    <None Remove="Interfaces\**" />
-    <None Remove="ws\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System.configuration" />
     <Reference Include="System.Web" />
   </ItemGroup>
