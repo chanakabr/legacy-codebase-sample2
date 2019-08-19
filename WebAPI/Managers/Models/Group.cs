@@ -131,6 +131,5 @@ namespace WebAPI.Managers.Models
         
         [JsonProperty("languages")]
         public List<Language> Languages { get; set; }
-
     }
 }

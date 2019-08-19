@@ -3861,10 +3861,14 @@ namespace WebAPI.Reflection
                             return "facebookImage";
                         case "FacebookToken":
                             return "facebookToken";
+                        case "FailedLoginCount":
+                            return "failedLoginCount";
                         case "HouseholdID":
                             return "householdId";
                         case "IsHouseholdMaster":
                             return "isHouseholdMaster";
+                        case "LastLoginDate":
+                            return "lastLoginDate";
                         case "Phone":
                             return "phone";
                         case "RoleIds":

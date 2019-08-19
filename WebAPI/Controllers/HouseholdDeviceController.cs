@@ -490,8 +490,12 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid), User = response };
+            
+            return new KalturaLoginResponse()
+            {
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid),
+                User = response
+            };
         }
     }
 }

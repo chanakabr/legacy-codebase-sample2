@@ -34,6 +34,32 @@
       "parameter": "roleIds",
       "action": "UPDATE",
       "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_LastLoginDate_Read",
+      "object": "KalturaOTTUser",
+      "parameter": "lastLoginDate",
+      "action": "READ",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "Manager",
+        "Administrator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaOTTUser_FailedLoginCount_Read",
+      "object": "KalturaOTTUser",
+      "parameter": "failedLoginCount",
+      "action": "READ",
+      "type": "Parameter"
     }
   ],
   "type": "Parameter"

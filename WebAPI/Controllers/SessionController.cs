@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
                 udid = payload.UDID,
-                createDate = payload.CreateDate,
+                createDate = payload.CreateDate
             };
         }
 
@@ -77,6 +77,7 @@ namespace WebAPI.Controllers
                 ks = KS.GetFromRequest();
             }
 
+            var payload = KSUtils.ExtractKSPayload(ks);
             return new KalturaSessionInfo()
             {
                 ks = ks.ToString(),
@@ -85,8 +86,8 @@ namespace WebAPI.Controllers
                 privileges = KS.JoinPrivileges(ks.Privileges, ",", ":"),
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
-                udid = KSUtils.ExtractKSPayload(ks).UDID,
-                createDate = KSUtils.ExtractKSPayload(ks).CreateDate,
+                udid = payload.UDID,
+                createDate = payload.CreateDate
             };
         }
 
@@ -123,10 +124,11 @@ namespace WebAPI.Controllers
             try
             {
                 // switch notification users
-                string udid = KSUtils.ExtractKSPayload().UDID;
+                var payload = KSUtils.ExtractKSPayload();
+                string udid = payload.UDID;
                 ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, udid);
 
-                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, udid, ks.Privileges);
+                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, udid, ks.Privileges, payload.RegionId, group);
                 AuthorizationManager.LogOut(ks);
             }
             catch (ClientException ex)

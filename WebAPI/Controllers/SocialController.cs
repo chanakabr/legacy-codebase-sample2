@@ -167,8 +167,12 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
+            
+            return new KalturaLoginResponse()
+            {
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid),
+                User = response
+            };
         }
 
         /// <summary>
