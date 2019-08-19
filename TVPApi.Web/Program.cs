@@ -16,7 +16,9 @@ namespace TVPApi.Web
     {
         public static void Main(string[] args)
         {
-            //KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
+            string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
+            var defaultLogDir = $@"C:\log\tvpapi\{apiVersion}";
+            KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
             ConfigurationManager.ApplicationConfiguration.Initialize(shouldLoadDefaults: true, silent: true);
             CreateWebHostBuilder(args).Build().Run();
         }

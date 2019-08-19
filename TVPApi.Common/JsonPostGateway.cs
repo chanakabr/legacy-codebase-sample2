@@ -42,8 +42,10 @@ namespace TVPApi.Common
 
         #region Main Logic
 
-        public void ProcessRequest(string sJsonRequest)
+        public string ProcessRequest(string sJsonRequest)
         {
+            string result = string.Empty;
+
             if (!string.IsNullOrEmpty(sJsonRequest))
             {
                 JObject json = JObject.Parse(sJsonRequest);
@@ -119,10 +121,10 @@ namespace TVPApi.Common
                                                             m_SocialService,
                                                             m_UsersService,
                                                             m_NotificationService);
+            
+            result = queryServices.ProcessRequest(sJsonRequest);
 
-            var test = new CommonTest().Test;
-
-            queryServices.ProcessRequest(sJsonRequest);
+            return result;
         }
 
         #endregion

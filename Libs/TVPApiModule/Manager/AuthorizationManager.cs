@@ -35,7 +35,7 @@ namespace TVPApiModule.Manager
                 return _instance;
             }
         }
-
+        
         private AuthorizationManager()
         {
             try
@@ -46,7 +46,7 @@ namespace TVPApiModule.Manager
                 _lock = new ReaderWriterLockSlim();
 
                 if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
-                {
+                { 
                     logger.ErrorFormat("AuthorizationManager: Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                     throw new Exception("Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                 }

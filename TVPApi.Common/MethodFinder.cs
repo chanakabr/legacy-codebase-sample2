@@ -43,8 +43,9 @@ public partial class MethodFinder
         IsPost = HttpContext.Current.Items.ContainsKey("initObj") || HttpContext.Current.Items.ContainsKey("sRecieverUDID") || HttpContext.Current.Items.ContainsKey("sUDID");
     }
 
-    public void ProcessRequest(string sJsonFormatInput)
+    public string ProcessRequest(string sJsonFormatInput)
     {
+        string result = string.Empty;
         try
         {
             if (VerifyAllParametersCheck())
@@ -72,21 +73,15 @@ public partial class MethodFinder
                 else
                     logger.DebugFormat("No results found or null object returned");
 
-                WriteResponseBackToClient(SerializedReturnValue);
+                result = SerializedReturnValue;
             }
         }
         catch (Exception ex)
         {
             logger.Error("Error while processing request", ex);
-            ErrorHandler(String.Format("Exception Generated. Reason: {0}", ex.Message));
+            result = ErrorHandler(String.Format("Exception Generated. Reason: {0}", ex.Message));
         }
-    }
 
-    private void WriteResponseBackToClient(string responseMsg)
-    {
-        // TODO: HeaderEncoding, Charset in .net core ??
-        //HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
-        //HttpContext.Current.Response.Charset = "utf-8";
-        HttpContext.Current.Response.Write(responseMsg);
+        return result;
     }
 }

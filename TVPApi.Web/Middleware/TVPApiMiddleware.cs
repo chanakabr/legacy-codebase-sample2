@@ -12,13 +12,14 @@ namespace TVPApi.Web.Middleware
     public static class TVPApiMiddleware
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
         /// <summary>
         /// Using custom middleware for Phoenix Api convention
         /// </summary>
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
             var test = new CommonTest().Test;
+            app.UseMiddleware<TVPApiRequestExecutor>();
             //app.UseMiddleware<PhoenixExceptionHandler>();
             //AutoMapperConfig.RegisterMappings();
             //app.UseMiddleware<PhoenixSessionId>();

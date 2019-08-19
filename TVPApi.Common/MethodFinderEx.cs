@@ -727,11 +727,11 @@ public partial class MethodFinder
     /// Handles all error generated
     /// </summary>
     /// <param name="msg"></param>
-    protected void ErrorHandler(string msg)
+    protected string ErrorHandler(string msg)
     {
-        String msgFormat = "{ \"Error\": \"" + msg + "\" }";
+        return "{ \"Error\": \"" + msg + "\" }";
 
-        WriteResponseBackToClient(msgFormat);
+        //WriteResponseBackToClient(msgFormat);
     }
 
     /// <summary>

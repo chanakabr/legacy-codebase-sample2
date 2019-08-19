@@ -40,7 +40,10 @@ public partial class Gateways_JsonPostGW : BaseGateway
             string sJsonRequest = reader.ReadToEnd();
 
             var gateway = new JsonPostGateway();
-            gateway.ProcessRequest(sJsonRequest);
+            var response = gateway.ProcessRequest(sJsonRequest);
+            HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
+            HttpContext.Current.Response.Charset = "utf-8";
+            HttpContext.Current.Response.Write(response);
         }
     }
 }
