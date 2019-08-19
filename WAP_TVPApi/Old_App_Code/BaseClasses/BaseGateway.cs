@@ -7,6 +7,7 @@ using TVPApiServices;
 using System.Threading;
 using System.Web.Caching;
 using System.Runtime.CompilerServices;
+using TVPApi.Common;
 
 /// <summary>
 /// Summary description for BaseGateway
@@ -49,16 +50,6 @@ public abstract class BaseGateway : System.Web.UI.Page
         { "00043055A595",new KnownUsersAndPasswords(){UserName = "yacov.kedmi1@orange.co.il", Password = "Orange123"}},
         { "00043055A551",new KnownUsersAndPasswords(){UserName = "haim.romano1@orange.co.il", Password = "Orange123"}}
     };
-
-    protected MediaService m_MediaService = new MediaService();
-    protected SiteService m_SiteService = new SiteService();
-    protected PricingService m_PricingService = new PricingService();
-    protected DomainService m_DomainService = new DomainService();
-    protected BillingService m_BillingService = new BillingService();
-    protected ConditionalAccessService m_ConditionalAccessService = new ConditionalAccessService();
-    protected SocialService m_SocialService = new SocialService();
-    protected UsersService m_UsersService = new UsersService();
-    protected NotificationService m_NotificationService = new NotificationService();
 
     private string m_WsUsername;
     private string m_WsPassword;
@@ -224,7 +215,7 @@ public abstract class BaseGateway : System.Web.UI.Page
         //    return SiteGuid;
         //}
 
-        return m_SiteService.SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
+        return new JsonPostGateway().GetSiteService().SignIn(GetInitObj(), "adina@tvinci.com", "eliron27").SiteGuid;
     }
 
     [MethodImpl(MethodImplOptions.Synchronized)]

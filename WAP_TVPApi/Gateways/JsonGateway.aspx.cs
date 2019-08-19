@@ -12,6 +12,7 @@ using TVPApi;
 using KLogMonitor;
 using ApiObjects;
 using InitializationObject = TVPApi.InitializationObject;
+using TVPApi.Common;
 
 public partial class Gateways_JsonGateway : BaseGateway
 {
@@ -21,16 +22,18 @@ public partial class Gateways_JsonGateway : BaseGateway
     {
         string MethodName = Request.QueryString["MethodName"];
         string Str = String.Empty;
-        object webservice = m_MediaService;
+        var gateway = new JsonPostGateway();
+
+        object webservice = gateway.GetMediaService();
         MethodInfo WSMethod = webservice.GetType().GetMethod(MethodName);
         if (WSMethod == null)
         {
-            webservice = m_SiteService;
+            webservice = gateway.GetSiteService();
             WSMethod = webservice.GetType().GetMethod(MethodName);
         }
         if (WSMethod == null)
         {
-            webservice = m_DomainService;
+            webservice = gateway.GetDomainService();
             WSMethod = webservice.GetType().GetMethod(MethodName);
         }
         if (WSMethod != null)

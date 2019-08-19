@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TVPApi.Common;
 
 public partial class DocGenerator : BaseGateway
 {
@@ -30,15 +31,7 @@ public partial class DocGenerator : BaseGateway
 "Equals",
 "GetHashCode",
 "GetType" };
-        object[] ws = { m_MediaService,
-                                                        m_SiteService,
-                                                        m_PricingService,
-                                                        m_DomainService,
-                                                        m_BillingService,
-                                                        m_ConditionalAccessService,
-                                                        m_SocialService,
-                                                        m_UsersService,
-                                                        m_NotificationService };
+        object[] ws = new JsonPostGateway().GetWebServices();
         foreach (var w in ws)
         {
             Response.Write("<html><body>");
