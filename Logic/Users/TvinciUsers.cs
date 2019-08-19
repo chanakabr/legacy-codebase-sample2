@@ -856,6 +856,9 @@ namespace Core.Users
                             bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
                             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
                             DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE");
+                            DateTime lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATA");
+                            int failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAILED_LOGIN_COUNT");
+
                             Int32 userId = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "ID");
 
                             int? nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "user_type_id");
@@ -868,7 +871,7 @@ namespace Core.Users
                             UserBasicData userBasicData = new UserBasicData();
                             userBasicData.Initialize(sUserName, sPass, sSalt, sFirstName, sLastName, sEmail, sAddress, sCity, nStateID, nCountryID, sZip, sPhone,
                                                         sFacebookID, bFacebookImagePermitted, sFacebookImage, sAffiliate, sFacebookToken, sCoGuid, sExternalToken,
-                                                        userType, userId, m_nGroupID, createDate, updateDate);
+                                                        userType, userId, m_nGroupID, createDate, updateDate, lastLoginDate, failedLoginCount);
 
                             resp.Add(userBasicData);
                         }
@@ -1198,7 +1201,7 @@ namespace Core.Users
                 return ret;
             }
 
-            u.Save(m_nGroupID, false);
+            u.Save(m_nGroupID, false, true);
             ret.m_user = u;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;

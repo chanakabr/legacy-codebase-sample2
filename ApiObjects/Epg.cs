@@ -126,6 +126,9 @@ namespace ApiObjects
         [JsonIgnore()]
         public long ChannelCatchUpBuffer { get; set; }
 
+        [JsonProperty("is_auto_fill")]
+        public bool IsAutoFill { get; set; }
+
         #endregion
 
         #region Ctor

@@ -2083,13 +2083,13 @@ namespace Core.Catalog
                 }
             }
         }
-
-        private static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group)
+        
+        public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group = null)
         {
             int regionId = -1;
-
             Domain domain = null;
-            var domainRes = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
+
             if (domainRes != null)
             {
                 domain = domainRes.Domain;
@@ -2098,11 +2098,14 @@ namespace Core.Catalog
             // If the domain is not associated to a domain - get default region
             if (domain.m_nRegion == 0)
             {
-                int defaultRegion = group.defaultRegion;
-
-                if (defaultRegion != 0)
+                if (group == null)
                 {
-                    regionId = defaultRegion;
+                    group = GroupsCache.Instance().GetGroup(groupId);
+                }
+                
+                if (group != null && group.defaultRegion != 0)
+                {
+                    regionId = group.defaultRegion;
                 }
             }
             else
@@ -8280,29 +8283,45 @@ namespace Core.Catalog
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
+
+            if (!doesGroupUsesTemplates && request.isAllowedToViewInactiveAssets)
+            {
+                definitions.shouldIgnoreDeviceRuleID = true;
+                request.isAllowedToViewInactiveAssets = false;
+            }
+
             definitions.shouldDateSearchesApplyToAllTypes = request.isAllowedToViewInactiveAssets;
             definitions.shouldAddIsActiveTerm = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
+
             definitions.isAllowedToViewInactiveAssets = request.isAllowedToViewInactiveAssets;
+            if (definitions.isAllowedToViewInactiveAssets)
+            {
+                definitions.shouldAddIsActiveTerm = false;
+                definitions.shouldIgnoreDeviceRuleID = true;
+            }
+
+            if (request.m_oFilter != null)
+            {
+                definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
+                definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
+            }
+
+            // in case operator is searching we override the existing value
+            definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
+            definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets;
 
             #endregion
 
             #region Device Rules
 
-            int[] deviceRules = null;
-
-            if (request.m_oFilter != null)
+            if (request.m_bIgnoreDeviceRuleID)
             {
-                deviceRules = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
+                definitions.shouldIgnoreDeviceRuleID = true;
             }
 
-            definitions.deviceRuleId = deviceRules;
-
-            definitions.shouldIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID;
-
-            if (definitions.isAllowedToViewInactiveAssets)
+            if (!definitions.shouldIgnoreDeviceRuleID && request.m_oFilter != null)
             {
-                definitions.shouldAddIsActiveTerm = false;
-                definitions.shouldIgnoreDeviceRuleID = true;
+                definitions.deviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
             }
 
             #endregion
@@ -8336,21 +8355,6 @@ namespace Core.Catalog
             }
 
             definitions.order = searcherOrderObj;
-
-            #endregion
-
-            #region Request Filter Object
-
-            if (request.m_oFilter != null)
-            {
-                definitions.shouldUseStartDateForMedia = request.m_oFilter.m_bUseStartDate;
-                definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
-                definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
-            }
-
-            // in case operator is searching we override the existing value
-            definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
-            definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets;
 
             #endregion
 
