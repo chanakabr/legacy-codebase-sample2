@@ -21,7 +21,7 @@ public partial class Gateways_JsonGateway : BaseGateway
     {
         string MethodName = Request.QueryString["MethodName"];
         string Str = String.Empty;
-        System.Web.Services.WebService webservice = m_MediaService;
+        object webservice = m_MediaService;
         MethodInfo WSMethod = webservice.GetType().GetMethod(MethodName);
         if (WSMethod == null)
         {

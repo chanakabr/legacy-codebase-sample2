@@ -197,8 +197,6 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Old_App_Code\BaseClasses\JsonSerializer.cs" />
-    <Compile Include="Old_App_Code\BaseClasses\MethodFinder.cs" />
-    <Compile Include="Old_App_Code\BaseClasses\MethodFinderEx.cs" />
     <Compile Include="Old_App_Code\GWFrontController.cs" />
     <Compile Include="Old_App_Code\MappingManager.cs" />
     <Compile Include="Old_App_Code\MessageBox.cs" />
@@ -1167,6 +1165,10 @@
     <ProjectReference Include="..\Proxy\Proxy.csproj">
       <Project>{23fa1eba-d2d0-4f86-96a4-46c5be96c780}</Project>
       <Name>Proxy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVPApi.Common\TVPApi.Common.csproj">
+      <Project>{F2A5E10B-E848-4F0B-A730-BFCD76FE5043}</Project>
+      <Name>TVPApi.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

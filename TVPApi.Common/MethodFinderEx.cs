@@ -9,7 +9,6 @@ using System.Text;
 using TVPApi;
 using System.IO;
 using System.Runtime.Serialization.Json;
-using System.Web.Script.Serialization;
 using TVPPro.SiteManager;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
@@ -18,6 +17,9 @@ using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Authorization;
 using System.Collections;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using TVinciShared;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -79,23 +81,23 @@ public partial class MethodFinder
 
                 if (TargetType.IsArray) //Array
                 {
-                    JavaScriptSerializer ser = new JavaScriptSerializer();
                     try
                     {
                         if (TargetType.ToString().Equals("System.String[]"))
                         {
-                            Product = Array.ConvertAll<object, string>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToString);
+                            Product = Array.ConvertAll<object, string>((object[])JsonConvert.DeserializeObject(DeserializationTarget), Convert.ToString);
                         }
                         else if (TargetType.ToString().Equals("System.Int64[]"))
                         {
-                            Product = Array.ConvertAll<object, long>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToInt64);
+                            Product = Array.ConvertAll<object, long>((object[])JsonConvert.DeserializeObject(DeserializationTarget), Convert.ToInt64);
                         }
                         else if (TargetType.ToString().Equals("System.Int32[]"))
                         {
-                            Product = Array.ConvertAll<object, int>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToInt32);
+                            Product = Array.ConvertAll<object, int>((object[])JsonConvert.DeserializeObject(DeserializationTarget), Convert.ToInt32);
                         }
                         else
                         {
+                            JsonSerializer ser = new JsonSerializer();
                             Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
                                 MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
                         }
@@ -132,7 +134,7 @@ public partial class MethodFinder
                         //}                        
                         ////System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(TargetType);                                                
 
-                        JavaScriptSerializer serializer = new JavaScriptSerializer()
+                        var serializer = new JsonSerializer()
                         {
                              
                         };
@@ -141,11 +143,11 @@ public partial class MethodFinder
                         if (TargetType.Name.ToLower() == "userdynamicdata")
                         {
                             string replacedDeserializationTarget = DeserializationTarget.Replace("Field\":", "\":");
-                            Product = serializer.Deserialize(replacedDeserializationTarget, TargetType);
+                            Product = JsonConvert.DeserializeObject(replacedDeserializationTarget, TargetType);
                         }
                         else
                         {
-                            var dict = serializer.Deserialize<Dictionary<string, object>>(DeserializationTarget);
+                            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(DeserializationTarget);
                             Product = CreateObjectInstance(TargetType);
 
                             Parse(dict, Product);
@@ -620,7 +622,7 @@ public partial class MethodFinder
         public override object InitilizeParameter(Type parameterType, String methodName)
         {
             bool isOptional = (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Nullable<>));
-            if (HttpContext.Current.Items.Contains(methodName))
+            if (HttpContext.Current.Items.ContainsKey(methodName))
             {
                 string paramValues = HttpContext.Current.Items[methodName].ToString();//.Replace("'","\"");
 
@@ -744,7 +746,7 @@ public partial class MethodFinder
     {
         do
         {
-            string methodName = HttpContext.Current.Request.QueryString["m"];
+            string methodName = HttpContext.Current.Request.GetQueryString()["m"];
 
             if (String.IsNullOrEmpty(methodName))
             {
@@ -752,7 +754,7 @@ public partial class MethodFinder
                 break;
             }
 
-            foreach (System.Web.Services.WebService service in BackWebservice)
+            foreach (var service in BackWebservice)
             {
                 m_MetodInfo = service.GetType().GetMethod(methodName);
                 if (m_MetodInfo != null)

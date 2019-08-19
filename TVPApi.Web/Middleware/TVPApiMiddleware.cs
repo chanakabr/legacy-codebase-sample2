@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using TVPApi.Common;
 
 namespace TVPApi.Web.Middleware
 {
@@ -17,6 +18,7 @@ namespace TVPApi.Web.Middleware
         /// </summary>
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
+            var test = new CommonTest().Test;
             //app.UseMiddleware<PhoenixExceptionHandler>();
             //AutoMapperConfig.RegisterMappings();
             //app.UseMiddleware<PhoenixSessionId>();

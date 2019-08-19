@@ -15,6 +15,7 @@ using System.Reflection;
 using TVPPro.SiteManager.Helper;
 using System.Security.Cryptography;
 using System.Configuration;
+using TVPApi.Common;
 
 public partial class Gateways_JsonPostGW : BaseGateway
 {
@@ -117,6 +118,7 @@ public partial class Gateways_JsonPostGW : BaseGateway
                                                             m_UsersService,
                                                             m_NotificationService);
 
+            var test = new CommonTest().Test;
 
             queryServices.ProcessRequest(sJsonRequest);
         }

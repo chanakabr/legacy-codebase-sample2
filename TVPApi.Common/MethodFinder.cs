@@ -7,10 +7,10 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Xml;
-using System.Web.Services.Protocols;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 using KLogMonitor;
+using TVinciShared;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -22,8 +22,8 @@ public partial class MethodFinder
     /// <summary>
     /// Operator service - The service the request currently uses
     /// </summary>
-    private System.Web.Services.WebService Webservice { get; set; }
-    private System.Web.Services.WebService[] BackWebservice { get; set; }
+    private object Webservice { get; set; }
+    private object[] BackWebservice { get; set; }
     private MethodInfo m_MetodInfo { get; set; }
     private ParameterInfo[] MethodParameters { get; set; }
 
@@ -36,11 +36,11 @@ public partial class MethodFinder
     /// Gets a set of web services to retrieve functions from
     /// </summary>
     /// <param name="fromService"></param>
-    public MethodFinder(params System.Web.Services.WebService[] fromService)
+    public MethodFinder(params object[] fromService)
     {
         BackWebservice = fromService;
         Webservice = null;
-        IsPost = HttpContext.Current.Items.Contains("initObj") || HttpContext.Current.Items.Contains("sRecieverUDID") || HttpContext.Current.Items.Contains("sUDID");
+        IsPost = HttpContext.Current.Items.ContainsKey("initObj") || HttpContext.Current.Items.ContainsKey("sRecieverUDID") || HttpContext.Current.Items.ContainsKey("sUDID");
     }
 
     public void ProcessRequest(string sJsonFormatInput)
@@ -84,8 +84,9 @@ public partial class MethodFinder
 
     private void WriteResponseBackToClient(string responseMsg)
     {
-        HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
-        HttpContext.Current.Response.Charset = "utf-8";
+        // TODO: HeaderEncoding, Charset in .net core ??
+        //HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
+        //HttpContext.Current.Response.Charset = "utf-8";
         HttpContext.Current.Response.Write(responseMsg);
     }
 }
