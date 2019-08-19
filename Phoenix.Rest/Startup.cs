@@ -33,7 +33,12 @@ namespace Phoenix.Rest
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.Map("/api_v3", apiApp =>
+            // support multiple prefix slashes
+            app.MapWhen(context =>
+            {
+                var arr = context.Request.Path.ToString().Split('/', StringSplitOptions.RemoveEmptyEntries);
+                return arr != null && arr.Length > 0 && arr[0].Equals("api_v3", StringComparison.OrdinalIgnoreCase);
+            }, apiApp =>
             {
                 apiApp.UsePhoenix();
             });
