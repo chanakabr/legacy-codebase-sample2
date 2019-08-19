@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<discovery xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/disco/">
-  <contractRef ref="http://platform-us.tvinci.com/tvapi.asmx?wsdl" docRef="http://platform-us.tvinci.com/tvapi.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
-  <soap address="http://platform-us.tvinci.com/tvapi.asmx" xmlns:q1="http://api.tvinci.com/" binding="q1:tvapiSoap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
-  <soap address="http://platform-us.tvinci.com/tvapi.asmx" xmlns:q2="http://api.tvinci.com/" binding="q2:tvapiSoap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
-</discovery>

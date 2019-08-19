@@ -13,6 +13,7 @@ using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using Domain = Core.Users.Domain;
+using TVinciShared;
 
 namespace TVPApiModule.Manager
 {
@@ -39,7 +40,7 @@ namespace TVPApiModule.Manager
         {
             try
             {
-                string groupConfigsTtlSeconds = ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
+                string groupConfigsTtlSeconds = System.Configuration.ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
 
                 cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
                 _lock = new ReaderWriterLockSlim();
@@ -67,7 +68,7 @@ namespace TVPApiModule.Manager
             {
                 try
                 {
-                    var group = HttpContext.Current.Cache.Get(groupKey);
+                    var group = CachingManager.CachingManager.GetCachedData(groupKey);
                     if (group != null && group is GroupConfiguration)
                     {
                         groupConfig = group as GroupConfiguration;
@@ -96,7 +97,7 @@ namespace TVPApiModule.Manager
                         groupConfig.AccessExpirationForPinLoginSeconds = groupConfig.AccessExpirationForPinLoginSeconds != 0 ? groupConfig.AccessExpirationForPinLoginSeconds : groupConfig.AccessTokenExpirationSeconds;
                         try
                         {
-                            HttpContext.Current.Cache.Insert(groupKey, groupConfig, null, _groupConfigsTtlSeconds == 0 ? DateTime.MaxValue : DateTime.UtcNow.AddSeconds(_groupConfigsTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                            CachingManager.CachingManager.SetCachedData(groupKey, groupConfig, (int)_groupConfigsTtlSeconds, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
                         }
                         catch (Exception ex)
                         {
@@ -222,7 +223,7 @@ namespace TVPApiModule.Manager
 
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid, PlatformType platform)
         {
-            if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null &&
+            if (HttpContext.Current.Items.ContainsKey("tokenization") && signInResponse.UserData != null &&
                 (signInResponse.LoginStatus == ResponseStatus.OK || signInResponse.LoginStatus == ResponseStatus.UserNotActivated || signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
                 signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
                 signInResponse.LoginStatus == ResponseStatus.UserSuspended))
@@ -638,7 +639,7 @@ namespace TVPApiModule.Manager
 
         public static bool IsTokenizationEnabled()
         {
-            return HttpContext.Current.Items.Contains("tokenization");
+            return HttpContext.Current.Items.ContainsKey("tokenization");
         }
 
         public static bool IsSwitchingUsersAllowed(int groupId)

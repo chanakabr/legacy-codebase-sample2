@@ -199,7 +199,7 @@ namespace TVPApiModule.CatalogLoaders
 
                     // Store in Cache the medias from Catalog
                     int duration;
-                    int.TryParse(ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                    int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
 
                     List<BaseObject> baseObjects = null;
 

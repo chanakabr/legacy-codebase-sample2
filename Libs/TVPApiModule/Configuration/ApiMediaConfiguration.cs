@@ -18,8 +18,8 @@ namespace TVPApi.Configuration.Media
 
         public ApiMediaConfiguration()
         {
-            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
-            m_syncFile = ConfigurationManager.AppSettings["TVPPro.Configuration.Media"];
+            base.SyncFromFile(System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
+            m_syncFile = System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Media"];
         }
 
         public ApiMediaConfiguration(string syncFile)

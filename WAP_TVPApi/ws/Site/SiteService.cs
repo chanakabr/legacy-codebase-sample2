@@ -11,7 +11,6 @@ using System.Web.Services;
 using System.Configuration;
 using TVPApiModule.Objects;
 using TVPApiModule.Helper;
-using System.Web.UI;
 using System.Web;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
@@ -1353,64 +1352,7 @@ namespace TVPApiServices
 
             return response;
         }
-
-
-        [WebMethod(EnableSession = true, Description = "Record All")]
-        [PrivateMethod]
-        public TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(InitializationObject initObj, string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
-        {
-            TVPApiModule.yes.tvinci.ITProxy.RecordAllResult response = null;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "RecordAll", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                try
-                {
-                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    response = impl.RecordAll(accountNumber, channelCode, recordDate, recordTime, versionId, serialNumber);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items["Error"] = ex;
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items["Error"] = "Unknown group";
-            }
-
-            return response;
-        }
-
-        [WebMethod(EnableSession = true, Description = "Get Account STBs")]
-        [PrivateMethod]
-        public TVPApiModule.yes.tvinci.ITProxy.STBData[] GetAccountSTBs(InitializationObject initObj, string accountNumber, string serviceAddressId)
-        {
-            TVPApiModule.yes.tvinci.ITProxy.STBData[] response = null;
-
-            int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetAccountSTBs", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-
-            if (groupID > 0)
-            {
-                try
-                {
-                    IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    response = impl.GetMemirDetails(accountNumber, serviceAddressId);
-                }
-                catch (Exception ex)
-                {
-                    HttpContext.Current.Items["Error"] = ex;
-                }
-            }
-            else
-            {
-                HttpContext.Current.Items["Error"] = "Unknown group";
-            }
-
-            return response;
-        }
-
+        
         #endregion
 
         //[WebMethod(EnableSession = true, Description = "Generates the temporary device token")]

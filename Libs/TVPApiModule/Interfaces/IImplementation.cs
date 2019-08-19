@@ -4,7 +4,6 @@ using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Services;
-using TVPApiModule.yes.tvinci.ITProxy;
 using TVPPro.Configuration.OrcaRecommendations;
 using UserResponse = TVPApiModule.Objects.UserResponse;
 
@@ -29,11 +28,7 @@ namespace TVPApiModule.Interfaces
         TVPApiModule.Helper.OrcaResponse GetRecommendedMediasByGallery(InitializationObject initObj, int groupID, int mediaID, string picSize, int maxParentalLevel, eGalleryType galleryType, string coGuid);
 
         string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP);
-
-        RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber);
-
-        TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId);
-
+        
         UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value);
     }
 }

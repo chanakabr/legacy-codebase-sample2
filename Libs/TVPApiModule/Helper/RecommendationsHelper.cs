@@ -15,7 +15,6 @@ using TVPApiModule.CatalogLoaders;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.ORCARecommendations;
 using TVPApiModule.Services;
-using TVPApiModule.yes.tvinci.ITProxy;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.DataEntities;
@@ -204,37 +203,37 @@ namespace TVPApiModule.Helper
             return epgChannelProgrammes;
         }
 
-        internal static TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] GetExtraParamsFromConfig(ParamsParamCollection paramCollection, int mediaID, int groupID, PlatformType platform, string coGuid)
-        {
-            List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair> retVal = null;
+        //internal static TVPApiModule.yes.tvinci.ITProxy.KeyValuePair[] GetExtraParamsFromConfig(ParamsParamCollection paramCollection, int mediaID, int groupID, PlatformType platform, string coGuid)
+        //{
+        //    List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair> retVal = null;
 
-            if (paramCollection != null && paramCollection.Count > 0)
-            {
-                retVal = new List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair>();
-                TVPApiModule.yes.tvinci.ITProxy.KeyValuePair pair;
+        //    if (paramCollection != null && paramCollection.Count > 0)
+        //    {
+        //        retVal = new List<TVPApiModule.yes.tvinci.ITProxy.KeyValuePair>();
+        //        TVPApiModule.yes.tvinci.ITProxy.KeyValuePair pair;
 
-                foreach (Param param in paramCollection)
-                {
-                    pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair();
-                    if (param.name == "external_content_id")
-                    {
-                        // get media's 
-                        string externalContentID = GetExternalContentIdForMedia(mediaID, groupID, platform);
-                        if (!string.IsNullOrEmpty(externalContentID))
-                            pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = externalContentID };
-                    }
-                    else if (param.name == "co_guid")
-                    {
-                        pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = coGuid };
-                    }
-                    else
-                        pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = param.value };
+        //        foreach (Param param in paramCollection)
+        //        {
+        //            pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair();
+        //            if (param.name == "external_content_id")
+        //            {
+        //                // get media's 
+        //                string externalContentID = GetExternalContentIdForMedia(mediaID, groupID, platform);
+        //                if (!string.IsNullOrEmpty(externalContentID))
+        //                    pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = externalContentID };
+        //            }
+        //            else if (param.name == "co_guid")
+        //            {
+        //                pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = coGuid };
+        //            }
+        //            else
+        //                pair = new TVPApiModule.yes.tvinci.ITProxy.KeyValuePair() { Key = param.key, Value = param.value };
 
-                    retVal.Add(pair);
-                }
-            }
-            return retVal != null ? retVal.ToArray() : null;
-        }
+        //            retVal.Add(pair);
+        //        }
+        //    }
+        //    return retVal != null ? retVal.ToArray() : null;
+        //}
 
         private static string GetExternalContentIdForMedia(int mediaID, int groupID, PlatformType platform)
         {

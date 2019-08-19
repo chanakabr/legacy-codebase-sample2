@@ -115,17 +115,7 @@ namespace TVPApiModule.Objects
         {
             return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
         }
-
-        public virtual TVPApiModule.yes.tvinci.ITProxy.RecordAllResult RecordAll(string accountNumber, string channelCode, string recordDate, string recordTime, string versionId, string serialNumber)
-        {
-            return null;
-        }
-
-        public virtual TVPApiModule.yes.tvinci.ITProxy.STBData[] GetMemirDetails(string accountNumber, string serviceAddressId)
-        {
-            return null;
-        }
-
+        
         public virtual UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value)
         {
             UserResponse retVal = null;

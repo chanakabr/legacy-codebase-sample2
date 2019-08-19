@@ -80,7 +80,7 @@ namespace TVPApi
         public override dsItemInfo Execute()
         {
             bool bShouldUseCache;
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
             {
                 return new TVPApiModule.CatalogLoaders.APIMediaLoader(int.Parse(MediaID), SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PicSize)
                 {

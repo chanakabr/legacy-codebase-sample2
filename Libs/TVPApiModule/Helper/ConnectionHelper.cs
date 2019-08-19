@@ -121,7 +121,7 @@ namespace TVPApi
         public static void InitServiceConfigs()
         {
             Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
-            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return ConfigurationManager.AppSettings["TVM_API_URL"]; };
+            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return System.Configuration.ConfigurationManager.AppSettings["TVM_API_URL"]; };
         }
 
         public static string GetFlashVarsLangVal()

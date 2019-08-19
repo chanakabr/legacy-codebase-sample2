@@ -23,8 +23,8 @@ namespace TVPApi.Configuration.Technical
         public ApiTechnichalConfiguration()
         {
             base.DataModified = this.TechDataModified;
-            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.Technical"], true);
-            m_syncFile = ConfigurationManager.AppSettings["TVPPro.Configuration.Technical"];
+            base.SyncFromFile(System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Technical"], true);
+            m_syncFile = System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Technical"];
         }
 
         public ApiTechnichalConfiguration(string syncFile)
@@ -93,7 +93,7 @@ namespace TVPApi.Configuration.Technical
         //    //    m_provider.ItemAddedEvent += itemAddedEvent;
         //    //}
 
-        //    m_provider.SyncFromIndexFile(ConfigurationManager.AppSettings["TVP.Core.Configuration.Technical"], false, false);
+        //    m_provider.SyncFromIndexFile(System.Configuration.ConfigurationManager.AppSettings["TVP.Core.Configuration.Technical"], false, false);
 
         //    //if (itemAddedEvent != null)
         //    //{

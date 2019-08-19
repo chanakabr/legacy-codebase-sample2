@@ -6,7 +6,7 @@ using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using Tvinci.Localization;
 using System.Data;
-using System.Web.UI;
+using TVPApi;
 
 namespace TVPApiModule.Helper
 {
@@ -41,4 +41,5 @@ namespace TVPApiModule.Helper
             return retTranslations;
         }
     }
+
 }

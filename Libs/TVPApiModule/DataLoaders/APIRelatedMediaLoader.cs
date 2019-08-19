@@ -115,7 +115,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
                 m_oCatalogRelatedLoader = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(
                     (int)MediaID, 

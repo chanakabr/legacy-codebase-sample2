@@ -75,9 +75,9 @@ namespace TVPApi
 
             if (!bConfigExist)
             {
-                if (ConfigurationManager.AppSettings["ConfigSrc_" + groupID] != null)
+                if (System.Configuration.ConfigurationManager.AppSettings["ConfigSrc_" + groupID] != null)
                 {
-                    configType = ConfigurationManager.AppSettings["ConfigSrc_" + groupID].ToLower() == "edge"
+                    configType = System.Configuration.ConfigurationManager.AppSettings["ConfigSrc_" + groupID].ToLower() == "edge"
                                  ? ServiceGetConfig(groupID, platform)
                                  : FileGetConfig(groupID, platform);
                 }
@@ -112,7 +112,7 @@ namespace TVPApi
         private ConfigType ServiceGetConfig(int nGroupID, PlatformType sPlatform)
         {
             ConfigType configType = new ConfigType();
-            string sEnvironment = ConfigurationManager.AppSettings["DomainEnv"];
+            string sEnvironment = System.Configuration.ConfigurationManager.AppSettings["DomainEnv"];
 
             configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.TechnichalConfiguration = new ApiTechnichalConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
@@ -125,7 +125,7 @@ namespace TVPApi
         private ConfigType FileGetConfig(int groupID, PlatformType platform)
         {
             ConfigType configType = new ConfigType();
-            string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(ConfigurationManager.AppSettings[groupID.ToString()], ConfigurationManager.AppSettings["DomainEnv"], "/"));
+            string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(System.Configuration.ConfigurationManager.AppSettings[groupID.ToString()], System.Configuration.ConfigurationManager.AppSettings["DomainEnv"], "/"));
             string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
             string directoryStr = string.Concat(parentDirectoryStr, platform);
 

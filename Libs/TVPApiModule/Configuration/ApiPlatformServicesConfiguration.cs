@@ -13,7 +13,7 @@ namespace TVPApi.Configuration.PlatformServices
     {
         public ApiPlatformServicesConfiguration()
         {
-            base.SyncFromFile(ConfigurationManager.AppSettings["TVPPro.Configuration.PlatformServices"], true);
+            base.SyncFromFile(System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.PlatformServices"], true);
         }
 
         public ApiPlatformServicesConfiguration(string syncFile)

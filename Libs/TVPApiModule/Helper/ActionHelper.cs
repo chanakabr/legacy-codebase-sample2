@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using TVPPro.SiteManager.Helper;
-using TVPApiModule.tvapi;
 using TVPApiModule.Services;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApiModule.DataLoaders;
@@ -38,7 +37,7 @@ namespace TVPApi
                                          string sUDID, int extraVal)
         {
             bool retVal = false;
-            string isOfflineSync = ConfigurationManager.AppSettings[string.Concat(groupID, "_OfflineFavoriteSync")];
+            string isOfflineSync = System.Configuration.ConfigurationManager.AppSettings[string.Concat(groupID, "_OfflineFavoriteSync")];
 
             switch (action)
             {

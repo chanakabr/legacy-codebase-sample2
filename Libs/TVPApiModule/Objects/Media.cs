@@ -184,7 +184,7 @@ namespace TVPApi
         private string GetMediaWebLink(int groupID, PlatformType platform)
         {
             string retVal = string.Empty;
-            string baseUrl = ConfigurationManager.AppSettings[string.Format("{0}_BaseURL", groupID.ToString())];
+            string baseUrl = System.Configuration.ConfigurationManager.AppSettings[string.Format("{0}_BaseURL", groupID.ToString())];
             if (!string.IsNullOrEmpty(baseUrl))
             {
                 if (ConfigManager.GetInstance().GetConfig(groupID, platform).SiteConfiguration.Data.Features.FriendlyURL.SupportFeature)

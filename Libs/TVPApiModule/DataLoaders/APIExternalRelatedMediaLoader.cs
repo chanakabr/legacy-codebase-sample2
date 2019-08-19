@@ -118,7 +118,7 @@ namespace TVPApi
 
         public override List<BaseObject> Execute()
         {
-            if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
                 m_oCatalogExternalRelatedLoader = new TVPApiModule.CatalogLoaders.APIExternalRelatedMediaLoader(
                     (int)MediaID,
