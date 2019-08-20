@@ -288,14 +288,18 @@ namespace QueueWrapper
             if (this.connectionDictionary != null && this.connectionDictionary.ContainsKey(host))
             {
                 bool createdNew = false;
+                #if !NETSTANDARD2_0
                 var mutexSecurity = Utils.CreateMutex();
+                #endif
 
                 IConnection connection;
                 connectionDictionary.TryRemove(host, out connection);
 
                 using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew))
                 {
+                    #if !NETSTANDARD2_0
                     mutex.SetAccessControl(mutexSecurity);
+                    #endif
                     try
                     {
                         mutex.WaitOne(-1);
@@ -328,11 +332,16 @@ namespace QueueWrapper
             if (this.connectionDictionary != null)
             {
                 bool createdNew = false;
+
+                #if !NETSTANDARD2_0
                 var mutexSecurity = Utils.CreateMutex();
+                #endif
 
                 using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew))
                 {
+                    #if !NETSTANDARD2_0
                     mutex.SetAccessControl(mutexSecurity);
+                    #endif
                     try
                     {
                         mutex.WaitOne(-1);
@@ -514,11 +523,16 @@ namespace QueueWrapper
             if (!connectionDictionary.ContainsKey(configuration.Host))
             {
                 bool createdNew = false;
+                #if !NETSTANDARD2_0
                 var mutexSecurity = Utils.CreateMutex();
+                #endif
 
                 using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew))
                 {
+                    #if !NETSTANDARD2_0
                     mutex.SetAccessControl(mutexSecurity);
+                    #endif
+
                     try
                     {
                         mutex.WaitOne(-1);
