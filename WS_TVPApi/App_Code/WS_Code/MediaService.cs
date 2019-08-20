@@ -2599,7 +2599,7 @@ namespace TVPApiServices
                     {
                         case TVPApiModule.Objects.Enums.ProgramIdType.EXTERNAL:
 
-                            var collection = new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Language)).Execute() as List<EPGChannelProgrammeObject>;
+                            var collection = new EPGProgramsByProgramsIdentefierLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, programIds, 0, default(Tvinci.Data.Loaders.TvinciPlatform.Catalog.Language)).Execute() as List<EPGChannelProgrammeObject>;
                             foreach (var obj in collection)
                             {
                                 programObj = new ProgramObj();
