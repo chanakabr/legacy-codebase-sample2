@@ -1099,15 +1099,12 @@ namespace Core.Users
                                 }
                                 else
                                 {
-                                    if (nFailCount > 0)
-                                        UpdateFailCount(0, nID);
+                                    UpdateFailCount(0, nID, true);
                                 }
                             }
                             else
                             {
-                                if (nFailCount > 0)
-                                    UpdateFailCount(0, nID);
-
+                                UpdateFailCount(0, nID, true);
                                 res = u;
                             }
                         }
