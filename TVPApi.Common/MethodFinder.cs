@@ -48,7 +48,8 @@ public partial class MethodFinder
         string result = string.Empty;
         try
         {
-            if (VerifyAllParametersCheck())
+            string errorMessage;
+            if (VerifyAllParametersCheck(out errorMessage))
             {
                 string SerializedReturnValue = String.Empty;
 
@@ -74,6 +75,10 @@ public partial class MethodFinder
                     logger.DebugFormat("No results found or null object returned");
 
                 result = SerializedReturnValue;
+            }
+            else
+            {
+                result = errorMessage;
             }
         }
         catch (Exception ex)

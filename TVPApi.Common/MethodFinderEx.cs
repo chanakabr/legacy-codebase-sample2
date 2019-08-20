@@ -742,15 +742,17 @@ public partial class MethodFinder
     /// when all requirements (at this point) have met, then extract the Method and its Parameters by Reflection
     /// </summary>
     /// <returns></returns>
-    private bool VerifyAllParametersCheck()
+    private bool VerifyAllParametersCheck(out string errorMessage)
     {
+        errorMessage = string.Empty;
+
         do
         {
             string methodName = HttpContext.Current.Request.GetQueryString()["m"];
 
             if (String.IsNullOrEmpty(methodName))
             {
-                ErrorHandler("Method Name does NOT included in Query String.. Please add to URL: [URL]?m={method_name}");
+                errorMessage = ErrorHandler("Method Name does NOT included in Query String.. Please add to URL: [URL]?m={method_name}");
                 break;
             }
 
@@ -766,7 +768,7 @@ public partial class MethodFinder
 
             if (m_MetodInfo == null)
             {
-                ErrorHandler(String.Format("The method you specified[ {0} ] is NOT part of this Services..", methodName));
+                errorMessage = ErrorHandler(String.Format("The method you specified[ {0} ] is NOT part of this Services..", methodName));
                 break;
             }
 
