@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
-                dir('ws_ingest') { git(url: 'git@bitbucket.org:tvinci_dev/ws_ingest.git', branch: "${params.branch}") }
+                dir('ws_ingest') { git(url: 'git@github.com:kaltura/WS_Ingest.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
