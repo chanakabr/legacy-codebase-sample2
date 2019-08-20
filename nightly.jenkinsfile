@@ -20,7 +20,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
-                dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
+                dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${params.branch}") }				
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
