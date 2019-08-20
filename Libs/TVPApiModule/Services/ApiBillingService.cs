@@ -11,16 +11,11 @@ namespace TVPApiModule.Services
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        private string m_wsUserName = string.Empty;
-        private string m_wsPassword = string.Empty;
         private int m_groupID;
         private PlatformType m_platform;
 
         public ApiBillingService(int groupID, PlatformType platform)
         {
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.BillingService.DefaultPassword;
-
             m_groupID = groupID;
             m_platform = platform;
         }
