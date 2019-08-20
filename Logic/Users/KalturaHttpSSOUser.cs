@@ -337,13 +337,13 @@ namespace Core.Users
                 m_sLastName = userData.LastName,
                 m_sEmail = userData.Email,
                 m_sCity = userData.City,
-                m_Country = new Country { m_nObjecrtID = userData.CountryId ?? 0 },
+                m_Country = userData.CountryId.HasValue && userData.CountryId.Value > 0 ? new Country { m_nObjecrtID = userData.CountryId.Value } : null,   //BEO-7091
                 m_sZip = userData.Zip,
                 m_sPhone = userData.Phone,
                 m_sAddress = userData.Address,
                 m_UserType = new ApiObjects.UserType
                 {
-                    ID = userData.UserType.Id,
+                    ID = userData.UserType.Id > 0 ? userData.UserType.Id : (int?)null,  //BEO-7091
                     Description = userData.UserType.Description,
                 },
             };
