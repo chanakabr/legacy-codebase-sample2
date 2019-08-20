@@ -16,7 +16,6 @@ namespace TVPApi.Web.Middleware
 
         private readonly RequestDelegate _Next;
         private string _Response;
-        private int _StatusCode;
         private readonly IHostingEnvironment _Host;
 
         public TVPApiRequestExecutor(RequestDelegate next, IHostingEnvironment host)
@@ -29,27 +28,29 @@ namespace TVPApi.Web.Middleware
         {
             try
             {
-                context.Items["ContentRootPath"] = _Host.ContentRootPath;
-                context.Items["WebRootPath"] = _Host.WebRootPath;
-
-                var gateway = new JsonPostGateway();
-                var request = context.Request;
-
-                context.Response.OnStarting(HandleResponse, context);
-
-                using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
                 {
-                    var body = await streamReader.ReadToEndAsync();
-                    _Response = gateway.ProcessRequest(body);
-                    _StatusCode = 200;
+                    context.Items["ContentRootPath"] = _Host.ContentRootPath;
+                    context.Items["WebRootPath"] = _Host.WebRootPath;
+
+                    var gateway = new JsonPostGateway();
+                    var request = context.Request;
+
+                    context.Response.OnStarting(HandleResponse, context);
+
+                    using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
+                    {
+                        var body = await streamReader.ReadToEndAsync();
+                        _Response = gateway.ProcessRequest(body);
+                    }
                 }
-                
+
                 await _Next(context);
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error when processing request. error = {0}", ex);
-                _StatusCode = 500;
+                _Response = "Error";
             }
         }
 
@@ -57,7 +58,8 @@ namespace TVPApi.Web.Middleware
         {
             var context = ctx as HttpContext;
 
-            context.Response.StatusCode = _StatusCode;
+            // always mark response as 200, that's how it worked on old tvpapi
+            context.Response.StatusCode = 200;
             context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
             
