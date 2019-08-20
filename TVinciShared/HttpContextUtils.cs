@@ -299,7 +299,14 @@ namespace TVinciShared
         /// </summary>
         public static string ServerMapPath(this HttpContext ctx, string path)
         {
-            return Path.Combine(System.Web.HostingEnvironment.Current.WebRootPath, path);
+            string result = string.Empty;
+
+            if (ctx.Items.ContainsKey("ContentRootPath"))
+            {
+                result = string.Concat(ctx.Items["ContentRootPath"].ToString(), path);
+            }
+
+            return result;
         }
 
         public static System.Runtime.Caching.MemoryCache GetCache(this HttpContext ctx)
@@ -338,6 +345,7 @@ namespace TVinciShared
         {
             return false;
         }
+        
 #endif
-    }
+        }
 }
