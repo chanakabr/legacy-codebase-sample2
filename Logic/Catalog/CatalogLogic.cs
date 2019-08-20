@@ -6267,7 +6267,9 @@ namespace Core.Catalog
         {
             var searchResultsList = new List<UnifiedSearchResult>();
             var groupPermittedWatchRules = GetGroupPermittedWatchRules(groupId);
-            if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
+
+            bool isOPC = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (isOPC || (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0))
             {
                 string watchRules = string.Join(" ", GetGroupPermittedWatchRules(groupId));
 
