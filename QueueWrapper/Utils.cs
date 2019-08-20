@@ -14,6 +14,9 @@ namespace QueueWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
+
+        #if !NETSTANDARD2_0
+        // Only supported under windows, so only when not in net core we use this.
         internal static MutexSecurity CreateMutex()
         {
             var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
@@ -24,6 +27,8 @@ namespace QueueWrapper
 
             return mutexSecurity;
         }
+        #endif
+        
 
         internal static T JsonToObject<T>(string json)
         {
