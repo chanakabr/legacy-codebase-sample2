@@ -8,8 +8,8 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_5', description: 'Pre-Prod Target Version Folder')
-        string(name: 'config_version_folder_name', defaultValue: 'v5_2_5', description: 'Configuration folder name from Configuration Repo')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_6', description: 'Configuration folder name from Configuration Repo')
         booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
 
     }
@@ -20,9 +20,9 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
-                dir('remotetasks') { git(url: 'git@bitbucket.org:tvinci_dev/remotetasks.git', branch: "${params.branch}") }
+                dir('remotetasks') { git(url: 'git@github.com:kaltura/RemoteTasks.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
-                dir('tvpapi_rest') { git(url: 'git@bitbucket.org:tvinci_dev/tvpapi_rest.git', branch: "${params.branch}") }
+                dir('tvpapi_rest') { git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
