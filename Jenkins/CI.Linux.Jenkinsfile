@@ -17,6 +17,7 @@ pipeline {
     stages {
         stage('Checkout'){
             steps{
+                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
             }
         }
