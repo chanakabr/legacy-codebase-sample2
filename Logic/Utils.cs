@@ -16,6 +16,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -815,7 +816,8 @@ namespace APILogic
         public static bool ConvertIpToNumber(string ip, out long convertedIp)
         {
             convertedIp = 0;
-            if (string.IsNullOrEmpty(ip))
+            if (string.IsNullOrEmpty(ip) || !IPAddress.TryParse(ip, out IPAddress ipAddress) 
+                || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 return false;
             }
@@ -827,7 +829,7 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed ConvertIpToInt for ip: {0}", ip), ex);
+                log.Error(string.Format("Failed ConvertIpToNumber for ip: {0}", ip), ex);
                 return false;
             }
         }
