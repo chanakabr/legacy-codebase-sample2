@@ -78,6 +78,15 @@ namespace Core.Catalog
         [JsonIgnore()]
         public Dictionary<string, Topic> TopicsMapBySystemName;
 
+        // TODO SHIR - DONT FORGET HOW TO CHECK IF IsSeriesAssetStruct
+        public bool IsSeriesAssetStruct
+        {
+            get
+            {
+                return this.Name.ToLower() == "series";
+            }
+        }
+
         #endregion
 
         #region Ctor's

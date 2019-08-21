@@ -1,11 +1,14 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using ApiLogic.Base;
+using APILogic.AmazonSnsAdapter;
 using APILogic.DmsService;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification.Adapters;
@@ -20,15 +23,20 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace Core.Notification
 {
-    public class FollowManager
+    public class FollowManager : ICrudHandler<FollowDataTvSeries, int, FollowTvSeriesFilter>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static DateTime oldEpgSendDate { get; set; }
+
+        private static readonly Lazy<FollowManager> lazy = new Lazy<FollowManager>(() => new FollowManager());
+
+        public static FollowManager Instance { get { return lazy.Value; } }
+
+        private FollowManager() { }
 
         #region Consts
 
@@ -38,7 +46,7 @@ namespace Core.Notification
         private const string FOLLOW_TEMPLATE_NOT_FOUND = "Message template not found";
         private static string CatalogSignString = Guid.NewGuid().ToString();
         private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
-
+        private const string FOLLOW_PHRASE_FORMAT = "{0}='{1}'";
         #endregion
 
         #region Public Methods
@@ -388,7 +396,6 @@ namespace Core.Notification
                 }
             }
             
-
             if (mediaObj != null && mediaObj.m_lTags != null && mediaObj.m_lTags.FirstOrDefault() != null)
             {
                 catalogStartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(mediaObj.m_dCatalogStartDate);
@@ -440,33 +447,27 @@ namespace Core.Notification
 
             // validate if announcement should be automatically sent
             DbAnnouncement announcement = dbAnnouncements[0];
-            if ((announcement.AutomaticIssueFollowNotification.HasValue &&
-               !announcement.AutomaticIssueFollowNotification.Value)
-               || (!announcement.AutomaticIssueFollowNotification.HasValue &&
-               !NotificationSettings.ShouldIssueAutomaticFollowNotification(groupId)))
+            if ((announcement.AutomaticIssueFollowNotification.HasValue && !announcement.AutomaticIssueFollowNotification.Value)
+              || (!announcement.AutomaticIssueFollowNotification.HasValue && !NotificationSettings.ShouldIssueAutomaticFollowNotification(groupId)))
             {
-                log.DebugFormat("Notification wasn't sent due to 'ShouldIssueAutomaticFollowNotification' parameter is false. group {0}, media: {1}, Announcement id: {2}, Announcement name: {3}, Announcement phrase: {4}, Announcement ref: {5}",
-                    groupId, mediaID, announcement.ID, announcement.Name, announcement.FollowPhrase, announcement.FollowReference);
+                log.DebugFormat("Notification wasn't sent due to 'ShouldIssueAutomaticFollowNotification' parameter is false. group:{0}, media:{1}, announcement:{2}.",
+                                groupId, mediaID, announcement.ToString());
                 return;
             }
 
             // get message template and build message with it
-            MessageTemplateResponse msgTemplateResponse = GetMessageTemplate(groupId, MessageTemplateType.Series);
-            if (msgTemplateResponse.Status.Code != (int)eResponseStatus.OK)
+            var messageTemplateResponse = GetMessageTemplate(groupId, MessageTemplateType.Series);
+            if (!messageTemplateResponse.Status.IsOkStatusCode())
             {
-                log.ErrorFormat("message template not found. group: {0}, asset type: {1}, error: {2}-{3}",
-                    groupId,
-                    MessageTemplateType.Series.ToString(),
-                    msgTemplateResponse.Status.Code,
-                    msgTemplateResponse.Status.Message);
+                log.ErrorFormat("Series message template not found. group:{0}, error:{1}.", groupId, messageTemplateResponse.Status.ToString());
                 return;
             }
 
-            MessageAnnouncement message = new MessageAnnouncement()
+            var message = new MessageAnnouncement()
             {
                 AnnouncementId = announcement.ID,
                 Enabled = true,
-                Message = msgTemplateResponse.MessageTemplate.Message,
+                Message = messageTemplateResponse.MessageTemplate.Message,
                 MessageReference = mediaID.ToString(),
                 Name = string.Format("announcement_{0}_{1}", eOTTAssetTypes.Series.ToString(), mediaID),
                 Recipients = eAnnouncementRecipientsType.Other,
@@ -475,87 +476,96 @@ namespace Core.Notification
                 Status = eAnnouncementStatus.NotSent
             };
 
+            SendMessageAnnouncement(announcement, message, mediaID, groupId);
+        }
+
+        public Status AddTvSeriesFollowRequestForOpc(int groupId, long mediaId)
+        {
+            var response = new Status(eResponseStatus.Error);
+
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache cache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTvSeriesFollowRequestForOpc", groupId);
+                return response;
+            }
+
+            var assetResponse = AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
+            if (!assetResponse.HasObject())
+            {
+                log.DebugFormat(assetResponse.Status.ToString());
+                response.Set(assetResponse.Status);
+                return response;
+            }
+
+            var mediaAsset = assetResponse.Object as MediaAsset;
+            if (!TryGetEpisodeAssetStructByEpisode(mediaAsset, cache, out AssetStruct episodeAssetStruct) || !mediaAsset.CatalogStartDate.HasValue)
+            {
+                response.Set(eResponseStatus.InvalidAssetId, "invalid asset");
+                log.DebugFormat(response.ToString());
+                return response;
+            }
+            
+            var followPhrase = GetFollowPhrase(mediaAsset, episodeAssetStruct, cache);
+            if (string.IsNullOrEmpty(followPhrase))
+            {
+                log.DebugFormat("ingested media is not a series episode (series name is empty). group {0}, media: {1}", groupId, mediaId);
+                response.Set(eResponseStatus.Error, "ingested media is not a series episode (series name is empty)");
+                return response;
+            }
+            
+            DbAnnouncement announcement = null;
+            List<DbAnnouncement> dbAnnouncements = null;
+            if (NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements))
+            {
+                announcement = dbAnnouncements.FirstOrDefault(x => x.FollowPhrase == followPhrase);
+            }
+               
+            if (announcement == null)
+            {
+                log.DebugFormat("no announcements found for ingested media: group {0}, media: {1}, followPhrase: {2}", groupId, mediaId, followPhrase);
+                response.Set(eResponseStatus.Error, "no announcements found for ingested media");
+                return response;
+            }
+
+            // validate if announcement should be automatically sent
+            if ((announcement.AutomaticIssueFollowNotification.HasValue && !announcement.AutomaticIssueFollowNotification.Value)
+               || (!announcement.AutomaticIssueFollowNotification.HasValue && !NotificationSettings.ShouldIssueAutomaticFollowNotification(groupId)))
+            {
+                log.DebugFormat("Notification wasn't sent due to 'ShouldIssueAutomaticFollowNotification' parameter is false. group:{0}, media:{1}, announcement:{2}.",
+                                groupId, mediaId, announcement.ToString());
+                response.Set(eResponseStatus.Error, "Notification wasn't sent due to 'ShouldIssueAutomaticFollowNotification' parameter is false");
+                return response;
+            }
+
+            // get message template and build message with it
+            var messageTemplateResponse = GetMessageTemplate(groupId, MessageTemplateType.Series);
+            if (!messageTemplateResponse.Status.IsOkStatusCode())
+            {
+                log.ErrorFormat("Series message template not found. group:{0}, error:{1}.", groupId, messageTemplateResponse.Status.ToString());
+                response.Set(messageTemplateResponse.Status);
+                return response;
+            }
+
+            var message = new MessageAnnouncement()
+            {
+                AnnouncementId = announcement.ID,
+                Enabled = true,
+                Message = messageTemplateResponse.MessageTemplate.Message,
+                MessageReference = mediaId.ToString(),
+                Name = string.Format("announcement_{0}_{1}", eOTTAssetTypes.Series.ToString(), mediaId),
+                Recipients = eAnnouncementRecipientsType.Other,
+                StartTime = mediaAsset.CatalogStartDate.Value.ToUtcUnixTimestampSeconds(),
+                Timezone = "UTC",
+                Status = eAnnouncementStatus.NotSent
+            };
+
             // check if previous unsent messages were queued for this announcement and asset (series).
-            bool shouldSend = true;
-            DataRowCollection previousAnnouncementMessageRows = NotificationDal.Get_MessageAnnouncementByAnnouncementAndReference(announcement.ID, mediaID.ToString());
-            if (previousAnnouncementMessageRows != null)
+            if (SendMessageAnnouncement(announcement, message, mediaId, groupId))
             {
-                // check for each message (should be a single message) if not sent and needs to update
-                foreach (DataRow row in previousAnnouncementMessageRows)
-                {
-                    MessageAnnouncement msgFromQ = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
-                    if (msgFromQ.Status == eAnnouncementStatus.NotSent)
-                    {
-                        if (msgFromQ.StartTime == catalogStartDate)
-                        {
-                            // message not changed.
-                            log.DebugFormat("found previous message announcement that wasn't sent with the same start time. canceling follow notification. group {0}, previous message: {1}",
-                                groupId, JsonConvert.SerializeObject(msgFromQ));
-
-                            shouldSend = false;
-                            break;
-                        }
-                        else
-                        {
-                            // update message & start time
-                            log.DebugFormat("found previous message announcement that wasn't sent with the different start time. updating old message and canceling new one. group {0}, previous message: {1}, new message: {2}, new start time: {3}",
-                                groupId,
-                                JsonConvert.SerializeObject(msgFromQ),
-                                message.Message,
-                                message.StartTime);
-
-                            // updating message
-                            msgFromQ.StartTime = message.StartTime;
-                            msgFromQ.Message = message.Message;
-                            if (AnnouncementManager.UpdateMessageAnnouncement(groupId, msgFromQ.MessageAnnouncementId, msgFromQ, true, false).Status.Code == (int)eResponseStatus.OK)
-                            {
-                                log.DebugFormat("successfully updated previous message announcement. group ID: {0}, previous message: {1}, new message: {2}, new start time: {3}",
-                                    groupId,
-                                    JsonConvert.SerializeObject(msgFromQ),
-                                    message.Message,
-                                    message.StartTime);
-
-                                // update announcement message sent date
-                                if (!NotificationDal.UpdateAnnouncement(groupId, msgFromQ.AnnouncementId, announcement.AutomaticIssueFollowNotification, DateTime.UtcNow))
-                                    log.ErrorFormat("Error while trying to update last announcement message sent date. GID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(msgFromQ));
-
-                                shouldSend = false;
-                                break;
-                            }
-                            else
-                            {
-                                log.ErrorFormat("error while trying to update previous message announcement that wasn't sent with the different start time. group {0}, previous message: {1}, new message: {2}, new start time: {3}",
-                                    groupId,
-                                    JsonConvert.SerializeObject(msgFromQ),
-                                    message.Message,
-                                    message.StartTime);
-                            }
-                        }
-                    }
-                }
+                response.Set(eResponseStatus.OK);
             }
 
-            if (shouldSend)
-            {
-                // sending message to queue
-                log.DebugFormat("about to add message announcement for: group {0}, media: {1}, start date: {2}", groupId, mediaID, catalogStartDate);
-                var addMsgAnnResponse = AnnouncementManager.AddMessageAnnouncement(groupId, message, true, false);
-                if (addMsgAnnResponse.Status.Code != (int)eResponseStatus.OK)
-                {
-                    log.ErrorFormat("add message announcement failed. group: {0}, asset type: {1}, error: {2}-{3}",
-                        groupId, eOTTAssetTypes.Series.ToString(),
-                        addMsgAnnResponse.Status.Code,
-                        addMsgAnnResponse.Status.Message);
-                }
-                else
-                {
-                    log.DebugFormat("successfully created new message announcement in queue. group ID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(message));
-
-                    // update announcement message sent date
-                    if (!NotificationDal.UpdateAnnouncement(groupId, message.AnnouncementId, announcement.AutomaticIssueFollowNotification, DateTime.UtcNow))
-                        log.ErrorFormat("Error while trying to update last announcement message sent date. GID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(message));
-                }
-            }
+            return response;
         }
 
         public static IdsResponse Get_FollowedAssetIdsFromAssets(int groupId, int userId, List<int> assets)
@@ -679,7 +689,7 @@ namespace Core.Notification
                 return null;
             }
 
-            return string.Format("{0}='{1}'", associationTag, title);
+            return string.Format(FOLLOW_PHRASE_FORMAT, associationTag, title);
         }
 
         public static string GetEpisodeAssociationTag(int groupId)
@@ -693,10 +703,237 @@ namespace Core.Notification
 
             return associationTag;
         }
+        
+        #endregion
+
+        #region CRUD methods
+
+        public GenericResponse<FollowDataTvSeries> Add(ContextData contextData, FollowDataTvSeries followDataTvToAdd)
+        {
+            var response = new GenericResponse<FollowDataTvSeries>();
+
+            try
+            {
+                if (!contextData.UserId.HasValue || contextData.UserId.Value == 0)
+                {
+                    response.SetStatus(eResponseStatus.InvalidUser);
+                    return response;
+                }
+                
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(contextData.GroupId, out CatalogGroupCache cache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling FollowManager.Add", contextData.GroupId);
+                    return response;
+                }
+
+                followDataTvToAdd.GroupId = contextData.GroupId;
+
+                var assetResponse = AssetManager.GetAsset(contextData.GroupId, followDataTvToAdd.AssetId, eAssetTypes.MEDIA, false);
+                if (!assetResponse.HasObject())
+                {
+                    response.SetStatus(assetResponse.Status);
+                    return response;
+                }
+
+                // validate asset type
+                var mediaAsset = assetResponse.Object as MediaAsset;
+                if (!TryGetEpisodeAssetStructBySeries(mediaAsset, cache, out AssetStruct episodeAssetStruct))
+                {
+                    response.SetStatus(eResponseStatus.InvalidAssetId, "invalid asset");
+                    return response;
+                }
+
+                var followPhrase = GetFollowPhrase(mediaAsset, episodeAssetStruct, cache);
+                if (!string.IsNullOrEmpty(followPhrase))
+                {
+                    followDataTvToAdd.FollowPhrase = followPhrase;
+                }
+                
+                response = AddFollowItemToUser((int)contextData.UserId.Value, followDataTvToAdd);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred while Adding FollowDataTvSeries. contextData:{0}, FollowDataTvSeries.AssetId:{1}. ex: {2}",
+                                contextData.ToString(), followDataTvToAdd.AssetId, ex);
+            }
+
+            return response;
+        }
+
+        public GenericResponse<FollowDataTvSeries> Update(ContextData contextData, FollowDataTvSeries objectToUpdate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Status Delete(ContextData contextData, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GenericResponse<FollowDataTvSeries> Get(ContextData contextData, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GenericListResponse<FollowDataTvSeries> List(ContextData contextData, FollowTvSeriesFilter filter)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
 
         #region Private Methods
+
+        private static bool SendMessageAnnouncement(DbAnnouncement announcement, MessageAnnouncement message, long mediaId, int groupId)
+        {
+            var shouldSendMessageAnnouncement = true;
+            var previousAnnouncementMessageRows = NotificationDal.Get_MessageAnnouncementByAnnouncementAndReference(announcement.ID, mediaId.ToString());
+            if (previousAnnouncementMessageRows != null)
+            {
+                // check for each message (should be a single message) if not sent and needs to update
+                foreach (DataRow row in previousAnnouncementMessageRows)
+                {
+                    var messageAnnouncement = Utils.GetMessageAnnouncementFromDataRow(row);
+                    if (messageAnnouncement.Status == eAnnouncementStatus.NotSent)
+                    {
+                        if (messageAnnouncement.StartTime == message.StartTime)
+                        {
+                            // message not changed.
+                            log.DebugFormat("found previous message announcement that wasn't sent with the same start time. canceling follow notification. group {0}, previous message: {1}",
+                                            groupId, JsonConvert.SerializeObject(messageAnnouncement));
+                            shouldSendMessageAnnouncement = false;
+                            break;
+                        }
+                        else
+                        {
+                            // update message & start time
+                            log.DebugFormat("found previous message announcement that wasn't sent with the different start time. updating old message and canceling new one. group {0}, previous message: {1}, new message: {2}, new start time: {3}",
+                                            groupId, JsonConvert.SerializeObject(messageAnnouncement), message.Message, message.StartTime);
+
+                            // updating message
+                            messageAnnouncement.StartTime = message.StartTime;
+                            messageAnnouncement.Message = message.Message;
+                            if (AnnouncementManager.UpdateMessageAnnouncement(groupId, messageAnnouncement.MessageAnnouncementId, messageAnnouncement, true, false).Status.IsOkStatusCode())
+                            {
+                                log.DebugFormat("successfully updated previous message announcement. group ID: {0}, previous message: {1}, new message: {2}, new start time: {3}",
+                                                groupId, JsonConvert.SerializeObject(messageAnnouncement), message.Message, message.StartTime);
+
+                                // update announcement message sent date
+                                if (!NotificationDal.UpdateAnnouncement(groupId, messageAnnouncement.AnnouncementId, announcement.AutomaticIssueFollowNotification, DateTime.UtcNow))
+                                    log.ErrorFormat("Error while trying to update last announcement message sent date. GID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(messageAnnouncement));
+
+                                shouldSendMessageAnnouncement = false;
+                                break;
+                            }
+                            else
+                            {
+                                log.ErrorFormat("error while trying to update previous message announcement that wasn't sent with the different start time. group {0}, previous message: {1}, new message: {2}, new start time: {3}",
+                                                groupId, JsonConvert.SerializeObject(messageAnnouncement), message.Message, message.StartTime);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var messageSent = false;
+            if (shouldSendMessageAnnouncement)
+            {
+                // sending message to queue
+                log.DebugFormat("about to add message announcement for: group {0}, media: {1}, start date: {2}", groupId, mediaId, message.StartTime);
+                var addMsgAnnResponse = AnnouncementManager.AddMessageAnnouncement(groupId, message, true, false);
+                if (!addMsgAnnResponse.Status.IsOkStatusCode())
+                {
+                    log.ErrorFormat("add message announcement failed. group: {0}, asset type: {1}, error: {2}-{3}",
+                                    groupId, eOTTAssetTypes.Series.ToString(), addMsgAnnResponse.Status.ToString());
+                }
+                else
+                {
+                    log.DebugFormat("successfully created new message announcement in queue. group ID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(message));
+
+                    // update announcement message sent date
+                    if (!NotificationDal.UpdateAnnouncement(groupId, message.AnnouncementId, announcement.AutomaticIssueFollowNotification, DateTime.UtcNow))
+                    {
+                        log.ErrorFormat("Error while trying to update last announcement message sent date. GID: {0}, message: {1}", groupId, JsonConvert.SerializeObject(message));
+                    }
+
+                    messageSent = true;
+                }
+            }
+
+            return messageSent;
+        }
+
+        private string GetFollowPhrase(MediaAsset mediaAsset, AssetStruct episodeAssetStruct, CatalogGroupCache cache)
+        {
+            string value = string.Empty;
+            var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
+            if (topic.Type == ApiObjects.MetaType.Tag)
+            {
+                var tag = mediaAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                if (tag != null && tag.m_lValues != null)
+                {
+                    value = tag.m_lValues.FirstOrDefault();
+                }
+            }
+            else
+            {
+                var meta = mediaAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                if (meta != null)
+                {
+                    value = meta.m_sValue;
+                }
+            }
+
+            string followPhrase = null;
+            if (!string.IsNullOrEmpty(value))
+            {
+                followPhrase = string.Format(FOLLOW_PHRASE_FORMAT, cache.TopicsMapById[episodeAssetStruct.ConnectingMetaId.Value].SystemName, value);
+            }
+
+            return followPhrase;
+        }
+
+        private bool TryGetEpisodeAssetStructBySeries(MediaAsset mediaAsset, CatalogGroupCache cache, out AssetStruct episodeAssetStruct)
+        {
+            episodeAssetStruct = null;
+            
+            if (mediaAsset == null || !cache.AssetStructsMapById.ContainsKey(mediaAsset.MediaType.m_nTypeID) || !cache.AssetStructsMapById[mediaAsset.MediaType.m_nTypeID].IsSeriesAssetStruct)
+            {
+                return false;
+            }
+            
+            episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && x.ParentId.Value == mediaAsset.MediaType.m_nTypeID);
+            if (episodeAssetStruct == null || 
+                !episodeAssetStruct.ConnectedParentMetaId.HasValue || 
+                !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
+                !episodeAssetStruct.ConnectingMetaId.HasValue ||
+                !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectingMetaId.Value))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryGetEpisodeAssetStructByEpisode(MediaAsset mediaAsset, CatalogGroupCache cache, out AssetStruct episodeAssetStruct)
+        {
+            episodeAssetStruct = null;
+
+            if (mediaAsset == null || 
+                !cache.AssetStructsMapById.TryGetValue(mediaAsset.MediaType.m_nTypeID, out episodeAssetStruct) || 
+                !episodeAssetStruct.ParentId.HasValue ||
+                !episodeAssetStruct.ConnectedParentMetaId.HasValue ||
+                !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
+                !episodeAssetStruct.ConnectingMetaId.HasValue ||
+                !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectingMetaId.Value) ||
+                !cache.AssetStructsMapById.ContainsKey(episodeAssetStruct.ParentId.Value) ||
+                !cache.AssetStructsMapById[episodeAssetStruct.ParentId.Value].IsSeriesAssetStruct)
+            {
+                return false;
+            }
+            
+            return true;
+        }
 
         /// <summary>
         /// Add/Update group's Message template
@@ -946,16 +1183,16 @@ namespace Core.Notification
             return isFollowDataValidate;
         }
 
-        private static GenericResponse<FollowDataBase> AddFollowItemToUser(int userId, FollowDataBase followItem)
+        private static GenericResponse<T> AddFollowItemToUser<T>(int userId, T followItem) where T : FollowDataBase, new()
         {
-            GenericResponse<FollowDataBase> response = new GenericResponse<FollowDataBase>();
+            var response = new GenericResponse<T>();
 
             // get user notifications
             UserNotification userNotificationData = null;
-            Status getUserNotificationDataStatus = Utils.GetUserNotificationData(followItem.GroupId, userId, out userNotificationData);
+            var getUserNotificationDataStatus = Utils.GetUserNotificationData(followItem.GroupId, userId, out userNotificationData);
             if (getUserNotificationDataStatus.Code != (int)eResponseStatus.OK || userNotificationData == null)
             {
-                response.SetStatus((eResponseStatus)getUserNotificationDataStatus.Code, getUserNotificationDataStatus.Message);
+                response.SetStatus(getUserNotificationDataStatus);
                 return response;
             }
 
@@ -971,7 +1208,7 @@ namespace Core.Notification
                 if (announcementToFollow == null)
                 {
                     // follow announcement doesn't exists - first time the series is being followed - create a new one
-                    GenericResponse<DbAnnouncement> announcementToFollowResponse = CreateFollowAnnouncement(followItem);
+                    var announcementToFollowResponse = CreateFollowAnnouncement(followItem);
 
                     if (announcementToFollowResponse.Status.Code != (int)eResponseStatus.OK)
                     {
@@ -1029,8 +1266,10 @@ namespace Core.Notification
                     AddedDateSec = addedSecs,
                 });
 
-                response.Object = new FollowDataBase(followItem.GroupId, announcementToFollow.FollowPhrase)
+                response.Object = new T()
                 {
+                    GroupId = followItem.GroupId,
+                    FollowPhrase = announcementToFollow.FollowPhrase,
                     AnnouncementId = announcementToFollow.ID,
                     Status = 1,                         // only enabled status in this phase
                     Title = announcementToFollow.Name,
@@ -1052,12 +1291,12 @@ namespace Core.Notification
                     log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", followItem.GroupId, userId);
                 }
 
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
-                log.Error("Error in follow", ex);
-                response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error("Error in AddFollowItemToUser", ex);
+                response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
@@ -1309,7 +1548,7 @@ namespace Core.Notification
 
             return TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));
         }
-
+        
         #endregion
     }
 }

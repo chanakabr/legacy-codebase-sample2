@@ -84,11 +84,10 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             bool isMediaExists = mediaId > 0;
-                            MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currTags, currMetas, ref topicIdsToRemove);
+                            var mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currTags, currMetas, ref topicIdsToRemove);
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
                             media.Erase = media.Erase.ToLower().Trim();
-
                             var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
                             if (!upsertStatus.IsOkStatusCode())
                             {
@@ -108,14 +107,14 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 AddTagsToTranslations(currTags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations);
                             }
+
+                            // update notification 
+                            if (mediaAsset.IsActive.Value)
+                            {
+                                Notification.Module.AddFollowNotificationRequest(groupId, (int)mediaAsset.Id, USER_ID);
+                            }
                         }
-
-                        //// update notification 
-                        //if (mediaAsset.IsActive.HasValue && mediaAsset.IsActive.Value)
-                        //{
-                        //    UpdateNotificationsRequests(groupId, mediaAsset.Id);
-                        //}
-
+                        
                         // succeeded import media
                         ingestResponse.AssetsStatus[i].Status.Set(eResponseStatus.OK);
                         log.DebugFormat("succeeded import media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", media.CoGuid, mediaId, media.IsActive, ingestResponse.Description);
