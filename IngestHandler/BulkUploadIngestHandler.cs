@@ -646,6 +646,11 @@ namespace IngestHandler
                 autoFillEpgCB.ChannelID = channelId;
                 autoFillEpgCB.EpgIdentifier = epgExternalId;
                 autoFillEpgCB.Crid = epgExternalId;
+                autoFillEpgCB.DocumentId = GetEpgCBDocumentId(epgExternalId, "eng", _BulkUploadObject.Id);
+                autoFillEpgCB.EnableCDVR = 0;
+                autoFillEpgCB.EnableCatchUp = 0;
+                autoFillEpgCB.EnableStartOver = 0;
+                autoFillEpgCB.EnableTrickPlay = 0;
 
                 return new EpgProgramBulkUploadObject()
                 {
