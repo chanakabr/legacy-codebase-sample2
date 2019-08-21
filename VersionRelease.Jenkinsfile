@@ -92,6 +92,10 @@ pipeline {
                         + " /p:DeleteExistingFiles=True"
                         + " /p:OutputPath=${TEMP_PUBLISH_DIR}\\permissions\\"
                     )
+
+                    dir("${TEMP_PUBLISH_DIR}/permissions"){
+                        bat("PermissionsDeployment.exe e=permissions.xml")
+                    }
                 }
 
                 dir("remotetasks"){
