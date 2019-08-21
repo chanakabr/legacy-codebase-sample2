@@ -8183,6 +8183,18 @@ namespace Core.Catalog
                         leaf.valueType = typeof(int);
                         leaf.value = (int)inheritancePolicy;
                     }
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.AUTO_FILL_FIELD)
+                    {
+                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                        if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
+                        {
+                            definitions.ShouldSearchAutoFill = true;
+                        }
+                        else
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for auto_fill", (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
                     else
                     {
                         throw new KalturaException(string.Format("Invalid search key was sent: {0}", originalKey), (int)eResponseStatus.InvalidSearchField);
