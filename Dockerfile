@@ -17,9 +17,9 @@ RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/publi
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
 WORKDIR /opt
 
-ARG API_LOG_DIR=/var/log/remote-tasks/
+ARG API_LOG_DIR=/var/log/phoenix/
 ENV API_LOG_DIR ${API_LOG_DIR}
-ENV API_STD_OUT_LOG_LEVEL "Trace"
+ENV API_STD_OUT_LOG_LEVEL "Off"
 
 COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
 WORKDIR /opt/phoenix-rest
