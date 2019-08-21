@@ -16,7 +16,7 @@ namespace Phoenix.Rest
         public static async Task Main(string[] args)
         {
             string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
-            var defaultLogDir = $@"C:\log\HealthCheck\{apiVersion}";
+            var defaultLogDir = $@"C:\log\phoenix\{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
             ConfigurationManager.ApplicationConfiguration.Initialize(shouldLoadDefaults: true, silent: true);
             await CreateWebHostBuilder(args).Build().RunAsync();

@@ -4222,15 +4222,19 @@ namespace WS_API
         }
 
         [WebMethod]
-        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude,
-                                                bool? shouldOverrideExistingExludeSettings, List<string> layeredCacheInvalidationKeySettingsToExclude, bool? shouldOverrideExistingInvalidationKeyExcludeSettings)
+        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, int? version, bool? disableLayeredCache, 
+            List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings, List<string> layeredCacheInvalidationKeySettingsToExclude, 
+            bool? shouldOverrideExistingInvalidationKeyExcludeSettings)
         {
+            
             bool result = false;
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
                 result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings,
                                                                         layeredCacheInvalidationKeySettingsToExclude, shouldOverrideExistingInvalidationKeyExcludeSettings);
+
+                log.InfoFormat("UpdateLayeredCacheGroupConfig for group {0} result is {1}", groupId, result);
             }
             else
             {

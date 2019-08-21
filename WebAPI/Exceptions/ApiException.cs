@@ -55,6 +55,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType HOME_NETWORK_LIMITATION = new ClientExceptionType(eResponseStatus.HomeNetworkLimitation, "Home Network Limitation", "The number of home networks in the household has been exceeded");
         public static ClientExceptionType HOME_NETWORK_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.HomeNetworkDoesNotExist, "Home Network Does Not Exist", "The home network you specified does not exis");
         public static ClientExceptionType HOME_NETWORK_FREQUENCY = new ClientExceptionType(eResponseStatus.HomeNetworkFrequency, "Home Network Frequency", "Unable to remove the home network from the household because of the frequency limitation");
+        public static ClientExceptionType REGION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.RegionDoesNotExist, "Region does not exist", "Region does not exist");
 
         #endregion
 
