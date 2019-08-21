@@ -42,7 +42,7 @@ pipeline {
         stage("Publish Localy"){
             steps{
                 dir("tvpapi_rest"){
-                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4"
+                    bat ("\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj /m:4 /nr:false"
                             + " /p:Configuration=Release"
                             + " /p:DeployDefaultTarget=WebPublish"
                             + " /p:WebPublishMethod=FileSystem"
@@ -57,7 +57,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest"){
                     dir("Generator"){
-                        bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                        bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4 /nr:false")
                         dir("bin/Release/netcoreapp2.0"){
                             bat ("dotnet Generator.dll")
                             bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\tvpapi_rest\\clientlibs\\")
@@ -79,6 +79,24 @@ pipeline {
                 dir("published/tvpapi_rest"){
                     // bat "7z.exe a -r phoenix_${RELEASE_VERSION}.zip *"
                     bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
+                }
+            }
+        }
+        stage("Generate Clients"){
+            steps{
+                script {
+                    def phoenixVersion = params.version_folder_name.replaceAll('_', ".")
+                    phoenixVersion = phoenixVersion.replaceAll('v', "")
+                    phoenixVersion = "${phoenixVersion}.0"
+                    echo "version for client libs generator: ${phoenixVersion}"
+                    
+                    build(
+                        job: 'Phoenix-Clients', 
+                        parameters: [
+                            [$class: 'StringParameterValue', name: 'phoenix_version', value: phoenixVersion],
+                            [$class: 'BooleanParameterValue', name: 'pre_docker', value: true]
+                        ]
+                    )
                 }
             }
         }
