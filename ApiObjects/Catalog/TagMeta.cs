@@ -76,7 +76,7 @@ namespace ApiObjects.Catalog
                 return false;
 
             // compare Value
-            if (!m_sValue.Equals(other.m_sValue))
+            if (!m_sValue.Equals(other.m_sValue) || !m_oTagMeta.Equals(other.m_oTagMeta))
             {
                 return false;
             }

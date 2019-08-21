@@ -420,6 +420,9 @@ namespace ApiObjects.SearchObjects
 
         public Dictionary<string, string> domainRecordingIdToRecordingIdMapping;
 
+        [JsonProperty()]
+        [DataMember]
+        public bool ShouldSearchAutoFill;
         #endregion
 
         #region Ctor

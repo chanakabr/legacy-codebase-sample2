@@ -92,6 +92,10 @@ pipeline {
                         + " /p:DeleteExistingFiles=True"
                         + " /p:OutputPath=${TEMP_PUBLISH_DIR}\\permissions\\"
                     )
+
+                    dir("${TEMP_PUBLISH_DIR}/permissions"){
+                        bat("PermissionsDeployment.exe e=permissions.xml")
+                    }
                 }
 
                 dir("remotetasks"){
@@ -128,14 +132,8 @@ pipeline {
                 }
 
                 dir("tvpapi"){
-                    bat ("\"${MSBUILD}\" TVPProAPIs.sln /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\tvpapi\\"
-                        )
+                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${TEMP_PUBLISH_DIR}\\tvpapi\" ")
                 }
 
                 dir("celery_tasks"){

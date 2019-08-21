@@ -5603,7 +5603,7 @@ namespace DAL
                 sp.AddParameter("@defaultOverlapPolicy", (int)profileToAdd.DefaultOverlapPolicy);
                 sp.AddParameter("@updaterId", userId);
 
-                if (profileToAdd.OverlapChannels != null)
+                if (profileToAdd.OverlapChannels?.Count > 0)
                 {
                     sp.AddParameter("@overlapChannels", string.Join(",", profileToAdd.OverlapChannels));
                 }
