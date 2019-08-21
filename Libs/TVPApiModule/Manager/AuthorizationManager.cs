@@ -159,7 +159,7 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            if (!groupConfig.UseToken)
+            if (!groupConfig.UseToken && !isAdmin)
             {
                 try
                 {
@@ -310,7 +310,15 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            if (!groupConfig.UseToken)
+            // check if session revocation is allowed and udid is not empty
+            if (groupConfig.SessionRevocationEnabled && string.IsNullOrEmpty(udid))
+            {
+                logger.ErrorFormat("RefreshAccessToken: UDID cannot be empty when session revocation is enabled. refreshToken = {0}", refreshToken);
+                returnError(403);
+                return null;
+            }
+
+            if (!groupConfig.UseToken && IsKsFormat(accessToken))
             {
                 try
                 {
@@ -329,14 +337,6 @@ namespace TVPApiModule.Manager
                     return null;
                 }
 
-            }
-
-            // check if session revocation is allowed and udid is not empty
-            if (groupConfig.SessionRevocationEnabled && string.IsNullOrEmpty(udid))
-            {
-                logger.ErrorFormat("RefreshAccessToken: UDID cannot be empty when session revocation is enabled. refreshToken = {0}", refreshToken);
-                returnError(403);
-                return null;
             }
 
             RefreshToken refreshTokenDoc = null;
