@@ -47,5 +47,12 @@ pipeline {
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
             }
         }
+        stage("Build Phoenix"){
+            steps{
+                build (job: "OTT-BE-Phoenix-Linux", parameters: [
+                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                ]) 
+            }
+        }
     }
 }
