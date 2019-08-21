@@ -382,9 +382,11 @@ namespace WebAPI.Managers.Models
 
         public static ContextData GetContextData()
         {
-            var contextData = new ContextData(GetFromRequest().GroupId)
+            var ks = GetFromRequest();
+            var contextData = new ContextData(ks.GroupId)
             {
-                DomainId = HouseholdUtils.GetHouseholdIDByKS()
+                DomainId = HouseholdUtils.GetHouseholdIDByKS(),
+                UserId = Utils.Utils.GetUserIdFromKs(ks)
             };
 
             return contextData;

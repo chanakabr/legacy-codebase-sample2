@@ -123,12 +123,18 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidAssetId)]
         static public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
         {
-            int groupId = KS.GetFromRequest().GroupId;
-            string userID = KS.GetFromRequest().UserId;
+            var contextData = KS.GetContextData();
 
             try
             {
-                return ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, followTvSeries.AssetId);
+                if (Utils.Utils.DoesGroupUsesTemplates(contextData.GroupId))
+                {
+                    return ClientsManager.NotificationClient().AddKalturaFollowTvSeries(contextData, followTvSeries);
+                }
+                else
+                {
+                    return ClientsManager.NotificationClient().AddUserTvSeriesFollow(contextData.GroupId, KS.GetFromRequest().UserId, followTvSeries.AssetId);
+                }
             }
             catch (ClientException ex)
             {
