@@ -1,36 +1,37 @@
-﻿using ApiObjects.BulkUpload;
+﻿using ApiLogic;
+using ApiObjects;
+using ApiObjects.BulkUpload;
+using ApiObjects.Catalog;
+using ApiObjects.Epg;
 using ApiObjects.EventBus;
+using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using ConfigurationManager;
+using Core.Catalog;
 using Core.Catalog.CatalogManagement;
+using Core.GroupManagers;
+using Core.Profiles;
+using CouchbaseManager;
+using ElasticSearch.Common;
+using ElasticSearch.Searcher;
+using EpgBL;
 using EventBus.Abstraction;
+using EventBus.RabbitMQ;
+using IngestHandler.Common;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ApiObjects;
-using System.Collections.Generic;
-using ElasticSearch.Common;
-using ElasticSearch.Searcher;
-using Newtonsoft.Json.Linq;
-using Core.Catalog;
-using Core.Profiles;
-using CouchbaseManager;
-using ApiObjects.Response;
-using ConfigurationManager;
-using ApiObjects.SearchObjects;
-using ApiLogic;
-using Core.GroupManagers;
-using IngestHandler.Common;
-using ApiObjects.Epg;
-using EpgBL;
-using ESUtils = ElasticSearch.Common.Utils;
-using ApiObjects.Catalog;
 using Tvinci.Core.DAL;
-using EventBus.RabbitMQ;
+using TVinciShared;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace IngestHandler
 {
-	public class BulkUploadIngestHandler : IServiceEventHandler<BulkUploadIngestEvent>
+    public class BulkUploadIngestHandler : IServiceEventHandler<BulkUploadIngestEvent>
 	{
 		private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -568,6 +569,10 @@ namespace IngestHandler
 
             List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
 
+            // Get AutoFill default program
+            string autoFillKey = GetAutoFillKey(_BulkUploadObject.GroupId);
+            EpgCB autoFillEpgCB = _CouchbaseManager.Get<EpgCB>(autoFillKey);
+
             for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
             {
                 var currentProgram = calculatedPrograms[programIndex];
@@ -603,9 +608,17 @@ namespace IngestHandler
                                     isValid = false;
                                     break;
                                 case eIngestProfileAutofillPolicy.Autofill:
+                                    
                                     if (_IngestProfile.OverlapChannels == null || _IngestProfile.OverlapChannels.Contains(currentProgram.ChannelId))
                                     {
-                                        crudOperations.ItemsToAdd.Add(GetDefaultGapProgram(currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId));
+                                        if (autoFillEpgCB != null)
+                                        {
+                                            var defaultGapProgram = GetDefaultAutoFillProgram(autoFillEpgCB, currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId);
+                                            if (defaultGapProgram != null)
+                                            {
+                                                crudOperations.ItemsToAdd.Add(defaultGapProgram);
+                                            }
+                                        }
                                     }
                                     break;
                                 case eIngestProfileAutofillPolicy.KeepHoles:
@@ -621,40 +634,35 @@ namespace IngestHandler
             return isValid;
         }
 
-        private EpgProgramBulkUploadObject GetDefaultGapProgram(DateTime start, DateTime end, int channelId)
+        private EpgProgramBulkUploadObject GetDefaultAutoFillProgram(EpgCB autoFillProgram, DateTime start, DateTime end, int channelId)
         {
-            var epgExternalId = Guid.NewGuid().ToString();
-
-            return new EpgProgramBulkUploadObject()
+            if (autoFillProgram != null)
             {
-                StartDate = start,
-                EndDate = end,
-                IsAutoFill = true,
-                ChannelId = channelId,
-                EpgExternalId = epgExternalId,
-                ParentGroupId = _BulkUploadObject.GroupId,
-                GroupId = _BulkUploadObject.GroupId,
+                EpgCB autoFillEpgCB = ObjectCopier.Clone(autoFillProgram);
+                var epgExternalId = Guid.NewGuid().ToString();
 
-                // TODO : get from configuration
-                EpgCbObjects = new List<EpgCB>()
+                autoFillEpgCB.StartDate = start;
+                autoFillEpgCB.EndDate = end;
+                autoFillEpgCB.ChannelID = channelId;
+                autoFillEpgCB.EpgIdentifier = epgExternalId;
+                autoFillEpgCB.Crid = epgExternalId;
+
+                return new EpgProgramBulkUploadObject()
                 {
-                    new EpgCB()
-                    {
-                        Name = "GAP",
-                        StartDate = start,
-                        EndDate = end,
-                        Language = "eng",
-                        IsAutoFill = true,
-                        ChannelID = channelId,
-                        EpgIdentifier = epgExternalId,
-                        Crid = epgExternalId,
-                        DocumentId = GetEpgCBDocumentId(epgExternalId, "eng", _BulkUploadObject.Id),
-                        IsActive = true,
-                        GroupID = _BulkUploadObject.GroupId,
-                        ParentGroupID = _BulkUploadObject.GroupId
-                    }
-                }
-            };
+                    StartDate = start,
+                    EndDate = end,
+                    IsAutoFill = true,
+                    ChannelId = channelId,
+                    EpgExternalId = epgExternalId,
+                    ParentGroupId = _BulkUploadObject.GroupId,
+                    GroupId = _BulkUploadObject.GroupId,
+                    EpgCbObjects = new List<EpgCB>() { autoFillEpgCB }
+                };
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -772,5 +780,10 @@ namespace IngestHandler
 
 			}
 		}
-	}
+
+        private string GetAutoFillKey(object groupId)
+        {
+            return $"autofill_groupid_{groupId}";
+        }
+    }
 }
