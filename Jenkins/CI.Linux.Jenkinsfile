@@ -13,6 +13,7 @@ pipeline {
         AWS_REGION="us-west-2"
         REPOSITORY_NAME="${BRANCH_NAME}/phoenix"
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
+        ECR_CORE_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${BRANCH_NAME}/core"
     }
     stages {
         stage('Checkout'){
@@ -26,12 +27,16 @@ pipeline {
                 FULL_VERSION = sh(script: 'cd tvpapi_rest && ../core/get-version-tag.sh', , returnStdout: true).trim()
             }
             steps{
-                dir(tvpapi_rest){
+                dir("tvpapi_rest"){
+                    sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+
+                    sh(label: "Validate we have latest core docker image", script: "docker pull ${ECR_CORE_REPOSITORY}:build")
                     sh(
                         label: "Docker build core:${BRANCH_NAME}", 
                         script: "docker build -t ${ECR_REPOSITORY}:build  "+
-                        "-f NetCore.Dockerfile "+
                         "--build-arg BRANCH=${BRANCH_NAME} "+
+                        "--build-arg CORE_IMAGE=${ECR_CORE_REPOSITORY} "+
+                        "--build-arg CORE_BUILD_TAG=build "+
                         "--label 'version=${FULL_VERSION}' "+
                         "--label 'commit=${env.GIT_COMMIT}' "+
                         "--label 'build=${env.BUILD_NEMBER}' ."
