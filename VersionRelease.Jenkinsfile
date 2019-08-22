@@ -16,6 +16,9 @@ pipeline {
     environment {
         MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
         NUGET = 'c:\\nuget.exe'
+        ROOT_PUBLISH_DIR = "c:\\version_release\\mediahub\\${params.branch}"
+        TEMP_PUBLISH_DIR = "${ROOT_PUBLISH_DIR}\\${BUILD_TIMESTAMP}"
+        FINAL_PUBLISH_DIR = "${ROOT_PUBLISH_DIR}\\${release_name}${release_number}"
     }
     stages {
         stage("Clean"){
@@ -75,20 +78,24 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\"
                     )
 
                     bat ("\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj /m:4"
                             + " /p:Configuration=Release"
                             + " /p:DeleteExistingFiles=True"
-                            + " /p:OutputPath=\"${WORKSPACE}/published/configuration_validator/"
+                            + " /p:OutputPath=${TEMP_PUBLISH_DIR}\\configuration_validator\\"
                     )
 
                     bat ("\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj /m:4"
                         + " /p:Configuration=Release"
                         + " /p:DeleteExistingFiles=True"
-                        + " /p:OutputPath=\"${WORKSPACE}/published/permissions/"
+                        + " /p:OutputPath=${TEMP_PUBLISH_DIR}\\permissions\\"
                     )
+
+                    dir("${TEMP_PUBLISH_DIR}/permissions"){
+                        bat("PermissionsDeployment.exe e=permissions.xml")
+                    }
                 }
 
                 dir("remotetasks"){
@@ -98,7 +105,7 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/remotetasks/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\remotetasks\\"
                     )
                 }
 
@@ -109,7 +116,7 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvm/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\tvm\\"
                     )
                 }
 
@@ -120,23 +127,17 @@ pipeline {
                             + " /p:WebPublishMethod=FileSystem"
                             + " /p:DeleteExistingFiles=True"
                             + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/ws_ingest/"
+                            + " /p:publishUrl=${TEMP_PUBLISH_DIR}\\ws_ingest\\"
                         )
                 }
 
                 dir("tvpapi"){
-                    bat ("\"${MSBUILD}\" TVPProAPIs.sln /m:4"
-                            + " /p:Configuration=Release"
-                            + " /p:DeployDefaultTarget=WebPublish"
-                            + " /p:WebPublishMethod=FileSystem"
-                            + " /p:DeleteExistingFiles=True"
-                            + " /p:DeployOnBuild=True"
-                            + " /p:publishUrl=\"${WORKSPACE}/published/tvpapi/"
-                        )
+                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${TEMP_PUBLISH_DIR}\\tvpapi\" ")
                 }
 
                 dir("celery_tasks"){
-                    bat "xcopy tasks ${WORKSPACE}\\published\\tasks\\ /E /O /X /K /D /H /Y"
+                    bat "xcopy tasks ${TEMP_PUBLISH_DIR}\\tasks\\ /E /O /X /K /D /H /Y"
                 }
             }        
         }
@@ -147,7 +148,7 @@ pipeline {
                     bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
                     dir("bin/Release/netcoreapp2.0"){
                         bat ("dotnet Generator.dll")
-                        bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
+                        bat ("xcopy KalturaClient.xml ${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\")
                     }
                 }
             }
@@ -157,9 +158,9 @@ pipeline {
             when { expression { return params.generate_doc_and_clients == true; } }
             steps { 
                 dir("clients-generator"){
-                    bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
+                    bat ("php exec.php --dont-gzip -x${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
                         +"-tott ottTestme,testmeDoc,php5,php53,php5Zend,php4,csharp,ruby,java,android,python,objc,cli,node,ajax " 
-                        +"${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\"
+                        +"${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\"
                     )
                 }
             }
@@ -167,10 +168,11 @@ pipeline {
 
         stage("Zip and Publish"){
             steps{
-                dir("published"){  
+                dir("${ROOT_PUBLISH_DIR}"){  
                     // \\34.252.63.117\version_release\mediahub\5_2_4\SP0\5_2_4_SP0.zip
-                    bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip *"
-                    bat "xcopy ${params.branch}_${release_name}${release_number}.zip c:\\version_release\\mediahub\\${release_name}${release_number}\\ /O /X /K /D /H /Y"
+                    bat "7z.exe a -r ${params.branch}_${release_name}${release_number}.zip ${BUILD_TIMESTAMP}"
+                    bat "if not exist ${FINAL_PUBLISH_DIR} mkdir ${FINAL_PUBLISH_DIR}"
+                    bat "move /Y ${params.branch}_${release_name}${release_number}.zip ${FINAL_PUBLISH_DIR}\\"
                 }
             }        
         }

@@ -114,7 +114,7 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed enqueue of message {0}", dataToIndex, ex);
+                log.ErrorFormat("Failed enqueue of message {0}, ex:{1}", dataToIndex, ex);
             }
 
             return success;
