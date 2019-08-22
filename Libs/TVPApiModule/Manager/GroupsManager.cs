@@ -117,19 +117,19 @@ namespace TVPApiModule.Manager
             string groupKey = string.Format(groupKeyFormat, groupId);
             Group tempGroup = null;
 
-            if (HttpContext.Current.Cache.Get(groupKey) == null)
+            if (CachingManager.CachingManager.GetCachedData(groupKey) == null)
             {
                 if (syncLock.TryEnterWriteLock(10000))
                 {
                     try
                     {
-                        if (HttpContext.Current.Cache.Get(groupKey) == null)
+                        if (CachingManager.CachingManager.GetCachedData(groupKey) == null)
                         {
                             Group group = createNewInstance(groupId);
 
                             if (group != null)
                             {
-                                HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                                CachingManager.CachingManager.SetCachedData(groupKey, group, groupCacheTtlSeconds, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
                             }
                         }
                     }
@@ -152,9 +152,8 @@ namespace TVPApiModule.Manager
                 {
                     object res = null;
 
-                    res = HttpContext.Current.Cache.Get(groupKey);
+                    res = CachingManager.CachingManager.GetCachedData(groupKey);
                     
-
                     if (res != null && res is Group)
                     {
                         tempGroup = res as Group;
