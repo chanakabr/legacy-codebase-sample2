@@ -2,6 +2,7 @@
 using Core.Users;
 using KLogMonitor;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +16,7 @@ using TVPPro.SiteManager.Helper;
 using Domain = Core.Users.Domain;
 using TVinciShared;
 
+
 namespace TVPApiModule.Manager
 {
     public class AuthorizationManager
@@ -24,6 +26,20 @@ namespace TVPApiModule.Manager
         private static CouchbaseManager.CouchbaseManager cbManager;
         private static ReaderWriterLockSlim _lock;
         private static AuthorizationManager _instance = null;
+
+        public const string INVALID_KS_FORMAT_ERROR = "INVALID_KS_FORMAT";
+        public const string MISSING_CONFIGURATION_ERROR = "MISSING_CONFIGURATION";
+        public const string ARGUMENT_CANNOT_BE_EMPTY = "ARGUMENT_CANNOT_BE_EMPTY";
+        public const string KS_EXPIRED = "KS_EXPIRED";
+        public const string INVALID_UDID = "INVALID_UDID";
+        public const string INVALID_REFRESH_TOKEN = "INVALID_REFRESH_TOKEN";
+        public const string REFRESH_TOKEN_FAILED = "REFRESH_TOKEN_FAILED";
+
+        private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
+        private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
+        private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
+        private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
+        private const int ACCESS_TOKEN_LENGTH = 32;
 
         public static AuthorizationManager Instance
         {
@@ -145,6 +161,27 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            if (!groupConfig.UseToken && !isAdmin)
+            {
+                try
+                {
+                    var session = GenerateSession(siteGuid, groupId, isAdmin, isSTB, udid);
+                    return new APIToken()
+                    {
+                        AccessToken = session.KS,
+                        RefreshToken = session.RefreshToken,
+                        AccessTokenExpiration = session.Expiry,
+                        RefreshTokenExpiration = session.RefreshTokenExpiry
+                    };
+                }
+                catch (Exception ex)
+                {
+                    HandleKsErrors(ex);
+                    return null;
+                }
+                
+            }
+
             // generate access token and refresh token pair
             APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB, udid, platform);
             RefreshToken refreshToken = new RefreshToken(apiToken);
@@ -218,7 +255,26 @@ namespace TVPApiModule.Manager
                     logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
                 }
             }
+
             return apiToken;
+        }
+
+        private void HandleKsErrors(Exception ex)
+        {
+            switch (ex.Message)
+            {
+                case INVALID_KS_FORMAT_ERROR:
+                case ARGUMENT_CANNOT_BE_EMPTY:
+                case INVALID_REFRESH_TOKEN:
+                case INVALID_UDID:
+                    returnError(403);
+                    break;
+                case REFRESH_TOKEN_FAILED:
+                case MISSING_CONFIGURATION_ERROR:
+                default:
+                    returnError(500);
+                    break;
+            }
         }
 
         public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid, PlatformType platform)
@@ -262,6 +318,27 @@ namespace TVPApiModule.Manager
                 logger.ErrorFormat("RefreshAccessToken: UDID cannot be empty when session revocation is enabled. refreshToken = {0}", refreshToken);
                 returnError(403);
                 return null;
+            }
+
+            if (!groupConfig.UseToken && IsKsFormat(accessToken))
+            {
+                try
+                {
+                    var session = RefreshSession(accessToken, refreshToken, platform, udid);
+                    return new APIToken()
+                    {
+                        AccessToken = session.KS,
+                        RefreshToken = session.RefreshToken,
+                        AccessTokenExpiration = session.Expiry,
+                        RefreshTokenExpiration = session.RefreshTokenExpiry
+                    };
+                }
+                catch (Exception ex)
+                {
+                    HandleKsErrors(ex);
+                    return null;
+                }
+
             }
 
             RefreshToken refreshTokenDoc = null;
@@ -323,23 +400,9 @@ namespace TVPApiModule.Manager
             string siteGuid = refreshTokenDoc.SiteGuid;
 
             // validate user
-            UserResponseObject user = null;
-            try
+            UserResponseObject user = ValidateUser(siteGuid, groupId, platform);
+            if (user == null)
             {
-                user = new ApiUsersService(groupId, platform).GetUserData(siteGuid);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorFormat("RefreshAccessToken: error while getting user. siteGuid = {0}, exception = {1}", siteGuid, ex);
-                returnError(500);
-                return null;
-            }
-            if (user == null || (user.m_RespStatus != ResponseStatus.OK && user.m_RespStatus != ResponseStatus.UserNotActivated && user.m_RespStatus != ResponseStatus.DeviceNotRegistered &&
-                user.m_RespStatus != ResponseStatus.UserNotMasterApproved && user.m_RespStatus != ResponseStatus.UserNotIndDomain && user.m_RespStatus != ResponseStatus.UserWithNoDomain &&
-                user.m_RespStatus != ResponseStatus.UserSuspended))
-            {
-                logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}", siteGuid);
-                returnError(401);
                 return null;
             }
 
@@ -408,6 +471,31 @@ namespace TVPApiModule.Manager
             return GetTokenResponseObject(accessTokenDoc);
         }
 
+        private UserResponseObject ValidateUser(string siteGuid, int groupId, PlatformType platform)
+        {
+            UserResponseObject user = null;
+            try
+            {
+                user = new ApiUsersService(groupId, platform).GetUserData(siteGuid);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("RefreshAccessToken: error while getting user. siteGuid = {0}, exception = {1}", siteGuid, ex);
+                returnError(500);
+                return null;
+            }
+            if (user == null || (user.m_RespStatus != ResponseStatus.OK && user.m_RespStatus != ResponseStatus.UserNotActivated && user.m_RespStatus != ResponseStatus.DeviceNotRegistered &&
+                user.m_RespStatus != ResponseStatus.UserNotMasterApproved && user.m_RespStatus != ResponseStatus.UserNotIndDomain && user.m_RespStatus != ResponseStatus.UserWithNoDomain &&
+                user.m_RespStatus != ResponseStatus.UserSuspended))
+            {
+                logger.ErrorFormat("RefreshAccessToken: siteGuid not valid. siteGuid = {0}", siteGuid);
+                returnError(401);
+                return null;
+            }
+
+            return user;
+        }
+
         public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, string udid, out string siteGuid, out bool isAdmin)
         {
             siteGuid = string.Empty;
@@ -426,6 +514,23 @@ namespace TVPApiModule.Manager
                 logger.ErrorFormat("ValidateAccessToken: empty accessToken or siteGuid.");
                 returnError(401);
                 return false;
+            }
+
+            // validate KS not token
+            if (IsKsFormat(accessToken))
+            {
+                try
+                {
+                    KS ks = KS.ParseKS(accessToken);
+                    siteGuid = ks.UserId;
+                    isAdmin = false;
+                    return IsKsValid(ks, true);
+                }
+                catch (Exception ex)
+                {
+                    HandleKsErrors(ex);
+                    return false;
+                }
             }
 
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
@@ -820,5 +925,303 @@ namespace TVPApiModule.Manager
             }
             return siteGuidsDomain;
         }
+
+        public KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string, string> privileges = null)
+        {
+            KalturaLoginSession session = new KalturaLoginSession();
+
+            // get group configurations
+            Group group = GetGroupConfiguration(groupId);
+
+            // generate access token and refresh token pair
+            APIToken token = new APIToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, privileges);
+            string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
+
+            // update the sessions data
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            {
+                returnError(500);
+                return null;
+            }
+
+            // try store in CB, will return false if the same token already exists
+            if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+            {
+                logger.ErrorFormat("GenerateSession: Failed to store refreshed token");
+                returnError(500);
+                return null;
+            }
+
+            session.RefreshToken = token.RefreshToken;
+            session.RefreshTokenExpiry = token.RefreshTokenExpiration;
+
+            session.KS = token.AccessToken;
+            session.Expiry = (long)TimeHelper.ConvertToUnixTimestamp(token.KsObject.Expiration);
+
+            return session;
+        }
+
+        private Group GetGroupConfiguration(int groupId)
+        {
+            // get group configurations
+            Group groupConfig = GroupsManager.GetGroup(groupId);
+            if (groupConfig == null)
+            {
+                logger.ErrorFormat("GetGroupConfiguration: group configuration was not found for groupId = {0}", groupId);
+                returnError(500);
+                return null;
+            }
+
+            return groupConfig;
+        }
+
+
+        internal static bool IsKsValid(KS ks, bool validateExpiration = true)
+        {
+            // Check if KS already validated by gateway
+            string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
+            if (ksRandomHeader == ks.Random)
+            {
+                return true;
+            }
+
+            if (validateExpiration && ks.Expiration < DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            Group group = GroupsManager.GetGroup(ks.GroupId);
+
+            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+            {
+                string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
+
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+
+                APIToken revokedToken = cbManager.Get<APIToken>(revokedKsCbKey, true);
+                if (revokedToken != null)
+                {
+                    return false;
+                }
+
+                string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
+                string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
+                UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+
+                if (usersSessions != null)
+                {
+                    var ksData = KSUtils.ExtractKSPayload(ks);
+
+                    if (usersSessions.UserRevocation > 0)
+                    {
+                        return ksData.CreateDate >= usersSessions.UserRevocation;
+                    }
+
+                    if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
+                    {
+                        return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+                    }
+                }
+            }
+            if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            {
+                string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];
+                string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
+                string revokedSessionCbKey = string.Format(revokedSessionKeyFormat, sessionId);
+
+                long revokedSessionTime = cbManager.Get<long>(revokedSessionCbKey, true);
+                if (revokedSessionTime > 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
+        {
+            if (!string.IsNullOrEmpty(userId) && userId != "0")
+            {
+                string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
+
+                // get user sessions from CB
+                string userSessionsCbKey = string.Format(userSessionsKeyFormat, userId);
+
+                ulong version;
+                UserSessions usersSessions = cbManager.GetWithVersion<UserSessions>(userSessionsCbKey, out version, true);
+
+                // if not found create one
+                if (usersSessions == null)
+                {
+                    usersSessions = new UserSessions()
+                    {
+                        UserId = userId,
+                    };
+                }
+
+                // calculate new expiration
+                usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
+
+                if (revokeAll)
+                {
+                    usersSessions.UserRevocation = revocationTime;
+
+                    long now = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow);
+                    usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(udid))
+                    {
+                        if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
+                        {
+                            usersSessions.UserWithUdidRevocations[udid] = revocationTime;
+                        }
+                        else
+                        {
+                            usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
+                        }
+                    }
+                }
+
+                // store
+                if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+                {
+                    logger.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public KalturaLoginSession RefreshSession(string ksStr, string refreshToken, PlatformType platform, string udid = null)
+        {
+            KS ks = KS.ParseKS(ksStr);
+
+            int groupId = ks.GroupId;
+
+            // validate request parameters
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                logger.ErrorFormat("RefreshSession: Bad request refresh token is empty");
+                throw new Exception(ARGUMENT_CANNOT_BE_EMPTY);
+            }
+
+            if (!IsKsValid(ks, false))
+            {
+                logger.ErrorFormat("RefreshSession: KS already revoked or overwritten");
+                throw new Exception(KS_EXPIRED);
+            }
+
+            // get group configurations
+            Group group = GetGroupConfiguration(groupId);
+
+            // get token from CB
+            string tokenKey = string.Format(group.TokenKeyFormat, refreshToken);
+            ulong version;
+            APIToken token = cbManager.GetWithVersion<APIToken>(tokenKey, out version, true);
+            if (token == null)
+            {
+                logger.ErrorFormat("RefreshSession: refreshToken expired");
+                throw new Exception(INVALID_REFRESH_TOKEN);
+            }
+
+            // validate expired ks
+            if (ks.ToString() != token.AccessToken)
+            {
+                logger.ErrorFormat("RefreshSession: invalid ks");
+                throw new Exception(KS_EXPIRED);
+            }
+
+            if (udid != token.UDID)
+            {
+                logger.ErrorFormat("RefreshSession: UDID does not match the KS's UDID, UDID = {0}, KS.UDID = {1}", udid, token.UDID);
+                throw new Exception(INVALID_UDID);
+            }
+
+            string userId = token.SiteGuid;
+
+            // get user
+            UserResponseObject user = ValidateUser(userId, groupId, platform);
+            if (user == null)
+            {
+                return null;
+            }
+
+            // generate new access token with the old refresh token
+            token = new APIToken(token, group, udid);
+
+            // update the sessions data
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            {
+                logger.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);
+                throw new Exception(REFRESH_TOKEN_FAILED);
+            }
+
+            // Store new access + refresh tokens pair
+            if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+            {
+                logger.ErrorFormat("RefreshSession: Failed to store refreshed token");
+                throw new Exception(REFRESH_TOKEN_FAILED);
+            }
+
+            return new KalturaLoginSession()
+            {
+                KS = token.AccessToken,
+                RefreshToken = token.RefreshToken
+            };
+        }
+
+        private static string GetRevokedKsKeyFormat(Group group)
+        {
+            string revokedKsKeyFormat = group.RevokedKsKeyFormat;
+            if (string.IsNullOrEmpty(revokedKsKeyFormat))
+            {
+                revokedKsKeyFormat = string.Empty; //ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
+            }
+
+            return revokedKsKeyFormat;
+        }
+
+        private static string GetUserSessionsKeyFormat(Group group)
+        {
+            string userSessionsKeyFormat = group.UserSessionsKeyFormat;
+            if (string.IsNullOrEmpty(userSessionsKeyFormat))
+            {
+                userSessionsKeyFormat = string.Empty; //ApplicationConfiguration.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
+
+                if (string.IsNullOrEmpty(userSessionsKeyFormat))
+                {
+                    userSessionsKeyFormat = USERS_SESSIONS_KEY_FORMAT;
+                }
+            }
+
+            return userSessionsKeyFormat;
+        }
+
+        private static string GetRevokedSessionKeyFormat(Group group)
+        {
+            string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
+            if (string.IsNullOrEmpty(revokedSessionKeyFormat))
+            {
+                revokedSessionKeyFormat = string.Empty; //ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
+
+                if (string.IsNullOrEmpty(revokedSessionKeyFormat))
+                {
+                    revokedSessionKeyFormat = REVOKED_SESSION_KEY_FORMAT;
+                }
+            }
+
+            return revokedSessionKeyFormat;
+        }
+
+        private static bool IsKsFormat(string token)
+        {
+            return token.Length > ACCESS_TOKEN_LENGTH;
+        }
+
     }
 }
