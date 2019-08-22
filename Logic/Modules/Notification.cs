@@ -3,16 +3,10 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using KLogMonitor;
-using Core.Notification;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
@@ -1433,6 +1427,46 @@ namespace Core.Notification
             }
 
             return response;
+        }
+
+        public static void AddFollowNotificationRequest(int groupId, int mediaId, long userId)
+        {
+            MonitorLogsHelper.SetContext(Constants.USER_ID, userId);
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
+            
+            try
+            {
+                var addTvSeriesFollowStatus = FollowManager.Instance.AddTvSeriesFollowRequestForOpc(groupId, mediaId);
+                if (!addTvSeriesFollowStatus.IsOkStatusCode())
+                {
+                    return;
+                }
+                
+                TopicInterestManager.HandleVodEventForInterest(groupId, mediaId);
+
+                // call old flow
+                var followUpTagNotifications = NotificationManager.Instance.GetNotifications(groupId, NotificationTriggerType.FollowUpByTag, mediaId);
+
+                //Indication if notification(s) exist for this 
+                if (followUpTagNotifications != null) 
+                {
+                    DataTable request = NotificationManager.Instance.BuildTagNotificationsRequest(followUpTagNotifications);
+                    if (request != null && request.Rows != null && request.Rows.Count > 0)
+                    {
+                        NotificationManager.Instance.InsertNotificationTagRequest(request);
+                    }
+                    // return true;
+                }
+                else
+                {
+                    log.Debug("AddNotificationRequest GetNotifications count 0");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("An Exception was occurred while AddFollowNotificationRequest. groupId:{0}, mediaId:{1}. ex: {2}",
+                                groupId, mediaId, ex);
+            }
         }
     }
 }

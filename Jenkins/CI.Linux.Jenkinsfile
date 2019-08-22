@@ -17,6 +17,7 @@ pipeline {
     stages {
         stage('Checkout'){
             steps{
+                script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
             }
         }
@@ -45,6 +46,13 @@ pipeline {
                             "aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
                 )
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
+            }
+        }
+        stage("Build Phoenix"){
+            steps{
+                build (job: "OTT-BE-Phoenix-Linux", parameters: [
+                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                ]) 
             }
         }
     }

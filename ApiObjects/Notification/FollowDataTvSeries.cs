@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using ApiObjects.Base;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
     [DataContract]
-    public class FollowDataTvSeries : FollowDataBase
+    public class FollowDataTvSeries : FollowDataBase, ICrudHandeledObject
     {
         [DataMember]
         public int AssetId;

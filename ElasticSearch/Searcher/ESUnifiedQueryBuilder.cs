@@ -31,6 +31,7 @@ namespace ElasticSearch.Searcher
         public const string USER_INTERESTS_FIELD = "user_interests";
         public const string ASSET_TYPE = "asset_type";
         public const string RECORDING_ID = "recording_id";
+        public const string AUTO_FILL_FIELD = "auto_fill";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -780,6 +781,19 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+
+                if (!SearchDefinitions.ShouldSearchAutoFill)
+                {
+                    ESTerm autofill = new ESTerm(true)
+                    {
+                        Key = "is_auto_fill",
+                        Value = "1",
+                        isNot = true
+                    };
+
+                    epgFilter.AddChild(autofill);
+                }
+
             }
 
             // Media specific filters - user types, media types etc.

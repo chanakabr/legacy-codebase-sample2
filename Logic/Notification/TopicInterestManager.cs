@@ -1499,7 +1499,7 @@ namespace APILogic.Notification
         internal static void HandleVodEventForInterest(int partnerId, int assetId)
         {
             // get interests topic
-            List<ApiObjects.Meta> availableTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
+            var availableTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
             if (availableTopics == null || availableTopics.Count == 0)
             {
                 log.ErrorFormat("Available partner topics were not found. Partner ID: {0}", partnerId);
@@ -1507,9 +1507,7 @@ namespace APILogic.Notification
             }
 
             // remove irrelevant topics - relevant topics are EGPs and ENABLED_NOTIFICATION
-            availableTopics.RemoveAll(x => x.AssetType != eAssetTypes.MEDIA ||
-                                         x.Features == null ||
-                                         !x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION));
+            availableTopics.RemoveAll(x => x.AssetType != eAssetTypes.MEDIA || x.Features == null || !x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION));
 
             if (availableTopics.Count == 0)
             {

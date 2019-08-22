@@ -517,12 +517,14 @@ namespace DalCB
 
         private void PerformEPGView(List<EpgCB> lRes, ViewManager viewManager)
         {
-            var res = cbManager.View<object>(viewManager);
+            var res = cbManager.ViewRows<object>(viewManager);
 
             if (res != null)
             {
-                foreach (object currentValue in res)
+                foreach (var currentRow in res)
                 {
+                    object currentValue = currentRow.Value;
+
                     // Old code:
                     // If the value that CB returned is valid
                     if (currentValue != null)
@@ -540,13 +542,17 @@ namespace DalCB
                                 // If it was successful, add to list
                                 if (tempEpg != null)
                                 {
+                                    tempEpg.DocumentId = currentRow.Id;
+
                                     lRes.Add(tempEpg);
                                 }
                             }
                         }
                         else if (currentValue is EpgCB)
                         {
-                            lRes.Add(currentValue as EpgCB);
+                            var epgCB = currentValue as EpgCB;
+                            epgCB.DocumentId = currentRow.Id;
+                            lRes.Add(epgCB);
                         }
                     }
                 }

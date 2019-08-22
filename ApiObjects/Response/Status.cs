@@ -24,6 +24,13 @@ namespace ApiObjects.Response
             this.args = args;
         }
 
+        public Status(eResponseStatus status, string message = null, List<KeyValuePair> args = null)
+        {
+            this.Message = message;
+            this.Code = (int)status;
+            this.Args = args;
+        }
+
         public Status()
         {
         }

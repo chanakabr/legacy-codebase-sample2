@@ -14,5 +14,10 @@ namespace ApiObjects.Notification
         public int SubscribersAmount{ get; set; }
         public string QueueName { get; set; }
         public string MailExternalId { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("ID:{0}, Name: {1}, FollowPhrase:{2}, FollowReference:{3}.", ID, Name, FollowPhrase, FollowReference);
+        }
     }
 }
