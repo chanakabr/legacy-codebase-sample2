@@ -49,7 +49,6 @@ using ApiObjects.Catalog;
 using MediaMarkObject = ApiObjects.MediaMarkObject;
 using Media = TVPApi.Media;
 using EPGUnit = ApiObjects.EPGUnit;
-using EPGMultiChannelProgrammeObject = ApiLogic.Catalog.EPGMultiChannelProgrammeObject;
 using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Language = ApiObjects.Language;
