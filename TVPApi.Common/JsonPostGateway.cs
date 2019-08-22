@@ -27,6 +27,11 @@ namespace TVPApi.Common
         protected UsersService m_UsersService;
         protected NotificationService m_NotificationService;
 
+        static JsonPostGateway()
+        {
+
+        }
+
         public JsonPostGateway()
         {
             m_MediaService = new MediaService();
