@@ -6,7 +6,7 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [ "MANAGE_FAVORITES_WHILE_SUSPENDED" ],
       "name": "Favorite_Add",
       "service": "Favorite",
       "action": "Add",
@@ -18,7 +18,7 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [ "MANAGE_FAVORITES_WHILE_SUSPENDED" ],
       "name": "Favorite_Delete",
       "service": "Favorite",
       "action": "Delete",
@@ -30,7 +30,7 @@
         "Master",
         "Operator"
       ],
-      "excluded_permissions": [],
+      "excluded_permissions": [ "MANAGE_FAVORITES_WHILE_SUSPENDED" ],
       "name": "Favorite_List",
       "service": "Favorite",
       "action": "List",
