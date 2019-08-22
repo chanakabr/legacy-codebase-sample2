@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TVPApi.Common;
+using TVinciShared;
 
 namespace TVPApi.Web.Middleware
 {
@@ -57,14 +58,45 @@ namespace TVPApi.Web.Middleware
         private async Task HandleResponse(object ctx)
         {
             var context = ctx as HttpContext;
-
+            var contentType = context.Response.ContentType;
             // always mark response as 200, that's how it worked on old tvpapi
             context.Response.StatusCode = 200;
             context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
-            
+
             //HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
             //HttpContext.Current.Response.Charset = "utf-8";
+
+            // Check if exception or error occurred
+            object error = System.Web.HttpContext.Current.Items["Error"];
+            string sError = null;
+
+            if (error != null)
+            {
+                // Exception was thrown - write log
+                if (error is Exception)
+                {
+                    sError = "Unknown error ";
+                }
+                // Error occurred - write log
+                else
+                {
+                    sError = error as string;
+                }
+                // Return an error message to client
+                if (contentType.Contains("xml"))
+                {
+                    string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' " + 
+                        "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error='{0}'/>" + 
+                        "</soap:Body></soap:Envelope>", sError);
+                    _Response = xml;
+                }
+                else
+                {
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(new { Error = sError });
+                    _Response = json;
+                }
+            }
 
             await context.Response.WriteAsync(_Response);
         }
