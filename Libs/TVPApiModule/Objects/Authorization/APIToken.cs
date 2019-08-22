@@ -49,6 +49,9 @@ namespace TVPApiModule.Objects.Authorization
             get { return GetAPITokenId(AccessToken); }
         }
 
+        [JsonIgnore]
+        public KS KsObject { get; set; }
+
         public APIToken()
         {
         }
@@ -122,11 +125,105 @@ namespace TVPApiModule.Objects.Authorization
             Platform = token.Platform;
         }
 
+        public APIToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
+        {
+            string payload = KSUtils.PrepareKSPayload(new KS.KSData() { UDID = udid, CreateDate = (int)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow) });
+            RefreshToken = Generate32LengthGuid();
+            GroupID = groupId;
+            SiteGuid = userId;
+            IsAdmin = isAdmin;
+            IsLongRefreshExpiration = isLongRefreshExpiration;
+            UDID = udid;
+            if (isLongRefreshExpiration)
+            {
+                RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds));
+            }
+            else
+            {
+                RefreshTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+            }
+
+            // set access expiration time - no longer than refresh expiration (not relative)
+            // check if user is anonymous
+            long accessExpiration;
+            if (SiteGuid == "0")
+            {
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+            }
+            else
+            {
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+            }
+
+            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+
+            KsObject = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+                groupId.ToString(),
+                userId,
+                (int)(AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
+                isAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                payload,
+                privileges,
+                KS.KSVersion.V2);
+
+            AccessToken = KsObject.ToString();
+        }
+
+        public APIToken(APIToken token, Group groupConfig, string udid)
+        {
+            string payload = KSUtils.PrepareKSPayload(new KS.KSData() { UDID = udid, CreateDate = (int)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow) });
+            RefreshToken = token.RefreshToken;
+            GroupID = token.GroupID;
+            SiteGuid = token.SiteGuid;
+            IsAdmin = token.IsAdmin;
+            IsLongRefreshExpiration = token.IsLongRefreshExpiration;
+            UDID = udid;
+            // set refresh token expiration
+            if (groupConfig.IsRefreshTokenExtendable)
+            {
+                RefreshTokenExpiration = token.IsLongRefreshExpiration ?
+                    token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds :
+                    token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds;
+            }
+            else
+            {
+                RefreshTokenExpiration = token.RefreshTokenExpiration;
+            }
+
+            // set access expiration time - no longer than refresh expiration
+            // check if user is anonymous
+            long accessExpiration;
+            if (SiteGuid == "0")
+            {
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+            }
+            else
+            {
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+            }
+
+            AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
+
+            KsObject = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+                token.GroupID.ToString(),
+                token.SiteGuid,
+                (int)(AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)),
+                token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                payload,
+                null,
+                KS.KSVersion.V2);
+            AccessToken = KsObject.ToString();
+        }
+
+
         public static string GetAPITokenId(string accessToken)
         {
             return string.Format("access_{0}", accessToken);
         }
 
-        
+        private static string Generate32LengthGuid()
+        {
+            return Guid.NewGuid().ToString("N");
+        }
     }
 }

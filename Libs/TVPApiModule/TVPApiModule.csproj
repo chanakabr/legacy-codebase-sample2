@@ -194,6 +194,7 @@
     <Compile Include="Manager\CategoryTreeBuilder.cs" />
     <Compile Include="Manager\ConfigManager.cs" />
     <Compile Include="Manager\ConnectionManager.cs" />
+    <Compile Include="Manager\GroupsManager.cs" />
     <Compile Include="Manager\MenuBuilder.cs" />
     <Compile Include="Manager\SiteMapManager.cs" />
     <Compile Include="Configuration\ApiTechnicalConfiguration.cs" />
@@ -209,6 +210,17 @@
     <Compile Include="Objects\Category.cs" />
     <Compile Include="Objects\Channel.cs" />
     <Compile Include="Objects\Comment.cs" />
+    <Compile Include="Objects\Authorization\EncryptionUtils.cs" />
+    <Compile Include="Objects\Authorization\Group.cs" />
+    <Compile Include="Objects\Authorization\KalturaLoginSession.cs" />
+    <Compile Include="Objects\Authorization\KS.cs" />
+    <Compile Include="Objects\Authorization\KSUtils.cs" />
+    <Compile Include="Objects\Authorization\UserDeviceTokensView.cs" />
+    <Compile Include="Objects\Authorization\RefreshToken.cs" />
+    <Compile Include="Objects\Authorization\DeviceToken.cs" />
+    <Compile Include="Objects\Authorization\GroupConfiguration.cs" />
+    <Compile Include="Objects\Authorization\PrivateMethodAttribute.cs" />
+    <Compile Include="Objects\Authorization\UserSessions.cs" />
     <Compile Include="Objects\CRM\Country.cs" />
     <Compile Include="Objects\CRM\enums.cs" />
     <Compile Include="Objects\CRM\State.cs" />
