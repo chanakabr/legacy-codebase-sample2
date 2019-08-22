@@ -85,15 +85,15 @@ public partial class MethodFinder
                     {
                         if (TargetType.ToString().Equals("System.String[]"))
                         {
-                            Product = Array.ConvertAll<object, string>((object[])JsonConvert.DeserializeObject(DeserializationTarget), Convert.ToString);
+                            Product = Array.ConvertAll<object, string>((object[])JsonConvert.DeserializeObject<object[]>(DeserializationTarget), Convert.ToString);
                         }
                         else if (TargetType.ToString().Equals("System.Int64[]"))
                         {
-                            Product = Array.ConvertAll<object, long>((object[])JsonConvert.DeserializeObject(DeserializationTarget), Convert.ToInt64);
+                            Product = Array.ConvertAll<object, long>((object[])JsonConvert.DeserializeObject<object[]>(DeserializationTarget), Convert.ToInt64);
                         }
                         else if (TargetType.ToString().Equals("System.Int32[]"))
                         {
-                            Product = Array.ConvertAll<object, int>((object[])JsonConvert.DeserializeObject(DeserializationTarget), Convert.ToInt32);
+                            Product = Array.ConvertAll<object, int>((object[])JsonConvert.DeserializeObject<object[]>(DeserializationTarget), Convert.ToInt32);
                         }
                         else
                         {
