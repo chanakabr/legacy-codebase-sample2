@@ -47,8 +47,11 @@ pipeline {
             }
         }
         stage("Build"){
+            environment{
+                TCM_URL="http://tcm.service.consul:8080"
+                TCM_APP="OTT_API_SV"
+            }
             steps{
-                
                 dir("tvpapi_rest"){
                     bat (label:"Run MSBuild Phoenix" , script:"\"${MSBUILD}\" WebAPI\\WebAPI.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
                             + " -p:Configuration=Release"
@@ -57,7 +60,6 @@ pipeline {
                             + " -p:DeleteExistingFiles=True"
                             + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
                     )
-
 
                     bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
                             + " -p:Configuration=Release"
@@ -70,6 +72,10 @@ pipeline {
                             + " -p:DeleteExistingFiles=True"
                             + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
                     )
+
+                    dir("${WORKSPACE}/published/permissions"){
+                        bat("PermissionsDeployment.exe e=permissions.xml")
+                    }
                 }
             }        
         }
