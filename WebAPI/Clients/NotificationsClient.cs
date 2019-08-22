@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -2119,6 +2120,16 @@ namespace WebAPI.Clients
 
             return result;
         }
+        
+        internal KalturaFollowTvSeries AddKalturaFollowTvSeries(ContextData contextData, KalturaFollowTvSeries kalturaFollowTvSeriesToAdd)
+        {
+            Func<FollowDataTvSeries, GenericResponse<FollowDataTvSeries>> addFollowTvSeriesFunc = (FollowDataTvSeries followTvSeriesToAdd) =>
+                   kalturaFollowTvSeriesToAdd.Handler.Add(contextData, followTvSeriesToAdd);
 
+            KalturaFollowTvSeries result =
+                ClientUtils.GetResponseFromWS<KalturaFollowTvSeries, FollowDataTvSeries>(kalturaFollowTvSeriesToAdd, addFollowTvSeriesFunc);
+
+            return result;
+        }
     }
 }

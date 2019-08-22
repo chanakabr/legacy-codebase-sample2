@@ -188,9 +188,12 @@ namespace WebAPI.Utils
             return baseUrl;
         }
 
-        public static long GetUserIdFromKs()
+        public static long GetUserIdFromKs(KS ks = null)
         {
-            var ks = KS.GetFromRequest();
+            if (ks == null)
+            {
+                ks = KS.GetFromRequest();
+            }
 
             if (ks == null)
                 return 0;
