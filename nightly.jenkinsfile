@@ -68,7 +68,7 @@ pipeline {
         }
         stage("Patch Config Files"){
             steps{
-                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\Kaltura_OTT_API\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /K /D /H /Y"}
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\Kaltura_OTT_API\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /Y"}
             }
         }
         stage("Publish To Preprod"){
