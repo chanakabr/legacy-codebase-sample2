@@ -5,11 +5,11 @@ FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 ARG BRANCH=master
 
 WORKDIR /src
-COPY [".", "phoenix-rest"]
-WORKDIR /src/phoenix-rest
+COPY [".", "tvpapi"]
+WORKDIR /src/tvpapi
 
 RUN bash /src/Core/DllVersioning.Core.sh .
-RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
+RUN dotnet publish -c Release "./TVPApi.Api/TVPApi.Api.csproj" -o /src/published/tvpapi
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
@@ -17,18 +17,18 @@ RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/publi
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
 WORKDIR /opt
 
-ARG API_LOG_DIR=/var/log/phoenix/
+ARG API_LOG_DIR=/var/log/tvpapi/
 ENV API_LOG_DIR ${API_LOG_DIR}
 ENV API_STD_OUT_LOG_LEVEL "Off"
 
-COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
-WORKDIR /opt/phoenix-rest
+COPY --from=builder /src/published/tvpapi /opt/tvpapi
+WORKDIR /opt/tvpapi
 
 ENV ARGS "--urls http://0.0.0.0:80"
 
 EXPOSE 80
 EXPOSE 443
 
-ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll ${ARGS}" ]
+ENTRYPOINT [ "sh", "-c", "dotnet TVPApi.Api.dll ${ARGS}" ]
 
 
