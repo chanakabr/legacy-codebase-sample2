@@ -5,11 +5,13 @@
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
-  <ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Update="ProviderConfiguration\ProvideConfiguration.cs">
       <DependentUpon>ProvideConfiguration.xsd</DependentUpon>
@@ -20,6 +22,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
   </ItemGroup>
+  
   <ItemGroup>
     <None Include="ProviderConfiguration\ProvideConfiguration.xsd" />
     <None Include="Service References\ConfigSvc\Tvinci.Configuration.ConfigSvc.ConfigKeyVal.datasource">
@@ -36,6 +39,7 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
+  
   <ItemGroup>
     <Content Include="helper.txt" />
     <None Include="Service References\ConfigSvc\TVPConfigSvc.disco" />
@@ -46,6 +50,7 @@
     <None Include="Service References\ConfigSvc\configuration.svcinfo" />
     <None Include="Service References\ConfigSvc\configuration91.svcinfo" />
   </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\Tvinci.Helpers\Tvinci.Helpers.csproj" />

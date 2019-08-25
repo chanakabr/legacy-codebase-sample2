@@ -5,10 +5,9 @@
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.configuration" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Data.DataSetExtensions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Configuration\MultiClientData.cs">
