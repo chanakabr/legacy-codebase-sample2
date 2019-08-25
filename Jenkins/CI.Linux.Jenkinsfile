@@ -48,19 +48,24 @@ pipeline {
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
             }
         }
-        stage("Build Phoenix"){
-            steps{
-                build (job: "OTT-BE-Phoenix-Linux", parameters: [
-                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                ]) 
+        parallel {
+            stage('Push to ECR'){
+                steps{
+                    sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
+                    sh(
+                        label: "Verify ECR Repository Exist", 
+                        script: "aws ecr describe-repositories --repository-names ${REPOSITORY_NAME} --region ${AWS_REGION} || "+
+                                "aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
+                    )
+                    sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
+                }
             }
-        }
-
-        stage("Build TVPAPI"){
-            steps{
-                build (job: "OTT-BE-Tvpapi-Linux", parameters: [
-                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                ]) 
+            stage("Build Phoenix"){
+                steps{
+                    build (job: "OTT-BE-Phoenix-Linux", parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                    ]) 
+                }
             }
         }
     }
