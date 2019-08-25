@@ -11,7 +11,7 @@ pipeline {
     }
     environment{
         AWS_REGION="us-west-2"
-        REPOSITORY_NAME="${BRANCH_NAME}/core"
+        REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/core"
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
     }
     stages {
@@ -27,7 +27,7 @@ pipeline {
             }
             steps{
                 sh(
-                    label: "Docker build core:${BRANCH_NAME}", 
+                    label: "Docker build core:${BRANCH_NAME.toLowerCase()}", 
                     script: "docker build -t ${ECR_REPOSITORY}:build  "+
                     "-f NetCore.Dockerfile "+
                     "--build-arg BRANCH=${BRANCH_NAME} "+

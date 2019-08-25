@@ -34,7 +34,7 @@ def getJobName(repoName) {
         case 'tvmapps':
             return ['OTT-BE-TVM']
         case 'tvpapi':
-            return ['OTT-BE-Tvpapi-Windows']
+            return ['OTT-BE-Tvpapi-Windows', 'OTT-BE-Tvpapi-Linux']
         case 'ott-celery-tasks':
             return ['OTT-BE-Celery-Tasks']
         case 'WS_Ingest':
