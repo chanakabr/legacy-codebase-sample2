@@ -130,6 +130,7 @@ namespace Core.Catalog.Response
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? TvmRuleManager.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
             m_lPicture = Core.Catalog.CatalogManagement.ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
+            m_ExternalIDs = mediaAsset.FallBackEpgIdentifier;
         }
     }
 
