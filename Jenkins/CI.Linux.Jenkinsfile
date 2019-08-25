@@ -55,5 +55,13 @@ pipeline {
                 ]) 
             }
         }
+
+        stage("Build TVPAPI"){
+            steps{
+                build (job: "OTT-BE-Tvpapi-Linux", parameters: [
+                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                ]) 
+            }
+        }
     }
 }
