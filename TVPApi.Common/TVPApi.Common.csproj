@@ -17,8 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />  
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />  
-    <ProjectReference Include="..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj" />  
-    <ProjectReference Include="..\..\TVPLibs\TVPPro.SiteManager\TVPPro.SiteManager.csproj" />  
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj" />  
+    <ProjectReference Include="..\TVPPro.SiteManager\TVPPro.SiteManager.csproj" />  
     <ProjectReference Include="..\Libs\TVPApiModule\TVPApiModule.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

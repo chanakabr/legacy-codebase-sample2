@@ -1,65 +1,34 @@
-﻿ARG DOTNET_FRAMEWORK_TAG=4.7.2-sdk-windowsservercore-ltsc2019
-ARG IIS_TAG=windowsservercore-ltsc2019
-FROM microsoft/dotnet-framework:${DOTNET_FRAMEWORK_TAG} AS builder
-SHELL ["powershell"]
+﻿ARG CORE_BUILD_TAG=netcore-latest
+ARG CORE_IMAGE=870777418594.dkr.ecr.eu-west-1.amazonaws.com/core
+FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 
 ARG BRANCH=master
-ARG BITBUCKET_TOKEN
 
-ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvincicommon/get/${BRANCH}.zip tvincicommon.zip
-ADD https://${BITBUCKET_TOKEN}@bitbucket.org/tvinci_dev/tvplibs/get/${BRANCH}.zip tvplibs.zip
+WORKDIR /src
+COPY [".", "phoenix-rest"]
+WORKDIR /src/phoenix-rest
 
-RUN Expand-Archive tvincicommon.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) tvincicommon; rm tmp; rm tvincicommon.zip
-RUN Expand-Archive tvplibs.zip -DestinationPath tmp; mv tmp/$((Get-ChildItem tmp | Select-Object -First 1).Name) tvplibs; rm tmp; rm tvplibs.zip
+RUN bash /src/Core/DllVersioning.Core.sh .
+RUN dotnet publish -c Release "./Phoenix.Rest/Phoenix.Rest.csproj" -o /src/published/phoenix-rest
 
-ADD . tvpapi
+# Cannot use alpine base runtime image because of this issue:
+# https://github.com/dotnet/corefx/issues/29147
+# Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
+WORKDIR /opt
 
-RUN nuget restore tvpapi/TVPProAPIs.sln
-RUN nuget install tvpapi\Libs\TVPApiModule\packages.config
-
-
-RUN msbuild /p:Configuration=Release tvpapi/TVPProAPIs.sln
-RUN C:\Windows\Microsoft.NET\Framework64\v4.0.30319\aspnet_compiler.exe -v /WS_TVPAPI -p tvpapi/WS_TVPApi C:\WebAPI
-
-
-
-
-
-
-
-
-
-
-FROM mcr.microsoft.com/windows/servercore/iis:${IIS_TAG}
-SHELL ["powershell"]
-
-RUN Install-WindowsFeature NET-Framework-45-ASPNET
-RUN Install-WindowsFeature Web-Asp-Net45
-
-COPY --from=builder WebAPI WebAPI
-
-RUN Remove-WebSite -Name 'Default Web Site'; \
-	New-Website -Name WebAPI -Port 80 -PhysicalPath 'C:\WebAPI'
-	
-RUN $filePath = \"C:\WINDOWS\System32\Inetsrv\Config\applicationHost.config\"; \
-	$doc = New-Object System.Xml.XmlDocument; \
-	$doc.Load($filePath); \
-	$child = $doc.CreateElement(\"logFile\"); \
-	$child.SetAttribute(\"directory\", \"C:\log\iis\%COMPUTERNAME%\"); \
-	$site = $doc.SelectSingleNode(\"//site[@name='WebAPI']\"); \
-	$site.AppendChild($child); \
-	$doc.Save($filePath)
-	
-ARG API_LOG_DIR=C:\\log\\tvpapi\\%COMPUTERNAME%
+ARG API_LOG_DIR=/var/log/phoenix/
 ENV API_LOG_DIR ${API_LOG_DIR}
+ENV API_STD_OUT_LOG_LEVEL "Off"
 
-RUN mv WebAPI\\ssl-dev C:\\Certificate
+COPY --from=builder /src/published/phoenix-rest /opt/phoenix-rest
+WORKDIR /opt/phoenix-rest
 
-RUN import-module webadministration; \
-    $pwd = ConvertTo-SecureString -String "123456" -Force -AsPlainText; \
-    $cert = Import-PfxCertificate -Password $pwd -FilePath \"C:\\Certificate\\cert.pfx\" -CertStoreLocation \"Cert:\LocalMachine\My\"; \
-    New-Item -path IIS:\SslBindings\0.0.0.0!443 -value $cert; \
-    New-WebBinding -Name "WebAPI" -IP "*" -Port 443 -Protocol https
+ENV ARGS "--urls http://0.0.0.0:80"
 
 EXPOSE 80
 EXPOSE 443
+
+ENTRYPOINT [ "sh", "-c", "dotnet Phoenix.Rest.dll ${ARGS}" ]
+
+

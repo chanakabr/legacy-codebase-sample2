@@ -59,15 +59,15 @@
     <ProjectReference Include="..\..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\..\..\Core\NPVR\NPVR.csproj" />
     <ProjectReference Include="..\..\..\Core\TVinciShared\TVinciShared.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\ODBCWrapper\TVPApi.ODBCWrapper.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\Localization\Localization.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Helpers\Tvinci.Helpers.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\TVPPro.SiteManager\TVPPro.SiteManager.csproj" />
-    <ProjectReference Include="..\..\..\TVPLibs\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj" />
+    <ProjectReference Include="..\..\ODBCWrapper\TVPApi.ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\DataLoader\Tvinci.Data.DataLoader.csproj" />
+    <ProjectReference Include="..\..\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj" />
+    <ProjectReference Include="..\..\Localization\Localization.csproj" />
+    <ProjectReference Include="..\..\Tvinci.Configuration\Tvinci.Configuration.csproj" />
+    <ProjectReference Include="..\..\Tvinci.Helpers\Tvinci.Helpers.csproj" />
+    <ProjectReference Include="..\..\TVPPro.Configuration\TVPPro.Configuration.csproj" />
+    <ProjectReference Include="..\..\TVPPro.SiteManager\TVPPro.SiteManager.csproj" />
+    <ProjectReference Include="..\..\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">

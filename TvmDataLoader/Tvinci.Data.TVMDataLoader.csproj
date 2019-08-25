@@ -1,0 +1,93 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\ICSharpCode.SharpZipLib.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj" />
+    <ProjectReference Include="..\Tvinci.Performance\Tvinci.Performance.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Protocols\XSD\CategoriesTree.xsd" />
+    <None Include="Protocols\XSD\ChannelsList.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\ChannelsMedia.xsd" />
+    <None Include="Protocols\XSD\CommentsList.xsd" />
+    <None Include="Protocols\XSD\CommentsSave.xsd" />
+    <None Include="Protocols\XSD\VastAd.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\MediaHit.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\MH_CategoriesTree.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\SubscriptionMedia.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\PersonalRecommended.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\FlashSearchRelated.xsd" />
+    <None Include="Protocols\XSD\FlashSingleMedia.xsd" />
+    <None Include="Protocols\XSD\FlashChannelsMedia.xsd" />
+    <None Include="Protocols\XSD\MediaInfo.xsd" />
+    <None Include="Protocols\XSD\MediaStructure.xsd" />
+    <None Include="Protocols\XSD\MostViewd.xsd" />
+    <None Include="Protocols\XSD\NowPlaying.xsd" />
+    <None Include="Protocols\XSD\PeopleWhoWatched.xsd" />
+    <None Include="Protocols\XSD\PersonalLastWatched.xsd" />
+    <None Include="Protocols\XSD\Pics.xsd" />
+    <None Include="Protocols\XSD\Rating.xsd" />
+    <None Include="Protocols\XSD\RssChannelsList.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Protocols\XSD\Search.xsd" />
+    <None Include="Protocols\XSD\SearchRelated.xsd" />
+    <None Include="Protocols\XSD\SendToFriend.xsd" />
+    <None Include="Protocols\XSD\SingleMedia.xsd" />
+    <None Include="Protocols\XSD\TagSearch.xsd" />
+    <None Include="Protocols\XSD\TVC_Protocol.xsd" />
+    <None Include="Protocols\XSD\UserSocialMedias.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\MediaCUDItem.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\ChannelInfoStruct.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\GroupChannels.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\GroupsMedia.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\MediaDetails.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\MediaInfoStruct.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TVMProProtocols\XSD\TVMMenu.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Protocols\XSD\xsd.txt" />
+  </ItemGroup>
+</Project>

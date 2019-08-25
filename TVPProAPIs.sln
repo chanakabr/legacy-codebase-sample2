@@ -13,33 +13,33 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TVPApi.Libs", "TVPApi.Libs"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPApiModule", "Libs\TVPApiModule\TVPApiModule.csproj", "{2DA122E7-8C17-49BC-8F28-108A4ED741E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPPro.Configuration", "..\TVPLibs\TVPPro.Configuration\TVPPro.Configuration.csproj", "{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPPro.Configuration", "TVPPro.Configuration\TVPPro.Configuration.csproj", "{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPPro.SiteManager", "..\TVPLibs\TVPPro.SiteManager\TVPPro.SiteManager.csproj", "{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPPro.SiteManager", "TVPPro.SiteManager\TVPPro.SiteManager.csproj", "{1DF66DB2-D5D1-4B31-A7A0-5BEB650DA85F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iucon.Framework", "..\TVPLibs\iucon\iucon.Framework.csproj", "{5D400DB4-C756-4B5C-8359-FE55084043F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iucon.Framework", "iucon\iucon.Framework.csproj", "{5D400DB4-C756-4B5C-8359-FE55084043F4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Localization", "..\TVPLibs\Localization\Localization.csproj", "{E53BAE81-A07C-4112-A42D-4E899D6A52FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Localization", "Localization\Localization.csproj", "{E53BAE81-A07C-4112-A42D-4E899D6A52FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPApi.ODBCWrapper", "..\TVPLibs\ODBCWrapper\TVPApi.ODBCWrapper.csproj", "{48CB3B25-623B-4500-8E88-2E77A7074238}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPApi.ODBCWrapper", "ODBCWrapper\TVPApi.ODBCWrapper.csproj", "{48CB3B25-623B-4500-8E88-2E77A7074238}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Configuration", "..\TVPLibs\Tvinci.Configuration\Tvinci.Configuration.csproj", "{B7DDD3F9-1844-41B1-AE65-68CFE6F95915}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Configuration", "Tvinci.Configuration\Tvinci.Configuration.csproj", "{B7DDD3F9-1844-41B1-AE65-68CFE6F95915}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Data.DataLoader", "..\TVPLibs\DataLoader\Tvinci.Data.DataLoader.csproj", "{C14818ED-F1A0-4CDB-85DF-4F8018F60C31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Data.DataLoader", "DataLoader\Tvinci.Data.DataLoader.csproj", "{C14818ED-F1A0-4CDB-85DF-4F8018F60C31}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Data.Loaders", "..\TVPLibs\Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj", "{209EE212-3A89-4966-951E-0173DCC76BB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Data.Loaders", "Tvinci.Data.Loaders\Tvinci.Data.Loaders.csproj", "{209EE212-3A89-4966-951E-0173DCC76BB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Data.TVMDataLoader", "..\TVPLibs\TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj", "{BEAD66E3-143B-4C83-9352-50AFB0AA62FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Data.TVMDataLoader", "TvmDataLoader\Tvinci.Data.TVMDataLoader.csproj", "{BEAD66E3-143B-4C83-9352-50AFB0AA62FA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Helpers", "..\TVPLibs\Tvinci.Helpers\Tvinci.Helpers.csproj", "{B76F07E3-91C2-44A7-B80B-EB60BFB07825}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Helpers", "Tvinci.Helpers\Tvinci.Helpers.csproj", "{B76F07E3-91C2-44A7-B80B-EB60BFB07825}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Helpers.Link", "..\TVPLibs\Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj", "{53D79E6C-FE76-40FD-8C8E-6256D9DE79A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Helpers.Link", "Tvinci.Helpers.Link\Tvinci.Helpers.Link.csproj", "{53D79E6C-FE76-40FD-8C8E-6256D9DE79A3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.MultiClient", "..\TVPLibs\Tvinci.MultiClient\Tvinci.MultiClient.csproj", "{9C98DB15-9EFB-47A4-8BE1-9BB873518E8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.MultiClient", "Tvinci.MultiClient\Tvinci.MultiClient.csproj", "{9C98DB15-9EFB-47A4-8BE1-9BB873518E8C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Performance", "..\TVPLibs\Tvinci.Performance\Tvinci.Performance.csproj", "{D9C9D8FA-3215-4E73-8765-D573DA24D6BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tvinci.Performance", "Tvinci.Performance\Tvinci.Performance.csproj", "{D9C9D8FA-3215-4E73-8765-D573DA24D6BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVinci.TimePeriod", "..\TVPLibs\TVinci.TimePeriod\TVinci.TimePeriod.csproj", "{9D2ABB52-E0A0-4DFA-9E24-7E0B98D3557D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVinci.TimePeriod", "TVinci.TimePeriod\TVinci.TimePeriod.csproj", "{9D2ABB52-E0A0-4DFA-9E24-7E0B98D3557D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxy", "Proxy\Proxy.csproj", "{23FA1EBA-D2D0-4F86-96A4-46C5BE96C780}"
 EndProject
@@ -50,7 +50,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WAP_TVPApi", "WAP_TVPApi\WAP_TVPApi.csproj", "{3500A840-C10F-4904-95D8-62D9ED6A0116}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApi.Legacy", "TVPApi.Legacy\TVPApi.Legacy.csproj", "{3500A840-C10F-4904-95D8-62D9ED6A0116}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{80535B55-CED9-4B4A-9040-933D6AC84B2E}"
 EndProject
