@@ -73,6 +73,10 @@
       "users_group": ""
     },
     {
+      "name": "MANAGE_FAVORITES_WHILE_SUSPENDED",
+      "users_group": ""
+    },
+    {
       "name": "ASSETSTRUCT_MNG",
       "users_group": ""
     },
