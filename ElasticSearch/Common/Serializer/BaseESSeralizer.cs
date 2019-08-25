@@ -1029,7 +1029,7 @@ namespace ElasticSearch.Common
                 // {17}
                 oEpg.DocumentId,
                 // {18}
-                oEpg.IsAutoFill
+                oEpg.IsAutoFill? 1 : 0
                 );
 
             // Add this field only if it has a value
