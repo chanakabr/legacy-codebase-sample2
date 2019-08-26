@@ -177,6 +177,7 @@ namespace Core.Catalog.CatalogManagement
             DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "END_DATE");
             DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
             DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
+            string fallbackEpgIdentifier = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "EPG_IDENTIFIER");
 
             int inheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
             AssetInheritancePolicy assetInheritancePolicy = (AssetInheritancePolicy)Enum.ToObject(typeof(AssetInheritancePolicy), inheritancePolicy);
@@ -309,7 +310,8 @@ namespace Core.Catalog.CatalogManagement
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
 
             result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
-                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes, assetInheritancePolicy);
+                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes,
+                                    assetInheritancePolicy, fallbackEpgIdentifier);
 
             result.RelatedEntities = RelatedEntitiesList;
 
