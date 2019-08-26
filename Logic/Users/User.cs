@@ -776,9 +776,11 @@ namespace Core.Users
             return res;
         }
 
-        static protected bool UpdateFailCount(Int32 nAdd, Int32 nUserID, bool setLoginDate = false)
+        static protected bool UpdateFailCount(int groupId, Int32 nAdd, Int32 nUserID, bool setLoginDate = false)
         {
             bool updateRes = DAL.UsersDal.UpdateFailCount(nUserID, nAdd, setLoginDate);
+            UsersCache usersCache = UsersCache.Instance();
+            usersCache.RemoveUser(nUserID, groupId);
             return updateRes;
         }
 
@@ -1099,18 +1101,18 @@ namespace Core.Users
                                 }
                                 else
                                 {
-                                    UpdateFailCount(0, nID, true);
+                                    UpdateFailCount(nGroupID ,0, nID, true);
                                 }
                             }
                             else
                             {
-                                UpdateFailCount(0, nID, true);
+                                UpdateFailCount(nGroupID, 0, nID, true);
                                 res = u;
                             }
                         }
                         else
                         {
-                            UpdateFailCount(1, nID);
+                            UpdateFailCount(nGroupID, 1, nID);
 
                             if (nFailCount >= nMaxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < nLockMinutes)
                                 ret = ResponseStatus.InsideLockTime;
