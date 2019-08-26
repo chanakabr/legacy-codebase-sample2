@@ -58,7 +58,7 @@ pipeline {
                 expression { return params.publish_preprod == true; }
             }
             steps { 
-                dir("published/TVM"){
+                dir("published/TVPAPI"){
                     bat "(robocopy . \\\\Tvpapic1\\ott\\tvpapi\\${params.version_folder_name}\\ /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
             }
