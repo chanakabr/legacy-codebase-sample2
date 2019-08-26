@@ -69,7 +69,12 @@ namespace Core.Catalog
         public MediaAssetType MediaAssetType { get; set; }
 
         [JsonProperty("InheritancePolicy")]
-        public AssetInheritancePolicy? InheritancePolicy { get; set; }
+        public AssetInheritancePolicy? InheritancePolicy { get; set; }        
+        
+        public string FallBackEpgIdentifier { get { return fallbackEpgIdentifier; } }
+
+        [JsonProperty("fallbackEpgIdentifier")]
+        private string fallbackEpgIdentifier;
 
         #endregion
 
@@ -87,12 +92,13 @@ namespace Core.Catalog
             this.Files = new List<AssetFile>();
             this.UserTypes = string.Empty;
             this.IsActive = null;
-            this.MediaAssetType = MediaAssetType.Media;
+            this.MediaAssetType = MediaAssetType.Media;            
         }
 
         public MediaAsset(long id, eAssetTypes assetType, string name, List<LanguageContainer> namesWithLanguages, string description, List<LanguageContainer> descriptionsWithLanguages,
                         DateTime? createDate, DateTime? updateDate, DateTime? startDate, DateTime? endDate, List<Metas> metas, List<Tags> tags, List<Image> images, string coGuid, bool isActive,
-                        DateTime? catalogStartDate, DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<AssetFile> files, string userTypes, AssetInheritancePolicy assetInheritancePolicy)
+                        DateTime? catalogStartDate, DateTime? finalEndDate, MediaType mediaType, string entryId, int? deviceRuleId, int? geoBlockRuleId, List<AssetFile> files, string userTypes,
+                        AssetInheritancePolicy assetInheritancePolicy, string fallbackEpgIdentifier)
             : base(id, assetType, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, startDate, updateDate, endDate, metas, tags, images, coGuid)
         {
             this.CatalogStartDate = catalogStartDate;
@@ -116,6 +122,7 @@ namespace Core.Catalog
             this.IsActive = isActive;
             this.MediaAssetType = MediaAssetType.Media;
             this.InheritancePolicy = assetInheritancePolicy;
+            this.fallbackEpgIdentifier = fallbackEpgIdentifier;
         }
 
         public MediaAsset(MediaAsset mediaAssetToCopy)
@@ -132,6 +139,7 @@ namespace Core.Catalog
             this.IsActive = mediaAssetToCopy.IsActive;
             this.MediaAssetType = mediaAssetToCopy.MediaAssetType;
             this.InheritancePolicy = mediaAssetToCopy.InheritancePolicy;
+            this.fallbackEpgIdentifier = mediaAssetToCopy.fallbackEpgIdentifier;            
         }
 
         public MediaAsset(int groupId, Response.MediaObj mediaObj)
@@ -161,6 +169,10 @@ namespace Core.Catalog
                 if (int.TryParse(mediaObj.m_ExternalIDs, out epg_channel_id) && epg_channel_id > 0)
                 {
                     this.MediaAssetType = MediaAssetType.Linear;
+                }
+                else
+                {
+                    this.fallbackEpgIdentifier = mediaObj.m_ExternalIDs;
                 }
             }
         }
