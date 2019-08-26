@@ -777,7 +777,6 @@
     <Content Include="Configuration\Yes\staging\iPad\TechnicalConfiguration.config" />
     <Content Include="Configuration\Yes\staging\MediaConfiguration.config" />
     <Content Include="Gateways\CRMGateway.ashx" />
-    <Content Include="Gateways\Logs\IL-SUNNYS-RND\TVPApi\Tcm31-12-2014.log" />
     <Content Include="Gateways\NetGem.aspx.cs.exclude" />
     <Content Include="Gateways\NetGem.aspx.exclude" />
     <Content Include="Gateways\NetGem_ipvision.aspx.cs.exclude" />
