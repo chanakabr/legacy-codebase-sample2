@@ -307,7 +307,7 @@ public partial class adm_my_group : System.Web.UI.Page
 
         DataRecordDropDownField dr_region = new DataRecordDropDownField("linear_channels_regions", "name", "id", "group_id", t, 60, true);
         dr_region.Initialize("Default Region", "adm_table_header_nbg", "FormInput", "DEFAULT_REGION", false);
-        string dr_regionQuery = $"select lcr.id as ID, lcr.name as Name, lcr.external_id as 'External ID', lcr.is_active, lcr.status " +
+        string dr_regionQuery = $"select lcr.id as ID, lcr.name as txt " +
             $"from linear_channels_regions lcr (nolock) where lcr.group_id = {t.ToString()} AND lcr.status = 1";
         dr_region.SetSelectsQuery(dr_regionQuery);
         theRecord.AddRecord(dr_region);
