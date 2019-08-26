@@ -568,10 +568,15 @@ namespace IngestHandler
             bool isValid = true;
 
             List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
+            IDictionary<string, EpgCB> autoFillEpgsCB = null;
 
-            // Get AutoFill default program
-            string autoFillKey = GetAutoFillKey(_BulkUploadObject.GroupId);
-            EpgCB autoFillEpgCB = _CouchbaseManager.Get<EpgCB>(autoFillKey);
+            if ( _Languages?.Keys.Count > 0)
+            {
+                List<string> autoFillKeys = new List<string>();
+                autoFillKeys = _Languages.Keys.Select(s => GetAutoFillKey(_BulkUploadObject.GroupId,s)).ToList();
+                // Get AutoFill default program
+                autoFillEpgsCB = _CouchbaseManager.GetValues<EpgCB>(autoFillKeys);
+            }
 
             for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
             {
@@ -611,12 +616,15 @@ namespace IngestHandler
                                     
                                     if (_IngestProfile.OverlapChannels == null || _IngestProfile.OverlapChannels.Contains(currentProgram.ChannelId))
                                     {
-                                        if (autoFillEpgCB != null)
+                                        if (autoFillEpgsCB?.Count > 0)
                                         {
-                                            var defaultGapProgram = GetDefaultAutoFillProgram(autoFillEpgCB, currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId);
-                                            if (defaultGapProgram != null)
+                                            foreach (var item in autoFillEpgsCB)
                                             {
-                                                crudOperations.ItemsToAdd.Add(defaultGapProgram);
+                                                var defaultGapProgram = GetDefaultAutoFillProgram(item.Value, item.Key, currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId);
+                                                if (defaultGapProgram != null)
+                                                {
+                                                    crudOperations.ItemsToAdd.Add(defaultGapProgram);
+                                                }
                                             }
                                         }
                                     }
@@ -634,7 +642,7 @@ namespace IngestHandler
             return isValid;
         }
 
-        private EpgProgramBulkUploadObject GetDefaultAutoFillProgram(EpgCB autoFillProgram, DateTime start, DateTime end, int channelId)
+        private EpgProgramBulkUploadObject GetDefaultAutoFillProgram(EpgCB autoFillProgram, string langCode, DateTime start, DateTime end, int channelId)
         {
             if (autoFillProgram != null)
             {
@@ -646,7 +654,7 @@ namespace IngestHandler
                 autoFillEpgCB.ChannelID = channelId;
                 autoFillEpgCB.EpgIdentifier = epgExternalId;
                 autoFillEpgCB.Crid = epgExternalId;
-                autoFillEpgCB.DocumentId = GetEpgCBDocumentId(epgExternalId, "eng", _BulkUploadObject.Id);
+                autoFillEpgCB.DocumentId = GetEpgCBDocumentId(epgExternalId, langCode, _BulkUploadObject.Id);
                 autoFillEpgCB.EnableCDVR = 0;
                 autoFillEpgCB.EnableCatchUp = 0;
                 autoFillEpgCB.EnableStartOver = 0;
@@ -747,7 +755,7 @@ namespace IngestHandler
 			filters = new List<string>();
 			tokenizers = new List<string>();
 
-			if (_Languages?.Values != null)
+            if (_Languages?.Values != null)
 			{
 				foreach (var language in _Languages.Values)
 				{
@@ -786,9 +794,9 @@ namespace IngestHandler
 			}
 		}
 
-        private string GetAutoFillKey(object groupId)
+        private string GetAutoFillKey(object groupId, string langCode)
         {
-            return $"autofill_groupid_{groupId}";
+            return $"autofill_group_id_{groupId}_lang_code_{langCode}";
         }
     }
 }
