@@ -19,6 +19,7 @@ namespace TVPApi.Web.Middleware
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
             var test = new CommonTest().Test;
+            app.UseMiddleware<TVPApiExceptionHandler>();
             app.UseMiddleware<TVPApiRequestExecutor>();
             //app.UseMiddleware<PhoenixExceptionHandler>();
             //AutoMapperConfig.RegisterMappings();
