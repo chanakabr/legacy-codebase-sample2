@@ -50,7 +50,7 @@ pipeline {
             steps{
                 
                 dir("tvpapi"){
-                    bat (label:"Run MSBuild" , script:"\"${MSBUILD}\" WS_TVPApi\\website.publishproj -m:4 -nr:False -t:Restore,Build,WebPublish"
+                    bat (label:"Run MSBuild" , script:"\"${MSBUILD}\" tvpapi\\TVPApi.Legacy -m:4 -nr:False -t:Restore,Build,WebPublish"
                             + " -p:Configuration=Release"
                             + " -p:DeployOnBuild=True"
                             + " -p:WebPublishMethod=FileSystem"
