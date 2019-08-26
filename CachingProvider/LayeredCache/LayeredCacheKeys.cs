@@ -328,7 +328,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetAssetKey(string assetType, long id)
         {
-            return string.Format("AssetV3_type_{0}_id_{1}", assetType, id);
+            return string.Format("AssetV4_type_{0}_id_{1}", assetType, id);
         }
 
         public static string GetAssetWithLanguageKey(string assetType, string id, int languageId)
