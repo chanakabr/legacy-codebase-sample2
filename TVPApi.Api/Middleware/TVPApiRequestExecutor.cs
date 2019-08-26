@@ -84,7 +84,7 @@ namespace TVPApi.Web.Middleware
                     sError = error as string;
                 }
                 // Return an error message to client
-                if (contentType.Contains("xml"))
+                if (contentType != null && contentType.Contains("xml"))
                 {
                     string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' " + 
                         "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error='{0}'/>" + 
