@@ -40,7 +40,7 @@ namespace Tvinci.Data.Loaders
                     {
                         cacheLock.ExitReadLock();
                     }
-                    if (cacheObj != null)
+                    if (cacheObj != null && cacheObj is BaseObject)
                     {
                         ///
                         /// cacheObj Ticks > cacheKey Ticks when request fails '(cacheKey.UpdateDate).Ticks' = 0
