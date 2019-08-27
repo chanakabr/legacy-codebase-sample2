@@ -3905,6 +3905,28 @@
             <param name="filter">Regions filter</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.RegionController.Add(WebAPI.Models.API.KalturaRegion)">
+            <summary>
+            Adds a new region for partner
+            </summary>
+            <param name="region">Region to add</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RegionController.Update(System.Int32,WebAPI.Models.API.KalturaRegion)">
+            <summary>
+            Update an existing region 
+            </summary>
+            <param name="region">Region to update</param>
+            <param name="id">Region ID to update</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RegionController.Delete(System.Int32)">
+            <summary>
+            Delete an existing region 
+            </summary>
+            <param name="id">Region ID to delete</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.RegistrySettingsController.List">
             <summary>
             Retrieve the registry settings.        
@@ -6592,6 +6614,11 @@
         <member name="P:WebAPI.Models.API.KalturaRegion.RegionalChannels">
             <summary>
             List of associated linear channels
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRegion.ParentRegionId">
+            <summary>
+            Parent region ID
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaRegionalChannel.LinearChannelId">

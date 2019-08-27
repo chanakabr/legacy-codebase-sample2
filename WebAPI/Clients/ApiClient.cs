@@ -56,7 +56,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-
+        
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -90,7 +90,7 @@ namespace WebAPI.Clients
             return roles;
 
         }
-
+        
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
@@ -4374,6 +4374,26 @@ namespace WebAPI.Clients
 
             return response;
 
-        }       
+        }
+
+        internal KalturaRegion AddRegion(int groupId, KalturaRegion region)
+        {
+            Func<Region, GenericResponse<Region>> addRegionFunc = (Region regionToToAdd) => Core.Api.Module.AddRegion(groupId, regionToToAdd);
+
+            return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, addRegionFunc);
+        }
+
+        internal KalturaRegion UpdateRegion(int groupId, KalturaRegion region)
+        {
+            Func<Region, GenericResponse<Region>> updateRegionFunc = (Region regionToToUpdate) => Core.Api.Module.UpdateRegion(groupId, regionToToUpdate);
+
+            return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, updateRegionFunc);
+        }
+
+        internal void DeleteRegion(int groupId, int id)
+        {
+            Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id);
+            ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
+        }
     }
 }

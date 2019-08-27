@@ -36,5 +36,79 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Adds a new region for partner
+        /// </summary>
+        /// <param name="region">Region to add</param>
+        /// <returns></returns>
+        [Action("add")]
+        [ApiAuthorize]
+        static public KalturaRegion Add(KalturaRegion region)
+        {
+            KalturaRegion response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.ApiClient().AddRegion(groupId, region);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update an existing region 
+        /// </summary>
+        /// <param name="region">Region to update</param>
+        /// <param name="id">Region ID to update</param>
+        /// <returns></returns>
+        [Action("update")]
+        [ApiAuthorize]
+        static public KalturaRegion Update(int id, KalturaRegion region)
+        {
+            KalturaRegion response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            region.Id = id;
+
+            try
+            {
+                response = ClientsManager.ApiClient().UpdateRegion(groupId, region);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete an existing region 
+        /// </summary>
+        /// <param name="id">Region ID to delete</param>
+        /// <returns></returns>
+        [Action("delete")]
+        [ApiAuthorize]
+        static public void Delete(int id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                ClientsManager.ApiClient().DeleteRegion(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+        }
     }
 }

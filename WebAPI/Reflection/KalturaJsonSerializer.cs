@@ -17031,6 +17031,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
+            ret.Add("parentRegionId", "\"parentRegionId\": " + ParentRegionId);
             if(RegionalChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", RegionalChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17055,6 +17056,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
+            ret.Add("parentRegionId", "<parentRegionId>" + ParentRegionId + "</parentRegionId>");
             if(RegionalChannels != null)
             {
                 propertyValue = RegionalChannels.Count > 0 ? "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";

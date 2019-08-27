@@ -47,5 +47,14 @@ namespace WebAPI.Models.API
         [JsonProperty("linearChannels")]
         [XmlElement(ElementName = "linearChannels")]
         public List<KalturaRegionalChannel> RegionalChannels { get; set; }
+
+
+        /// <summary>
+        /// Parent region ID
+        /// </summary>
+        [DataMember(Name = "parentRegionId")]
+        [JsonProperty("parentRegionId")]
+        [XmlElement(ElementName = "parentRegionId")]
+        public long ParentRegionId { get; set; }
     }
 }

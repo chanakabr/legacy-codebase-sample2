@@ -4977,6 +4977,8 @@ namespace WebAPI.Reflection
                             return "isDefault";
                         case "Name":
                             return "name";
+                        case "ParentRegionId":
+                            return "parentRegionId";
                         case "RegionalChannels":
                             return "linearChannels";
                     }
@@ -9240,9 +9242,22 @@ namespace WebAPI.Reflection
                 case "region":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("region", "add", false);
+                            return RegionController.Add((KalturaRegion) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("region", "delete", false);
+                            RegionController.Delete((int) methodParams[0]);
+                            return null;
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
                             return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("region", "update", false);
+                            return RegionController.Update((int) methodParams[0], (KalturaRegion) methodParams[1]);
                             
                     }
                     break;
@@ -16403,11 +16418,38 @@ namespace WebAPI.Reflection
                 case "region":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("region", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegion),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("region", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegion),
                             });
                             return ret;
                             
