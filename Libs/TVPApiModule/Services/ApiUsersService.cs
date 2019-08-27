@@ -1145,6 +1145,7 @@ namespace TVPApiModule.Services
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     var innerResponse = Core.Users.Module.LoginWithPIN(m_groupID, PIN, sessionID, SiteHelper.GetClientIP(), deviceID, false, keyValueList, secret);
+                    response = new UserResponse(innerResponse);
                 }
             }
             catch (Exception ex)
