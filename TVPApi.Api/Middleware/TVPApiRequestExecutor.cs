@@ -64,7 +64,7 @@ namespace TVPApi.Web.Middleware
             context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
 
-            // TODO : Understand if it is meaningful in .net core response
+            // TODO : Understand if it is meaningful in .net core response 
             //HttpContext.Current.Response.HeaderEncoding = HttpContext.Current.Response.ContentEncoding = Encoding.UTF8;
             //HttpContext.Current.Response.Charset = "utf-8";
 
