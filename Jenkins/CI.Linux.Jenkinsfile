@@ -47,7 +47,7 @@ pipeline {
                         "--build-arg CORE_BUILD_TAG=build "+
                         "--label 'version=${FULL_VERSION}' "+
                         "--label 'commit=${GIT_COMMIT}' "+
-                        "--label 'build=${env.BUILD_NEMBER}' ."
+                        "--label 'build=${env.BUILD_NUMBER}' ."
                     )
                 }
             }
