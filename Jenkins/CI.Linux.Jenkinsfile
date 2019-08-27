@@ -1,3 +1,4 @@
+def GIT_COMMIT=""
 pipeline {
     agent {
         label 'Linux'
@@ -19,6 +20,7 @@ pipeline {
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
+                script{ GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() }
             }
         }
         stage('Build Docker'){
@@ -29,11 +31,12 @@ pipeline {
                 sh(
                     label: "Docker build core:${BRANCH_NAME}", 
                     script: "docker build -t ${ECR_REPOSITORY}:build  "+
+                    "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
                     "-f NetCore.Dockerfile "+
                     "--build-arg BRANCH=${BRANCH_NAME} "+
                     "--label 'version=${FULL_VERSION}' "+
-                    "--label 'commit=${env.GIT_COMMIT}' "+
-                    "--label 'build=${env.BUILD_NEMBER}' ."
+                    "--label 'commit=${GIT_COMMIT}' "+
+                    "--label 'build=${env.BUILD_NUMBER}' ."
                 )
             }
         }
@@ -46,6 +49,7 @@ pipeline {
                             "aws ecr create-repository --repository-name ${REPOSITORY_NAME} --region ${AWS_REGION}"
                 )
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:build")
+                sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
             }
         }
         stage("Build Phoenix"){
