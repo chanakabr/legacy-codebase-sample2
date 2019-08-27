@@ -2299,7 +2299,7 @@ namespace Core.Api
 
             }
             return res;
-        }        
+        }
 
         static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -12045,5 +12045,21 @@ namespace Core.Api
 
             return response;
         }
+
+        internal static Status DeleteRegion(int groupId, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static GenericResponse<Region> UpdateRegion(int groupId, Region region)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static GenericResponse<Region> AddRegion(int groupId, Region region)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

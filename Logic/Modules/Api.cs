@@ -2349,5 +2349,20 @@ namespace Core.Api
         {
             return api.GetPermissionItemsToFeatures(groupId);
         }
+
+        public static GenericResponse<Region> AddRegion(int groupId, Region region)
+        {
+            return api.AddRegion(groupId, region);
+        }
+
+        public static GenericResponse<Region> UpdateRegion(int groupId, Region region)
+        {
+            return api.UpdateRegion(groupId, region);
+        }
+
+        public static Status DeleteRegion(int groupId, int id)
+        {
+            return api.DeleteRegion(groupId, id);
+        }
     }
 }
