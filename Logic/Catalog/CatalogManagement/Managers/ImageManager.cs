@@ -1380,8 +1380,13 @@ namespace Core.Catalog.CatalogManagement
                     ImageType imageType = ImageManager.GetImageType(groupId, image.ImageTypeId);
                     if (imageType != null && imageType.RatioId.HasValue && imageType.RatioId.Value > 0)
                     {
-                        if (!string.IsNullOrEmpty(image.RatioName) && oldGroupRatios != null && oldGroupRatios.Count > 0
-                            && oldGroupRatios.Any(x => x.Name == image.RatioName) && ratioIdToPicSizes != null && ratioIdToPicSizes.Count > 0)
+                        if (image.Width > 0 && image.Height > 0)
+                        {
+                            PicSize picSize = new PicSize() { Height = image.Height, Width = image.Width };
+                            pictures.Add(new Picture(groupId, image, imageType.Name, ImageManager.GetRatioName(groupId, imageType.RatioId.Value), picSize));
+                        }
+                        else if (!string.IsNullOrEmpty(image.RatioName) && oldGroupRatios != null && oldGroupRatios.Count > 0
+                                 && oldGroupRatios.Any(x => x.Name == image.RatioName) && ratioIdToPicSizes != null && ratioIdToPicSizes.Count > 0)
                         {
                             ApiObjects.Ratio oldRatio = oldGroupRatios.First(x => x.Name == image.RatioName);
                             if (ratioIdToPicSizes.ContainsKey(oldRatio.Id))
