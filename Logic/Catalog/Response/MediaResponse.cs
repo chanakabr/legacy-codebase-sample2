@@ -111,12 +111,12 @@ namespace Core.Catalog.Response
             : base()
         {
             AssetId = mediaAsset.Id.ToString();
-            m_sName = mediaAsset.Name;
+            m_sName = mediaAsset.Name != null ? mediaAsset.Name : string.Empty;
             Name = mediaAsset.NamesWithLanguages != null ? mediaAsset.NamesWithLanguages.ToArray() : new LanguageContainer[] { };
-            m_sDescription = mediaAsset.Description;
+            m_sDescription = mediaAsset.Description != null ? mediaAsset.Description : string.Empty;
             Description = mediaAsset.DescriptionsWithLanguages != null ? mediaAsset.DescriptionsWithLanguages.ToArray() : new LanguageContainer[] { };
-            EntryId = mediaAsset.EntryId;
-            CoGuid = mediaAsset.CoGuid;
+            EntryId = mediaAsset.EntryId != null ? mediaAsset.EntryId : string.Empty;
+            CoGuid = mediaAsset.CoGuid != null ? mediaAsset.CoGuid : string.Empty;
             m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
             m_dCreationDate = mediaAsset.CreateDate.Value;
             m_dFinalDate = mediaAsset.FinalEndDate ?? DateTime.MaxValue;                        
@@ -132,7 +132,7 @@ namespace Core.Catalog.Response
             DeviceRule = mediaAsset.DeviceRuleId.HasValue ? TvmRuleManager.GetDeviceRuleName(groupId, mediaAsset.DeviceRuleId.Value) : null;
             m_lFiles = FileManager.ConvertFiles(mediaAsset.Files, groupId);
             m_lPicture = Core.Catalog.CatalogManagement.ImageManager.ConvertImagesToPictures(mediaAsset.Images, groupId);
-            m_ExternalIDs = mediaAsset.FallBackEpgIdentifier;
+            m_ExternalIDs = mediaAsset.FallBackEpgIdentifier != null ? mediaAsset.FallBackEpgIdentifier : string.Empty;
         }
     }
 
