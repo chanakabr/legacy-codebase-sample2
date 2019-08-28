@@ -50,7 +50,7 @@ pipeline {
         }
         stage("Patch Config Files"){
             steps{
-                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\TVPAPI\\*.*  ${WORKSPACE}\\published\\TVPAPI\\ /Y"}
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\TVPAPI\\*.*  ${WORKSPACE}\\published\\TVPAPI\\ /Y /E"}
             }
         }
         stage("Publish To Preprod"){
