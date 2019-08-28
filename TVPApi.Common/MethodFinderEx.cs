@@ -97,9 +97,14 @@ public partial class MethodFinder
                         }
                         else
                         {
-                            JsonSerializer ser = new JsonSerializer();
-                            Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
-                                MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                            //JsonSerializer ser = new JsonSerializer();
+                            //var test = JsonConvert.DeserializeObject(DeserializationTarget);
+                            //List<object> list = new List<object>();
+                            //Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
+                            //    MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+
+                            var jArray = JArray.Parse(DeserializationTarget);
+                            Product = jArray.GetType().GetMethod("ToObject", new Type[] {}).MakeGenericMethod(TargetType).Invoke(jArray, new object[] { });
                         }
                     }
                     catch (Exception ex)
