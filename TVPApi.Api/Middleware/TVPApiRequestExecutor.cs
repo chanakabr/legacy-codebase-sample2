@@ -99,6 +99,24 @@ namespace TVPApi.Web.Middleware
                 }
             }
 
+            // Check for Status code
+            if (context.Items.ContainsKey("StatusCode"))
+            {
+                context.Response.Clear();
+                context.Response.StatusCode = (int)context.Items["StatusCode"];
+
+                //if (context.Items.ContainsKey("StatusDescription"))
+                //{
+                //    context.respo.StatusDescription = context.Items["StatusDescription"].ToString();
+                //}
+                //context.Response.TrySkipIisCustomErrors = true;
+            }
+
+            if (_Response == null)
+            {
+                _Response = string.Empty;
+            }
+
             await context.Response.WriteAsync(_Response);
         }
     }
