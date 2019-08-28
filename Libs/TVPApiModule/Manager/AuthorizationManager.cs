@@ -159,7 +159,7 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            if (!groupConfig.UseToken && !isAdmin)
+            if (groupConfig.UseKs && !isAdmin)
             {
                 try
                 {
@@ -318,7 +318,7 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            if (!groupConfig.UseToken && IsKsFormat(accessToken))
+            if (groupConfig.UseKs && IsKsFormat(accessToken))
             {
                 try
                 {

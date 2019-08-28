@@ -38,8 +38,8 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("validate_user_device")]
         public bool ValidateUserDevice { get; set; }
 
-        [JsonProperty("use_token ")]
-        public bool UseToken { get; set; }
+        [JsonProperty("use_ks")]
+        public bool UseKs { get; set; }
 
         [JsonIgnore]
         public override string Id
