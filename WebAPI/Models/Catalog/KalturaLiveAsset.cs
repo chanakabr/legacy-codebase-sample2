@@ -239,7 +239,8 @@ namespace WebAPI.Models.Catalog
         UNKNOWN = 0,
         DTT = 1,
         OTT = 2,
-        DTT_AND_OTT = 3
+        DTT_AND_OTT = 3,
+        VRM_EXPORT = 4
     }
 
 }
