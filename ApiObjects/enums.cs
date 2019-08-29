@@ -1079,7 +1079,8 @@ namespace ApiObjects
         Unknown = 0,
         Dtt = 1,
         Ott = 2,
-        Dtt_and_ott = 3
+        Dtt_and_ott = 3,
+        Vrm_export = 4
     }
     
     public enum RuleActionType
