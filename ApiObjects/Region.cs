@@ -23,6 +23,9 @@ namespace ApiObjects
         public List<KeyValuePair> linearChannels;
         [JsonProperty()]
         public int groupId;
+        [JsonProperty()]
+        public int parentRegionId;
+
 
         #endregion
 
