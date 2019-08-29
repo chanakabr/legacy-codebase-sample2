@@ -2051,6 +2051,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     case LinearChannelType.Ott:
                         response = KalturaLinearChannelType.OTT;
                         break;
+                    case LinearChannelType.Vrm_export:
+                        response = KalturaLinearChannelType.VRM_EXPORT;
+                        break;
                     case LinearChannelType.Unknown:
                         response = KalturaLinearChannelType.UNKNOWN;
                         break;
@@ -2077,6 +2080,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaLinearChannelType.OTT:
                         response = LinearChannelType.Ott;
+                        break;
+                    case KalturaLinearChannelType.VRM_EXPORT:
+                        response = LinearChannelType.Vrm_export;
                         break;
                     case KalturaLinearChannelType.UNKNOWN:
                         response = LinearChannelType.Unknown;
