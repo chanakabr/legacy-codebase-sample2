@@ -12048,17 +12048,177 @@ namespace Core.Api
 
         internal static Status DeleteRegion(int groupId, int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //TODO: get region by ID
+                Region region = null; // GetRegion(groupId, id);
+                if (region == null)
+                {
+                    log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.RegionNotFound, "Region was not found");
+                }
+                
+                // TODO: what if the region is a parent??
+
+                if (!ApiDAL.DeleteRegion(groupId, id))
+                {
+                    log.ErrorFormat("Error while trying to delete region. groupId:{0}, id:{1}", groupId, id);
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                //TODO: add invalidation key
+                string invalidationKey = null; //LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("DeleteRegion Failed. regionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+                return new Status((int)eResponseStatus.Error); ;
+            }
+
+            return new Status((int)eResponseStatus.OK);
         }
 
-        internal static GenericResponse<Region> UpdateRegion(int groupId, Region region)
+        internal static GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate)
         {
-            throw new NotImplementedException();
+            GenericResponse<Region> response = new GenericResponse<Region>();
+
+            try
+            {
+                //TODO: get region by ID
+                Region region = null; // GetRegion(groupId, regionToUpdate.id);
+                if (region == null)
+                {
+                    log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
+                    response.SetStatus((int)eResponseStatus.RegionNotFound, "Region was not found");
+                    return response;
+                }
+
+                Region parentRegion = null;
+                if (regionToUpdate.parentRegionId != 0)
+                {
+                    //TODO: get region by ID
+                    //parentRegion = GetRegion(groupId, regionToUpdate.parentRegionId);
+                    if (parentRegion == null)
+                    {
+                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentRegionId);
+                        response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
+                        return response;
+                    }
+
+                    if (parentRegion.parentRegionId != 0)
+                    {
+                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, regionToUpdate.parentRegionId);
+                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be parent");
+                        return response;
+
+                    }
+                }
+
+                if (!ApiDAL.AddRegion(groupId, region))
+                {
+                    log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
+                    response.SetStatus(eResponseStatus.Error);
+                    return response;
+                }
+
+                //TODO: add invalidation key
+                string invalidationKey = null; //LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
+                }
+
+                // TODO: rebuild index
+
+                if (parentRegion != null)
+                {
+                    regionToUpdate.linearChannels = parentRegion.linearChannels;
+                    //TODO: what else to copy?
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("UpdateRegion Failed. regionId {0}, groupId: {1}. ex: {2}", regionToUpdate.id, groupId, exc);
+                response.SetStatus(eResponseStatus.Error);
+                return response;
+            }
+
+            response.Object = regionToUpdate;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
         internal static GenericResponse<Region> AddRegion(int groupId, Region region)
         {
-            throw new NotImplementedException();
+            GenericResponse<Region> response = new GenericResponse<Region>();
+
+            try
+            {
+                RegionsResponse regions = GetRegions(groupId, new List<string>() { region.externalId }, RegionOrderBy.CreateDateAsc);
+                if (regions != null && regions.Regions != null && regions.Regions.Count > 0)
+                {
+                    log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, region.externalId);
+                    response.SetStatus((int)eResponseStatus.ExternalIdAlreadyExists, "Region external ID already exists");
+                    return response;
+                }
+
+                Region parentRegion = null;
+                if (region.parentRegionId != 0)
+                {
+                    //TODO: get region by ID
+                    //parentRegion = GetRegion(groupId, regionToUpdate.parentRegionId);
+                    if (parentRegion == null)
+                    {
+                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, region.parentRegionId);
+                        response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
+                        return response;
+                    }
+
+                    if (parentRegion.parentRegionId != 0)
+                    {
+                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, region.parentRegionId);
+                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be parent");
+                        return response;
+
+                    }
+                }
+
+                if (!ApiDAL.AddRegion(groupId, region))
+                {
+                    log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
+                    response.SetStatus(eResponseStatus.Error);
+                    return response;
+                }
+
+                //TODO: add invalidation key
+                string invalidationKey = null; //LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
+                }
+
+                // TODO: rebuild index
+
+                if (parentRegion != null)
+                {
+                    region.linearChannels = parentRegion.linearChannels;
+                    //TODO: what else to copy?
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("AddRegion Failed. regionId {0}, groupId: {1}. ex: {2}", region.id, groupId, exc);
+                response.SetStatus(eResponseStatus.Error);
+                return response;
+            }
+
+            response.Object = region;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
     }

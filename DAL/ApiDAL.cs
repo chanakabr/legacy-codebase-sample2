@@ -5926,5 +5926,15 @@ namespace DAL
             var table = storedProcedure.Execute();
             return table;
         }
+
+        public static bool DeleteRegion(int groupId, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool AddRegion(int groupId, Region region)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

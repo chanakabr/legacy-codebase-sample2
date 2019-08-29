@@ -343,6 +343,8 @@ namespace ApiObjects.Response
         AssetRuleStatusNotWritable = 5061,
         PermissionNotFound = 5062,
         PermissionNameAlreadyInUse = 5063,
+        RegionNotFound = 5064,
+        RegionCannotBeParent = 5065,
         #endregion
 
         #region Billing 6000 - 6999
