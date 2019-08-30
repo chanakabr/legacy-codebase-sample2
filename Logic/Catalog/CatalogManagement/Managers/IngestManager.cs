@@ -83,10 +83,10 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            bool isMediaExists = mediaId > 0;
                             var mediaAsset = CreateMediaAsset(groupId, mediaId, media, cache, currTags, currMetas, ref topicIdsToRemove);
                             var images = GetImages(media.Basic, groupId, groupDefaultRatio, groupRatioNamesToImageTypes);
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
+                            bool isMediaExists = mediaId > 0 || (images != null && images.Count > 0) || (assetFiles != null && assetFiles.Count > 0);
                             media.Erase = media.Erase.ToLower().Trim();
                             var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
                             if (!upsertStatus.IsOkStatusCode())
@@ -105,7 +105,12 @@ namespace Core.Catalog.CatalogManagement
                             }
                             else
                             {
-                                AddTagsToTranslations(currTags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations);
+                                bool doesMediaHaveTagTranslations = false;
+                                AddTagsToTranslations(currTags, (int)mediaAsset.Id, isMediaExists, ref tagsTranslations, ref doesMediaHaveTagTranslations);
+                                if (!doesMediaHaveTagTranslations)
+                                {
+                                    assetsWithNoTags.Add((int)mediaAsset.Id, isMediaExists);
+                                }
                             }
 
                             // update notification 
@@ -243,7 +248,7 @@ namespace Core.Catalog.CatalogManagement
             return mediaAsset;
         }
 
-        private static void AddTagsToTranslations(List<Tags> tags, int mediaId, bool isMediaExists, ref Dictionary<string, TagsTranslations> tagsTranslations)
+        private static void AddTagsToTranslations(List<Tags> tags, int mediaId, bool isMediaExists, ref Dictionary<string, TagsTranslations> tagsTranslations, ref bool doesMediaHaveTagTranslations)
         {
             var slimTags = new List<Tuple<string, string, LanguageContainer[]>>();
             foreach (var tag in tags)
@@ -255,6 +260,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
 
+            doesMediaHaveTagTranslations = slimTags.Count > 0;
             var existingTagsTranslations = new List<Tuple<string, LanguageContainer>>();
             foreach (var slimTag in slimTags)
             {
