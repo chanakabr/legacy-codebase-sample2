@@ -159,13 +159,10 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            logger.DebugFormat("UseKs:{0}, isAdmin:{1}", groupConfig.UseKs, isAdmin);
-
             if (groupConfig.UseKs && !isAdmin)
             {
                 try
                 {
-                    logger.DebugFormat("UseKs!");
                     var session = GenerateSession(siteGuid, groupId, isAdmin, isSTB, udid);
                     return new APIToken()
                     {
