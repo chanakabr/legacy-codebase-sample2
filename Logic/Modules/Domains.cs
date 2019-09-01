@@ -947,11 +947,11 @@ namespace Core.Domains
             return false;
         }
 
-        public static UserResponse LoginWithDevicePIN(int groupID, string pin, string sessionID, string ip, string udid, bool preventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
+        public static GenericResponse<UserResponseObject> LoginWithDevicePIN(int groupID, string pin, string sessionID, string ip, string udid, bool preventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
 
-            Core.Users.BaseDomain t = null;
+            BaseDomain t = null;
             Utils.GetBaseImpl(ref t, groupID);
             if (t != null)
             {

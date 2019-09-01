@@ -109,6 +109,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_BULK_UPLOADS_FROM_CACHE = "GetBulkUploadsFromCache";
         public const string GET_GROUP_LANGUAGES = "GetGroupLanguages";
         public const string GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME = "TryGetTopicNotifications";
+        public const string GET_USER_ROLES_TO_PASSWORD_POLICY = "GetUserRolesToPasswordPolicy";
 
 
         #endregion

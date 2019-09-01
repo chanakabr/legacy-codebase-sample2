@@ -12,6 +12,7 @@ using System.Web;
 using ApiObjects.SSOAdapter;
 using APILogic.Users;
 using DAL;
+using APILogic.Api.Managers;
 
 namespace Core.Users
 {
@@ -29,7 +30,7 @@ namespace Core.Users
             }
         }
 
-        public static UserResponseObject CheckUserPassword(int nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins)
+        public static UserResponseObject CheckUserPassword(int nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins, bool validateForModify)
         {
             try
             {
@@ -40,7 +41,7 @@ namespace Core.Users
                 Utils.GetBaseImpl(ref t, nGroupID);
                 if (t != null)
                 {
-                    return t.CheckUserPassword(sUserName, sPassword, 3, 3, nGroupID, bPreventDoubleLogins);
+                    return t.CheckUserPassword(sUserName, sPassword, 3, 3, nGroupID, bPreventDoubleLogins, validateForModify);
                 }
             }
             catch (Exception ex)
@@ -85,7 +86,7 @@ namespace Core.Users
         }
 
     
-        public static UserResponseObject KalturaSignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
+        public static GenericResponse<UserResponseObject> KalturaSignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
         {
             try
             {
@@ -113,7 +114,6 @@ namespace Core.Users
             }
             return null;
         }
-
         
         public static UserResponseObject SignInWithToken(int nGroupID, string sToken, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
@@ -787,13 +787,13 @@ namespace Core.Users
             }
         }
         
-        public static UserResponseObject ChangeUserPassword(int nGroupID, string sUN, string sOldPass, string sPass)
+        public static UserResponseObject ChangeUserPassword(int nGroupID, string sUN, string sOldPass, string sPass, bool validateForModify)
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.ChangeUserPassword(sUN, sOldPass, sPass, nGroupID);
+                return t.ChangeUserPassword(sUN, sOldPass, sPass, nGroupID, validateForModify);
             }
             else
             {
@@ -932,27 +932,24 @@ namespace Core.Users
 
             return response;
         }
-
         
-        public static UserResponse ActivateAccount(int nGroupID, string sUserName,
-            string sToken)
+        public static GenericResponse<UserResponseObject> ActivateAccount(int nGroupID, string sUserName, string sToken)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response.user = t.ActivateAccount(sUserName, sToken);
-                if (response.user != null)
+                response.Object = t.ActivateAccount(sUserName, sToken);
+                if (response.Object != null)
                 {
                     // convert response status
-                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
+                    response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus));
                 }
             }
             return response;
         }
-
         
         public static UserResponseObject ActivateAccountByDomainMaster(int nGroupID, string sMasterUsername,
             string sUserName, string sToken)
@@ -1377,82 +1374,82 @@ namespace Core.Users
                 return new PinCodeResponse();
             }
         }
-
         
-        public static UserResponse LoginWithPIN(int nGroupID, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins,
-            List<ApiObjects.KeyValuePair> keyValueList, string secret)
+        public static GenericResponse<UserResponseObject> LoginWithPIN(int groupID, string PIN, string sessionID, string ip, string deviceID, bool preventDoubleLogins, List<KeyValuePair> keyValueList, string secret)
         {
             BaseUsers baseUser = null;
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
 
             // get group ID + user implementation
-            Utils.GetBaseImpl(ref baseUser, nGroupID);
-            if (nGroupID != 0 && baseUser != null)
+            Utils.GetBaseImpl(ref baseUser, groupID);
+            if (groupID == 0 || baseUser == null)
             {
-                // validate pin
-                response = baseUser.ValidateLoginWithPin(PIN, secret);
+                return response;
+            }
 
-                if (response == null || response.resp == null)
+            // validate pin
+            response = baseUser.ValidateLoginWithPin(PIN, secret);
+            if (response.Object == null)
+            {
+                response.Object = new UserResponseObject();
+                response.SetStatus(eResponseStatus.Error);
+                return response;
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                return response;
+            }
+
+            if (response.Object.m_user != null && !RolesPermissionsManager.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+            {
+                response.SetStatus(RolesPermissionsManager.GetSuspentionStatus(groupID, response.Object.m_user.m_domianID));
+                return response;
+            }
+
+            // get Kaltura user implementation
+            KalturaBaseUsers kUser = null;
+
+            // get operatorId if exists
+            int operatorId = -1;
+            if (keyValueList != null)
+            {
+                var keyValueOperatorId = keyValueList.FirstOrDefault(x => x.key == "operator");
+                if (keyValueOperatorId != null)
+                    operatorId = Convert.ToInt32(keyValueOperatorId.value);
+            }
+
+            //  get user type
+            Utils.GetBaseImpl(ref kUser, groupID, operatorId);
+            if (kUser != null)
+            {
+                if (keyValueList == null)
                 {
-                    response = new UserResponse();
-                    return response;
+                    keyValueList = new List<KeyValuePair>();
                 }
+                keyValueList.Add(new KeyValuePair("pin", PIN));
 
-                if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                // execute Sign in
+                response.Object = FlowManager.SignIn(int.Parse(response.Object.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, groupID, sessionID, ip, deviceID, preventDoubleLogins, keyValueList, response.Object.m_user.m_oBasicData.m_sUserName, string.Empty);
+                if (response.Object != null)
                 {
-                    if (response.user.m_user != null &&
-                               !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                    // convert response status
+                    response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus));
+
+                    //check if pin should be expired
+                    if (response.Object.m_RespStatus == ResponseStatus.OK ||
+                        response.Object.m_RespStatus == ResponseStatus.UserWithNoDomain ||
+                        response.Object.m_RespStatus == ResponseStatus.UserSuspended)
                     {
-                        response.resp = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(nGroupID, response.user.m_user.m_domianID);
-                        return response;
-                    }
-
-                    // get Kaltura user implementation
-                    KalturaBaseUsers kUser = null;
-
-                    // get operatorId if exists
-                    int operatorId = -1;
-                    if (keyValueList != null)
-                    {
-                        var keyValueOperatorId = keyValueList.FirstOrDefault(x => x.key == "operator");
-                        if (keyValueOperatorId != null)
-                            operatorId = Convert.ToInt32(keyValueOperatorId.value);
-                    }
-
-                    //  get user type
-                    Utils.GetBaseImpl(ref kUser, nGroupID, operatorId);
-                    if (kUser != null)
-                    {
-                        if (keyValueList == null)
-                        {
-                            keyValueList = new List<KeyValuePair>();
-                        }
-                        keyValueList.Add(new KeyValuePair("pin", PIN));
-
-                        // execute Sign in
-                        response.user = FlowManager.SignIn(int.Parse(response.user.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, response.user.m_user.m_oBasicData.m_sUserName, string.Empty);
-                        if (response.user != null)
-                        {
-                            // convert response status
-                            response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
-
-                            //check if pin should be expired
-                            if (response.user.m_RespStatus == ResponseStatus.OK ||
-                                response.user.m_RespStatus == ResponseStatus.UserWithNoDomain ||
-                                response.user.m_RespStatus == ResponseStatus.UserSuspended)
-                            {
-                                // expire the PIN
-                                baseUser.ExpirePIN(nGroupID, PIN);
-                                response.resp.Code = (int)ResponseStatus.OK;
-                                response.resp.Message = ResponseStatus.OK.ToString();
-                            }
-                        }
+                        // expire the PIN
+                        baseUser.ExpirePIN(groupID, PIN);
+                        response.SetStatus(eResponseStatus.OK);
                     }
                 }
             }
+
             return response;
         }
-
         
         public static PinCodeResponse SetLoginPIN(int nGroupID, string siteGuid, string PIN, string secret)
         {
@@ -1488,44 +1485,37 @@ namespace Core.Users
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
         }
-
-
-        public static UserResponse LogIn(int nGroupID, string userName, string password, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins,
-            List<ApiObjects.KeyValuePair> keyValueList)
+        
+        public static GenericResponse<UserResponseObject> LogIn(int groupID, string userName, string password, string sessionID, string ip, string deviceID, bool preventDoubleLogins, List<KeyValuePair> keyValueList)
         {
-            UserResponse response = new UserResponse();
-            response.user = KalturaSignIn(nGroupID, userName, password, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
-
-            if (response.user != null)
+            var response = KalturaSignIn(groupID, userName, password, sessionID, ip, deviceID, preventDoubleLogins, keyValueList);
+            if (response.HasObject())
             {
-                if (response.user.m_user != null &&
-                    !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(nGroupID, response.user.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                if (response.Object.m_user != null && !RolesPermissionsManager.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                 {
-                    response.resp = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(nGroupID, response.user.m_user.m_domianID);
+                    response.SetStatus(RolesPermissionsManager.GetSuspentionStatus(groupID, response.Object.m_user.m_domianID));
                     return response;
                 }
 
                 // convert response status
-                response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, true, response.user.ExternalCode, response.user.ExternalMessage);
-                int userID;
+                response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus, true, response.Object.ExternalCode, response.Object.ExternalMessage));
 
-                if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
+                if (response.IsOkStatusCode() && int.TryParse(response.Object.m_user.m_sSiteGUID, out int userID) && userID > 0)
                 {
-                    Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, userID, deviceID);
+                    Utils.AddInitiateNotificationActionToQueue(groupID, eUserMessageAction.Login, userID, deviceID);
                 }
                 else
-                    log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, nGroupID, response.resp.Code);
+                {
+                    log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, groupID, response.Status.Code);
+                }
             }
-
+           
             return response;
-
         }
-
-
         
-        public static UserResponse SignUp(int nGroupID, UserBasicData oBasicData, UserDynamicData dynamicData, string password, string affiliateCode)
+        public static GenericResponse<UserResponseObject> SignUp(int nGroupID, UserBasicData oBasicData, UserDynamicData dynamicData, string password, string affiliateCode)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
 
             // add username to logs/monitor
             if (oBasicData != null && !string.IsNullOrEmpty(oBasicData.m_sUserName))
@@ -1538,23 +1528,23 @@ namespace Core.Users
                 var roles = Api.Module.GetRoles(nGroupID, oBasicData.RoleIds);
                 if (roles == null || roles.Status == null || roles.Status.Code == (int)eResponseStatus.Error || roles.Roles == null || roles.Roles.Count != oBasicData.RoleIds.Count)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
+                    response.SetStatus(eResponseStatus.RoleDoesNotExists);
                     return response;
                 }
             }
 
-            response.user = AddNewUser(nGroupID, oBasicData, dynamicData, password, affiliateCode);
+            response.Object = AddNewUser(nGroupID, oBasicData, dynamicData, password, affiliateCode);
 
-            if (response.user != null)
+            if (response.Object != null)
             {
-                if (response.user.m_RespStatus == ResponseStatus.OK || response.user.m_RespStatus == ResponseStatus.UserWithNoDomain)
+                if (response.Object.m_RespStatus == ResponseStatus.OK || response.Object.m_RespStatus == ResponseStatus.UserWithNoDomain)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK);
                 }
                 else
                 {
                     // convert response status
-                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus, false, response.user.ExternalCode, response.user.ExternalMessage);
+                    response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus, false, response.Object.ExternalCode, response.Object.ExternalMessage));
                 }
             }
             return response;
@@ -1600,7 +1590,7 @@ namespace Core.Users
         
         public static ApiObjects.Response.Status ReplacePassword(int nGroupID, string userName, string oldPassword, string newPassword)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
@@ -1615,20 +1605,19 @@ namespace Core.Users
 
             return response;
         }
-
         
-        public static UserResponse CheckPasswordToken(int nGroupID, string token)
+        public static GenericResponse<UserResponseObject> CheckPasswordToken(int nGroupID, string token)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response.user = t.CheckToken(token);
-                if (response.user != null)
+                response.Object = t.CheckToken(token);
+                if (response.Object != null)
                 {
                     // convert response status
-                    response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
+                    response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus));
                 }
             }
             return response;
@@ -1660,29 +1649,30 @@ namespace Core.Users
             return response;
         }
         
-        public static UserResponse SetUser(int nGroupID, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
+        public static GenericResponse<UserResponseObject> SetUser(int nGroupID, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
         {
             // add siteguid to logs/monitor
             AddItemToContext(Constants.USER_ID, siteGUID);
             
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
 
             if (basicData.RoleIds != null && basicData.RoleIds.Count > 0)
             {
                 var roles = Api.Module.GetRoles(nGroupID, basicData.RoleIds);
                 if (roles == null || roles.Status == null || roles.Status.Code == (int)eResponseStatus.Error || roles.Roles == null || roles.Roles.Count != basicData.RoleIds.Count)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.RoleDoesNotExists, eResponseStatus.RoleDoesNotExists.ToString());
+                    response.SetStatus(eResponseStatus.RoleDoesNotExists);
                     return response;
                 }
             }
 
-            response.user = SetUserData(nGroupID, siteGUID, basicData, dynamicData);
-            if (response.user != null)
+            response.Object = SetUserData(nGroupID, siteGUID, basicData, dynamicData);
+            if (response.Object != null)
             {
                 // convert response status
-                response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
+                response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus));
             }
+
             return response;
         }
         
@@ -1870,14 +1860,10 @@ namespace Core.Users
 
             return response;
         }
-
         
-        public static UserResponse GetUserByExternalID(int nGroupID, string externalId, int operatorID)
+        public static GenericResponse<UserResponseObject> GetUserByExternalID(int nGroupID, string externalId, int operatorID)
         {
-            UserResponse response = new UserResponse()
-            {
-                resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            var response = new GenericResponse<UserResponseObject>();
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1888,12 +1874,9 @@ namespace Core.Users
             return response;
         }
         
-        public static UserResponse GetUserByName(int nGroupID, string username)
+        public static GenericResponse<UserResponseObject> GetUserByName(int nGroupID, string username)
         {
-            UserResponse response = new UserResponse()
-            {
-                resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            var response = new GenericResponse<UserResponseObject>();
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1901,6 +1884,7 @@ namespace Core.Users
             {
                 response = t.GetUserByName(username, nGroupID);
             }
+
             return response;
         }
 

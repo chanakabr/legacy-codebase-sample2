@@ -630,6 +630,35 @@ namespace CachingProvider.LayeredCache
             return string.Format("Regions_{0}", groupId);
         }
 
+        public static string GetUserRolesToPasswordPolicyKey(int groupId)
+        {
+            return string.Format("user_roles_to_password_policy_{0}", groupId);
+        }
+
+        public static string GetPasswordPolicyKey(long roleId)
+        {
+            return string.Format("password_policy_{0}", roleId);
+        }
+
+        public static Dictionary<string, string> GetPasswordPolicyKeyMap(List<long> roleIds)
+        {
+            var result = new Dictionary<string, string>();
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                foreach (var id in roleIds)
+                {
+                    var key = GetPasswordPolicyKey(id);
+                    if (!result.ContainsKey(key))
+                    {
+                        result.Add(key, id.ToString());
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1117,6 +1146,34 @@ namespace CachingProvider.LayeredCache
         public static string PermissionsManagerInvalidationKey()
         {
             return PERMISSION_MANAGER_INVALIDATION_KEY;
+        }
+
+        public static string GetUserRolesToPasswordPolicyInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_{0}", GetUserRolesToPasswordPolicyKey(groupId));
+        }
+
+        public static string GetPasswordPolicyInvalidationKey(long roleId)
+        {
+            return string.Format("invalidationKey_{0}", GetPasswordPolicyKey(roleId));
+        }
+
+        public static Dictionary<string, List<string>> GetPasswordPolicyInvalidationKeysMap(List<long> roleIds)
+        {
+            var result = new Dictionary<string, List<string>>();
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                foreach (long id in roleIds)
+                {
+                    var key = GetPasswordPolicyKey(id);
+                    if (!result.ContainsKey(key))
+                    {
+                        result.Add(key, new List<string>() { GetPasswordPolicyInvalidationKey(id) });
+                    }
+                }
+            }
+
+            return result;
         }
 
         #endregion

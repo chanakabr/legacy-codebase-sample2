@@ -1084,7 +1084,8 @@ namespace Core.Social
         {
             FacebookResponse facebookResponse = new FacebookResponse();
 
-            UserResponseObject uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false);
+            // TODO SHIR - CEHCK IF OTHER METHODS ARE FALSE TOO
+            var uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false, false);
 
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
             {
@@ -1471,7 +1472,8 @@ namespace Core.Social
                 }
                 else
                 {
-                    user = Utils.CheckUserPassword(m_nGroupID, sUsername, sPassword, false);
+                    // TODO SHIR - CEHCK IF OTHER METHODS ARE FALSE TOO
+                    user = Utils.CheckUserPassword(m_nGroupID, sUsername, sPassword, false, false);
 
                     if (user != null && (user.m_RespStatus == ResponseStatus.WrongPasswordOrUserName || user.m_RespStatus == ResponseStatus.UserDoesNotExist))
                     {

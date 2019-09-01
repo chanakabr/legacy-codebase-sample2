@@ -862,7 +862,8 @@ namespace ApiObjects
         UserSuspended = 23,
         UserCreatedWithNoRole = 24,
         ExternalIdAlreadyExists = 25,
-        ExternalError = 26
+        ExternalError = 26,
+        InvalidPassword = 27, // TODO SHIR - DONT FORGET TO MAPP TO OTHER PASS
     }
 
     public enum SubscriptionPurchaseStatus

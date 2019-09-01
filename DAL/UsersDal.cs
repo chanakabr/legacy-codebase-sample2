@@ -1,5 +1,7 @@
-﻿using ApiObjects.SSOAdapter;
+﻿using ApiObjects;
+using ApiObjects.SSOAdapter;
 using ConfigurationManager;
+using CouchbaseManager;
 using KLogMonitor;
 using ODBCWrapper;
 using System;
@@ -744,10 +746,11 @@ namespace DAL
             return retVal;
         }
 
-        public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate)
+        public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate, ref DateTime passwordUpdateDate)
         {
-            int nID = 0;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LoginFailCount");
+            int userId = 0;
+            // TODO SHIR - UPDATE Get_LoginFailCount TO RETURN LAST PASSWORD UPDATE DATE
+            var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@username", sUN);
             sp.AddParameter("@groupID", nGroupID);
@@ -762,15 +765,17 @@ namespace DAL
                 {
                     dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
                     nFailCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["FAIL_COUNT"]);
-                    nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
+                    userId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
                     dLastFailDate = new DateTime(2020, 1, 1);
                     dLastHitDate = new DateTime(2020, 1, 1);
                     dLastFailDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
                     dLastHitDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
+                    // TODO SHIR - INSERT PASSWORD_UPDATE_DATE COL TO users table (with default of datetime.now)
+                    passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0]["PASSWORD_UPDATE_DATE"]);
                 }
             }
 
-            return nID;
+            return userId;
         }
 
         public static bool InsertUserOperator(string nSiteGuid, string sCoGuid, int nOperatorID)
@@ -2370,6 +2375,28 @@ namespace DAL
             }
 
             return userIds;
+        }
+
+        private static string GetUserRolesToPasswordPolicyKey(int groupId)
+        {
+            return string.Format("user_roles_to_password_policy_{0}", groupId);
+        }
+
+        public static Dictionary<long, List<long>> GetUserRolesToPasswordPolicy(int groupId)
+        {
+            var key = GetUserRolesToPasswordPolicyKey(groupId);
+            return UtilsDal.GetObjectFromCB<Dictionary<long, List<long>>>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        private static string GetPasswordPolicyKey(long passwordPolicyId)
+        {
+            return string.Format("password_policy_{0}", passwordPolicyId);
+        }
+
+        public static PasswordPolicy GetPasswordPolicy(long passwordPolicyId)
+        {
+            var key = GetPasswordPolicyKey(passwordPolicyId);
+            return UtilsDal.GetObjectFromCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key);
         }
     }
 }

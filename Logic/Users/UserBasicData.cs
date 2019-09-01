@@ -396,5 +396,36 @@ namespace Core.Users
 
             return isBasicChanged;
         }
+
+        public bool SetPassword(string password, int nGroupID, bool validateForModify)
+        {
+
+            if (password.Length == 0)
+            {
+                return false;
+            }
+
+            // check if we need to encrypt the password
+            BaseEncrypter encrypter = Utils.GetBaseImpl(nGroupID);
+
+            // if encrypter is null the group does not have an encrypter support
+            if (encrypter != null)
+            {
+                string sEncryptedPassword = string.Empty;
+                string sSalt = string.Empty;
+
+                encrypter.GenerateEncryptPassword(password, ref sEncryptedPassword, ref sSalt);
+
+                this.m_sPassword = sEncryptedPassword;
+                this.m_sSalt = sSalt;
+            }
+            else
+            {
+                this.m_sPassword = password;
+                this.m_sSalt = string.Empty;
+            }
+
+            return true;
+        }
     }
 }

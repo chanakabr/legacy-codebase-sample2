@@ -105,23 +105,23 @@ namespace Core.Users
                 return UserActivationState.Activated;
             }
 
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
+            UserActivationState activStatus = (UserActivationState)UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
 
             return activStatus;
         }
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod)
         {
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
+            UserActivationState activStatus = (UserActivationState)UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
 
             return activStatus;
         }
 
-        public override UserResponseObject CheckUserPassword(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins)
+        public override UserResponseObject CheckUserPassword(string username, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins, bool validateForModify)
         {
             Int32 nUserID = -2;
 
-            bool bActivated = IsUserActivated(ref sUN, ref nUserID);
+            bool bActivated = IsUserActivated(ref username, ref nUserID);
             if (bActivated == false)
             {
                 UserResponseObject o = new UserResponseObject();
@@ -133,10 +133,10 @@ namespace Core.Users
                 o.m_RespStatus = ret;
                 return o;
             }
-            return User.CheckUserPassword(sUN, sPass, 3, 3, nGroupID, bPreventDoubleLogins, true);
+            return User.CheckUserPassword(username, sPass, 3, 3, nGroupID, bPreventDoubleLogins, true, validateForModify);
         }
 
-        public override UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public override GenericResponse<UserResponseObject> SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
 
@@ -196,9 +196,9 @@ namespace Core.Users
             }
 
             var response =  User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
-            if (response != null && response.m_user != null)
+            if (response != null && response.Object != null)
             {
-                response.m_user.IsActivationGracePeriod = isGracePeriod;
+                response.Object.IsActivationGracePeriod = isGracePeriod;
             }
 
             return response;
@@ -537,7 +537,7 @@ namespace Core.Users
                 return userResponse;
             }
 
-            if (!Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID))
+            if (!oBasicData.SetPassword(sPassword, m_nGroupID))
             {
                 userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
                 return userResponse;
@@ -720,21 +720,21 @@ namespace Core.Users
 
         public override UserResponseObject AddNewUser(string sBasicDataXML, string sDynamicDataXML, string sPassword)
         {
-            UserBasicData b = new UserBasicData();
-            b.Initialize(sBasicDataXML, null, m_nGroupID);
-
-            bool bOk = Core.Users.Utils.SetPassword(sPassword, ref b, m_nGroupID);
-            if (bOk == false)
+            var userBasicData = new UserBasicData();
+            userBasicData.Initialize(sBasicDataXML, null, m_nGroupID);
+            if (!userBasicData.SetPassword(sPassword, m_nGroupID))
             {
-                UserResponseObject ret = new UserResponseObject();
-                ret.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-                ret.m_user = null;
+                var ret = new UserResponseObject
+                {
+                    m_RespStatus = ResponseStatus.WrongPasswordOrUserName,
+                    m_user = null
+                };
                 return ret;
             }
 
             UserDynamicData d = new UserDynamicData();
             d.Initialize(sDynamicDataXML);
-            return AddNewUser(b, d, "");
+            return AddNewUser(userBasicData, d, "");
         }
 
         public override UserResponseObject GetUserByCoGuid(string sCoGuid, int operatorID)
@@ -1129,19 +1129,20 @@ namespace Core.Users
             return resp;
         }
 
-        public override UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, int nGroupID)
+        public override GenericResponse<UserResponseObject> ChangeUserPassword(string username, string sOldPass, string sPass, int nGroupID, bool validateForModify)
         {
             UserResponseObject ret = new UserResponseObject();
-            UserResponseObject uro = User.CheckUserPassword(sUN, sOldPass, 3, 3, nGroupID, false, true);
-            if (uro.m_RespStatus != ResponseStatus.OK)
+
+            // checkUserPassword for simple login with ol password
+            UserResponseObject uro = User.CheckUserPassword(username, sOldPass, 3, 3, nGroupID, false, true, false);
+            if (uro.m_RespStatus != ResponseStatus.OK && uro.m_RespStatus != ResponseStatus.InvalidPassword)
             {
                 ret.m_RespStatus = uro.m_RespStatus;
                 ret.m_user = null;
                 return ret;
             }
-
-            bool bOk = Core.Users.Utils.SetPassword(sPass, ref uro.m_user.m_oBasicData, nGroupID);
-            if (bOk == false)
+            
+            if (!uro.m_user.m_oBasicData.SetPassword(sPass, nGroupID))
             {
                 ret.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 ret.m_user = null;
@@ -1164,7 +1165,7 @@ namespace Core.Users
                 return response;
             }
 
-            if (!Core.Users.Utils.SetPassword(password, ref user.m_oBasicData, m_nGroupID))
+            if (!user.m_oBasicData.SetPassword(password, m_nGroupID))
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to set user password");
                 return response;
@@ -1192,9 +1193,8 @@ namespace Core.Users
                 ret.m_user = null;
                 return ret;
             }
-
-            bool bOk = Core.Users.Utils.SetPassword(sPass, ref u.m_oBasicData, nGroupID);
-            if (bOk == false)
+            
+            if (!u.m_oBasicData.SetPassword(sPass, nGroupID))
             {
                 ret.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
                 ret.m_user = null;
@@ -2036,24 +2036,23 @@ namespace Core.Users
             return response;
         }
 
-        public override UserResponse GetUserByExternalID(string externalID, int operatorID)
+        public override GenericResponse<UserResponseObject> GetUserByExternalID(string externalID, int operatorID)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
             try
             {
-                response.user = GetUserByCoGuid(externalID, operatorID);
-                if (response.user.m_RespStatus == ResponseStatus.UserDoesNotExist)
+                response.Object = GetUserByCoGuid(externalID, operatorID);
+                if (response.Object.m_RespStatus == ResponseStatus.UserDoesNotExist)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.UserDoesNotExist);
                 }
                 else
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK);
                 }
             }
             catch (Exception ex)
             {
-
                 StringBuilder sb = new StringBuilder("Exception at GetUserByExternalID. ");
                 sb.Append(String.Concat("externalID: ", externalID));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
@@ -2061,32 +2060,29 @@ namespace Core.Users
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
 
-                response = new UserResponse()
-                {
-                    resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-                };
+                response.Object = new UserResponseObject();
+                response.SetStatus(eResponseStatus.Error);
             }
             return response;
         }
 
-        public override UserResponse GetUserByName(string userName, int groupId)
+        public override GenericResponse<UserResponseObject> GetUserByName(string userName, int groupId)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
             try
             {
-                response.user = GetUserByUsername(userName, groupId);
-                if (response.user.m_RespStatus == ResponseStatus.UserDoesNotExist)
+                response.Object = GetUserByUsername(userName, groupId);
+                if (response.Object.m_RespStatus == ResponseStatus.UserDoesNotExist)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
+                    response.SetStatus(eResponseStatus.UserDoesNotExist);
                 }
                 else
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.SetStatus(eResponseStatus.OK);
                 }
             }
             catch (Exception ex)
             {
-
                 StringBuilder sb = new StringBuilder("Exception at GetUserByName. ");
                 sb.Append(String.Concat("userName: ", userName));
                 sb.Append(String.Concat("groupId: ", groupId));
@@ -2095,11 +2091,10 @@ namespace Core.Users
                 sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
                 log.Error("Exception - " + sb.ToString(), ex);
 
-                response = new UserResponse()
-                {
-                    resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-                };
+                response.Object = new UserResponseObject();
+                response.SetStatus(eResponseStatus.Error);
             }
+
             return response;
         }
     }

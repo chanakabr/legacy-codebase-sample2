@@ -190,8 +190,9 @@ namespace Core.Users
             }
         }
 
-        static public void GetBaseImpl(ref BaseEncrypter t, Int32 nGroupID)
+        static public BaseEncrypter GetBaseImpl(Int32 nGroupID)
         {
+            BaseEncrypter baseEncrypter = null;
             int nImplID = 0;
 
             string key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
@@ -214,21 +215,22 @@ namespace Core.Users
             switch (nImplID)
             {
                 case 1:
-                    t = new MD5Encrypter(nGroupID);
+                    baseEncrypter = new MD5Encrypter(nGroupID);
                     break;
                 case 2:
-                    t = new SHA1Encrypter(nGroupID);
+                    baseEncrypter = new SHA1Encrypter(nGroupID);
                     break;
                 case 3:
-                    t = new SHA256Encrypter(nGroupID);
+                    baseEncrypter = new SHA256Encrypter(nGroupID);
                     break;
                 case 4:
-                    t = new SHA384Encrypter(nGroupID);
+                    baseEncrypter = new SHA384Encrypter(nGroupID);
                     break;
                 default:
                     break;
             }
 
+            return baseEncrypter;
         }
 
         static public void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
@@ -437,39 +439,6 @@ namespace Core.Users
             }
 
             return true;
-        }
-
-        static public bool SetPassword(string sPassword, ref UserBasicData oBasicData, int nGroupID)
-        {
-            if (sPassword.Length > 0)
-            {
-                // check if we need to encrypt the password
-                BaseEncrypter encrypter = null;
-
-                Utils.GetBaseImpl(ref encrypter, nGroupID);
-                // if encrypter is null the group does not have an encrypter support
-                if (encrypter != null)
-                {
-                    string sEncryptedPassword = string.Empty;
-                    string sSalt = string.Empty;
-
-                    encrypter.GenerateEncryptPassword(sPassword, ref sEncryptedPassword, ref sSalt);
-
-                    oBasicData.m_sPassword = sEncryptedPassword;
-                    oBasicData.m_sSalt = sSalt;
-                }
-                else
-                {
-                    oBasicData.m_sPassword = sPassword;
-                    oBasicData.m_sSalt = string.Empty;
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID, bool bCache = false)
@@ -690,10 +659,10 @@ namespace Core.Users
 
             return result;
         }
-
-
+        
         public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
+            // TODO SHIR - ADD invalid password ERROR!!
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 
             if (isLogin && status == ResponseStatus.UserSuspended)
@@ -802,8 +771,7 @@ namespace Core.Users
 
             return result;
         }
-
-
+        
         public static ApiObjects.Response.Status ConvertDomainResponseStatusToResponseObject(DomainResponseStatus status)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();

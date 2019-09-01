@@ -17,6 +17,21 @@ namespace ApiObjects.Response
             Object = obj;
         }
 
+        public GenericResponse(eResponseStatus responseStatus, string message = null)
+        {
+            Object = default(T);
+            Status = new Status((int)responseStatus);
+
+            if (string.IsNullOrEmpty(message))
+            {
+                this.Status.Message = responseStatus.ToString();
+            }
+            else
+            {
+                this.Status.Message = message;
+            }
+        }
+
         public GenericResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

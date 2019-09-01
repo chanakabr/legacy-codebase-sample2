@@ -1,4 +1,7 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Managers;
+using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -355,15 +358,13 @@ namespace Core.Users
             return retVal;
         }
 
-        public bool Initialize(UserBasicData oBasicData, UserDynamicData oDynamicData, Int32 nGroupID, string sPassword)
+        public bool Initialize(UserBasicData userBasicData, UserDynamicData oDynamicData, Int32 nGroupID, string sPassword)
         {
             try
             {
-                UserResponseObject u = null;
-
-                Utils.SetPassword(sPassword, ref oBasicData, nGroupID);
-
-                u = CheckUserPassword(oBasicData.m_sUserName, oBasicData.m_sPassword, 3, 3, nGroupID, false, true);
+                userBasicData.SetPassword(sPassword, nGroupID);
+                
+                UserResponseObject u = CheckUserPassword(userBasicData.m_sUserName, userBasicData.m_sPassword, 3, 3, nGroupID, false, true);
                 if (u.m_RespStatus == ResponseStatus.WrongPasswordOrUserName)
                 {
                     return false;
@@ -371,7 +372,7 @@ namespace Core.Users
 
                 m_sSiteGUID = (u != null && u.m_user != null) ? u.m_user.m_sSiteGUID : "";
 
-                m_oBasicData = oBasicData;
+                m_oBasicData = userBasicData;
                 m_oDynamicData = oDynamicData;
                 if (!string.IsNullOrEmpty(m_sSiteGUID))
                 {
@@ -383,7 +384,7 @@ namespace Core.Users
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at User.Initialize ");
-                sb.Append(String.Concat(" Basic Data: ", oBasicData.ToString()));
+                sb.Append(String.Concat(" Basic Data: ", userBasicData.ToString()));
                 sb.Append(String.Concat(" Group ID: ", nGroupID));
                 sb.Append(String.Concat(" Msg: ", ex.Message));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
@@ -432,12 +433,10 @@ namespace Core.Users
 
                     return result;
                 }
-
-                User user = null;
+                
                 // Get user from cache by siteGUID
                 UsersCache usersCache = UsersCache.Instance();
-                user = usersCache.GetUser(nUserID, nGroupID);
-
+                var user = usersCache.GetUser(nUserID, nGroupID);
                 if (user != null)
                 {
                     m_oBasicData = user.m_oBasicData;
@@ -453,7 +452,6 @@ namespace Core.Users
 
                     result = true;
                 }
-
             }
             catch (Exception ex)
             {
@@ -914,15 +912,7 @@ namespace Core.Users
                 bool bIsDeviceActivated = false;
                 Device device = CreateAndInitializeDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
                 bIsDeviceActivated = (device != null && device.m_state == DeviceState.Activated) || (device == null); // device == null means web login
-
-                //Ignore device check for now (token issue)
-                //if (!bIsDeviceActivated)
-                //{
-                //    retObj.m_RespStatus = ResponseStatus.DeviceNotRegistered;
-                //    return retObj;
-                //}
-                //else
-
+                
                 {
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
@@ -1012,7 +1002,6 @@ namespace Core.Users
                     }
                     retObj.m_user.m_eUserState = GetCurrentUserState(nSiteGuid, nGroupID);
                 }
-
             }
             retObj.m_userInstanceID = instanceID.ToString();
 
@@ -1035,98 +1024,294 @@ namespace Core.Users
             return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
         }
 
-        static public UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        static public GenericResponse<UserResponseObject> SignIn(string username, string password, int maxFailCount, int lockMinutes, int groupId, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
-            UserResponseObject retObj = CheckUserPassword(sUN, sPass, nMaxFailCount, nLockMinutes, nGroupID, bPreventDoubleLogins, false);
-            return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
+            var retObj = CheckExistingUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false, false);
+            return InnerSignIn(ref retObj, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
 
-        static public UserResponseObject CheckUserPassword(string sUN, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins, bool checkHitDate)
+        // TODO SHIR - CheckUserPassword
+        static public UserResponseObject CheckUserPassword1(string username, string password, Int32 maxFailCount, Int32 lockMinutes, Int32 groupId, bool preventDoubleLogins, bool checkHitDate, bool validateForModify)
         {
-            UserResponseObject o = new UserResponseObject();
-            ResponseStatus ret = ResponseStatus.WrongPasswordOrUserName;
+            var userResponseObject = new UserResponseObject();
+            var responseStatus = ResponseStatus.WrongPasswordOrUserName;
             User res = null;
 
-            if (!string.IsNullOrEmpty(sUN) && !string.IsNullOrEmpty(sPass))
+            DateTime passwordUpdateDate = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
                 int nFailCount = 0;
                 DateTime dNow = DateTime.UtcNow;
                 DateTime dLastFailDate = new DateTime(2020, 1, 1);
                 DateTime dLastHitDate = new DateTime(2020, 1, 1);
 
-                int nID = DAL.UsersDal.GetUserPasswordFailHistory(sUN, nGroupID, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate);
-
-                if (nID <= 0)
+                var userId = UsersDal.GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
+                if (userId <= 0)
                 {
-                    o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-                    return o;
+                    userResponseObject.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                    return userResponseObject;
                 }
+                
+                User u = new User();
+                bool bOk = u.Initialize(userId, groupId);
 
-                if (nID > 0)
+                if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
                 {
-                    User u = new User();
-                    bool bOk = u.Initialize(nID, nGroupID);
+                    responseStatus = ResponseStatus.OK;
 
-                    if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
+                    bool bOK = (password == u.m_oBasicData.m_sPassword);
+
+                    if (!bOK)
                     {
-                        ret = ResponseStatus.OK;
-
-                        bool bOK = (sPass == u.m_oBasicData.m_sPassword);
-
-                        if (bOK == false)
+                        BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
+                        if (encrypter != null)
                         {
-                            BaseEncrypter encrypter = null;
-
-                            Utils.GetBaseImpl(ref encrypter, nGroupID);
-
-                            if (encrypter != null)
-                            {
-                                bOK = (u.m_oBasicData.m_sPassword == encrypter.Encrypt(sPass, u.m_oBasicData.m_sSalt));
-                            }
+                            bOK = (u.m_oBasicData.m_sPassword == encrypter.Encrypt(password, u.m_oBasicData.m_sSalt));
                         }
+                    }
 
-                        if (bOK == true)
+                    if (bOK)
+                    {
+                        if (nFailCount > maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
                         {
-                            if (nFailCount > nMaxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < nLockMinutes)
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        }
+                        else if (preventDoubleLogins == true)
+                        {
+                            if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
                             {
-                                ret = ResponseStatus.InsideLockTime;
-                            }
-                            else if (bPreventDoubleLogins == true)
-                            {
-                                if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
-                                {
-                                    ret = ResponseStatus.UserAllreadyLoggedIn;
-                                }
-                                else
-                                {
-                                    UpdateFailCount(0, nID, true);
-                                }
+                                responseStatus = ResponseStatus.UserAllreadyLoggedIn;
                             }
                             else
                             {
-                                UpdateFailCount(0, nID, true);
-                                res = u;
+                                UpdateFailCount(0, userId, true);
                             }
                         }
                         else
                         {
-                            UpdateFailCount(1, nID);
-
-                            if (nFailCount >= nMaxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < nLockMinutes)
-                                ret = ResponseStatus.InsideLockTime;
-                            else
-                                ret = ResponseStatus.WrongPasswordOrUserName;
+                            UpdateFailCount(0, userId, true);
+                            res = u;
                         }
                     }
                     else
-                        ret = ResponseStatus.UserDoesNotExist;
+                    {
+                        UpdateFailCount(1, userId);
+
+                        if (nFailCount >= maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        else
+                            responseStatus = ResponseStatus.WrongPasswordOrUserName;
+                    }
+
+                    if (responseStatus == ResponseStatus.OK)
+                    {
+                        // TODO SHIR - SET contextData AND FILTER befor PasswordSettingsManager.Instance.List
+                        var contextData = new ContextData(groupId) { UserId = userId };
+                        var validatePasswordResponse = PasswordPolicyManager.Instance.ValidatePassword(password, contextData, res.m_oBasicData.RoleIds, passwordUpdateDate, validateForModify);
+                        if (!validatePasswordResponse.IsOkStatusCode())
+                        {
+                            responseStatus = ResponseStatus.InvalidPassword;
+                            // WHAT TO DO WITH ARGS?
+                        }
+                    }
                 }
                 else
-                    ret = ResponseStatus.UserDoesNotExist;
+                {
+                    responseStatus = ResponseStatus.UserDoesNotExist;
+                }
+            }
+            
+            userResponseObject.Initialize(responseStatus, res);
+            return userResponseObject;
+        }
+
+        public static GenericResponse<UserResponseObject> CheckNewUserPassword(string username, string password, int groupId)
+        {
+            var userResponseObject = new GenericResponse<UserResponseObject>();
+            var responseStatus = ResponseStatus.WrongPasswordOrUserName;
+            User res = null;
+
+            DateTime passwordUpdateDate = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            {
+                int nFailCount = 0;
+                DateTime dNow = DateTime.UtcNow;
+                DateTime dLastFailDate = new DateTime(2020, 1, 1);
+                DateTime dLastHitDate = new DateTime(2020, 1, 1);
+
+                var userId = UsersDal.GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
+                if (userId <= 0)
+                {
+                    userResponseObject.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                    return userResponseObject;
+                }
+
+                User u = new User();
+                bool bOk = u.Initialize(userId, groupId);
+
+                if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
+                {
+                    responseStatus = ResponseStatus.OK;
+
+                    bool bOK = (password == u.m_oBasicData.m_sPassword);
+
+                    if (!bOK)
+                    {
+                        BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
+                        if (encrypter != null)
+                        {
+                            bOK = (u.m_oBasicData.m_sPassword == encrypter.Encrypt(password, u.m_oBasicData.m_sSalt));
+                        }
+                    }
+
+                    if (bOK)
+                    {
+                        if (nFailCount > maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                        {
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        }
+                        else if (preventDoubleLogins == true)
+                        {
+                            if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
+                            {
+                                responseStatus = ResponseStatus.UserAllreadyLoggedIn;
+                            }
+                            else
+                            {
+                                UpdateFailCount(0, userId, true);
+                            }
+                        }
+                        else
+                        {
+                            UpdateFailCount(0, userId, true);
+                            res = u;
+                        }
+                    }
+                    else
+                    {
+                        UpdateFailCount(1, userId);
+
+                        if (nFailCount >= maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        else
+                            responseStatus = ResponseStatus.WrongPasswordOrUserName;
+                    }
+
+                    if (responseStatus == ResponseStatus.OK)
+                    {
+                        // TODO SHIR - SET contextData AND FILTER befor PasswordSettingsManager.Instance.List
+                        var contextData = new ContextData(groupId) { UserId = userId };
+                        var validatePasswordResponse = PasswordPolicyManager.Instance.ValidatePassword(password, contextData, res.m_oBasicData.RoleIds, passwordUpdateDate, validateForModify);
+                        if (!validatePasswordResponse.IsOkStatusCode())
+                        {
+                            responseStatus = ResponseStatus.InvalidPassword;
+                            // WHAT TO DO WITH ARGS?
+                        }
+                    }
+                }
+                else
+                {
+                    responseStatus = ResponseStatus.UserDoesNotExist;
+                }
             }
 
-            o.Initialize(ret, res);
-            return o;
+            userResponseObject.Object.Initialize(responseStatus, res);
+            return userResponseObject;
+        }
+
+        public static GenericResponse<UserResponseObject> CheckExistingUserPassword(string username, string password, int maxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, bool checkHitDate)
+        {
+            var userResponseObject = new GenericResponse<UserResponseObject>();
+            var responseStatus = ResponseStatus.WrongPasswordOrUserName;
+            User res = null;
+
+            DateTime passwordUpdateDate = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            {
+                int nFailCount = 0;
+                DateTime dNow = DateTime.UtcNow;
+                DateTime dLastFailDate = new DateTime(2020, 1, 1);
+                DateTime dLastHitDate = new DateTime(2020, 1, 1);
+
+                var userId = UsersDal.GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
+                if (userId <= 0)
+                {
+                    userResponseObject.Object.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                    return userResponseObject;
+                }
+
+                User u = new User();
+                bool bOk = u.Initialize(userId, groupId);
+
+                if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
+                {
+                    responseStatus = ResponseStatus.OK;
+
+                    bool bOK = (password == u.m_oBasicData.m_sPassword);
+
+                    if (!bOK)
+                    {
+                        BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
+                        if (encrypter != null)
+                        {
+                            bOK = (u.m_oBasicData.m_sPassword == encrypter.Encrypt(password, u.m_oBasicData.m_sSalt));
+                        }
+                    }
+
+                    if (bOK)
+                    {
+                        if (nFailCount > maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                        {
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        }
+                        else if (preventDoubleLogins == true)
+                        {
+                            if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
+                            {
+                                responseStatus = ResponseStatus.UserAllreadyLoggedIn;
+                            }
+                            else
+                            {
+                                UpdateFailCount(0, userId, true);
+                            }
+                        }
+                        else
+                        {
+                            UpdateFailCount(0, userId, true);
+                            res = u;
+                        }
+                    }
+                    else
+                    {
+                        UpdateFailCount(1, userId);
+
+                        if (nFailCount >= maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        else
+                            responseStatus = ResponseStatus.WrongPasswordOrUserName;
+                    }
+
+                    if (responseStatus == ResponseStatus.OK)
+                    {
+                        // TODO SHIR - SET contextData AND FILTER befor PasswordSettingsManager.Instance.List
+                        var contextData = new ContextData(groupId) { UserId = userId };
+                        var validatePasswordResponse = PasswordPolicyManager.Instance.ValidatePassword(password, contextData, res.m_oBasicData.RoleIds, passwordUpdateDate, validateForModify);
+                        if (!validatePasswordResponse.IsOkStatusCode())
+                        {
+                            responseStatus = ResponseStatus.InvalidPassword;
+                            userResponseObject.SetStatus(validatePasswordResponse);
+                            // WHAT TO DO WITH ARGS?
+                        }
+                    }
+                }
+                else
+                {
+                    responseStatus = ResponseStatus.UserDoesNotExist;
+                }
+            }
+
+            userResponseObject.Object.Initialize(responseStatus, res);
+            return userResponseObject;
         }
 
         private static bool IsIDInDevicesExist(string sIDInDevices)

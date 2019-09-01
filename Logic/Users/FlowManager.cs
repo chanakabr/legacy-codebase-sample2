@@ -9,26 +9,27 @@ namespace Core.Users
 {
     public class FlowManager
     {
-        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount,
+        public static GenericResponse<UserResponseObject> SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount,
                                                 int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin,
                                                 List<KeyValuePair> keyValueList, string username = null, string password = null)
         {
-            UserResponseObject response = new UserResponseObject();
+            var response = new GenericResponse<UserResponseObject>();
 
             try
             {
                 // pre
-                response = user.PreSignIn(ref siteGuid, ref username, ref password, ref maxFailCount, ref lockMin, ref groupId,
+                response.Object = user.PreSignIn(ref siteGuid, ref username, ref password, ref maxFailCount, ref lockMin, ref groupId,
                                           ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
 
-                if (response.m_RespStatus == ResponseStatus.OK)
+                if (response.Object.m_RespStatus == ResponseStatus.OK)
                 {
                     // mid
-                    response = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId,
-                                          sessionId, ip, deviceId, preventDoubleLogin);
+                    response.Object = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
 
                     // post
-                    user.PostSignIn(ref response, ref keyValueList);
+                    var userResponseObject = response.Object;
+                    user.PostSignIn(ref userResponseObject, ref keyValueList);
+                    response.Object = userResponseObject;
                 }
             }
             catch (Exception ex)
