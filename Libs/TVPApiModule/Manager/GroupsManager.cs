@@ -117,13 +117,15 @@ namespace TVPApiModule.Manager
             string groupKey = string.Format(groupKeyFormat, groupId);
             Group tempGroup = null;
 
-            if (CachingManager.CachingManager.GetCachedData(groupKey) == null)
+            var cacheResult = CachingManager.CachingManager.GetCachedData(groupKey);
+            if (cacheResult == null || !(cacheResult is Group))
             {
                 if (syncLock.TryEnterWriteLock(10000))
                 {
                     try
                     {
-                        if (CachingManager.CachingManager.GetCachedData(groupKey) == null)
+                        cacheResult = CachingManager.CachingManager.GetCachedData(groupKey);
+                        if (cacheResult == null || !(cacheResult is Group))
                         {
                             Group group = createNewInstance(groupId);
 
