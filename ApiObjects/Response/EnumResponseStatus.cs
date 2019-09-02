@@ -50,9 +50,9 @@ namespace ApiObjects.Response
         DlmExist = 1035,
         MasterUserNotFound = 1036,
         RegionDoesNotExist = 1037,
-        InvalidPassword = 1038, // TODO SHIR - DONT FORGET TO MAPP TO OTHER PASS
-        PasswordExpired = 1039,
-
+        PasswordPolicyDoesNotExist = 1038,
+        InvalidPassword = 1039, // TODO SHIR - DONT FORGET TO MAPP TO OTHER PASS
+        PasswordExpired = 1040,
         #endregion
 
         #region User Section 2000 - 2999

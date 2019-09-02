@@ -40,11 +40,12 @@ namespace DAL
         private const string DELETE_USER = "Delete_User";
 
         #endregion
-        
+
         /*
          * IsUseModifiedSP == true calls SP: Get_DevicesToUsersPushAction
          * IsUseModifiedSP == false calls SP: Get_DevicesToUsersNonPushAction
          */
+
         public static DataTable GetDevicesToUsers(long? lGroupID, long? lUserID, bool bIsUseModifiedSP)
         {
             try
@@ -2397,6 +2398,23 @@ namespace DAL
         {
             var key = GetPasswordPolicyKey(passwordPolicyId);
             return UtilsDal.GetObjectFromCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePasswordPolicy(PasswordPolicy policy)
+        {
+            string key = GetPasswordPolicyKey(policy.Id);
+            return UtilsDal.SaveObjectInCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key, policy);
+        }
+        public static bool SaveUserRolesToPasswordPolicy(int groupId, Dictionary<long, List<long>> policies)
+        {
+            var key = GetUserRolesToPasswordPolicyKey(groupId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
+        }
+
+        public static bool DeletePasswordPolicy(int groupId, long id)
+        {
+            string assetRuleKey = GetPasswordPolicyKey(id);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
         }
     }
 }
