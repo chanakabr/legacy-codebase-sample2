@@ -159,7 +159,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public Status ValidatePassword(string password, ContextData contextData, List<long> userRoleIds, DateTime passwordUpdateDate, bool validateForModify)
+        public Status ValidateNewPassword(string password, ContextData contextData, List<long> userRoleIds)
         {
             var response = new Status(eResponseStatus.OK);
 
@@ -171,17 +171,42 @@ namespace ApiLogic.Users.Managers
                 {
                     foreach (var passwordSettings in passwordSettingsResponse.Objects)
                     {
-                        if (validateForModify)
+                        // TODO SHIR - ValidateNewPassword
+                    }
+                }
+
+                if (response.Args != null && response.Args.Count > 0)
+                {
+                    response.Set(eResponseStatus.InvalidPassword);
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Set(eResponseStatus.Error);
+                log.ErrorFormat("An Exception was occurred in ValidatePassword. contextData:{0}, password:{1}, userRoleIds:{2}. ex: {3}",
+                                contextData.ToString(), password, string.Join(",", userRoleIds), ex);
+            }
+
+            return response;
+        }
+
+        public Status ValidateExistingPassword(string password, ContextData contextData, List<long> userRoleIds, DateTime passwordUpdateDate)
+        {
+            var response = new Status(eResponseStatus.OK);
+
+            try
+            {
+                var filter = new PasswordPolicyFilter() { RoleIdsIn = userRoleIds };
+                var passwordSettingsResponse = List(contextData, filter);
+                if (passwordSettingsResponse.HasObjects())
+                {
+                    foreach (var passwordSettings in passwordSettingsResponse.Objects)
+                    {
+                        // TODO SHIR -ValidateExistingPassword
+                        if (passwordSettings.PasswordAge.HasValue && passwordUpdateDate.AddDays(passwordSettings.PasswordAge.Value) > DateTime.UtcNow)
                         {
-                            // TODO SHIR - VALIDATE ALL FOR MODIFY
+                            response.AddArg(eResponseStatus.PasswordExpired.ToString(), "some error");
                         }
-                        else
-                        {
-                            if (passwordSettings.PasswordAge.HasValue && passwordUpdateDate.AddDays(passwordSettings.PasswordAge.Value) > DateTime.UtcNow)
-                            {
-                                response.AddArg(ResponseStatus.PasswordExpired.ToString(), "some error");
-                            }
-                        }    
                     }
                 }
 
@@ -296,7 +321,7 @@ namespace ApiLogic.Users.Managers
             return new Tuple<Dictionary<string, List<PasswordPolicy>>, bool>(result, res);
         }
         
-        private static Tuple<Dictionary<long, List<long>>, bool> GetUserRolesToPasswordPolicy(Dictionary<string, object> funcParams)
+        private Tuple<Dictionary<long, List<long>>, bool> GetUserRolesToPasswordPolicy(Dictionary<string, object> funcParams)
         {
             Dictionary<long, List<long>> userRolesToPasswordPolicy = null;
 
