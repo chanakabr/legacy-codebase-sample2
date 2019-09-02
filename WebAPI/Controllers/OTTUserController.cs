@@ -360,6 +360,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
+            // TODO SHIR - setInitialPassword
             KalturaOTTUser response = null;
 
             if (string.IsNullOrEmpty(token))
@@ -659,7 +660,7 @@ namespace WebAPI.Controllers
                                                        "roleIds");
                 }
 
-                response = ClientsManager.UsersClient().SetUserData(groupId, id, user);
+                response = ClientsManager.UsersClient().UpdateOTTUser(groupId, id, user);
             }
             catch (ClientException ex)
             {

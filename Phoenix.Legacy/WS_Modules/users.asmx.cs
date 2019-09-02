@@ -41,12 +41,12 @@ namespace WS_Users
             {
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
-
-
+                
                 Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
-                    return Core.Users.Module.CheckUserPassword(nGroupID, sUserName, sPassword, bPreventDoubleLogins);
+                    var checkUserPasswordRespone = Core.Users.Module.CheckUserPassword(nGroupID, sUserName, sPassword, bPreventDoubleLogins);
+                    return checkUserPasswordRespone;
                 }
                 else
                 {
@@ -778,7 +778,7 @@ namespace WS_Users
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.SetUserData(nGroupID, sSiteGUID, oBasicData, sDynamicData);
+                return Core.Users.Module.UpdateUserData(nGroupID, sSiteGUID, oBasicData, sDynamicData);
             }
             else
             {
@@ -964,8 +964,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(ResponseStatus))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseUsers))]
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
-        public virtual UserResponseObject RenewUserPassword(string sWSUserName, string sWSPassword, string sUserName,
-            string sNewPassword)
+        public virtual UserResponseObject RenewUserPassword(string sWSUserName, string sWSPassword, string sUserName, string sNewPassword)
         {
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1039,10 +1038,10 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(ResponseStatus))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseUsers))]
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
-        public virtual UserResponse1 ActivateAccount(string sWSUserName, string sWSPassword, string sUserName,
+        public virtual UserResponse ActivateAccount(string sWSUserName, string sWSPassword, string sUserName,
             string sToken)
         {
-            var response = new UserResponse1();
+            var response = new UserResponse();
             
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1593,9 +1592,9 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse1 LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList, string secret)
+        public virtual UserResponse LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList, string secret)
         {
-            var response = new UserResponse1();
+            var response = new UserResponse();
 
             // get group ID + user implementation
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
@@ -1651,9 +1650,9 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse1 LogIn(string sWSUserName, string sWSPassword, string userName, string password, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList)
+        public virtual UserResponse LogIn(string sWSUserName, string sWSPassword, string userName, string password, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList)
         {
-            var response = new UserResponse1();
+            var response = new UserResponse();
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1684,9 +1683,9 @@ namespace WS_Users
 
 
         [WebMethod]
-        public virtual UserResponse1 SignUp(string sWSUserName, string sWSPassword, UserBasicData oBasicData, UserDynamicData dynamicData, string password, string affiliateCode)
+        public virtual UserResponse SignUp(string sWSUserName, string sWSPassword, UserBasicData oBasicData, UserDynamicData dynamicData, string password, string affiliateCode)
         {
-            var response = new UserResponse1();
+            var response = new UserResponse();
 
             // add username to logs/monitor
             if (oBasicData != null && !string.IsNullOrEmpty(oBasicData.m_sUserName))
@@ -1773,9 +1772,9 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse1 CheckPasswordToken(string sWSUserName, string sWSPassword, string token)
+        public virtual UserResponse CheckPasswordToken(string sWSUserName, string sWSPassword, string token)
         {
-            var response = new UserResponse1();
+            var response = new UserResponse();
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1810,22 +1809,22 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse1 SetUser(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
+        public virtual UserResponse SetUser(string sWSUserName, string sWSPassword, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
-            var response = new UserResponse1();
+            var response = new UserResponse();
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                var setUserResponse = Core.Users.Module.SetUser(nGroupID, siteGUID, basicData, dynamicData);
+                var setUserResponse = Core.Users.Module.UpdateUser(nGroupID, siteGUID, basicData, dynamicData);
                 response.user = setUserResponse.Object;
                 response.resp = setUserResponse.Status;
             }
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
-                response = new UserResponse1();
+                response = new UserResponse();
                 response.resp.Code = (int)eResponseStatus.Error;
                 response.resp.Message = eResponseStatus.Error.ToString();
             }
@@ -2047,9 +2046,9 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse1 GetUserByExternalID(string sWSUserName, string sWSPassword, string externalId, int operatorID)
+        public virtual UserResponse GetUserByExternalID(string sWSUserName, string sWSPassword, string externalId, int operatorID)
         {
-            var response = new UserResponse1()
+            var response = new UserResponse()
             {
                 resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
@@ -2069,9 +2068,9 @@ namespace WS_Users
             return response;
         }
         [WebMethod]
-        public virtual UserResponse1 GetUserByName(string sWSUserName, string sWSPassword, string username)
+        public virtual UserResponse GetUserByName(string sWSUserName, string sWSPassword, string username)
         {
-            var response = new UserResponse1()
+            var response = new UserResponse()
             {
                 resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };

@@ -127,12 +127,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while SignUp.  Password: {0}, exception: {1}", password, ex);
                 ErrorUtils.HandleWSException(ex);
             }
-
-            if (response == null || response.Object == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
+            
             if (!response.IsOkStatusCode())
             {
                 if (response.Status.Code == (int)eResponseStatus.UserExternalError)
@@ -144,8 +139,13 @@ namespace WebAPI.Clients
                     throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
                 }
             }
-
-            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object);
+            
+            if (response.Object == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            
+            var user = Mapper.Map<KalturaOTTUser>(response.Object);
             return user;
         }
 
@@ -492,7 +492,7 @@ namespace WebAPI.Clients
             return users;
         }
         
-        public KalturaOTTUser SetUserData(int groupId, string siteGuid, KalturaOTTUser user)
+        public KalturaOTTUser UpdateOTTUser(int groupId, string siteGuid, KalturaOTTUser user)
         {
             GenericResponse<UserResponseObject> response = null;
             UserBasicData userBasicData = Mapper.Map<UserBasicData>(user);
@@ -502,7 +502,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.SetUser(groupId, siteGuid, userBasicData, userDynamicData);
+                    response = Core.Users.Module.UpdateUser(groupId, siteGuid, userBasicData, userDynamicData);
                 }
             }
             catch (Exception ex)
