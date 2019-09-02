@@ -79,48 +79,6 @@ namespace WebAPI.Models.Users
 
         public KalturaPasswordPolicy() : base() { }
 
-        /*
-        /// <summary>
-        /// lower case complexity
-        /// </summary>
-        [DataMember(Name = "lowerCaseComplexity")]
-        [JsonProperty("lowerCaseComplexity")]
-        [XmlElement(ElementName = "lowerCaseComplexity", IsNullable = true)]
-        public KalturaLowerCaseComplexity LowerCaseComplexity { get; set; }
-
-        /// <summary>
-        /// numbers case complexity
-        /// </summary>
-        [DataMember(Name = "numbersComplexity")]
-        [JsonProperty("numbersComplexity")]
-        [XmlElement(ElementName = "numbersComplexity", IsNullable = true)]
-        public KalturaNumbersComplexity NumbersComplexity { get; set; }
-
-        /// <summary>
-        /// special Characters Complexity 
-        /// </summary>
-        [DataMember(Name = "specialCharactersComplexity")]
-        [JsonProperty("specialCharactersComplexity")]
-        [XmlElement(ElementName = "specialCharactersComplexity", IsNullable = true)]
-        public KalturaSpecialCharactersComplexity SpecialCharactersComplexity { get; set; }
-
-        /// <summary>
-        /// special Characters Complexity 
-        /// </summary>
-        [DataMember(Name = "identicalCharactersComplexity")]
-        [JsonProperty("identicalCharactersComplexity")]
-        [XmlElement(ElementName = "identicalCharactersComplexity", IsNullable = true)]
-        public KalturaIdenticalCharactersComplexity IdenticalCharactersComplexity { get; set; }
-
-        /// <summary>
-        /// special Characters Complexity 
-        /// </summary>
-        [DataMember(Name = "passwordHistory")]
-        [JsonProperty("passwordHistory")]
-        [XmlElement(ElementName = "passwordHistory", IsNullable = true)]
-        public int? PasswordHistory { get; set; }
-        */
-
         internal override ICrudHandler<PasswordPolicy, long, PasswordPolicyFilter> Handler
         {
             get
