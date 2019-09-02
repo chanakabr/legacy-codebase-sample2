@@ -5,6 +5,8 @@ using Core.Catalog.CatalogManagement;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using TVinciShared;
+
 namespace Core.Catalog.Response
 {
     [DataContract]
@@ -116,11 +118,15 @@ namespace Core.Catalog.Response
             EntryId = mediaAsset.EntryId != null ? mediaAsset.EntryId : string.Empty;
             CoGuid = mediaAsset.CoGuid != null ? mediaAsset.CoGuid : string.Empty;
             m_oMediaType = new MediaType(mediaAsset.MediaType.m_sTypeName, mediaAsset.MediaType.m_nTypeID);
-            m_dCreationDate = mediaAsset.CreateDate.Value;
-            m_dFinalDate = mediaAsset.FinalEndDate ?? DateTime.MaxValue;                        
-            m_dStartDate = mediaAsset.StartDate ?? DateTime.MinValue;
-            m_dEndDate = mediaAsset.EndDate ?? DateTime.MaxValue;
-            m_dCatalogStartDate = mediaAsset.CatalogStartDate ?? DateTime.MinValue;
+            m_dCreationDate = mediaAsset.CreateDate.Value.TruncateMilliSeconds();
+            m_dFinalDate = mediaAsset.FinalEndDate != null && mediaAsset.FinalEndDate.HasValue ? 
+                mediaAsset.FinalEndDate.Value.TruncateMilliSeconds() : DateTime.MaxValue;
+            m_dStartDate = mediaAsset.StartDate != null && mediaAsset.StartDate.HasValue ?
+                mediaAsset.StartDate.Value.TruncateMilliSeconds() : DateTime.MaxValue;
+            m_dEndDate = mediaAsset.EndDate != null && mediaAsset.EndDate.HasValue ?
+                mediaAsset.EndDate.Value.TruncateMilliSeconds() : DateTime.MaxValue;
+            m_dCatalogStartDate = mediaAsset.CatalogStartDate != null && mediaAsset.CatalogStartDate.HasValue ?
+                mediaAsset.CatalogStartDate.Value.TruncateMilliSeconds() : DateTime.MaxValue;
             AssetType = eAssetTypes.MEDIA;
             IsActive = mediaAsset.IsActive ?? false;
             m_dUpdateDate = mediaAsset.UpdateDate ?? DateTime.MinValue;
