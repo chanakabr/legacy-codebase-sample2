@@ -8,6 +8,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using System.Collections.Generic;
 using System;
+using System.Linq;
+using WebAPI.Exceptions;
 
 namespace WebAPI.Models.Users
 {
@@ -136,18 +138,16 @@ namespace WebAPI.Models.Users
         {
             if (!this.ValidateRegexExpressions())
             {
-
+                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "code");
             }
-            throw new System.NotImplementedException();
         }
 
         internal override void ValidateForUpdate()
         {
             if (!this.ValidateRegexExpressions())
             {
-
+                throw new System.NotImplementedException();
             }
-            throw new System.NotImplementedException();
         }
 
         internal bool ValidateRegexExpressions()

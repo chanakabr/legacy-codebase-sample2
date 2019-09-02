@@ -45,7 +45,7 @@ namespace WebAPI.Models.Users
         {
             if (string.IsNullOrEmpty(UserRoleIdIn))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPasswordPolicyFilter.roleIdsIn");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPasswordPolicyFilter.userRoleIdIn");
             }
         }
     }
