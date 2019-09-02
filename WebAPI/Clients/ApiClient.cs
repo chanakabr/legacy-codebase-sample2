@@ -4376,23 +4376,23 @@ namespace WebAPI.Clients
 
         }
 
-        internal KalturaRegion AddRegion(int groupId, KalturaRegion region)
+        internal KalturaRegion AddRegion(int groupId, KalturaRegion region, long userId)
         {
-            Func<Region, GenericResponse<Region>> addRegionFunc = (Region regionToToAdd) => Core.Api.Module.AddRegion(groupId, regionToToAdd);
+            Func<Region, GenericResponse<Region>> addRegionFunc = (Region regionToToAdd) => Core.Api.Module.AddRegion(groupId, regionToToAdd, userId);
 
             return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, addRegionFunc);
         }
 
-        internal KalturaRegion UpdateRegion(int groupId, KalturaRegion region)
+        internal KalturaRegion UpdateRegion(int groupId, KalturaRegion region, long userId)
         {
-            Func<Region, GenericResponse<Region>> updateRegionFunc = (Region regionToToUpdate) => Core.Api.Module.UpdateRegion(groupId, regionToToUpdate);
+            Func<Region, GenericResponse<Region>> updateRegionFunc = (Region regionToToUpdate) => Core.Api.Module.UpdateRegion(groupId, regionToToUpdate, userId);
 
             return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, updateRegionFunc);
         }
 
-        internal void DeleteRegion(int groupId, int id)
+        internal void DeleteRegion(int groupId, int id, long userId)
         {
-            Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id);
+            Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id, userId);
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
         }
     }

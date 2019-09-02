@@ -49,10 +49,11 @@ namespace WebAPI.Controllers
             KalturaRegion response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {
-                response = ClientsManager.ApiClient().AddRegion(groupId, region);
+                response = ClientsManager.ApiClient().AddRegion(groupId, region, userId);
             }
             catch (ClientException ex)
             {
@@ -75,12 +76,14 @@ namespace WebAPI.Controllers
             KalturaRegion response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = long.Parse(KS.GetFromRequest().UserId);
+
 
             region.Id = id;
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateRegion(groupId, region);
+                response = ClientsManager.ApiClient().UpdateRegion(groupId, region, userId);
             }
             catch (ClientException ex)
             {
@@ -100,10 +103,11 @@ namespace WebAPI.Controllers
         static public void Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = long.Parse(KS.GetFromRequest().UserId);
 
             try
             {
-                ClientsManager.ApiClient().DeleteRegion(groupId, id);
+                ClientsManager.ApiClient().DeleteRegion(groupId, id, userId);
             }
             catch (ClientException ex)
             {
