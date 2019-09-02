@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace ApiLogic.Users.Managers
 {
@@ -30,17 +29,12 @@ namespace ApiLogic.Users.Managers
 
             if (userRoleToPasswordPolicy == null)
             {
-                //create new User Role To Password Policy
-
-                //create local --save to SaveUserRolesToPasswordPolicy
-                userRoleToPasswordPolicy = new Dictionary<long, List<long>>(); ;// UsersDal.CreateUserRoleToPasswordPolicy(contextData.GroupId); //return dictionary
+                userRoleToPasswordPolicy = new Dictionary<long, List<long>>();
             }
 
             var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
-
-            var newId = (long)couchbaseManager.Increment("password_policy_sequence", 1);
-
-            if (newId == 0)
+            objectToAdd.Id = (long)couchbaseManager.Increment("password_policy_sequence", 1);
+            if (objectToAdd.Id == 0)
             {
                 log.ErrorFormat("Error setting Password Policy id");
                 return null;
@@ -50,24 +44,24 @@ namespace ApiLogic.Users.Managers
             {
                 if (userRoleToPasswordPolicy.ContainsKey(roleId))
                 {
-                    userRoleToPasswordPolicy[roleId].Add(newId);
+                    userRoleToPasswordPolicy[roleId].Add(objectToAdd.Id);
                 }
                 else
                 {
-                    userRoleToPasswordPolicy.Add(roleId, new List<long> { newId });
+                    userRoleToPasswordPolicy.Add(roleId, new List<long> { objectToAdd.Id });
                 }
             }
 
             if (!UsersDal.SaveUserRolesToPasswordPolicy(contextData.GroupId, userRoleToPasswordPolicy))
             {
-                log.ErrorFormat($"Error while saving Password Policy dictionary. ");
+                log.ErrorFormat($"Error while saving Password Policy dictionary.");
                 return response;
             }
 
-            if (!UsersDal.SavePasswordPolicy(response.Object))
+            if (!UsersDal.SavePasswordPolicy(objectToAdd))
             {
                 log.ErrorFormat($"Error while saving Password Policy. " +
-                    $"Policy: {Newtonsoft.Json.JsonConvert.SerializeObject(response.Object)}," +
+                    $"Policy: {Newtonsoft.Json.JsonConvert.SerializeObject(objectToAdd)}," +
                     $"Status: {response.Status}");
                 return response;
             }
@@ -75,73 +69,8 @@ namespace ApiLogic.Users.Managers
             SetInvalidationKeys(contextData.GroupId);
 
             response.Object = objectToAdd;
-            response.Object.Id = newId;
-
             response.SetStatus(eResponseStatus.OK);
-
             return response;
-            //bool result = false;
-
-            //this.Status = 1;
-            //this.Version = 1;
-            //this.CreateDate = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
-
-            //CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-
-
-            //string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
-
-            //if (this.Value == null)
-            //{
-            //    this.Value = new SegmentDummyValue();
-            //}
-
-            //if (this.Value != null)
-            //{
-            //    bool addSegmentIdsResult = this.Value.AddSegmentsIds(this.Id);
-
-            //    if (!addSegmentIdsResult)
-            //    {
-            //        log.ErrorFormat("error setting segment Ids");
-            //        return false;
-            //    }
-            //}
-            //GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
-
-            //if (groupSegmentationTypes == null)
-            //{
-            //    groupSegmentationTypes = new GroupSegmentationTypes();
-            //}
-
-            //if (groupSegmentationTypes.segmentationTypes == null)
-            //{
-            //    groupSegmentationTypes.segmentationTypes = new List<long>();
-            //}
-
-            //groupSegmentationTypes.segmentationTypes.Add(newId);
-
-            //bool setResult = couchbaseManager.Set<GroupSegmentationTypes>(segmentationTypesKey, groupSegmentationTypes);
-
-            //if (!setResult)
-            //{
-            //    log.ErrorFormat("Error updating list of segment types in group.");
-            //    return false;
-            //}
-
-            //string newDocumentKey = GetSegmentationTypeDocumentKey(this.GroupId, this.Id);
-
-            //setResult = couchbaseManager.Set<SegmentationType>(newDocumentKey, this);
-
-            //if (!setResult)
-            //{
-            //    log.ErrorFormat("Error adding new segment type to Couchbase.");
-            //}
-
-            //result = setResult;
-
-            //return result;
-
-            //throw new NotImplementedException();
         }
 
         private void SetInvalidationKeys(int groupId, List<long> roleIds = null)
@@ -316,34 +245,26 @@ namespace ApiLogic.Users.Managers
                 var contextData = new ContextData(groupId);
                 var filter = new PasswordPolicyFilter() { RoleIdsIn = userRoleIds };
                 var passwordPolicyResponse = List(contextData, filter);
-                
+
                 if (passwordPolicyResponse.HasObjects())
                 {
                     int? historyCount = null;
                     HashSet<string> passwordsHistory = null;
+                    var errors = new HashSet<eResponseStatus>();
 
                     foreach (var passwordPolicy in passwordPolicyResponse.Objects)
                     {
-                        if (passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
+                        if (!errors.Contains(eResponseStatus.ReusedPassword) && passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
                         {
                             historyCount = passwordPolicy.HistoryCount;
                             passwordsHistory = UsersDal.GetPasswordsHistory(userId);
                             if (passwordsHistory != null && passwordsHistory.Contains(password))
                             {
                                 response.AddArg(eResponseStatus.ReusedPassword, "password cannot be Reused");
+                                errors.Add(eResponseStatus.ReusedPassword);
                             }
                         }
-
-                        if (passwordPolicy.Complexities != null)
-                        {
-                            for (int i = 0; i < passwordPolicy.Complexities.Count; i++)
-                            {
-                                if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
-                                {
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()}{i+1}", $"complexity {passwordPolicy.Complexities[i].Description} is invalid");
-                                }
-                            }
-                        }
+                        // TODO SHIR - ValidateNewPassword
                     }
 
                     if (response.Args != null && response.Args.Count > 0)
@@ -364,7 +285,7 @@ namespace ApiLogic.Users.Managers
 
             return response;
         }
-        
+
         private Tuple<Dictionary<string, List<PasswordPolicy>>, bool> GetPasswordPolicyList(Dictionary<string, object> funcParams)
         {
             bool res = false;
