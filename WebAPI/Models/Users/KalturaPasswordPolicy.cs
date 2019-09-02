@@ -7,12 +7,14 @@ using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using System.Collections.Generic;
+using System;
 
 namespace WebAPI.Models.Users
 {
     /// <summary>
     /// Password policy settings
     /// </summary>
+    [Serializable]
     public partial class KalturaPasswordPolicy : KalturaCrudObject<PasswordPolicy, long, PasswordPolicyFilter>
     {
         /// <summary>
@@ -72,6 +74,8 @@ namespace WebAPI.Models.Users
         [JsonProperty("lockoutFailuresCount")]
         [XmlElement(ElementName = "lockoutFailuresCount", IsNullable = true)]
         public int? LockoutFailuresCount { get; set; }
+
+        public KalturaPasswordPolicy() : base() { }
 
         /*
         /// <summary>
