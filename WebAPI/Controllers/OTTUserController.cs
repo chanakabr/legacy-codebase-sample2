@@ -131,8 +131,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserNotMasterApproved)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserExternalError)]
-        static public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null,
-            string udid = null)
+        static public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null, string udid = null)
         {
             KalturaOTTUser response = null;
 
@@ -360,7 +359,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
-            // TODO SHIR - setInitialPassword
             KalturaOTTUser response = null;
 
             if (string.IsNullOrEmpty(token))
