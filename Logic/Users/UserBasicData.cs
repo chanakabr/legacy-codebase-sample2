@@ -233,7 +233,7 @@ namespace Core.Users
             return res;
         }
         
-        public bool Save(Int32 nUserID, int groupId, bool resetFailCount = false)
+        public bool Save(Int32 nUserID, int groupId, bool resetFailCount = false, bool updateUserPassword = false)
         {
             int nCountryID = (-1);
             int nStateID = (-1);
@@ -273,7 +273,8 @@ namespace Core.Users
                                                     this.UpdateDate,
                                                     m_CoGuid,
                                                     m_ExternalToken,
-                                                    resetFailCount);
+                                                    resetFailCount,
+                                                    updateUserPassword);
                                                     //m_UserType
 
             if(UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))

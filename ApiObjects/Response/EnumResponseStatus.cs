@@ -51,8 +51,10 @@ namespace ApiObjects.Response
         MasterUserNotFound = 1036,
         RegionDoesNotExist = 1037,
         PasswordPolicyDoesNotExist = 1038,
-        InvalidPassword = 1039, // TODO SHIR - DONT FORGET TO MAPP TO OTHER PASS
+        InvalidPassword = 1039,
         PasswordExpired = 1040,
+        ReusedPassword = 1041,
+
         #endregion
 
         #region User Section 2000 - 2999

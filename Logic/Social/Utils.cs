@@ -120,12 +120,12 @@ namespace Core.Social
             }
         }
 
-        static public UserResponseObject CheckUserPassword(Int32 nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins, bool validateForModify)
+        static public UserResponseObject CheckUserPassword(Int32 nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins)
         {
             UserResponseObject response = null;
             try
             {
-                response = Core.Users.Module.CheckUserPassword(nGroupID, sUserName, sPassword, bPreventDoubleLogins, validateForModify);
+                response = Core.Users.Module.CheckUserPassword(nGroupID, sUserName, sPassword, bPreventDoubleLogins);
             }
             catch (Exception ex)
             {

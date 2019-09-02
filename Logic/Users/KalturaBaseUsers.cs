@@ -9,6 +9,7 @@ namespace Core.Users
 {
     public abstract class KalturaBaseUsers
     {
+        protected const int DEFAULT_LOCKOUT_FAILURES_COUNT = 3;
         protected Int32 GroupId { get; set; }
         protected Int32 activationMustHours;
         protected Int32 tokenValidityHours;

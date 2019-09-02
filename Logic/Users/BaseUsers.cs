@@ -103,7 +103,7 @@ namespace Core.Users
         public abstract UserResponseObject CheckToken(string sToken);
         public abstract bool ResendWelcomeMail(string sUN);
         public abstract bool ResendActivationMail(string sUN);
-        public abstract GenericResponse<ResponseStatus> RenewPassword(string sUN, string sPass, int nGroupID);
+        public abstract GenericResponse<UserResponseObject> RenewPassword(string sUN, string sPass, int nGroupID);
         public abstract UserResponseObject ActivateAccount(string sUN, string sToken);
         public abstract UserResponseObject ActivateAccountByDomainMaster(string sMasterUN, string sUN, string sToken);
         public abstract bool IsUserActivated(ref string sUserName, ref Int32 nUserID);

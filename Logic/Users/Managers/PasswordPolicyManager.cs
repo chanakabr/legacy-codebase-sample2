@@ -306,72 +306,56 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public Status ValidateNewPassword(string password, ContextData contextData, List<long> userRoleIds)
+        public Status ValidateNewPassword(string password, int groupId, long userId, List<long> userRoleIds)
         {
             var response = new Status(eResponseStatus.OK);
 
             try
             {
+                var contextData = new ContextData(groupId);
                 var filter = new PasswordPolicyFilter() { RoleIdsIn = userRoleIds };
-                var passwordSettingsResponse = List(contextData, filter);
-                if (passwordSettingsResponse.HasObjects())
+                var passwordPolicyResponse = List(contextData, filter);
+                
+                if (passwordPolicyResponse.HasObjects())
                 {
-                    foreach (var passwordSettings in passwordSettingsResponse.Objects)
+                    int? historyCount = null;
+                    HashSet<string> passwordsHistory = null;
+                    var errors = new HashSet<eResponseStatus>();
+
+                    foreach (var passwordPolicy in passwordPolicyResponse.Objects)
                     {
+                        if (!errors.Contains(eResponseStatus.ReusedPassword) && passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
+                        {
+                            historyCount = passwordPolicy.HistoryCount;
+                            passwordsHistory = UsersDal.GetPasswordsHistory(userId);
+                            if (passwordsHistory != null && passwordsHistory.Contains(password))
+                            {
+                                response.AddArg(eResponseStatus.ReusedPassword, "password cannot be Reused");
+                                errors.Add(eResponseStatus.ReusedPassword);
+                            }
+                        }
                         // TODO SHIR - ValidateNewPassword
                     }
-                }
 
-                if (response.Args != null && response.Args.Count > 0)
-                {
-                    response.Set(eResponseStatus.InvalidPassword);
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Set(eResponseStatus.Error);
-                log.ErrorFormat("An Exception was occurred in ValidatePassword. contextData:{0}, password:{1}, userRoleIds:{2}. ex: {3}",
-                                contextData.ToString(), password, string.Join(",", userRoleIds), ex);
-            }
-
-            return response;
-        }
-
-        public Status ValidateExistingPassword(string password, ContextData contextData, List<long> userRoleIds, DateTime passwordUpdateDate)
-        {
-            var response = new Status(eResponseStatus.OK);
-
-            try
-            {
-                var filter = new PasswordPolicyFilter() { RoleIdsIn = userRoleIds };
-                var passwordSettingsResponse = List(contextData, filter);
-                if (passwordSettingsResponse.HasObjects())
-                {
-                    foreach (var passwordSettings in passwordSettingsResponse.Objects)
+                    if (response.Args != null && response.Args.Count > 0)
                     {
-                        // TODO SHIR -ValidateExistingPassword
-                        if (passwordSettings.Expiration.HasValue && passwordUpdateDate.AddDays(passwordSettings.Expiration.Value) > DateTime.UtcNow)
-                        {
-                            response.AddArg(eResponseStatus.PasswordExpired.ToString(), "some error");
-                        }
+                        response.Set(eResponseStatus.InvalidPassword);
+                    }
+                    else
+                    {
+                        UpdatePasswordHistory(userId, password, historyCount, passwordsHistory);
                     }
                 }
-
-                if (response.Args != null && response.Args.Count > 0)
-                {
-                    response.Set(eResponseStatus.InvalidPassword);
-                }
             }
             catch (Exception ex)
             {
                 response.Set(eResponseStatus.Error);
-                log.ErrorFormat("An Exception was occurred in ValidatePassword. contextData:{0}, password:{1}, userRoleIds:{2}. ex: {3}",
-                                contextData.ToString(), password, string.Join(",", userRoleIds), ex);
+                log.Error($"An Exception was occurred in ValidateNewPassword. groupId:{groupId}, password:{password}, userRoleIds:{string.Join(",", userRoleIds)}. ex:{ex}");
             }
 
             return response;
         }
-
+        
         private Tuple<Dictionary<string, List<PasswordPolicy>>, bool> GetPasswordPolicyList(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -489,6 +473,26 @@ namespace ApiLogic.Users.Managers
             }
 
             return new Tuple<Dictionary<long, List<long>>, bool>(userRolesToPasswordPolicy, userRolesToPasswordPolicy != null);
+        }
+
+        private void UpdatePasswordHistory(long userId, string password, int? historyCount, HashSet<string> passwordsHistory)
+        {
+            if (historyCount.HasValue)
+            {
+                if (passwordsHistory == null)
+                {
+                    passwordsHistory = new HashSet<string>();
+                }
+
+                if (passwordsHistory.Count == historyCount.Value)
+                {
+                    var oldPassword = passwordsHistory.FirstOrDefault();
+                    passwordsHistory.Remove(oldPassword);
+                }
+
+                passwordsHistory.Add(password);
+                UsersDal.SavePasswordsHistory(userId, passwordsHistory);
+            }
         }
     }
 }

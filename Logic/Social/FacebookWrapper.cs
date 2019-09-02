@@ -1083,9 +1083,8 @@ namespace Core.Social
         public FacebookResponse FBUserMerge(string token, string fbid, string sUserName, string sPass)
         {
             FacebookResponse facebookResponse = new FacebookResponse();
-
-            // TODO SHIR - CEHCK IF OTHER METHODS ARE FALSE TOO
-            var uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false, false);
+            
+            var uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false);
 
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
             {
@@ -1472,8 +1471,7 @@ namespace Core.Social
                 }
                 else
                 {
-                    // TODO SHIR - CEHCK IF OTHER METHODS ARE FALSE TOO
-                    user = Utils.CheckUserPassword(m_nGroupID, sUsername, sPassword, false, false);
+                    user = Utils.CheckUserPassword(m_nGroupID, sUsername, sPassword, false);
 
                     if (user != null && (user.m_RespStatus == ResponseStatus.WrongPasswordOrUserName || user.m_RespStatus == ResponseStatus.UserDoesNotExist))
                     {

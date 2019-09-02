@@ -749,7 +749,8 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.ChangeUserPassword(sUN, sOldPass, sPass, nGroupID);
+                var response = t.ChangeUserPassword(sUN, sOldPass, sPass, nGroupID);
+                return response.Object;
             }
             else
             {
@@ -832,7 +833,7 @@ namespace Core.Users
             }
         }
         
-        public static UserResponseObject RenewUserPassword(int nGroupID, string sUserName, string sNewPassword)
+        public static GenericResponse<UserResponseObject> RenewUserPassword(int nGroupID, string sUserName, string sNewPassword)
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1502,7 +1503,7 @@ namespace Core.Users
                 if (!renewPasswordResponse.HasObject())
                 {
                     // convert response status
-                    response = Utils.ConvertResponseStatusToResponseObject(renewPasswordResponse.Object, renewPasswordResponse.Status);
+                    response = Utils.ConvertResponseStatusToResponseObject(renewPasswordResponse.Object.m_RespStatus, renewPasswordResponse.Status);
                 }
             }
             return response;

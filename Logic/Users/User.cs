@@ -7,6 +7,7 @@ using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -61,6 +62,10 @@ namespace Core.Users
         [XmlIgnore]
         [JsonIgnore()]
         public string activationToken;
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        private bool UpdateUserPassword;
 
         public User()
         {
@@ -400,8 +405,8 @@ namespace Core.Users
             try
             {
                 userBasicData.SetPassword(password, groupID);
-                
-                UserResponseObject u = CheckUserPassword(userBasicData.m_sUserName, userBasicData.m_sPassword, 3, 3, groupID, false, true, out DateTime passwordUpdateDate);
+
+                UserResponseObject u = CheckUserPassword(userBasicData.m_sUserName, userBasicData.m_sPassword, 3, 3, groupID, false, true);
                 if (u.m_RespStatus == ResponseStatus.WrongPasswordOrUserName)
                 {
                     return false;
@@ -612,7 +617,7 @@ namespace Core.Users
             return this.userId;
         }
 
-        public int SaveForUpdate(Int32 groupId, bool bIsSetUserActive = false, bool isSetFailCount = false)
+        public int SaveForUpdate(Int32 groupId, bool bIsSetUserActive = false, bool isSetFailCount = false, bool updateUserPassword = false)
         {
             try
             {
@@ -620,7 +625,8 @@ namespace Core.Users
                 this.shouldRemoveFromCache = true;
                 this.shouldSetUserActive = bIsSetUserActive;
                 this.resetFailCount = isSetFailCount;
-                
+                this.UpdateUserPassword = updateUserPassword;
+
                 // Existing user - Remove & Update from cache
                 if (int.TryParse(m_sSiteGUID, out this.userId))
                 {
@@ -718,7 +724,7 @@ namespace Core.Users
             // update
             else
             {
-                bool saved = m_oBasicData.Save(this.userId, this.GroupId, this.resetFailCount);
+                bool saved = m_oBasicData.Save(this.userId, this.GroupId, this.resetFailCount, this.UpdateUserPassword);
 
                 if (!saved)
                 {
@@ -1075,24 +1081,24 @@ namespace Core.Users
 
         static public UserResponseObject SignIn(string username, string password, int maxFailCount, int lockMinutes, int groupId, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
-            var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false, out DateTime passwordUpdateDate);
+            var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false);
             return InnerSignIn(ref userResponseObject, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
 
-        static public UserResponseObject CheckUserPassword(string username, string password, Int32 maxFailCount, Int32 lockMinutes, Int32 groupId, bool preventDoubleLogins, bool checkHitDate, out DateTime passwordUpdateDate)
+        static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, bool checkHitDate)
         {
             var userResponseObject = new UserResponseObject();
             var responseStatus = ResponseStatus.WrongPasswordOrUserName;
-            User res = null;
-            passwordUpdateDate = DateTime.MinValue;
+            User user = null;
+           
             if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
+                DateTime passwordUpdateDate = DateTime.MinValue;
                 int nFailCount = 0;
-                DateTime dNow = DateTime.UtcNow;
+                var dNow = DateTime.UtcNow;
                 DateTime dLastFailDate = new DateTime(2020, 1, 1);
                 DateTime dLastHitDate = new DateTime(2020, 1, 1);
 
-                // TODO SHIR - passwordUpdateDate
                 var userId = UsersDal.GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
                 if (userId <= 0)
                 {
@@ -1118,9 +1124,11 @@ namespace Core.Users
                         }
                     }
 
+                    GetMaxFailuresCountAndExpiration(defaultMaxFailCount, u.m_oBasicData.RoleIds, groupId, out int maxFailuresCount, out int maxExpiration);
+
                     if (bOK)
                     {
-                        if (nFailCount > maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                        if (nFailCount > maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
                         {
                             responseStatus = ResponseStatus.InsideLockTime;
                         }
@@ -1135,32 +1143,24 @@ namespace Core.Users
                                 UpdateFailCount(0, userId, true);
                             }
                         }
+                        else if (maxExpiration > 0 && passwordUpdateDate.AddDays(maxExpiration) < dNow)
+                        {
+                            responseStatus = ResponseStatus.PasswordExpired;
+                        }
                         else
                         {
                             UpdateFailCount(0, userId, true);
-                            res = u;
+                            user = u;
                         }
                     }
                     else
                     {
                         UpdateFailCount(1, userId);
 
-                        if (nFailCount >= maxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                        if (nFailCount >= maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
                             responseStatus = ResponseStatus.InsideLockTime;
                         else
                             responseStatus = ResponseStatus.WrongPasswordOrUserName;
-                    }
-
-                    if (responseStatus == ResponseStatus.OK)
-                    {
-                        // TODO SHIR - DONT USER IT HERE
-                        var contextData = new ContextData(groupId) { UserId = userId };
-                        var validatePasswordResponse = PasswordPolicyManager.Instance.ValidateExistingPassword(password, contextData, res.m_oBasicData.RoleIds, passwordUpdateDate);
-                        if (!validatePasswordResponse.IsOkStatusCode())
-                        {
-                            responseStatus = ResponseStatus.InvalidPassword;
-                            userResponseObject.SetStatus(validatePasswordResponse);
-                        }
                     }
                 }
                 else
@@ -1169,10 +1169,38 @@ namespace Core.Users
                 }
             }
 
-            userResponseObject.Initialize(responseStatus, res);
+            userResponseObject.Initialize(responseStatus, user);
             return userResponseObject;
         }
-        
+
+        private static void GetMaxFailuresCountAndExpiration(int defaultMaxFailCount, List<long> roleIds, int groupId, out int maxFailuresCount, out int maxExpiration)
+        {
+            maxFailuresCount = 0;
+            maxExpiration = 0;
+
+            var passwordPoliciesResponse = PasswordPolicyManager.Instance.List(new ContextData(groupId), new PasswordPolicyFilter() { RoleIdsIn = roleIds });
+            if (passwordPoliciesResponse.HasObjects())
+            {
+                foreach (var passwordPolicy in passwordPoliciesResponse.Objects)
+                {
+                    if (passwordPolicy.LockoutFailuresCount.HasValue && passwordPolicy.LockoutFailuresCount > 0 && passwordPolicy.LockoutFailuresCount > maxFailuresCount)
+                    {
+                        maxFailuresCount = passwordPolicy.LockoutFailuresCount.Value;
+                    }
+
+                    if (passwordPolicy.Expiration.HasValue & passwordPolicy.Expiration > 0 && passwordPolicy.Expiration > maxExpiration)
+                    {
+                        maxExpiration = passwordPolicy.Expiration.Value;
+                    }
+                }
+            }
+
+            if (maxFailuresCount == 0)
+            {
+                maxFailuresCount = defaultMaxFailCount;
+            }
+        }
+
         private static bool IsIDInDevicesExist(string sIDInDevices)
         {
             long l = 0;

@@ -544,12 +544,9 @@ namespace Core.Users
                 userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
                 return userResponse;
             }
-
-            var passwordValidationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(sPassword, new ApiObjects.Base.ContextData(m_nGroupID), newUser.m_oBasicData.RoleIds);
-
-            newUser.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
-            int userId = newUser.SaveForInsert(m_nGroupID, !IsActivationNeeded(newUser.m_oBasicData));
+            newUser.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
+            var userId = newUser.SaveForInsert(m_nGroupID, !IsActivationNeeded(newUser.m_oBasicData));
 
             // add role to user
             if (userId > 0)
@@ -1131,29 +1128,37 @@ namespace Core.Users
 
         public override GenericResponse<UserResponseObject> ChangeUserPassword(string username, string sOldPass, string sPass, int nGroupID)
         {
-            var ret = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
+            var response = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
 
             // checkUserPassword for simple login with ol password
-            var uro = User.CheckExistingUserPassword(username, sOldPass, 3, 3, nGroupID, false, true, false);
-            if (uro.m_RespStatus != ResponseStatus.OK && uro.m_RespStatus != ResponseStatus.InvalidPassword)
+            var userResponseObject = User.CheckUserPassword(username, sOldPass, 3, 3, nGroupID, false, true);
+            if (userResponseObject.m_RespStatus != ResponseStatus.OK && userResponseObject.m_RespStatus != ResponseStatus.PasswordExpired)
             {
-                ret.Object.m_RespStatus = uro.m_RespStatus;
-                ret.Object.m_user = null;
-                return ret;
+                response.Object.m_RespStatus = userResponseObject.m_RespStatus;
+                response.Object.m_user = null;
+                return response;
             }
             
-            if (!uro.m_user.m_oBasicData.SetPassword(sPass, nGroupID))
+            if (!userResponseObject.m_user.m_oBasicData.SetPassword(sPass, nGroupID))
             {
-                ret.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-                ret.m_user = null;
-                return ret;
+                response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
+                response.Object.m_user = null;
+                return response;
+            }
+            
+            var validationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
+            if (!validationResponse.IsOkStatusCode())
+            {
+                response.SetStatus(validationResponse);
+                response.Object.m_RespStatus = ResponseStatus.InvalidPassword;
+                return response;
             }
 
-            uro.m_user.Save(m_nGroupID, false);
-            ret.m_user = uro.m_user;
-            ret.m_RespStatus = ResponseStatus.OK;
+            userResponseObject.m_user.SaveForUpdate(m_nGroupID, false, false, true);
+            response.Object.m_user = userResponseObject.m_user;
+            response.Object.m_RespStatus = ResponseStatus.OK;
 
-            return ret;
+            return response;
         }
 
         public override ApiObjects.Response.Status UpdateUserPassword(int userId, string password)
@@ -1174,7 +1179,7 @@ namespace Core.Users
 
             //TODO SHIR - UpdateUserPassword  VALIDATE FOR UPDATE
 
-            if (user.SaveForUpdate(m_nGroupID, false) != userId)
+            if (user.SaveForUpdate(m_nGroupID, false, false, true) != userId)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to save user data");
                 return response;
@@ -1184,27 +1189,38 @@ namespace Core.Users
             return response;
         }
 
-        public override GenericResponse<ResponseStatus> RenewPassword(string sUN, string sPass, int nGroupID)
+        public override GenericResponse<UserResponseObject> RenewPassword(string sUN, string sPass, int nGroupID)
         {
-            var response = new GenericResponse<ResponseStatus>();
+            var response = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
             var userId = GetUserIDByUserName(sUN);
-            var u = new User();
-            u.Initialize(userId, m_nGroupID);
+            var user = new User();
+            user.Initialize(userId, nGroupID);
 
-            if (string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
+            if (string.IsNullOrEmpty(user.m_oBasicData.m_sPassword))
             {
-                response.Object = ResponseStatus.UserDoesNotExist;
+                response.Object.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                response.Object.m_user = null;
                 return response;
             }
             
-            if (!u.m_oBasicData.SetPassword(sPass, nGroupID))
+            if (!user.m_oBasicData.SetPassword(sPass, nGroupID))
             {
-                response.Object = ResponseStatus.WrongPasswordOrUserName;
+                response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
+                response.Object.m_user = null;
+                return response;
+            }
+            
+            var validationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(sPass, nGroupID, userId, user.m_oBasicData.RoleIds);
+            if (!validationResponse.IsOkStatusCode())
+            {
+                response.SetStatus(validationResponse);
+                response.Object.m_RespStatus = ResponseStatus.InvalidPassword;
                 return response;
             }
 
-            u.SaveForUpdate(m_nGroupID, false, true);
-            response.Object = ResponseStatus.OK;
+            user.SaveForUpdate(m_nGroupID, false, true, true);
+            response.Object.m_user = user;
+            response.Object.m_RespStatus = ResponseStatus.OK;
             response.SetStatus(eResponseStatus.OK);
             return response;
         }

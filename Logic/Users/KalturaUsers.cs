@@ -600,7 +600,6 @@ namespace Core.Users
                 UserResponseObject userResponse = GetUserData(userId.ToString());
                 if (userResponse.m_RespStatus != ResponseStatus.OK)
                 {
-                    // TODO SHIR - DONT FRGET TO REMOVE NULL WHEN DELETE
                     response = Utils.ConvertResponseStatusToResponseObject(userResponse.m_RespStatus);
                     return response;
                 }

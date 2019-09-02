@@ -750,7 +750,7 @@ namespace DAL
         public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
-            // TODO SHIR - UPDATE Get_LoginFailCount TO RETURN LAST PASSWORD UPDATE DATE
+            // TODO SHIR - UPDATE Get_LoginFailCount TO RETURN LAST PASSWORD UPDATE DATE (default value in table is datetime.now) 
             var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@username", sUN);
@@ -1364,66 +1364,67 @@ namespace DAL
         public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount)
+                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
         {
             try
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                var updateQuery = new UpdateQuery("users");
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SALT", "=", sSalt);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE", "=", sFacebookImage);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE_PERMITTED", "=", bIsFacebookImagePermitted);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FB_TOKEN", "=", sFacebookToken);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ExternalToken", "=", externalToken);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_Token", "=", twitterToken);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_TokenSecret", "=", twitterTokenSecret);
+                updateQuery += Parameter.NEW_PARAM("SALT", "=", sSalt);
+                updateQuery += Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
+                updateQuery += Parameter.NEW_PARAM("FACEBOOK_IMAGE", "=", sFacebookImage);
+                updateQuery += Parameter.NEW_PARAM("FACEBOOK_IMAGE_PERMITTED", "=", bIsFacebookImagePermitted);
+                updateQuery += Parameter.NEW_PARAM("FB_TOKEN", "=", sFacebookToken);
+                updateQuery += Parameter.NEW_PARAM("ExternalToken", "=", externalToken);
+                updateQuery += Parameter.NEW_PARAM("Twitter_Token", "=", twitterToken);
+                updateQuery += Parameter.NEW_PARAM("Twitter_TokenSecret", "=", twitterTokenSecret);
+                updateQuery += Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
+                updateQuery += Parameter.NEW_PARAM("LAST_NAME", "=", sLastName);
+                updateQuery += Parameter.NEW_PARAM("EMAIL_ADD", "=", sEmail);
+                updateQuery += Parameter.NEW_PARAM("ADDRESS", "=", sAddress);
+                updateQuery += Parameter.NEW_PARAM("CITY", "=", sCity);
+                updateQuery += Parameter.NEW_PARAM("ZIP", "=", sZip);
+                updateQuery += Parameter.NEW_PARAM("PHONE", "=", sPhone);
+                updateQuery += Parameter.NEW_PARAM("UPDATE_DATE", "=", updateDate);
+                updateQuery += Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
+
                 if (!string.IsNullOrEmpty(sUserName))
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                    updateQuery += Parameter.NEW_PARAM("USERNAME", "=", sUserName);
                 }
 
                 if (!string.IsNullOrEmpty(sCoGuid))
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
+                    updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
-
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_NAME", "=", sLastName);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EMAIL_ADD", "=", sEmail);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADDRESS", "=", sAddress);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CITY", "=", sCity);
-
+                
                 if (nCountryID >= 0)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
+                    updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
                 }
 
                 if (nStateID >= 0)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
+                    updateQuery += Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
                 }
-
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ZIP", "=", sZip);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PHONE", "=", sPhone);
-                updateQuery += Parameter.NEW_PARAM("UPDATE_DATE", "=", updateDate);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
-
+                
                 if (resetFailCount)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                    updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                }
+
+                if (updateUserPassword)
+                {
+                    updateQuery += Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
+                    updateQuery += Parameter.NEW_PARAM("PASSWORD_UPDATE_DATE", "=", updateDate);
                 }
 
                 updateQuery += "WHERE";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                updateQuery += Parameter.NEW_PARAM("ID", "=", nUserID);
 
                 bool inserted = updateQuery.Execute();
-
                 updateQuery.Finish();
                 updateQuery = null;
-
-
                 return inserted;
             }
             catch (Exception ex)
@@ -1433,8 +1434,7 @@ namespace DAL
 
             return false;
         }
-
-
+        
         private static void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
@@ -2405,6 +2405,7 @@ namespace DAL
             string key = GetPasswordPolicyKey(policy.Id);
             return UtilsDal.SaveObjectInCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key, policy);
         }
+
         public static bool SaveUserRolesToPasswordPolicy(int groupId, Dictionary<long, List<long>> policies)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
@@ -2415,6 +2416,23 @@ namespace DAL
         {
             string assetRuleKey = GetPasswordPolicyKey(id);
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
+        }
+
+        private static string GetPasswordsHistoryKey(long userId)
+        {
+            return string.Format("passwords_history_{0}", userId);
+        }
+
+        public static HashSet<string> GetPasswordsHistory(long userId)
+        {
+            var key = GetPasswordsHistoryKey(userId);
+            return UtilsDal.GetObjectFromCB<HashSet<string>>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePasswordsHistory(long userId, HashSet<string> passwordsHistory)
+        {
+            var key = GetPasswordsHistoryKey(userId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
     }
 }

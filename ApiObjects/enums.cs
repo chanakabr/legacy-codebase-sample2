@@ -833,6 +833,8 @@ namespace ApiObjects
         EPG_INGEST_V2 = 5
     }
 
+    // TODO SHIR - FINISH TO MAPP ALL MEMBERS HERE TO CLIENT IN ONE PLACE!
+    // "Password Expired, please update password"
     public enum ResponseStatus
     {
         OK = 0,
@@ -863,7 +865,8 @@ namespace ApiObjects
         UserCreatedWithNoRole = 24,
         ExternalIdAlreadyExists = 25,
         ExternalError = 26,
-        InvalidPassword = 27, // TODO SHIR - DONT FORGET TO MAPP TO OTHER PASS
+        InvalidPassword = 27,
+        PasswordExpired = 28
     }
 
     public enum SubscriptionPurchaseStatus
