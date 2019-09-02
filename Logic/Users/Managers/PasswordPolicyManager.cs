@@ -45,7 +45,7 @@ namespace ApiLogic.Users.Managers
                 return null;
             }
 
-            foreach (var roleId in objectToAdd.RoleIds)
+            foreach (var roleId in objectToAdd.UserRoleIds)
             {
                 if (userRoleToPasswordPolicy.ContainsKey(roleId))
                 {
@@ -188,7 +188,7 @@ namespace ApiLogic.Users.Managers
                 //update relevant 
                 var isSuccess = UsersDal.SavePasswordPolicy(objectToUpdate);
                 response.SetStatus(isSuccess ? eResponseStatus.OK : eResponseStatus.Error);
-                SetInvalidationKeys(contextData.GroupId, objectToUpdate.RoleIds);
+                SetInvalidationKeys(contextData.GroupId, objectToUpdate.UserRoleIds);
 
                 response.Object = objectToUpdate;
                 //response.SetStatus(eResponseStatus.OK);
@@ -208,17 +208,15 @@ namespace ApiLogic.Users.Managers
         /// </summary>
         /// <param name="orgPolicy"></param>
         /// <param name="objectToUpdate"></param>
-        private void CompareAndFillPolicy(PasswordPolicy orgPolicy, PasswordPolicy objectToUpdate)
+        private void CompareAndFillPolicy(PasswordPolicy orgObject, PasswordPolicy objectToUpdate)
         {
             //skip id
-            objectToUpdate.IdenticalCharactersComplexity = objectToUpdate.IdenticalCharactersComplexity ?? orgPolicy.IdenticalCharactersComplexity;
-            objectToUpdate.LowerCaseComplexity = objectToUpdate.LowerCaseComplexity ?? orgPolicy.LowerCaseComplexity;
-            objectToUpdate.NumbersComplexity = objectToUpdate.NumbersComplexity ?? orgPolicy.NumbersComplexity;
-            objectToUpdate.PasswordAge = objectToUpdate.PasswordAge ?? orgPolicy.PasswordAge;
-            objectToUpdate.PasswordHistory = objectToUpdate.PasswordHistory ?? orgPolicy.PasswordHistory;
-            objectToUpdate.RoleIds = objectToUpdate.RoleIds ?? orgPolicy.RoleIds;
-            objectToUpdate.SpecialCharactersComplexity = objectToUpdate.SpecialCharactersComplexity ?? orgPolicy.SpecialCharactersComplexity;
-            objectToUpdate.UpperCaseComplexity = objectToUpdate.UpperCaseComplexity ?? orgPolicy.UpperCaseComplexity;
+            objectToUpdate.Name = objectToUpdate.Name ?? orgObject.Name;
+            objectToUpdate.Complexities = objectToUpdate.Complexities ?? orgObject.Complexities;
+            objectToUpdate.Expiration = objectToUpdate.Expiration ?? orgObject.Expiration;
+            objectToUpdate.LockoutFailuresCount = objectToUpdate.LockoutFailuresCount ?? orgObject.LockoutFailuresCount;
+            objectToUpdate.HistoryCount = objectToUpdate.HistoryCount ?? orgObject.HistoryCount;
+            objectToUpdate.UserRoleIds = objectToUpdate.UserRoleIds ?? orgObject.UserRoleIds;
         }
 
         public Status Delete(ContextData contextData, long id)
@@ -352,7 +350,7 @@ namespace ApiLogic.Users.Managers
                     foreach (var passwordSettings in passwordSettingsResponse.Objects)
                     {
                         // TODO SHIR -ValidateExistingPassword
-                        if (passwordSettings.PasswordAge.HasValue && passwordUpdateDate.AddDays(passwordSettings.PasswordAge.Value) > DateTime.UtcNow)
+                        if (passwordSettings.Expiration.HasValue && passwordUpdateDate.AddDays(passwordSettings.Expiration.Value) > DateTime.UtcNow)
                         {
                             response.AddArg(eResponseStatus.PasswordExpired.ToString(), "some error");
                         }
@@ -441,7 +439,7 @@ namespace ApiLogic.Users.Managers
                                     if (passwordPolicy != null)
                                     {
                                         existingPolicies.Add(passwordPolicyId);
-                                        foreach (var roleId in passwordPolicy.RoleIds)
+                                        foreach (var roleId in passwordPolicy.UserRoleIds)
                                         {
                                             var passwordPolicykey = LayeredCacheKeys.GetPasswordPolicyKey(roleId);
                                             if (result.ContainsKey(passwordPolicykey))
