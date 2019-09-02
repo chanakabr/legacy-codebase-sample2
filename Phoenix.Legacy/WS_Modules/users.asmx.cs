@@ -970,7 +970,8 @@ namespace WS_Users
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.RenewUserPassword(nGroupID, sUserName, sNewPassword);
+                var response = Core.Users.Module.RenewUserPassword(nGroupID, sUserName, sNewPassword);
+                return response.Object;
             }
             else
             {
