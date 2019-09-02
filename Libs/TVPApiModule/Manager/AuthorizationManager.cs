@@ -163,7 +163,7 @@ namespace TVPApiModule.Manager
             {
                 try
                 {
-                    var session = GenerateSession(siteGuid, groupId, isAdmin, isSTB, udid);
+                    var session = GenerateSession(groupConfig, siteGuid, groupId, isAdmin, isSTB, udid);
                     return new APIToken()
                     {
                         AccessToken = session.KS,
@@ -322,7 +322,7 @@ namespace TVPApiModule.Manager
             {
                 try
                 {
-                    var session = RefreshSession(accessToken, refreshToken, platform, udid);
+                    var session = RefreshSession(groupConfig, accessToken, refreshToken, platform, udid);
                     return new APIToken()
                     {
                         AccessToken = session.KS,
@@ -924,7 +924,7 @@ namespace TVPApiModule.Manager
             return siteGuidsDomain;
         }
 
-        public KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string, string> privileges = null)
+        public KalturaLoginSession GenerateSession(GroupConfiguration groupConfig, string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null, Dictionary<string, string> privileges = null)
         {
             KalturaLoginSession session = new KalturaLoginSession();
 
@@ -932,7 +932,7 @@ namespace TVPApiModule.Manager
             Group group = GetGroupConfiguration(groupId);
 
             // generate access token and refresh token pair
-            APIToken token = new APIToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, privileges);
+            APIToken token = new APIToken(userId, groupId, udid, isAdmin, group, groupConfig, isLoginWithPin, privileges);
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // update the sessions data
@@ -1094,7 +1094,7 @@ namespace TVPApiModule.Manager
             return true;
         }
 
-        public KalturaLoginSession RefreshSession(string ksStr, string refreshToken, PlatformType platform, string udid = null)
+        public KalturaLoginSession RefreshSession(GroupConfiguration groupConfig, string ksStr, string refreshToken, PlatformType platform, string udid = null)
         {
             KS ks = KS.ParseKS(ksStr);
 
@@ -1149,7 +1149,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate new access token with the old refresh token
-            token = new APIToken(token, group, udid);
+            token = new APIToken(token, group, groupConfig, udid);
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
