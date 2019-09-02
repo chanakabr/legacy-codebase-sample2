@@ -9,27 +9,24 @@ namespace Core.Users
 {
     public class FlowManager
     {
-        public static GenericResponse<UserResponseObject> SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount,
-                                                int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin,
-                                                List<KeyValuePair> keyValueList, string username = null, string password = null)
+        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, 
+                                                                 bool preventDoubleLogin, List<KeyValuePair> keyValueList, string username = null, string password = null)
         {
-            var response = new GenericResponse<UserResponseObject>();
+            var response = new UserResponseObject();
 
             try
             {
                 // pre
-                response.Object = user.PreSignIn(ref siteGuid, ref username, ref password, ref maxFailCount, ref lockMin, ref groupId,
+                response = user.PreSignIn(ref siteGuid, ref username, ref password, ref maxFailCount, ref lockMin, ref groupId,
                                           ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
 
-                if (response.Object.m_RespStatus == ResponseStatus.OK)
+                if (response.m_RespStatus == ResponseStatus.OK)
                 {
                     // mid
-                    response.Object = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                    response = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
 
                     // post
-                    var userResponseObject = response.Object;
-                    user.PostSignIn(ref userResponseObject, ref keyValueList);
-                    response.Object = userResponseObject;
+                    user.PostSignIn(ref response, ref keyValueList);
                 }
             }
             catch (Exception ex)

@@ -659,9 +659,8 @@ namespace Core.Users
 
             return result;
         }
-
-        // // TODO SHIR - set status default to null
-        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status, bool isLogin = false, int externalCode = 0, string externalMessage = null)
+        
+        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             var result = new ApiObjects.Response.Status();
 

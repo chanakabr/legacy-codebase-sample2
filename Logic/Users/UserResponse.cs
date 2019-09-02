@@ -2,18 +2,18 @@
 
 namespace Core.Users
 {
-    public class UserResponse1
+    public class UserResponse
     {
         public ApiObjects.Response.Status resp { get; set; }
         public UserResponseObject user { get; set; }
 
-        public UserResponse1()
+        public UserResponse()
         {
             resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             user = new UserResponseObject();
         }
 
-        public UserResponse1(ApiObjects.Response.Status resp, UserResponseObject user)
+        public UserResponse(ApiObjects.Response.Status resp, UserResponseObject user)
         {
             this.resp = resp;
             this.user = user;

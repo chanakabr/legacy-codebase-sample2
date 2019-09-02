@@ -397,7 +397,7 @@ namespace Core.Users
             return isBasicChanged;
         }
 
-        public bool SetPassword(string password, int nGroupID, bool validateForModify)
+        public bool SetPassword(string password, int nGroupID)
         {
             if (password.Length == 0)
             {

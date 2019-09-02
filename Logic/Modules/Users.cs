@@ -30,7 +30,7 @@ namespace Core.Users
             }
         }
 
-        public static UserResponseObject CheckUserPassword(int nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins, bool validateForModify)
+        public static UserResponseObject CheckUserPassword(int nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace Core.Users
                 Utils.GetBaseImpl(ref t, nGroupID);
                 if (t != null)
                 {
-                    return t.CheckUserPassword(sUserName, sPassword, 3, 3, nGroupID, bPreventDoubleLogins, validateForModify);
+                    return t.CheckUserPassword(sUserName, sPassword, 3, 3, nGroupID, bPreventDoubleLogins);
                 }
             }
             catch (Exception ex)
@@ -50,9 +50,8 @@ namespace Core.Users
             }
             return null;
         }
-
         
-        public static UserResponseObject SignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, ApiObjects.KeyValuePair[] KeyValuePairs)
+        public static UserResponseObject SignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] KeyValuePairs)
         {
             try
             {
@@ -84,9 +83,8 @@ namespace Core.Users
             }
             return null;
         }
-
-    
-        public static GenericResponse<UserResponseObject> KalturaSignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
+        
+        public static UserResponseObject KalturaSignIn(int nGroupID, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList)
         {
             try
             {
@@ -150,8 +148,6 @@ namespace Core.Users
             }
             return null;
         }
-
-
         
         public static UserResponseObject SSOSignIn(int nGroupID, string sUserName, string sPassword, int nSSOProviderID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
@@ -200,7 +196,6 @@ namespace Core.Users
             }
             return null;
         }
-
         
         public static UserResponseObject SSOCheckLogin(int nGroupID, string sUserName, int nSSOProviderID)
         {
@@ -226,7 +221,6 @@ namespace Core.Users
             }
             return null;
         }
-
         
         public static UserResponseObject AutoSignIn(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
@@ -250,7 +244,6 @@ namespace Core.Users
             }
             return null;
         }
-
         
         public static UserResponseObject SignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
@@ -291,9 +284,8 @@ namespace Core.Users
             }
             return null;
         }
-
         
-        public static UserResponseObject KalturaSignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
+        public static UserResponseObject KalturaSignOut(int nGroupID, string sSiteGUID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList)
         {
             try
             {
@@ -321,10 +313,8 @@ namespace Core.Users
             }
             return null;
         }
-
         
-        public static ApiObjects.Response.Status AddUserFavorit(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID,
-            string sItemType, string sItemCode, string sExtraData)
+        public static ApiObjects.Response.Status AddUserFavorit(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sItemCode, string sExtraData)
         {
             try
             {
@@ -347,8 +337,7 @@ namespace Core.Users
             return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
         }
 
-        public static GenericResponse<FavoritObject> InsertUserFavorite(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID,
-            string sItemType, string sItemCode, string sExtraData)
+        public static GenericResponse<FavoritObject> InsertUserFavorite(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sItemCode, string sExtraData)
         {
             GenericResponse<FavoritObject> response = new GenericResponse<FavoritObject>();
 
@@ -370,10 +359,8 @@ namespace Core.Users
             }
             return response;
         }
-
-
-        public static bool AddChannelMediaToFavorites(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID,
-            string sItemType, string sChannelID, string sExtraData)
+        
+        public static bool AddChannelMediaToFavorites(int nGroupID, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sChannelID, string sExtraData)
         {
             try
             {
@@ -391,8 +378,6 @@ namespace Core.Users
             }
             return false;
         }
-
-
         
         public static UserState GetUserState(int nGroupID, string sSiteGUID)
         {
@@ -421,7 +406,6 @@ namespace Core.Users
             }
             return UserState.Unknown;
         }
-
         
         public static UserState GetUserInstanceState(int nGroupID, string sSiteGUID, string sessionID, string deviceID, string sIP)
         {
@@ -442,7 +426,6 @@ namespace Core.Users
                 return UserState.Unknown;
             }
         }
-
         
         public static bool WriteLog(int nGroupID, string sUserGUID, string sLogMessage, string sWriter)
         {
@@ -460,7 +443,6 @@ namespace Core.Users
                 return false;
             }
         }
-
         
         public static ApiObjects.Response.Status RemoveUserFavorit(int nGroupID, string sUserGUID, long[] nMediaIDs)
         {
@@ -479,8 +461,7 @@ namespace Core.Users
                 return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
             }
         }
-
-
+        
         public static void RemoveChannelMediaUserFavorit(int nGroupID, string sUserGUID, int[] nChannelIDs)
         {
             // add siteguid to logs/monitor
@@ -515,7 +496,6 @@ namespace Core.Users
                 };
             }
         }
-
         
         public static UserResponseObject GetUserByFacebookID(int nGroupID, string sFacebookID)
         {
@@ -530,7 +510,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static UserResponseObject GetUserByUsername(int nGroupID, string sUsername)
         {
@@ -560,9 +539,6 @@ namespace Core.Users
                 return null;
             }
         }
-
-
-
         
         public static UserResponseObject GetUserData(int nGroupID, string sSiteGUID, string sUserIp)
         {
@@ -601,7 +577,6 @@ namespace Core.Users
                 }
             }
         }
-
         
         public static List<UserResponseObject> GetUsersData(int nGroupID, string[] sSiteGUIDs, string userIp)
         {
@@ -653,7 +628,6 @@ namespace Core.Users
             }
             return userResponseList;
         }
-
         
         public static List<UserBasicData> SearchUsers_MT(int nGroupID, string sTerms, string sFields, bool bIsExact)
         {
@@ -671,7 +645,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static List<UserBasicData> SearchUsers(int nGroupID, string[] sTerms, string[] sFields, bool bIsExact)
         {
@@ -686,7 +659,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static UserResponseObject AddNewUser(int nGroupID, UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword, string sAffiliateCode)
         {
@@ -698,7 +670,7 @@ namespace Core.Users
                 Utils.GetBaseImpl(ref t, nGroupID);
                 if (t == null)
                 {
-                    return null;
+                    return response;
                 }
 
                 response = t.AddNewUser(oBasicData, sDynamicData, sPassword);
@@ -712,7 +684,7 @@ namespace Core.Users
                 Utils.GetBaseImpl(ref kUser, nGroupID);
                 if (kUser == null)
                 {
-                    return null;
+                    return response;
                 }
                 
                 response = FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, new List<KeyValuePair>());
@@ -720,7 +692,6 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static UserResponseObject AddNewKalturaUser(int nGroupID, UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword, string sAffiliateCode, List<ApiObjects.KeyValuePair> keyValueList)
         {
@@ -744,21 +715,6 @@ namespace Core.Users
             {
                 return null;
             }
-        }
-        
-        public static UserResponseObject SetUserData(int nGroupID, string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData)
-        {
-            // add siteguid to logs/monitor
-            AddItemToContext(Constants.USER_ID, sSiteGUID);
-
-            BaseUsers t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
-            {
-                return t.SetUserData(sSiteGUID, oBasicData, sDynamicData);
-            }
-
-            return null;
         }
         
         public static void Hit(int nGroupID, string sSiteGUID)
@@ -787,20 +743,19 @@ namespace Core.Users
             }
         }
         
-        public static UserResponseObject ChangeUserPassword(int nGroupID, string sUN, string sOldPass, string sPass, bool validateForModify)
+        public static UserResponseObject ChangeUserPassword(int nGroupID, string sUN, string sOldPass, string sPass)
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.ChangeUserPassword(sUN, sOldPass, sPass, nGroupID, validateForModify);
+                return t.ChangeUserPassword(sUN, sOldPass, sPass, nGroupID);
             }
             else
             {
                 return null;
             }
         }
-
         
         public static ApiObjects.Response.Status UpdateUserPassword(int nGroupID, int userId, string password)
         {
@@ -815,7 +770,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static UserResponseObject ForgotPassword(int nGroupID, string sUN)
         {
@@ -830,7 +784,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static UserResponseObject ChangePassword(int nGroupID, string sUN)
         {
@@ -845,7 +798,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static ResponseStatus SendChangedPinMail(int nGroupID, string sSiteGuid, int nUserRuleID)
         {
@@ -863,7 +815,6 @@ namespace Core.Users
                 return ResponseStatus.ErrorOnSendingMail;
             }
         }
-
         
         public static UserResponseObject CheckTemporaryToken(int nGroupID, string sToken)
         {
@@ -880,10 +831,8 @@ namespace Core.Users
                 return null;
             }
         }
-
         
-        public static UserResponseObject RenewUserPassword(int nGroupID, string sUserName,
-            string sNewPassword)
+        public static UserResponseObject RenewUserPassword(int nGroupID, string sUserName, string sNewPassword)
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -896,10 +845,8 @@ namespace Core.Users
                 return null;
             }
         }
-
         
-        public static bool ResendWelcomeMail(int nGroupID, string sUserName,
-            string sNewPassword)
+        public static bool ResendWelcomeMail(int nGroupID, string sUserName, string sNewPassword)
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -912,10 +859,8 @@ namespace Core.Users
                 return false;
             }
         }
-
         
-        public static ApiObjects.Response.Status ResendActivationMail(int nGroupID, string sUserName,
-            string sNewPassword)
+        public static ApiObjects.Response.Status ResendActivationMail(int nGroupID, string sUserName, string sNewPassword)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -951,8 +896,7 @@ namespace Core.Users
             return response;
         }
         
-        public static UserResponseObject ActivateAccountByDomainMaster(int nGroupID, string sMasterUsername,
-            string sUserName, string sToken)
+        public static UserResponseObject ActivateAccountByDomainMaster(int nGroupID, string sMasterUsername, string sUserName, string sToken)
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -965,7 +909,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static bool SendPasswordMail(int nGroupID, string sUserName)
         {
@@ -980,7 +923,6 @@ namespace Core.Users
                 return false;
             }
         }
-
         
         public static string GetUserToken(int nGroupID, string sSiteGUID)
         {
@@ -998,7 +940,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static bool DoesUserNameExists(int nGroupID, string sUserName)
         {
@@ -1013,7 +954,6 @@ namespace Core.Users
                 return false;
             }
         }
-
         
         public static Users.Country[] GetCountryList(int nGroupID)
         {
@@ -1028,7 +968,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static State[] GetStateList(int nGroupID, Int32 nCountryID)
         {
@@ -1043,7 +982,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static Users.Country GetIPToCountry(int nGroupID, string sUserIP)
         {
@@ -1058,7 +996,6 @@ namespace Core.Users
                 return null;
             }
         }
-
         
         public static User[] GetUsersLikedMedia(int nGroupID, Int32 nUserGuid, Int32 nMediaID, Int32 nPlatform, bool bOnlyFriends, Int32 nStartIndex, Int32 nNumberOfItems)
         {
@@ -1160,7 +1097,6 @@ namespace Core.Users
                 return false;
             }
         }
-
         
         public static bool SetUserDynamicData(int nGroupID, string sSiteGuid, string sType, string sValue)
         {
@@ -1180,7 +1116,6 @@ namespace Core.Users
                 return false;
             }
         }
-
         
         public static UserGroupRuleResponse CheckParentalPINToken(int nGroupID, string sToken)
         {
@@ -1189,7 +1124,6 @@ namespace Core.Users
 
             return t.CheckParentalPINToken(sToken);
         }
-
         
         public static UserGroupRuleResponse ChangeParentalPInCodeByToken(int nGroupID, string sSiteGuid, int nUserRuleID, string sChangePinToken, string sCode)
         {
@@ -1204,9 +1138,6 @@ namespace Core.Users
             
             return response;
         }
-
-
-
         
         public static bool AddItemToList(int nGroupID, UserItemList userItemList)
         {
@@ -1219,7 +1150,6 @@ namespace Core.Users
             }
             return result;
         }
-
         
         public static bool RemoveItemFromList(int nGroupID, UserItemList userItemList)
         {
@@ -1232,7 +1162,6 @@ namespace Core.Users
             }
             return result;
         }
-
         
         public static bool UpdateItemInList(int nGroupID, UserItemList userItemList)
         {
@@ -1245,7 +1174,6 @@ namespace Core.Users
             }
             return result;
         }
-
         
         public static UserItemListsResponse GetItemFromList(int nGroupID, UserItemList userItemList)
         {
@@ -1267,7 +1195,6 @@ namespace Core.Users
             }
             return response;
         }
-
         
         public static UsersItemsListsResponse GetItemsFromUsersLists(int nGroupID, List<string> userIds, ListType listType, ListItemType itemType)
         {
@@ -1289,7 +1216,6 @@ namespace Core.Users
             }
             return response;
         }
-
         
         public static List<ApiObjects.KeyValuePair> IsItemExistsInList(int nGroupID, UserItemList userItemList)
         {
@@ -1303,8 +1229,6 @@ namespace Core.Users
             }
             return null;
         }
-
-
         
         public static UserType[] GetGroupUserTypes(int nGroupID)
         {
@@ -1319,8 +1243,6 @@ namespace Core.Users
                 return null;
             }
         }
-
-
         
         public static ResponseStatus SetUserTypeByUserID(int nGroupID, string sSiteGuid, int nUserTypeID)
         {
@@ -1338,7 +1260,6 @@ namespace Core.Users
                 return ResponseStatus.ErrorOnSendingMail;
             }
         }
-
         
         public static int GetUserType(int nGroupID, string sSiteGuid)
         {
@@ -1356,7 +1277,6 @@ namespace Core.Users
                 return 0;
             }
         }
-
         
         public static PinCodeResponse GenerateLoginPIN(int nGroupID, string siteGuid, string secret)
         {
@@ -1467,7 +1387,6 @@ namespace Core.Users
                 return new PinCodeResponse();
             }
         }
-
         
         public static ApiObjects.Response.Status ClearLoginPIN(int nGroupID, string siteGuid, string pin)
         {
@@ -1488,8 +1407,12 @@ namespace Core.Users
         
         public static GenericResponse<UserResponseObject> LogIn(int groupID, string userName, string password, string sessionID, string ip, string deviceID, bool preventDoubleLogins, List<KeyValuePair> keyValueList)
         {
-            var response = KalturaSignIn(groupID, userName, password, sessionID, ip, deviceID, preventDoubleLogins, keyValueList);
-            if (response.HasObject())
+            var response = new GenericResponse<UserResponseObject>
+            {
+                Object = KalturaSignIn(groupID, userName, password, sessionID, ip, deviceID, preventDoubleLogins, keyValueList)
+            };
+
+            if (response.Object != null)
             {
                 if (response.Object.m_user != null && !RolesPermissionsManager.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                 {
@@ -1498,7 +1421,7 @@ namespace Core.Users
                 }
 
                 // convert response status
-                response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus, true, response.Object.ExternalCode, response.Object.ExternalMessage));
+                response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus, null, true, response.Object.ExternalCode, response.Object.ExternalMessage));
 
                 if (response.IsOkStatusCode() && int.TryParse(response.Object.m_user.m_sSiteGUID, out int userID) && userID > 0)
                 {
@@ -1534,7 +1457,6 @@ namespace Core.Users
             }
 
             response.Object = AddNewUser(nGroupID, oBasicData, dynamicData, password, affiliateCode);
-
             if (response.Object != null)
             {
                 if (response.Object.m_RespStatus == ResponseStatus.OK || response.Object.m_RespStatus == ResponseStatus.UserWithNoDomain)
@@ -1544,12 +1466,12 @@ namespace Core.Users
                 else
                 {
                     // convert response status
-                    response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus, false, response.Object.ExternalCode, response.Object.ExternalMessage));
+                    response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus, null, false, response.Object.ExternalCode, response.Object.ExternalMessage));
                 }
             }
+            
             return response;
         }
-
         
         public static ApiObjects.Response.Status SendRenewalPasswordMail(int nGroupID, string userName, string templateName)
         {
@@ -1568,25 +1490,23 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static ApiObjects.Response.Status RenewPassword(int nGroupID, string userName, string newPassword)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                UserResponseObject user = t.RenewPassword(userName, newPassword, nGroupID);
-                if (user != null)
+                var renewPasswordResponse = t.RenewPassword(userName, newPassword, nGroupID);
+                if (!renewPasswordResponse.HasObject())
                 {
                     // convert response status
-                    response = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
+                    response = Utils.ConvertResponseStatusToResponseObject(renewPasswordResponse.Object, renewPasswordResponse.Status);
                 }
             }
             return response;
         }
-
         
         public static ApiObjects.Response.Status ReplacePassword(int nGroupID, string userName, string oldPassword, string newPassword)
         {
@@ -1595,11 +1515,11 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                UserResponseObject user = t.ChangeUserPassword(userName, oldPassword, newPassword, nGroupID);
-                if (user != null)
+                var changeUserPasswordResponse = t.ChangeUserPassword(userName, oldPassword, newPassword, nGroupID);
+                if (changeUserPasswordResponse != null)
                 {
                     // convert response status
-                    response = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
+                    response = Utils.ConvertResponseStatusToResponseObject(changeUserPasswordResponse.Object.m_RespStatus, changeUserPasswordResponse.Status);
                 }
             }
 
@@ -1649,11 +1569,8 @@ namespace Core.Users
             return response;
         }
         
-        public static GenericResponse<UserResponseObject> SetUser(int nGroupID, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
+        public static GenericResponse<UserResponseObject> UpdateUser(int nGroupID, string siteGUID, UserBasicData basicData, UserDynamicData dynamicData)
         {
-            // add siteguid to logs/monitor
-            AddItemToContext(Constants.USER_ID, siteGUID);
-            
             var response = new GenericResponse<UserResponseObject>();
 
             if (basicData.RoleIds != null && basicData.RoleIds.Count > 0)
@@ -1666,7 +1583,7 @@ namespace Core.Users
                 }
             }
 
-            response.Object = SetUserData(nGroupID, siteGUID, basicData, dynamicData);
+            response.Object = UpdateUserData(nGroupID, siteGUID, basicData, dynamicData);
             if (response.Object != null)
             {
                 // convert response status
@@ -1675,7 +1592,22 @@ namespace Core.Users
 
             return response;
         }
-        
+
+        public static UserResponseObject UpdateUserData(int nGroupID, string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData)
+        {
+            // add siteguid to logs/monitor
+            AddItemToContext(Constants.USER_ID, sSiteGUID);
+
+            BaseUsers t = null;
+            Utils.GetBaseImpl(ref t, nGroupID);
+            if (t != null)
+            {
+                return t.UpdateUserData(sSiteGUID, oBasicData, sDynamicData);
+            }
+
+            return null;
+        }
+
         public static FavoriteResponse FilterFavoriteMediaIds(int nGroupID, string userId, List<int> mediaIds, string udid, string mediaType, FavoriteOrderBy orderBy)
         {
             // add userId to logs/monitor
@@ -1692,7 +1624,6 @@ namespace Core.Users
             }
             return response;
         }
-
         
         public static LongIdsResponse GetUserRoleIds(int nGroupID, string userId)
         {
@@ -1768,7 +1699,6 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static ApiObjects.Response.Status ChangeUsers(int nGroupID, string userId, string userIdToChange, string udid)
         {
@@ -1783,8 +1713,7 @@ namespace Core.Users
 
             return response;
         }
-
-
+        
         public static void AddInitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
             BaseUsers t = null;
@@ -1794,7 +1723,6 @@ namespace Core.Users
                 Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.AnonymousPushRegistration, userId, udid, pushToken);
             }
         }
-
         
         public static ApiObjects.Response.Status ResendActivationToken(int nGroupID, string username)
         {
@@ -1809,7 +1737,6 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static ApiObjects.Response.Status DeleteItemFromUsersList(int nGroupID, string userId, Item item)
         {
@@ -1824,7 +1751,6 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static UsersListItemResponse AddItemToUsersList(int nGroupID, string userId, Item item)
         {
@@ -1842,7 +1768,6 @@ namespace Core.Users
 
             return response;
         }
-
         
         public static UsersListItemResponse GetItemFromUsersList(int nGroupID, string userId, Item item)
         {

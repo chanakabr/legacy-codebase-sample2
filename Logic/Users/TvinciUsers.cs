@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Managers;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
@@ -117,7 +118,7 @@ namespace Core.Users
             return activStatus;
         }
 
-        public override UserResponseObject CheckUserPassword(string username, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins, bool validateForModify)
+        public override UserResponseObject CheckUserPassword(string username, string sPass, int nMaxFailCount, int nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
 
@@ -133,10 +134,10 @@ namespace Core.Users
                 o.m_RespStatus = ret;
                 return o;
             }
-            return User.CheckUserPassword(username, sPass, 3, 3, nGroupID, bPreventDoubleLogins, true, validateForModify);
+            return User.CheckUserPassword(username, sPass, 3, 3, nGroupID, bPreventDoubleLogins, true);
         }
 
-        public override GenericResponse<UserResponseObject> SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public override UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             Int32 nUserID = -2;
 
@@ -196,9 +197,9 @@ namespace Core.Users
             }
 
             var response =  User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
-            if (response != null && response.Object != null)
+            if (response != null && response.m_user != null)
             {
-                response.Object.IsActivationGracePeriod = isGracePeriod;
+                response.m_user.IsActivationGracePeriod = isGracePeriod;
             }
 
             return response;
@@ -511,8 +512,9 @@ namespace Core.Users
 
         public override UserResponseObject AddNewUser(UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword)
         {
-            UserResponseObject userResponse = new UserResponseObject();
+            var userResponse = new UserResponseObject();
             User newUser = new User();
+
             // if username or password empty return with WrongPasswordOrUserName response
             if (string.IsNullOrEmpty(oBasicData.m_sUserName) || string.IsNullOrEmpty(sPassword))
             {
@@ -536,50 +538,45 @@ namespace Core.Users
                 userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
                 return userResponse;
             }
-
+            
             if (!oBasicData.SetPassword(sPassword, m_nGroupID))
             {
                 userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
                 return userResponse;
             }
 
+            var passwordValidationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(sPassword, new ApiObjects.Base.ContextData(m_nGroupID), newUser.m_oBasicData.RoleIds);
+
             newUser.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
-            int userId = newUser.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
+            int userId = newUser.SaveForInsert(m_nGroupID, !IsActivationNeeded(newUser.m_oBasicData));
 
             // add role to user
             if (userId > 0)
             {
-                long roleId;
-
-                if (DAL.UsersDal.IsUserDomainMaster(m_nGroupID, userId))
+                if (UsersDal.IsUserDomainMaster(m_nGroupID, userId))
                 {
-                    roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
-                }
-                else
-                {
-                    roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
-                }
-
-                if (roleId > 0 && !newUser.m_oBasicData.RoleIds.Contains(roleId))
-                {
-                    newUser.m_oBasicData.RoleIds.Add(roleId);
-
-                    if (UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
+                    long roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                    if (roleId > 0 && !newUser.m_oBasicData.RoleIds.Contains(roleId))
                     {
-                        string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        newUser.m_oBasicData.RoleIds.Add(roleId);
+
+                        if (UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
                         {
-                            log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
+                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
+                            }
+                        }
+                        else if (newUser.m_oBasicData.RoleIds.Count == 0)
+                        {
+                            userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, newUser);
+                            log.ErrorFormat("User created with no role. userId = {0}", userId);
                         }
                     }
-                    else if (newUser.m_oBasicData.RoleIds.Count == 0)
-                    {
-                        userResponse.Initialize(ResponseStatus.UserCreatedWithNoRole, newUser);
-                        log.ErrorFormat("User created with no role. userId = {0}", userId);
-                    }
                 }
-
+                
                 // add notifications event 
                 Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, userId, string.Empty);
             }
@@ -591,7 +588,7 @@ namespace Core.Users
 
             if (newUser.m_domianID <= 0)
             {
-                CheckAddDomain(ref userResponse, newUser, oBasicData.m_sUserName, userId);
+                CheckAddDomain(ref userResponse, newUser, newUser.m_oBasicData.m_sUserName, userId);
             }
             else
             {
@@ -610,8 +607,8 @@ namespace Core.Users
             }
             else
             {
-                WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
-                log.DebugFormat("params for welcom mail ws_users sMailReq.m_sSubject={0}, oBasicData.m_sUserName={1}, sMailReq.m_sTemplateName={2}", sMailReq.m_sSubject, oBasicData.m_sUserName, sMailReq.m_sTemplateName);
+                WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(newUser.m_oBasicData, sDynamicData), newUser.m_oBasicData.m_sUserName, sPassword, newUser.m_oBasicData.m_sEmail, newUser.m_oBasicData.m_sFacebookID);
+                log.DebugFormat("params for welcom mail ws_users sMailReq.m_sSubject={0}, oBasicData.m_sUserName={1}, sMailReq.m_sTemplateName={2}", sMailReq.m_sSubject, newUser.m_oBasicData.m_sUserName, sMailReq.m_sTemplateName);
                 Utils.SendMail(m_nGroupID, sMailReq);
             }
 
@@ -739,8 +736,10 @@ namespace Core.Users
 
         public override UserResponseObject GetUserByCoGuid(string sCoGuid, int operatorID)
         {
-            UserResponseObject retVal = new UserResponseObject();
-            retVal.m_RespStatus = ResponseStatus.UserDoesNotExist;
+            UserResponseObject retVal = new UserResponseObject
+            {
+                m_RespStatus = ResponseStatus.UserDoesNotExist
+            };
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery += " select id from users where is_active = 1 and status = 1 and ";
@@ -1072,7 +1071,7 @@ namespace Core.Users
             }
         }
 
-        public override UserResponseObject SetUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData)
+        public override UserResponseObject UpdateUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData)
         {
             UserResponseObject resp = new UserResponseObject();
 
@@ -1109,6 +1108,7 @@ namespace Core.Users
                     oBasicData.m_CoGuid = u.m_oBasicData.m_CoGuid;
                 }
 
+
                 int saveID = u.Update(oBasicData, sDynamicData, m_nGroupID);
                 // failed updating basicData or dynmaicData
                 if (saveID == -1)
@@ -1129,16 +1129,16 @@ namespace Core.Users
             return resp;
         }
 
-        public override GenericResponse<UserResponseObject> ChangeUserPassword(string username, string sOldPass, string sPass, int nGroupID, bool validateForModify)
+        public override GenericResponse<UserResponseObject> ChangeUserPassword(string username, string sOldPass, string sPass, int nGroupID)
         {
-            UserResponseObject ret = new UserResponseObject();
+            var ret = new GenericResponse<UserResponseObject>() { Object = new UserResponseObject() };
 
             // checkUserPassword for simple login with ol password
-            UserResponseObject uro = User.CheckUserPassword(username, sOldPass, 3, 3, nGroupID, false, true, false);
+            var uro = User.CheckExistingUserPassword(username, sOldPass, 3, 3, nGroupID, false, true, false);
             if (uro.m_RespStatus != ResponseStatus.OK && uro.m_RespStatus != ResponseStatus.InvalidPassword)
             {
-                ret.m_RespStatus = uro.m_RespStatus;
-                ret.m_user = null;
+                ret.Object.m_RespStatus = uro.m_RespStatus;
+                ret.Object.m_user = null;
                 return ret;
             }
             
@@ -1152,6 +1152,7 @@ namespace Core.Users
             uro.m_user.Save(m_nGroupID, false);
             ret.m_user = uro.m_user;
             ret.m_RespStatus = ResponseStatus.OK;
+
             return ret;
         }
 
@@ -1171,7 +1172,9 @@ namespace Core.Users
                 return response;
             }
 
-            if (user.Save(m_nGroupID, false) != userId)
+            //TODO SHIR - UpdateUserPassword  VALIDATE FOR UPDATE
+
+            if (user.SaveForUpdate(m_nGroupID, false) != userId)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to save user data");
                 return response;
@@ -1181,30 +1184,29 @@ namespace Core.Users
             return response;
         }
 
-        public override UserResponseObject RenewPassword(string sUN, string sPass, int nGroupID)
+        public override GenericResponse<ResponseStatus> RenewPassword(string sUN, string sPass, int nGroupID)
         {
-            UserResponseObject ret = new UserResponseObject();
-            Int32 nID = GetUserIDByUserName(sUN);
-            User u = new User();
-            u.Initialize(nID, m_nGroupID);
+            var response = new GenericResponse<ResponseStatus>();
+            var userId = GetUserIDByUserName(sUN);
+            var u = new User();
+            u.Initialize(userId, m_nGroupID);
+
             if (string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
-                ret.m_RespStatus = ResponseStatus.UserDoesNotExist;
-                ret.m_user = null;
-                return ret;
+                response.Object = ResponseStatus.UserDoesNotExist;
+                return response;
             }
             
             if (!u.m_oBasicData.SetPassword(sPass, nGroupID))
             {
-                ret.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-                ret.m_user = null;
-                return ret;
+                response.Object = ResponseStatus.WrongPasswordOrUserName;
+                return response;
             }
 
-            u.Save(m_nGroupID, false, true);
-            ret.m_user = u;
-            ret.m_RespStatus = ResponseStatus.OK;
-            return ret;
+            u.SaveForUpdate(m_nGroupID, false, true);
+            response.Object = ResponseStatus.OK;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
         private bool UserGenerateToken(string sUN, ref string sEmail, ref Int32 nID, ref string sFirstName, ref string sToken)

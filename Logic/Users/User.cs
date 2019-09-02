@@ -1155,7 +1155,7 @@ namespace Core.Users
                     {
                         // TODO SHIR - DONT USER IT HERE
                         var contextData = new ContextData(groupId) { UserId = userId };
-                        var validatePasswordResponse = PasswordPolicyManager.Instance.ValidateExistingPassword(password, contextData, res.m_oBasicData.RoleIds, passwordUpdateDate, true);
+                        var validatePasswordResponse = PasswordPolicyManager.Instance.ValidateExistingPassword(password, contextData, res.m_oBasicData.RoleIds, passwordUpdateDate);
                         if (!validatePasswordResponse.IsOkStatusCode())
                         {
                             responseStatus = ResponseStatus.InvalidPassword;
