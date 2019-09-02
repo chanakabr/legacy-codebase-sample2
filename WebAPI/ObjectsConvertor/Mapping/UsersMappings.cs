@@ -175,7 +175,7 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Asset, opt => opt.MapFrom(src => src.m_sItemCode))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreateDate)));
 
-            cfg.CreateMap<KalturaFavorite , FavoritObject>()
+            cfg.CreateMap<KalturaFavorite, FavoritObject>()
                 .ForMember(dest => dest.m_sExtraData, opt => opt.MapFrom(src => src.ExtraData))
                 .ForMember(dest => dest.m_sItemCode, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.m_sItemCode, opt => opt.MapFrom(src => src.Asset))
@@ -247,6 +247,27 @@ namespace ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaSSOAdapterProfile, SSOAdapter>()
                 .ForMember(dest => dest.Settings, opt => opt.ResolveUsing(src => ConvertSsoAdapterSettings(src)));
+
+            // Password Policy
+            cfg.CreateMap<KalturaPasswordPolicy, PasswordPolicy>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.UserRoleIds, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.UserRoleIds, "KalturaPasswordPolicy.UserRoleIds", true, false)))
+                .ForMember(dest => dest.HistoryCount, opt => opt.MapFrom(src => src.HistoryCount))
+                .ForMember(dest => dest.Expiration, opt => opt.MapFrom(src => src.Expiration))
+                .ForMember(dest => dest.Complexities, opt => opt.MapFrom(src => src.Complexities))
+                .ForMember(dest => dest.LockoutFailuresCount, opt => opt.MapFrom(src => src.LockoutFailuresCount));
+
+            cfg.CreateMap<KalturaRegex, RegexObject>()
+                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<RegexObject, KalturaRegex>()
+                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaPasswordPolicyFilter, PasswordPolicyFilter>()
+            .ForMember(dest => dest.RoleIdsIn, opt => opt.MapFrom(src => src.GetItemsIn<List<long>, long>(src.UserRoleIdIn, "KalturaPasswordPolicy.UserRoleIds", true, false)));
         }
 
         private static List<SSOAdapterParam> ConvertSsoAdapterSettings(KalturaSSOAdapterProfile src)

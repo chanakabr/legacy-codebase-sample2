@@ -18,11 +18,11 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Comma separated list of role Ids.
         /// </summary>
-        [DataMember(Name = "roleIdsIn")]
-        [JsonProperty("roleIdsIn")]
-        [XmlElement(ElementName = "roleIdsIn")]
+        [DataMember(Name = "userRoleIdIn")]
+        [JsonProperty("userRoleIdIn")]
+        [XmlElement(ElementName = "userRoleIdIn")]
         [SchemeProperty(DynamicMinInt = 0)]
-        public string RoleIdsIn { get; set; }
+        public string UserRoleIdIn { get; set; }
 
         public KalturaPasswordPolicyFilter() : base()
         {
@@ -43,7 +43,7 @@ namespace WebAPI.Models.Users
 
         public override void Validate()
         {
-            if (string.IsNullOrEmpty(RoleIdsIn))
+            if (string.IsNullOrEmpty(UserRoleIdIn))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPasswordPolicyFilter.roleIdsIn");
             }

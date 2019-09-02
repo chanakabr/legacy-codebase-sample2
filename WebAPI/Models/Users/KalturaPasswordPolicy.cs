@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using System.Collections.Generic;
 
 namespace WebAPI.Models.Users
 {
@@ -34,43 +35,85 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Comma separated UserRole Ids list which the policy is applied on
         /// </summary>
-        [DataMember(Name = "appliedUserRoleIds")]
-        [JsonProperty("appliedUserRoleIds")]
-        [XmlElement(ElementName = "appliedUserRoleIds")]
-        [SchemeProperty(DynamicMaxInt = 0)]
-        public string AppliedUserRoleIds { get; set; }
-
-        /// <summary>
-        /// Minimum password length
-        /// </summary>
-        [DataMember(Name = "minimumLength")]
-        [JsonProperty("minimumLength")]
-        [XmlElement(ElementName = "minimumLength", IsNullable = true)]
-        public int? MinimumLength { get; set; }
+        [DataMember(Name = "userRoleIds")]
+        [JsonProperty("userRoleIds")]
+        [XmlElement(ElementName = "userRoleIds")]
+        [SchemeProperty(DynamicMinInt = 0, MinLength = 1)]
+        public string UserRoleIds { get; set; }
 
         /// <summary>
         /// The number of passwords that should be remembered for each user so that they cannot be reused.
         /// </summary>
-        [DataMember(Name = "passwordsHistory")]
-        [JsonProperty("passwordsHistory")]
-        [XmlElement(ElementName = "passwordsHistory", IsNullable = true)]
-        public int? PasswordsHistory { get; set; }
+        [DataMember(Name = "historyCount")]
+        [JsonProperty("historyCount")]
+        [XmlElement(ElementName = "historyCount", IsNullable = true)]
+        public int? HistoryCount { get; set; }
 
         /// <summary>
         /// When should the password expire (will represent time as days).
         /// </summary>
-        [DataMember(Name = "passwordAge")]
-        [JsonProperty("passwordAge")]
-        [XmlElement(ElementName = "passwordAge", IsNullable = true)]
-        public int? PasswordAge { get; set; }
+        [DataMember(Name = "expiration")]
+        [JsonProperty("expiration")]
+        [XmlElement(ElementName = "expiration", IsNullable = true)]
+        public int? Expiration { get; set; }
 
         /// <summary>
-        /// upper case complexity
+        /// array of  KalturaRegex
         /// </summary>
-        [DataMember(Name = "upperCaseComplexity")]
-        [JsonProperty("upperCaseComplexity")]
-        [XmlElement(ElementName = "upperCaseComplexity", IsNullable = true)]
-        public KalturaUpperCaseComplexity UpperCaseComplexity { get; set; }
+        [DataMember(Name = "complexities")]
+        [JsonProperty("complexities")]
+        [XmlElement(ElementName = "complexities", IsNullable = true)]
+        public List<KalturaRegex> Complexities { get; set; }
+
+        /// <summary>
+        ///  the number of passwords failures before the account is locked.
+        /// </summary>
+        [DataMember(Name = "lockoutFailuresCount")]
+        [JsonProperty("lockoutFailuresCount")]
+        [XmlElement(ElementName = "lockoutFailuresCount", IsNullable = true)]
+        public int? LockoutFailuresCount { get; set; }
+
+        /*
+        /// <summary>
+        /// lower case complexity
+        /// </summary>
+        [DataMember(Name = "lowerCaseComplexity")]
+        [JsonProperty("lowerCaseComplexity")]
+        [XmlElement(ElementName = "lowerCaseComplexity", IsNullable = true)]
+        public KalturaLowerCaseComplexity LowerCaseComplexity { get; set; }
+
+        /// <summary>
+        /// numbers case complexity
+        /// </summary>
+        [DataMember(Name = "numbersComplexity")]
+        [JsonProperty("numbersComplexity")]
+        [XmlElement(ElementName = "numbersComplexity", IsNullable = true)]
+        public KalturaNumbersComplexity NumbersComplexity { get; set; }
+
+        /// <summary>
+        /// special Characters Complexity 
+        /// </summary>
+        [DataMember(Name = "specialCharactersComplexity")]
+        [JsonProperty("specialCharactersComplexity")]
+        [XmlElement(ElementName = "specialCharactersComplexity", IsNullable = true)]
+        public KalturaSpecialCharactersComplexity SpecialCharactersComplexity { get; set; }
+
+        /// <summary>
+        /// special Characters Complexity 
+        /// </summary>
+        [DataMember(Name = "identicalCharactersComplexity")]
+        [JsonProperty("identicalCharactersComplexity")]
+        [XmlElement(ElementName = "identicalCharactersComplexity", IsNullable = true)]
+        public KalturaIdenticalCharactersComplexity IdenticalCharactersComplexity { get; set; }
+
+        /// <summary>
+        /// special Characters Complexity 
+        /// </summary>
+        [DataMember(Name = "passwordHistory")]
+        [JsonProperty("passwordHistory")]
+        [XmlElement(ElementName = "passwordHistory", IsNullable = true)]
+        public int? PasswordHistory { get; set; }
+        */
 
         internal override ICrudHandler<PasswordPolicy, long, PasswordPolicyFilter> Handler
         {
@@ -87,12 +130,43 @@ namespace WebAPI.Models.Users
 
         internal override void ValidateForAdd()
         {
+            if (!this.ValidateRegexExpressions())
+            {
+
+            }
             throw new System.NotImplementedException();
         }
 
         internal override void ValidateForUpdate()
         {
+            if (!this.ValidateRegexExpressions())
+            {
+
+            }
             throw new System.NotImplementedException();
+        }
+
+        internal bool ValidateRegexExpressions()
+        {
+            if (this.Complexities == null || this.Complexities.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (var pattern in this.Complexities)
+            {
+                if (string.IsNullOrEmpty(pattern.Expression)) return false;
+
+                try
+                {
+                    System.Text.RegularExpressions.Regex.Match("", pattern.Expression);
+                }
+                catch (System.ArgumentException)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
