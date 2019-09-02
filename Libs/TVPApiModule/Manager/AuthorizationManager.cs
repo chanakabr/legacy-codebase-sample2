@@ -522,7 +522,12 @@ namespace TVPApiModule.Manager
                     KS ks = KS.ParseKS(accessToken);
                     siteGuid = ks.UserId;
                     isAdmin = false;
-                    return IsKsValid(ks, true);
+                    bool isKsValid = IsKsValid(ks, true);
+                    if (!isKsValid)
+                    {
+                        returnError(401);
+                    }
+                    return isKsValid;
                 }
                 catch (Exception ex)
                 {
