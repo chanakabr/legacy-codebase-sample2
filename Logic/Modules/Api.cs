@@ -2350,19 +2350,19 @@ namespace Core.Api
             return api.GetPermissionItemsToFeatures(groupId);
         }
 
-        public static GenericResponse<Region> AddRegion(int groupId, Region region)
+        public static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
-            return api.AddRegion(groupId, region);
+            return api.AddRegion(groupId, region, userId);
         }
 
-        public static GenericResponse<Region> UpdateRegion(int groupId, Region region)
+        public static GenericResponse<Region> UpdateRegion(int groupId, Region region, long userId)
         {
-            return api.UpdateRegion(groupId, region);
+            return api.UpdateRegion(groupId, region, userId);
         }
 
-        public static Status DeleteRegion(int groupId, int id)
+        public static Status DeleteRegion(int groupId, int id, long userId)
         {
-            return api.DeleteRegion(groupId, id);
+            return api.DeleteRegion(groupId, id, userId);
         }
     }
 }

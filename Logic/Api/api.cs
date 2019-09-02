@@ -12046,7 +12046,7 @@ namespace Core.Api
             return response;
         }
 
-        internal static Status DeleteRegion(int groupId, int id)
+        internal static Status DeleteRegion(int groupId, int id, long userId)
         {
             try
             {
@@ -12060,7 +12060,7 @@ namespace Core.Api
                 
                 // TODO: what if the region is a parent??
 
-                if (!ApiDAL.DeleteRegion(groupId, id))
+                if (!ApiDAL.DeleteRegion(groupId, id, userId))
                 {
                     log.ErrorFormat("Error while trying to delete region. groupId:{0}, id:{1}", groupId, id);
                     return new Status((int)eResponseStatus.Error); ;
@@ -12082,7 +12082,7 @@ namespace Core.Api
             return new Status((int)eResponseStatus.OK);
         }
 
-        internal static GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate)
+        internal static GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate, long userId)
         {
             GenericResponse<Region> response = new GenericResponse<Region>();
 
@@ -12118,7 +12118,7 @@ namespace Core.Api
                     }
                 }
 
-                if (!ApiDAL.AddRegion(groupId, region))
+                if (!ApiDAL.UpdateRegion(groupId, region, userId))
                 {
                     log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
                     response.SetStatus(eResponseStatus.Error);
@@ -12132,7 +12132,7 @@ namespace Core.Api
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
                 }
 
-                // TODO: rebuild index
+                // TODO: rebuild index for linear assets
 
                 if (parentRegion != null)
                 {
@@ -12152,7 +12152,7 @@ namespace Core.Api
             return response;
         }
 
-        internal static GenericResponse<Region> AddRegion(int groupId, Region region)
+        internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
             GenericResponse<Region> response = new GenericResponse<Region>();
 
@@ -12187,7 +12187,9 @@ namespace Core.Api
                     }
                 }
 
-                if (!ApiDAL.AddRegion(groupId, region))
+                region.id = ApiDAL.AddRegion(groupId, region, userId);
+
+                if (region.id == 0)
                 {
                     log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
                     response.SetStatus(eResponseStatus.Error);

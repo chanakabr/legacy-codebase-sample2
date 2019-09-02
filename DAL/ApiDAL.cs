@@ -5927,14 +5927,75 @@ namespace DAL
             return table;
         }
 
-        public static bool DeleteRegion(int groupId, int id)
+        public static bool DeleteRegion(int groupId, int id, long userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var sp = new StoredProcedure("DeleteRegion");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@regionId", id);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while DeleteRegion from DB, groupId: {0}, regionId: {1})", groupId, id), ex);
+                throw;
+            }
         }
 
-        public static bool AddRegion(int groupId, Region region)
+        public static int AddRegion(int groupId, Region region, long userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var sp = new StoredProcedure("AddRegion");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@regionId", region.id);
+                sp.AddParameter("@parentRegionId", region.parentRegionId);
+                sp.AddParameter("@name", region.name);
+                sp.AddParameter("@isDefault", region.isDefault);
+                sp.AddParameter("@externalId", region.externalId);
+                sp.AddKeyValueListParameter<string, string>("@linearChannels",
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddParameter("@regionId", region.id);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while AddRegion from DB, groupId: {0}, regionId: {1})", groupId, region.id), ex);
+                throw;
+            }
+        }
+
+        public static bool UpdateRegion(int groupId, Region region, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("UpdateRegion");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@regionId", region.id);
+                sp.AddParameter("@parentRegionId", region.parentRegionId);
+                sp.AddParameter("@name", region.name);
+                sp.AddParameter("@isDefault", region.isDefault);
+                sp.AddParameter("@externalId", region.externalId);
+                sp.AddKeyValueListParameter<string, string>("@linearChannels", 
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string,string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddParameter("@regionId", region.id);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while UpdateRegion from DB, groupId: {0}, regionId: {1})", groupId, region.id), ex);
+                throw;
+            }
         }
     }
 }
