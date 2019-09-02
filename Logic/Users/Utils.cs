@@ -659,20 +659,20 @@ namespace Core.Users
 
             return result;
         }
-        
-        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status, bool isLogin = false, int externalCode = 0, string externalMessage = null)
-        {
-            // TODO SHIR - ADD invalid password ERROR!!
-            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 
-            if (isLogin && status == ResponseStatus.UserSuspended)
+        // // TODO SHIR - set status default to null
+        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status, bool isLogin = false, int externalCode = 0, string externalMessage = null)
+        {
+            var result = new ApiObjects.Response.Status();
+
+            if (isLogin && responseStatus == ResponseStatus.UserSuspended)
             {
                 result.Code = (int)eResponseStatus.OK;
                 result.Message = "OK";
                 return result;
             }
 
-            switch (status)
+            switch (responseStatus)
             {
                 case ResponseStatus.OK:
                 case ResponseStatus.UserCreatedWithNoRole:
@@ -762,6 +762,9 @@ namespace Core.Users
                         result.Code = (int)eResponseStatus.Error;
                         result.Message = "Error";
                     }
+                    break;
+                case ResponseStatus.InvalidPassword:
+                    result.Set(status);
                     break;
                 default:
                     result.Code = (int)eResponseStatus.Error;

@@ -70,19 +70,12 @@ namespace Core.Users
         protected BaseUsers(Int32 nGroupID)
         {
             m_nGroupID = nGroupID;
-            //m_bIsInitialized = false;
-            //IsActivationNeeded(null);
             Initialize();
         }
 
         #region Abstract Methods
-
-        ////Domain
-        //public abstract Domain AddDomain(string domainName, string domainDescription, Int32 masterUserGuid, Int32 nGroupID);
-        //public abstract Domain SetDomainInfo(Int32 domainID, string domainName, Int32 nGroupID, string domainDescription);
+        
         public abstract Domain AddUserToDomain(Int32 nGroupID, Int32 domainID, Int32 userGuid, bool isMaster);
-        //public abstract Domain RemoveUserFromDomain(Int32 nGroupID, Int32 domainID, Int32 userGUID);
-        //public abstract Domain GetDomainInfo(Int32 domainID, Int32 nGroupID);
         public abstract UserResponseObject CheckUserPassword(string username, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLoginsbool, bool validateForModify);
         public abstract UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
         public abstract UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
@@ -105,8 +98,8 @@ namespace Core.Users
         public abstract DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID);
         public abstract ApiObjects.Response.Status DeleteUser(int userId);
         public abstract ApiObjects.Response.Status ChangeUsers(string userId, string userIdToChange, string udid, int groupId);
-        public abstract GenericResponse<UserResponseObject> GetUserByExternalID(string externalID, int operatorID);
-        public abstract GenericResponse<UserResponseObject> GetUserByName(string userName, int groupId);
+        public abstract UserResponseObject GetUserByExternalID(string externalID, int operatorID);
+        public abstract UserResponseObject GetUserByName(string userName, int groupId);
         public abstract UserResponseObject CheckToken(string sToken);
         public abstract bool ResendWelcomeMail(string sUN);
         public abstract bool ResendActivationMail(string sUN);
@@ -117,7 +110,7 @@ namespace Core.Users
         public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod);
         public abstract bool SendPasswordMail(string sUN);
         public abstract void Initialize();
-        public abstract UserResponseObject SetUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
+        public abstract UserResponseObject UpdateUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
         public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
         public abstract GenericResponse<UserResponseObject> ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID, bool validateForModify);
         public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
@@ -1047,7 +1040,8 @@ namespace Core.Users
                     else
                     {
                         // convert response status
-                        response.resp = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
+                        // TODO SHIR - DONT FRGET TO REMOVE NULL
+                        response.resp = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus, null);
                     }
                 }
                 else

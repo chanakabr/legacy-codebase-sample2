@@ -399,7 +399,6 @@ namespace Core.Users
 
         public bool SetPassword(string password, int nGroupID, bool validateForModify)
         {
-
             if (password.Length == 0)
             {
                 return false;

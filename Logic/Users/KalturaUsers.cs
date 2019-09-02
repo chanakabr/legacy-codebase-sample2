@@ -228,7 +228,8 @@ namespace Core.Users
             if (!string.IsNullOrEmpty(basicData.m_sUserName) && basicData.m_sUserName.ToLower().Contains("anonymous"))
                 basicData.m_sUserName = string.Format(basicData.m_sUserName + "_{0}", User.GetNextGUID());
 
-            newUser.Initialize(basicData, dynamicData, GroupId, password);
+            newUser.InitializeNewUser(basicData, dynamicData, GroupId, password);
+            
             if (!string.IsNullOrEmpty(newUser.m_sSiteGUID) || newUser.m_oBasicData != basicData)
             {
                 userResponse.Initialize(ResponseStatus.UserExists, newUser);
@@ -242,7 +243,7 @@ namespace Core.Users
             }
             
             // save user
-            int userId = FlowManager.SaveUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
+            int userId = FlowManager.SaveNewUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
             if (userId <= 0)
             {
                 userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
@@ -275,9 +276,9 @@ namespace Core.Users
 
         public override void PreSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, ref List<KeyValuePair> keyValueList) { }
 
-        internal override int MidSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive)
+        internal override int MidSaveNewUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive)
         {
-            return user.Save(GroupId, !IsActivationNeeded(basicData));
+            return user.SaveForInsert(GroupId, !IsActivationNeeded(basicData));
         }
 
         public override void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList) { }
@@ -592,20 +593,20 @@ namespace Core.Users
         }
         internal override ApiObjects.Response.Status MidDeleteUser(int userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            var response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
             try
             {
                 UserResponseObject userResponse = GetUserData(userId.ToString());
-
                 if (userResponse.m_RespStatus != ResponseStatus.OK)
                 {
-                    response = Utils.ConvertResponseStatusToResponseObject(userResponse.m_RespStatus);
+                    // TODO SHIR - DONT FRGET TO REMOVE NULL WHEN DELETE
+                    response = Utils.ConvertResponseStatusToResponseObject(userResponse.m_RespStatus, null);
                     return response;
                 }
 
                 // get User's domain 
-                Core.Users.BaseDomain baseDomain = null;
+                BaseDomain baseDomain = null;
                 Utils.GetBaseImpl(ref baseDomain, GroupId);
 
                 if (baseDomain == null)
@@ -614,10 +615,8 @@ namespace Core.Users
                     response.Message = HOUSEHOLD_NOT_INITIALIZED;
                     return response;
                 }
-
-
+                
                 Domain userDomain = baseDomain.GetDomainInfo(userResponse.m_user.m_domianID, GroupId);
-
                 if (userDomain == null)
                 {
                     response.Code = (int)eResponseStatus.UserNotExistsInDomain;

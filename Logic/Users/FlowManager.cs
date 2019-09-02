@@ -86,7 +86,7 @@ namespace Core.Users
             return response;
         }
 
-        public static int SaveUser(ref UserResponseObject userResponse, KalturaBaseUsers user, ref UserBasicData basicData, User userBo, Int32 groupId, bool bIsSetUserActive, List<KeyValuePair> keyValueList)
+        public static int SaveNewUser(ref UserResponseObject userResponse, KalturaBaseUsers user, ref UserBasicData basicData, User userBo, Int32 groupId, bool bIsSetUserActive, List<KeyValuePair> keyValueList)
         {
             int userId = 0;
 
@@ -96,7 +96,7 @@ namespace Core.Users
                 user.PreSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive, ref keyValueList);
 
                 // mid
-                userId = user.MidSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive);
+                userId = user.MidSaveNewUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive);
 
                 // post 
                 user.PostSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive, userId, ref keyValueList);

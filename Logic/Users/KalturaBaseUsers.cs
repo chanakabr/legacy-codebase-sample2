@@ -83,7 +83,7 @@ namespace Core.Users
 
         // save user
         public abstract void PreSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, ref List<KeyValuePair> keyValueList);
-        internal abstract int MidSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive);
+        internal abstract int MidSaveNewUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive);
         public abstract void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList);
 
         // get user data
