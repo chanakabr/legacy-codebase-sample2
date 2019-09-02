@@ -1163,25 +1163,30 @@ namespace Core.Users
 
         public override ApiObjects.Response.Status UpdateUserPassword(int userId, string password)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            var response = ApiObjects.Response.Status.Error;
             User user = new User();
             if (!user.Initialize(userId, m_nGroupID))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get user data");
+                response.Set(eResponseStatus.Error, "Failed to get user data");
                 return response;
             }
 
             if (!user.m_oBasicData.SetPassword(password, m_nGroupID))
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to set user password");
+                response.Set(eResponseStatus.Error, "Failed to set user password");
+                return response;
+            }
+            
+            var validationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(password, m_nGroupID, userId, user.m_oBasicData.RoleIds);
+            if (!validationResponse.IsOkStatusCode())
+            {
+                response.Set(validationResponse);
                 return response;
             }
 
-            //TODO SHIR - UpdateUserPassword  VALIDATE FOR UPDATE
-
             if (user.SaveForUpdate(m_nGroupID, false, false, true) != userId)
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to save user data");
+                response.Set(eResponseStatus.Error, "Failed to save user data");
                 return response;
             }
 

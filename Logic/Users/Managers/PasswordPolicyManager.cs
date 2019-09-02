@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ApiLogic.Users.Managers
 {
@@ -320,21 +321,29 @@ namespace ApiLogic.Users.Managers
                 {
                     int? historyCount = null;
                     HashSet<string> passwordsHistory = null;
-                    var errors = new HashSet<eResponseStatus>();
 
                     foreach (var passwordPolicy in passwordPolicyResponse.Objects)
                     {
-                        if (!errors.Contains(eResponseStatus.ReusedPassword) && passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
+                        if (passwordPolicy.HistoryCount.HasValue && passwordPolicy.HistoryCount.Value > 0)
                         {
                             historyCount = passwordPolicy.HistoryCount;
                             passwordsHistory = UsersDal.GetPasswordsHistory(userId);
                             if (passwordsHistory != null && passwordsHistory.Contains(password))
                             {
                                 response.AddArg(eResponseStatus.ReusedPassword, "password cannot be Reused");
-                                errors.Add(eResponseStatus.ReusedPassword);
                             }
                         }
-                        // TODO SHIR - ValidateNewPassword
+
+                        if (passwordPolicy.Complexities != null)
+                        {
+                            for (int i = 0; i < passwordPolicy.Complexities.Count; i++)
+                            {
+                                if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
+                                {
+                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()}{i+1}", $"complexity {passwordPolicy.Complexities[i].Description} is invalid");
+                                }
+                            }
+                        }
                     }
 
                     if (response.Args != null && response.Args.Count > 0)

@@ -750,7 +750,7 @@ namespace DAL
         public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
-            // TODO SHIR - UPDATE Get_LoginFailCount TO RETURN LAST PASSWORD UPDATE DATE (default value in table is datetime.now) 
+            // TODO SHIR - UPDATE Get_LoginFailCount TO RETURN PASSWORD_UPDATE_DATE (default value in users table is datetime.now) 
             var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@username", sUN);
@@ -771,7 +771,6 @@ namespace DAL
                     dLastHitDate = new DateTime(2020, 1, 1);
                     dLastFailDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
                     dLastHitDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
-                    // TODO SHIR - INSERT PASSWORD_UPDATE_DATE COL TO users table (with default of datetime.now)
                     passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0]["PASSWORD_UPDATE_DATE"]);
                 }
             }
