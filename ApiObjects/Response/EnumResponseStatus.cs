@@ -343,6 +343,8 @@ namespace ApiObjects.Response
         AssetRuleStatusNotWritable = 5061,
         PermissionNotFound = 5062,
         PermissionNameAlreadyInUse = 5063,
+        EventNotificationIdIsMissing = 5064,
+        EventNotificationIdNotFound = 5065,
         #endregion
 
         #region Billing 6000 - 6999

@@ -40,7 +40,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }       
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
         {
@@ -5925,6 +5925,33 @@ namespace DAL
 
             var table = storedProcedure.Execute();
             return table;
+        }
+
+        public static bool SaveEventNotificationActionCB(EventNotificationAction eventNotificationAction)
+        {
+            if (eventNotificationAction != null)
+            {
+                string key = GetEventNotificationActionKey(eventNotificationAction.Id);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationAction);
+            }
+
+            return false;
+        }
+
+        private static string GetEventNotificationActionKey(string id)
+        {
+            return $"event_notification_action_{id}";
+        }
+
+        public static EventNotificationAction GetEventNotificationActionCB(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                string key = GetEventNotificationActionKey(id);
+                return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
+            }
+
+            return null;
         }
     }
 }
