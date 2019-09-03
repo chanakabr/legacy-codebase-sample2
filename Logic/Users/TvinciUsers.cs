@@ -1150,7 +1150,7 @@ namespace Core.Users
             if (!validationResponse.IsOkStatusCode())
             {
                 response.SetStatus(validationResponse);
-                response.Object.m_RespStatus = ResponseStatus.InvalidPassword;
+                response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
                 return response;
             }
 
@@ -1219,7 +1219,7 @@ namespace Core.Users
             if (!validationResponse.IsOkStatusCode())
             {
                 response.SetStatus(validationResponse);
-                response.Object.m_RespStatus = ResponseStatus.InvalidPassword;
+                response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
                 return response;
             }
 

@@ -750,7 +750,6 @@ namespace DAL
         public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
-            // TODO SHIR - UPDATE Get_LoginFailCount TO RETURN PASSWORD_UPDATE_DATE (default value in users table is datetime.now) 
             var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@username", sUN);
@@ -2419,7 +2418,7 @@ namespace DAL
 
         private static string GetPasswordsHistoryKey(long userId)
         {
-            return string.Format("passwords_history_{0}", userId);
+            return string.Format("user_passwords_history_{0}", userId);
         }
 
         public static HashSet<string> GetPasswordsHistory(long userId)

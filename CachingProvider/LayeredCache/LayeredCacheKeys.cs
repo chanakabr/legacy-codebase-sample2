@@ -637,7 +637,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPasswordPolicyKey(long roleId)
         {
-            return string.Format("password_policy_{0}", roleId);
+            return string.Format("password_policy_roleId_{0}", roleId);
         }
 
         public static Dictionary<string, string> GetPasswordPolicyKeyMap(List<long> roleIds)
@@ -657,8 +657,7 @@ namespace CachingProvider.LayeredCache
 
             return result;
         }
-
-
+        
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix

@@ -763,7 +763,7 @@ namespace Core.Users
                         result.Message = "Error";
                     }
                     break;
-                case ResponseStatus.InvalidPassword:
+                case ResponseStatus.PasswordPolicyViolation:
                     result.Set(status);
                     break;
                 case ResponseStatus.PasswordExpired:

@@ -270,7 +270,7 @@ namespace ApiLogic.Users.Managers
                             {
                                 if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
                                 {
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()}{i + 1}", $"complexity {passwordPolicy.Complexities[i].Description} is invalid");
+                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {i + 1}", $"complexity {passwordPolicy.Complexities[i].Description} is invalid");
                                 }
                             }
                         }
@@ -278,7 +278,7 @@ namespace ApiLogic.Users.Managers
 
                     if (response.Args != null && response.Args.Count > 0)
                     {
-                        response.Set(eResponseStatus.InvalidPassword);
+                        response.Set(eResponseStatus.PasswordPolicyViolation);
                     }
                     else
                     {
@@ -319,9 +319,11 @@ namespace ApiLogic.Users.Managers
                                                        new List<string>() { LayeredCacheKeys.GetUserRolesToPasswordPolicyInvalidationKey(contextData.GroupId) }))
                         {
                             log.ErrorFormat("GetPasswordPolicyList - GetUserRolesToPasswordPolicy - Failed get data from cache. groupId: {0}", contextData.GroupId);
+                            return new Tuple<Dictionary<string, List<PasswordPolicy>>, bool>(result, false);
                         }
                     }
 
+                    res = true;
                     if (userRolesToPasswordPolicy != null && userRolesToPasswordPolicy.Count > 0)
                     {
                         List<long> roleIds = null;
@@ -385,6 +387,7 @@ namespace ApiLogic.Users.Managers
             }
             catch (Exception ex)
             {
+                res = false;
                 log.Error(string.Format("GetPasswordPolicyList failed, funcParams: {0}.", string.Join(";", funcParams.Keys)), ex);
             }
 
@@ -394,6 +397,7 @@ namespace ApiLogic.Users.Managers
         private Tuple<Dictionary<long, List<long>>, bool> GetUserRolesToPasswordPolicy(Dictionary<string, object> funcParams)
         {
             Dictionary<long, List<long>> userRolesToPasswordPolicy = null;
+            bool res = false;
 
             try
             {
@@ -403,27 +407,29 @@ namespace ApiLogic.Users.Managers
                     if (groupId.HasValue)
                     {
                         userRolesToPasswordPolicy = UsersDal.GetUserRolesToPasswordPolicy(groupId.Value);
+                        res = true;
                     }
                 }
             }
             catch (Exception ex)
             {
+                res = false;
                 log.Error(string.Format("GetUserRolesToPasswordPolicy failed, funcParams: {0}.", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<long, List<long>>, bool>(userRolesToPasswordPolicy, userRolesToPasswordPolicy != null);
+            return new Tuple<Dictionary<long, List<long>>, bool>(userRolesToPasswordPolicy, res);
         }
 
-        private void UpdatePasswordHistory(long userId, string password, int? historyCount, HashSet<string> passwordsHistory)
+        private void UpdatePasswordHistory(long userId, string password, int? policyHistoryCount, HashSet<string> passwordsHistory)
         {
-            if (historyCount.HasValue)
+            if (policyHistoryCount.HasValue)
             {
                 if (passwordsHistory == null)
                 {
                     passwordsHistory = new HashSet<string>();
                 }
 
-                if (passwordsHistory.Count == historyCount.Value)
+                while (passwordsHistory.Count > 0 && passwordsHistory.Count >= policyHistoryCount.Value)
                 {
                     var oldPassword = passwordsHistory.FirstOrDefault();
                     passwordsHistory.Remove(oldPassword);
