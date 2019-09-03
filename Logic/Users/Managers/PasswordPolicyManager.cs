@@ -67,7 +67,7 @@ namespace ApiLogic.Users.Managers
                 return response;
             }
 
-            SetInvalidationKeys(contextData.GroupId);
+            SetInvalidationKeys(contextData.GroupId, objectToAdd.UserRoleIds);
 
             response.Object = objectToAdd;
             response.SetStatus(eResponseStatus.OK);
@@ -147,7 +147,14 @@ namespace ApiLogic.Users.Managers
             objectToUpdate.Expiration = objectToUpdate.Expiration ?? orgObject.Expiration;
             objectToUpdate.LockoutFailuresCount = objectToUpdate.LockoutFailuresCount ?? orgObject.LockoutFailuresCount;
             objectToUpdate.HistoryCount = objectToUpdate.HistoryCount ?? orgObject.HistoryCount;
-            objectToUpdate.UserRoleIds = objectToUpdate.UserRoleIds ?? orgObject.UserRoleIds;
+            objectToUpdate.UserRoleIds = 
+                (objectToUpdate.UserRoleIds != null && objectToUpdate.UserRoleIds.Count > 0) ? 
+                objectToUpdate.UserRoleIds : orgObject.UserRoleIds;
+
+            //set null for 0 value
+            if (objectToUpdate.Expiration == 0) objectToUpdate.Expiration = null;
+            if (objectToUpdate.LockoutFailuresCount == 0) objectToUpdate.LockoutFailuresCount = null;
+            if (objectToUpdate.HistoryCount == 0) objectToUpdate.HistoryCount = null;
         }
 
         public Status Delete(ContextData contextData, long id)
