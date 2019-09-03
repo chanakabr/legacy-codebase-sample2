@@ -12,9 +12,9 @@ pipeline {
     }
     environment{
         AWS_REGION="us-west-2"
-        REPOSITORY_NAME="${BRANCH_NAME}/phoenix"
+        REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/phoenix"
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
-        ECR_CORE_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${BRANCH_NAME}/core"
+        ECR_CORE_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${BRANCH_NAME.toLowerCase()}/core"
     }
     stages {
         stage('Checkout'){
@@ -38,7 +38,7 @@ pipeline {
 
                     sh(label: "Validate we have latest core docker image", script: "docker pull ${ECR_CORE_REPOSITORY}:build")
                     sh(
-                        label: "Docker build core:${BRANCH_NAME}", 
+                        label: "Docker build phoenix:${BRANCH_NAME.toLowerCase()}", 
                         script: "docker build "+
                         "-t ${ECR_REPOSITORY}:build  "+
                         "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
@@ -47,7 +47,7 @@ pipeline {
                         "--build-arg CORE_BUILD_TAG=build "+
                         "--label 'version=${FULL_VERSION}' "+
                         "--label 'commit=${GIT_COMMIT}' "+
-                        "--label 'build=${env.BUILD_NEMBER}' ."
+                        "--label 'build=${env.BUILD_NUMBER}' ."
                     )
                 }
             }
