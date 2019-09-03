@@ -122,7 +122,9 @@ namespace ApiLogic.Users.Managers
                 {
                     var isSuccess = UsersDal.SavePasswordPolicy(objectToUpdate);
                     response.SetStatus(isSuccess ? eResponseStatus.OK : eResponseStatus.Error);
-                    SetInvalidationKeys(contextData.GroupId, objectToUpdate.UserRoleIds);
+
+                    var allAffectedIds = response.Object.UserRoleIds.Union(objectToUpdate.UserRoleIds).Distinct().ToList();
+                    SetInvalidationKeys(contextData.GroupId, allAffectedIds);
                 }
                 else
                 {
