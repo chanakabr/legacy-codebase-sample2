@@ -1084,8 +1084,7 @@ namespace Core.Users
             var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false);
             return InnerSignIn(ref userResponseObject, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
-
-        // TODO SHIR - check what is going with reponse CheckUserPassword
+        
         static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, bool checkHitDate)
         {
             var userResponseObject = new UserResponseObject();
@@ -1107,27 +1106,27 @@ namespace Core.Users
                     return userResponseObject;
                 }
 
-                User u = new User();
-                bool bOk = u.Initialize(userId, groupId);
+                var initializedUser = new User();
+                var isUserInitialized = initializedUser.Initialize(userId, groupId);
 
-                if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
+                if (isUserInitialized && initializedUser.m_oBasicData != null && initializedUser.m_oDynamicData != null && !string.IsNullOrEmpty(initializedUser.m_oBasicData.m_sPassword))
                 {
                     responseStatus = ResponseStatus.OK;
 
-                    bool bOK = (password == u.m_oBasicData.m_sPassword);
+                    bool isPasswordEqual = (password == initializedUser.m_oBasicData.m_sPassword);
 
-                    if (!bOK)
+                    if (!isPasswordEqual)
                     {
                         BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
                         if (encrypter != null)
                         {
-                            bOK = (u.m_oBasicData.m_sPassword == encrypter.Encrypt(password, u.m_oBasicData.m_sSalt));
+                            isPasswordEqual = (initializedUser.m_oBasicData.m_sPassword == encrypter.Encrypt(password, initializedUser.m_oBasicData.m_sSalt));
                         }
                     }
 
-                    GetMaxFailuresCountAndExpiration(defaultMaxFailCount, u.m_oBasicData.RoleIds, groupId, out int maxFailuresCount, out int maxExpiration);
+                    GetMaxFailuresCountAndExpiration(defaultMaxFailCount, initializedUser.m_oBasicData.RoleIds, groupId, out int maxFailuresCount, out int maxExpiration);
 
-                    if (bOK)
+                    if (isPasswordEqual)
                     {
                         if (nFailCount > maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
                         {
@@ -1151,7 +1150,7 @@ namespace Core.Users
                         else
                         {
                             UpdateFailCount(0, userId, true);
-                            user = u;
+                            user = initializedUser;
                         }
                     }
                     else
@@ -1179,23 +1178,26 @@ namespace Core.Users
             maxFailuresCount = 0;
             maxExpiration = 0;
 
-            var passwordPoliciesResponse = PasswordPolicyManager.Instance.List(new ContextData(groupId), new PasswordPolicyFilter() { RoleIdsIn = roleIds });
-            if (passwordPoliciesResponse.HasObjects())
+            if (roleIds?.Count > 0)
             {
-                foreach (var passwordPolicy in passwordPoliciesResponse.Objects)
+                var passwordPoliciesResponse = PasswordPolicyManager.Instance.List(new ContextData(groupId), new PasswordPolicyFilter() { RoleIdsIn = roleIds });
+                if (passwordPoliciesResponse.HasObjects())
                 {
-                    if (passwordPolicy.LockoutFailuresCount.HasValue && passwordPolicy.LockoutFailuresCount > 0 && passwordPolicy.LockoutFailuresCount > maxFailuresCount)
+                    foreach (var passwordPolicy in passwordPoliciesResponse.Objects)
                     {
-                        maxFailuresCount = passwordPolicy.LockoutFailuresCount.Value;
-                    }
+                        if (passwordPolicy.LockoutFailuresCount.HasValue && passwordPolicy.LockoutFailuresCount > 0 && passwordPolicy.LockoutFailuresCount > maxFailuresCount)
+                        {
+                            maxFailuresCount = passwordPolicy.LockoutFailuresCount.Value;
+                        }
 
-                    if (passwordPolicy.Expiration.HasValue & passwordPolicy.Expiration > 0 && passwordPolicy.Expiration > maxExpiration)
-                    {
-                        maxExpiration = passwordPolicy.Expiration.Value;
+                        if (passwordPolicy.Expiration.HasValue & passwordPolicy.Expiration > 0 && passwordPolicy.Expiration > maxExpiration)
+                        {
+                            maxExpiration = passwordPolicy.Expiration.Value;
+                        }
                     }
                 }
             }
-
+            
             if (maxFailuresCount == 0)
             {
                 maxFailuresCount = defaultMaxFailCount;

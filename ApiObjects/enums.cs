@@ -863,7 +863,7 @@ namespace ApiObjects
         UserCreatedWithNoRole = 24,
         ExternalIdAlreadyExists = 25,
         ExternalError = 26,
-        InvalidPassword = 27,
+        PasswordPolicyViolation = 27,
         PasswordExpired = 28
     }
 

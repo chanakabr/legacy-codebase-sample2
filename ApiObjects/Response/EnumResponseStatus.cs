@@ -51,7 +51,7 @@ namespace ApiObjects.Response
         MasterUserNotFound = 1036,
         RegionDoesNotExist = 1037,
         PasswordPolicyDoesNotExist = 1038,
-        InvalidPassword = 1039,
+        PasswordPolicyViolation = 1039,
         PasswordExpired = 1040,
         PasswordCannotBeReused = 1041,
         InvalidPasswordComplexity = 1042,

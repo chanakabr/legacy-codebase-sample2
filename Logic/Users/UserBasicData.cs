@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Managers;
+using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using DAL;
@@ -275,7 +276,6 @@ namespace Core.Users
                                                     m_ExternalToken,
                                                     resetFailCount,
                                                     updateUserPassword);
-                                                    //m_UserType
 
             if(UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
             {
