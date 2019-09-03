@@ -24,7 +24,7 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAccountDevices", sUsername, sPassword, SiteHelper.GetClientIP());
             if (groupId != 0)
             {
-                Domain domain = null;
+                TVPApiModule.Objects.Domain domain = null;
                 try
                 {
                     //TODO: Change db query to domains method
@@ -85,12 +85,11 @@ namespace TVPApiServices
                 if (!string.IsNullOrEmpty(sDeviceName))
                     bDeviceName = new ApiDomainsService(groupId, PlatformType.iPad).SetDeviceInfo(sUDID, sDeviceName);
 
-                Domain[] domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
-
-                DomainResponseObject res = new DomainResponseObject();
-                if (domain != null && domain.Length > 0)
+                var domains = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
+                
+                if (domains != null && domains.Length > 0)
                 {
-                    res = new ApiDomainsService(groupId, PlatformType.iPad).ChangeDeviceDomainStatus(domain[0].m_nDomainID, sUDID, bIsActive);
+                    var res = new ApiDomainsService(groupId, PlatformType.iPad).ChangeDeviceDomainStatus(domains[0].m_nDomainID, sUDID, bIsActive);
 
                     retStat.Code = res.m_oDomainResponseStatus.ToString();
                     retStat.Description = res.m_oDomainResponseStatus.ToString();
@@ -117,12 +116,11 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "RemoveDeviceFromAccount", sUsername, sPassword, SiteHelper.GetClientIP());
             if (groupId != 0)
             {
-                Domain[] domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
-
-                DomainResponseObject res = new DomainResponseObject();
-                if (domain != null && domain.Length > 0)
+                var domains = new ApiDomainsService(groupId, PlatformType.iPad).GetDeviceDomains(sUDID);
+                
+                if (domains != null && domains.Length > 0)
                 {
-                    res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domain[0].m_nDomainID, sUDID);
+                    var res = new ApiDomainsService(groupId, PlatformType.iPad).RemoveDeviceToDomain(domains[0].m_nDomainID, sUDID);
                     retStat.Code = (res.m_oDomainResponseStatus.ToString().ToLower().Equals("ok") ? "0" : res.m_oDomainResponseStatus.ToString());
                     retStat.Description = res.m_oDomainResponseStatus.ToString();
                 }

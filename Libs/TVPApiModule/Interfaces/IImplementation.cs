@@ -5,6 +5,7 @@ using TVPApi;
 using TVPApiModule.Objects;
 using TVPApiModule.Services;
 using TVPPro.Configuration.OrcaRecommendations;
+using DomainResponseObject = TVPApiModule.Objects.DomainResponseObject;
 using UserResponse = TVPApiModule.Objects.UserResponse;
 
 namespace TVPApiModule.Interfaces

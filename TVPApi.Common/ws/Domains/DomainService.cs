@@ -17,6 +17,8 @@ using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
 using Core.Users;
+using Domain = TVPApiModule.Objects.Domain;
+using DomainResponseObject = TVPApiModule.Objects.DomainResponseObject;
 
 namespace TVPApiServices
 {

@@ -12,6 +12,7 @@ using TVPApiModule.Services;
 using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
 using InitializationObject = TVPApi.InitializationObject;
+using TVPApiModule.Objects;
 
 namespace TVPApiModule.Objects
 {

@@ -16,7 +16,6 @@ using TVPPro.SiteManager.Helper;
 using Domain = Core.Users.Domain;
 using TVinciShared;
 
-
 namespace TVPApiModule.Manager
 {
     public class AuthorizationManager
@@ -616,7 +615,7 @@ namespace TVPApiModule.Manager
             }
 
             // get domain
-            Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
+            var domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
             if (domain == null)
             {
                 logger.ErrorFormat("validateMultipleSiteGuids: domain not found for initSiteGuid = {0}", initSiteGuid);
@@ -650,7 +649,7 @@ namespace TVPApiModule.Manager
 
             if ((!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid) || domainId != 0 || !string.IsNullOrEmpty(udid))
             {
-                Domain domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
+                var domain = new ApiDomainsService(groupId, platform).GetDomainByUser(initSiteGuid);
                 if (domain == null)
                 {
                     logger.ErrorFormat("ValidateRequestParameters: domain not found for initSiteGuid = {0}", initSiteGuid);
@@ -915,9 +914,9 @@ namespace TVPApiModule.Manager
             return Instance.GetTokenResponseObject(apiToken);
         }
 
-        public static Domain GetSiteGuidsDomain(string siteGuid, Domain[] domains)
+        public static TVPApiModule.Objects.Domain GetSiteGuidsDomain(string siteGuid, TVPApiModule.Objects.Domain[] domains)
         {
-            Domain siteGuidsDomain = null;
+            TVPApiModule.Objects.Domain siteGuidsDomain = null;
 
             int userId;
             foreach (var domain in domains)

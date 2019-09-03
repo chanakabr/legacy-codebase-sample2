@@ -10,6 +10,8 @@ using TVPApiModule.Objects;
 using TVPPro.SiteManager.Context;
 using TVPApiModule.Objects.Responses;
 using Core.Users;
+using Domain = TVPApiModule.Objects.Domain;
+using DomainResponseObject = TVPApiModule.Objects.DomainResponseObject;
 
 namespace TVPApiServices
 {
