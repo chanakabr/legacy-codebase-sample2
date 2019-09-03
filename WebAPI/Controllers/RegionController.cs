@@ -48,6 +48,8 @@ namespace WebAPI.Controllers
         {
             KalturaRegion response = null;
 
+            region.Validate();
+
             int groupId = KS.GetFromRequest().GroupId;
             long userId = long.Parse(KS.GetFromRequest().UserId);
 
@@ -74,6 +76,8 @@ namespace WebAPI.Controllers
         static public KalturaRegion Update(int id, KalturaRegion region)
         {
             KalturaRegion response = null;
+
+            region.Validate();
 
             int groupId = KS.GetFromRequest().GroupId;
             long userId = long.Parse(KS.GetFromRequest().UserId);

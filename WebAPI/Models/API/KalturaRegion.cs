@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Models.General;
+using System.Linq;
+
 
 namespace WebAPI.Models.API
 {
@@ -56,5 +59,19 @@ namespace WebAPI.Models.API
         [JsonProperty("parentRegionId")]
         [XmlElement(ElementName = "parentRegionId")]
         public long ParentRegionId { get; set; }
+
+
+        public void Validate()
+        {
+            if (ParentRegionId != 0 && RegionalChannels?.Count > 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "parentRegionId", "linearChannels");
+            }
+
+            if (RegionalChannels?.Count > 0 && RegionalChannels.Select(c => c.LinearChannelId).Distinct().Count() != RegionalChannels.Count)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "linearChannels.linearChannelId");
+            }
+        }
     }
 }
