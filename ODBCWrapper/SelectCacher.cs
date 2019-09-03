@@ -85,7 +85,7 @@ namespace ODBCWrapper
                 if (nCachSec <= 0)
                     return null;
                 if (MemoryCache.Default[sCachStr] != null)
-                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedData(sCachStr))).Copy();
+                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedDataNull(sCachStr))).Copy();
                 //return ((System.Data.DataTable)(HttpRuntime.Cache[sCachStr])).Copy();
                 else
                     return null;
