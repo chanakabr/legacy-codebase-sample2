@@ -98,7 +98,7 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<PasswordPolicy>();
             try
             {
-                response.Object = UsersDal.GetPasswordPolicy(objectToUpdate.Id);
+                response.Object = UsersDal.GetPasswordPolicy(objectToUpdate.Id);//current
                 if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.PasswordPolicyDoesNotExist);
@@ -228,7 +228,15 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<PasswordPolicy> Get(ContextData contextData, long id)
         {
-            throw new NotImplementedException();
+            var response = new GenericResponse<PasswordPolicy>();
+            var passwordPolicy = UsersDal.GetPasswordPolicy(id);
+            if (passwordPolicy == null)
+            {
+                response.SetStatus(eResponseStatus.PasswordPolicyDoesNotExist);
+                return response;
+            }
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
         public GenericListResponse<PasswordPolicy> List(ContextData contextData, PasswordPolicyFilter filter)
