@@ -125,7 +125,7 @@ namespace TVPApiModule.Objects.Authorization
             Platform = token.Platform;
         }
 
-        public APIToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
+        public APIToken(string userId, int groupId, string udid, bool isAdmin, Group group, GroupConfiguration groupConfig, bool isLongRefreshExpiration, Dictionary<string, string> privileges = null)
         {
             string payload = KSUtils.PrepareKSPayload(new KS.KSData() { UDID = udid, CreateDate = (int)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow) });
             RefreshToken = Generate32LengthGuid();
@@ -148,16 +148,16 @@ namespace TVPApiModule.Objects.Authorization
             long accessExpiration;
             if (SiteGuid == "0")
             {
-                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds)); // in phoenix - group.AnonymousKSExpirationSeconds
             }
             else
             {
-                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             }
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
 
-            KsObject = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+            KsObject = new KS(isAdmin ? group.AdminSecret : group.UserSecret,
                 groupId.ToString(),
                 userId,
                 (int)(AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
@@ -169,7 +169,7 @@ namespace TVPApiModule.Objects.Authorization
             AccessToken = KsObject.ToString();
         }
 
-        public APIToken(APIToken token, Group groupConfig, string udid)
+        public APIToken(APIToken token, Group group, GroupConfiguration groupConfig, string udid)
         {
             string payload = KSUtils.PrepareKSPayload(new KS.KSData() { UDID = udid, CreateDate = (int)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow) });
             RefreshToken = token.RefreshToken;
@@ -195,16 +195,16 @@ namespace TVPApiModule.Objects.Authorization
             long accessExpiration;
             if (SiteGuid == "0")
             {
-                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AnonymousKSExpirationSeconds));
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds)); /// in Phoenix - group.AnonymousKSExpirationSeconds
             }
             else
             {
-                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.KSExpirationSeconds));
+                accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             }
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
 
-            KsObject = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+            KsObject = new KS(token.IsAdmin ? group.AdminSecret : group.UserSecret,
                 token.GroupID.ToString(),
                 token.SiteGuid,
                 (int)(AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)),

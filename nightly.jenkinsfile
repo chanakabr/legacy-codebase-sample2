@@ -1,0 +1,67 @@
+pipeline {
+    agent {
+        label 'Jenkins-Windows-2019'
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'10'))
+        skipDefaultCheckout true
+    }
+    parameters {
+        string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_6', description: 'Configuration folder name from Configuration Repo')
+        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
+
+    }
+    environment {
+        MSBUILD = tool name: 'V4.6.1', type: 'hudson.plugins.msbuild.MsBuildInstallation'
+        NUGET = 'c:\\nuget.exe'
+    }
+    stages {
+        stage("Checkout"){
+            steps{
+                dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
+                dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
+                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
+                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
+                dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
+            }
+        }
+        stage("Version Patch"){
+            steps{
+                dir("core"){
+                    bat "sh DllVersioning.Core.sh ." 
+                }
+            }        
+        }
+        stage("Nuget Restore"){
+            steps{
+                dir("core"){ bat ("${NUGET} restore") }
+                dir("tvpapi"){ bat ("${NUGET} restore") }
+            }        
+        }
+        stage("Publish Localy"){
+            steps{
+                dir("tvpapi"){
+                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}/published/TVPAPI/\" ")
+                }
+            }        
+        }
+        stage("Patch Config Files"){
+            steps{
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\TVPAPI\\*.*  ${WORKSPACE}\\published\\TVPAPI\\ /Y /E"}
+            }
+        }
+        stage("Publish To Preprod"){
+            when {
+                expression { return params.publish_preprod == true; }
+            }
+            steps { 
+                dir("published/TVPAPI"){
+                    bat "(robocopy . \\\\Tvpapic1\\ott\\tvpapi\\${params.version_folder_name}\\ /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
+                }
+            }
+        }
+    }
+}
