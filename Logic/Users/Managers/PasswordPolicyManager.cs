@@ -231,8 +231,12 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                response.Objects.AddRange(passwordPolicies.Values.SelectMany(x => x));
-                response.Objects = response.Objects.Distinct().ToList();
+                if (passwordPolicies != null && passwordPolicies.Count > 0)
+                {
+                    response.Objects.AddRange(passwordPolicies.Values.SelectMany(x => x));
+                    response.Objects = response.Objects.Distinct().ToList();
+                }
+                
                 response.SetStatus(eResponseStatus.OK);
             }
             catch (Exception ex)
