@@ -807,7 +807,7 @@ namespace Core.Api
 
         public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy)
         {
-            return Core.Api.api.GetRegions(groupId, externalRegionList, orderBy);
+            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, externalRegionList, orderBy);
         }
 
         public static List<LanguageObj> GetGroupLanguages(int groupId)
@@ -2352,17 +2352,17 @@ namespace Core.Api
 
         public static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
-            return api.AddRegion(groupId, region, userId);
+            return ApiLogic.Api.Managers.RegionManager.AddRegion(groupId, region, userId);
         }
 
         public static GenericResponse<Region> UpdateRegion(int groupId, Region region, long userId)
         {
-            return api.UpdateRegion(groupId, region, userId);
+            return ApiLogic.Api.Managers.RegionManager.UpdateRegion(groupId, region, userId);
         }
 
         public static Status DeleteRegion(int groupId, int id, long userId)
         {
-            return api.DeleteRegion(groupId, id, userId);
+            return ApiLogic.Api.Managers.RegionManager.DeleteRegion(groupId, id, userId);
         }
     }
 }
