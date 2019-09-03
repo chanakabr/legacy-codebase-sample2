@@ -83,7 +83,7 @@ namespace Core.Catalog
         {
             get
             {
-                return this.Name.ToLower() == "series";
+                return this.SystemName.ToLower() == "series";
             }
         }
 
