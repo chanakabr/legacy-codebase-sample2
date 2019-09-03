@@ -57,16 +57,19 @@ namespace TVPApiServices
                 catch (Exception ex) { logger.Error("", ex); }
                 if (domain != null && domain.m_deviceFamilies.Count > 0)
                 {
-                    foreach (DeviceContainer dc in domain.m_deviceFamilies)
+                    foreach (var dc in domain.m_deviceFamilies)
                     {
-                        foreach (Device device in dc.DeviceInstances)
+                        if (dc.m_DeviceInstances != null)
                         {
-                            DeviceInfo deviceInfo = new DeviceInfo();
-                            deviceInfo.Name = device.m_deviceName;
-                            deviceInfo.Type = dc.m_deviceFamilyName;
-                            deviceInfo.UDID = device.m_deviceUDID;
-                            deviceInfo.Active = !(device.m_state != DeviceState.Activated && device.m_state == DeviceState.UnActivated);
-                            retDevices.Add(deviceInfo);
+                            foreach (Device device in dc.m_DeviceInstances)
+                            {
+                                DeviceInfo deviceInfo = new DeviceInfo();
+                                deviceInfo.Name = device.m_deviceName;
+                                deviceInfo.Type = dc.m_deviceFamilyName;
+                                deviceInfo.UDID = device.m_deviceUDID;
+                                deviceInfo.Active = !(device.m_state != DeviceState.Activated && device.m_state == DeviceState.UnActivated);
+                                retDevices.Add(deviceInfo);
+                            }
                         }
                     }
                 }

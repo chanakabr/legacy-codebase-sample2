@@ -692,7 +692,7 @@ namespace TVPApiModule.Manager
                     }
                     foreach (var family in domain.m_deviceFamilies)
                     {
-                        if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                        if (family.m_DeviceInstances != null && family.m_DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
                             return true;
                         }

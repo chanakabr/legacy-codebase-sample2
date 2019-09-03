@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
+using System.Linq;
 
 namespace TVPApiModule.Objects
 {
@@ -86,7 +87,12 @@ namespace TVPApiModule.Objects
             if (origin != null)
             {
                 this.m_DefaultUsersIDs = origin.m_DefaultUsersIDs;
-                this.m_deviceFamilies = origin.m_deviceFamilies;
+
+                if (origin.m_deviceFamilies != null)
+                {
+                    this.m_deviceFamilies = origin.m_deviceFamilies.Select(d => new DeviceContainer(d)).ToList();
+                }
+
                 this.m_DomainRestriction = origin.m_DomainRestriction;
                 this.m_DomainStatus = origin.m_DomainStatus;
                 this.m_frequencyFlag = origin.m_frequencyFlag;
@@ -111,6 +117,31 @@ namespace TVPApiModule.Objects
                 this.m_UsersIDs = origin.m_UsersIDs;
                 this.roleId = origin.roleId;
             }
+        }
+    }
+
+    public class DeviceContainer
+    {
+        public List<Device> m_DeviceInstances;
+
+        [JsonProperty()]
+        public string m_deviceFamilyName;
+
+        [JsonProperty()]
+        public int m_deviceFamilyID;
+        
+        public int m_deviceLimit;
+
+        [JsonIgnore]
+        public int m_deviceConcurrentLimit;
+        
+        public DeviceContainer(Core.Users.DeviceContainer origin)
+        {
+            this.m_DeviceInstances = origin.DeviceInstances;
+            this.m_deviceFamilyID = origin.m_deviceFamilyID;
+            this.m_deviceFamilyName = origin.m_deviceFamilyName;
+            this.m_deviceLimit = origin.m_deviceLimit;
+            this.m_deviceConcurrentLimit = origin.m_deviceConcurrentLimit;
         }
     }
 
