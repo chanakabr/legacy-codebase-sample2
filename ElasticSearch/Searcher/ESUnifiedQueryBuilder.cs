@@ -793,7 +793,6 @@ namespace ElasticSearch.Searcher
 
                     epgFilter.AddChild(autofill);
                 }
-
             }
 
             // Media specific filters - user types, media types etc.
@@ -1746,6 +1745,11 @@ namespace ElasticSearch.Searcher
 
                 BooleanLeaf leaf = filterNode as BooleanLeaf;
                 IESTerm leafTerm = ConvertToFilter(leaf);
+
+                if (leaf.field == "auto_fill")
+                {
+                    return composite;
+                }
 
                 // If this leaf is relevant only to certain asset types - create a bool query connecting the types and the term
                 if (leaf.assetTypes != null && leaf.assetTypes.Count > 0)

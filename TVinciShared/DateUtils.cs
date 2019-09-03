@@ -409,5 +409,9 @@ namespace TVinciShared
             DateTime result = DateTime.ParseExact(dateTime, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
             return result;
         }
+        public static DateTime TruncateMilliSeconds(this DateTime dateTime)
+        {
+            return dateTime.AddTicks(-(dateTime.Ticks % TimeSpan.TicksPerSecond));
+        }
     }
 }
