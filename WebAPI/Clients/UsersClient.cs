@@ -69,12 +69,12 @@ namespace WebAPI.Clients
                 }
             }
 
-            if (userResponse.Status == null)
+            if (userResponse.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(userResponse.Status);
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(userResponse.Object);
             return user;
         }
 
