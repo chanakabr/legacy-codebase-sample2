@@ -2433,10 +2433,10 @@ namespace DAL
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
 
-        public static bool DeleteUserRolesToPasswordPolicy(int groupId, PasswordPolicy passwordPolicy)
+        public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, List<long>> policies)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
-            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordPolicy);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
         }
     }
 }

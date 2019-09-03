@@ -186,8 +186,22 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                var urtp = UsersDal.GetUserRolesToPasswordPolicy(contextData.GroupId);
+                if (urtp == null)
+                {
+                    log.ErrorFormat($"Error getting UserRolesToPasswordPolicy by the supplied group id: {contextData.GroupId}");
+                    return Status.Error;
+                }
+
+                var toRemove = urtp.Where(x => x.Value.Contains(id)).Select(x => x.Key).ToList();
+
+                foreach (var item in toRemove)
+                {
+                    urtp[item].Remove(id);
+                }
+
                 //remove mapping
-                if (!UsersDal.DeleteUserRolesToPasswordPolicy(contextData.GroupId, passwordPolicy))
+                if (!UsersDal.DeleteUserRolesToPasswordPolicy(contextData.GroupId, urtp))
                 {
                     log.ErrorFormat($"Error while deleting Password Policy dictionary.");
                     return response;
@@ -201,7 +215,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                SetInvalidationKeys(contextData.GroupId, passwordPolicy.UserRoleIds);
+                SetInvalidationKeys(contextData.GroupId, toRemove);
                 response = Status.Ok;
             }
             catch (Exception ex)
