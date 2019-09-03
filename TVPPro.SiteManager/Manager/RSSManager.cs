@@ -38,7 +38,7 @@ namespace TVPPro.SiteManager.Manager
         /// <returns></returns>
         public static RSSEntity[] GetFeed(string url, TimeSpan buffer, params string[] uniqueElementsParams)
         {
-            RSSEntity[] arrFeeds = (RSSEntity[])CachingManager.CachingManager.GetCachedData(url);
+            RSSEntity[] arrFeeds = CachingManager.CachingManager.GetCachedDataNull(url) as RSSEntity[];
             if (arrFeeds == null)
             {
                 lock (_locker)

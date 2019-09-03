@@ -93,7 +93,7 @@ namespace TVPApi.ODBCWrapper
                 if (nCachSec <= 0)
                     return null;
                 if (MemoryCache.Default[sCachStr] != null)
-                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedData(sCachStr))).Copy();
+                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedDataNull(sCachStr))).Copy();
                 //if (HttpRuntime.Cache[sCachStr] != null)
                 //{
                 //}

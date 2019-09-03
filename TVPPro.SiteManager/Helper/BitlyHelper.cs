@@ -19,7 +19,7 @@ namespace TVPPro.SiteManager.Helper
         public override string ShortenUrl(string longUrl)
         {
 
-            BitlyResults res = (BitlyResults)CachingManager.CachingManager.GetCachedData(longUrl);
+            BitlyResults res = CachingManager.CachingManager.GetCachedDataNull(longUrl) as BitlyResults;
             if (res == null)
             {
                 lock (_locker)
