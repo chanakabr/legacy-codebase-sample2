@@ -506,7 +506,22 @@ namespace Core.Domains
             return new DeviceResponseObject(device, DeviceResponseStatus.Error);
         }
 
-        
+        public static ApiObjects.Response.Status SetDeviceInfo(int groupId, string udid, string deviceName)
+        {
+            Core.Users.BaseDevice t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.SetDeviceInfo(groupId, udid, deviceName);
+
+            }
+
+            Device device = new Device(0);
+            device.m_state = DeviceState.Error;
+
+            return new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
+        }
+
         public static DomainStatusResponse SubmitAddDeviceToDomainRequest(int nGroupID, int nDomainID, int nUserID, string sDeviceUdid, string sDeviceName, int nBrandID)
         {
             DomainStatusResponse response = new DomainStatusResponse();

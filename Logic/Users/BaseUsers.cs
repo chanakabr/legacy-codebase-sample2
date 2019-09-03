@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Statistics;
 using CachingProvider.LayeredCache;
@@ -255,8 +256,10 @@ namespace Core.Users
 
         private bool IsAddUserFavoriteParamValid(int nGroupID, string sUserGUID, string sItemType, string sItemCode, out ApiObjects.Response.Status status)
         {
+            /*read from MANAGE_FAVORITES_WHILE_SUSPENDED*/
+            var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(nGroupID, sUserGUID, "Favorite_Add");
             //check if userID exist
-            if (!IsUserValid(nGroupID, sUserGUID, out status))
+            if (!IsUserValid(nGroupID, sUserGUID, out status, canManageFavoritesWhileSuspended))
             {
                 return false;
             }
@@ -280,8 +283,10 @@ namespace Core.Users
 
         private bool IsARemoveUserFavoriteParamValid(int nGroupID, string sUserGUID, long[] mediaIDs, out ApiObjects.Response.Status status)
         {
+            /*read from MANAGE_FAVORITES_WHILE_SUSPENDED*/
+            var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(nGroupID, sUserGUID, "Favorite_Delete");
             //check if userID exist
-            if (!IsUserValid(nGroupID, sUserGUID, out status))
+            if (!IsUserValid(nGroupID, sUserGUID, out status, canManageFavoritesWhileSuspended))
             {
                 return false;
             }
@@ -295,7 +300,7 @@ namespace Core.Users
 
             return true;
         }
-        
+
         private bool WriteFavoriteToES(ApiObjects.Statistics.MediaView oMediaView)
         {
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
@@ -371,8 +376,12 @@ namespace Core.Users
         {
             FavoriteResponse response = new FavoriteResponse();
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            /*read from MANAGE_FAVORITES_WHILE_SUSPENDED*/
+            var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(nGroupID, sSiteGUID, "Favorite_List");
+
             //check if userID exist
-            if (IsUserValid(nGroupID, sSiteGUID, out status))
+            if (IsUserValid(nGroupID, sSiteGUID, out status, canManageFavoritesWhileSuspended))
             {
                 return FavoritObject.GetFavorites(nGroupID, sSiteGUID, domainID, sDeviceUDID, sItemType, orderBy);
             }
@@ -448,7 +457,7 @@ namespace Core.Users
 
             return ret;
         }
-        
+
         public virtual ApiObjects.Response.Status IsUserActivated(Int32 userID)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
@@ -488,7 +497,7 @@ namespace Core.Users
             }
             return response;
         }
-       
+
         public virtual bool SetUserDynamicData(string sSiteGUID, List<KeyValuePair> lKeyValue, UserResponseObject uro)
         {
 
@@ -591,7 +600,7 @@ namespace Core.Users
 
             return true;
         }
-        
+
         private List<UserType> GetUserTypesList(DataTable dtUserTypes)
         {
             List<UserType> userTypesList = new List<UserType>();
@@ -609,13 +618,13 @@ namespace Core.Users
             }
             return userTypesList;
         }
-        
+
         public virtual UserType[] GetGroupUserTypes(Int32 nGroupID)
         {
             List<UserType> userTypesList;
             string key = string.Format("users_GetGroupUserTypes_{0}", m_nGroupID);
 
-            bool bRes = UsersCache.GetItem<List<UserType>>(key, out  userTypesList);
+            bool bRes = UsersCache.GetItem<List<UserType>>(key, out userTypesList);
             if (!bRes)
             {
                 DataTable dtUserData = UsersDal.GetUserTypeData(nGroupID, null);
@@ -879,13 +888,13 @@ namespace Core.Users
                 if (dt != null && dt.DefaultView.Count > 0)
                 {
                     // build all the lists using dictionary
-                    Dictionary<ListType, UserItemsList> listsDict = new Dictionary<ListType,UserItemsList>();
+                    Dictionary<ListType, UserItemsList> listsDict = new Dictionary<ListType, UserItemsList>();
                     foreach (DataRow dr in dt.Rows)
                     {
                         listType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dr["list_type"]);
                         if (!listsDict.ContainsKey(listType))
                         {
-                            listsDict.Add(listType, new UserItemsList() 
+                            listsDict.Add(listType, new UserItemsList()
                             {
                                 ListType = listType,
                                 ItemsList = new List<Item>()
@@ -1031,7 +1040,7 @@ namespace Core.Users
                             response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin is not allowed");
                         }
                         // security must be provided
-                        else 
+                        else
                         {
                             response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MissingSecurityParameter, "Missing security parameter");
                         }
@@ -1046,7 +1055,7 @@ namespace Core.Users
                 else
                 {
                     response.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                }   
+                }
             }
             catch (Exception ex)
             {
@@ -1055,7 +1064,7 @@ namespace Core.Users
             }
             return response;
         }
-        
+
         private static IEnumerable<int> Digits(bool first)
         {
             int firstNumber = first ? 1 : 0;
@@ -1128,7 +1137,7 @@ namespace Core.Users
             return true;
         }
 
-        private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response)
+        private bool IsUserValid(int groupID, string siteGuid, out ApiObjects.Response.Status response, bool canManageFavoritesWhileSuspended = false)
         {
             int userId = 0;
             bool parse = int.TryParse(siteGuid, out userId);
@@ -1164,7 +1173,15 @@ namespace Core.Users
                         response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User not valid");
                         break;
                     case UserActivationState.UserSuspended:
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "User not valid");
+                        if (canManageFavoritesWhileSuspended)
+                        {
+                            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "User valid");
+                            isUserValid = true;
+                        }
+                        else
+                        {
+                            response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "User Suspended");
+                        }
                         break;
                     default:
                         response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "User not valid");
@@ -1173,7 +1190,7 @@ namespace Core.Users
             }
             return isUserValid;
         }
-        
+
         /// <summary>
         /// login to system if pin code is valid + secret code check only if force by group == > group must enable loin by PIN 
         /// </summary>
@@ -1283,7 +1300,7 @@ namespace Core.Users
                 {
                     // the pin code must be unique (among all other active pin codes) - if not return error
                     if (UsersDal.PinCodeExsits(groupID, pinCode, DateTime.UtcNow))
-                    {                        
+                    {
                         response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinAlreadyExists, "Pin code already exists - try new pin code");
                     }
                     // insert new PIN to user with expired date 
@@ -1311,7 +1328,7 @@ namespace Core.Users
                     response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "login via pin is not allowed");
                 }
                 // security parameter must be provided
-                else 
+                else
                 {
                     response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MissingSecurityParameter, "missing security parameter");
                 }
@@ -1387,7 +1404,7 @@ namespace Core.Users
         public FavoriteResponse FilterFavoriteMediaIds(int groupId, string userId, List<int> mediaIds, string udid, string mediaType, FavoriteOrderBy orderBy)
         {
             FavoriteResponse response = new FavoriteResponse();
-            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()); 
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             try
             {
@@ -1431,7 +1448,7 @@ namespace Core.Users
         public LongIdsResponse GetUserRoleIds(string userId)
         {
             LongIdsResponse response = new LongIdsResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
-            
+
             try
             {
                 // if this is an anonymous user - simply return an empty list (just like the stored procedure returns)
@@ -1463,11 +1480,11 @@ namespace Core.Users
                 log.Error(string.Format("GetUserRoleIds failed, ex = {0}, userId = {1}, ", ex.Message, userId), ex);
             }
 
-            
+
 
             return response;
         }
-        
+
         public ApiObjects.Response.Status AddRoleToUser(int groupId, string userId, long roleId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
@@ -1483,7 +1500,7 @@ namespace Core.Users
                 else if (rowCount > 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    
+
                     // add invalidation key for user roles cache
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
@@ -1498,7 +1515,7 @@ namespace Core.Users
             }
             return response;
         }
-        
+
         public UsersListItemResponse AddItemToUsersList(int itemId, ListType listType, ListItemType itemType, int order, string userId, int groupId)
         {
             UsersListItemResponse response = new UsersListItemResponse()
@@ -1571,6 +1588,6 @@ namespace Core.Users
             }
 
             return response;
-        }      
+        }
     }
 }

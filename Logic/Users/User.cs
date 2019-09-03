@@ -829,9 +829,11 @@ namespace Core.Users
             return res;
         }
 
-        static protected bool UpdateFailCount(Int32 nAdd, Int32 nUserID, bool setLoginDate = false)
+        static protected bool UpdateFailCount(int groupId, Int32 nAdd, Int32 nUserID, bool setLoginDate = false)
         {
             bool updateRes = DAL.UsersDal.UpdateFailCount(nUserID, nAdd, setLoginDate);
+            UsersCache usersCache = UsersCache.Instance();
+            usersCache.RemoveUser(nUserID, groupId);
             return updateRes;
         }
 
@@ -1132,7 +1134,7 @@ namespace Core.Users
                         {
                             responseStatus = ResponseStatus.InsideLockTime;
                         }
-                        else if (preventDoubleLogins == true)
+                        else if (preventDoubleLogins)
                         {
                             if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
                             {
@@ -1140,7 +1142,7 @@ namespace Core.Users
                             }
                             else
                             {
-                                UpdateFailCount(0, userId, true);
+                                UpdateFailCount(groupId, 0, userId, true);
                             }
                         }
                         else if (maxExpiration > 0 && passwordUpdateDate.AddDays(maxExpiration) < dNow)
@@ -1149,18 +1151,22 @@ namespace Core.Users
                         }
                         else
                         {
-                            UpdateFailCount(0, userId, true);
+                            UpdateFailCount(groupId, 0, userId, true);
                             user = initializedUser;
                         }
                     }
                     else
                     {
-                        UpdateFailCount(1, userId);
+                        UpdateFailCount(groupId, 1, userId);
 
                         if (nFailCount >= maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                        {
                             responseStatus = ResponseStatus.InsideLockTime;
+                        }
                         else
+                        {
                             responseStatus = ResponseStatus.WrongPasswordOrUserName;
+                        }
                     }
                 }
                 else

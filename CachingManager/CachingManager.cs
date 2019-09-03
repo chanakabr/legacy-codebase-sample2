@@ -69,6 +69,16 @@ namespace CachingManager
             return "";
         }
 
+        static public object GetCachedDataNull(string name)
+        {
+            if (MemoryCache.Default[name] != null)
+            {
+                ((CachingData)(MemoryCache.Default[name])).Hit();
+                return ((CachingData)(MemoryCache.Default[name]))._Val;
+            }
+            return null;
+        }
+
         /*GetCacheDataObject : this function return the CachingData object for a specific key*/
         static public CachingData GetCacheDataObject(string sName)
         {
