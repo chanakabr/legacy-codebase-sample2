@@ -80,6 +80,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "createDate")]
         [JsonProperty("createDate")]
         [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long CreateDate { get; set; }
 
         /// <summary>
@@ -88,6 +89,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "updateDate")]
         [JsonProperty("updateDate")]
         [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
         internal override ICrudHandler<EventNotificationAction, string, EventNotificationActionFilter> Handler
