@@ -5940,15 +5940,15 @@ namespace Core.Api
 
         #region Utility
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
+        internal static Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
         {
             Users.Domain domain;
             return ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
         }
-
-        private static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
+        
+        private static Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            var status = new Status();
             domain = null;
 
             // If no user - go immediately to domain validation

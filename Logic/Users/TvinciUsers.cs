@@ -1146,7 +1146,7 @@ namespace Core.Users
                 return response;
             }
             
-            var validationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
+            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, long.Parse(userResponseObject.m_user.m_sSiteGUID), userResponseObject.m_user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
                 response.SetStatus(validationResponse);
@@ -1177,7 +1177,7 @@ namespace Core.Users
                 return response;
             }
             
-            var validationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(password, m_nGroupID, userId, user.m_oBasicData.RoleIds);
+            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(password, m_nGroupID, userId, user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
                 response.Set(validationResponse);
@@ -1215,7 +1215,7 @@ namespace Core.Users
                 return response;
             }
             
-            var validationResponse = PasswordPolicyManager.Instance.ValidateNewPassword(sPass, nGroupID, userId, user.m_oBasicData.RoleIds);
+            var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, userId, user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
                 response.SetStatus(validationResponse);

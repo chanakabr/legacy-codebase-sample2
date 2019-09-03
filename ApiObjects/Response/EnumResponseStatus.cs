@@ -53,7 +53,7 @@ namespace ApiObjects.Response
         PasswordPolicyDoesNotExist = 1038,
         InvalidPassword = 1039,
         PasswordExpired = 1040,
-        ReusedPassword = 1041,
+        PasswordCannotBeReused = 1041,
         InvalidPasswordComplexity = 1042,
 
         #endregion

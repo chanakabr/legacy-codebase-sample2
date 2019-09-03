@@ -24,7 +24,7 @@ namespace Core.Users
     public class User : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
         [JsonProperty()]
         public UserBasicData m_oBasicData;
 
@@ -1085,6 +1085,7 @@ namespace Core.Users
             return InnerSignIn(ref userResponseObject, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
 
+        // TODO SHIR - check what is going with reponse CheckUserPassword
         static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, bool checkHitDate)
         {
             var userResponseObject = new UserResponseObject();

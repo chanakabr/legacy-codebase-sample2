@@ -9,8 +9,8 @@ namespace Core.Users
 {
     public class FlowManager
     {
-        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, 
-                                                                 bool preventDoubleLogin, List<KeyValuePair> keyValueList, string username = null, string password = null)
+        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin, 
+                                                List<KeyValuePair> keyValueList, string username = null, string password = null)
         {
             var response = new UserResponseObject();
 

@@ -237,7 +237,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public Status ValidateNewPassword(string password, int groupId, long userId, List<long> userRoleIds)
+        public Status ValidatePassword(string password, int groupId, long userId, List<long> userRoleIds)
         {
             var response = new Status(eResponseStatus.OK);
 
@@ -260,7 +260,7 @@ namespace ApiLogic.Users.Managers
                             passwordsHistory = UsersDal.GetPasswordsHistory(userId);
                             if (passwordsHistory != null && passwordsHistory.Contains(password))
                             {
-                                response.AddArg(eResponseStatus.ReusedPassword, "password cannot be Reused");
+                                response.AddArg(eResponseStatus.PasswordCannotBeReused, $"The password shall be different from the last {passwordPolicy.HistoryCount} passwords used by the user");
                             }
                         }
 

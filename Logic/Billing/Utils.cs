@@ -2199,12 +2199,10 @@ namespace Core.Billing
 
             return dateEmailFormat;
         }
-
-
+        
         internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref int householdId)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
-            status.Code = -1;
+            var status = new ApiObjects.Response.Status() { Code = -1 };
 
             // If no user - go immediately to domain validation
             if (string.IsNullOrEmpty(siteGuid))
@@ -2268,16 +2266,13 @@ namespace Core.Billing
             // If user is valid (or we don't have one)
             if (status.Code == (int)eResponseStatus.OK && householdId != 0)
             {
-
                 //Get resposne from domains WS                
                 status = ValidateDomain(groupId, householdId);
-
-
             }
+
             return status;
         }
-
-
+        
         /// <summary>
         /// Validates that a user exists and belongs to a given domain
         /// </summary>

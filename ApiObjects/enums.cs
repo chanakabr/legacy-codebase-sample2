@@ -833,8 +833,6 @@ namespace ApiObjects
         EPG_INGEST_V2 = 5
     }
 
-    //TODO SHIR - FINISH TO MAPP ALL MEMBERS HERE TO CLIENT IN ONE PLACE!
-    // "Password Expired, please update password"
     public enum ResponseStatus
     {
         OK = 0,

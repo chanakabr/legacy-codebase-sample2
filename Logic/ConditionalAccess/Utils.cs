@@ -4609,12 +4609,18 @@ namespace Core.ConditionalAccess
             return isContained;
         }
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
         {
-            Users.User user;
-            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+            Domain domain;
+            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain);
         }
 
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
+        {
+            User user;
+            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+        }
+        
         internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -4688,12 +4694,6 @@ namespace Core.ConditionalAccess
                 status = ValidateDomain(groupId, (int)householdId, out domain);
             }
             return status;
-        }
-
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
-        {
-            Domain domain;
-            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain);
         }
 
         internal static List<int> GetChannelsListFromSubscriptions(List<Subscription> subscriptions)
@@ -7390,7 +7390,7 @@ namespace Core.ConditionalAccess
 
             return status;
         }
-
+        
         internal static ApiObjects.Response.Status SetResponseStatus(ResponseStatus userValidStatus)
         {
             ApiObjects.Response.Status status = null;
