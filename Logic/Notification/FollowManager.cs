@@ -504,15 +504,16 @@ namespace Core.Notification
                 log.DebugFormat(response.ToString());
                 return response;
             }
-            
-            var followPhrase = GetFollowPhrase(mediaAsset, episodeAssetStruct, cache);
-            if (string.IsNullOrEmpty(followPhrase))
+
+            var seriesName = GetSeriesName(mediaAsset, episodeAssetStruct, cache);
+            if (string.IsNullOrEmpty(seriesName))
             {
                 log.DebugFormat("ingested media is not a series episode (series name is empty). group {0}, media: {1}", groupId, mediaId);
                 response.Set(eResponseStatus.Error, "ingested media is not a series episode (series name is empty)");
                 return response;
             }
             
+            var followPhrase = GetFollowPhrase(seriesName, episodeAssetStruct, cache);
             DbAnnouncement announcement = null;
             List<DbAnnouncement> dbAnnouncements = null;
             if (NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements))
@@ -743,12 +744,14 @@ namespace Core.Notification
                     return response;
                 }
 
-                var followPhrase = GetFollowPhrase(mediaAsset, episodeAssetStruct, cache);
-                if (!string.IsNullOrEmpty(followPhrase))
+                followDataTvToAdd.Title = GetSeriesName(mediaAsset, episodeAssetStruct, cache);
+                if (string.IsNullOrEmpty(followDataTvToAdd.Title))
                 {
-                    followDataTvToAdd.FollowPhrase = followPhrase;
+                    response.SetStatus(eResponseStatus.InvalidAssetId, "media is not a series episode (series name is empty)");
+                    return response;
                 }
-                
+
+                followDataTvToAdd.FollowPhrase = GetFollowPhrase(followDataTvToAdd.Title, episodeAssetStruct, cache);
                 response = AddFollowItemToUser((int)contextData.UserId.Value, followDataTvToAdd);
             }
             catch (Exception ex)
@@ -863,16 +866,16 @@ namespace Core.Notification
             return messageSent;
         }
 
-        private string GetFollowPhrase(MediaAsset mediaAsset, AssetStruct episodeAssetStruct, CatalogGroupCache cache)
+        private string GetSeriesName(MediaAsset mediaAsset, AssetStruct episodeAssetStruct, CatalogGroupCache cache)
         {
-            string value = string.Empty;
+            string seriesName = string.Empty;
             var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
             if (topic.Type == ApiObjects.MetaType.Tag)
             {
                 var tag = mediaAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                 if (tag != null && tag.m_lValues != null)
                 {
-                    value = tag.m_lValues.FirstOrDefault();
+                    seriesName = tag.m_lValues.FirstOrDefault();
                 }
             }
             else
@@ -880,17 +883,16 @@ namespace Core.Notification
                 var meta = mediaAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
                 if (meta != null)
                 {
-                    value = meta.m_sValue;
+                    seriesName = meta.m_sValue;
                 }
             }
 
-            string followPhrase = null;
-            if (!string.IsNullOrEmpty(value))
-            {
-                followPhrase = string.Format(FOLLOW_PHRASE_FORMAT, cache.TopicsMapById[episodeAssetStruct.ConnectingMetaId.Value].SystemName, value);
-            }
+            return seriesName;
+        }
 
-            return followPhrase;
+        private string GetFollowPhrase(string seriesName, AssetStruct episodeAssetStruct, CatalogGroupCache cache)
+        {
+            return string.Format(FOLLOW_PHRASE_FORMAT, cache.TopicsMapById[episodeAssetStruct.ConnectingMetaId.Value].SystemName, seriesName);
         }
 
         private bool TryGetEpisodeAssetStructBySeries(MediaAsset mediaAsset, CatalogGroupCache cache, out AssetStruct episodeAssetStruct)
