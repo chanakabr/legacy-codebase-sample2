@@ -621,7 +621,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
-                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)));
+                .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)))
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.FallBackEpgIdentifier))
+                ;
 
             //LiveAsset to KalturaLiveAsset
             cfg.CreateMap<LiveAsset, KalturaLiveAsset>()
@@ -2065,6 +2067,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     case LinearChannelType.Ott:
                         response = KalturaLinearChannelType.OTT;
                         break;
+                    case LinearChannelType.Vrm_export:
+                        response = KalturaLinearChannelType.VRM_EXPORT;
+                        break;
                     case LinearChannelType.Unknown:
                         response = KalturaLinearChannelType.UNKNOWN;
                         break;
@@ -2091,6 +2096,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     case KalturaLinearChannelType.OTT:
                         response = LinearChannelType.Ott;
+                        break;
+                    case KalturaLinearChannelType.VRM_EXPORT:
+                        response = LinearChannelType.Vrm_export;
                         break;
                     case KalturaLinearChannelType.UNKNOWN:
                         response = LinearChannelType.Unknown;

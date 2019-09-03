@@ -19,7 +19,15 @@ pipeline {
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', credentialsId: "github-ott-ci-cd") }
+
+                script{
+                    withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
+                        def getDefaultBranchCmd = "curl --silent -i ott-ci-cd:${TOKEN} https://api.github.com/repos/kaltura/clients-generator | grep 'default_branch' | cut -f4 -d'\"'"
+                        def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
+                        echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
+                        dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${defaultGeneratorBranch}", credentialsId: "github-ott-ci-cd") }
+                    }
+                }
             }
         }
         stage("Version Patch"){
@@ -44,8 +52,11 @@ pipeline {
             }
         }
         stage("Build"){
+            environment{
+                TCM_URL="http://tcm.service.consul:8080"
+                TCM_APP="OTT_API_SV"
+            }
             steps{
-                
                 dir("tvpapi_rest"){
                     bat (label:"Run MSBuild Phoenix" , script:"\"${MSBUILD}\" Phoenix.Legacy\\Phoenix.Legacy.csproj -m:4 -nr:False -t:Restore,Build,WebPublish"
                             + " -p:Configuration=Release"
@@ -54,7 +65,6 @@ pipeline {
                             + " -p:DeleteExistingFiles=True"
                             + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
                     )
-
 
                     bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
                             + " -p:Configuration=Release"
@@ -67,6 +77,10 @@ pipeline {
                             + " -p:DeleteExistingFiles=True"
                             + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
                     )
+
+                    dir("${WORKSPACE}/published/permissions"){
+                        bat("PermissionsDeployment.exe e=permissions.xml")
+                    }
                 }
             }        
         }
@@ -81,13 +95,41 @@ pipeline {
                 }
             }
         }
-        stage("Generate Kaltura Clients and Docs"){
+        stage("Generate Kaltura Clients"){
+            
             steps { 
                 dir("clients-generator"){
                     bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
-                        +"-tott ottTestme,testmeDoc,php5,php53,php5Zend,php4,csharp,ruby,java,android,python,objc,cli,node,ajax " 
+                        +"-tott java,node,ngx,php5Zend,csharp,python,ajax,android,typescript,swift,php5,php53 " 
                         +"${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\"
                     )
+
+                    // AFAIK WE dont use test-me anymore we use phoenix docs
+                    // bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\testme\\KalturaClient.xml "
+                    //     +"-tott ottTestme,testmeDoc"
+                    //     +"${WORKSPACE}\\published\\kaltura_ott_api\\testme\\"
+                    // )
+                }
+            }
+        }
+        stage("Publish Kaltura Clients"){
+            // Generate only when release branch
+            when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ }}
+            steps{
+                dir("clients-generator"){
+                    withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
+                        nodejs(nodeJSInstallationName: 'default') {
+                            sh (
+                                label: "Configure git user and run node script to push client lib updates", 
+                                script: """
+                                    git config --global user.email "ott.rnd.core@kaltura.com"
+                                    git config --global user.name "Backend CI"
+                                    npm install
+                                    node copyAndPush '${WORKSPACE}/published/kaltura_ott_api/clientlibs' '${BRANCH_NAME}' '${TOKEN}' 'git'
+                                """
+                            )
+                        }
+                    }
                 }
             }
         }

@@ -33,6 +33,13 @@ namespace WebAPI.Models.General
         {
             RequestLanguageCode = Utils.Utils.GetLanguageFromRequest();
             GroupDefaultLanguageCode = Utils.Utils.GetDefaultLanguage();
+            if (values == null || values.Length == 0)
+            {
+                List<LanguageContainer> tempValuesList = new List<LanguageContainer>();
+                tempValuesList.Add(new LanguageContainer(GroupDefaultLanguageCode, string.Empty, true));
+                values = tempValuesList.ToArray();
+            }
+
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 

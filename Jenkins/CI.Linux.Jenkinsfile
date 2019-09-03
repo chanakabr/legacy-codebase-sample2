@@ -12,7 +12,7 @@ pipeline {
     }
     environment{
         AWS_REGION="us-west-2"
-        BRANCH_NAME_TO_LOWER=sh (returnStdout: true, script: "echo ${BRANCH_NAME} | tr '[:upper:]' '[:lower:]'").trim()
+		BRANCH_NAME_TO_LOWER=$(echo ${BRANCH_NAME} | tr '[:upper:]' '[:lower:]')
         REPOSITORY_NAME="${BRANCH_NAME_TO_LOWER}/phoenix"
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
         ECR_CORE_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${BRANCH_NAME_TO_LOWER}/core"
