@@ -20,5 +20,27 @@ namespace ApiObjects
 
             return passwordPolicy.Id == this.Id;
         }
+
+        /// <summary>
+        /// fill empty policies
+        /// </summary>
+        /// <param name="orgPolicy"></param>
+        public void CompareAndFillPolicy(PasswordPolicy other)
+        {
+            //skip id
+            this.Name = this.Name ?? other.Name;
+            this.Complexities = this.Complexities ?? other.Complexities;
+            this.Expiration = this.Expiration ?? other.Expiration;
+            this.LockoutFailuresCount = this.LockoutFailuresCount ?? other.LockoutFailuresCount;
+            this.HistoryCount = this.HistoryCount ?? other.HistoryCount;
+            this.UserRoleIds =
+                (this.UserRoleIds != null && this.UserRoleIds.Count > 0) ?
+                this.UserRoleIds : other.UserRoleIds;
+
+            //set null for 0 value
+            if (this.Expiration == 0) this.Expiration = null;
+            if (this.LockoutFailuresCount == 0) this.LockoutFailuresCount = null;
+            if (this.HistoryCount == 0) this.HistoryCount = null;
+        }
     }
 }

@@ -98,8 +98,8 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<PasswordPolicy>();
             try
             {
-                var orgPolicy = UsersDal.GetPasswordPolicy(objectToUpdate.Id);
-                if (orgPolicy == null)
+                response.Object = UsersDal.GetPasswordPolicy(objectToUpdate.Id);
+                if (response.Object == null)
                 {
                     response.SetStatus(eResponseStatus.PasswordPolicyDoesNotExist);
                     return response;
@@ -114,16 +114,22 @@ namespace ApiLogic.Users.Managers
                 }
 
                 //logic - validate group and role in policy
-                CompareAndFillPolicy(orgPolicy, objectToUpdate);
+                objectToUpdate.CompareAndFillPolicy(response.Object);
+                UpdatePolicyMap(objectToUpdate, response, urtp);
 
                 //update relevant 
-                var isSuccess = UsersDal.SavePasswordPolicy(objectToUpdate);
-                response.SetStatus(isSuccess ? eResponseStatus.OK : eResponseStatus.Error);
-                SetInvalidationKeys(contextData.GroupId, objectToUpdate.UserRoleIds);
+                if (UsersDal.SaveUserRolesToPasswordPolicy(contextData.GroupId, urtp))
+                {
+                    var isSuccess = UsersDal.SavePasswordPolicy(objectToUpdate);
+                    response.SetStatus(isSuccess ? eResponseStatus.OK : eResponseStatus.Error);
+                    SetInvalidationKeys(contextData.GroupId, objectToUpdate.UserRoleIds);
+                }
+                else
+                {
+                    response.SetStatus(eResponseStatus.Error);
+                }
 
                 response.Object = objectToUpdate;
-                //response.SetStatus(eResponseStatus.OK);
-
                 return response;
             }
             catch (Exception ex)
@@ -134,27 +140,34 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        /// <summary>
-        /// fill empty policies
-        /// </summary>
-        /// <param name="orgPolicy"></param>
-        /// <param name="objectToUpdate"></param>
-        private void CompareAndFillPolicy(PasswordPolicy orgObject, PasswordPolicy objectToUpdate)
+        private static void UpdatePolicyMap(PasswordPolicy objectToUpdate, GenericResponse<PasswordPolicy> response, Dictionary<long, List<long>> urtp)
         {
-            //skip id
-            objectToUpdate.Name = objectToUpdate.Name ?? orgObject.Name;
-            objectToUpdate.Complexities = objectToUpdate.Complexities ?? orgObject.Complexities;
-            objectToUpdate.Expiration = objectToUpdate.Expiration ?? orgObject.Expiration;
-            objectToUpdate.LockoutFailuresCount = objectToUpdate.LockoutFailuresCount ?? orgObject.LockoutFailuresCount;
-            objectToUpdate.HistoryCount = objectToUpdate.HistoryCount ?? orgObject.HistoryCount;
-            objectToUpdate.UserRoleIds = 
-                (objectToUpdate.UserRoleIds != null && objectToUpdate.UserRoleIds.Count > 0) ? 
-                objectToUpdate.UserRoleIds : orgObject.UserRoleIds;
+            //if map changed roles
+            if (!response.Object.UserRoleIds.Distinct().SequenceEqual(objectToUpdate.UserRoleIds.Distinct()))
+            {
+                //all roles with that policy
+                var rolesWithPolicy = urtp.Where(x => x.Value.Contains(objectToUpdate.Id)).Select(x => x.Key).ToList();
 
-            //set null for 0 value
-            if (objectToUpdate.Expiration == 0) objectToUpdate.Expiration = null;
-            if (objectToUpdate.LockoutFailuresCount == 0) objectToUpdate.LockoutFailuresCount = null;
-            if (objectToUpdate.HistoryCount == 0) objectToUpdate.HistoryCount = null;
+                foreach (var item in rolesWithPolicy)
+                {
+                    urtp[item].Remove(objectToUpdate.Id);
+                }
+
+                foreach (var item in objectToUpdate.UserRoleIds)//update for all relevant
+                {
+                    if (urtp.ContainsKey(item))
+                    {
+                        if (!urtp[item].Contains(objectToUpdate.Id))
+                        {
+                            urtp[item].Add(objectToUpdate.Id);
+                        }
+                    }
+                    else
+                    {
+                        urtp.Add(item, new List<long> { objectToUpdate.Id });
+                    }
+                }
+            }
         }
 
         public Status Delete(ContextData contextData, long id)
@@ -171,6 +184,13 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                //remove mapping
+                if (!UsersDal.DeleteUserRolesToPasswordPolicy(contextData.GroupId, passwordPolicy))
+                {
+                    log.ErrorFormat($"Error while deleting Password Policy dictionary.");
+                    return response;
+                }
+
                 // Delete PasswordPolicy from CB
                 if (!UsersDal.DeletePasswordPolicy(contextData.GroupId, id))
                 {
@@ -179,8 +199,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var idsList = new List<long> { id };
-                SetInvalidationKeys(contextData.GroupId, idsList);
+                SetInvalidationKeys(contextData.GroupId, passwordPolicy.UserRoleIds);
                 response = Status.Ok;
             }
             catch (Exception ex)

@@ -2432,5 +2432,11 @@ namespace DAL
             var key = GetPasswordsHistoryKey(userId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
+
+        public static bool DeleteUserRolesToPasswordPolicy(int groupId, PasswordPolicy passwordPolicy)
+        {
+            var key = GetUserRolesToPasswordPolicyKey(groupId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordPolicy);
+        }
     }
 }
