@@ -89,7 +89,7 @@ namespace WebAPI.Models.Users
 
         internal override void SetId(long id)
         {
-            throw new System.NotImplementedException();
+            this.Id = id;
         }
 
         internal override void ValidateForAdd()
@@ -104,7 +104,7 @@ namespace WebAPI.Models.Users
         {
             if (!this.ValidateRegexExpressions())
             {
-                throw new System.NotImplementedException();
+                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "code");
             }
         }
 
