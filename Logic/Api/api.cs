@@ -11874,6 +11874,12 @@ namespace Core.Api
                 return;
             }
 
+            if(virtualAsset == null)
+            {
+                log.Warn($"No virtualAsset for ExternalChannel {channel.ID}");
+                return;
+            }
+
             virtualAsset.Name = channel.Name;
 
             GenericResponse<Asset> assetUpdateResponse = AssetManager.UpdateAsset(groupId, virtualAsset.Id, virtualAsset, userId, false, false, false, true);
