@@ -1,19 +1,24 @@
-﻿using ApiObjects;
-using ApiObjects.Catalog;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ApiObjects;
 using Core.Catalog;
-using Ingest.Clients.ClientManager;
-using Ingest.Importers;
 using Ingest.Models;
+using Ingest;
+using ApiObjects.Catalog;
+using System.ServiceModel;
 using KLogMonitor;
 using System.Reflection;
-using System.ServiceModel;
+using Ingest.Clients.ClientManager;
+using Ingest.Importers;
 
-namespace Ingest
+namespace IngetsNetCore
 {
-    [ServiceBehavior(AddressFilterMode = AddressFilterMode.Any, InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]    
-    public class Service : IService
+    public class IngestService : IService
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
 
         public BusinessModuleIngestResponse IngestBusinessModules(string username, string password, string xml)
         {
@@ -26,7 +31,7 @@ namespace Ingest
             };
 
             // get group id
-            int groupId =  ClientsManager.ApiClient().GetGroupIdByUsernamePassword(username, password);
+            int groupId = ClientsManager.ApiClient().GetGroupIdByUsernamePassword(username, password);
 
             if (groupId > 0)
             {
@@ -35,7 +40,7 @@ namespace Ingest
             }
             else
             {
-                log.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
+                _Logger.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
             }
             return response;
         }
@@ -53,8 +58,8 @@ namespace Ingest
         [ServiceKnownType(typeof(EpgIngestResponse))]
         public IngestResponse IngestKalturaEpg(IngestRequest request)
         {
-            log.Topic = "EPGIngest";
-            IngestResponse response = (IngestResponse)IngestController.IngestData(request, eIngestType.KalturaEpg);
+            _Logger.Topic = "EPGIngest";
+            IngestResponse response = IngestController.IngestData(request, eIngestType.KalturaEpg);
             return response;
         }
     }

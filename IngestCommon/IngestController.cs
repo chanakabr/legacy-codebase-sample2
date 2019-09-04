@@ -74,7 +74,7 @@ namespace Ingest
                     {
                         case eIngestType.Tvinci:
                             {
-                                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "VOD Ingest";
+                                KLogger.LogContextData[Constants.TOPIC] = "VOD Ingest";
 
                                 if (CatalogManager.DoesGroupUsesTemplates(groupID))
                                 {
@@ -98,7 +98,7 @@ namespace Ingest
                             {
                                 if (OperationContext.Current != null)
                                 {
-                                    OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "EPG Ingest";
+                                    KLogger.LogContextData[Constants.TOPIC] = "EPG Ingest";
                                 }
 
                                 var isNewIngestEnabled = Core.GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupID);

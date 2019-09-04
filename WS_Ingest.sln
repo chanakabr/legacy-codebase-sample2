@@ -109,7 +109,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CDNTokenizers", "..\Core\CD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngetsNetCore", "IngetsNetCore\IngetsNetCore.csproj", "{79542094-7CA6-4570-9390-6F8B05CAE621}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestNetCore", "IngestNetCore\IngestNetCore.csproj", "{79542094-7CA6-4570-9390-6F8B05CAE621}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ingest.Common", "IngestCommon\Ingest.Common.csproj", "{B7E0D0EA-E53A-4384-9871-30F676CADBD3}"
 EndProject
