@@ -5728,7 +5728,7 @@ namespace DAL
                 var ip = new IngestProfile
                 {
                     Id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
-                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "groupId"),
+                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
                     Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                     ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_identifier"),
                     TransformationAdapterUrl = ODBCWrapper.Utils.GetSafeStr(row, "transformation_adapter_url"),
