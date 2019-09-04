@@ -1,6 +1,6 @@
 ﻿namespace ApiObjects
 {
-    public class RegexObject
+    public class PasswordRegex
     {
         public string Expression { get; set; }
         public string Description { get; set; }

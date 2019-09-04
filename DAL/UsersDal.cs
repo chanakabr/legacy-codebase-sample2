@@ -2381,10 +2381,10 @@ namespace DAL
             return string.Format("user_roles_to_password_policy_{0}", groupId);
         }
 
-        public static Dictionary<long, List<long>> GetUserRolesToPasswordPolicy(int groupId)
+        public static Dictionary<long, HashSet<long>> GetUserRolesToPasswordPolicy(int groupId)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
-            return UtilsDal.GetObjectFromCB<Dictionary<long, List<long>>>(eCouchbaseBucket.OTT_APPS, key);
+            return UtilsDal.GetObjectFromCB<Dictionary<long, HashSet<long>>>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         private static string GetPasswordPolicyKey(long passwordPolicyId)
@@ -2404,7 +2404,7 @@ namespace DAL
             return UtilsDal.SaveObjectInCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key, policy);
         }
 
-        public static bool SaveUserRolesToPasswordPolicy(int groupId, Dictionary<long, List<long>> policies)
+        public static bool SaveUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
@@ -2433,7 +2433,7 @@ namespace DAL
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
 
-        public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, List<long>> policies)
+        public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);

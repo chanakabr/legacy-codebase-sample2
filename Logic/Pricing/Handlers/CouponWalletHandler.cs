@@ -252,5 +252,10 @@ namespace Core.Pricing.Handlers
 
             return response;
         }
+
+        public GenericResponse<CouponWallet> Validate(ContextData contextData, string id = null, CouponWallet objectToValidate = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

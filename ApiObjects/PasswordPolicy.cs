@@ -7,10 +7,10 @@ namespace ApiObjects
     {
         public long Id { get; set; }
         public string Name { get; set; }
-        public List<long> UserRoleIds { get; set; }
+        public HashSet<long> UserRoleIds { get; set; }
         public int? HistoryCount { get; set; }
         public int? Expiration { get; set; }
-        public List<RegexObject> Complexities { get; set; }
+        public List<PasswordRegex> Complexities { get; set; }
         public int? LockoutFailuresCount { get; set; }
 
         public override bool Equals(object obj)
@@ -24,27 +24,48 @@ namespace ApiObjects
         /// <summary>
         /// fill empty policies
         /// </summary>
-        /// <param name="orgPolicy"></param>
-        public void CompareAndFillPolicy(PasswordPolicy other)
+        public bool CompareAndFill(PasswordPolicy oldPasswordPolicy)
         {
-            //skip id
-            this.Name = this.Name ?? other.Name;
-            this.Complexities = this.Complexities ?? other.Complexities;
+            var needToUpdate = false;
 
-            if (this.Expiration == 0)
-                this.Expiration = null;
-            else if (!this.Expiration.HasValue)
-                this.Expiration = other.Expiration;
+            if (string.IsNullOrEmpty(this.Name)) //to do fill as name
+            {
+                this.Name = oldPasswordPolicy.Name;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
+            if (this.Complexities == null)
+            {
+                this.Complexities = oldPasswordPolicy.Complexities;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
+            if (this.Expiration == null)
+            {
+                this.Expiration = oldPasswordPolicy.Expiration;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
+            if (this.UserRoleIds != null)
+            {
+                this.UserRoleIds = oldPasswordPolicy.UserRoleIds;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
 
-            if (this.LockoutFailuresCount == 0)
-                this.LockoutFailuresCount = null;
-            else if (!this.LockoutFailuresCount.HasValue)
-                this.LockoutFailuresCount = other.LockoutFailuresCount;
+            if (this.Expiration == 0) { this.Expiration = null; needToUpdate = true; }
+            if (this.LockoutFailuresCount == 0) { this.LockoutFailuresCount = null; needToUpdate = true; }
+            if (this.HistoryCount == 0) { this.HistoryCount = null; needToUpdate = true; }
 
-            if (this.HistoryCount == 0)
-                this.HistoryCount = null;
-            else if (!this.HistoryCount.HasValue)
-                this.HistoryCount = other.HistoryCount;
+            return needToUpdate;
         }
     }
 }
