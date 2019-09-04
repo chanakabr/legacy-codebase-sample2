@@ -324,7 +324,8 @@ namespace ApiLogic.Users.Managers
                             {
                                 if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
                                 {
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {i + 1}", $"complexity {passwordPolicy.Complexities[i].Description} is invalid");
+                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {i + 1}", 
+                                        $"Your password needs to be more complex. It requires: {passwordPolicy.Complexities[i].Description}. Please enter a new password in accordance with these requirements");
                                 }
                             }
                         }
