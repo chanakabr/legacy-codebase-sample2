@@ -5928,49 +5928,49 @@ namespace DAL
             return table;
         }
 
-        public static bool SaveEventNotificationActionIdCB(EventNotificationAction eventNotificationAction)
+        public static bool SaveEventNotificationActionIdCB(int groupId, EventNotificationAction eventNotificationAction)
         {
             if (eventNotificationAction != null)
             {
-                string key = GetEventNotificationActionIdKey(eventNotificationAction.Id);
+                string key = GetEventNotificationActionIdKey(groupId, eventNotificationAction.Id);
                 return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;
         }
 
-        private static string GetEventNotificationActionIdKey(string id)
+        private static string GetEventNotificationActionIdKey(int groupId, string id)
         {
-            return $"event_notification_action_{id}";
+            return $"event_notification_action_{groupId}_{id}";
         }
 
-        private static string GetEventNotificationActionTypeIdKey(string objectType, long objectId)
+        private static string GetEventNotificationActionTypeIdKey(int groupId, string objectType, long objectId)
         {
-            return $"event_notification_action_{objectType}_{objectId}";
+            return $"event_notification_action_{groupId}_{objectType}_{objectId}";
         }
 
-        public static EventNotificationAction GetEventNotificationActionCB(string id)
+        public static EventNotificationAction GetEventNotificationActionCB(int groupId, string id)
         {
             if (!string.IsNullOrEmpty(id))
             {
-                string key = GetEventNotificationActionIdKey(id);
+                string key = GetEventNotificationActionIdKey(groupId, id);
                 return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
             }
 
             return null;
         }
 
-        public static List<string> GetEventNotificationActionCB(string objectType, long objectId)
+        public static List<string> GetEventNotificationActionCB(int groupId,string objectType, long objectId)
         {
-            string key = GetEventNotificationActionTypeIdKey(objectType, objectId);
+            string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
             return UtilsDal.GetObjectFromCB<List<string>>(eCouchbaseBucket.SOCIAL, key, true);
         }
 
-        public static bool SaveEventNotificationActionTypeAndIdCB(string objectType, long objectId, List<string> eventNotificationActionIds)
+        public static bool SaveEventNotificationActionTypeAndIdCB(int groupId, string objectType, long objectId, List<string> eventNotificationActionIds)
         {
             if (eventNotificationActionIds.Count > 0)
             {
-                string key = GetEventNotificationActionTypeIdKey(objectType, objectId);
+                string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
                 return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
             }
 

@@ -31,14 +31,14 @@ namespace ApiLogic.Api.Managers
                 eventNotificationActionToAdd.UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
                 // Save eventNotificationAction by id At CB                    
-                if (!ApiDAL.SaveEventNotificationActionIdCB(eventNotificationActionToAdd))
+                if (!ApiDAL.SaveEventNotificationActionIdCB(contextData.GroupId, eventNotificationActionToAdd))
                 {
                     log.Error($"Error while SaveEventNotificationActionCB. contextData: {contextData.ToString()}");
                     return response;
                 }
 
                 // EventNotificationAction by object Type & Id
-                List<string> eventNotificationActions = ApiDAL.GetEventNotificationActionCB(eventNotificationActionToAdd.ObjectType, eventNotificationActionToAdd.ObjectId);
+                List<string> eventNotificationActions = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, eventNotificationActionToAdd.ObjectType, eventNotificationActionToAdd.ObjectId);
                 if (eventNotificationActions?.Count > 0)
                 {
                     eventNotificationActions.Add(eventNotificationActionToAdd.Id);
@@ -49,7 +49,7 @@ namespace ApiLogic.Api.Managers
                 }
 
                 // Save eventNotificationAction by type and id At CB                    
-                if (!ApiDAL.SaveEventNotificationActionTypeAndIdCB(eventNotificationActionToAdd.ObjectType, eventNotificationActionToAdd.ObjectId, eventNotificationActions))
+                if (!ApiDAL.SaveEventNotificationActionTypeAndIdCB(contextData.GroupId, eventNotificationActionToAdd.ObjectType, eventNotificationActionToAdd.ObjectId, eventNotificationActions))
                 {
                     log.Error($"Error while SaveEventNotificationActionCB. contextData: {contextData.ToString()}");
                     return response;
@@ -73,7 +73,7 @@ namespace ApiLogic.Api.Managers
             try
             {
                 // get current EventNotificationAction 
-                EventNotificationAction currentEventNotificationAction = ApiDAL.GetEventNotificationActionCB(eventNotificationActionToUpdate.Id);
+                EventNotificationAction currentEventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, eventNotificationActionToUpdate.Id);
                 if (currentEventNotificationAction == null)
                 {
                     log.Error($"EventNotificationAction wasn't found id {eventNotificationActionToUpdate.Id}");
@@ -85,7 +85,7 @@ namespace ApiLogic.Api.Managers
                 eventNotificationActionToUpdate.Status = eventNotificationActionToUpdate.Status;
                 eventNotificationActionToUpdate.Message = eventNotificationActionToUpdate.Message;
                
-                if (!ApiDAL.SaveEventNotificationActionIdCB(eventNotificationActionToUpdate))
+                if (!ApiDAL.SaveEventNotificationActionIdCB(contextData.GroupId, eventNotificationActionToUpdate))
                 {
                     log.Error($"Error while saving EventNotificationAction id {eventNotificationActionToUpdate.Id}");
                 }
@@ -122,13 +122,13 @@ namespace ApiLogic.Api.Managers
 
             if (filter != null && filter.ObjectId.HasValue && filter.ObjectId.Value > 0)
             {
-                var eventNotificationActionIds = ApiDAL.GetEventNotificationActionCB(filter.ObjectType, filter.ObjectId.Value);
+                var eventNotificationActionIds = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.ObjectType, filter.ObjectId.Value);
                 if (eventNotificationActionIds?.Count > 0)
                 {
                     eventNotificationActions = new List<EventNotificationAction>();
                     foreach (var id in eventNotificationActionIds)
                     {
-                        eventNotificationAction = ApiDAL.GetEventNotificationActionCB(id);
+                        eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, id);
                         if (eventNotificationAction != null)
                         {
                             eventNotificationActions.Add(eventNotificationAction);
@@ -142,7 +142,7 @@ namespace ApiLogic.Api.Managers
             }
             else if (filter != null && !string.IsNullOrEmpty(filter.Id))
             {
-                eventNotificationAction = ApiDAL.GetEventNotificationActionCB(filter.Id);
+                eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.Id);
                 eventNotificationActions = new List<EventNotificationAction>() { eventNotificationAction };
 
                 response.Objects = eventNotificationActions;
