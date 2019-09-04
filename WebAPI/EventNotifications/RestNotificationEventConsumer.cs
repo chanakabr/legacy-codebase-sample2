@@ -308,7 +308,7 @@ namespace WebAPI
         {
             if (saveEventNotificationAction && id > 0)
             {
-                ApiDAL.SaveEventNotificationActionIdCB(new EventNotificationAction
+                ApiDAL.SaveEventNotificationActionIdCB(eventWrapper.partnerId, new EventNotificationAction
                 {
                     ActionType = eventWrapper.eventObjectType,
                     ObjectType = eventWrapper.objectType,
