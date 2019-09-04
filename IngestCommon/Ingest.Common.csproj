@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+    <Description>2019-04-09 20:15:47 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-0-147-gb99fddbc-dirty</Description>
+    <AssemblyName />
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+  </PropertyGroup>
+ 
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
+    <ProjectReference Include="..\..\Core\ImageManager\ImageManager.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <ProjectReference Include="..\..\core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

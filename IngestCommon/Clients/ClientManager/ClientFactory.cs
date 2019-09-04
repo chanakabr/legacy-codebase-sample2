@@ -19,12 +19,12 @@ namespace Ingest.Clients.ClientManager
                 case ClientType.Pricing:
                     client = new PricingClient();
                     break;
-                case ClientType.Catalog:
-                    client = new CatalogClient()
-                    {
-                        Module = new Catalog.IserviceClient(string.Empty, url)
-                    };
-                    break;
+                //case ClientType.Catalog:
+                //    client = new CatalogClient()
+                //    {
+                //        Module = new Catalog.IserviceClient(string.Empty, url)
+                //    };
+                //    break;
                 default:
                     break;
             }

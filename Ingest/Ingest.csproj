@@ -82,131 +82,33 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="clear_cache.aspx" />
     <Content Include="Global.asax" />
-    <Content Include="Service References\Catalog\Ingest.Catalog.BaseResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\Ingest.Catalog.EpgProgramResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\Ingest.Catalog.MediaResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\Ingest.Catalog.Response.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\Service.disco" />
-    <Content Include="Service References\Catalog\configuration91.svcinfo" />
-    <Content Include="Service References\Catalog\configuration.svcinfo" />
-    <Content Include="Service References\Catalog\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
     <Content Include="Service.svc" />
     <Content Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </Content>
-    <Content Include="Service References\Catalog\Service.wsdl" />
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\ingest.pubxml" />
-    <None Include="Service References\Catalog\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="Service References\Catalog\Service1.wsdl" />
-    <None Include="Service References\Catalog\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service10.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service11.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service12.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service13.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service14.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service15.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service8.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service9.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="clear_cache.aspx.cs">
-      <DependentUpon>clear_cache.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="clear_cache.aspx.designer.cs">
-      <DependentUpon>clear_cache.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Clients\ApiClient.cs" />
-    <Compile Include="Clients\CatalogClient.cs" />
-    <Compile Include="Clients\ClientManager\BaseClient.cs" />
-    <Compile Include="Clients\ClientManager\ClientFactory.cs" />
-    <Compile Include="Clients\ClientManager\ClientsManager.cs" />
-    <Compile Include="Clients\ClientManager\ClientType.cs" />
-    <Compile Include="Clients\PricingClient.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Importers\BusinessModulesImporter.cs" />
-    <Compile Include="IngestController.cs" />
-    <Compile Include="Models\BusinessModuleIngestResponse.cs" />
-    <Compile Include="Models\Status.cs" />
-    <Compile Include="Models\StatusCodes.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Service References\Catalog\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Service.svc.cs">
       <DependentUpon>Service.svc</DependentUpon>
     </Compile>
-    <Compile Include="IService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="log4net.config" />
     <Content Include="ssl-dev\cert.pfx">
@@ -218,15 +120,6 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferences Include="Web References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\Catalog\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj">
@@ -272,6 +165,10 @@
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\IngestCommon\Ingest.Common.csproj">
+      <Project>{b7e0d0ea-e53a-4384-9871-30f676cadbd3}</Project>
+      <Name>Ingest.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

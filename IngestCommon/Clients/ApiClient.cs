@@ -16,7 +16,7 @@ namespace Ingest.Clients
         {
         }
 
-        internal int GetGroupIdByUsernamePassword(string username, string password)
+        public int GetGroupIdByUsernamePassword(string username, string password)
         {
             int groupId = 0;
 

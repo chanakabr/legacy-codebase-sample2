@@ -26,14 +26,6 @@ namespace Ingest.Clients
 
         public int CacheDuration { get; set; }
 
-        protected Ingest.Catalog.IserviceClient CatalogClientModule
-        {
-            get
-            {
-                return (Module as Ingest.Catalog.IserviceClient);
-            }
-        }
-
         private string GetSignature(string signString, string signatureKey)
         {
             string retVal;

@@ -54,10 +54,10 @@ namespace Ingest.Clients.ClientManager
             return Nested.Instance.GetClient(ClientType.Pricing) as PricingClient;
         }
 
-        public static CatalogClient CatalogClient()
-        {
-            return Nested.Instance.GetClient(ClientType.Catalog) as CatalogClient;
-        }
+        //public static CatalogClient CatalogClient()
+        //{
+        //    return Nested.Instance.GetClient(ClientType.Catalog) as CatalogClient;
+        //}
 
         private BaseClient GetClient(ClientType clientType)
         {
