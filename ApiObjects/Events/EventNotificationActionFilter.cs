@@ -4,7 +4,8 @@ namespace ApiObjects
 {
     public class EventNotificationActionFilter : ICrudFilter
     {
-        public long ObjectId { get; set; }
+        public string Id { get; set; }
+        public long? ObjectId { get; set; }
         public string  ObjectType { get; set; }
     }
 }

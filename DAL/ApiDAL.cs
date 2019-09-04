@@ -5928,31 +5928,53 @@ namespace DAL
             return table;
         }
 
-        public static bool SaveEventNotificationActionCB(EventNotificationAction eventNotificationAction)
+        public static bool SaveEventNotificationActionIdCB(EventNotificationAction eventNotificationAction)
         {
             if (eventNotificationAction != null)
             {
-                string key = GetEventNotificationActionKey(eventNotificationAction.Id);
+                string key = GetEventNotificationActionIdKey(eventNotificationAction.Id);
                 return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;
         }
 
-        private static string GetEventNotificationActionKey(string id)
+        private static string GetEventNotificationActionIdKey(string id)
         {
             return $"event_notification_action_{id}";
+        }
+
+        private static string GetEventNotificationActionTypeIdKey(string objectType, long objectId)
+        {
+            return $"event_notification_action_{objectType}_{objectId}";
         }
 
         public static EventNotificationAction GetEventNotificationActionCB(string id)
         {
             if (!string.IsNullOrEmpty(id))
             {
-                string key = GetEventNotificationActionKey(id);
+                string key = GetEventNotificationActionIdKey(id);
                 return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
             }
 
             return null;
+        }
+
+        public static List<string> GetEventNotificationActionCB(string objectType, long objectId)
+        {
+            string key = GetEventNotificationActionTypeIdKey(objectType, objectId);
+            return UtilsDal.GetObjectFromCB<List<string>>(eCouchbaseBucket.SOCIAL, key, true);
+        }
+
+        public static bool SaveEventNotificationActionTypeAndIdCB(string objectType, long objectId, List<string> eventNotificationActionIds)
+        {
+            if (eventNotificationActionIds.Count > 0)
+            {
+                string key = GetEventNotificationActionTypeIdKey(objectType, objectId);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
+            }
+
+            return false;
         }
     }
 }
