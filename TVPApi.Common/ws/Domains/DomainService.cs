@@ -300,7 +300,6 @@ namespace TVPApiServices
         [PrivateMethod]
         public TVPApiModule.Services.ApiDomainsService.DeviceDomain[] GetDeviceDomains(InitializationObject initObj)
         {
-            Domain[] domains = null;
             TVPApiModule.Services.ApiDomainsService.DeviceDomain[] devDomains = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetDeviceDomain", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -309,7 +308,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
+                    var domains = new TVPApiModule.Services.ApiDomainsService(groupID, initObj.Platform).GetDeviceDomains(initObj.UDID);
 
                     if (domains == null || domains.Count() == 0)
                         return devDomains;

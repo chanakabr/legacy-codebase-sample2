@@ -24,7 +24,6 @@ namespace TVPApiServices
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAccountDevices", sUsername, sPassword, SiteHelper.GetClientIP());
             if (groupId != 0)
             {
-                TVPApiModule.Objects.Domain domain = null;
                 try
                 {
                     //TODO: Change db query to domains method
@@ -52,27 +51,32 @@ namespace TVPApiServices
                     selectQuery = null;
 
                     int iDomainID = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainIDByCoGuid(sAccUuid);
-                    domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainInfo(iDomainID);
-                }
-                catch (Exception ex) { logger.Error("", ex); }
-                if (domain != null && domain.m_deviceFamilies.Count > 0)
-                {
-                    foreach (var dc in domain.m_deviceFamilies)
+                    var domain = new ApiDomainsService(groupId, PlatformType.iPad).GetDomainInfo(iDomainID);
+
+                    if (domain != null && domain.m_deviceFamilies.Count > 0)
                     {
-                        if (dc.m_DeviceInstances != null)
+                        foreach (var dc in domain.m_deviceFamilies)
                         {
-                            foreach (Device device in dc.m_DeviceInstances)
+                            if (dc.DeviceInstances != null)
                             {
-                                DeviceInfo deviceInfo = new DeviceInfo();
-                                deviceInfo.Name = device.m_deviceName;
-                                deviceInfo.Type = dc.m_deviceFamilyName;
-                                deviceInfo.UDID = device.m_deviceUDID;
-                                deviceInfo.Active = !(device.m_state != DeviceState.Activated && device.m_state == DeviceState.UnActivated);
-                                retDevices.Add(deviceInfo);
+                                foreach (Device device in dc.DeviceInstances)
+                                {
+                                    DeviceInfo deviceInfo = new DeviceInfo();
+                                    deviceInfo.Name = device.m_deviceName;
+                                    deviceInfo.Type = dc.m_deviceFamilyName;
+                                    deviceInfo.UDID = device.m_deviceUDID;
+                                    deviceInfo.Active = !(device.m_state != DeviceState.Activated && device.m_state == DeviceState.UnActivated);
+                                    retDevices.Add(deviceInfo);
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    logger.Error("", ex);
+                }
+
             }
             return retDevices;
         }

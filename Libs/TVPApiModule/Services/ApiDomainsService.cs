@@ -29,7 +29,7 @@ namespace TVPApiModule.Services
             public int DomainID;
             public string DomainName;
             public string DefaultUser;
-            public DomainStatus DomainStatus;
+            public Objects.DomainStatus DomainStatus;
         }
 
         [Serializable]

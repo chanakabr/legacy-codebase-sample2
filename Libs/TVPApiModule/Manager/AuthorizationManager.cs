@@ -692,7 +692,7 @@ namespace TVPApiModule.Manager
                     }
                     foreach (var family in domain.m_deviceFamilies)
                     {
-                        if (family.m_DeviceInstances != null && family.m_DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                        if (family.DeviceInstances != null && family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
                             return true;
                         }
@@ -927,6 +927,7 @@ namespace TVPApiModule.Manager
                     siteGuidsDomain = domain;
                 }
             }
+
             return siteGuidsDomain;
         }
 
