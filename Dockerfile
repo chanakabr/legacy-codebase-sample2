@@ -9,7 +9,7 @@ COPY [".", "ws-ingest"]
 WORKDIR /src/ws-ingest
 
 RUN bash /src/Core/DllVersioning.Core.sh .
-RUN dotnet publish -c Release ".IngestNetCore/IngestNetCore.csproj" -o /src/published/ws-ingest
+RUN dotnet publish -c Release "./IngestNetCore/IngestNetCore.csproj" -o /src/published/ws-ingest
 
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
