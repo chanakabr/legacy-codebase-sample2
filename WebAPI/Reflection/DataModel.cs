@@ -2296,6 +2296,38 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEventNotification":
+                    switch(property.Name)
+                    {
+                        case "ActionType":
+                            return "actionType";
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Message":
+                            return "message";
+                        case "ObjectId":
+                            return "objectId";
+                        case "ObjectType":
+                            return "objectType";
+                        case "Status":
+                            return "status";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaEventNotificationFilter":
+                    switch(property.Name)
+                    {
+                        case "ObjectIdEqual":
+                            return "objectIdEqual";
+                        case "ObjectTypeEqual":
+                            return "objectTypeEqual";
+                    }
+                    break;
+                    
                 case "KalturaExportTask":
                     switch(property.Name)
                     {
@@ -7526,6 +7558,20 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("epgChannel", "list", false);
                             return EpgChannelController.List((KalturaEpgChannelFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "eventnotification":
+                    switch(action)
+                    {
+                        case "update":
+                            RolesManager.ValidateActionPermitted("eventnotification", "update");
+                            return EventNotificationController.Update((string) methodParams[0], (KalturaEventNotification) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("eventnotification", "list");
+                            return EventNotificationController.List((KalturaEventNotificationFilter) methodParams[0]);
                             
                     }
                     break;
@@ -12995,6 +13041,34 @@ namespace WebAPI.Reflection
                                 IsList = true,
                                 GenericType = typeof(KalturaCatalogWithHolder),
                                 Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "eventnotification":
+                    switch(action)
+                    {
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEventNotification),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEventNotificationFilter),
                             });
                             return ret;
                             

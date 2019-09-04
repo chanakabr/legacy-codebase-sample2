@@ -689,6 +689,15 @@ namespace WebAPI.Reflection
                 case "KalturaEpgChannelFilter":
                     return new KalturaEpgChannelFilter(parameters);
                     
+                case "KalturaEventNotification":
+                    return new KalturaEventNotification(parameters);
+                    
+                case "KalturaEventNotificationFilter":
+                    return new KalturaEventNotificationFilter(parameters);
+                    
+                case "KalturaEventNotificationListResponse":
+                    return new KalturaEventNotificationListResponse(parameters);
+                    
                 case "KalturaExportFilter":
                     return new KalturaExportFilter(parameters);
                     
@@ -15408,6 +15417,137 @@ namespace WebAPI.Models.API
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaEventNotification
+    {
+        private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaEventNotification(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
+                }
+                if (parameters.ContainsKey("objectId") && parameters["objectId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ObjectIdSchemaProperty.Validate("objectId", parameters["objectId"]);
+                    }
+                    ObjectId = (Int64) Convert.ChangeType(parameters["objectId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("objectType") && parameters["objectType"] != null)
+                {
+                    ObjectType = (String) Convert.ChangeType(parameters["objectType"], typeof(String));
+                }
+                if (parameters.ContainsKey("message") && parameters["message"] != null)
+                {
+                    Message = (String) Convert.ChangeType(parameters["message"], typeof(String));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    Status = (KalturaEventNotificationStatus) Enum.Parse(typeof(KalturaEventNotificationStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEventNotificationStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaEventNotificationStatus)));
+                    }
+                }
+                if (parameters.ContainsKey("actionType") && parameters["actionType"] != null)
+                {
+                    ActionType = (String) Convert.ChangeType(parameters["actionType"], typeof(String));
+                }
+                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
+                    }
+                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("updateDate") && parameters["updateDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UpdateDateSchemaProperty.Validate("updateDate", parameters["updateDate"]);
+                    }
+                    UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaEventNotificationFilter
+    {
+        private static RuntimeSchemePropertyAttribute ObjectIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotificationFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
+        public KalturaEventNotificationFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("objectIdEqual") && parameters["objectIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ObjectIdEqualSchemaProperty.Validate("objectIdEqual", parameters["objectIdEqual"]);
+                    }
+                    ObjectIdEqual = (Int64) Convert.ChangeType(parameters["objectIdEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("objectTypeEqual") && parameters["objectTypeEqual"] != null)
+                {
+                    ObjectTypeEqual = (String) Convert.ChangeType(parameters["objectTypeEqual"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaEventNotificationListResponse
+    {
+        public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaExportFilter
