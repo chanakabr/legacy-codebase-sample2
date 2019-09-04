@@ -5715,6 +5715,11 @@
             Update date
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.IdEqual">
+            <summary>
+            Indicates which event notification to return by their event notifications Id.
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.ObjectIdEqual">
             <summary>
             Indicates which objectId to return by their event notifications.

@@ -15529,6 +15529,10 @@ namespace WebAPI.Models.API
             {
                 Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
+                {
+                    IdEqual = (String) Convert.ChangeType(parameters["idEqual"], typeof(String));
+                }
                 if (parameters.ContainsKey("objectIdEqual") && parameters["objectIdEqual"] != null)
                 {
                     if(!isOldVersion)

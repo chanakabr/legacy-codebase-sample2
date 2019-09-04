@@ -15,6 +15,15 @@ namespace WebAPI.Models.API
     public partial class KalturaEventNotificationFilter : KalturaCrudFilter<KalturaEventNotificationOrderBy, EventNotificationAction, string, EventNotificationActionFilter>
     {
         /// <summary>
+        /// Indicates which event notification to return by their event notifications Id.
+        /// </summary>
+        [DataMember(Name = "idEqual")]
+        [JsonProperty("idEqual")]
+        [XmlElement(ElementName = "objectIdidEqualEqual", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string IdEqual { get; set; }
+
+        /// <summary>
         /// Indicates which objectId to return by their event notifications.
         /// </summary>
         [DataMember(Name = "objectIdEqual")]
@@ -22,7 +31,7 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "objectIdEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(MinInteger = 1)]
-        public long ObjectIdEqual { get; set; }
+        public long? ObjectIdEqual { get; set; }
 
         /// <summary>
         /// Indicates which objectType to return by their event notifications.
@@ -58,9 +67,14 @@ namespace WebAPI.Models.API
 
         public override void Validate()
         {
-            if (string.IsNullOrEmpty(ObjectTypeEqual))
+            if( !string.IsNullOrEmpty(IdEqual) && ObjectIdEqual.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ARGUMENT_CANNOT_BE_EMPTYobjectTypeEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "idEqual", "objectIdEqual");
+            }
+
+            if (ObjectIdEqual.HasValue && string.IsNullOrEmpty(ObjectTypeEqual))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "objectTypeEqual");
             }
            
             if (ObjectIdEqual <= 0)

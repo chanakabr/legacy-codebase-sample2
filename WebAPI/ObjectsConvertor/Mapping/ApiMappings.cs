@@ -1973,6 +1973,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaEventNotificationFilter, EventNotificationActionFilter>()
                 .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectIdEqual))
                 .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.ObjectTypeEqual))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdEqual))
                 ;
 
             cfg.CreateMap<EventNotificationActionStatus, KalturaEventNotificationStatus>()

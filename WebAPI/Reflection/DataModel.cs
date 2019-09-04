@@ -2321,6 +2321,8 @@ namespace WebAPI.Reflection
                 case "KalturaEventNotificationFilter":
                     switch(property.Name)
                     {
+                        case "IdEqual":
+                            return "idEqual";
                         case "ObjectIdEqual":
                             return "objectIdEqual";
                         case "ObjectTypeEqual":

@@ -14927,7 +14927,14 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("objectIdEqual", "\"objectIdEqual\": " + ObjectIdEqual);
+            if(IdEqual != null)
+            {
+                ret.Add("idEqual", "\"idEqual\": " + "\"" + EscapeJson(IdEqual) + "\"");
+            }
+            if(ObjectIdEqual.HasValue)
+            {
+                ret.Add("objectIdEqual", "\"objectIdEqual\": " + ObjectIdEqual);
+            }
             if(ObjectTypeEqual != null)
             {
                 ret.Add("objectTypeEqual", "\"objectTypeEqual\": " + "\"" + EscapeJson(ObjectTypeEqual) + "\"");
@@ -14941,7 +14948,14 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            ret.Add("objectIdEqual", "<objectIdEqual>" + ObjectIdEqual + "</objectIdEqual>");
+            if(IdEqual != null)
+            {
+                ret.Add("idEqual", "<idEqual>" + EscapeXml(IdEqual) + "</idEqual>");
+            }
+            if(ObjectIdEqual.HasValue)
+            {
+                ret.Add("objectIdEqual", "<objectIdEqual>" + ObjectIdEqual + "</objectIdEqual>");
+            }
             if(ObjectTypeEqual != null)
             {
                 ret.Add("objectTypeEqual", "<objectTypeEqual>" + EscapeXml(ObjectTypeEqual) + "</objectTypeEqual>");
