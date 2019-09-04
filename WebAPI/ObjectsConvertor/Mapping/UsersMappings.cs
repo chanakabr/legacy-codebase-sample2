@@ -267,11 +267,11 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Complexities, opt => opt.MapFrom(src => src.Complexities))
                 .ForMember(dest => dest.LockoutFailuresCount, opt => opt.MapFrom(src => src.LockoutFailuresCount));
 
-            cfg.CreateMap<KalturaRegex, RegexObject>()
+            cfg.CreateMap<KalturaRegex, PasswordRegex>()
                 .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            cfg.CreateMap<RegexObject, KalturaRegex>()
+            cfg.CreateMap<PasswordRegex, KalturaRegex>()
                 .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 

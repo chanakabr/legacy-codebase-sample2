@@ -43,10 +43,6 @@ namespace WebAPI.Models.Users
 
         public override void Validate()
         {
-            if (string.IsNullOrEmpty(UserRoleIdIn))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPasswordPolicyFilter.userRoleIdIn");
-            }
         }
     }
 

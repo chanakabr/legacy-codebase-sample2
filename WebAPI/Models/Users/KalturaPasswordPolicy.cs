@@ -34,6 +34,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -94,41 +95,27 @@ namespace WebAPI.Models.Users
 
         internal override void ValidateForAdd()
         {
-            if (!this.ValidateRegexExpressions())
+            if (string.IsNullOrEmpty(this.UserRoleIds))
             {
-                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "code");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userRoleIds");
             }
+            this.ValidateComplexities();
         }
 
         internal override void ValidateForUpdate()
         {
-            if (!this.ValidateRegexExpressions())
-            {
-                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "code");
-            }
+            this.ValidateComplexities();
         }
 
-        internal bool ValidateRegexExpressions()
+        internal void ValidateComplexities()
         {
-            if (this.Complexities == null || this.Complexities.Count == 0)
+            if (this.Complexities?.Count > 0)
             {
-                return true;
-            }
-
-            foreach (var pattern in this.Complexities)
-            {
-                if (string.IsNullOrEmpty(pattern.Expression)) return false;
-
-                try
+                foreach (var pattern in this.Complexities)
                 {
-                    System.Text.RegularExpressions.Regex.Match("", pattern.Expression);
-                }
-                catch (System.ArgumentException)
-                {
-                    return false;
+                    pattern.Validate();
                 }
             }
-            return true;
         }
     }
 
