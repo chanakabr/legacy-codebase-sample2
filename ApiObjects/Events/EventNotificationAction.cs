@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Base;
-using System;
 
 namespace ApiObjects
 {

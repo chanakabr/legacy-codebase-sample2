@@ -27,6 +27,7 @@ namespace DAL
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
+        private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success (in sec)
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -5932,7 +5933,7 @@ namespace DAL
             if (eventNotificationAction != null)
             {
                 string key = GetEventNotificationActionKey(eventNotificationAction.Id);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationAction);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;
