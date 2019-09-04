@@ -564,7 +564,7 @@ namespace ApiLogic.Users.Managers
             catch (Exception ex)
             {
                 response.SetStatus(eResponseStatus.Error);
-                log.Error($"Error: {ex}");
+                log.Error($"Validate Error: {ex}");
             }
             return response;
         }
