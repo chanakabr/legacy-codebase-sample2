@@ -14,7 +14,7 @@ namespace WebAPI.Controllers
                    eResponseStatus.EventNotificationIdIsMissing,
                    eResponseStatus.EventNotificationIdNotFound
                })]
-    [ListAction(Summary = "Gets all EventNotification items for a given Object id and type", IsFilterOptional = true)] //TODO anat: check with Ira IsFilterOptional
+    [ListAction(Summary = "Gets all EventNotification items for a given Object id and type", IsFilterOptional = false)]
     public class EventNotificationController : KalturaCrudController<KalturaEventNotification, KalturaEventNotificationListResponse, EventNotificationAction, string, KalturaEventNotificationFilter, EventNotificationActionFilter>
     {
     }

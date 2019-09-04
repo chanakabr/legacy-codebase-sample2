@@ -13067,8 +13067,6 @@ namespace WebAPI.Reflection
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
-                                IsOptional = true,
-                                DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEventNotificationFilter),
                             });
