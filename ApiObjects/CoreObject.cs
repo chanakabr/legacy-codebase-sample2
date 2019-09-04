@@ -1,4 +1,5 @@
 ﻿using EventManager;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,12 @@ namespace ApiObjects
     [Serializable]
     public abstract class CoreObject
     {
+        [JsonProperty("GroupId")]
         public int GroupId { get; set; }
+
+        [JsonProperty("Id")]
         public long Id { get; set; }
+
         public List<string> ChangedFields { get; set; }
 
         #region Abstract Methods

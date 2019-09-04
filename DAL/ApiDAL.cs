@@ -27,6 +27,7 @@ namespace DAL
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
+        private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success (in sec)
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -40,7 +41,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }       
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
         {
@@ -5925,6 +5926,33 @@ namespace DAL
 
             var table = storedProcedure.Execute();
             return table;
+        }
+
+        public static bool SaveEventNotificationActionCB(EventNotificationAction eventNotificationAction)
+        {
+            if (eventNotificationAction != null)
+            {
+                string key = GetEventNotificationActionKey(eventNotificationAction.Id);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
+            }
+
+            return false;
+        }
+
+        private static string GetEventNotificationActionKey(string id)
+        {
+            return $"event_notification_action_{id}";
+        }
+
+        public static EventNotificationAction GetEventNotificationActionCB(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                string key = GetEventNotificationActionKey(id);
+                return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
+            }
+
+            return null;
         }
     }
 }
