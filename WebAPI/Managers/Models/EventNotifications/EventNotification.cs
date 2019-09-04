@@ -29,6 +29,13 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+        [JsonProperty("save_to_db")]
+        public bool? SaveToDB
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("actions")]
         public List<NotificationAction> Actions { get; set; }
     }

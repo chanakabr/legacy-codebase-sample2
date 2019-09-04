@@ -294,6 +294,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_RULE_STATUS_NOT_WRITABLE = new ClientExceptionType(eResponseStatus.AssetRuleStatusNotWritable, "Asset Rule Status Not Writable", "Cannot update or delete asset rule when in progress");
         public static ClientExceptionType Permission_Not_Found = new ClientExceptionType(eResponseStatus.PermissionNotFound, "Permission Not Found", "Permission not found");
         public static ClientExceptionType PERMISSION_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.PermissionNameAlreadyInUse, "Permission Name Already In Use", "Permission name already in use");
+        public static ClientExceptionType EVENT_NOTIFICATION_ID_IS_MISSING = new ClientExceptionType(eResponseStatus.EventNotificationIdIsMissing, "event notification id is missing", "event notification id is missing");
+        public static ClientExceptionType EVENT_NOTIFICATION_ID_NOT_FOUND = new ClientExceptionType(eResponseStatus.EventNotificationIdNotFound, "Event notification id not found", "Event notification id not found");
 
         #endregion
 
