@@ -231,6 +231,7 @@
             epg_channel_id – the channel identifier of the EPG program.
             entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
             asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
+            aufo_fill - only valid value is "true": When enabled, auto fill assets will also return.
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
             For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
             Logical conjunction: and, or. 
@@ -5667,6 +5668,61 @@
         <member name="P:WebAPI.Models.API.KalturaDrmProfileListResponse.Adapters">
             <summary>
             Adapters
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaEventNotification">
+            <summary>
+            Household Coupon details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.Id">
+            <summary>
+            Identifier 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.ObjectId">
+            <summary>
+            Object identifier 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.ObjectType">
+            <summary>
+            Object type 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.Message">
+            <summary>
+            Message 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.ActionType">
+            <summary>
+            Action type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.CreateDate">
+            <summary>
+            Create date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.UpdateDate">
+            <summary>
+            Update date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.ObjectIdEqual">
+            <summary>
+            Indicates which objectId to return by their event notifications.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.ObjectTypeEqual">
+            <summary>
+            Indicates which objectType to return by their event notifications.
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaExportFilter">
