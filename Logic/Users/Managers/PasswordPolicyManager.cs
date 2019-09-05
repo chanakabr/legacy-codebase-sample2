@@ -28,16 +28,10 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<PasswordPolicy>();
             try
             {
-                response = Validate(contextData, 0, objectToAdd);
+                response = ValidateCrudObject(contextData, 0, objectToAdd);
                 if (!response.IsOkStatusCode())
                 {
                     return response;
-                }
-                var userRoleToPasswordPolicy = UsersDal.GetUserRolesToPasswordPolicy(contextData.GroupId);
-
-                if (userRoleToPasswordPolicy == null)
-                {
-                    userRoleToPasswordPolicy = new Dictionary<long, HashSet<long>>();
                 }
 
                 var couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS);
@@ -45,30 +39,23 @@ namespace ApiLogic.Users.Managers
                 if (objectToAdd.Id == 0)
                 {
                     log.ErrorFormat("Error setting Password Policy id");
-                    return null;
-                }
-
-                foreach (var roleId in objectToAdd.UserRoleIds)
-                {
-                    if (userRoleToPasswordPolicy.ContainsKey(roleId))
-                    {
-                        userRoleToPasswordPolicy[roleId].Add(objectToAdd.Id);
-                    }
-                    else
-                    {
-                        userRoleToPasswordPolicy.Add(roleId, new HashSet<long> { objectToAdd.Id });
-                    }
-                }
-
-                if (!UsersDal.SavePasswordPolicy(objectToAdd))
-                {
-                    log.ErrorFormat($"Error while saving Password Policy. " +
-                        $"Policy: {Newtonsoft.Json.JsonConvert.SerializeObject(objectToAdd)}," +
-                        $"Status: {response.Status}");
                     return response;
                 }
 
-                if (!UsersDal.SaveUserRolesToPasswordPolicy(contextData.GroupId, userRoleToPasswordPolicy))
+                var modifiedRoleIdsResponse = GetModifiedRoleIds(contextData, objectToAdd.Id, null, out Dictionary<long, HashSet<long>> rolesToPasswordPolicyMap, objectToAdd.UserRoleIds);
+                if (!modifiedRoleIdsResponse.HasObject())
+                {
+                    response.SetStatus(modifiedRoleIdsResponse.Status);
+                    return response;
+                }
+                
+                if (!UsersDal.SavePasswordPolicy(objectToAdd))
+                {
+                    log.ErrorFormat($"Error while saving Password Policy. Policy: {JsonConvert.SerializeObject(objectToAdd)}, Status: {response.Status}");
+                    return response;
+                }
+
+                if (!UsersDal.SaveUserRolesToPasswordPolicy(contextData.GroupId, rolesToPasswordPolicyMap))
                 {
                     log.ErrorFormat($"Error while saving Password Policy dictionary.");
                     return response;
@@ -78,31 +65,14 @@ namespace ApiLogic.Users.Managers
 
                 response.Object = objectToAdd;
                 response.SetStatus(eResponseStatus.OK);
-                return response;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //add log + set status + error1
-                throw;
-            }
-        }
-
-        private void SetInvalidationKeys(int groupId, HashSet<long> roleIds)
-        {
-            var mapKey = LayeredCacheKeys.GetUserRolesToPasswordPolicyInvalidationKey(groupId);
-            if (!LayeredCache.Instance.SetInvalidationKey(mapKey))
-            {
-                log.Error($"Error setting InvalidationKey: {mapKey} (UserRolesToPasswordPolicyInvalidationKey)");
+                log.Error($"An Exception was occurred in Add. contextData:{contextData}, passwordPolicy:{JsonConvert.SerializeObject(objectToAdd)}", ex);
+                response.SetStatus(eResponseStatus.Error);
             }
 
-            foreach (var roleId in roleIds)
-            {
-                var key = LayeredCacheKeys.GetPasswordPolicyInvalidationKey(roleId);
-                if (!LayeredCache.Instance.SetInvalidationKey(key))
-                {
-                    log.Error($"Error setting: {key}");
-                }
-            }
+            return response;
         }
 
         public GenericResponse<PasswordPolicy> Update(ContextData contextData, PasswordPolicy objectToUpdate)
@@ -110,7 +80,7 @@ namespace ApiLogic.Users.Managers
             var response = new GenericResponse<PasswordPolicy>();
             try
             {
-                response = Validate(contextData, objectToUpdate.Id, objectToUpdate);
+                response = ValidateCrudObject(contextData, objectToUpdate.Id, objectToUpdate);
                 if (!response.HasObject())
                 {
                     return response;
@@ -155,52 +125,14 @@ namespace ApiLogic.Users.Managers
                 }
 
                 response.Object = objectToUpdate;
-                return response;
             }
             catch (Exception ex)
             {
                 log.Error($"Error updating password policy due to: {ex.Message}");
                 response.SetStatus(eResponseStatus.Error);
             }
+
             return response;
-        }
-
-        private HashSet<long> UpdatePolicyMap(long passwordPolicyId, HashSet<long> roleIdsToUpdate, HashSet<long> originalRoleIds, Dictionary<long, HashSet<long>> roleIdsToPasswordPolicyIdsMap)
-        {
-            var modifiedRole = new HashSet<long>();
-            //if map changed roles
-            if (roleIdsToUpdate == null || !originalRoleIds.SequenceEqual(roleIdsToUpdate))
-            {
-                //all roles with that policy
-                var rolesWithPolicy = roleIdsToPasswordPolicyIdsMap.Where
-                    (x => x.Value.Contains(passwordPolicyId)).Select(x => x.Key).ToList();
-
-                foreach (var role in rolesWithPolicy)
-                {
-                    roleIdsToPasswordPolicyIdsMap[role].Remove(passwordPolicyId);
-                    modifiedRole.Add(role);
-                }
-
-                if (roleIdsToUpdate != null)
-                {
-                    foreach (var role in roleIdsToUpdate)//update for all relevant
-                    {
-                        if (roleIdsToPasswordPolicyIdsMap.ContainsKey(role))
-                        {
-                            roleIdsToPasswordPolicyIdsMap[role].Add(passwordPolicyId);
-                        }
-                        else
-                        {
-                            roleIdsToPasswordPolicyIdsMap.Add(role, new HashSet<long> { passwordPolicyId });
-                        }
-                        if (!modifiedRole.Contains(role))
-                        {
-                            modifiedRole.Add(role);
-                        }
-                    }
-                }
-            }
-            return modifiedRole;
         }
 
         public Status Delete(ContextData contextData, long id)
@@ -209,14 +141,14 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var validationResponse = Validate(contextData, id);
+                var validationResponse = ValidateCrudObject(contextData, id);
                 if (!validationResponse.HasObject())
                 {
                     response.Set(validationResponse.Status);
                     return response;
                 }
 
-                var modifiedRoleIdsResponse = GetModifiedRoleIds(contextData, id, validationResponse.Object.UserRoleIds, 
+                var modifiedRoleIdsResponse = GetModifiedRoleIds(contextData, id, validationResponse.Object.UserRoleIds,
                     out Dictionary<long, HashSet<long>> roleIdsToPolicyMap);
 
                 if (!modifiedRoleIdsResponse.HasObject())
@@ -224,21 +156,6 @@ namespace ApiLogic.Users.Managers
                     response.Set(modifiedRoleIdsResponse.Status);
                     return response;
                 }
-                /*
-                var roleIdsToPolicyMap = UsersDal.GetUserRolesToPasswordPolicy(contextData.GroupId);
-                if (roleIdsToPolicyMap == null)
-                {
-                    log.ErrorFormat($"Error getting UserRolesToPasswordPolicy by the supplied group id: {contextData.GroupId}");
-                    return Status.Error;
-                }
-
-                var toRemove = roleIdsToPolicyMap.Where(x => x.Value.Contains(id)).Select(x => x.Key).ToList();
-
-                foreach (var item in toRemove)
-                {
-                    roleIdsToPolicyMap[item].Remove(id);
-                }
-                */
 
                 if (!UsersDal.DeleteUserRolesToPasswordPolicy(contextData.GroupId, roleIdsToPolicyMap))
                 {
@@ -268,13 +185,17 @@ namespace ApiLogic.Users.Managers
 
         public GenericResponse<PasswordPolicy> Get(ContextData contextData, long id)
         {
-            var response = new GenericResponse<PasswordPolicy>();
-            var passwordPolicy = UsersDal.GetPasswordPolicy(id);
-            if (passwordPolicy == null)
+            var response = new GenericResponse<PasswordPolicy>
+            {
+                Object = UsersDal.GetPasswordPolicy(id)
+            };
+
+            if (response.Object == null)
             {
                 response.SetStatus(eResponseStatus.PasswordPolicyDoesNotExist);
                 return response;
             }
+
             response.SetStatus(eResponseStatus.OK);
             return response;
         }
@@ -364,7 +285,7 @@ namespace ApiLogic.Users.Managers
                             {
                                 if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
                                 {
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {i + 1}", 
+                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {i + 1}",
                                         $"Your password needs to be more complex. It requires: {passwordPolicy.Complexities[i].Description}. Please enter a new password in accordance with these requirements");
                                 }
                             }
@@ -388,6 +309,59 @@ namespace ApiLogic.Users.Managers
             }
 
             return response;
+        }
+
+        public GenericResponse<PasswordPolicy> ValidateCrudObject(ContextData contextData, long id = 0, PasswordPolicy objectToValidate = null)
+        {
+            var response = new GenericResponse<PasswordPolicy>();
+            try
+            {
+                if (id != 0)
+                {
+                    response.Object = UsersDal.GetPasswordPolicy(id);
+                    if (response.Object == null)
+                    {
+                        response.SetStatus(eResponseStatus.PasswordPolicyDoesNotExist);
+                        return response;
+                    }
+                }
+
+                if (objectToValidate != null && objectToValidate.UserRoleIds != null)
+                {
+                    var allExistingRoles = RolesPermissionsManager.GetRolesByGroupId(contextData.GroupId);
+                    if (!(objectToValidate.UserRoleIds.IsSubsetOf(allExistingRoles.Select(r => r.Id))))
+                    {
+                        response.SetStatus(eResponseStatus.RoleDoesNotExists);
+                        return response;
+                    }
+                }
+
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error);
+                log.Error($"Validate Error: {ex}");
+            }
+            return response;
+        }
+
+        private void SetInvalidationKeys(int groupId, HashSet<long> roleIds)
+        {
+            var mapKey = LayeredCacheKeys.GetUserRolesToPasswordPolicyInvalidationKey(groupId);
+            if (!LayeredCache.Instance.SetInvalidationKey(mapKey))
+            {
+                log.Error($"Error setting InvalidationKey: {mapKey} (UserRolesToPasswordPolicyInvalidationKey)");
+            }
+
+            foreach (var roleId in roleIds)
+            {
+                var key = LayeredCacheKeys.GetPasswordPolicyInvalidationKey(roleId);
+                if (!LayeredCache.Instance.SetInvalidationKey(key))
+                {
+                    log.Error($"Error setting: {key}");
+                }
+            }
         }
 
         private Tuple<Dictionary<string, List<PasswordPolicy>>, bool> GetPasswordPolicyList(Dictionary<string, object> funcParams)
@@ -535,50 +509,72 @@ namespace ApiLogic.Users.Managers
             }
         }
 
-        public GenericResponse<PasswordPolicy> Validate(ContextData contextData, long id = 0, PasswordPolicy objectToValidate = null)
+        private HashSet<long> UpdatePolicyMap(long passwordPolicyId, HashSet<long> roleIdsToUpdate, HashSet<long> originalRoleIds, Dictionary<long, HashSet<long>> roleIdsToPasswordPolicyIdsMap)
         {
-            var response = new GenericResponse<PasswordPolicy>();
-            try
+            var modifiedRole = new HashSet<long>();
+            //if map changed roles
+            if (roleIdsToUpdate == null || originalRoleIds == null || !originalRoleIds.SequenceEqual(roleIdsToUpdate))
             {
-                if (id != 0)
+                if (originalRoleIds != null)
                 {
-                    response.Object = UsersDal.GetPasswordPolicy(id);
-                    if (response.Object == null)
+                    //all roles with that policy
+                    var rolesWithPolicy = roleIdsToPasswordPolicyIdsMap.Where
+                        (x => x.Value.Contains(passwordPolicyId)).Select(x => x.Key).ToList();
+
+                    foreach (var role in rolesWithPolicy)
                     {
-                        response.SetStatus(eResponseStatus.PasswordPolicyDoesNotExist);
-                        return response;
+                        roleIdsToPasswordPolicyIdsMap[role].Remove(passwordPolicyId);
+                        modifiedRole.Add(role);
                     }
                 }
-
-                if (objectToValidate != null && objectToValidate.UserRoleIds != null)
+                
+                if (roleIdsToUpdate != null)
                 {
-                    var allExistingRoles = RolesPermissionsManager.GetRolesByGroupId(contextData.GroupId);
-                    if (!(objectToValidate.UserRoleIds.IsSubsetOf(allExistingRoles.Select(r => r.Id))))
+                    foreach (var role in roleIdsToUpdate)//update for all relevant
                     {
-                        response.SetStatus(eResponseStatus.RoleDoesNotExists);
-                        return response;
+                        if (roleIdsToPasswordPolicyIdsMap.ContainsKey(role))
+                        {
+                            roleIdsToPasswordPolicyIdsMap[role].Add(passwordPolicyId);
+                        }
+                        else
+                        {
+                            roleIdsToPasswordPolicyIdsMap.Add(role, new HashSet<long> { passwordPolicyId });
+                        }
+
+                        if (!modifiedRole.Contains(role))
+                        {
+                            modifiedRole.Add(role);
+                        }
                     }
                 }
+            }
 
-                response.SetStatus(eResponseStatus.OK);
-            }
-            catch (Exception ex)
-            {
-                response.SetStatus(eResponseStatus.Error);
-                log.Error($"Validate Error: {ex}");
-            }
-            return response;
+            return modifiedRole;
         }
 
         private GenericResponse<HashSet<long>> GetModifiedRoleIds(ContextData contextData, long passwordPolicyId,
             HashSet<long> originalRoleIds, out Dictionary<long, HashSet<long>> rolesToPasswordPolicyMap, HashSet<long> roleIdsToUpdate = null)
         {
             var response = new GenericResponse<HashSet<long>>();
-            rolesToPasswordPolicyMap = UsersDal.GetUserRolesToPasswordPolicy(contextData.GroupId);
+            rolesToPasswordPolicyMap = null;
+            if (!LayeredCache.Instance.Get(LayeredCacheKeys.GetUserRolesToPasswordPolicyKey(contextData.GroupId),
+                                                       ref rolesToPasswordPolicyMap,
+                                                       GetUserRolesToPasswordPolicy,
+                                                       new Dictionary<string, object>()
+                                                       {
+                                                            { "groupId", contextData.GroupId }
+                                                       },
+                                                       contextData.GroupId,
+                                                       LayeredCacheConfigNames.GET_USER_ROLES_TO_PASSWORD_POLICY,
+                                                       new List<string>() { LayeredCacheKeys.GetUserRolesToPasswordPolicyInvalidationKey(contextData.GroupId) }))
+            {
+                log.ErrorFormat("GetModifiedRoleIds - GetUserRolesToPasswordPolicy - Failed get data from cache. groupId: {0}", contextData.GroupId);
+                return response;
+            }
+
             if (rolesToPasswordPolicyMap == null)
             {
-                log.ErrorFormat($"Error getting UserRolesToPasswordPolicy by the supplied group id: {contextData.GroupId}");
-                return response;
+                rolesToPasswordPolicyMap = new Dictionary<long, HashSet<long>>();
             }
 
             //logic - validate group and role in policy

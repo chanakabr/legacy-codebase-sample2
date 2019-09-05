@@ -36,23 +36,8 @@ namespace ApiObjects
             {
                 needToUpdate = true;
             }
-            if (this.Complexities == null)
-            {
-                this.Complexities = oldPasswordPolicy.Complexities;
-            }
-            else
-            {
-                needToUpdate = true;
-            }
-            if (this.Expiration == null)
-            {
-                this.Expiration = oldPasswordPolicy.Expiration;
-            }
-            else
-            {
-                needToUpdate = true;
-            }
-            if (this.UserRoleIds != null)
+
+            if (this.UserRoleIds == null)
             {
                 this.UserRoleIds = oldPasswordPolicy.UserRoleIds;
             }
@@ -61,10 +46,42 @@ namespace ApiObjects
                 needToUpdate = true;
             }
 
-            if (this.Expiration == 0) { this.Expiration = null; needToUpdate = true; }
-            if (this.LockoutFailuresCount == 0) { this.LockoutFailuresCount = null; needToUpdate = true; }
-            if (this.HistoryCount == 0) { this.HistoryCount = null; needToUpdate = true; }
+            if (!this.HistoryCount.HasValue)
+            {
+                this.HistoryCount = oldPasswordPolicy.HistoryCount;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
 
+            if (!this.Expiration.HasValue)
+            {
+                this.Expiration = oldPasswordPolicy.Expiration;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
+
+            if (this.Complexities == null)
+            {
+                this.Complexities = oldPasswordPolicy.Complexities;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
+            
+            if (!this.LockoutFailuresCount.HasValue)
+            {
+                this.LockoutFailuresCount = oldPasswordPolicy.LockoutFailuresCount;
+            }
+            else
+            {
+                needToUpdate = true;
+            }
+            
             return needToUpdate;
         }
     }
