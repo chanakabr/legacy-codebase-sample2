@@ -635,6 +635,8 @@ namespace IngestHandler
                                     break;
                             }
                         }
+
+                        break;
                     }
                 }
             }
