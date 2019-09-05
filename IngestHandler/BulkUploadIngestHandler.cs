@@ -128,7 +128,7 @@ namespace IngestHandler
                     GroupId = serviceEvent.GroupId,
                     RequestId = KLogger.GetRequestId(),
                     DateOfProgramsToIngest = serviceEvent.DateOfProgramsToIngest,
-                    EPGs = finalEpgState.Where(epg => errorProgramExternalIds.ContainsKey(epg.EpgExternalId)).ToList(),
+                    EPGs = finalEpgState.Where(epg => !errorProgramExternalIds.ContainsKey(epg.EpgExternalId)).ToList(),
                     EdgeProgramsToUpdate = edgeProgramsToUpdate,
                     Languages = _Languages,
                     Results = _Results
