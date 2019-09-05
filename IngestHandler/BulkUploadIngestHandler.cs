@@ -116,6 +116,9 @@ namespace IngestHandler
                 var updater = new UpdateClonedIndex(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _Languages);
                 updater.Update(finalEpgState, crudOperations.ItemsToDelete);
 
+                var errorProgramExternalIds = _Results.Values.Where(item => item.Status == BulkUploadResultStatus.Error)
+                    .Select(item => item.ProgramExternalId).ToDictionary(x=>x, null);
+
                 // publish using EventBus to a new consumer with a new event ValidateIngest
                 var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
 
@@ -125,7 +128,7 @@ namespace IngestHandler
                     GroupId = serviceEvent.GroupId,
                     RequestId = KLogger.GetRequestId(),
                     DateOfProgramsToIngest = serviceEvent.DateOfProgramsToIngest,
-                    EPGs = finalEpgState,
+                    EPGs = finalEpgState.Where(epg => errorProgramExternalIds.ContainsKey(epg.EpgExternalId)).ToList(),
                     EdgeProgramsToUpdate = edgeProgramsToUpdate,
                     Languages = _Languages,
                     Results = _Results
