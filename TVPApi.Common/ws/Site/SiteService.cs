@@ -759,7 +759,9 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(userBasicData.ToCore(), userDynamicData, sPassword, sAffiliateCode);
+                    Core.Users.UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(coreUserBasicData, userDynamicData, sPassword, sAffiliateCode);
                 }
                 catch (Exception ex)
                 {
@@ -847,7 +849,9 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, userBasicData.ToCore(), userDynamicData);
+                    Core.Users.UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, coreUserBasicData, userDynamicData);
                 }
                 catch (Exception ex)
                 {

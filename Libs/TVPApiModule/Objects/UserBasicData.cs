@@ -324,7 +324,7 @@ namespace TVPApiModule.Objects
                 m_sFacebookImage = this.m_sFacebookImage,
                 m_sFacebookToken = this.m_sFacebookToken,
                 m_sFirstName = this.m_sFirstName,
-                m_UserType = this.m_UserType.ToCore(),
+                m_UserType = this.m_UserType == null ? default(ApiObjects.UserType) : this.m_UserType.ToCore(),
                 m_sLastName = this.m_sLastName,
                 m_sPhone = this.m_sPhone,
                 m_State = this.m_State,
