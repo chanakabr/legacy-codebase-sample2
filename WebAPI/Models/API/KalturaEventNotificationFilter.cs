@@ -36,11 +36,11 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Indicates which objectType to return by their event notifications.
         /// </summary>
-        [DataMember(Name = "objectTypeEqual")]
-        [JsonProperty("objectTypeEqual")]
-        [XmlElement(ElementName = "objectTypeEqual", IsNullable = true)]
+        [DataMember(Name = "eventObjectTypeEqual")]
+        [JsonProperty("eventObjectTypeEqual")]
+        [XmlElement(ElementName = "eventObjectTypeEqual", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
-        public string ObjectTypeEqual { get; set; }
+        public string EventObjectTypeEqual { get; set; }
 
         public override ICrudHandler<EventNotificationAction, string, EventNotificationActionFilter> Handler
         {
@@ -72,14 +72,14 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "idEqual", "objectIdEqual");
             }
 
-            if (ObjectIdEqual.HasValue && string.IsNullOrEmpty(ObjectTypeEqual))
+            if (ObjectIdEqual.HasValue && string.IsNullOrEmpty(EventObjectTypeEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "objectTypeEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "eventObjectTypeEqual");
             }
            
             if (ObjectIdEqual <= 0)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "objectTypeEqual");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ObjectIdEqual");
             }
         }
 

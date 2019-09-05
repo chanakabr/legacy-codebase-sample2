@@ -15541,9 +15541,9 @@ namespace WebAPI.Models.API
                     }
                     ObjectIdEqual = (Int64) Convert.ChangeType(parameters["objectIdEqual"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("objectTypeEqual") && parameters["objectTypeEqual"] != null)
+                if (parameters.ContainsKey("eventObjectTypeEqual") && parameters["eventObjectTypeEqual"] != null)
                 {
-                    ObjectTypeEqual = (String) Convert.ChangeType(parameters["objectTypeEqual"], typeof(String));
+                    EventObjectTypeEqual = (String) Convert.ChangeType(parameters["eventObjectTypeEqual"], typeof(String));
                 }
             }
         }

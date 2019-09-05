@@ -5725,7 +5725,7 @@
             Indicates which objectId to return by their event notifications.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.ObjectTypeEqual">
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.EventObjectTypeEqual">
             <summary>
             Indicates which objectType to return by their event notifications.
             </summary>
