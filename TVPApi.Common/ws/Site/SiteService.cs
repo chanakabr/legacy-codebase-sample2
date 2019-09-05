@@ -748,7 +748,7 @@ namespace TVPApiServices
             return bRes;
         }
 
-        public UserResponseObject SignUp(InitializationObject initObj, UserBasicData userBasicData,
+        public UserResponseObject SignUp(InitializationObject initObj, TVPApiModule.Objects.UserBasicData userBasicData,
             UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
@@ -759,7 +759,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(userBasicData, userDynamicData, sPassword, sAffiliateCode);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignUp(userBasicData.ToCore(), userDynamicData, sPassword, sAffiliateCode);
                 }
                 catch (Exception ex)
                 {
@@ -830,7 +830,7 @@ namespace TVPApiServices
         }
 
         [PrivateMethod]
-        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, UserBasicData userBasicData,
+        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPApiModule.Objects.UserBasicData userBasicData,
             UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
@@ -847,7 +847,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, userBasicData, userDynamicData);
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, userBasicData.ToCore(), userDynamicData);
                 }
                 catch (Exception ex)
                 {

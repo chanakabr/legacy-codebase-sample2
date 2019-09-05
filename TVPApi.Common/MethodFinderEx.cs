@@ -97,12 +97,6 @@ public partial class MethodFinder
                         }
                         else
                         {
-                            //JsonSerializer ser = new JsonSerializer();
-                            //var test = JsonConvert.DeserializeObject(DeserializationTarget);
-                            //List<object> list = new List<object>();
-                            //Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
-                            //    MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
-
                             var jArray = JArray.Parse(DeserializationTarget);
                             Product = jArray.GetType().GetMethod("ToObject", new Type[] {}).MakeGenericMethod(TargetType).Invoke(jArray, new object[] { });
                         }
@@ -138,12 +132,7 @@ public partial class MethodFinder
                         //    //}
                         //}                        
                         ////System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(TargetType);                                                
-
-                        var serializer = new JsonSerializer()
-                        {
-                             
-                        };
-
+                        
                         // special edge case with user dnymaic data - the Parse method does not handle "arrays" properly
                         if (TargetType.Name.ToLower() == "userdynamicdata")
                         {

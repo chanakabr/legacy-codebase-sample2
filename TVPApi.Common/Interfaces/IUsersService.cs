@@ -9,6 +9,7 @@ using Core.Users;
 using ApiObjects;
 using InitializationObject = TVPApi.InitializationObject;
 using ApiObjects.Billing;
+using UserType = ApiObjects.UserType;
 
 namespace TVPApiServices
 {
