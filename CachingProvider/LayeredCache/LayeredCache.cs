@@ -188,7 +188,24 @@ namespace CachingProvider.LayeredCache
 
                     if (res)
                     {
-                        InsertResultsToCurrentRequest(results, inValidationKeysMap);
+                        Dictionary<string, List<string>> invalidationKeysToKeys = new Dictionary<string, List<string>>();
+
+                        foreach (var objectKey in inValidationKeysMap.Keys)
+                        {
+                            var invalidationKeysOfSpecificKey = inValidationKeysMap[objectKey];
+
+                            foreach (var invalidationKey in invalidationKeysOfSpecificKey)
+                            {
+                                if (!invalidationKeysToKeys.ContainsKey(invalidationKey))
+                                {
+                                    invalidationKeysToKeys[invalidationKey] = new List<string>();
+                                }
+
+                                invalidationKeysToKeys[invalidationKey].Add(objectKey);
+                            }
+                        }
+
+                        InsertResultsToCurrentRequest(results, invalidationKeysToKeys);
                     }
 
                     if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null)
