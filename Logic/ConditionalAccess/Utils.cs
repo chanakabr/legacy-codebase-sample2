@@ -1652,7 +1652,7 @@ namespace Core.ConditionalAccess
             {
                 // look if this coupon group id exsits in coupon list 
                 CouponsGroup currCouponGroup = null;
-                if (couponsGroup != null && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
+                if (couponsGroup != null && !string.IsNullOrEmpty(couponsGroup.m_sGroupCode) && couponsGroup.m_sGroupCode.Equals(couponGroupId.ToString()))
                 {
                     currCouponGroup = ObjectCopier.Clone(couponsGroup);
                 }
