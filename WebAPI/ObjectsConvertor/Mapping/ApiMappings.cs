@@ -1955,7 +1955,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
-                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.ObjectType))
+                .ForMember(dest => dest.EventObjectType, opt => opt.MapFrom(src => src.ObjectType))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 
@@ -1966,7 +1966,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
-                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.ObjectType))
+                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectType))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 

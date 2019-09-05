@@ -14872,6 +14872,10 @@ namespace WebAPI.Models.API
                 ret.Add("actionType", "\"actionType\": " + "\"" + EscapeJson(ActionType) + "\"");
             }
             ret.Add("createDate", "\"createDate\": " + CreateDate);
+            if(EventObjectType != null)
+            {
+                ret.Add("eventObjectType", "\"eventObjectType\": " + "\"" + EscapeJson(EventObjectType) + "\"");
+            }
             if(Id != null)
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
@@ -14881,10 +14885,6 @@ namespace WebAPI.Models.API
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
             }
             ret.Add("objectId", "\"objectId\": " + ObjectId);
-            if(ObjectType != null)
-            {
-                ret.Add("objectType", "\"objectType\": " + "\"" + EscapeJson(ObjectType) + "\"");
-            }
             ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaEventNotificationStatus), Status) + "\"");
             ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             return ret;
@@ -14901,6 +14901,10 @@ namespace WebAPI.Models.API
                 ret.Add("actionType", "<actionType>" + EscapeXml(ActionType) + "</actionType>");
             }
             ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            if(EventObjectType != null)
+            {
+                ret.Add("eventObjectType", "<eventObjectType>" + EscapeXml(EventObjectType) + "</eventObjectType>");
+            }
             if(Id != null)
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
@@ -14910,10 +14914,6 @@ namespace WebAPI.Models.API
                 ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
             }
             ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
-            if(ObjectType != null)
-            {
-                ret.Add("objectType", "<objectType>" + EscapeXml(ObjectType) + "</objectType>");
-            }
             ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaEventNotificationStatus), Status) + "" + "</status>");
             ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             return ret;

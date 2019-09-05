@@ -2303,14 +2303,14 @@ namespace WebAPI.Reflection
                             return "actionType";
                         case "CreateDate":
                             return "createDate";
+                        case "EventObjectType":
+                            return "eventObjectType";
                         case "Id":
                             return "id";
                         case "Message":
                             return "message";
                         case "ObjectId":
                             return "objectId";
-                        case "ObjectType":
-                            return "objectType";
                         case "Status":
                             return "status";
                         case "UpdateDate":

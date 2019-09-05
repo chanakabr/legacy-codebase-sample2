@@ -43,12 +43,12 @@ namespace WebAPI.Models.API
         public long ObjectId { get; set; }
 
         /// <summary>
-        /// Object type 
+        /// Event object type 
         /// </summary>
-        [DataMember(Name = "objectType")]
-        [JsonProperty("objectType")]
-        [XmlElement(ElementName = "objectType")]
-        public string ObjectType { get; set; }
+        [DataMember(Name = "eventObjectType")]
+        [JsonProperty("eventObjectType")]
+        [XmlElement(ElementName = "eventObjectType")]
+        public string EventObjectType { get; set; }
 
         /// <summary>
         /// Message 

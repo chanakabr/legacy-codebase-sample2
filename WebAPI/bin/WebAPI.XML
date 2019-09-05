@@ -5685,9 +5685,9 @@
             Object identifier 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaEventNotification.ObjectType">
+        <member name="P:WebAPI.Models.API.KalturaEventNotification.EventObjectType">
             <summary>
-            Object type 
+            Event object type 
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaEventNotification.Message">

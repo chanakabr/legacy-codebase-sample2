@@ -15470,9 +15470,9 @@ namespace WebAPI.Models.API
                     }
                     ObjectId = (Int64) Convert.ChangeType(parameters["objectId"], typeof(Int64));
                 }
-                if (parameters.ContainsKey("objectType") && parameters["objectType"] != null)
+                if (parameters.ContainsKey("eventObjectType") && parameters["eventObjectType"] != null)
                 {
-                    ObjectType = (String) Convert.ChangeType(parameters["objectType"], typeof(String));
+                    EventObjectType = (String) Convert.ChangeType(parameters["eventObjectType"], typeof(String));
                 }
                 if (parameters.ContainsKey("message") && parameters["message"] != null)
                 {
