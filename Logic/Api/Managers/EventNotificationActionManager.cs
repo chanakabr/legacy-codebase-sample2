@@ -116,38 +116,44 @@ namespace ApiLogic.Api.Managers
         public GenericListResponse<EventNotificationAction> List(ContextData contextData, EventNotificationActionFilter filter)
         {
             var response = new GenericListResponse<EventNotificationAction>();
-
-            List<EventNotificationAction> eventNotificationActions = null;
-            EventNotificationAction eventNotificationAction = null;
-
-            if (filter != null && filter.ObjectId.HasValue && filter.ObjectId.Value > 0)
+            try
             {
-                var eventNotificationActionIds = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.ObjectType, filter.ObjectId.Value);
-                if (eventNotificationActionIds?.Count > 0)
+                List<EventNotificationAction> eventNotificationActions = null;
+                EventNotificationAction eventNotificationAction = null;
+
+                if (filter != null && filter.ObjectId.HasValue && filter.ObjectId.Value > 0)
                 {
-                    eventNotificationActions = new List<EventNotificationAction>();
-                    foreach (var id in eventNotificationActionIds)
+                    var eventNotificationActionIds = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.ObjectType, filter.ObjectId.Value);
+                    if (eventNotificationActionIds?.Count > 0)
                     {
-                        eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, id);
-                        if (eventNotificationAction != null)
+                        eventNotificationActions = new List<EventNotificationAction>();
+                        foreach (var id in eventNotificationActionIds)
                         {
-                            eventNotificationActions.Add(eventNotificationAction);
+                            eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, id);
+                            if (eventNotificationAction != null)
+                            {
+                                eventNotificationActions.Add(eventNotificationAction);
+                            }
                         }
+
+                        response.Objects = eventNotificationActions;
+                        response.TotalItems = eventNotificationActions.Count;
+                        response.SetStatus(eResponseStatus.OK);
                     }
+                }
+                else if (filter != null && !string.IsNullOrEmpty(filter.Id))
+                {
+                    eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.Id);
+                    eventNotificationActions = new List<EventNotificationAction>() { eventNotificationAction };
 
                     response.Objects = eventNotificationActions;
-                    response.TotalItems = eventNotificationActions.Count;
+                    response.TotalItems = 1;
                     response.SetStatus(eResponseStatus.OK);
                 }
             }
-            else if (filter != null && !string.IsNullOrEmpty(filter.Id))
+            catch (Exception ex)
             {
-                eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.Id);
-                eventNotificationActions = new List<EventNotificationAction>() { eventNotificationAction };
-
-                response.Objects = eventNotificationActions;
-                response.TotalItems = 1;
-                response.SetStatus(eResponseStatus.OK);
+                log.Error($"Failed to retrive EventNotificationAction list groupID: {contextData.GroupId}, ex: {ex}");
             }
 
             return response;
