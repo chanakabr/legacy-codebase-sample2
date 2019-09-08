@@ -6007,6 +6007,22 @@ namespace DAL
             return null;
         }
 
+        public static List<EventNotificationAction> GetEventNotificationActionsCB(int groupId, List<string> ids)
+        {
+            if (ids.Count > 0)
+            {
+                List<string> keys = new List<string>();
+                foreach (var id in ids)
+                {
+                    keys.Add(GetEventNotificationActionIdKey(groupId, id));
+                }
+
+                return UtilsDal.GetObjectListFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, keys, true);
+            }
+
+            return null;
+        }
+
         public static List<string> GetEventNotificationActionCB(int groupId,string objectType, long objectId)
         {
             string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);

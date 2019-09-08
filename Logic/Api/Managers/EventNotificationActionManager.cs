@@ -27,8 +27,10 @@ namespace ApiLogic.Api.Managers
 
             try
             {
-                eventNotificationActionToAdd.CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-                eventNotificationActionToAdd.UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                long epocNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+
+                eventNotificationActionToAdd.CreateDate = epocNow;
+                eventNotificationActionToAdd.UpdateDate = epocNow;
 
                 // Save eventNotificationAction by id At CB                    
                 if (!ApiDAL.SaveEventNotificationActionIdCB(contextData.GroupId, eventNotificationActionToAdd))
@@ -119,37 +121,32 @@ namespace ApiLogic.Api.Managers
             try
             {
                 List<EventNotificationAction> eventNotificationActions = null;
-                EventNotificationAction eventNotificationAction = null;
 
                 if (filter != null && filter.ObjectId.HasValue && filter.ObjectId.Value > 0)
                 {
                     var eventNotificationActionIds = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.ObjectType, filter.ObjectId.Value);
                     if (eventNotificationActionIds?.Count > 0)
                     {
-                        eventNotificationActions = new List<EventNotificationAction>();
-                        foreach (var id in eventNotificationActionIds)
-                        {
-                            eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, id);
-                            if (eventNotificationAction != null)
-                            {
-                                eventNotificationActions.Add(eventNotificationAction);
-                            }
-                        }
-
-                        response.Objects = eventNotificationActions;
-                        response.TotalItems = eventNotificationActions.Count;
-                        response.SetStatus(eResponseStatus.OK);
+                        eventNotificationActions = ApiDAL.GetEventNotificationActionsCB(contextData.GroupId, eventNotificationActionIds);
                     }
                 }
                 else if (filter != null && !string.IsNullOrEmpty(filter.Id))
                 {
-                    eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.Id);
-                    eventNotificationActions = new List<EventNotificationAction>() { eventNotificationAction };
+                    EventNotificationAction eventNotificationAction = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, filter.Id);
 
+                    if (eventNotificationAction != null)
+                    {
+                        eventNotificationActions = new List<EventNotificationAction>() { eventNotificationAction };
+                    }
+                }
+
+                if (eventNotificationActions?.Count > 0)
+                {
                     response.Objects = eventNotificationActions;
-                    response.TotalItems = 1;
+                    response.TotalItems = eventNotificationActions.Count;
                     response.SetStatus(eResponseStatus.OK);
                 }
+
             }
             catch (Exception ex)
             {
