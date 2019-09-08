@@ -363,7 +363,12 @@ namespace Core.Users
 
             if (IsARemoveUserFavoriteParamValid(nGroupID, sUserGUID, nMediaIDs, out status))
             {
-                FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nMediaIDs);
+                var isSuccess = FavoritObject.RemoveFavorit(sUserGUID, nGroupID, nMediaIDs);
+                if (!isSuccess)
+                {
+                    status.Code = (int)eResponseStatus.UserFavoriteNotDeleted;
+                    status.Message = "Error, can't delete favorite";
+                }
             }
             else
             {

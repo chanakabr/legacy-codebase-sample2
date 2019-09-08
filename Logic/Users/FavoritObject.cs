@@ -236,12 +236,23 @@ namespace Core.Users
             updateQuery = null;
         }
 
-        public static void RemoveFavorit(string sSiteGUID, int nGroupID, long[] nMediaIDs)
+        static public bool RemoveFavorit(string sSiteGUID, int nGroupID, long[] nMediaIDs)
         {
             if (nMediaIDs != null)
             {
-                StringBuilder sb = new StringBuilder();
-                int counter = 0;
+                if (nMediaIDs.Length > 0)
+                {
+                    var ids = nMediaIDs.ToList().ConvertAll(x => (int)x);
+                    var favorites = GetFavoriteList(sSiteGUID, ids);
+
+                    if (favorites.Count != ids.Count)
+                    {
+                        return false;
+                    }
+                }
+
+                var sb = new StringBuilder();
+                var counter = 0;
                 foreach (int mediaID in nMediaIDs)
                 {
                     if (counter != 0)
@@ -251,6 +262,8 @@ namespace Core.Users
                     sb.Append(mediaID.ToString());
                     counter++;
                 }
+
+                var isExecuteDone = false;
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
@@ -265,10 +278,12 @@ namespace Core.Users
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                 updateQuery += "and";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
-                updateQuery.Execute();
+                isExecuteDone = updateQuery.Execute();
                 updateQuery.Finish();
                 updateQuery = null;
+                return isExecuteDone;
             }
+            return false;
         }
 
         public static void RemoveChannelMediaFavorit(string sSiteGUID, int nGroupID, int[] nChannelMediaIDs)
@@ -377,6 +392,32 @@ namespace Core.Users
                 insertQuery = null;
             }
             return true;
+        }
+
+        static public List<FavoritObject> GetFavoriteList(string userId, List<int> mediaIds, string mediaType = null)
+        {
+            var response = new List<FavoritObject>();
+            DataTable dt = DAL.UsersDal.Get_FavoriteMediaIds(userId, mediaIds, null, mediaType, 0);
+            if (dt != null)
+            {
+                if (dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    var favorites = new FavoritObject[dt.Rows.Count];
+                    FavoritObject favorite;
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        favorite = new FavoritObject()
+                        {
+                            m_sItemCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["ID"]),
+                            m_sExtraData = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["EXTRA_DATA"]),
+                            m_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[i]["CREATE_DATE"])
+                        };
+                        response.Add(favorite);
+                    }
+                    return response;
+                }
+            }
+            return response;
         }
 
         public string m_sDeviceUDID;

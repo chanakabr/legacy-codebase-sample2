@@ -110,6 +110,7 @@ namespace ApiObjects.Response
         NoSSOAdapaterToInsert = 2057,
         SSOAdapterIdRequired = 2058,
         ParentIdNotExist = 2059,
+        UserFavoriteNotDeleted = 2060,
 
         #endregion
 
