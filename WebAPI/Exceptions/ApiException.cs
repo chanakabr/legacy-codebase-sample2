@@ -93,6 +93,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType EXTERNAL_ERROR = new ApiExceptionType(StatusCode.ExternalError, "externalCode: [@externalCode@], externalMessage: [@externalMessage@]", "externalCode", "externalMessage");
         public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself");
         public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
+        public static ClientExceptionType USER_FAVORITE_NOT_DELETED = new ClientExceptionType(eResponseStatus.UserFavoriteNotDeleted, "User Favorite Not Deleted");
 
         #endregion
 
@@ -418,7 +419,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType COUPON_CODE_ALREADY_LOADED = new ClientExceptionType(eResponseStatus.CouponCodeAlreadyLoaded, "Coupon code already loaded", "Coupon code already loaded");
         public static ClientExceptionType COUPON_CODE_NOT_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.CouponCodeNotInHousehold, "The coupon code is not in household", "The coupon code is not in household");
         public static ClientExceptionType EXCEEDED_HOUSEHOLD_COUPON_LIMIT = new ClientExceptionType(eResponseStatus.ExceededHouseholdCouponLimit, "Exceeded household coupon limit", "Exceeded household coupon limit");
-        
+
         #endregion
 
         #region Adapters 10000-10999
@@ -442,7 +443,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EPG_PROGRAM_LANG_NOT_EXISTS = new ClientExceptionType(eResponseStatus.EPGLanguageNotFound, "EPG Program required language not found ", "The EPG program does not have the required language or the required default language as a fallback option");
 
         #endregion
-        
+
         [DataMember(Name = "code")]
         [JsonProperty("code")]
         [XmlElement(ElementName = "code")]

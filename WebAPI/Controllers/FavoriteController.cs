@@ -113,6 +113,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.UserFavoriteNotDeleted)]
         static public bool Delete(long id)
         {
             bool res = false;
