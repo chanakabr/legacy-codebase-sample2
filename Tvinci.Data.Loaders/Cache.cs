@@ -33,8 +33,6 @@ namespace Tvinci.Data.Loaders
                     try
                     {
                         cacheObj = CachingManager.CachingManager.GetCachedData(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
-
-                        //cacheObj = HttpContext.Current.Cache.Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
                     }
                     finally
                     {
@@ -75,7 +73,6 @@ namespace Tvinci.Data.Loaders
                     try
                     {
                         CachingManager.CachingManager.SetCachedData(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, duration * 60, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
-                        //HttpContext.Current.Cache.Insert(string.Format("{0}_{1}", keyPrefix, obj.AssetId), obj, null, experationTime, System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
                     }
                     finally
                     {
@@ -94,7 +91,6 @@ namespace Tvinci.Data.Loaders
             try
             {
                 cacheObj = CachingManager.CachingManager.GetCachedData(key);
-                    //HttpContext.Current.Cache.Get(key);
             }
             finally
             {
@@ -114,7 +110,6 @@ namespace Tvinci.Data.Loaders
             try
             {
                 CachingManager.CachingManager.SetCachedData(key, response, 86400, System.Runtime.Caching.CacheItemPriority.Default, 0, true);
-                //HttpContext.Current.Cache.Insert(key, response);
             }
             finally
             {
