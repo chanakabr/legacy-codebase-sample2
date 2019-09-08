@@ -293,6 +293,8 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 UnifiedSearchDefinitions definitions = IndexManager.BuildSearchDefinitions(currentChannel, false);
 
+                                definitions.shouldSearchMedia = false;
+
                                 unifiedQueryBuilder.SearchDefinitions = definitions;
                                 channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
                             }
