@@ -28,29 +28,21 @@ namespace Core.Notification
     public class AnnouncementManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public const string ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS = "PROCESS_MESSAGE_ANNOUNCEMENTS";
-
-
+        
         private const string ROUTING_KEY_NOTIFICATION_CLEANUP = "PROCESS_NOTIFIACTION_CLEANUP";
-        public const double NOTIFICATION_CLEANUP_INTERVAL_SEC = 86400; // 24 hours
-
-
         private const int MAX_MSG_LENGTH = 250 * 1024;
         private const int MIN_TIME_FOR_START_TIME_SECONDS = 30;
-
         private static string CatalogSignString = Guid.NewGuid().ToString();
         private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
-
         private const string ANNOUNCEMENT_NOT_FOUND = "Announcement Not Found";
         private const string ANNOUNCEMENT_QUEUE_NAME_FORMAT = @"Announcement_{0}_{1}"; // Announcement_{GID}_{AnnID}
-
-
         private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
         private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
         private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
 
+        public const string ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS = "PROCESS_MESSAGE_ANNOUNCEMENTS";
+        public const double NOTIFICATION_CLEANUP_INTERVAL_SEC = 86400; // 24 hours
         public const int PUSH_MESSAGE_EXPIRATION_MILLI_SEC = 3000;
-
         public const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
         public static AddMessageAnnouncementResponse AddMessageAnnouncement(int groupId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
@@ -258,23 +250,15 @@ namespace Core.Notification
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
-
+        
         private static bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string ImageUrl, ref string sound,
-                                                            ref string category, out string annExternalId, out string singleQueueName, out bool failRes, out List<KeyValuePair<string, string>> mergeVars, out string mailExternalId)
+                                                         ref string category, out string annExternalId, out string singleQueueName, out bool failRes, out List<KeyValuePair<string, string>> mergeVars, out string mailExternalId)
         {
             failRes = false;
-            string[] seriesNames = null;
-            MediaResponse response = null;
-            DateTime catalogStartDateStr = DateTime.MinValue;
-            long catalogStartDate = 0;
-            string mediaName = string.Empty;
-            DateTime startDate = DateTime.MinValue;
             annExternalId = string.Empty;
             singleQueueName = string.Empty;
             mergeVars = new List<KeyValuePair<string, string>>();
             mailExternalId = string.Empty;
-            List<Picture> mediaImages = null;
-            string imageUrl = string.Empty;
 
             // check if announcement is for series, if not - return true to do nothing. if yes, check no msg was sent for series in the last 24H.
             // get topic push external id's of guests and logged in users
@@ -290,7 +274,10 @@ namespace Core.Notification
                 return false;
             }
 
-            if (announcement.FollowPhrase == null || !announcement.FollowPhrase.ToLower().Trim().StartsWith(FollowManager.GetEpisodeAssociationTag(groupId).ToLower().Trim()))
+            CatalogGroupCache cache = null;
+            AssetStruct episodeAssetStruct = null;
+            var episodeAssociationTag = FollowManager.GetEpisodeAssociationTag(groupId, ref cache, ref episodeAssetStruct).ToLower().Trim();
+            if (announcement.FollowPhrase == null || !announcement.FollowPhrase.ToLower().Trim().StartsWith(episodeAssociationTag))
                 return true;
 
             annExternalId = announcement.ExternalId;
@@ -298,6 +285,7 @@ namespace Core.Notification
             mailExternalId = announcement.MailExternalId;
 
             # region get asset details from catalog
+
             // for tv series msg ref is asset id of the asset msg is for.
             int assetId = ODBCWrapper.Utils.GetIntSafeVal(messageAnnouncementDataRow, "message_reference");
             if (assetId == 0)
@@ -306,75 +294,38 @@ namespace Core.Notification
                 return false;
             }
 
-            // send get media to catalog
-            var request = new MediasProtocolRequest()
+            var episodeMedia = FollowManager.GetMediaObj(groupId, assetId);
+            if (episodeMedia == null)
             {
-                m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
-                m_sSignString = CatalogSignString,
-                m_lMediasIds = new List<int> { assetId },
-                m_nGroupID = groupId,
-                m_oFilter = new Filter()
-            };
-
-            try
-            {
-                response = request.GetMediasByIDs(request);
-            }
-            catch (Exception ex)
-            {
-                log.Error("HandleRecipientTypeOther: error when calling catalog: ", ex);
                 return false;
             }
-            ///////
 
-            // check response params
-            if (response != null && response.m_lObj !=
-                null && response.m_lObj.Count > 0 &&
-                response.m_lObj.First() != null &&
-                response.m_lObj.First() is MediaObj)
+            var topicType = MetaType.Tag;
+            if (cache != null && episodeAssetStruct != null)
             {
-                MediaObj mediaObj = response.m_lObj.First() as MediaObj;
-                if (mediaObj.m_lTags != null && mediaObj.m_lTags.Count > 0 && mediaObj.m_lTags.First() != null)
-                {
-                    catalogStartDateStr = mediaObj.m_dCatalogStartDate;
-                    catalogStartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(mediaObj.m_dCatalogStartDate);
-                    startDate = mediaObj.m_dStartDate;
-                    mediaName = mediaObj.m_sName;
-
-                    // check if part of a series
-                    foreach (var tag in mediaObj.m_lTags)
-                    {
-                        if (tag.m_oTagMeta != null &&
-                            tag.m_oTagMeta.m_sName.ToLower().Trim() == FollowManager.GetEpisodeAssociationTag(groupId).ToLower().Trim())
-                        {
-                            seriesNames = tag.m_lValues.ToArray();
-                            break;
-                        }
-                    }
-
-                    mediaImages = mediaObj.m_lPicture;
-                }
+                topicType = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value].Type;
             }
 
-            // check series name was found
-            if (seriesNames == null || seriesNames.Length == 0)
+            var seriesNames = FollowManager.GetSeriesNames(topicType, episodeAssociationTag, episodeMedia.m_lTags, episodeMedia.m_lMetas);
+            if (seriesNames.Count == 0)
             {
                 log.DebugFormat("HandleRecipientTypeOther: couldn't get series from catalog: group {0}, media: {1}", groupId, assetId);
                 return false;
             }
+
             #endregion
 
             long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
             // get message announcements of announcement.
-            DataRowCollection drs = DAL.NotificationDal.Get_MessageAnnouncementByAnnouncementId(announcementId);
+            var drs = NotificationDal.Get_MessageAnnouncementByAnnouncementId(announcementId);
 
             // check in all series messages if any msg was sent in the last 24h
             if (drs != null && drs.Count > 0)
             {
                 foreach (DataRow row in drs)
                 {
-                    MessageAnnouncement msg = Core.Notification.Utils.GetMessageAnnouncementFromDataRow(row);
+                    MessageAnnouncement msg = Utils.GetMessageAnnouncementFromDataRow(row);
 
                     if (msg.Status == eAnnouncementStatus.Sent)
                     {
@@ -399,34 +350,39 @@ namespace Core.Notification
                 msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&
                 msgTemplateResponse.MessageTemplate != null)
             {
-                imageUrl = Utils.GetMediaImageUrlByRatio(mediaImages, msgTemplateResponse.MessageTemplate.RatioId);
-                
+                var imageUrl = Utils.GetMediaImageUrlByRatio(episodeMedia.m_lPicture, msgTemplateResponse.MessageTemplate.RatioId);
+                var formatedCatalogStartDate = episodeMedia.m_dCatalogStartDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat);
+                var formatedStartDate = episodeMedia.m_dStartDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat);
+                var seriesName = seriesNames[0];
                 category = msgTemplateResponse.MessageTemplate.Action;
                 sound = msgTemplateResponse.MessageTemplate.Sound;
-                url = msgTemplateResponse.MessageTemplate.URL.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)).
-                                                            Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
-                                                            Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", mediaName).
-                                                            Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty).
-                                                            Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat));
+
+                url = msgTemplateResponse.MessageTemplate.URL.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", formatedCatalogStartDate).
+                                                              Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
+                                                              Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", episodeMedia.m_sName).
+                                                              Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", seriesName).
+                                                              Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", formatedStartDate);
 
                 string message = ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message");
                 if (!string.IsNullOrEmpty(message))
-                    messageAnnouncementDataRow["message"] = message.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)).
-                                            Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
-                                            Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", mediaName).
-                                            Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty).
-                                            Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat));
+                {
+                    messageAnnouncementDataRow["message"] = message.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", formatedCatalogStartDate).
+                                                                    Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", assetId.ToString()).
+                                                                    Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", episodeMedia.m_sName).
+                                                                    Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", seriesName).
+                                                                    Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", formatedStartDate);
+                }
 
                 mergeVars = new List<KeyValuePair<string, string>>()
-                    {
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.CatalaogStartDate.ToString(), catalogStartDateStr.ToString(msgTemplateResponse.MessageTemplate.DateFormat)),
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaId.ToString(), assetId.ToString()),
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), mediaName),
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), (seriesNames != null && seriesNames.Length > 0) ? seriesNames[0] : string.Empty),
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), startDate.ToString(msgTemplateResponse.MessageTemplate.DateFormat)),
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl),
-                        new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.ReferenceId.ToString(), announcement.FollowReference),
-                    };
+                {
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.CatalaogStartDate.ToString(), formatedCatalogStartDate),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaId.ToString(), assetId.ToString()),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.MediaName.ToString(), episodeMedia.m_sName),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.SeriesName.ToString(), seriesName),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.StartDate.ToString(), formatedStartDate),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.Image.ToString(), imageUrl),
+                    new KeyValuePair<string, string>(eFollowSeriesPlaceHolders.ReferenceId.ToString(), announcement.FollowReference),
+                };
             }
 
             return true;
@@ -434,8 +390,10 @@ namespace Core.Notification
 
         public static GetAllMessageAnnouncementsResponse Get_AllMessageAnnouncements(int groupId, int pageSize, int pageIndex)
         {
-            GetAllMessageAnnouncementsResponse ret = new GetAllMessageAnnouncementsResponse();
-            ret.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            GetAllMessageAnnouncementsResponse ret = new GetAllMessageAnnouncementsResponse
+            {
+                Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
 
             // validate system announcements are enabled
             if (!NotificationSettings.IsPartnerSystemAnnouncementEnabled(groupId))
@@ -1650,53 +1608,38 @@ namespace Core.Notification
 
         public static Status GetMedia(int partnerId, int assetId, out MediaObj media, out string seriesName)
         {
-            Status status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             media = null;
             seriesName = string.Empty;
 
             try
             {
-                // send get media to catalog
-                MediaResponse mediaResponse = null;
-                var request = new MediasProtocolRequest()
+                var mediaObj = FollowManager.GetMediaObj(partnerId, assetId);
+                if (mediaObj != null)
                 {
-                    m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
-                    m_sSignString = CatalogSignString,
-                    m_lMediasIds = new List<int> { assetId },
-                    m_nGroupID = partnerId,
-                    m_oFilter = new Filter() { m_bOnlyActiveMedia = false }
-                };
+                    CatalogGroupCache cache = null;
+                    AssetStruct episodeAssetStruct = null;
+                    var episodeAssociationTag = FollowManager.GetEpisodeAssociationTag(partnerId, ref cache, ref episodeAssetStruct).ToLower().Trim();
 
-                mediaResponse = request.GetMediasByIDs(request);
-
-                // check response params
-                if (mediaResponse != null &&
-                    mediaResponse.m_lObj != null &&
-                    mediaResponse.m_lObj.Count > 0 &&
-                    mediaResponse.m_lObj.First() != null &&
-                    mediaResponse.m_lObj.First() is MediaObj)
-                {
-                    media = mediaResponse.m_lObj.First() as MediaObj;
-
-                    // check if part of a series
-                    foreach (var tag in media.m_lTags)
+                    var topicType = MetaType.Tag;
+                    if (cache != null && episodeAssetStruct != null)
                     {
-                        if (tag.m_oTagMeta != null &&
-                            tag.m_oTagMeta.m_sName.ToLower().Trim() == FollowManager.GetEpisodeAssociationTag(partnerId).ToLower().Trim())
-                        {
-                            seriesName = tag.m_lValues.First();
-                            break;
-                        }
+                        topicType = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value].Type;
                     }
 
+                    var seriesNames = FollowManager.GetSeriesNames(topicType, episodeAssociationTag, mediaObj.m_lTags, mediaObj.m_lMetas);
+                    if (seriesNames.Count > 0)
+                    {
+                        seriesName = seriesNames.FirstOrDefault();
+                    }
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error getting media. partner ID: {0}, asset ID: {1}. ex: {2}", partnerId, assetId, ex);
-                return status;
+                return Status.Error;
             }
-            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+
+            return Status.Ok;
         }
     }
 }

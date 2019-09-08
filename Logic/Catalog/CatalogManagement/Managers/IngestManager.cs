@@ -88,7 +88,7 @@ namespace Core.Catalog.CatalogManagement
                             var assetFiles = GetAssetFiles(media.Files, mediaFileTypes, cdnAdapters);
                             bool isMediaExists = mediaId > 0 || (images != null && images.Count > 0) || (assetFiles != null && assetFiles.Count > 0);
                             media.Erase = media.Erase.ToLower().Trim();
-                            var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
+                            var upsertStatus = BulkAssetManager.UpsertMediaAsset(groupId, ref mediaAsset, USER_ID, images, assetFiles, ASSET_FILE_DATE_FORMAT, IngestMedia.TRUE.Equals(media.Erase), true, topicIdsToRemove);
                             if (!upsertStatus.IsOkStatusCode())
                             {
                                 ingestResponse.AssetsStatus[i].Status = upsertStatus.Status;
@@ -116,7 +116,7 @@ namespace Core.Catalog.CatalogManagement
                             // update notification 
                             if (mediaAsset.IsActive.Value)
                             {
-                                Notification.Module.AddFollowNotificationRequest(groupId, (int)mediaAsset.Id, USER_ID);
+                                Notification.Module.AddFollowNotificationRequestForOpc(groupId, mediaAsset, USER_ID, cache);
                             }
                         }
                         
