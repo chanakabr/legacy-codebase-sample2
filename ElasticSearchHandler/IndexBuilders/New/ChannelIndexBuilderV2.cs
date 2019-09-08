@@ -242,6 +242,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
                                     UnifiedSearchDefinitions definitions = IndexManager.BuildSearchDefinitions(currentChannel, true);
 
+                                    definitions.shouldSearchEpg = false;
+
                                     unifiedQueryBuilder.SearchDefinitions = definitions;
                                     channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
                                 }
