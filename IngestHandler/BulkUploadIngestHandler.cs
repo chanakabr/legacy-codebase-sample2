@@ -575,10 +575,9 @@ namespace IngestHandler
 
             if (_Languages?.Keys.Count > 0)
             {
-                List<string> autoFillKeys = new List<string>();
-                autoFillKeys = _Languages.Keys.Select(s => GetAutoFillKey(_BulkUploadObject.GroupId, s)).ToList();
+                string autoFillKey = GetAutoFillKey(_BulkUploadObject.GroupId);
                 // Get AutoFill default program
-                autoFillEpgsCB = _CouchbaseManager.GetValues<EpgCB>(autoFillKeys, true);
+                autoFillEpgsCB = _CouchbaseManager.Get<Dictionary<string,EpgCB>>(autoFillKey, true);
             }
 
             for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
@@ -799,9 +798,9 @@ namespace IngestHandler
             }
         }
 
-        private string GetAutoFillKey(object groupId, string langCode)
+        private string GetAutoFillKey(object groupId)
         {
-            return $"autofill_{groupId}_{langCode}";
+            return $"autofill_{groupId}";
         }
     }
 }
