@@ -131,7 +131,8 @@
         "PURCHASE_SUBSCRIPTION",
         "PURCHASE_PPV",
         "PURCHASE_SERVICE",
-        "CANCEL_SUBSCRIPTION"
+        "CANCEL_SUBSCRIPTION",
+        "FAVORITES_SERVICE"
       ],
       "name": "DefaultSuspendedRole"
     },
