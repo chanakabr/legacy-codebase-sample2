@@ -580,67 +580,75 @@ namespace IngestHandler
                 autoFillEpgsCB = _CouchbaseManager.Get<Dictionary<string,EpgCB>>(autoFillKey, true);
             }
 
-            for (int programIndex = 0; programIndex < calculatedPrograms.Count - 1; programIndex++)
+            // split epgs by channel ids
+            foreach (var channel in calculatedPrograms.GroupBy(epg => epg.ChannelId))
             {
-                var currentProgram = calculatedPrograms[programIndex];
+                var channelPrograms = channel.ToList();
 
-                // we check the next SEVERAL programs because some of them might be overlapping the current one
-                for (int secondaryIndex = programIndex + 1; (secondaryIndex < calculatedPrograms.Count) && isValid; secondaryIndex++)
+                for (int programIndex = 0; programIndex < channelPrograms.Count - 1; programIndex++)
                 {
-                    var nextProgram = calculatedPrograms[secondaryIndex];
+                    var currentProgram = channelPrograms[programIndex];
 
-                    // if the current program ends when the next one starts - we're valid
-                    if (currentProgram.EndDate != nextProgram.StartDate)
+                    // we check the next SEVERAL programs because some of them might be overlapping the current one
+                    for (int secondaryIndex = programIndex + 1; (secondaryIndex < channelPrograms.Count) && isValid; secondaryIndex++)
                     {
-                        // if the next program starts before the current ends, it means we have an overlap
-                        if (currentProgram.EndDate > nextProgram.StartDate)
-                        {
-                            if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject)
-                            {
-                                programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
-                                programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                        var nextProgram = channelPrograms[secondaryIndex];
 
-                                isValid = false;
-                            }
-                        }
-                        // if the next program starts after the current ends, it means we have a gap
-                        else
+                        // if the current program ends when the next one starts - we're valid
+                        if (currentProgram.EndDate != nextProgram.StartDate)
                         {
-                            switch (_IngestProfile.DefaultAutoFillPolicy)
+                            // if the next program starts before the current ends, it means we have an overlap
+                            if (currentProgram.EndDate > nextProgram.StartDate)
                             {
-                                case eIngestProfileAutofillPolicy.Reject:
-                                    programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
-                                    programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                if (_IngestProfile.DefaultOverlapPolicy == eIngestProfileOverlapPolicy.Reject)
+                                {
+                                    programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
+                                    programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program overlap");
 
                                     isValid = false;
-                                    break;
-                                case eIngestProfileAutofillPolicy.Autofill:
+                                }
+                            }
+                            // if the next program starts after the current ends, it means we have a gap
+                            else
+                            {
+                                switch (_IngestProfile.DefaultAutoFillPolicy)
+                                {
+                                    case eIngestProfileAutofillPolicy.Reject:
+                                        programAssetResultsDictionary[currentProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
+                                        programAssetResultsDictionary[nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
 
-                                    if (_IngestProfile.OverlapChannels == null || _IngestProfile.OverlapChannels.Contains(currentProgram.ChannelId))
-                                    {
-                                        if (autoFillEpgsCB?.Count > 0)
+                                        isValid = false;
+                                        break;
+                                    case eIngestProfileAutofillPolicy.Autofill:
+
+                                        if (_IngestProfile.OverlapChannels == null || _IngestProfile.OverlapChannels.Contains(currentProgram.ChannelId))
                                         {
-                                            foreach (var item in autoFillEpgsCB)
+                                            if (autoFillEpgsCB?.Count > 0)
                                             {
-                                                var defaultGapProgram = GetDefaultAutoFillProgram(item.Value, item.Value.Language, currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId);
-                                                if (defaultGapProgram != null)
+                                                foreach (var item in autoFillEpgsCB)
                                                 {
-                                                    crudOperations.ItemsToAdd.Add(defaultGapProgram);
+                                                    var defaultGapProgram = GetDefaultAutoFillProgram(item.Value, item.Value.Language, currentProgram.EndDate, nextProgram.StartDate, currentProgram.ChannelId);
+                                                    if (defaultGapProgram != null)
+                                                    {
+                                                        crudOperations.ItemsToAdd.Add(defaultGapProgram);
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    break;
-                                case eIngestProfileAutofillPolicy.KeepHoles:
-                                    break;
-                                default:
-                                    break;
+                                        break;
+                                    case eIngestProfileAutofillPolicy.KeepHoles:
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
-                        }
 
-                        break;
+                            break;
+                        }
                     }
                 }
+
+                return isValid;
             }
 
             return isValid;
