@@ -36,7 +36,7 @@ namespace Core.Profiles
                     return response;
                 }
 
-                if (IsIngestProfileExternalIdExists(groupId, profileToAdd.ExternalId))
+                if (IsIngestProfileExternalIdExists(profileToAdd.ExternalId))
                 {
                     response.SetStatus((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
@@ -72,7 +72,7 @@ namespace Core.Profiles
             var response = new GenericListResponse<IngestProfile>();
             try
             {
-                var profiles = ApiDAL.GetIngestProfiles(groupId);
+                var profiles = ApiDAL.GetIngestProfilesByGroupId(groupId);
                 response.SetStatus(eResponseStatus.OK);
                 response.Objects = profiles;
             }
@@ -99,7 +99,7 @@ namespace Core.Profiles
             var response = new GenericResponse<IngestProfile>();
             try
             {
-                var profile = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
+                var profile = ApiDAL.GetIngestProfilesByProfileId(profileId.Value).FirstOrDefault();
                 if (profile == null)
                 {
                     response.SetStatus(eResponseStatus.IngestProfileNotExists);
@@ -146,7 +146,7 @@ namespace Core.Profiles
                     return response;
                 }
 
-                if (!IsIngestProfileIdExists(groupId, ingestProfileId))
+                if (!IsIngestProfileIdExists(ingestProfileId))
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -172,7 +172,7 @@ namespace Core.Profiles
             var response = new GenericResponse<IngestProfile>();
             try
             {
-                if (ingestProfileId <= 0 || profileToUpdate == null || !IsIngestProfileIdExists(groupId, ingestProfileId))
+                if (ingestProfileId <= 0 || profileToUpdate == null || !IsIngestProfileIdExists(ingestProfileId))
                 {
                     response.SetStatus((int)eResponseStatus.IngestProfileNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -217,25 +217,25 @@ namespace Core.Profiles
             return response;
         }
 
-        private static bool IsIngestProfileExternalIdExists(int groupId, string externalId)
+        private static bool IsIngestProfileExternalIdExists(string externalId)
         {
-            var profile = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
+            var profile = ApiDAL.Get_IngestProfileByExternalProfileId(externalId).FirstOrDefault();
             return profile != null;
         }
 
         private static bool IsIngestProfileExternalIdExists(int groupId, string externalId, int profileId)
         {
-            var profileByExternalId = ApiDAL.GetIngestProfiles(externalId: externalId).FirstOrDefault();
+            var profileByExternalId = ApiDAL.Get_IngestProfileByExternalProfileId(externalId).FirstOrDefault();
             if (profileByExternalId == null)
                 return false;
             
-            var profileById = ApiDAL.GetIngestProfiles(profileId: profileId).FirstOrDefault();
+            var profileById = ApiDAL.GetIngestProfilesByProfileId(profileId).FirstOrDefault();
             return profileById?.Id != profileByExternalId.Id;
         }
 
-        private static bool IsIngestProfileIdExists(int groupId, int id)
+        private static bool IsIngestProfileIdExists(int id)
         {
-            var profile = ApiDAL.GetIngestProfiles(profileId: id).FirstOrDefault();
+            var profile = ApiDAL.GetIngestProfilesByProfileId(id).FirstOrDefault();
             return (profile != null);
         }
 

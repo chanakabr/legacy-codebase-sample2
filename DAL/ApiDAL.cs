@@ -5692,15 +5692,36 @@ namespace DAL
             }
         }
 
-        public static List<IngestProfile> GetIngestProfiles(int? groupId = null, string externalId = null, int? profileId = null)
+        public static List<IngestProfile> Get_IngestProfileByExternalProfileId(string externalId)
         {
             try
             {
-                var sp = new StoredProcedure("Get_IngestProfile");
+                var sp = new StoredProcedure("Get_IngestProfileByExternalProfileId");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-                sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileExternalId", externalId);
+                var dbResponse = sp.ExecuteDataSet();
+
+                List<IngestProfile> profiles = CreateIngestProfiles(dbResponse.Tables[0]);
+                var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
+
+                // Map settings to relevent profile
+                profiles.ForEach(p => p.Settings = profileSettingsParams.Where(s => s.IngestProfileId == p.Id).ToList());
+
+                return profiles;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetIngestProfiles in DB, externalId: {externalId}, ex:{ex}");
+                throw;
+            }
+        }
+
+        public static List<IngestProfile> GetIngestProfilesByProfileId(int profileId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Get_IngestProfileByProfileId");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@profileId", profileId);
                 var dbResponse = sp.ExecuteDataSet();
 
@@ -5714,7 +5735,33 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetIngestProfiles in DB, groupId: {0}, ex:{1} ", groupId , ex);
+                log.Error($"Error while GetIngestProfilesByProfileId in DB, profileId: {profileId}, ex:{ex}");
+                throw;
+            }
+        }
+
+
+        public static List<IngestProfile> GetIngestProfilesByGroupId(int groupId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Get_IngestProfileByGroupId");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);
+                var dbResponse = sp.ExecuteDataSet();
+
+                List<IngestProfile> profiles = CreateIngestProfiles(dbResponse.Tables[0]);
+                var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
+
+                // Map settings to relevent profile
+                profiles.ForEach(p => p.Settings = profileSettingsParams.Where(s => s.IngestProfileId == p.Id).ToList());
+
+                return profiles;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Get_IngestProfileByGroupId in DB, groupId: {0}, ex:{1} ", groupId, ex);
                 throw;
             }
         }
