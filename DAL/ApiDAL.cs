@@ -5993,7 +5993,7 @@ namespace DAL
 
         private static string GetEventNotificationActionTypeIdKey(int groupId, string objectType, long objectId)
         {
-            return $"event_notification_action_{groupId}_{objectType}_{objectId}";
+            return $"event_notification_action_object_{groupId}_{objectType}_{objectId}";
         }
 
         public static EventNotificationAction GetEventNotificationActionCB(int groupId, string id)
