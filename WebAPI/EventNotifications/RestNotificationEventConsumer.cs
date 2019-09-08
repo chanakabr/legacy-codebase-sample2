@@ -194,11 +194,11 @@ namespace WebAPI
                 log.DebugFormat("Notification event action: action name = {0}, partner {1}, event type {2}, event action {3}, specific notification is {4}", 
                     action.SystemName, kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString());
 
-                var shouldSaveToDB = generalNotification.SaveToDB.HasValue && generalNotification.SaveToDB.Value;
+                var saveEvent = generalNotification.SaveEvent.HasValue && generalNotification.SaveEvent.Value;
 
                 try
                 {
-                    PerformAction(action, kalturaEvent, eventWrapper, shouldSaveToDB, objectEvent.Object?.Id);
+                    PerformAction(action, kalturaEvent, eventWrapper, saveEvent, objectEvent.Object?.Id);
                 }
                 catch (Exception ex)
                 {
@@ -211,7 +211,7 @@ namespace WebAPI
                     {
                         foreach (var handler in action.FailureHandlers)
                         {
-                            PerformAction(action, kalturaEvent, eventWrapper, shouldSaveToDB, objectEvent.Object?.Id);
+                            PerformAction(action, kalturaEvent, eventWrapper, saveEvent, objectEvent.Object?.Id);
                         }
                     }
                 }
@@ -304,9 +304,9 @@ namespace WebAPI
             }
         }
 
-        private void SaveEventNotificationAction(KalturaNotification eventWrapper, EventNotificationActionStatus status, string message, bool saveEventNotificationAction, long? id)
+        private void SaveEventNotificationAction(KalturaNotification eventWrapper, EventNotificationActionStatus status, string message, bool saveEvent, long? id)
         {
-            if (saveEventNotificationAction && id > 0)
+            if (saveEvent && id > 0)
             {
                 ApiDAL.SaveEventNotificationActionIdCB(eventWrapper.partnerId, new EventNotificationAction
                 {

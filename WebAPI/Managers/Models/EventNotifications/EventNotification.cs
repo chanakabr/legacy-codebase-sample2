@@ -29,8 +29,8 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        [JsonProperty("save_to_db")]
-        public bool? SaveToDB
+        [JsonProperty("save_event")]
+        public bool? SaveEvent
         {
             get;
             set;
