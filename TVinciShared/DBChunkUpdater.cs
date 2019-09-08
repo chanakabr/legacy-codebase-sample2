@@ -130,7 +130,7 @@ namespace TVinciShared
             m_Rows = new System.Collections.Hashtable();
         }
 
-        static public WatchersTimeChunkUpdater GetInstance()
+        public static WatchersTimeChunkUpdater GetInstance()
         {
             if (m_theChunkUpdater == null)
                 m_theChunkUpdater = new WatchersTimeChunkUpdater();
@@ -275,7 +275,7 @@ namespace TVinciShared
             m_Rows = new System.Collections.Hashtable();
         }
 
-        static public MediaEOHChunkUpdater GetInstance()
+        public static MediaEOHChunkUpdater GetInstance()
         {
             if (m_theChunkUpdater == null)
                 m_theChunkUpdater = new MediaEOHChunkUpdater();

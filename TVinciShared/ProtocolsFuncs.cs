@@ -39,7 +39,7 @@ namespace TVinciShared
 
         }
 
-        static public Int32 GetDeviceIdFromName(string sDevice, Int32 nGroupID)
+        public static Int32 GetDeviceIdFromName(string sDevice, Int32 nGroupID)
         {
             if (String.IsNullOrEmpty(sDevice) == true || sDevice.Trim() == "")
                 return 0;
@@ -60,7 +60,7 @@ namespace TVinciShared
             selectQuery = null;
             return nRet;
         }
-        static public string GetMetaStrTranslation(Int32 nMediaID, Int32 nLangID, string sField)
+        public static string GetMetaStrTranslation(Int32 nMediaID, Int32 nLangID, string sField)
         {
             StringBuilder sRet = new StringBuilder();
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -79,7 +79,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string XMLEncode(string sToEncode, bool bAttribute)
+        public static string XMLEncode(string sToEncode, bool bAttribute)
         {
             if (string.IsNullOrEmpty(sToEncode))
                 return string.Empty;
@@ -248,7 +248,7 @@ namespace TVinciShared
             return newArray;
         }
 
-        static public string GetMetaFieldsvalues(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct, bool bOnlyRelated,
+        public static string GetMetaFieldsvalues(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct, bool bOnlyRelated,
             ref ApiObjects.MediaInfoObject theInfo)
         {
             string sQueryParams = "";
@@ -375,7 +375,7 @@ namespace TVinciShared
             return GetMetaFieldValuesXML(nMediaID, nLangID, bIsLangMain, sQueryParams, bOnlyRelated, ref theInfo);
         }
 
-        static public void GetMediaTranslation(Int32 nMediaID, Int32 nLangID, ref string sName, ref string sDescription)
+        public static void GetMediaTranslation(Int32 nMediaID, Int32 nLangID, ref string sName, ref string sDescription)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             //selectQuery.SetCachedSec(3600);
@@ -409,7 +409,7 @@ namespace TVinciShared
             return false;
         }
 
-        static public string GetNodeParameter(ref XmlNode theItem, string sParameter)
+        public static string GetNodeParameter(ref XmlNode theItem, string sParameter)
         {
             if (theItem == null)
                 return "true";
@@ -420,7 +420,7 @@ namespace TVinciShared
             return "true";
         }
 
-        static public string GetMediaBasicData(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct)
+        public static string GetMediaBasicData(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct)
         {
             StringBuilder sRet = new StringBuilder();
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -487,7 +487,7 @@ namespace TVinciShared
             return sBasePicsURL;
         }
 
-        static public string GetPicURL(Int32 nPicID, string sPicSize)
+        public static string GetPicURL(Int32 nPicID, string sPicSize)
         {
             if (nPicID == 0)
                 return "";
@@ -532,7 +532,7 @@ namespace TVinciShared
             return sBasePicsURL;
         }
 
-        static public string GetTagTypesMediaValues(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct, bool bOnlyRelated,
+        public static string GetTagTypesMediaValues(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct, bool bOnlyRelated,
             ref ApiObjects.MediaInfoObject theInfo)
         {
             StringBuilder sRet = new StringBuilder();
@@ -567,7 +567,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetTagTypesMediaValuesForSearch(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct, bool bOnlyRelated)
+        public static string GetTagTypesMediaValuesForSearch(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, ref XmlNode theInfoStruct, bool bOnlyRelated)
         {
             ApiObjects.MediaInfoObject theInfo = null;
             StringBuilder sRet = new StringBuilder();
@@ -602,7 +602,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetMediaTags(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, string sTagIds,
+        public static string GetMediaTags(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, string sTagIds,
             ref ApiObjects.MediaInfoObject theInfo)
         {
             if (sTagIds == "")
@@ -698,7 +698,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetMediaTagsForSearch(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, bool bOnlyRelated)
+        public static string GetMediaTagsForSearch(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, bool bOnlyRelated)
         {
             StringBuilder sRet = new StringBuilder();
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -728,7 +728,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetTagTranslation(Int32 nTagID, Int32 nLangID)
+        public static string GetTagTranslation(Int32 nTagID, Int32 nLangID)
         {
             StringBuilder sRet = new StringBuilder();
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -748,7 +748,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetMediaTagsRelatedIDs(Int32 nMediaID)
+        public static string GetMediaTagsRelatedIDs(Int32 nMediaID)
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("(");
@@ -774,21 +774,21 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public Int32 GetMediaFileID(Int32 nMediaID, string sFileFormat, string sFileQuality, bool bIsAdmin, Int32 nGroupID, bool bWithCache)
+        public static Int32 GetMediaFileID(Int32 nMediaID, string sFileFormat, string sFileQuality, bool bIsAdmin, Int32 nGroupID, bool bWithCache)
         {
             string sBilling = "";
             double dDuration = 0.0;
             return GetMediaFileID(nMediaID, sFileFormat, sFileQuality, ref sBilling, ref dDuration, bIsAdmin, nGroupID, bWithCache);
         }
 
-        static public Int32 GetMediaFileID(Int32 nMediaID, string sFileFormat, string sFileQuality, ref string sBillingType, ref double dDuration, bool bIsAdmin, Int32 nGroupID, bool bWithCache)
+        public static Int32 GetMediaFileID(Int32 nMediaID, string sFileFormat, string sFileQuality, ref string sBillingType, ref double dDuration, bool bIsAdmin, Int32 nGroupID, bool bWithCache)
         {
             string sBaseBilling = "";
             Int32 nViews = 0;
             return GetMediaFileID(nMediaID, sFileFormat, sFileQuality, ref sBillingType, ref sBaseBilling, ref dDuration, ref nViews, bIsAdmin, nGroupID, bWithCache);
         }
 
-        static public Int32 GetMediaFileID(Int32 nMediaID, string sFileFormat, string sFileQuality, ref string sBillingType, bool bIsAdmin, Int32 nGroupID, bool bWithCache)
+        public static Int32 GetMediaFileID(Int32 nMediaID, string sFileFormat, string sFileQuality, ref string sBillingType, bool bIsAdmin, Int32 nGroupID, bool bWithCache)
         {
             string sBaseBilling = "";
             double dDuration = 0.0;
@@ -796,7 +796,7 @@ namespace TVinciShared
             return GetMediaFileID(nMediaID, sFileFormat, sFileQuality, ref sBillingType, ref sBaseBilling, ref dDuration, ref nViews, bIsAdmin, nGroupID, bWithCache);
         }
 
-        static public Int32 GetFileQualityID(string sFileType)
+        public static Int32 GetFileQualityID(string sFileType)
         {
             Int32 nID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -814,7 +814,7 @@ namespace TVinciShared
             return nID;
         }
 
-        static public Int32 GetFileTypeID(string sFileType, Int32 nGroupID)
+        public static Int32 GetFileTypeID(string sFileType, Int32 nGroupID)
         {
             sFileType = sFileType.Trim().ToLower();
             Int32 nID = GetFriendlyFileTypeID(sFileType, nGroupID);
@@ -840,7 +840,7 @@ namespace TVinciShared
             return nID;
         }
 
-        static public Int32 GetFriendlyFileTypeID(string sFileType, Int32 nGroupID)
+        public static Int32 GetFriendlyFileTypeID(string sFileType, Int32 nGroupID)
         {
 
             sFileType = sFileType.Trim().ToLower();
@@ -959,7 +959,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetFlashVarsValue(ref XmlDocument theDoc, string sAttrName)
+        public static string GetFlashVarsValue(ref XmlDocument theDoc, string sAttrName)
         {
             string sRet = "";
             XmlNode theFlashVars = theDoc.SelectSingleNode("/root/flashvars");
@@ -983,7 +983,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public string GetFinalEndDateField(bool bUseFinalEndDate, bool managementData = false)
+        public static string GetFinalEndDateField(bool bUseFinalEndDate, bool managementData = false)
         {
             if (managementData)
                 return string.Empty;
@@ -995,7 +995,7 @@ namespace TVinciShared
 
         }
 
-        static public string GetFinalEndDateField(ref XmlDocument theDoc)
+        public static string GetFinalEndDateField(ref XmlDocument theDoc)
         {
             string sFinalEndDate = GetFlashVarsValue(ref theDoc, "use_final_end_date");
             if (sFinalEndDate.Trim().ToLower() == "1" || sFinalEndDate.Trim().ToLower() == "true")
@@ -1004,7 +1004,7 @@ namespace TVinciShared
 
         }
 
-        static public string GetPicSizeForCache(ref XmlDocument theDoc)
+        public static string GetPicSizeForCache(ref XmlDocument theDoc)
         {
             if (theDoc == null)
                 return "";
@@ -1030,7 +1030,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetPicSizeForCache(ref ApiObjects.PicObject[] thePics)
+        public static string GetPicSizeForCache(ref ApiObjects.PicObject[] thePics)
         {
             if (thePics == null)
                 return "";
@@ -1079,7 +1079,7 @@ namespace TVinciShared
             updateQuery = null;
         }
 
-        static public void InsertMediaText(Int32 nMediaID, Int32 nMediaTextTypeID, Int32 nMediaTextTypeNum, Int32 nGroupID,
+        public static void InsertMediaText(Int32 nMediaID, Int32 nMediaTextTypeID, Int32 nMediaTextTypeNum, Int32 nGroupID,
             Int32 nLangID, string sVal, bool bMultiValues)
         {
             if (sVal.Trim() == "")
@@ -1143,7 +1143,7 @@ namespace TVinciShared
             }
         }
 
-        static public void SeperateMediaTexts(Int32 nMediaID)
+        public static void SeperateMediaTexts(Int32 nMediaID)
         {
             SeperateMediaMainTexts(nMediaID);
             SeperateMediaTranslateTexts(nMediaID, 0);
@@ -1151,7 +1151,7 @@ namespace TVinciShared
             SeperateMediaTranslateTags(nMediaID);
         }
 
-        static public void SeperateMediaTranslateTagsByTags(Int32 nTagID, Int32 nLanguageID)
+        public static void SeperateMediaTranslateTagsByTags(Int32 nTagID, Int32 nLanguageID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select distinct mt.media_id from media_tags mt (nolock),tags t (nolock) where mt.tag_id=t.id and mt.status=1 and t.status=1 and ";
@@ -1169,7 +1169,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public void SeperateMediaTranslateTags(Int32 nMediaID)
+        public static void SeperateMediaTranslateTags(Int32 nMediaID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(0);
@@ -1193,7 +1193,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public void SeperateMediaMainTags(Int32 nMediaID)
+        public static void SeperateMediaMainTags(Int32 nMediaID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(0);
@@ -1220,7 +1220,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public void SeperateMediaMainTexts(Int32 nMediaID)
+        public static void SeperateMediaMainTexts(Int32 nMediaID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(0);
@@ -1269,7 +1269,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public void SeperateMediaTranslateTexts(Int32 nMediaID, Int32 nLangusageID)
+        public static void SeperateMediaTranslateTexts(Int32 nMediaID, Int32 nLangusageID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetCachedSec(0);
@@ -1327,7 +1327,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public string GetPicSizesXMLParts(ref XmlDocument theDoc, Int32 nPicID, Int32 nGroupID, Int32 nMediaID, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics, string sPicsForCache)
+        public static string GetPicSizesXMLParts(ref XmlDocument theDoc, Int32 nPicID, Int32 nGroupID, Int32 nMediaID, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics, string sPicsForCache)
         {
             if (nPicID == 0)
                 nPicID = PageUtils.GetDefaultPICID(nGroupID);
@@ -1430,7 +1430,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetPicSizesXMLPartsForChannel(ref XmlDocument theDoc, Int32 nPicID, Int32 nGroupID, Int32 nChannelID, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics, string sPicsForCache)
+        public static string GetPicSizesXMLPartsForChannel(ref XmlDocument theDoc, Int32 nPicID, Int32 nGroupID, Int32 nChannelID, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics, string sPicsForCache)
         {
             if (nPicID == 0)
                 nPicID = PageUtils.GetDefaultPICID(nGroupID);
@@ -1542,7 +1542,7 @@ namespace TVinciShared
             //return false;
         }
 
-        static public void GetLangData(string sLang, Int32 nGroupID, ref Int32 nLangID, ref bool bIsMain)
+        public static void GetLangData(string sLang, Int32 nGroupID, ref Int32 nLangID, ref bool bIsMain)
         {
             if (sLang == "")
                 return;
@@ -1568,7 +1568,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public bool IsLangMain(Int32 nGroupID, Int32 nLangID)
+        public static bool IsLangMain(Int32 nGroupID, Int32 nLangID)
         {
             bool bIsMain = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1591,7 +1591,7 @@ namespace TVinciShared
             return bIsMain;
         }
 
-        static public XmlNode GetInfoStructNode(ref XmlDocument theDoc, Int32 nGroupID, bool bWithCache)
+        public static XmlNode GetInfoStructNode(ref XmlDocument theDoc, Int32 nGroupID, bool bWithCache)
         {
             ApiObjects.MediaInfoStructObject theWSInfoStruct = null;
             return GetInfoStructNode(ref theDoc, nGroupID, bWithCache, ref theWSInfoStruct);
@@ -1790,7 +1790,7 @@ namespace TVinciShared
             return (XmlDocument)(x.Clone());
         }
 
-        static public XmlNode GetInfoStructNode(ref XmlDocument theDoc, Int32 nGroupID, bool bWithCache, ref ApiObjects.MediaInfoStructObject theWSInfoStruct)
+        public static XmlNode GetInfoStructNode(ref XmlDocument theDoc, Int32 nGroupID, bool bWithCache, ref ApiObjects.MediaInfoStructObject theWSInfoStruct)
         {
             try
             {
@@ -1846,7 +1846,7 @@ namespace TVinciShared
             }
         }
 
-        static public string GetSafeURL(string sURL)
+        public static string GetSafeURL(string sURL)
         {
             if (sURL.Trim() == "")
                 return "";
@@ -1894,13 +1894,13 @@ namespace TVinciShared
             return result;
         }
 
-        static public string GetPlayListSchema(ref XmlDocument theDoc, Int32 nChannelID, Int32 nGroupID, Int32 nLangID, bool bIsMainLang, Int32 nWatcherID, Int32 nPlayerID, bool bWithCache)
+        public static string GetPlayListSchema(ref XmlDocument theDoc, Int32 nChannelID, Int32 nGroupID, Int32 nLangID, bool bIsMainLang, Int32 nWatcherID, Int32 nPlayerID, bool bWithCache)
         {
             ApiObjects.PlayListSchema obj = null;
             return GetPlayListSchema(ref theDoc, nChannelID, nGroupID, nLangID, bIsMainLang, nWatcherID, nPlayerID, bWithCache, ref obj);
         }
 
-        static public string GetPlayListSchema(ref XmlDocument theDoc, Int32 nChannelID, Int32 nGroupID, Int32 nLangID, bool bIsMainLang, Int32 nWatcherID, Int32 nPlayerID, bool bWithCache, ref ApiObjects.PlayListSchema oPlayListSchema)
+        public static string GetPlayListSchema(ref XmlDocument theDoc, Int32 nChannelID, Int32 nGroupID, Int32 nLangID, bool bIsMainLang, Int32 nWatcherID, Int32 nPlayerID, bool bWithCache, ref ApiObjects.PlayListSchema oPlayListSchema)
         {
             if (oPlayListSchema == null && CachingManager.CachingManager.Exist("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()) == true && bWithCache == true)
                 return CachingManager.CachingManager.GetCachedData("playlistschema" + nChannelID.ToString() + "_" + nGroupID.ToString()).ToString();
@@ -2188,7 +2188,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public void GetMediaAdsDelats(Int32 nDefaultOwnerPlaylistSchema, ref Int32 nBreakDelta, ref Int32 nBreakStart, ref Int32 nOverlayDelta, ref Int32 nOverlayStart)
+        public static void GetMediaAdsDelats(Int32 nDefaultOwnerPlaylistSchema, ref Int32 nBreakDelta, ref Int32 nBreakStart, ref Int32 nOverlayDelta, ref Int32 nOverlayStart)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select * from play_list_items_templates_types (nolock) where ";
@@ -2208,7 +2208,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public string GetMediaAdsSchema(Int32 nMediaID, Int32 nMediaFileID, Int32 nGroupID, bool bWithCache,
+        public static string GetMediaAdsSchema(Int32 nMediaID, Int32 nMediaFileID, Int32 nGroupID, bool bWithCache,
             ref ApiObjects.MediaAdObject thePreAdObject, ref ApiObjects.MediaAdObject theBreakAdObj,
             ref ApiObjects.MediaAdObject theOverlayAdObj, ref ApiObjects.MediaAdObject thePostAdObj, ref bool bPlaylistSchemaControlled)
         {
@@ -2405,7 +2405,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public Int32 GetStreamCompByFileId(Int32 nMediaFileId)
+        public static Int32 GetStreamCompByFileId(Int32 nMediaFileId)
         {
             Int32 nRet = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2426,7 +2426,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public Int32 GetOwnerMediaGroup(Int32 nMediaID)
+        public static Int32 GetOwnerMediaGroup(Int32 nMediaID)
         {
             try
             {
@@ -2443,7 +2443,7 @@ namespace TVinciShared
             }
         }
 
-        static public Int32 GetFriendlyFormatID(Int32 nGroupID, Int32 nFormatID)
+        public static Int32 GetFriendlyFormatID(Int32 nGroupID, Int32 nFormatID)
         {
             Int32 nRet = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2669,7 +2669,7 @@ namespace TVinciShared
         //    return nRet;
         //}
 
-        static public void AddVideoQualityStatistics(int groupID, int mediaID, int mediaFileID, int avgMaxBitRate, int currentBitRateInd,
+        public static void AddVideoQualityStatistics(int groupID, int mediaID, int mediaFileID, int avgMaxBitRate, int currentBitRateInd,
             int totalBitRateNum, int watcherID, int siteGuid, int location, string sessionID, int browser, int platform, int countryID)
         {
             ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media_file_video_quality");
@@ -2746,7 +2746,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public void UpdateEOHStatistics(Int32 nGroupID, Int32 nOwnerGroupID,
+        public static void UpdateEOHStatistics(Int32 nGroupID, Int32 nOwnerGroupID,
             Int32 nMediaID, Int32 nMediaFileID, Int32 nBillingTypeID, Int32 nCDNID, Int32 nCountryID, Int32 nPlayerID,
             Int32 nFileQualityID, Int32 nFileFormatID, DateTime dCountDate, Int32 nWatcherID, string sSessionID, Int32 nDuration,
             Int32 nFirstPlayCounter, Int32 nPlayCounter, Int32 nLoadCounter, Int32 nPauseCounter, Int32 nStopCounter,
@@ -2791,7 +2791,7 @@ namespace TVinciShared
 
         }
 
-        static public string HitProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string HitProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nCountryID, Int32 nPlayerID,
             ref ApiObjects.InitializationObject initObj, Int32 nWSLocationInVideoSec, ref ApiObjects.MediaFileObject theMediaFileObj)
         {
@@ -2952,7 +2952,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        //static public DateTime GetDateForMediaEOH()
+        //public static DateTime GetDateForMediaEOH()
         //{
         //    object t = null;
         //    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -2975,7 +2975,7 @@ namespace TVinciShared
 
 
 
-        static public string MediaMark(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string MediaMark(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nCountryID, Int32 nPlayerID,
             ref ApiObjects.InitializationObject initObj, string sWSAction, Int32 nWSLocationSec,
             ref ApiObjects.MediaFileObject theMediaFileObj)
@@ -3380,7 +3380,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public string SingleMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string SingleMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             string sLang, Int32 nPlayerID, bool bWithCache, bool bIsAdmin,
             ref ApiObjects.InitializationObject oWSInitObj,
@@ -3507,7 +3507,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string PicsProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string PicsProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             string sLang, Int32 nPlayerID, bool bWithCache, bool bIsAdmin)
         {
@@ -3552,13 +3552,13 @@ namespace TVinciShared
         }
 
 
-        static public string GetMediaTag(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin, bool bEnterToCache,
+        public static string GetMediaTag(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin, bool bEnterToCache,
             bool bWithFileTypes, Int32 nCountryID, Int32 nDeviceID)
         {
             return GetMediaTag(ref theDoc, nMediaID, sTagName, nGroupID, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCach, nPlayerID, ref theInfoStruct, bIsAdmin, bEnterToCache, bWithFileTypes, nCountryID, nDeviceID, false, string.Empty, DateTime.MaxValue, true);
         }
 
-        static public string GetMediaTag(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin, bool bEnterToCache,
+        public static string GetMediaTag(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin, bool bEnterToCache,
             bool bWithFileTypes, Int32 nCountryID, Int32 nDeviceID, bool bWithUDID, string sDeviceName, DateTime lastWatchedDate, bool bUseStartDate)
         {
             StringBuilder res = new StringBuilder();
@@ -3591,7 +3591,7 @@ namespace TVinciShared
             return res.ToString();
         }
 
-        static public string GetMiniMediaTagInner(Int32 nMediaFileID)
+        public static string GetMiniMediaTagInner(Int32 nMediaFileID)
         {
             Int32 nCDNID = 0;
             string sURL = "";
@@ -3865,7 +3865,7 @@ namespace TVinciShared
             }
         }
 
-        static public string GetSig(ref XmlDocument theDoc, bool bRemove)
+        public static string GetSig(ref XmlDocument theDoc, bool bRemove)
         {
             return ConvertXMLToString(ref theDoc, true);
             /*
@@ -3894,7 +3894,7 @@ namespace TVinciShared
             */
         }
 
-        static public string ConvertXMLToString(ref XmlDocument theDoc, bool bRemove)
+        public static string ConvertXMLToString(ref XmlDocument theDoc, bool bRemove)
         {
             if (bRemove == true)
                 RemoveUnDesiredElements(ref theDoc);
@@ -3905,7 +3905,7 @@ namespace TVinciShared
             return sw.ToString();
         }
 
-        static public string ConvertXMLToString(ref XmlNode theDoc, bool bRemove)
+        public static string ConvertXMLToString(ref XmlNode theDoc, bool bRemove)
         {
             if (bRemove == true)
                 RemoveUnDesiredElements(ref theDoc);
@@ -3944,7 +3944,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID, Int32 nCountryID, Int32 nBlocakble, string sFileFormat, string sFileQuality, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, string sSubFileFormat, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin, bool bEnterToCache, bool bWithFileTypes, Int32 nDeviceID)
+        public static string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID, Int32 nCountryID, Int32 nBlocakble, string sFileFormat, string sFileQuality, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, string sSubFileFormat, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin, bool bEnterToCache, bool bWithFileTypes, Int32 nDeviceID)
         {
             ApiObjects.PicObject[] thePics = null;
             ApiObjects.MediaObject theMediaObj = null;
@@ -3960,7 +3960,7 @@ namespace TVinciShared
             return GetMediaTagNeto(ref theDoc, nMediaID, sTagName, nGroupID, nCountryID, nBlocakble, sFileFormat, sFileQuality, nLangID, bIsLangMain, nWatcherID, bWithInfo, bWithCach, sSubFileFormat, nPlayerID, false, ref theInfoStruct, bIsAdmin, bEnterToCache, bWithFileTypes, ref thePics, ref theMediaObj, false, bStatistics, bPersonal, ref theWSInfoStruct, nDeviceID);
         }
 
-        static public string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
+        public static string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
             Int32 nCountryID, Int32 nBlocakble, string sFileFormat, string sFileQuality, Int32 nLangID,
             bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, string sSubFileFormat, Int32 nPlayerID,
             bool bIsInner, ref XmlNode theInfoStruct, bool bAdmin, bool bEnterToCache, bool bWithFileTypes,
@@ -3971,7 +3971,7 @@ namespace TVinciShared
                 ref theInfoStruct, bAdmin, bEnterToCache, bWithFileTypes, ref thePics, ref theMediaObj, bUseFinalEndDate, bStatistics, bPersonal, ref theWSInfoStruct, nDeviceID, false, string.Empty);
         }
 
-        static public string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
+        public static string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
             Int32 nCountryID, Int32 nBlocakble, string sFileFormat, string sFileQuality, Int32 nLangID,
             bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, string sSubFileFormat, Int32 nPlayerID,
             bool bIsInner, ref XmlNode theInfoStruct, bool bAdmin, bool bEnterToCache, bool bWithFileTypes,
@@ -3982,7 +3982,7 @@ namespace TVinciShared
                 ref theInfoStruct, bAdmin, bEnterToCache, bWithFileTypes, ref thePics, ref theMediaObj, bUseFinalEndDate, bStatistics, bPersonal, ref theWSInfoStruct, nDeviceID, false, string.Empty, true);
         }
 
-        static public string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
+        public static string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
             Int32 nCountryID, Int32 nBlocakble, string sFileFormat, string sFileQuality, Int32 nLangID,
             bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, string sSubFileFormat, Int32 nPlayerID,
             bool bIsInner, ref XmlNode theInfoStruct, bool bAdmin, bool bEnterToCache, bool bWithFileTypes,
@@ -3993,7 +3993,7 @@ namespace TVinciShared
                ref theInfoStruct, bAdmin, bEnterToCache, bWithFileTypes, ref thePics, ref theMediaObj, bUseFinalEndDate, bStatistics, bPersonal, ref theWSInfoStruct, nDeviceID, false, string.Empty, DateTime.MaxValue, bUseStartDate);
         }
 
-        static public string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
+        public static string GetMediaTagNeto(ref XmlDocument theDoc, Int32 nMediaID, string sTagName, Int32 nGroupID,
             Int32 nCountryID, Int32 nBlocakble, string sFileFormat, string sFileQuality, Int32 nLangID,
             bool bIsLangMain, Int32 nWatcherID, bool bWithInfo, bool bWithCach, string sSubFileFormat, Int32 nPlayerID,
             bool bIsInner, ref XmlNode theInfoStruct, bool bAdmin, bool bEnterToCache, bool bWithFileTypes,
@@ -4505,7 +4505,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetMediaTagsIDs(Int32 nMediaID)
+        public static string GetMediaTagsIDs(Int32 nMediaID)
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("(");
@@ -4532,7 +4532,7 @@ namespace TVinciShared
         }
 
 
-        static public string Get3ChoisesMediaValues(Int32 nMediaID, Int32 nWatcherID)
+        public static string Get3ChoisesMediaValues(Int32 nMediaID, Int32 nWatcherID)
         {
             StringBuilder sRet = new StringBuilder();
             Int32 nGroupID = int.Parse(PageUtils.GetTableSingleVal("media", "group_id", nMediaID).ToString());
@@ -4560,7 +4560,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public void Get3ChoisesCounts(Int32 nWatcherID, Int32 nMediaID, Int32 nMedia_3choise_id, ref Int32 nChoise1Cnt, ref Int32 nChoise2Cnt, ref Int32 nUserChoise)
+        public static void Get3ChoisesCounts(Int32 nWatcherID, Int32 nMediaID, Int32 nMedia_3choise_id, ref Int32 nChoise1Cnt, ref Int32 nChoise2Cnt, ref Int32 nUserChoise)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select count(*) as co,CHOISE_1_OR_2 from  watchers_media_3choise (nolock) where ";
@@ -4607,7 +4607,7 @@ namespace TVinciShared
             selectQuery1 = null;
         }
 
-        static public Int32 UserVoteValueForMedia(Int32 nWatcherID, Int32 nMediaID, bool bWithCach, bool bWritable, int siteGuid)
+        public static Int32 UserVoteValueForMedia(Int32 nWatcherID, Int32 nMediaID, bool bWithCach, bool bWritable, int siteGuid)
         {
             Int32 nRet = -1;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -4635,7 +4635,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public void GetCountersFromMedia(Int32 nMediaID, ref Int32 nViews, ref Int32 nVotesSum, ref Int32 nVotesCnt, ref double dAvg
+        public static void GetCountersFromMedia(Int32 nMediaID, ref Int32 nViews, ref Int32 nVotesSum, ref Int32 nVotesCnt, ref double dAvg
             , ref Int32 nVotesLoCnt
             , ref Int32 nVotesUpCnt
             , ref Int32 nVotes1Cnt
@@ -4690,7 +4690,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public bool DoesCallerPermittedIP(Int32 nGroupID)
+        public static bool DoesCallerPermittedIP(Int32 nGroupID)
         {
             if (HttpContext.Current.Session.Get("caller_allowed" + nGroupID.ToString()) != null)
                 return (bool)(HttpContext.Current.Session.Get("caller_allowed" + nGroupID.ToString()));
@@ -4713,7 +4713,7 @@ namespace TVinciShared
             return bAllowedIP;
         }
 
-        static public string GetMediaInfoInner(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithCach, ref XmlNode theInfoStruct, bool bEnterToCache, bool bStatistics, bool bPersonal,
+        public static string GetMediaInfoInner(Int32 nMediaID, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID, bool bWithCach, ref XmlNode theInfoStruct, bool bEnterToCache, bool bStatistics, bool bPersonal,
             ref ApiObjects.MediaInfoObject theInfo, ref ApiObjects.MediaPersonalStatistics thePersonalStatistics,
             ref ApiObjects.MediaStatistics theMediaStatistics)
         {
@@ -4848,12 +4848,12 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public Int32 CreateNewWatchGroupField(Int32 nWatcherID, Int32 nGroupID, string sSiteGUID)
+        public static Int32 CreateNewWatchGroupField(Int32 nWatcherID, Int32 nGroupID, string sSiteGUID)
         {
             return CreateNewWatchGroupField(nWatcherID, nGroupID, sSiteGUID, true);
         }
 
-        static public Int32 CreateNewWatchGroupField(Int32 nWatcherID, Int32 nGroupID, string sSiteGUID, bool bWithSession)
+        public static Int32 CreateNewWatchGroupField(Int32 nWatcherID, Int32 nGroupID, string sSiteGUID, bool bWithSession)
         {
             if (sSiteGUID.Trim() == "")
                 return 0;
@@ -4926,7 +4926,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public bool GetAdminTokenValues(string sAdminToken, string sIP, ref Int32 nCountryID, ref string sLang, ref Int32 nDeviceID, Int32 nGroupID, ref bool bAdmin, ref bool bWithCache)
+        public static bool GetAdminTokenValues(string sAdminToken, string sIP, ref Int32 nCountryID, ref string sLang, ref Int32 nDeviceID, Int32 nGroupID, ref bool bAdmin, ref bool bWithCache)
         {
             if (sAdminToken == "")
                 return false;
@@ -4978,7 +4978,7 @@ namespace TVinciShared
             return bRet;
         }
 
-        static public Int32 GetStartValues(ref XmlDocument theDoc, ref Int32 nGroupID, ref string sTVinciGUID, ref string sLastTVinciDate, ref string sLastSiteDate, string sSiteGUID, ref Int32 nCountryID, ref Int32 nPlayerID, bool bCreate, ref Int32 nDeviceID, ref string sLang, ref bool bAdmin, ref bool bWithCache)
+        public static Int32 GetStartValues(ref XmlDocument theDoc, ref Int32 nGroupID, ref string sTVinciGUID, ref string sLastTVinciDate, ref string sLastSiteDate, string sSiteGUID, ref Int32 nCountryID, ref Int32 nPlayerID, bool bCreate, ref Int32 nDeviceID, ref string sLang, ref bool bAdmin, ref bool bWithCache)
         {
             string sPlayerUN = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "player_un");
             string sPlayerPass = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "player_pass");
@@ -5378,13 +5378,13 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public Int32 AddWatcherField(string sTVinciGUID, string sUserAgent, string sSiteGUID, Int32 nGroupID)
+        public static Int32 AddWatcherField(string sTVinciGUID, string sUserAgent, string sSiteGUID, Int32 nGroupID)
         {
             string sCallerIP = PageUtils.GetCallerIP();
             return AddWatcherField(sTVinciGUID, sUserAgent, sSiteGUID, nGroupID, sCallerIP, true);
         }
 
-        static public Int32 AddWatcherField(string sTVinciGUID, string sUserAgent, string sSiteGUID, Int32 nGroupID, string sCallerIP, bool bSetSession)
+        public static Int32 AddWatcherField(string sTVinciGUID, string sUserAgent, string sSiteGUID, Int32 nGroupID, string sCallerIP, bool bSetSession)
         {
             Int32 nWatcherID = CreateNewWatcherField(sTVinciGUID, sUserAgent, sCallerIP);
             if (bSetSession == true)
@@ -5395,7 +5395,7 @@ namespace TVinciShared
 
         }
 
-        static public string GetErrorMessage(string sMessage)
+        public static string GetErrorMessage(string sMessage)
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<response type=\"error\">");
@@ -5404,7 +5404,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string VboxXmlProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID)
+        public static string VboxXmlProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID)
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<response type=\"vbox_xml\">");
@@ -5445,7 +5445,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string StartingProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID)
+        public static string StartingProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID)
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<response type=\"starting\">");
@@ -5598,7 +5598,7 @@ namespace TVinciShared
             return ProtocolsFuncs.GetPicSizesXMLParts(ref theDoc, nPicID, nGroupID, 0, bIsAdmin, bWithCache, ref thePics, sPicsForCache);
         }
 
-        static public void RemoveFlashVarsParameter(ref XmlDocument theDoc, string sPar)
+        public static void RemoveFlashVarsParameter(ref XmlDocument theDoc, string sPar)
         {
             if (theDoc.SelectSingleNode("root/flashvars/@" + sPar) != null)
             {
@@ -5607,7 +5607,7 @@ namespace TVinciShared
             }
         }
 
-        static public string CategoriesListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, bool bWithCache,
+        public static string CategoriesListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, bool bWithCache,
             ref ApiObjects.InitializationObject initObj, ref ApiObjects.MediaInfoStructObject theWSInfoStruct,
             Int32 nWSCategoryID, bool bWithChannels, ref ApiObjects.CategoryObject[] theCategories, Int32 nCountryID, Int32 nDeviceID, bool isTree)
         {
@@ -5794,7 +5794,7 @@ namespace TVinciShared
             }
         }
 
-        static public string RSSChannelsProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, bool bWithCache,
+        public static string RSSChannelsProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, bool bWithCache,
             Int32 nCountryID, Int32 nDeviceID)
         {
             string sPicSizeForCache = "";
@@ -5871,7 +5871,7 @@ namespace TVinciShared
         }
 
 
-        static public string PWWAWProtocol(ref XmlDocument theDoc,
+        public static string PWWAWProtocol(ref XmlDocument theDoc,
             Int32 nGroupID,
             string sTVinciGUID,
             string sLastOnTvinci,
@@ -6125,7 +6125,7 @@ namespace TVinciShared
         }
 
 
-        static public string SetDurationProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string SetDurationProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             string sLang, Int32 nPlayerID, ref ApiObjects.InitializationObject initObj,
             Int32 nWSMediaFileID, Int32 nWSDurationInSec, ref bool bRet)
@@ -6203,7 +6203,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public string SearchRelatedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string SearchRelatedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID,
             bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj,
@@ -6337,7 +6337,7 @@ namespace TVinciShared
 
         }
 
-        static public string RatingProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string RatingProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID,
             ref ApiObjects.InitializationObject initObj, ref ApiObjects.RateResponseObject theStat, Int32 nWSMediaID, Int32 nWSRateVal)
         {
@@ -6709,7 +6709,7 @@ namespace TVinciShared
             return sMailData;
         }
 
-        static public string GetGroupMailBaseAddr(Int32 nGroupID)
+        public static string GetGroupMailBaseAddr(Int32 nGroupID)
         {
             object oRet = ODBCWrapper.Utils.GetTableSingleVal("groups", "MAIL_BASE_ADDR", nGroupID);
             if (oRet == null || oRet == DBNull.Value)
@@ -6737,7 +6737,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string SentToFriendProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string SentToFriendProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, ref ApiObjects.InitializationObject initObj,
             Int32 nWSMediaID, string sWSFromEmail, string sWSToEmail, string sWSRecieverName, string sWSSenderName, string sWSContent,
             ref ApiObjects.GenericWriteResponse theWSResponse)
@@ -6855,7 +6855,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string SentToFriendProtocolText(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID)
+        public static string SentToFriendProtocolText(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID)
         {
             string sFrom = "";
             XmlNode theFrom = theDoc.SelectSingleNode("/root/request/mail/@from");
@@ -7059,7 +7059,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string MediaStructureProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, ref ApiObjects.MediaInfoStructObject theInfoStruct)
+        public static string MediaStructureProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, ref ApiObjects.MediaInfoStructObject theInfoStruct)
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("<response type=\"media_structure\">");
@@ -7179,7 +7179,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string TVCProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache)
+        public static string TVCProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache)
         {
             Int32 nCATALOG_PAGE_SIZE = 0;
             Int32 nCOMPANY_LOGO_ID = 0;
@@ -7441,7 +7441,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string MediaInfoProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache, bool bIsAdmin, ref ApiObjects.PicObject[] thePics,
+        public static string MediaInfoProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache, bool bIsAdmin, ref ApiObjects.PicObject[] thePics,
             ref ApiObjects.MediaInfoObject theInfo, ref ApiObjects.MediaPersonalStatistics thePersonalStatistics,
             ref ApiObjects.MediaStatistics theMediaStatistics, Int32 nMediaID)
         {
@@ -7811,7 +7811,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetRSSChannels(ref XmlDocument theDoc, Int32 nGroupID,
+        public static string GetRSSChannels(ref XmlDocument theDoc, Int32 nGroupID,
             Int32 nLangID, bool bIsLangMain, bool bIsAdmin, bool bWithCache, ref ApiObjects.PicObject[] thePics,
             ref ApiObjects.ChannelObject[] theChannels, Int32 nCountryID, Int32 nDeviceID, Int32 nStartIndex, Int32 nNumOfItems)
         {
@@ -7902,7 +7902,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string EPGChannelsScheduleProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID, ref ApiObjects.PicObject[] thePics, Int32 nDeviceID)
+        public static string EPGChannelsScheduleProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID, ref ApiObjects.PicObject[] thePics, Int32 nDeviceID)
         {
             string sPicSizeForCache = "";
             if (thePics == null)
@@ -8057,7 +8057,7 @@ namespace TVinciShared
 
 
 
-        static public string EPGChannelsListListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string EPGChannelsListListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID,
             bool bIsAdmin, ref ApiObjects.PicObject[] thePics)
         {
@@ -8119,7 +8119,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string ChannelsListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string ChannelsListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin,
             bool bWithCache, ref ApiObjects.InitializationObject initObj, ref ApiObjects.MediaInfoStructObject theWSInfoStruct,
             Int32 nWSCategoryID, ref ApiObjects.ChannelObject[] theChannels, Int32 nCountryID, Int32 nDeviceID)
@@ -8235,7 +8235,7 @@ namespace TVinciShared
             return nWatcherID;
         }
 
-        static public string WatcherChannelsListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID,
+        public static string WatcherChannelsListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID,
             bool bIsAdmin, ref ApiObjects.InitializationObject initObj, ref ApiObjects.MediaInfoStructObject theWSInfoStruct,
             ref ApiObjects.ChannelObject[] theChannels, string sLang, Int32 nCountryID, Int32 nDeviceID)
         {
@@ -8485,7 +8485,7 @@ namespace TVinciShared
             return true;
         }
 
-        static public string TvinciROTextCommercialProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, Int32 nCountryID)
+        public static string TvinciROTextCommercialProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, Int32 nCountryID)
         {
             string sWPGID = PageUtils.GetPermittedWatchRulesID(nGroupID);
             string sCommercialTag = "";
@@ -8573,7 +8573,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string TvinciSACommercialProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, Int32 nCountryID)
+        public static string TvinciSACommercialProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, Int32 nCountryID)
         {
             string sWPGID = PageUtils.GetPermittedWatchRulesID(nGroupID);
             string sFileFormat = ProtocolsFuncs.GetFlashVarsValue(ref theDoc, "file_format");
@@ -8752,7 +8752,7 @@ namespace TVinciShared
             return sGroups;
         }
 
-        static public string ReportProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID)
+        public static string ReportProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID)
         {
             bool bisPeridStartExsits = false;
             bool bisPeridEndExsits = false;
@@ -8877,7 +8877,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public string CalculateMD5Hash(string input)
+        public static string CalculateMD5Hash(string input)
         {
             // step 1, calculate MD5 hash from input
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
@@ -8896,7 +8896,7 @@ namespace TVinciShared
         }
 
 #if NETFRAMEWORK
-        static public string GetCastUpToken(string sIP, Int32 nGroupID, ref DateTime ticketExp)
+        public static string GetCastUpToken(string sIP, Int32 nGroupID, ref DateTime ticketExp)
         {
             string sSecretCode = "";
             object oSecretCode = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_SECRET_CODE", nGroupID);
@@ -8919,7 +8919,7 @@ namespace TVinciShared
         /// CUWMAuthTickets not supported in netstandard
         /// </summary>
         [Obsolete("CUWMAuthTickets not supported in netstandard")]
-        static public string GetCastUpToken(string sIP, Int32 nGroupID, ref DateTime ticketExp)
+        public static string GetCastUpToken(string sIP, Int32 nGroupID, ref DateTime ticketExp)
         {
             return "";
         }
@@ -8953,7 +8953,7 @@ namespace TVinciShared
         }
 
 
-        static public string MediaOneTimeLinkProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string MediaOneTimeLinkProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             string sLang, Int32 nPlayerID, string sWSCDNImpleType, Int32 nWSMediaID, Int32 nWSMediaFileID,
             string sWSBaseURL, string sWSPlayerUN, ref ApiObjects.OneTimeObject oOneTimeLink)
@@ -9313,7 +9313,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetAkamaiURL(string sURL)
+        public static string GetAkamaiURL(string sURL)
         {
             Int32 nStatus = 200;
             string sResp = Notifier.SendGetHttpReq(sURL, ref nStatus);
@@ -9347,7 +9347,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public string SmsBillingCodeCheckProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID)
+        public static string SmsBillingCodeCheckProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID)
         {
             string sMediaFileID = "0";
             XmlNode theMediaFileID = theDoc.SelectSingleNode("/root/request/media/@file_id");
@@ -9415,7 +9415,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string ChannelMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string ChannelMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache,
             bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelRequestObject[] nChannels,
@@ -9649,7 +9649,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public bool IsMediaAllowedForDevice(int mediaID, string deviceUDID)
+        public static bool IsMediaAllowedForDevice(int mediaID, string deviceUDID)
         {
             // get media rule-id
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -9735,7 +9735,7 @@ namespace TVinciShared
 
 
 
-        static public string GetMetaFieldByName(string sMetaName, Int32 nGroupID, ref Int32 nJ, ref Int32 nMediaTextTypeID)
+        public static string GetMetaFieldByName(string sMetaName, Int32 nGroupID, ref Int32 nJ, ref Int32 nMediaTextTypeID)
         {
             nJ = 0;
             StringBuilder sRet = new StringBuilder();
@@ -9790,7 +9790,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
         /*
-        static public Int32 GetTagIDByName(string sTagName, Int32 nGroupID , ref Int32 nOrderNum)
+        public static Int32 GetTagIDByName(string sTagName, Int32 nGroupID , ref Int32 nOrderNum)
         {
             if (sTagName.ToLower().Trim() == "free")
                 return 0;
@@ -9817,7 +9817,7 @@ namespace TVinciShared
         }
         */
 
-        static public string GetTagsIDsByName(string sTagName, Int32 nGroupID, ref Int32 nOrderNum)
+        public static string GetTagsIDsByName(string sTagName, Int32 nGroupID, ref Int32 nOrderNum)
         {
             if (sTagName.ToLower().Trim() == "free")
                 return "in (0)";
@@ -10094,7 +10094,7 @@ namespace TVinciShared
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("tt.value", "=", sTagValue.Trim());
         }
 
-        static public DataRow GetMediaRow(int mediaID)
+        public static DataRow GetMediaRow(int mediaID)
         {
             DataRow retVal = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -10112,7 +10112,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public int GetSearchCountNew(int mediaID, int nGroupID, int mediaType, int country, int language, int device, string permission_rule, bool bWithCache)
+        public static int GetSearchCountNew(int mediaID, int nGroupID, int mediaType, int country, int language, int device, string permission_rule, bool bWithCache)
         {
 
             int retVal = 0;
@@ -10651,7 +10651,7 @@ namespace TVinciShared
         }
 
 
-        static public List<int> GetDeviceAllowedRuleIDs(string deviceUdid, int nGroupID)
+        public static List<int> GetDeviceAllowedRuleIDs(string deviceUdid, int nGroupID)
         {
             int nBrandID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -10862,7 +10862,7 @@ namespace TVinciShared
         }
 
 
-        static public string TagValuesProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string TagValuesProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID,
             ref ApiObjects.InitializationObject initObj, ref ApiObjects.TagRequestObject[] sTagTypes,
             ref ApiObjects.TagResponseObject[] theTags, Int32 nCountryID, Int32 nDeviceID)
@@ -11341,7 +11341,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public string PersonalRatedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string PersonalRatedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID,
             ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj,
@@ -11529,7 +11529,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string PersonalRecommendedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string PersonalRecommendedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID,
             bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj, ref ApiObjects.PageDefinition thePageDef,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj, Int32 nDeviceID, bool bWithCache)
@@ -11735,7 +11735,7 @@ namespace TVinciShared
             return retVal.ToString();
         }
 
-        static public string PersonalLastWatchedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string PersonalLastWatchedProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID,
             bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj, ref ApiObjects.PageDefinition thePageDef,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj, Int32 nDeviceID)
@@ -12005,7 +12005,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string NowPlayingProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string NowPlayingProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID,
             ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj,
@@ -12140,7 +12140,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string MostViewdProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string MostViewdProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID,
             Int32 nDeviceID)
         {
@@ -13102,7 +13102,7 @@ namespace TVinciShared
             return GetOrderByString(ref theSearchObject.m_sOrderByObjects, bIsLangMain, ref sMetaFieldQuery, nGroupID);
         }
 
-        static public string GetOrderByFromSort(ref SortedList theOrderBy)
+        public static string GetOrderByFromSort(ref SortedList theOrderBy)
         {
             string sOrderBy = "";
             IDictionaryEnumerator iter = theOrderBy.GetEnumerator();
@@ -13121,7 +13121,7 @@ namespace TVinciShared
             return sOrderBy;
         }
 
-        static public string SearchMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string SearchMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache, bool bRelated,
             bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.SearchDefinitionObject theSearchCriteria, ref ApiObjects.MediaInfoStructObject theWSInfoStruct,
@@ -13426,7 +13426,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string SaveCommentsProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string SaveCommentsProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, ref ApiObjects.InitializationObject initObj,
             ApiObjects.UserComment theCommentToAdd, bool bWSAutoActive, string sWSCommentType, ref ApiObjects.UserComment[] theComments, string sLang)
         {
@@ -13568,7 +13568,7 @@ namespace TVinciShared
             return nID;
         }
 
-        static public string CommentsListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string CommentsListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, Int32 nPlayerID, ref ApiObjects.InitializationObject initObj,
             Int32 nWSMediaID, string sWSCommentType, ref ApiObjects.UserComment[] theComments, string sLang)
         {
@@ -13723,7 +13723,7 @@ namespace TVinciShared
             }
         }
 
-        static public string DeletePlayListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string DeletePlayListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             Int32 nPlayerID, string sLang, bool bIsAdmin, ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject[] theChannels,
@@ -13880,7 +13880,7 @@ namespace TVinciShared
             return true;
         }
 
-        static public string SavePlayListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string SavePlayListProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             Int32 nPlayerID, string sLang, ref ApiObjects.InitializationObject initObj,
             Int32[] nMediaIDs, string sChannelTitle, bool bWSRewrite, ref ApiObjects.GenericWriteResponse theWSResponse)
@@ -13981,7 +13981,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string DeletePlayListItemProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string DeletePlayListItemProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             Int32 nPlayerID, string sLang, ref ApiObjects.InitializationObject initObj,
             Int32 nMediaID, string sChannelTitle, ref ApiObjects.GenericWriteResponse theWSResponse)
@@ -14065,7 +14065,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string AddPlayListItemProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
+        public static string AddPlayListItemProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID,
             string sLastOnTvinci, string sLastOnSite, string sSiteGUID, Int32 nWatcherID,
             Int32 nPlayerID, string sLang, ref ApiObjects.InitializationObject initObj,
             Int32 nMediaID, Int32 nIndex, string sChannelTitle, ref ApiObjects.GenericWriteResponse theWSResponse)
@@ -14191,7 +14191,7 @@ namespace TVinciShared
 
 #if NETFRAMEWORK
 
-        static public string SubscriptionMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string SubscriptionMediaProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang, Int32 nPlayerID, bool bWithCache,
             bool bIsAdmin, Int32 nCountryID, Int32 nDeviceID)
         {
@@ -14561,7 +14561,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public string GetUserSocialActions(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string GetUserSocialActions(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang,
             Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj,
@@ -14719,7 +14719,7 @@ namespace TVinciShared
         }
 
 
-        static public string PWLALProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
+        public static string PWLALProtocol(ref XmlDocument theDoc, Int32 nGroupID, string sTVinciGUID, string sLastOnTvinci,
             string sLastOnSite, string sSiteGUID, Int32 nWatcherID, string sLang,
             Int32 nPlayerID, bool bIsAdmin, Int32 nCountryID, ref ApiObjects.InitializationObject initObj,
             ref ApiObjects.MediaInfoStructObject theWSInfoStruct, ref ApiObjects.ChannelObject theChannelObj,
@@ -14918,7 +14918,7 @@ namespace TVinciShared
         }
 
 
-        static public string GetPWLAL(Int32 nMediaID, string sSiteGUID)
+        public static string GetPWLAL(Int32 nMediaID, string sSiteGUID)
         {
             Int32 nGroupID = 110;
 
@@ -14990,7 +14990,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetDateRangeQuery(string sEndDateField, bool bWithStartDate)
+        public static string GetDateRangeQuery(string sEndDateField, bool bWithStartDate)
         {
             string sQuery = string.Empty;
 
@@ -15007,7 +15007,7 @@ namespace TVinciShared
         }
 
 
-        static public bool IsConcurrent(string sSiteGUID, string sUDID, int nGroupID)
+        public static bool IsConcurrent(string sSiteGUID, string sUDID, int nGroupID)
         {
             bool bConcurrent = false;
             int nConcurrent = 0;
@@ -15064,7 +15064,7 @@ namespace TVinciShared
 
 //#if NETFRAMEWORK
 //        //Get Media with Lucene Search , then complite media data with ProtocolsFuncs.GetMediaTag
-//        static public string GetSearchMediaWithLucene(int nStartIndex, int nNumOfItems, int nMediaID, Int32 nGroupID, string sMediaTypeID, string sName, bool bAnd, bool bExact,
+//        public static string GetSearchMediaWithLucene(int nStartIndex, int nNumOfItems, int nMediaID, Int32 nGroupID, string sMediaTypeID, string sName, bool bAnd, bool bExact,
 //            string sDescription, ref XmlNodeList theMetaList, ref XmlNodeList theTagsList,
 //            string sPlaylistSchema, ref XmlDocument theDoc, Int32 nLangID, bool bIsLangMain, Int32 nWatcherID,
 //            bool bWithInfo, bool bWithCache, Int32 nPlayerID, ref XmlNode theInfoStruct, bool bIsAdmin,

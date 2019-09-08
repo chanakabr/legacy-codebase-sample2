@@ -7,7 +7,7 @@ namespace Uploader
 {
     class UploadHelper
     {
-        static public List<UploadJob> GetGroupPendingJobs(int nGroupID, int nID)
+        public static List<UploadJob> GetGroupPendingJobs(int nGroupID, int nID)
         {
             List<UploadJob> lPendingJobs = new List<UploadJob>();
 
@@ -69,7 +69,7 @@ namespace Uploader
             return lPendingJobs;
         }
 
-        static public List<UploadJob> GetGroupPendingJobs(int nGroupID, int nID, int nNumOfRows)
+        public static List<UploadJob> GetGroupPendingJobs(int nGroupID, int nID, int nNumOfRows)
         {
             List<UploadJob> lPendingJobs = new List<UploadJob>();
 
@@ -131,7 +131,7 @@ namespace Uploader
             return lPendingJobs;
         }
 
-        static public void UpdateJob(UploadJob job)
+        public static void UpdateJob(UploadJob job)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ftp_upload_queue");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("fail_count", "=", job.fail_count);

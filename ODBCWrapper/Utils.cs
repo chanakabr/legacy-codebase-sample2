@@ -22,7 +22,7 @@ namespace ODBCWrapper
         private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
         static List<string> dbWriteLockParams = ApplicationConfiguration.DatabaseConfiguration.GetWriteLockParameters();
-        static public string dBVersionPrefix = 
+        public static string dBVersionPrefix = 
             (!string.IsNullOrEmpty(ApplicationConfiguration.DatabaseConfiguration.Prefix.Value)) ? 
                 string.Concat("__", ApplicationConfiguration.DatabaseConfiguration.Prefix.Value, "__") : 
                 string.Empty;
@@ -31,7 +31,7 @@ namespace ODBCWrapper
         [ThreadStatic]
         public static bool UseWritable;
 
-        static public string GetSafeStr(object o)
+        public static string GetSafeStr(object o)
         {
             if (o == DBNull.Value)
                 return "";
@@ -97,7 +97,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Byte GetByteSafeVal(DataRow dr, string sField)
+        public static Byte GetByteSafeVal(DataRow dr, string sField)
         {
             try
             {
@@ -155,7 +155,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Int64 GetLongSafeVal(DataRow dr, string sField)
+        public static Int64 GetLongSafeVal(DataRow dr, string sField)
         {
             try
             {
@@ -171,7 +171,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Int64 GetLongSafeVal(DataRowView dr, string sField)
+        public static Int64 GetLongSafeVal(DataRowView dr, string sField)
         {
             try
             {
@@ -202,47 +202,47 @@ namespace ODBCWrapper
             }
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec)
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec)
         {
             return GetTableSingleVal(sTable, sFieldName, nID, nCachSec, "");
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec, string sConnectionKey)
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec, string sConnectionKey)
         {
             return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, long nID, Int32 nCachSec, string sConnectionKey)
+        public static object GetTableSingleVal(string sTable, string sFieldName, long nID, Int32 nCachSec, string sConnectionKey)
         {
             return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, nCachSec, sConnectionKey);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID)
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID)
         {
             return GetTableSingleVal(sTable, sFieldName, nID, "");
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string sConnectionKey)
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string sConnectionKey)
         {
             return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, sConnectionKey);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal)
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal)
         {
             return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, "");
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string sConnectionKey)
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string sConnectionKey)
         {
             return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, -1, sConnectionKey);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec)
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec)
         {
             return GetTableSingleVal(sTable, sFieldName, sWhereField, sWhereSign, sWhereVal, nCachSec, "");
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec, string sConnectionKey)
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, Int32 nCachSec, string sConnectionKey)
         {
             object oRet = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -267,7 +267,7 @@ namespace ODBCWrapper
             return oRet;
         }
 
-        static public string ReWriteTableValue(string sVal)
+        public static string ReWriteTableValue(string sVal)
         {
             double number;
             if (double.TryParse(sVal, out number))
@@ -280,7 +280,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public DateTime GetCurrentDBTime()
+        public static DateTime GetCurrentDBTime()
         {
             object t = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new DataSetSelectQuery();
@@ -298,7 +298,7 @@ namespace ODBCWrapper
             return new DateTime();
         }
 
-        static public double GetDoubleSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        public static double GetDoubleSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
         {
             try
             {
@@ -313,7 +313,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public string GetStrSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        public static string GetStrSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
         {
             try
             {
@@ -328,7 +328,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Byte GetByteSafeVal(object o)
+        public static Byte GetByteSafeVal(object o)
         {
             try
             {
@@ -344,7 +344,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Int32 GetIntSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        public static Int32 GetIntSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
         {
             try
             {
@@ -359,7 +359,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Int32 GetIntSafeVal(object o)
+        public static Int32 GetIntSafeVal(object o)
         {
             try
             {
@@ -375,7 +375,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public double GetDoubleSafeVal(object o)
+        public static double GetDoubleSafeVal(object o)
         {
             try
             {
@@ -391,7 +391,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public Int64 GetLongSafeVal(object o)
+        public static Int64 GetLongSafeVal(object o)
         {
             try
             {
@@ -407,7 +407,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public UInt64 GetUnsignedLongSafeVal(object o)
+        public static UInt64 GetUnsignedLongSafeVal(object o)
         {
             try
             {
@@ -424,7 +424,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public DateTime GetDateSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
+        public static DateTime GetDateSafeVal(ODBCWrapper.DataSetSelectQuery selectQuery, string sField, Int32 nIndex)
         {
             try
             {
@@ -439,7 +439,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public DateTime GetDateSafeVal(DataRow dr, string sField)
+        public static DateTime GetDateSafeVal(DataRow dr, string sField)
         {
             try
             {
@@ -455,7 +455,7 @@ namespace ODBCWrapper
             }
         }       
 
-        static public DateTime? GetNullableDateSafeVal(DataRow dr, string sField)
+        public static DateTime? GetNullableDateSafeVal(DataRow dr, string sField)
         {
             try
             {
@@ -471,7 +471,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public DateTime GetDateSafeVal(DataRowView dr, string sField)
+        public static DateTime GetDateSafeVal(DataRowView dr, string sField)
         {
             try
             {
@@ -487,7 +487,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public DateTime GetDateSafeVal(object o, string format = "M/dd/yyyy h:mm:ss tt")
+        public static DateTime GetDateSafeVal(object o, string format = "M/dd/yyyy h:mm:ss tt")
         {
             try
             {
@@ -598,7 +598,7 @@ namespace ODBCWrapper
         /// <param name="p_drSource"></param>
         /// <param name="p_sFieldName"></param>
         /// <returns></returns>
-        static public int ExtractInteger(DataRow p_drSource, string p_sFieldName)
+        public static int ExtractInteger(DataRow p_drSource, string p_sFieldName)
         {
             int nResult = 0;
 
@@ -627,7 +627,7 @@ namespace ODBCWrapper
         /// <param name="p_drSource"></param>
         /// <param name="p_sFieldName"></param>
         /// <returns></returns>
-        static public bool ExtractBoolean(DataRow p_drSource, string p_sFieldName)
+        public static bool ExtractBoolean(DataRow p_drSource, string p_sFieldName)
         {
             bool bResult = false;
 
@@ -656,7 +656,7 @@ namespace ODBCWrapper
         /// <param name="p_drSource"></param>
         /// <param name="p_sFieldName"></param>
         /// <returns></returns>
-        static public DateTime ExtractDateTime(DataRow p_drSource, string p_sFieldName)
+        public static DateTime ExtractDateTime(DataRow p_drSource, string p_sFieldName)
         {
             DateTime dtResult = DateTime.MinValue;
 
@@ -685,7 +685,7 @@ namespace ODBCWrapper
         /// <param name="p_drSource"></param>
         /// <param name="p_sFieldName"></param>
         /// <returns></returns>
-        static public DateTime? ExtractNullableDateTime(DataRow p_drSource, string p_sFieldName)
+        public static DateTime? ExtractNullableDateTime(DataRow p_drSource, string p_sFieldName)
         {
             DateTime? dtResult = null;
 
@@ -714,7 +714,7 @@ namespace ODBCWrapper
         /// <param name="source"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        static public string ExtractString(DataRow source, string fieldName)
+        public static string ExtractString(DataRow source, string fieldName)
         {
             string sResult = string.Empty;
 
@@ -743,7 +743,7 @@ namespace ODBCWrapper
         /// <param name="p_drSource"></param>
         /// <param name="p_sFieldName"></param>
         /// <returns></returns>
-        static public T ExtractValue<T>(DataRow p_drSource, string p_sFieldName)
+        public static T ExtractValue<T>(DataRow p_drSource, string p_sFieldName)
         {
             T oResult = default(T);
 

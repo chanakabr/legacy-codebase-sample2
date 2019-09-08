@@ -12,7 +12,7 @@ namespace TVinciShared
         public static readonly Type NullableDateTimeType = typeof(DateTime?);
         public const string MAIN_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-        static public string GetDateForSchedule(DateTime theDate)
+        public static string GetDateForSchedule(DateTime theDate)
         {
             string sRet = "";
             if (theDate.Day < 10)
@@ -25,7 +25,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public string GetTimeString(DateTime theDate)
+        public static string GetTimeString(DateTime theDate)
         {
             string sRet = "";
             if (theDate.Hour < 10)

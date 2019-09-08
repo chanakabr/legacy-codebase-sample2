@@ -4,12 +4,12 @@ namespace Notifiers
 {
     public class Utils
     {
-        static public void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID)
+        public static void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID)
         {
             GetBaseUsersNotifierImpl(ref t, nGroupID, "");
         }
 
-        static public void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID , string sConn)
+        public static void GetBaseUsersNotifierImpl(ref Notifiers.BaseUsersNotifier t, Int32 nGroupID , string sConn)
         {
             int moduleID = 1;
 
@@ -29,12 +29,12 @@ namespace Notifiers
             }
         }
 
-        static public void GetBaseSubscriptionsNotifierImpl(ref Notifiers.BaseSubscriptionNotifier t, Int32 nGroupID)
+        public static void GetBaseSubscriptionsNotifierImpl(ref Notifiers.BaseSubscriptionNotifier t, Int32 nGroupID)
         {
             GetBaseSubscriptionsNotifierImpl(ref t, nGroupID, "");
         }
 
-        static public void GetBaseSubscriptionsNotifierImpl(ref Notifiers.BaseSubscriptionNotifier t, Int32 nGroupID, string sConn)
+        public static void GetBaseSubscriptionsNotifierImpl(ref Notifiers.BaseSubscriptionNotifier t, Int32 nGroupID, string sConn)
         {
             int moduleID = 2;
             int nImplID = DAL.TvmDAL.GetSubscriptionsNotifierImpl(nGroupID, moduleID);
@@ -53,12 +53,12 @@ namespace Notifiers
 	        }               
         }
 
-        static public void GetBaseMediaNotifierImpl(ref Notifiers.BaseMediaNotifier t, Int32 nGroupID)
+        public static void GetBaseMediaNotifierImpl(ref Notifiers.BaseMediaNotifier t, Int32 nGroupID)
         {
             GetBaseMediaNotifierImpl(ref t, nGroupID, "");
         }
 
-        static public void GetBaseMediaNotifierImpl(ref Notifiers.BaseMediaNotifier t, Int32 nGroupID, string sConn)
+        public static void GetBaseMediaNotifierImpl(ref Notifiers.BaseMediaNotifier t, Int32 nGroupID, string sConn)
         {
             int moduleID = 3;
             int nImplID = DAL.TvmDAL.GetSubscriptionsNotifierImpl(nGroupID, moduleID);

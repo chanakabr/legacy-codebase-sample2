@@ -8,7 +8,7 @@ namespace TVinciShared
 {
     public class XmlUtils
     {
-        static public bool IsNodeExists(ref XmlNode theItem, string sXpath)
+        public static bool IsNodeExists(ref XmlNode theItem, string sXpath)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace TVinciShared
             }
         }
 
-        static public string GetNodeValue(ref XmlNode theItem, string sXpath)
+        public static string GetNodeValue(ref XmlNode theItem, string sXpath)
         {
             string sNodeVal = "";
 
@@ -84,7 +84,7 @@ namespace TVinciShared
             return sNodeVal;
         }
 
-        static public string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
+        public static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
         {
             string sVal = "";
             if (theNode != null)
@@ -107,7 +107,7 @@ namespace TVinciShared
             return sVal;
         }
 
-        static public string GetNodeParameterVal(ref XmlNode theNode, string sXpath, string sParameterName)
+        public static string GetNodeParameterVal(ref XmlNode theNode, string sXpath, string sParameterName)
         {
             string sVal = "";
             try
@@ -135,7 +135,7 @@ namespace TVinciShared
             return sVal;
         }
 
-        static public string GetSafeValueFromXML(ref XmlNode theRef, string sNodeXpath)
+        public static string GetSafeValueFromXML(ref XmlNode theRef, string sNodeXpath)
         {
             try
             {
@@ -152,7 +152,7 @@ namespace TVinciShared
             }
         }
 
-        static public string[] GetSafeValuesFromXML(ref XmlNode theRef, string sNodeXpath)
+        public static string[] GetSafeValuesFromXML(ref XmlNode theRef, string sNodeXpath)
         {
             string[] s = null;
             try

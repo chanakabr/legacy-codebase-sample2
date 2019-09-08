@@ -39,7 +39,7 @@ namespace Core.Users
         private const double HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
         private const string ROUTING_KEY_PURGE = "PROCESS_PURGE";
 
-        static public Int32 GetGroupID(string sWSUserName, string sPass)
+        public static Int32 GetGroupID(string sWSUserName, string sPass)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
@@ -49,7 +49,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        static public Int32 GetDomainGroupID(string sWSUserName, string sPass)
+        public static Int32 GetDomainGroupID(string sWSUserName, string sPass)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
@@ -59,7 +59,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers baseUser)
+        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers baseUser)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
@@ -74,7 +74,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref KalturaBaseUsers user, int operatorId = -1)
+        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref KalturaBaseUsers user, int operatorId = -1)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
@@ -87,7 +87,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDomain t)
+        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDomain t)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
@@ -100,7 +100,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDevice t)
+        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDevice t)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
@@ -111,7 +111,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        static public void GetBaseImpl(ref BaseUsers t, Int32 nGroupID)
+        public static void GetBaseImpl(ref BaseUsers t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION);
 
@@ -134,7 +134,7 @@ namespace Core.Users
             }
         }
 
-        static public void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User")
+        public static void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User")
         {
             try
             {
@@ -190,7 +190,7 @@ namespace Core.Users
             }
         }
 
-        static public void GetBaseImpl(ref BaseEncrypter t, Int32 nGroupID)
+        public static void GetBaseImpl(ref BaseEncrypter t, Int32 nGroupID)
         {
             int nImplID = 0;
 
@@ -231,7 +231,7 @@ namespace Core.Users
 
         }
 
-        static public void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
+        public static void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
 
@@ -248,7 +248,7 @@ namespace Core.Users
             }
         }
 
-        static public void GetBaseImpl(ref BaseDevice t, Int32 nGroupID)
+        public static void GetBaseImpl(ref BaseDevice t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
             switch (nImplID)
@@ -262,7 +262,7 @@ namespace Core.Users
             }
         }
 
-        static public Country[] GetCountryList()
+        public static Country[] GetCountryList()
         {
             Country[] ret = null;
 
@@ -291,7 +291,7 @@ namespace Core.Users
             return ret;
         }
 
-        static public State[] GetStateList(Int32 nCountryID)
+        public static State[] GetStateList(Int32 nCountryID)
         {
             State[] ret = null;
             List<State> lState;
@@ -320,7 +320,7 @@ namespace Core.Users
             return ret;
         }
 
-        static public Country GetIPCountry2(string sIP)
+        public static Country GetIPCountry2(string sIP)
         {
             Int32 nCountry = 0;
             string[] splited = sIP.Split('.');
@@ -339,7 +339,7 @@ namespace Core.Users
             return ret;
         }
 
-        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
+        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
         {
             DateTime dRet = dBase;
             if (nVal == 1111111)
@@ -373,7 +373,7 @@ namespace Core.Users
             return dRet;
         }
 
-        static public BaseMailImpl GetBaseImpl(int nGroupID, int nRuleID, int nImpID)
+        public static BaseMailImpl GetBaseImpl(int nGroupID, int nRuleID, int nImpID)
         {
             BaseMailImpl retVal = null;
 
@@ -390,7 +390,7 @@ namespace Core.Users
             return retVal;
         }
 
-        static public bool SendMailTemplate(MailRequestObj request)
+        public static bool SendMailTemplate(MailRequestObj request)
         {
             bool retVal = false;
             Mailer.IMailer mailer = Mailer.MailFactory.GetMailer(Mailer.MailImplementors.MCMailer);
@@ -398,12 +398,12 @@ namespace Core.Users
             return retVal;
         }
 
-        static public bool SendMail(int nGroupID, MailRequestObj request)
+        public static bool SendMail(int nGroupID, MailRequestObj request)
         {
             return SendMailTemplate(request);
         }
 
-        static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
+        public static bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
         {
             if (string.IsNullOrEmpty(sCoGuid))
             {
@@ -439,7 +439,7 @@ namespace Core.Users
             return true;
         }
 
-        static public bool SetPassword(string sPassword, ref UserBasicData oBasicData, int nGroupID)
+        public static bool SetPassword(string sPassword, ref UserBasicData oBasicData, int nGroupID)
         {
             if (sPassword.Length > 0)
             {
@@ -557,7 +557,7 @@ namespace Core.Users
             return homeNetwork;
         }
 
-        static public bool IsGroupIDContainedInConfig(long lGroupID)
+        public static bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;
             string rawStrFromConfig = ApplicationConfiguration.ExcludePsDllImplementation.Value;
@@ -602,7 +602,7 @@ namespace Core.Users
             return res;
         }
 
-        static public void GetContentInfo(ref string subject, string key, Dictionary<string, string> info)
+        public static void GetContentInfo(ref string subject, string key, Dictionary<string, string> info)
         {
             if (info.ContainsKey(key))
             {

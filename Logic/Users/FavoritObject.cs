@@ -96,7 +96,7 @@ namespace Core.Users
             m_dUpdateDate = dUpdate;
             m_is_channel = isChannel;
         }
-        static public FavoriteResponse GetFavorites(Int32 nGroupID, string sUserGUID, int domainID, string sUDID, string sType, FavoriteOrderBy orderBy = 0)
+        public static FavoriteResponse GetFavorites(Int32 nGroupID, string sUserGUID, int domainID, string sUDID, string sType, FavoriteOrderBy orderBy = 0)
         {
             FavoriteResponse response = new FavoriteResponse();
 
@@ -216,7 +216,7 @@ namespace Core.Users
             return response;
         }
 
-        static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID, long nID)
+        public static void RemoveFavorit(string sSiteGUID, Int32 nGroupID, long nID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
             updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -236,7 +236,7 @@ namespace Core.Users
             updateQuery = null;
         }
 
-        static public void RemoveFavorit(string sSiteGUID, int nGroupID, long[] nMediaIDs)
+        public static void RemoveFavorit(string sSiteGUID, int nGroupID, long[] nMediaIDs)
         {
             if (nMediaIDs != null)
             {
@@ -271,7 +271,7 @@ namespace Core.Users
             }
         }
 
-        static public void RemoveChannelMediaFavorit(string sSiteGUID, int nGroupID, int[] nChannelMediaIDs)
+        public static void RemoveChannelMediaFavorit(string sSiteGUID, int nGroupID, int[] nChannelMediaIDs)
         {
             if (nChannelMediaIDs != null)
             {

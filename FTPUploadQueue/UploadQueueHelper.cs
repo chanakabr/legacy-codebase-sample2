@@ -11,7 +11,7 @@ namespace UploadQueue
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        static public int AddJobToQueue(int nGroupID, string sFileName)
+        public static int AddJobToQueue(int nGroupID, string sFileName)
         {
             int nJobID = 0;
 
@@ -54,7 +54,7 @@ namespace UploadQueue
             return AddJobToQueue(nGroupID, sFileName);
         }
 
-        static public void SetJobsForUpload(int nGroupID)
+        public static void SetJobsForUpload(int nGroupID)
         {
             int nTotalJobs = 0;
 

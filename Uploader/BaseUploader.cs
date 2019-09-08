@@ -19,15 +19,15 @@ namespace Uploader
         protected string m_sPass;
         protected string m_sPrefix;
 
-        static public Int32 m_nNumberOfRuningUploads = 0;
-        static public string m_currentGroupDirUpload = string.Empty;
-        static public List<string> m_currentlyUploadedGroups = new List<string>();
+        public static Int32 m_nNumberOfRuningUploads = 0;
+        public static string m_currentGroupDirUpload = string.Empty;
+        public static List<string> m_currentlyUploadedGroups = new List<string>();
 
         protected int m_nGroupID = 0;
 
         protected static ReaderWriterLockSlim m_locker = new ReaderWriterLockSlim();
 
-        static public void SetRunningProcesses(Int32 n)
+        public static void SetRunningProcesses(Int32 n)
         {
             m_nNumberOfRuningUploads = n;
         }

@@ -38,7 +38,7 @@ namespace Core.Social
             return eRes;
         }      
 
-        static public string CreateFBObject(FBMediaObject oFBMedia, string sAppAccessToken)
+        public static string CreateFBObject(FBMediaObject oFBMedia, string sAppAccessToken)
         {
             string sRes = string.Empty;
 
@@ -55,7 +55,7 @@ namespace Core.Social
             return sRes;
         }
 
-        static public int DeleteObject(string sAppAccessToken, string sObjectID, ref string sRetVal)
+        public static int DeleteObject(string sAppAccessToken, string sObjectID, ref string sRetVal)
         {
             string sUrl = string.Format("{0}/{1}?access_token={2}", FB_GRAPH_URI_PREFIX, sObjectID, sAppAccessToken);
             int nStatus = -1;
@@ -87,7 +87,7 @@ namespace Core.Social
             return sRes;
         }
 
-        static public Int32 GetGraphApiAction(string sID, string sConnectionType, string sFBToken, ref string sRetVal)
+        public static Int32 GetGraphApiAction(string sID, string sConnectionType, string sFBToken, ref string sRetVal)
         {
             Int32 nStatus = 0;
 
@@ -107,7 +107,7 @@ namespace Core.Social
             return nStatus;
         }
 
-        static public bool CanUserShare(string sFacebookID, string sAccessToken)
+        public static bool CanUserShare(string sFacebookID, string sAccessToken)
         {
             bool bRes = false;
             try
@@ -142,7 +142,7 @@ namespace Core.Social
             return bRes;
         }
 
-        static public SocialActionResponseStatus GetFacebookError(string sRetVal)
+        public static SocialActionResponseStatus GetFacebookError(string sRetVal)
         {
             SocialActionResponseStatus eRes = SocialActionResponseStatus.ERROR;
             FBError error = JsonConvert.DeserializeObject<FBError>(sRetVal);

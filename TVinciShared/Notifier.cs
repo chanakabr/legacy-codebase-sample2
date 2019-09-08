@@ -23,7 +23,7 @@ namespace TVinciShared
             m_sXML = sXML;
         }
 
-        static public void ClearServersCache(Int32 nGroupID)
+        public static void ClearServersCache(Int32 nGroupID)
         {
 
             HttpContext.Current.Session.Set("tvp_cache_error", "");
@@ -98,7 +98,7 @@ namespace TVinciShared
 
         }
 
-        static public string SendXMLHttpReq(string sUrl, string sToSend, ref Int32 nStatus)
+        public static string SendXMLHttpReq(string sUrl, string sToSend, ref Int32 nStatus)
         {
             //Create the HTTP POST request and the authentication headers
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(new Uri(sUrl));
@@ -138,12 +138,12 @@ namespace TVinciShared
             }
         }
 
-        static public string SendGetHttpReq(string sUrl, ref Int32 nStatus)
+        public static string SendGetHttpReq(string sUrl, ref Int32 nStatus)
         {
             return SendGetHttpReq(sUrl, ref nStatus, "", "");
         }
 
-        static public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
+        public static string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
         {
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
             HttpWebResponse oWebResponse = null;

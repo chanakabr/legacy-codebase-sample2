@@ -64,7 +64,7 @@ namespace TVinciShared
             return "";
         }
 
-        static public void ShareSession()
+        public static void ShareSession()
         {
             //string sBaseDomain = GetBaseDomain(HttpContext.Current.Request.Url);
             //string sSubDomail = GetSubDomain(HttpContext.Current.Request.Url);
@@ -87,7 +87,7 @@ namespace TVinciShared
         }
 
 #if NETFRAMEWORK
-        static public bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
+        public static bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace TVinciShared
         }
 
 
-        static public string GetCookie(string cookiename)
+        public static string GetCookie(string cookiename)
         {
             string cookyval = "";
 
@@ -141,7 +141,7 @@ namespace TVinciShared
 
 
 #if NETSTANDARD2_0
-        static public bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
+        public static bool SetCookie(string cookiename, string cookievalue, int iMinToExpire)
         {
             try
             {
@@ -159,7 +159,7 @@ namespace TVinciShared
             return true;
         }
 
-        static public string GetCookie(string cookiename)
+        public static string GetCookie(string cookiename)
         {
             string cookyval = "";
 

@@ -87,12 +87,12 @@ namespace TVinciShared
             nHeight = nNewHeight;
         }
 
-        static public string GetDateImageName()
+        public static string GetDateImageName()
         {
             return Guid.NewGuid().ToString().Replace("-", "");
         }
 
-        static public string GetDateImageName(int mediaID)
+        public static string GetDateImageName(int mediaID)
         {
             string retVal = string.Empty;
             if (mediaID > 0)
@@ -127,7 +127,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public string GetDateImageNameEpg(int epgPicID, ref bool bIsNew)
+        public static string GetDateImageNameEpg(int epgPicID, ref bool bIsNew)
         {
             string retVal = string.Empty;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -160,7 +160,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public ImageFormat GetFileFormat(string sPath)
+        public static ImageFormat GetFileFormat(string sPath)
         {
             string sFileExt = "";
             int ExtractPos = sPath.LastIndexOf(".");
@@ -222,7 +222,7 @@ namespace TVinciShared
             return bmPhoto;
         }
 
-        static public void RenameImage(string sOld, string sNew)
+        public static void RenameImage(string sOld, string sNew)
         {
             try
             {
@@ -254,7 +254,7 @@ namespace TVinciShared
             }
         }
         /*
-        static public void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop)
+        public static void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop)
         {
             System.Drawing.Image fullSizeImg = System.Drawing.Image.FromFile(sFullImagePath);
             if (bCrop == false)
@@ -278,7 +278,7 @@ namespace TVinciShared
         }
         */
 
-        static public void DynamicResizeImage(string sFullImageURL, Int32 nNewWidth, Int32 nNewHeight, bool bCrop, ref System.Drawing.Image i)
+        public static void DynamicResizeImage(string sFullImageURL, Int32 nNewWidth, Int32 nNewHeight, bool bCrop, ref System.Drawing.Image i)
         {
             try
             {
@@ -315,7 +315,7 @@ namespace TVinciShared
             }
         }
 
-        static public void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop, bool isOverride)
+        public static void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop, bool isOverride)
         {
             System.Drawing.Image bmp = null;
             System.Drawing.Image fullSizeImg = System.Drawing.Image.FromFile(sFullImagePath);
@@ -372,12 +372,12 @@ namespace TVinciShared
             }
         }
 
-        static public void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop)
+        public static void ResizeImageAndSave(string sFullImagePath, string sResizablePath, Int32 nNewWidth, Int32 nNewHeight, bool bCrop)
         {
             ResizeImageAndSave(sFullImagePath, sResizablePath, nNewWidth, nNewHeight, bCrop, false);
         }
 
-        static public string GetEncoderType(string sFileName)
+        public static string GetEncoderType(string sFileName)
         {
             ImageFormat oImageFormat = GetFileFormat(sFileName);
 
@@ -406,7 +406,7 @@ namespace TVinciShared
             return null;
         }
 
-        static public string GetTNName(string sBaseName, string sEnding)
+        public static string GetTNName(string sBaseName, string sEnding)
         {
             string sRet = "";
             string[] s = sBaseName.Split('.');
@@ -437,12 +437,12 @@ namespace TVinciShared
                 System.Drawing.Drawing2D.SmoothingMode.HighQuality;
         }
 
-        static public string DownloadWebImage(string sURL)
+        public static string DownloadWebImage(string sURL)
         {
             return DownloadWebImage(sURL, string.Empty);
         }
 
-        static public string DownloadWebImage(string sURL, string sDirectory)
+        public static string DownloadWebImage(string sURL, string sDirectory)
         {
             log.Debug("File downloaded - Start Download Url:" + " " + sURL);
             try

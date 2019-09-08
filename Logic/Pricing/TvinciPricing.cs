@@ -33,7 +33,7 @@ namespace Core.Pricing
         {
         }
 
-        static public LanguageContainer[] GetPriceCodeDescription(Int32 nPriceCodeID)
+        public static LanguageContainer[] GetPriceCodeDescription(Int32 nPriceCodeID)
         {
             LanguageContainer[] theContainer = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;

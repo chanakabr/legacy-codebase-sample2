@@ -73,12 +73,12 @@ namespace Core.ConditionalAccess
         private static readonly int RECOVERY_GRACE_PERIOD = 864000;
 
         public const string ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION = "PROCESS_UNIFIED_RENEW_SUBSCRIPTION\\{0}";
-        static public void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
+        public static void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
         {
             GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
         }
 
-        static public void GetBaseConditionalAccessImpl(ref BaseConditionalAccess oConditionalAccess, Int32 nGroupID, string sConnKey)
+        public static void GetBaseConditionalAccessImpl(ref BaseConditionalAccess oConditionalAccess, Int32 nGroupID, string sConnKey)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.CONDITIONALACCESS, nGroupID, 1, sConnKey);
 
@@ -186,7 +186,7 @@ namespace Core.ConditionalAccess
             sPass = uc.m_sPassword;
         }
 
-        static public BaseCampaignActionImpl GetCampaignActionByType(CampaignResult result)
+        public static BaseCampaignActionImpl GetCampaignActionByType(CampaignResult result)
         {
             BaseCampaignActionImpl retVal = null;
             switch (result)
@@ -204,7 +204,7 @@ namespace Core.ConditionalAccess
             return retVal;
         }
 
-        static public BaseCampaignActionImpl GetCampaignActionByTriggerType(CampaignTrigger trigger)
+        public static BaseCampaignActionImpl GetCampaignActionByTriggerType(CampaignTrigger trigger)
         {
             BaseCampaignActionImpl retVal = null;
             switch (trigger)
@@ -267,7 +267,7 @@ namespace Core.ConditionalAccess
             return discRetPrice;
         }
 
-        static public Int32 GetCustomData(string sCustomData)
+        public static Int32 GetCustomData(string sCustomData)
         {
             return (int)BillingDAL.Get_LatestCustomDataID(sCustomData, "BILLING_CONNECTION_STRING");
         }
@@ -1948,7 +1948,7 @@ namespace Core.ConditionalAccess
         }
 
         //Get ProductCode and get it MediaFileID - then continue as it was mediaFileID
-        static public Int32 GetMediaIDFromFileID(string sProductCode, Int32 nGroupID, ref int nMediaFileID)
+        public static Int32 GetMediaIDFromFileID(string sProductCode, Int32 nGroupID, ref int nMediaFileID)
         {
 
             DataTable dt = ConditionalAccessDAL.Get_MediaFileByProductCode(nGroupID, sProductCode);
@@ -1961,7 +1961,7 @@ namespace Core.ConditionalAccess
             return GetMediaIDFromFileID(nMediaFileID, nGroupID);
         }
 
-        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle)
+        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal, bool bIsAddLifeCycle)
         {
             int mulFactor = bIsAddLifeCycle ? 1 : -1;
             DateTime dRet = dBase.AddTicks(-(dBase.Ticks % TimeSpan.TicksPerSecond));
@@ -1999,7 +1999,7 @@ namespace Core.ConditionalAccess
             return dRet;
         }
 
-        static public bool isMonthlyLifeCycle(long lifeCycle)
+        public static bool isMonthlyLifeCycle(long lifeCycle)
         {
             return (lifeCycle == 1111111 || lifeCycle == 2222222 || lifeCycle == 3333333 || lifeCycle == 4444444 || lifeCycle == 5555555 || lifeCycle == 6666666 || lifeCycle == 9999999);
         }
@@ -2009,7 +2009,7 @@ namespace Core.ConditionalAccess
             return GetEndDateTime(dBase, nVal, true);
         }
 
-        static public string GetLocaleStringForCache(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public static string GetLocaleStringForCache(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -2769,7 +2769,7 @@ namespace Core.ConditionalAccess
             return intUsersList;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseConditionalAccess t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseConditionalAccess t)
         {
             Credentials wsc = new Credentials(sWSUserName, sWSPassword);
             int nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.CONDITIONALACCESS, wsc);
@@ -2786,7 +2786,7 @@ namespace Core.ConditionalAccess
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
             Credentials wsc = new Credentials(sWSUserName, sWSPassword);
             int nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.CONDITIONALACCESS, wsc);
@@ -2799,7 +2799,7 @@ namespace Core.ConditionalAccess
             return nGroupID;
         }
 
-        static public double GetCouponDiscountPercent(Int32 nGroupID, string sCouponCode, long domainId)
+        public static double GetCouponDiscountPercent(Int32 nGroupID, string sCouponCode, long domainId)
         {
             double dCouponDiscountPercent = 0;
             CouponDataResponse theCouponData = null;
@@ -2821,7 +2821,7 @@ namespace Core.ConditionalAccess
             return dCouponDiscountPercent;
         }
 
-        static public string GetMediaFileCoGuid(int nGroupID, int nMediaFileID)
+        public static string GetMediaFileCoGuid(int nGroupID, int nMediaFileID)
         {
             string sMediaFileCoGuid =
                 DAL.ConditionalAccessDAL.GetMediaFileCoGuid(nGroupID, nMediaFileID);
@@ -2829,7 +2829,7 @@ namespace Core.ConditionalAccess
             return sMediaFileCoGuid;
         }
 
-        static public Subscription GetSubscriptionBytProductCode(Int32 nGroupID, string sProductCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
+        public static Subscription GetSubscriptionBytProductCode(Int32 nGroupID, string sProductCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
             return Pricing.Module.GetSubscriptionDataByProductCode(nGroupID, sProductCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive);
         }
@@ -2899,7 +2899,7 @@ namespace Core.ConditionalAccess
             return GetGroupFAILCOUNT(nGroupID, string.Empty);
         }
 
-        static public string GetSafeParValue(string sQueryKey, string sParName, ref System.Xml.XmlNode theRoot)
+        public static string GetSafeParValue(string sQueryKey, string sParName, ref System.Xml.XmlNode theRoot)
         {
             try
             {
@@ -2911,7 +2911,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        static public string GetSafeValue(string sQueryKey, ref System.Xml.XmlNode theRoot)
+        public static string GetSafeValue(string sQueryKey, ref System.Xml.XmlNode theRoot)
         {
             try
             {
@@ -2992,7 +2992,7 @@ namespace Core.ConditionalAccess
             sPurchaseType = sType;
         }
 
-        static public string GetGoogleSignature(int nGroupID, int nCustomDataID)
+        public static string GetGoogleSignature(int nGroupID, int nCustomDataID)
         {
             string MY_SELLER_ID = "06511210546291891713"; //"YOUR SELLER ID";
             string MY_SELLER_SECRET = "hRVpATY0ZIsANB0gv756OQ"; //"YOUR SELLER SECRET";
@@ -3318,7 +3318,7 @@ namespace Core.ConditionalAccess
             return Core.Users.Module.GetUserData(nGroupID, sSiteGUID, string.Empty);
         }
 
-        static public bool IsCouponValid(int nGroupID, string sCouponCode, long domainId)
+        public static bool IsCouponValid(int nGroupID, string sCouponCode, long domainId)
         {
             bool result = false;
             try
@@ -3345,7 +3345,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        static public CouponData GetCouponData(int groupID, string couponCode, long domainId)
+        public static CouponData GetCouponData(int groupID, string couponCode, long domainId)
         {
             CouponData result = null;
             try

@@ -1021,7 +1021,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public string ClearFromHTML(string sToClean)
+        public static string ClearFromHTML(string sToClean)
         {
             string sCleaned = sToClean;
             bool bCont = true;
