@@ -47,7 +47,8 @@ namespace MediaAssetBulkUploadHandler
                     case BulkUploadJobAction.Upsert:
                         var images = GetImages(request.ObjectData.Images);
                         var assetFiles = GetAssetFiles(request.ObjectData.Files);
-                        jobActionResponse = BulkAssetManager.UpsertMediaAsset(request.GroupID, request.ObjectData, request.UserId, images, assetFiles, ExcelManager.DATE_FORMAT, false);
+                        var mediaAsset = request.ObjectData;
+                        jobActionResponse = BulkAssetManager.UpsertMediaAsset(request.GroupID, ref mediaAsset, request.UserId, images, assetFiles, ExcelManager.DATE_FORMAT, false);
                         break;
                     case BulkUploadJobAction.Delete:
                         break;
