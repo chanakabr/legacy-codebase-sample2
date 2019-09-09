@@ -2364,5 +2364,10 @@ namespace Core.Api
         {
             return ApiLogic.Api.Managers.RegionManager.DeleteRegion(groupId, id, userId);
         }
+
+        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
+        {
+            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter);
+        }
     }
 }

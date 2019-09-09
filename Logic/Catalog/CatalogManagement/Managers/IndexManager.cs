@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -824,7 +825,7 @@ namespace Core.Catalog.CatalogManagement
                         Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
                         if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
                         {
-                            linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                            linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                         }
 
                         #endregion

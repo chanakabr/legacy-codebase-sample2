@@ -24,7 +24,10 @@ namespace ApiObjects
         [JsonProperty()]
         public int groupId;
         [JsonProperty()]
-        public int parentRegionId;
+        public int parentId;
+        [JsonProperty()]
+        public DateTime createDate;
+
 
 
         #endregion

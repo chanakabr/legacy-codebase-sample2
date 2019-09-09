@@ -5955,7 +5955,7 @@ namespace DAL
 
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@regionId", region.id);
-                sp.AddParameter("@parentRegionId", region.parentRegionId);
+                sp.AddParameter("@parentRegionId", region.parentId);
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@isDefault", region.isDefault);
                 sp.AddParameter("@externalId", region.externalId);
@@ -5981,7 +5981,7 @@ namespace DAL
 
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@regionId", region.id);
-                sp.AddParameter("@parentRegionId", region.parentRegionId);
+                sp.AddParameter("@parentRegionId", region.parentId);
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@isDefault", region.isDefault);
                 sp.AddParameter("@externalId", region.externalId);
@@ -5997,5 +5997,6 @@ namespace DAL
                 throw;
             }
         }
+
     }
 }

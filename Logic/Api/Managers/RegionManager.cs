@@ -48,6 +48,7 @@ namespace ApiLogic.Api.Managers
                                 name = APILogic.Utils.GetSafeStr(row, "name"),
                                 externalId = APILogic.Utils.GetSafeStr(row, "external_id"),
                                 isDefault = APILogic.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
+                                parentId = APILogic.Utils.GetIntSafeVal(row, "parent_id")
                             };
                             response.Regions.Add(region);
                         }
@@ -140,20 +141,20 @@ namespace ApiLogic.Api.Managers
                 }
 
                 Region parentRegion = null;
-                if (regionToUpdate.parentRegionId != 0 && regionToUpdate.parentRegionId != region.parentRegionId)
+                if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
                 {
                     //TODO: get region by ID
                     //parentRegion = GetRegion(groupId, regionToUpdate.parentRegionId);
                     if (parentRegion == null)
                     {
-                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentRegionId);
+                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
                         response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
                         return response;
                     }
 
-                    if (parentRegion.parentRegionId != 0)
+                    if (parentRegion.parentId != 0)
                     {
-                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, regionToUpdate.parentRegionId);
+                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
                         response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be parent");
                         return response;
                     }
@@ -185,10 +186,10 @@ namespace ApiLogic.Api.Managers
                     regionToUpdate.linearChannels = parentRegion.linearChannels;
                 }
 
-                if (regionToUpdate.parentRegionId == 0)
+                if (regionToUpdate.parentId == 0)
                 {
                     List<string> assetsToIndex = null;
-                    if (region.parentRegionId > 0)
+                    if (region.parentId > 0)
                     {
                         assetsToIndex = regionToUpdate.linearChannels.Select(lc => lc.key).ToList();
                     }
@@ -234,20 +235,20 @@ namespace ApiLogic.Api.Managers
                 }
 
                 Region parentRegion = null;
-                if (region.parentRegionId != 0)
+                if (region.parentId != 0)
                 {
                     //TODO: get region by ID
-                    //parentRegion = GetRegion(groupId, regionToUpdate.parentRegionId);
+                    //parentRegion = GetRegion(groupId, regionToUpdate.parentId);
                     if (parentRegion == null)
                     {
-                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, region.parentRegionId);
+                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, region.parentId);
                         response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
                         return response;
                     }
 
-                    if (parentRegion.parentRegionId != 0)
+                    if (parentRegion.parentId != 0)
                     {
-                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, region.parentRegionId);
+                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, region.parentId);
                         response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be parent");
                         return response;
 
@@ -282,7 +283,7 @@ namespace ApiLogic.Api.Managers
                     region.linearChannels = parentRegion.linearChannels;
                 }
 
-                if (region.parentRegionId == 0 && region.linearChannels?.Count > 0)
+                if (region.parentId == 0 && region.linearChannels?.Count > 0)
                 {
                     var assets = region.linearChannels.Select(lc => lc.key);
                     foreach (var asset in assets)
@@ -302,6 +303,388 @@ namespace ApiLogic.Api.Managers
             response.Object = region;
             response.SetStatus(eResponseStatus.OK);
             return response;
+        }
+
+        public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
+        {
+            Dictionary<long, List<int>> res = null;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetLinearMediaRegionsKey(groupId);
+                if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsFromDB, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                    LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetLinearMediaRegionsInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat("Failed getting GetLinearMediaRegions from LayeredCache, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetLinearMediaRegions with groupId: {0}", groupId), ex);
+            }
+
+            return res;
+        }
+
+        private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsFromDB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<long, List<int>> result = new Dictionary<long, List<int>>();
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        var dt = ApiDAL.GetMediaRegions(groupId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            foreach (DataRow row in dt.Rows)
+                            {
+                                long linearChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "MEDIA_ID");
+                                int regionId = ODBCWrapper.Utils.GetIntSafeVal(row, "REGION_ID");
+
+                                if (!result.ContainsKey(linearChannelId))
+                                {
+                                    result.Add(linearChannelId, new List<int>());
+                                }
+
+                                result[linearChannelId].Add(regionId);
+                            }
+                        }
+                    }
+                }
+
+                res = result != null;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetLinearMediaRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
+        }
+
+        internal static List<int> GetRegionIds(int groupId)
+        {
+            List<int> result = null;
+
+            try
+            {
+                RegionsCache regionsCache = null;
+                string key = LayeredCacheKeys.GetRegionsKey(groupId);
+                if (!LayeredCache.Instance.Get<RegionsCache>(key,
+                                                          ref regionsCache,
+                                                          GetAllRegionsDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
+                {
+                    log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+
+                if (regionsCache != null && regionsCache.Regions != null)
+                {
+                    result = regionsCache.Regions.Keys.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
+        {
+            GenericListResponse<Region> result = new GenericListResponse<Region>();
+            
+            try
+            {
+                RegionsCache regionsCache = null;
+                string key = LayeredCacheKeys.GetRegionsKey(groupId);
+                if (!LayeredCache.Instance.Get<RegionsCache>(key,
+                                                          ref regionsCache,
+                                                          GetAllRegionsDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
+                {
+                    log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+
+                if (regionsCache != null)
+                {
+                    result.Objects = regionsCache.Regions.Values.ToList();
+                    result.TotalItems = regionsCache.Regions.Count;
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    if (filter.RegionIds?.Count > 0)
+                    {
+                        result.Objects = regionsCache.Regions.Values.ToList();
+                        result.TotalItems = regionsCache.Regions.Count;
+                    }
+                    else if (filter.ExternalIds?.Count > 0)
+                    {
+                        var idsToFilter = regionsCache.ExternalIdsMapping.Where(eid => filter.ExternalIds.Contains(eid.Key)).Select(e => e.Value);
+                        result.Objects = regionsCache.Regions.Where(r => idsToFilter.Contains(r.Key)).Select(r => r.Value).ToList();
+                        result.TotalItems = result.Objects.Count;
+                    }
+                    else if (filter.ParentId > 0)
+                    {
+                        if (regionsCache.ParentIdsToRegionIdsMapping.ContainsKey(filter.ParentId))
+                        {
+                            var idsToFilter = regionsCache.ParentIdsToRegionIdsMapping[filter.ParentId];
+                            result.Objects = regionsCache.Regions.Where(r => idsToFilter.Contains(r.Key)).Select(r => r.Value).ToList();
+                            result.TotalItems = result.Objects.Count;
+                        }
+                        else
+                        {
+                            result.Objects = null;
+                            result.TotalItems = 0;
+                            result.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
+                        }
+                    }
+
+                    if (result.Status.Code == (int)eResponseStatus.OK)
+                    {
+                        if (filter.orderBy == RegionOrderBy.CreateDateAsc)
+                        {
+                            result.Objects = result.Objects.OrderBy(r => r.createDate).ToList();
+                        }
+                        else if (filter.orderBy == RegionOrderBy.CreateDateDesc)
+                        {
+                            result.Objects = result.Objects.OrderByDescending(r => r.createDate).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+            }
+
+            return result;
+        }
+
+        private static Tuple<List<int>, bool> GetRegionsFromDB(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId;
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        var ds = ApiDAL.Get_Regions(groupId.Value, null);
+
+                        if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                        {
+                            if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                            {
+                                res = true;
+
+                                if (result == null)
+                                {
+                                    result = new List<int>();
+                                }
+
+                                foreach (DataRow dr in ds.Tables[0].Rows)
+                                {
+                                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                                    result.Add(id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(result, res);
+        }
+
+        /*
+        private static List<Region> GetRegions(int groupId)
+        {
+            List<Region> response = new List<Region>();
+            List<Region> allRegions = new List<Region>();
+            string groupRegionsKey = null;// LayeredCacheKeys.GetGroupRegionsKey(groupId);
+
+            if (!LayeredCache.Instance.Get<List<Region>>(groupRegionsKey,
+                                                         ref allRegions,
+                                                         GetAllGroupRegions,
+                                                         new Dictionary<string, object>() { { "groupId", groupId }},
+                                                         groupId,
+                                                         LayeredCacheConfigNames.GET_GROUP_REGIONS,
+                                                         new List<string>() { LayeredCacheKeys.GetGroupRegionsInvalidationKey(groupId) }))
+            {
+                allRegions = null;
+                log.ErrorFormat("GetRegions - Failed get data from cache. groupId: {0}", groupId);
+            }
+
+            if (allRegions?.Count > 0) // todo: filter
+            {
+
+            }
+
+            return response;
+        }
+
+                
+        private static List<int> GetGroupRegionIds(int groupId)
+        {
+            List<int> response = null;
+            try
+            {
+                DataSet ds = DAL.ApiDAL.Get_GroupRegionIds(groupId); // TODO: move the ordering to code from SP
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+                {
+                    response = new List<int>();
+
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            response.Add(APILogic.Utils.GetIntSafeVal(row, "id"));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to get group region Ids from DB groupId = {0}", groupId), ex);
+            }
+            return response;
+        }
+        
+
+        private static List<Region> GetAllGroupRegions(int groupId)
+        {
+            List<Region> response = null;
+            try
+            {
+                DataSet ds = DAL.ApiDAL.Get_Regions(groupId, null); // TODO: move the ordering to code from SP
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+                {
+                    response = new List<Region>();
+                    Region region;
+
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            region = new Region()
+                            {
+                                id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                                name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                                externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                                isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
+                                parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
+                                createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
+                            };
+                            response.Add(region);
+                        }
+                    }
+                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
+                    {
+                        int regionId;
+                        foreach (DataRow row in ds.Tables[1].Rows)
+                        {
+                            regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
+                            region = response.Where(r => r.id == regionId).FirstOrDefault();
+                            if (region != null)
+                            {
+                                region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to get group regions from DB groupId = {0}", groupId), ex);
+            }
+            return response;
+        }
+        */
+        private static Tuple<RegionsCache, bool> GetAllRegionsDB(Dictionary<string, object> funcParams)
+        {
+            RegionsCache regionsCache = null;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    DataSet ds = DAL.ApiDAL.Get_Regions(groupId.Value, null); // TODO: move the ordering to code from SP
+
+                    if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
+                    {
+                        regionsCache = new RegionsCache();
+                        Region region;
+
+                        if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
+                        {
+                            foreach (DataRow row in ds.Tables[0].Rows)
+                            {
+                                region = new Region()
+                                {
+                                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                                    name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                                    externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                                    isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
+                                    parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
+                                    createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
+                                };
+
+                                regionsCache.Regions.Add(region.id, region);
+                                regionsCache.ExternalIdsMapping.Add(region.externalId, region.id);
+
+                                if (region.parentId > 0)
+                                {
+                                    if (!regionsCache.ParentIdsToRegionIdsMapping.ContainsKey(region.parentId))
+                                    {
+                                        regionsCache.ParentIdsToRegionIdsMapping.Add(region.parentId, new List<int>());
+                                    }
+                                    regionsCache.ParentIdsToRegionIdsMapping[region.parentId].Add(region.id);
+                                }
+                            }
+                        }
+                        if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
+                        {
+                            int regionId;
+                            foreach (DataRow row in ds.Tables[1].Rows)
+                            {
+                                regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
+                                region = regionsCache.Regions.ContainsKey(regionId) ? regionsCache.Regions[regionId] : null;
+                                if (region != null)
+                                {
+                                    region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllAssetRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
         }
 
         private static List<string> GetLinearChannelsDiff(List<KeyValuePair> originalLinearChannels, List<KeyValuePair> linearChannels)

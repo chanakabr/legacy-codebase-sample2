@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
@@ -1580,7 +1581,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
                 if (catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                    linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                 }
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
@@ -2901,7 +2902,7 @@ namespace Core.Catalog.CatalogManagement
                     Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
                     if (catalogGroupCache.IsRegionalizationEnabled)
                     {
-                        linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                        linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                     }
 
                     Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache, linearChannelsRegionsMapping);
