@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -27,7 +28,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter.GetExternalIdIn(), filter.OrderBy);
+                response = ClientsManager.ApiClient().GetRegions(groupId, filter);
             }
             catch (ClientException ex)
             {

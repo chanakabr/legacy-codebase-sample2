@@ -4977,8 +4977,8 @@ namespace WebAPI.Reflection
                             return "isDefault";
                         case "Name":
                             return "name";
-                        case "ParentRegionId":
-                            return "parentRegionId";
+                        case "ParentId":
+                            return "parentId";
                         case "RegionalChannels":
                             return "linearChannels";
                     }
@@ -4999,6 +4999,10 @@ namespace WebAPI.Reflection
                     {
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "IdIn":
+                            return "idIn";
+                        case "ParentIdEqual":
+                            return "parentIdEqual";
                     }
                     break;
                     

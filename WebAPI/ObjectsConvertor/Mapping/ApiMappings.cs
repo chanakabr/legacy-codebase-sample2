@@ -430,7 +430,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
               .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels))
-              .ForMember(dest => dest.ParentRegionId, opt => opt.MapFrom(src => src.parentRegionId));
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.parentId));
 
             cfg.CreateMap<KalturaRegion, Region>()
               .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.Id))
@@ -438,11 +438,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.IsDefault))
               .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.linearChannels, opt => opt.MapFrom(src => src.RegionalChannels))
-              .ForMember(dest => dest.parentRegionId, opt => opt.MapFrom(src => src.ParentRegionId));
+              .ForMember(dest => dest.parentId, opt => opt.MapFrom(src => src.ParentId));
 
             cfg.CreateMap<KalturaRegionalChannel, KeyValuePair>()
              .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.LinearChannelId))
              .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.ChannelNumber));
+
+            cfg.CreateMap<KalturaRegionFilter, RegionFilter>()
+                .ForMember(dest => dest.RegionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.IdIn, "KalturaRegionFilter.idIn", true, true)))
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.GetExternalIdIn()))
+                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentIdEqual))
+                .ForMember(dest => dest.orderBy, opt => opt.MapFrom(src => ConvertRegionOrderBy(src.OrderBy)))
+                ;
 
             #endregion
 

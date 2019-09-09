@@ -17031,7 +17031,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
-            ret.Add("parentRegionId", "\"parentRegionId\": " + ParentRegionId);
+            ret.Add("parentId", "\"parentId\": " + ParentId);
             if(RegionalChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", RegionalChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17056,7 +17056,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
-            ret.Add("parentRegionId", "<parentRegionId>" + ParentRegionId + "</parentRegionId>");
+            ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
             if(RegionalChannels != null)
             {
                 propertyValue = RegionalChannels.Count > 0 ? "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -17101,6 +17101,11 @@ namespace WebAPI.Models.API
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
             }
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            ret.Add("parentIdEqual", "\"parentIdEqual\": " + ParentIdEqual);
             return ret;
         }
         
@@ -17114,6 +17119,11 @@ namespace WebAPI.Models.API
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
             }
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            ret.Add("parentIdEqual", "<parentIdEqual>" + ParentIdEqual + "</parentIdEqual>");
             return ret;
         }
     }

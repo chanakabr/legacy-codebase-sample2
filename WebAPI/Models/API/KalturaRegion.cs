@@ -55,15 +55,15 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Parent region ID
         /// </summary>
-        [DataMember(Name = "parentRegionId")]
-        [JsonProperty("parentRegionId")]
-        [XmlElement(ElementName = "parentRegionId")]
-        public long ParentRegionId { get; set; }
+        [DataMember(Name = "parentId")]
+        [JsonProperty("parentId")]
+        [XmlElement(ElementName = "parentId")]
+        public long ParentId { get; set; }
 
 
         public void Validate()
         {
-            if (ParentRegionId != 0 && RegionalChannels?.Count > 0)
+            if (ParentId != 0 && RegionalChannels?.Count > 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "parentRegionId", "linearChannels");
             }

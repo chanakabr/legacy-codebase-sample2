@@ -3075,17 +3075,17 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaRegionListResponse GetRegions(int groupId, List<string> externalIds, KalturaRegionOrderBy orderBy)
+        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter)
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
-            RegionsResponse response = null;
+            GenericListResponse<Region> response = null;
 
-            RegionOrderBy wsOrderBy = ApiMappings.ConvertRegionOrderBy(orderBy);
+            RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(filter);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetRegions(groupId, externalIds != null ? externalIds : null, wsOrderBy);
+                    response = Core.Api.Module.GetRegions(groupId, wsFilter);
                 }
             }
             catch (Exception ex)
@@ -3104,9 +3104,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Regions);
+            regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
 
-            return new KalturaRegionListResponse() { Regions = regions, TotalCount = regions != null ? regions.Count : 0 };
+            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
         }
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
