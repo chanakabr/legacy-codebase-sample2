@@ -846,6 +846,11 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
                         }
+
+                        if (assetToAdd.IsActive.HasValue && assetToAdd.IsActive.Value)
+                        {
+                            Notification.Module.AddFollowNotificationRequestForOpc(groupId, (MediaAsset)result.Object, userId, catalogGroupCache);
+                        }
                     }
                     
                     CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, assetToAdd, null);
