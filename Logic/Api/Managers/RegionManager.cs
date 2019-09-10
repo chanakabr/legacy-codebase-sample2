@@ -11,6 +11,7 @@ using Core.Catalog.CatalogManagement;
 using Core.Api;
 using KLogMonitor;
 using System.Reflection;
+using Core.Catalog;
 
 namespace ApiLogic.Api.Managers
 {
@@ -183,10 +184,10 @@ namespace ApiLogic.Api.Managers
 
                 if (regionToUpdate.parentId == 0)
                 {
-                    List<string> assetsToIndex = null;
+                    List<long> assetsToIndex = null;
                     if (region.parentId > 0)
                     {
-                        assetsToIndex = regionToUpdate.linearChannels.Select(lc => lc.key).ToList();
+                        assetsToIndex = regionToUpdate.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
                     }
                     else
                     {
@@ -194,10 +195,10 @@ namespace ApiLogic.Api.Managers
                     }
                     if (assetsToIndex?.Count > 0)
                     {
+                        CatalogLogic.UpdateIndex(assetsToIndex, groupId, eAction.Update);
                         foreach (var asset in assetsToIndex)
                         {
-                            IndexManager.UpsertMedia(groupId, long.Parse(asset));
-                            // TODO: index programs
+                            UpdateProgramsRegions(groupId, asset);
                         }
                     }
                 }
@@ -278,11 +279,12 @@ namespace ApiLogic.Api.Managers
 
                 if (region.parentId == 0 && region.linearChannels?.Count > 0)
                 {
-                    var assets = region.linearChannels.Select(lc => lc.key);
+                    var assets = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
+                    CatalogLogic.UpdateIndex(assets, groupId, eAction.Update);
+
                     foreach (var asset in assets)
                     {
-                        IndexManager.UpsertMedia(groupId, long.Parse(asset));
-                        // TODO: index programs
+                        UpdateProgramsRegions(groupId, asset);
                     }
                 }
             }
@@ -586,9 +588,9 @@ namespace ApiLogic.Api.Managers
             return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
         }
 
-        private static List<string> GetLinearChannelsDiff(List<KeyValuePair> originalLinearChannels, List<KeyValuePair> linearChannels)
+        private static List<long> GetLinearChannelsDiff(List<KeyValuePair> originalLinearChannels, List<KeyValuePair> linearChannels)
         {
-            return originalLinearChannels.Select(lc => lc.key).Except(linearChannels.Select(lc => lc.key)).ToList();
+            return originalLinearChannels.Select(lc => long.Parse(lc.key)).Except(linearChannels.Select(lc => long.Parse(lc.key))).ToList();
         }
 
         private static bool ValidateLinearChannelsExist(int groupId, List<KeyValuePair> linearChannels)
@@ -607,6 +609,21 @@ namespace ApiLogic.Api.Managers
             if (res?.Length == linearChannels.Count)
             {
                 result = true;
+            }
+
+            return result;
+        }
+
+        private static bool UpdateProgramsRegions(int groupId, long linearChannel)
+        {
+            bool result = false;
+
+            string ksql = string.Format("(and linear_media_id='{0}')", linearChannel);
+
+            var res = api.SearchAssets(groupId, ksql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+            if (res?.Length > 0)
+            {
+                result = CatalogLogic.UpdateEpgIndex(res.Select(x => long.Parse(x.AssetId)).ToList(), groupId, eAction.Update);
             }
 
             return result;
