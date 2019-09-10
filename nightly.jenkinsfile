@@ -22,8 +22,6 @@ pipeline {
             steps{
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
                 dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
-                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
-                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
