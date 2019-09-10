@@ -132,8 +132,14 @@ pipeline {
                 }
 
                 dir("tvpapi"){
-                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
-                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${TEMP_PUBLISH_DIR}\\tvpapi\" ")
+                    bat ("\"${MSBUILD}\" \"TVPApi.Legacy\\TVPApi.Legacy.csproj\" /m:4"
+                            + " /p:Configuration=Release"
+                            + " /p:DeployDefaultTarget=WebPublish"
+                            + " /p:WebPublishMethod=FileSystem"
+                            + " /p:DeleteExistingFiles=True"
+                            + " /p:DeployOnBuild=True"
+                            + " /p:publishUrl=\"${TEMP_PUBLISH_DIR}\\TVPAPI\\"
+                        )
                 }
 
                 dir("celery_tasks"){
