@@ -1972,12 +1972,28 @@ namespace Core.Catalog
 
                 if (m_dOr.Count > 0)
                 {
-                    searchObj.m_dOr = m_dOr;
+                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    {
+                        searchObj.m_nGroupId = request.m_nGroupID;
+                        CopySearchValuesToSearchObjects(ref searchObj, CutWith.OR, m_dOr);
+                    }
+                    else
+                    {
+                        searchObj.m_dOr = m_dOr;
+                    }
                 }
 
                 if (m_dAnd.Count > 0)
                 {
-                    searchObj.m_dAnd = m_dAnd;
+                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    {
+                        searchObj.m_nGroupId = request.m_nGroupID;
+                        CopySearchValuesToSearchObjects(ref searchObj, CutWith.AND, m_dAnd);
+                    }
+                    else
+                    {
+                        searchObj.m_dAnd = m_dAnd;
+                    }                    
                 }
 
                 searchObj.m_bExact = request.m_bExact;

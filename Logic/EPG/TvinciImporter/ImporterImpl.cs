@@ -590,7 +590,7 @@ namespace TvinciImporter
             updateQuery = null;
         }
 
-        static public void ClearImages(long nGroupID, Int32 nMediaID)
+        public static void ClearImages(long nGroupID, Int32 nMediaID)
         {
             int version = 0;
             string baseUrl = string.Empty;
@@ -819,7 +819,7 @@ namespace TvinciImporter
             asc = 1,
             desc
         }
-        static public bool ProcessCategoryItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
+        public static bool ProcessCategoryItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
         {
             bool bOK = true;
 
@@ -1073,7 +1073,7 @@ namespace TvinciImporter
         }
 
         // TODO: move public to protected AC
-        static public bool ProcessChannelItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
+        public static bool ProcessChannelItems(XmlDocument theItem, ref string sCoGuid, ref Int32 nChannelID, ref string sErrorMessage, Int32 nGroupID)
         {
             try
             {
@@ -2082,7 +2082,7 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0, long imageTypeId = 0)
+        public static Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0, long imageTypeId = 0)
         {
             int picId = 0;
 
@@ -2141,7 +2141,7 @@ namespace TvinciImporter
             }
         }
 
-        static public Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID)
+        public static Int32 DownloadEPGPicToUploader(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID)
         {
             if (sThumb.Trim() == "")
                 return 0;
@@ -2226,7 +2226,7 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID)
+        public static Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID)
         {
             //string sBasePath = GetBasePath(nGroupID);
             string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);
@@ -2463,12 +2463,12 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb)
+        public static Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb)
         {
             return DownloadPic(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, 0);
         }
 
-        static public Int32 DownloadPic_old(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        public static Int32 DownloadPic_old(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
             if (sPic.Trim() == "")
@@ -2695,7 +2695,7 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> ratioSize = null)
+        public static Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> ratioSize = null)
         {
             if (string.IsNullOrEmpty(sPic))
             {
@@ -2755,7 +2755,7 @@ namespace TvinciImporter
             return picId;
         }
 
-        static public Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        public static Int32 DownloadPicToUploader(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             //return DownloadPic_old(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
 
@@ -2895,7 +2895,7 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> picSizes = null)
+        public static Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> picSizes = null)
         {
             int nPicID = 0;
             log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
@@ -3035,7 +3035,7 @@ namespace TvinciImporter
             return string.Format("({0})", string.Join(",", ratiolist.Select(x => x.ToString()).ToArray()));
         }
 
-        static public int DownloadPicToImageServer(string pic, string assetName, int groupId, int assetId, string mainLang, bool setMediaThumb, int ratioId, eAssetImageType assetImageType, bool isAsync = true, int? updaterId = null)
+        public static int DownloadPicToImageServer(string pic, string assetName, int groupId, int assetId, string mainLang, bool setMediaThumb, int ratioId, eAssetImageType assetImageType, bool isAsync = true, int? updaterId = null)
         {
             int version = 0;
             string baseUrl = string.Empty;
@@ -3285,7 +3285,7 @@ namespace TvinciImporter
 
         }
 
-        static public void UploadDirectory(int nGroupID)
+        public static void UploadDirectory(int nGroupID)
         {
             //string sBasePath = GetBasePath(nGroupID);
             //BaseUploader.SetRunningProcesses(0);
@@ -3960,7 +3960,7 @@ namespace TvinciImporter
             return true;
         }
 
-        static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID)
+        public static Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID)
         {
             bool b = false;
             bool bb = true;
@@ -4005,7 +4005,7 @@ namespace TvinciImporter
             return nMediaTransID;
         }
 
-        static public Int32 GetChannelTranslateID(Int32 channelID, Int32 nLangID, ref bool bExists, bool bForceCreate)
+        public static Int32 GetChannelTranslateID(Int32 channelID, Int32 nLangID, ref bool bExists, bool bForceCreate)
         {
             bExists = true;
             Int32 nChannelTransID = 0;
@@ -4043,7 +4043,7 @@ namespace TvinciImporter
             return nChannelTransID;
         }
 
-        static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID, ref bool bExists, bool bForceCreate)
+        public static Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID, ref bool bExists, bool bForceCreate)
         {
             bExists = true;
             Int32 nMediaTransID = 0;
@@ -4264,7 +4264,7 @@ namespace TvinciImporter
             return true;
         }
 
-        static public bool UpdateDatesData(Int32 nGroupID, Int32 nMediaID, ref XmlNodeList theDates, ref string sError)
+        public static bool UpdateDatesData(Int32 nGroupID, Int32 nMediaID, ref XmlNodeList theDates, ref string sError)
         {
             if (theDates == null || theDates.Count <= 0)
                 return true;
@@ -5012,7 +5012,7 @@ namespace TvinciImporter
             return true;
         }
 
-        static public bool DoesReplicationClean(Int32 nMax, ref Int32 nRet)
+        public static bool DoesReplicationClean(Int32 nMax, ref Int32 nRet)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select commands_2_apply from replication_status";
@@ -5030,7 +5030,7 @@ namespace TvinciImporter
             return true;
         }
 
-        static public bool TryParseXml(string feedXml, int groupId, out XmlDocument feedXmlDocument, IngestResponse response)
+        public static bool TryParseXml(string feedXml, int groupId, out XmlDocument feedXmlDocument, IngestResponse response)
         {
             feedXmlDocument = new XmlDocument();
 
@@ -5053,12 +5053,12 @@ namespace TvinciImporter
             return false;
         }
 
-        static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
+        public static bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory)
         {
             IngestResponse ingestResponse = null;
             return DoTheWorkInner(sXML, nGroupID, sNotifyURL, ref sNotifyXML, uploadDirectory, out ingestResponse);
         }
-        static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory, out IngestResponse ingestResponse)
+        public static bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML, bool uploadDirectory, out IngestResponse ingestResponse)
         {
             bool isSuccess = false;
             XmlDocument theDoc = null;
@@ -5242,12 +5242,12 @@ namespace TvinciImporter
             return isSuccess;
         }
 
-        static public bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML)
+        public static bool DoTheWorkInner(string sXML, Int32 nGroupID, string sNotifyURL, ref string sNotifyXML)
         {
             return DoTheWorkInner(sXML, nGroupID, sNotifyURL, ref sNotifyXML, true);
         }
 
-        static public bool DoTheWork(Int32 nGroupID, string sXMLUrl, string sNotifyURL, Int32 nAlertID)
+        public static bool DoTheWork(Int32 nGroupID, string sXMLUrl, string sNotifyURL, Int32 nAlertID)
         {
             string sNotifyXML = "<tvm><importer>";
             Int32 nStatus = 404;
@@ -5281,7 +5281,7 @@ namespace TvinciImporter
         #region Lucene
 
 
-        static public bool UpdateChannelInLucene(int nGroupId, int nChannelID)
+        public static bool UpdateChannelInLucene(int nGroupId, int nChannelID)
         {
             bool bUpdate = false;
 
@@ -5397,7 +5397,7 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date,
+        public static ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date,
             string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSMS, ref int id)
         {
             AddMessageAnnouncementResponse response = null;
@@ -5429,7 +5429,7 @@ namespace TvinciImporter
             }
         }
 
-        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,
+        public static ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date,
             string timezone, string imageUrl, bool includeMail, string mailTemplate, string mailSubject, bool includeSms)
         {
             try
@@ -5458,7 +5458,7 @@ namespace TvinciImporter
             }
         }
 
-        static public bool UpdateMessageAnnouncementStatus(int groupID, int id, bool status)
+        public static bool UpdateMessageAnnouncementStatus(int groupID, int id, bool status)
         {
             try
             {
@@ -5478,7 +5478,7 @@ namespace TvinciImporter
         }
 
 
-        static public void UpdateNotificationsRequests(int groupid, int nMediaID)
+        public static void UpdateNotificationsRequests(int groupid, int nMediaID)
         {
             ParameterizedThreadStart start = new ParameterizedThreadStart(UpdateNotification);
             Thread t = new Thread(start);
@@ -5513,7 +5513,7 @@ namespace TvinciImporter
             return bUpdate;
         }
 
-        static public ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
+        public static ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
         {
             MessageTemplateResponse response = null;
             try
@@ -5908,7 +5908,7 @@ namespace TvinciImporter
             return result;
         }
 
-        static public Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(int groupID)
+        public static Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(int groupID)
         {
             Dictionary<string, int> response = null;
             try

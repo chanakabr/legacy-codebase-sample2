@@ -13,7 +13,7 @@ namespace Mailer
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object lck = new object();
-        static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)
+        public static string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)
         {
             //Create the HTTP POST request and the authentication headers
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(new Uri(sUrl));

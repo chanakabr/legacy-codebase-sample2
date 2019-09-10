@@ -57,7 +57,7 @@ namespace Core.Pricing
             return true;
         }
 
-        static public LanguageContainer[] GetCouponGroupDescription(Int32 nCouponGroupID)
+        public static LanguageContainer[] GetCouponGroupDescription(Int32 nCouponGroupID)
         {
             LanguageContainer[] theContainer = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;

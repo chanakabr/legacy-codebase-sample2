@@ -1113,7 +1113,7 @@ namespace Core.Pricing
             return discountsMap != null ? discountsMap.Values.ToList() : null;
         }
 
-        static public bool IsCouponValid(CouponDataResponse couponData)
+        public static bool IsCouponValid(CouponDataResponse couponData)
         {
             bool result = false;
             try

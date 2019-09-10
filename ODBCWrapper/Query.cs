@@ -22,7 +22,7 @@ namespace ODBCWrapper
         protected string m_sConnectionKey;
         protected string dbName;
         protected bool m_bIsWritable;
-        static public Int32 GetSequence(string sSeqName)
+        public static Int32 GetSequence(string sSeqName)
         {
             Int32 nRet = -1;
             ODBCWrapper.DataSetSelectQuery selectQuery =
@@ -53,14 +53,14 @@ namespace ODBCWrapper
             return m_sErrorMsg;
         }
 
-        static public Int32 GetLockTimeOut()
+        public static Int32 GetLockTimeOut()
         {
             //if (Utils.GetTcmConfigValue("CONNECTION_LOCK_TIMEOUT") != string.Empty)
             //    return int.Parse(Utils.GetTcmConfigValue("CONNECTION_LOCK_TIMEOUT"));
             return -1; //1000;
         }
 
-        static public Int32 GetLongTimeQuery()
+        public static Int32 GetLongTimeQuery()
         {
             //if (Utils.GetTcmConfigValue("QUERY_LONG") != string.Empty)
             //    return int.Parse(Utils.GetTcmConfigValue("QUERY_LONG"));

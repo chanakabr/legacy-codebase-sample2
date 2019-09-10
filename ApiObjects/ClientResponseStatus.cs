@@ -7,11 +7,22 @@ using Newtonsoft.Json;
 
 namespace ApiObjects
 {
-    class ClientResponseStatus
+    public class ClientResponseStatus
     {
         public ClientResponseStatus()
         {
             Status = new Status();
+        }
+
+        public ClientResponseStatus(Status status)
+        {
+            Status = status;
+        }
+
+
+        public ClientResponseStatus(int code, string message)
+        {
+            Status = new Status(code, message);
         }
 
         [JsonProperty(PropertyName = "status")]

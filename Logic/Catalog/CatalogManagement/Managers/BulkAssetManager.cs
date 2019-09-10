@@ -27,7 +27,7 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, MediaAsset mediaAsset, long userId, Dictionary<long, Image> images, 
+        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, ref MediaAsset mediaAsset, long userId, Dictionary<long, Image> images, 
             Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia, bool isFromIngest = false, HashSet<long> topicIdsToRemove = null)
         {
             GenericListResponse<Status> response = new GenericListResponse<Status>();
@@ -42,7 +42,7 @@ namespace Core.Catalog.CatalogManagement
                         response.SetStatus(addAsset.Status);
                         return response;
                     }
-                    mediaAsset.Id = addAsset.Object.Id;
+                    mediaAsset = addAsset.Object as MediaAsset;
                     response.Objects = UpsertMediaAssetImagesAndFiles(groupId, false, mediaAsset.Id, images, true, assetFiles, dateFormat, userId);
                 }
                 else
@@ -73,7 +73,7 @@ namespace Core.Catalog.CatalogManagement
                         response.SetStatus(updateAsset.Status);
                         return response;
                     }
-                    mediaAsset.Id = updateAsset.Object.Id;
+                    mediaAsset = updateAsset.Object as MediaAsset;
                     response.Objects.AddRange(UpsertMediaAssetImagesAndFiles(groupId, true, mediaAsset.Id, images, needToEraseMedia, assetFiles, dateFormat, userId));
                 }
 

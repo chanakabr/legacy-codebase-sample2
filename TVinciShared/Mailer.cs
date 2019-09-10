@@ -15,7 +15,7 @@ namespace TVinciShared
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 
-        static public string m_sBasePath = "";
+        public static string m_sBasePath = "";
         protected string m_sMailServer;
         protected string m_sMailUserName;
         protected string m_sMailPassword;

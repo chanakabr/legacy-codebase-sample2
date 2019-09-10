@@ -754,7 +754,7 @@ namespace Core.Users
             return saved;
         }
 
-        static public bool Hit(string sSiteGUID)
+        public static bool Hit(string sSiteGUID)
         {
             if (string.IsNullOrEmpty(sSiteGUID))
             {
@@ -765,7 +765,7 @@ namespace Core.Users
             return res;
         }
 
-        static public bool Logout(string sSiteGUID)
+        public static bool Logout(string sSiteGUID)
         {
             if (string.IsNullOrEmpty(sSiteGUID))
             {
@@ -843,7 +843,7 @@ namespace Core.Users
             return UsersDal.Update_UserActivenessForUserSessionBySessionIDAndIPAndReturnID(siteGuid, sessionID, sIP, !isRemove);
         }
 
-        static public UserResponseObject SignOut(int siteGuid, int nGroupID, string sessionID, string sIP, string sDeviceUDID)
+        public static UserResponseObject SignOut(int siteGuid, int nGroupID, string sessionID, string sIP, string sDeviceUDID)
         {
             UserResponseObject retVal = new UserResponseObject();
             User u = new User();
@@ -1021,7 +1021,7 @@ namespace Core.Users
             return retObj;
         }
 
-        static public UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public static UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             UserResponseObject retObj = new UserResponseObject();
             User u = new User();
@@ -1037,13 +1037,13 @@ namespace Core.Users
             return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
         }
 
-        static public UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public static UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             UserResponseObject retObj = CheckUserPassword(sUN, sPass, nMaxFailCount, nLockMinutes, nGroupID, bPreventDoubleLogins, false);
             return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
         }
 
-        static public UserResponseObject CheckUserPassword(string sUN, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins, bool checkHitDate)
+        public static UserResponseObject CheckUserPassword(string sUN, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins, bool checkHitDate)
         {
             UserResponseObject o = new UserResponseObject();
             ResponseStatus ret = ResponseStatus.WrongPasswordOrUserName;

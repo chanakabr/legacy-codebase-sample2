@@ -174,7 +174,7 @@ namespace Core.Catalog
             }
         }
 
-        static public Int64 GetLongSafeVal(DataRow dr, string sField)
+        public static Int64 GetLongSafeVal(DataRow dr, string sField)
         {
             try
             {

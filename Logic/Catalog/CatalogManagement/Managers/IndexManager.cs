@@ -1074,7 +1074,8 @@ namespace Core.Catalog.CatalogManagement
                 bool isMedia = false;
                 bool isEpg = false;
 
-                string channelQuery = string.Empty;
+                string channelQueryForMedia = string.Empty;
+                string channelQueryForEpg = string.Empty;
 
                 bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
                 
@@ -1101,8 +1102,23 @@ namespace Core.Catalog.CatalogManagement
                     isMedia = definitions.shouldSearchMedia;
                     isEpg = definitions.shouldSearchEpg;
 
-                    ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
-                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
+                    if (isMedia)
+                    {
+                        definitions.shouldSearchEpg = false;
+                        
+                        ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
+                        channelQueryForMedia = unifiedQueryBuilder.BuildSearchQueryString(true);
+                    }
+                    
+                    if (isEpg)
+                    {
+                        definitions.shouldSearchEpg = true;
+                        definitions.shouldSearchMedia = false;
+
+                        ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
+                        channelQueryForEpg = unifiedQueryBuilder.BuildSearchQueryString(true);
+                    }
+
                 }
                 else
                 {
@@ -1116,24 +1132,26 @@ namespace Core.Catalog.CatalogManagement
                     MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(channel);
 
                     mediaQueryParser.oSearchObject = mediaSearchObject;
-                    channelQuery = mediaQueryParser.BuildSearchQueryString(true);
+                    channelQueryForMedia = mediaQueryParser.BuildSearchQueryString(true);
                 }
 
-                log.DebugFormat("Update channel with query: {0}", channelQuery);
-
-                if (isMedia)
+                if (isMedia && !string.IsNullOrEmpty(channelQueryForMedia))
                 {
+                    log.DebugFormat("Update channel for media with query: {0}", channelQueryForMedia);
+
                     foreach (string alias in mediaAliases)
                     {
-                        result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                        result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQueryForMedia);
                     }
                 }
 
-                if (isEpg)
+                if (isEpg && !string.IsNullOrEmpty(channelQueryForEpg))
                 {
+                    log.DebugFormat("Update channel for epg with query: {0}", channelQueryForEpg);
+
                     foreach (string alias in epgAliases)
                     {
-                        result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                        result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQueryForEpg);
                     }
                 }
             }

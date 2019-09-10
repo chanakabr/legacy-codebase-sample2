@@ -12,7 +12,7 @@ pipeline {
     }
     environment{
         AWS_REGION="us-west-2"
-        REPOSITORY_NAME="${BRANCH_NAME}/core"
+        REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/core"
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
     }
     stages {
@@ -29,7 +29,7 @@ pipeline {
             }
             steps{
                 sh(
-                    label: "Docker build core:${BRANCH_NAME}", 
+                    label: "Docker build core:${BRANCH_NAME.toLowerCase()}", 
                     script: "docker build -t ${ECR_REPOSITORY}:build  "+
                     "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
                     "-f NetCore.Dockerfile "+
@@ -52,11 +52,23 @@ pipeline {
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
             }
         }
-        stage("Build Phoenix"){
-            steps{
-                build (job: "OTT-BE-Phoenix-Linux", parameters: [
-                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                ]) 
+        stage('Run Parallel Builds') {
+            parallel {
+                stage("Build Phoenix"){
+                    steps{
+                        build (job: "OTT-BE-Phoenix-Linux", parameters: [
+                            [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        ]) 
+                    }
+                }
+
+                stage("Build TVPAPI"){
+                    steps{
+                        build (job: "OTT-BE-Tvpapi-Linux", parameters: [
+                            [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        ]) 
+                    }
+                }
             }
         }
     }

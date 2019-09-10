@@ -24,10 +24,10 @@ namespace Core.Social
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        static public readonly string S_PRIVACY_SETINGS_JSON_EVERYONE = "{'value':'EVERYONE'}";
-        static public readonly string S_PRIVACY_SETINGS_JSON_SELF = "{'value':'SELF'}";
-        static public readonly string S_PRIVACY_SETINGS_JSON_ALL_FRIENDS = "{'value':'ALL_FRIENDS'}";
-        static public readonly string S_PRIVACY_SETINGS_JSON_FRIENDS_OF_FRIENDS = "{'value':'FRIENDS_OF_FRIENDS'}";
+        public static readonly string S_PRIVACY_SETINGS_JSON_EVERYONE = "{'value':'EVERYONE'}";
+        public static readonly string S_PRIVACY_SETINGS_JSON_SELF = "{'value':'SELF'}";
+        public static readonly string S_PRIVACY_SETINGS_JSON_ALL_FRIENDS = "{'value':'ALL_FRIENDS'}";
+        public static readonly string S_PRIVACY_SETINGS_JSON_FRIENDS_OF_FRIENDS = "{'value':'FRIENDS_OF_FRIENDS'}";
 
         protected static readonly int STATUS_OK = 200;
 

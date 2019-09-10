@@ -63,14 +63,14 @@ namespace TVinciShared
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID)
+        public static Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID)
         {
             bool b = false;
             bool bb = true;
             return GetMediaTranslateID(nMediaID, nLangID, ref b, bb);
         }
 
-        static public Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID, ref bool bExists, bool bForceCreate)
+        public static Int32 GetMediaTranslateID(Int32 nMediaID, Int32 nLangID, ref bool bExists, bool bForceCreate)
         {
             bExists = true;
             Int32 nMediaTransID = 0;
@@ -108,7 +108,7 @@ namespace TVinciShared
             return nMediaTransID;
         }
 
-        static public void TranslateMediaBaseValues(Int32 nMediaID,
+        public static void TranslateMediaBaseValues(Int32 nMediaID,
             string sMainLang,
             TranslatorStringHolder hMediaName,
             TranslatorStringHolder hMediaDesc,
@@ -242,7 +242,7 @@ namespace TVinciShared
             return nTagTransID;
         }
 
-        static public void UnActivateAllMediaFilePics(Int32 nMediaTypeID,
+        public static void UnActivateAllMediaFilePics(Int32 nMediaTypeID,
             Int32 nMediaID, Int32 nGroupID, Int32 nQualityID, string sLanguage = "")
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_files");
@@ -265,7 +265,7 @@ namespace TVinciShared
             updateQuery = null;
         }
 
-        static public Int32 GetPicMediaFileID(Int32 nPicType,
+        public static Int32 GetPicMediaFileID(Int32 nPicType,
             Int32 nMediaID, Int32 nGroupID, Int32 nMediaQualityID, bool bUnActivate, string sLanguage = "")
         {
             if (nPicType == 0)
@@ -284,7 +284,7 @@ namespace TVinciShared
             return nMediaFileID;
         }
 
-        static public Int32 GetPicMediaFileIDWithDates(Int32 nPicType,
+        public static Int32 GetPicMediaFileIDWithDates(Int32 nPicType,
             Int32 nMediaID, Int32 nGroupID, Int32 nMediaQualityID, bool bUnActivate, ref DateTime? startDate, ref DateTime? endDate, string sLanguage = "")
         {
             if (nPicType == 0)
@@ -305,7 +305,7 @@ namespace TVinciShared
             return nMediaFileID;
         }
 
-        static public DataRow GetOrInsertMediaFile(Int32 nPicType, Int32 nMediaID, Int32 nGroupID, Int32 nMediaQualityID, string sLanguage = "")
+        public static DataRow GetOrInsertMediaFile(Int32 nPicType, Int32 nMediaID, Int32 nGroupID, Int32 nMediaQualityID, string sLanguage = "")
         {
             //TODO Anat ask Ira
             DataRow dr = null;
@@ -329,7 +329,7 @@ namespace TVinciShared
             return dr;
         }
 
-        static public void UpdateMediaPromoFile(Int32 nMediaID,
+        public static void UpdateMediaPromoFile(Int32 nMediaID,
             string sMainLang,
             Int32 nGroupID,
             Int32 nTypeID,
@@ -356,7 +356,7 @@ namespace TVinciShared
             }
         }
 
-        static public Int32 GetFLVActive(Int32 nMediaID, Int32 nGroupID)
+        public static Int32 GetFLVActive(Int32 nMediaID, Int32 nGroupID)
         {
             Int32 nRet = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -378,7 +378,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public Int32 GetMediaTypeID(string sDescription, Int32 nGroupID)
+        public static Int32 GetMediaTypeID(string sDescription, Int32 nGroupID)
         {
             Int32 nRet = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -400,7 +400,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public Int32 GetMediaTypeID(string sMediaType)
+        public static Int32 GetMediaTypeID(string sMediaType)
         {
             Int32 nRet = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -418,7 +418,7 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public void M2MHandling(
+        public static void M2MHandling(
             string sMainPointerField,
             string sExtraFieldName,
             string sExtraFieldVal,
@@ -495,7 +495,7 @@ namespace TVinciShared
             }
         }
 
-        static public string GetTransactionStringHolderValue(TranslatorStringHolder theTransStrHolder, string sCreditID, string sLang)
+        public static string GetTransactionStringHolderValue(TranslatorStringHolder theTransStrHolder, string sCreditID, string sLang)
         {
             if (theTransStrHolder.m_theTable.Contains(sCreditID) == false)
                 return "";
@@ -507,7 +507,7 @@ namespace TVinciShared
             return sVal;
         }
 
-        static public int GetLanguageId(string code3)
+        public static int GetLanguageId(string code3)
         {
             int langId = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -528,7 +528,7 @@ namespace TVinciShared
         }
 
 
-        static public void M2MHandling(
+        public static void M2MHandling(
             string sMainPointerField,
             string sExtraFieldName,
             string sExtraFieldVal,
@@ -665,7 +665,7 @@ namespace TVinciShared
         }
 
 
-        static public byte[] StringToBytes(string str)
+        public static byte[] StringToBytes(string str)
         {
             System.Text.UnicodeEncoding encoding = new System.Text.UnicodeEncoding();
             return encoding.GetBytes(str);
@@ -717,7 +717,7 @@ namespace TVinciShared
                 });
         }
 
-        static public void InsertIngestMediaData(int nIngestID, int nMediaID, string sCoGuid, string sStatus)
+        public static void InsertIngestMediaData(int nIngestID, int nMediaID, string sCoGuid, string sStatus)
         {
             ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ingest_media");
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("ingest_id", nIngestID);
@@ -730,7 +730,7 @@ namespace TVinciShared
 
         }
 
-        static public int InsertIngestToDB(DateTime createDate, int ingestType, int nGroupID)
+        public static int InsertIngestToDB(DateTime createDate, int ingestType, int nGroupID)
         {
             log.Debug("Ingest - DB insert start");
             ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ingest");

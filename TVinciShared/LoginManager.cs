@@ -30,7 +30,7 @@ namespace TVinciShared
             //
         }
 
-        static public Int32 GetLoginID()
+        public static Int32 GetLoginID()
         {
             Int32 nAcctID = 0;
             try
@@ -47,7 +47,7 @@ namespace TVinciShared
             return nAcctID;
         }
 
-        static public Int32 GetLoginGroupID()
+        public static Int32 GetLoginGroupID()
         {
             Int32 nGroupID = 0;
             try
@@ -64,7 +64,7 @@ namespace TVinciShared
             return nGroupID;
         }
 
-        static public bool CheckLogin()
+        public static bool CheckLogin()
         {
             try
             {
@@ -97,7 +97,7 @@ namespace TVinciShared
             }
         }
 
-        static public string GetCurrentPageURL()
+        public static string GetCurrentPageURL()
         {
             string sURL = HttpContext.Current.Request.GetFilePath().ToString();
             Int32 nStart = sURL.LastIndexOf('/') + 1;
@@ -106,22 +106,22 @@ namespace TVinciShared
             return sPage;
         }
 
-        static public bool IsPagePermitted()
+        public static bool IsPagePermitted()
         {
             return IsPagePermitted(GetCurrentPageURL());
         }
 
-        static public bool IsPagePermitted(string sPageURL)
+        public static bool IsPagePermitted(string sPageURL)
         {
             return IsActionPermittedOnPage(sPageURL, PAGE_PERMISION_TYPE.VIEW);
         }
 
-        static public bool IsActionPermittedOnPage(PAGE_PERMISION_TYPE actionType)
+        public static bool IsActionPermittedOnPage(PAGE_PERMISION_TYPE actionType)
         {
             return IsActionPermittedOnPage(GetCurrentPageURL(), actionType);
         }
 
-        static public bool CheckParentPermitted(Int32 nAcctID, ref Int32 nParent, string sField)
+        public static bool CheckParentPermitted(Int32 nAcctID, ref Int32 nParent, string sField)
         {
             bool bRet = false;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -148,7 +148,7 @@ namespace TVinciShared
             return bRet;
         }
 
-        static public bool IsActionPermittedOnPage(string sPageURL, PAGE_PERMISION_TYPE actionType)
+        public static bool IsActionPermittedOnPage(string sPageURL, PAGE_PERMISION_TYPE actionType)
         {
             try
             {
@@ -208,14 +208,14 @@ namespace TVinciShared
             }
         }
 
-        static public string GetLoginName()
+        public static string GetLoginName()
         {
             string sUserName = "";
             if (HttpContext.Current.Session.Get("username") != null)
                 sUserName = HttpContext.Current.Session.Get("username").ToString();
             return sUserName;
         }
-        static public string GetLoginGroupName()
+        public static string GetLoginGroupName()
         {
             string sGroupName = "";
             if (HttpContext.Current.Session.Get("groupname") != null)
@@ -223,7 +223,7 @@ namespace TVinciShared
             return sGroupName;
         }
 
-        static public string GetLoginName(Int32 nAccountID)
+        public static string GetLoginName(Int32 nAccountID)
         {
             string sRet = "";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -293,7 +293,7 @@ namespace TVinciShared
             updateQuery = null;
         }
 
-        static public void LogoutFromSite(string sFileToTransferTo)
+        public static void LogoutFromSite(string sFileToTransferTo)
         {
             string sBaseURL = "http://admin.tvinci.com";
             if (!string.IsNullOrEmpty(ApplicationConfiguration.TVMBaseUrl.Value))
@@ -442,12 +442,12 @@ namespace TVinciShared
             return bRet;
         }
 
-        static public bool CreateNewAccount(string sUserName, string sPassword, Int32 nGroupID)
+        public static bool CreateNewAccount(string sUserName, string sPassword, Int32 nGroupID)
         {
             return CreateNewAccount(sUserName, sPassword, nGroupID, false, 0);
         }
 
-        static public bool CreateNewAccount(string sUserName, string sPassword, Int32 nGroupID, bool bIsRightHolder, Int32 nRightHolderEntityID)
+        public static bool CreateNewAccount(string sUserName, string sPassword, Int32 nGroupID, bool bIsRightHolder, Int32 nRightHolderEntityID)
         {
             Int32 nCo = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -607,7 +607,7 @@ namespace TVinciShared
             return Regex.IsMatch(password, @"(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{8,})$");
         }
 
-        static public bool ChangeUserPassword(Int32 ncurrID, string sOldPassword, string sNewPassword)
+        public static bool ChangeUserPassword(Int32 ncurrID, string sOldPassword, string sNewPassword)
         {
             try
             {
@@ -649,7 +649,7 @@ namespace TVinciShared
             }
         }
 
-        static public bool LoginToSite(string sUserName, string sPassword, ref string sErrMessage)
+        public static bool LoginToSite(string sUserName, string sPassword, ref string sErrMessage)
         {
             bool bOtherLogin = false;
             Int32 nAdminLoginID = 0;

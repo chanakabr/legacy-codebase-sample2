@@ -20,7 +20,7 @@ namespace Core.Catalog.Request
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
-        public string[] pids { get; set; }
+        public List<string> pids { get; set; }
        
         public EPGProgramsByProgramsIdentefierRequest()
             : base()
@@ -89,7 +89,9 @@ namespace Core.Catalog.Request
                 }
                 else
                 {
-                    retList = epgBL.GetEPGPrograms(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                    retList = epgBL.GetEPGPrograms(request.m_nGroupID, 
+                        request.pids == null ? null : request.pids.ToArray(), 
+                        request.eLang, request.duration);
                 }
 
                 if (retList != null && retList.Count > 0)

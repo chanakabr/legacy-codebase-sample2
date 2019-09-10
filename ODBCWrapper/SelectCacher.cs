@@ -21,7 +21,7 @@ namespace ODBCWrapper
     public class SelectCacher
     {
         static protected string m_sLocker = "";
-        static public Int32 GetCachedSec()
+        public static Int32 GetCachedSec()
         {
             var cacheSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
             if (cacheSec > 0)
@@ -43,7 +43,7 @@ namespace ODBCWrapper
         {
         }
 
-        static public System.Data.DataTable GetCachedDataTable(string sCachStr)
+        public static System.Data.DataTable GetCachedDataTable(string sCachStr)
         {
             var cacheSec = ApplicationConfiguration.DatabaseConfiguration.ODBCCacheSeconds.IntValue;
 
@@ -67,7 +67,7 @@ namespace ODBCWrapper
         /// Remove all the Cache Items from the Current Cache ...
         /// 
 
-        static public void ClearCache()
+        public static void ClearCache()
         {
 
             System.Collections.IDictionaryEnumerator CacheEnum = null;
@@ -78,14 +78,14 @@ namespace ODBCWrapper
             }
         }
 
-        static public System.Data.DataTable GetCachedDataTable(string sCachStr, Int32 nCachSec)
+        public static System.Data.DataTable GetCachedDataTable(string sCachStr, Int32 nCachSec)
         {
             try
             {
                 if (nCachSec <= 0)
                     return null;
                 if (MemoryCache.Default[sCachStr] != null)
-                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedData(sCachStr))).Copy();
+                    return ((System.Data.DataTable)(CachingManager.CachingManager.GetCachedDataNull(sCachStr))).Copy();
                 //return ((System.Data.DataTable)(HttpRuntime.Cache[sCachStr])).Copy();
                 else
                     return null;
@@ -96,7 +96,7 @@ namespace ODBCWrapper
             }
         }
 
-        static public void SetCachedDataTable(string sCachStr, System.Data.DataTable dDataTable, int cacheSec = 0)
+        public static void SetCachedDataTable(string sCachStr, System.Data.DataTable dDataTable, int cacheSec = 0)
         {
             try
             {

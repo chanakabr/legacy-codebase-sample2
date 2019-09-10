@@ -226,7 +226,7 @@ namespace TVinciShared
 
         protected System.Collections.Generic.Dictionary<string, bool> stringColumns;
 
-        static public void GetSearchFree(string sHeader, string sInputID, string sDir)
+        public static void GetSearchFree(string sHeader, string sInputID, string sDir)
         {
             string sSelectedID = "";
             if (HttpContext.Current.Session.Get("search_save") != null)
@@ -236,7 +236,7 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sRet);
         }
 
-        static public string GetListOfRelevantIDsFromManyToMany(string sM2MTable, string sIDField, string sFixIDField, object nFixIDValue, string sConnectionKey)
+        public static string GetListOfRelevantIDsFromManyToMany(string sM2MTable, string sIDField, string sFixIDField, object nFixIDValue, string sConnectionKey)
         {
             string sRet = "";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -262,7 +262,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public void GetSearchSelectOptions(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sConnectionKey)
+        public static void GetSearchSelectOptions(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sConnectionKey)
         {
             string sSelectedID = "";
             if (HttpContext.Current.Session.Get("search_save") != null)
@@ -299,7 +299,7 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sRet);
         }
 
-        static public void GetSearchSelectOptionsExp(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sWhereStr, string sConncetionKey)
+        public static void GetSearchSelectOptionsExp(string sHeader, string sSelectID, string sTable, string sFieldID, string sFieldText, string sOrderBy, string sNoSelectStr, string sNoSelectValue, bool bStatus, string sWhereStr, string sConncetionKey)
         {
             string sSelectedID = "";
             if (HttpContext.Current.Session.Get("search_save") != null)
@@ -356,7 +356,7 @@ namespace TVinciShared
             m_theDataTable = d;
         }
 
-        static public string ClearFromHTML(string sToClean)
+        public static string ClearFromHTML(string sToClean)
         {
             string sCleaned = sToClean.Replace("<", "&lt;").Replace(">", "&gt;");
             //bool bCont = true;

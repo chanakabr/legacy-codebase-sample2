@@ -11,6 +11,7 @@ using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using APILogic.Notification;
+using Core.Catalog;
 
 namespace Core.Notification
 {
@@ -58,13 +59,13 @@ namespace Core.Notification
                         log.Debug("AddNotificationRequest before GetNotifications");
 
                         // call new follow flow
-                        FollowManager.AddFollowRequest(nGroupID, siteGuid, nMediaID);
+                        FollowManager.AddTvSeriesFollowRequestForNonOpc(nGroupID, siteGuid, nMediaID);
 
                         // call new follow flow
                         TopicInterestManager.HandleVodEventForInterest(nGroupID, nMediaID);
 
                         // call old flow
-                        List<FollowUpTagNotification> lNotifications = NotificationManager.Instance.GetNotifications(nGroupID, NotificationTriggerType.FollowUpByTag, nMediaID);
+                        var lNotifications = NotificationManager.Instance.GetNotifications(nGroupID, NotificationTriggerType.FollowUpByTag, nMediaID);
 
                         if (lNotifications != null) //Indication if notification(s) exist for this 
                         {
@@ -1429,19 +1430,20 @@ namespace Core.Notification
             return response;
         }
 
-        public static void AddFollowNotificationRequest(int groupId, int mediaId, long userId)
+        public static void AddFollowNotificationRequestForOpc(int groupId, MediaAsset mediaAsset, long userId, CatalogGroupCache cache)
         {
             MonitorLogsHelper.SetContext(Constants.USER_ID, userId);
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
-            
+            int mediaId = (int)mediaAsset.Id;
+
             try
             {
-                var addTvSeriesFollowStatus = FollowManager.Instance.AddTvSeriesFollowRequestForOpc(groupId, mediaId);
+                var addTvSeriesFollowStatus = FollowManager.Instance.AddTvSeriesFollowRequestForOpc(groupId, mediaAsset, cache);
                 if (!addTvSeriesFollowStatus.IsOkStatusCode())
                 {
                     return;
                 }
-                
+
                 TopicInterestManager.HandleVodEventForInterest(groupId, mediaId);
 
                 // call old flow
@@ -1464,8 +1466,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("An Exception was occurred while AddFollowNotificationRequest. groupId:{0}, mediaId:{1}. ex: {2}",
-                                groupId, mediaId, ex);
+                log.ErrorFormat("An Exception was occurred while AddFollowNotificationRequest. groupId:{0}, mediaId:{1}. ex: {2}", groupId, mediaId, ex);
             }
         }
     }

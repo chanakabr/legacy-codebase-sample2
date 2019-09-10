@@ -106,7 +106,7 @@ namespace com.llnw.mediavault
         }
         #endregion
 
-        static public string GetHashedURL(string sSecretCode , string sURL , string sIP , string sRefferer)
+        public static string GetHashedURL(string sSecretCode , string sURL , string sIP , string sRefferer)
         {
             Uri u = new Uri(sURL);
             sURL = u.PathAndQuery;
