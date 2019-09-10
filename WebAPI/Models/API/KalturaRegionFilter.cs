@@ -35,6 +35,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "parentIdEqual")]
         public int ParentIdEqual { get; set; }
 
+        /// <summary>
+        /// Region parent ID to filter by
+        /// </summary>
+        [DataMember(Name = "liveAssetIdEqual")]
+        [JsonProperty("liveAssetIdEqual")]
+        [XmlElement(ElementName = "liveAssetIdEqual")]
+        public int LiveAssetIdEqual { get; set; }
+
 
         public void Validate()
         {
