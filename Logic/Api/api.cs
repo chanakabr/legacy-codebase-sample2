@@ -10939,14 +10939,24 @@ namespace Core.Api
                         assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ActionRuleRequest()
                     {
-                        ETA = nextExecutionDate
+                        ActionType = RuleActionTaskType.Asset,
+                        GroupId = 0
                     };
 
-                    bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
+
+                    eventBus.Publish(serviceEvent, nextExecutionDate);
+
+                    //GenericCeleryQueue queue = new GenericCeleryQueue();
+                    //BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+                    //{
+                    //    ETA = nextExecutionDate
+                    //};
+
+                    //bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
                 }
             }
 
