@@ -8,6 +8,7 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Catalog;
 using ApiObjects.CDNAdapter;
+using ApiObjects.EventBus;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Roles;
@@ -9478,21 +9479,40 @@ namespace Core.Api
             {
                 dynamicData.Add("START_DATE", startDate.Value.ToString("yyyyMMddHHmmss"));
             }
-
-            var queueObject = new CelerySetupTaskData(groupId, eSetupTask.MigrateStatistics, dynamicData);
-
             try
             {
-                result = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
+
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new SetupTaskRequest()
+                {
+                    GroupID = groupId,
+                    Mission = eSetupTask.MigrateStatistics,
+                    DynamicData = dynamicData
+                };
+
+                eventBus.Publish(serviceEvent);
+
+                result = true;
             }
             catch (Exception ex)
             {
-                log.Error("MigrateStatistics - " +
-                        string.Format("Error in MigrateStatistics: group = {0} ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace),
-                        ex);
+                log.Error($"Failed publishing service event of MigrateStatistics. group id = {groupId}, ex = {ex}");
             }
 
-            return result;
+            //var queueObject = new CelerySetupTaskData(groupId, eSetupTask.MigrateStatistics, dynamicData);
+
+            //try
+            //{
+            //    result = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Error("MigrateStatistics - " +
+            //            string.Format("Error in MigrateStatistics: group = {0} ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace),
+            //            ex);
+            //}
+
+            //return result;
         }
 
         public static ScheduledTaskLastRunDetails GetScheduledTaskLastRun(ScheduledTaskType scheduledTaskType)

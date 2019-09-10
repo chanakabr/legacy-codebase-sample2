@@ -20,5 +20,8 @@
       <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
     </ItemGroup>
   </Target>
+  <ItemGroup>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+  </ItemGroup>
 
 </Project>

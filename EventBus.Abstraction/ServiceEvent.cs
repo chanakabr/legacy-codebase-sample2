@@ -1,9 +1,15 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 
 namespace EventBus.Abstraction
 {
     public abstract class ServiceEvent
     {
+        public ServiceEvent()
+        {
+            this.RequestId = KLogger.GetRequestId();
+        }
+
         public int GroupId { get; set; }
         public string RequestId { get; set; }
         public long UserId { get; set; }

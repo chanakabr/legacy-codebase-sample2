@@ -57,6 +57,10 @@
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
   </ItemGroup>
   
+  <ItemGroup>
+    <Folder Include="EventBus\NewFolder\" />
+  </ItemGroup>
+  
   <!-- 
   This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
   that will allow TVM website project to build, if you read this an 
