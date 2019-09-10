@@ -14,6 +14,8 @@ namespace ApiObjects
 
         public int ParentId { get; set; }
 
+        public int LiveAssetId { get; set; }
+
         public RegionOrderBy orderBy { get; set; }
     }
 }

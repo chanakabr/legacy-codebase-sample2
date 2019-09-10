@@ -11549,6 +11549,8 @@ namespace Core.Api
 
             try
             {
+                bool shouldInvalidateRegions = false;
+
                 // check for MainLanguage valid
                 if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
@@ -11611,6 +11613,23 @@ namespace Core.Api
                     }
                 }
 
+                if (partnerConfigToUpdate.DefaultRegion.HasValue)
+                {
+                    var defaultRegion = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, partnerConfigToUpdate.DefaultRegion.Value);
+                    if (defaultRegion == null)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
+                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.DlmNotExist.ToString());
+                        return response;
+                    }
+                    else
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
+                            && defaultRegion.id != catalogGroupCache.DefaultRegion);
+                    }
+                }
+
                 // upsert GeneralPartnerConfig            
                 if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
                 {
@@ -11622,6 +11641,11 @@ namespace Core.Api
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
+                }
+
+                if (shouldInvalidateRegions)
+                {
+                    ApiLogic.Api.Managers.RegionManager.InvalidateRegions(groupId);
                 }
 
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -11674,14 +11698,27 @@ namespace Core.Api
 
                         int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
                         int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
+                        int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
+                        int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
 
                         if (deleteMediaPolicy.HasValue)
                         {
                             generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
                         }
+
                         if (downgradePolicy.HasValue)
                         {
                             generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                        }
+
+                        if (enableRegionFiltering.HasValue)
+                        {
+                            generalPartnerConfig.EnableRegionFiltering = enableRegionFiltering.Value == 1;
+                        }
+
+                        if (defaultRegion.HasValue && defaultRegion.Value > 0)
+                        {
+                            generalPartnerConfig.DefaultRegion = defaultRegion.Value;
                         }
                     }
 

@@ -98,11 +98,7 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
-                }
+                InvalidateRegions(groupId);
             }
             catch (Exception exc)
             {
@@ -171,11 +167,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
-                }
+                InvalidateRegions(groupId);
 
                 if (parentRegion != null)
                 {
@@ -216,7 +208,23 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
+        internal static bool InvalidateRegions(int groupId)
+        {
+            bool result = false;
+            string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            {
+                log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
+            }
+            else
+            {
+                result = true;
+            }
+
+            return result;
+        }
+
+    internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
             GenericResponse<Region> response = new GenericResponse<Region>();
 
@@ -266,11 +274,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
-                }
+                InvalidateRegions(groupId);
 
                 if (parentRegion != null)
                 {
@@ -421,6 +425,15 @@ namespace ApiLogic.Api.Managers
             
             try
             {
+                if (filter.LiveAssetId > 0)
+                {
+                    var map = GetLinearMediaRegions(groupId);
+                    if (map != null && map.ContainsKey(filter.LiveAssetId))
+                    {
+                        filter.RegionIds = map[filter.LiveAssetId];
+                    }
+                }
+
                 RegionsCache regionsCache = GetRegionsFromCache(groupId);
 
                 if (regionsCache != null)
@@ -539,20 +552,32 @@ namespace ApiLogic.Api.Managers
 
                         if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
                         {
+                            int defaultRegion = 0; 
+                            CatalogGroupCache catalogGroupCache;
+                            if (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
+                            {
+                                defaultRegion = catalogGroupCache.DefaultRegion;
+                            }                            
+
                             foreach (DataRow row in ds.Tables[0].Rows)
                             {
+                                int id = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
+
                                 region = new Region()
                                 {
-                                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                                    id = id,
                                     name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                                     externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                                    isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
+                                    isDefault = id == defaultRegion,
                                     parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
                                     createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
                                 };
 
                                 regionsCache.Regions.Add(region.id, region);
-                                regionsCache.ExternalIdsMapping.Add(region.externalId, region.id);
+                                if (!string.IsNullOrEmpty(region.externalId))
+                                {
+                                    regionsCache.ExternalIdsMapping.Add(region.externalId, region.id);
+                                }
 
                                 if (region.parentId > 0)
                                 {
@@ -564,16 +589,19 @@ namespace ApiLogic.Api.Managers
                                 }
                             }
                         }
+
                         if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
                         {
                             int regionId;
+                            int assetId;
                             foreach (DataRow row in ds.Tables[1].Rows)
                             {
                                 regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
                                 region = regionsCache.Regions.ContainsKey(regionId) ? regionsCache.Regions[regionId] : null;
                                 if (region != null)
                                 {
-                                    region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
+                                    assetId = APILogic.Utils.GetIntSafeVal(row, "media_id");
+                                    region.linearChannels.Add(new ApiObjects.KeyValuePair(assetId.ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
                                 }
                             }
                         }

@@ -5566,6 +5566,16 @@ namespace DAL
             sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
             sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
 
+            if (partnerConfig.EnableRegionFiltering.HasValue)
+            {
+                sp.AddParameter("@enableRegionFiltering", partnerConfig.EnableRegionFiltering.Value ? 1 : 0);
+            }
+
+            if (partnerConfig.DefaultRegion.HasValue)
+            {
+                sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
+            }
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
@@ -6004,7 +6014,6 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);                
                 sp.AddParameter("@parentId", region.parentId);
                 sp.AddParameter("@name", region.name);
-                sp.AddParameter("@isDefault", region.isDefault);
                 sp.AddParameter("@externalId", region.externalId);
                 sp.AddParameter("@linearChannelsExist", region.linearChannels?.Count > 0);
                 sp.AddKeyValueListParameter<string, string>("@linearChannels",
@@ -6029,7 +6038,6 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@parentId", region.parentId);
                 sp.AddParameter("@name", region.name);
-                sp.AddParameter("@isDefault", region.isDefault);
                 sp.AddParameter("@externalId", region.externalId);
                 sp.AddParameter("@linearChannelsExist", region.linearChannels != null);
                 sp.AddKeyValueListParameter<string, string>("@linearChannels", 
