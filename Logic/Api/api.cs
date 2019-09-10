@@ -9512,7 +9512,7 @@ namespace Core.Api
             //            ex);
             //}
 
-            //return result;
+            return result;
         }
 
         public static ScheduledTaskLastRunDetails GetScheduledTaskLastRun(ScheduledTaskType scheduledTaskType)
