@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using ApiObjects.EventBus;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
@@ -1092,10 +1093,22 @@ namespace Core.Catalog.CatalogManagement
                                 TopicsIds = topicsForAssetUpdate.Select(x => x.Id).ToList()
                             };
 
-                            var queue = new GenericCeleryQueue();
-                            var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
-                            bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                            if (!enqueueSuccessful)
+                            try
+                            {
+                                AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
+                                {
+                                    Data = JsonConvert.SerializeObject(data),
+                                    GroupId = groupId,
+                                    Type = InheritanceType.ParentUpdate,
+                                    UserId = userId
+                                };
+                                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                eventBus.Publish(serviceEvent);
+
+                                //var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
+                                //bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                            }
+                            catch
                             {
                                 log.ErrorFormat("Failed enqueue of inheritance {0}", data);
                             }
@@ -2817,12 +2830,26 @@ namespace Core.Catalog.CatalogManagement
                         AssetStructId = assetStructId,
                         MetaId = metaId
                     };
-                    InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
-                    bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                    if (!enqueueSuccessful)
+
+                    try
                     {
-                        log.ErrorFormat("Failed enqueue of inheritance {0}", data);
+
+                        AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
+                        {
+                            Data = JsonConvert.SerializeObject(data),
+                            GroupId = groupId,
+                            Type = InheritanceType.AssetStructMeta,
+                            UserId = userId
+                        };
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        eventBus.Publish(serviceEvent);
                     }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed enqueue of inheritance {0}. ex ={1}", data, ex);
+                    }
+                    //InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
+                    //bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                 }
             }
             catch (Exception ex)
