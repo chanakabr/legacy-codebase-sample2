@@ -11,7 +11,7 @@ using EventBus.Abstraction;
 namespace ApiObjects.EventBus
 {
     [Serializable]
-    public class ActionRuleRequest : ServiceEvent
+    public class ActionRuleRequest : DelayedServiceEvent
     {
         [JsonProperty("group_id")]
         public int GroupId

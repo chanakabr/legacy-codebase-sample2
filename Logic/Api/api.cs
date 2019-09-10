@@ -10939,16 +10939,18 @@ namespace Core.Api
                         assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
 
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
+
                     var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
                     var serviceEvent = new ActionRuleRequest()
                     {
                         ActionType = RuleActionTaskType.Asset,
-                        GroupId = 0
+                        GroupId = 0,
+                        ETA = nextExecutionDate
                     };
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
 
-                    eventBus.Publish(serviceEvent, nextExecutionDate);
+                    eventBus.Publish(serviceEvent);
 
                     //GenericCeleryQueue queue = new GenericCeleryQueue();
                     //BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)

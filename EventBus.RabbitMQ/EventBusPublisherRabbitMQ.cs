@@ -43,13 +43,7 @@ namespace EventBus.RabbitMQ
         {
             Publish(new[] { serviceEvent });
         }
-
-        public void Publish(ServiceEvent serviceEvent, DateTime eta)
-        {
-            throw new NotImplementedException();
-            Publish(new[] { serviceEvent });
-        }
-
+        
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
             var publishRetryPolicy = GetRetryPolicyForEventPublishing();
