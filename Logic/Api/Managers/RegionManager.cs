@@ -82,8 +82,7 @@ namespace ApiLogic.Api.Managers
         {
             try
             {
-                //TODO: get region by ID
-                Region region = null; // GetRegion(groupId, id);
+                Region region = GetRegion(groupId, id);
                 if (region == null)
                 {
                     log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, id);
@@ -98,8 +97,7 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
-                //TODO: add invalidation key
-                string invalidationKey = null; //LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
@@ -120,8 +118,7 @@ namespace ApiLogic.Api.Managers
 
             try
             {
-                //TODO: get region by ID
-                Region region = null; // GetRegion(groupId, regionToUpdate.id);
+                Region region = GetRegion(groupId, regionToUpdate.id);
                 if (region == null)
                 {
                     log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
@@ -143,8 +140,7 @@ namespace ApiLogic.Api.Managers
                 Region parentRegion = null;
                 if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
                 {
-                    //TODO: get region by ID
-                    //parentRegion = GetRegion(groupId, regionToUpdate.parentRegionId);
+                    parentRegion = GetRegion(groupId, regionToUpdate.parentId);
                     if (parentRegion == null)
                     {
                         log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
@@ -174,8 +170,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                //TODO: add invalidation key
-                string invalidationKey = null; //LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
@@ -237,8 +232,7 @@ namespace ApiLogic.Api.Managers
                 Region parentRegion = null;
                 if (region.parentId != 0)
                 {
-                    //TODO: get region by ID
-                    //parentRegion = GetRegion(groupId, regionToUpdate.parentId);
+                    parentRegion = GetRegion(groupId, region.parentId);
                     if (parentRegion == null)
                     {
                         log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, region.parentId);
@@ -271,8 +265,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                //TODO: add invalidation key
-                string invalidationKey = null; //LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
@@ -367,13 +360,12 @@ namespace ApiLogic.Api.Managers
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
         }
 
-        internal static List<int> GetRegionIds(int groupId)
+        private static RegionsCache GetRegionsFromCache(int groupId)
         {
-            List<int> result = null;
+            RegionsCache regionsCache = null;
 
             try
             {
-                RegionsCache regionsCache = null;
                 string key = LayeredCacheKeys.GetRegionsKey(groupId);
                 if (!LayeredCache.Instance.Get<RegionsCache>(key,
                                                           ref regionsCache,
@@ -384,15 +376,38 @@ namespace ApiLogic.Api.Managers
                 {
                     log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
-
-                if (regionsCache != null && regionsCache.Regions != null)
-                {
-                    result = regionsCache.Regions.Keys.ToList();
-                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+            }
+
+            return regionsCache;
+        }
+
+        internal static Region GetRegion(int groupId, int id)
+        {
+            Region result = null;
+
+            RegionsCache regionsCache = GetRegionsFromCache(groupId);
+
+            if (regionsCache != null && regionsCache.Regions != null)
+            {
+                result = regionsCache.Regions[id];
+            }
+
+            return result;
+        }
+
+        internal static List<int> GetRegionIds(int groupId)
+        {
+            List<int> result = null;
+
+            RegionsCache regionsCache = GetRegionsFromCache(groupId);
+
+            if (regionsCache != null && regionsCache.Regions != null)
+            {
+                result = regionsCache.Regions.Keys.ToList();
             }
 
             return result;
@@ -404,17 +419,7 @@ namespace ApiLogic.Api.Managers
             
             try
             {
-                RegionsCache regionsCache = null;
-                string key = LayeredCacheKeys.GetRegionsKey(groupId);
-                if (!LayeredCache.Instance.Get<RegionsCache>(key,
-                                                          ref regionsCache,
-                                                          GetAllRegionsDB,
-                                                          new Dictionary<string, object>() { { "groupId", groupId } },
-                                                          groupId,
-                                                          LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
-                {
-                    log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
-                }
+                RegionsCache regionsCache = GetRegionsFromCache(groupId);
 
                 if (regionsCache != null)
                 {
@@ -514,112 +519,6 @@ namespace ApiLogic.Api.Managers
             return new Tuple<List<int>, bool>(result, res);
         }
 
-        /*
-        private static List<Region> GetRegions(int groupId)
-        {
-            List<Region> response = new List<Region>();
-            List<Region> allRegions = new List<Region>();
-            string groupRegionsKey = null;// LayeredCacheKeys.GetGroupRegionsKey(groupId);
-
-            if (!LayeredCache.Instance.Get<List<Region>>(groupRegionsKey,
-                                                         ref allRegions,
-                                                         GetAllGroupRegions,
-                                                         new Dictionary<string, object>() { { "groupId", groupId }},
-                                                         groupId,
-                                                         LayeredCacheConfigNames.GET_GROUP_REGIONS,
-                                                         new List<string>() { LayeredCacheKeys.GetGroupRegionsInvalidationKey(groupId) }))
-            {
-                allRegions = null;
-                log.ErrorFormat("GetRegions - Failed get data from cache. groupId: {0}", groupId);
-            }
-
-            if (allRegions?.Count > 0) // todo: filter
-            {
-
-            }
-
-            return response;
-        }
-
-                
-        private static List<int> GetGroupRegionIds(int groupId)
-        {
-            List<int> response = null;
-            try
-            {
-                DataSet ds = DAL.ApiDAL.Get_GroupRegionIds(groupId); // TODO: move the ordering to code from SP
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    response = new List<int>();
-
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            response.Add(APILogic.Utils.GetIntSafeVal(row, "id"));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed to get group region Ids from DB groupId = {0}", groupId), ex);
-            }
-            return response;
-        }
-        
-
-        private static List<Region> GetAllGroupRegions(int groupId)
-        {
-            List<Region> response = null;
-            try
-            {
-                DataSet ds = DAL.ApiDAL.Get_Regions(groupId, null); // TODO: move the ordering to code from SP
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    response = new List<Region>();
-                    Region region;
-
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            region = new Region()
-                            {
-                                id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
-                                name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                                externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                                isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
-                                parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
-                                createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
-                            };
-                            response.Add(region);
-                        }
-                    }
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
-                    {
-                        int regionId;
-                        foreach (DataRow row in ds.Tables[1].Rows)
-                        {
-                            regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
-                            region = response.Where(r => r.id == regionId).FirstOrDefault();
-                            if (region != null)
-                            {
-                                region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed to get group regions from DB groupId = {0}", groupId), ex);
-            }
-            return response;
-        }
-        */
         private static Tuple<RegionsCache, bool> GetAllRegionsDB(Dictionary<string, object> funcParams)
         {
             RegionsCache regionsCache = null;
