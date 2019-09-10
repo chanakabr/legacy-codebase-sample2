@@ -10,6 +10,8 @@ using ApiObjects;
 using System.Threading.Tasks;
 using WebAPI.Models.General;
 using KlogMonitorHelper;
+using DAL;
+using TVinciShared;
 
 namespace WebAPI
 {
@@ -192,9 +194,11 @@ namespace WebAPI
                 log.DebugFormat("Notification event action: action name = {0}, partner {1}, event type {2}, event action {3}, specific notification is {4}", 
                     action.SystemName, kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString());
 
+                var saveEvent = generalNotification.SaveEvent.HasValue && generalNotification.SaveEvent.Value;
+
                 try
                 {
-                    PerformAction(action, kalturaEvent, eventWrapper);
+                    PerformAction(action, kalturaEvent, eventWrapper, saveEvent, objectEvent.Object?.Id);
                 }
                 catch (Exception ex)
                 {
@@ -207,7 +211,7 @@ namespace WebAPI
                     {
                         foreach (var handler in action.FailureHandlers)
                         {
-                            PerformAction(action, kalturaEvent, eventWrapper);
+                            PerformAction(action, kalturaEvent, eventWrapper, saveEvent, objectEvent.Object?.Id);
                         }
                     }
                 }
@@ -222,7 +226,7 @@ namespace WebAPI
 
         #region Protected methods
 
-        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
+        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaNotification eventWrapper, bool saveEvent, long? id)
         {
             // first check action's status - if it isn't good,
             if (action.Status != 1)
@@ -252,7 +256,16 @@ namespace WebAPI
 
             if (!action.IsAsync)
             {
-                action.Handle(kalturaEvent, eventWrapper);
+                try
+                {
+                    action.Handle(kalturaEvent, eventWrapper);
+                    SaveEventNotificationAction(eventWrapper, EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
+                }
+                catch (Exception ex)
+                {
+                    SaveEventNotificationAction(eventWrapper, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
+                    throw ex;
+                }
             }
             else
             {
@@ -266,7 +279,6 @@ namespace WebAPI
                     {
                         contextData.Load();
 
-
                         #if NETFRAMEWORK
                         // HTTP Context is readonly in et core, TODO: Arthur find a workaround
                         HttpContext.Current = currentHttpContext;
@@ -276,6 +288,7 @@ namespace WebAPI
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
 
                         action.Handle(kalturaEvent, eventWrapper);
+                        SaveEventNotificationAction(eventWrapper,EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
 
                         log.DebugFormat("Finished async action: action name = {0}, partner {1},  specific notification is {2}",
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
@@ -285,7 +298,26 @@ namespace WebAPI
                     {
                         log.ErrorFormat("Error when performing async action. partner {0}, system name {1}, ex = {2}",
                             kalturaEvent.PartnerId, action.SystemName, ex);
+                        SaveEventNotificationAction(eventWrapper, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
                     }
+                });
+            }
+        }
+
+        private void SaveEventNotificationAction(KalturaNotification eventWrapper, EventNotificationActionStatus status, string message, bool saveEvent, long? id)
+        {
+            if (saveEvent && id > 0)
+            {
+                ApiDAL.SaveEventNotificationActionIdCB(eventWrapper.partnerId, new EventNotificationAction
+                {
+                    ActionType = eventWrapper.eventObjectType,
+                    ObjectType = eventWrapper.objectType,
+                    ObjectId = id.Value,
+                    Id = eventWrapper.Id,
+                    Status = status,
+                    Message = message,
+                    CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
+                    UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)
                 });
             }
         }

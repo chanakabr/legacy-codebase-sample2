@@ -5732,6 +5732,10 @@ namespace WebAPI.Models.General
             {
                 ret.Add("eventType", "\"eventType\": " + "\"" + Enum.GetName(typeof(KalturaEventAction), eventType) + "\"");
             }
+            if(Id != null)
+            {
+                ret.Add("Id", "\"Id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
             ret.Add("partnerId", "\"partnerId\": " + partnerId);
             if(SequenceId != null)
             {
@@ -5766,6 +5770,10 @@ namespace WebAPI.Models.General
             if(eventType.HasValue)
             {
                 ret.Add("eventType", "<eventType>" + "" + Enum.GetName(typeof(KalturaEventAction), eventType) + "" + "</eventType>");
+            }
+            if(Id != null)
+            {
+                ret.Add("Id", "<Id>" + EscapeXml(Id) + "</Id>");
             }
             ret.Add("partnerId", "<partnerId>" + partnerId + "</partnerId>");
             if(SequenceId != null)
@@ -14848,6 +14856,130 @@ namespace WebAPI.Models.API
                 propertyValue = Adapters.Count > 0 ? "<item>" + String.Join("</item><item>", Adapters.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaEventNotification
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ActionType != null)
+            {
+                ret.Add("actionType", "\"actionType\": " + "\"" + EscapeJson(ActionType) + "\"");
+            }
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
+            if(EventObjectType != null)
+            {
+                ret.Add("eventObjectType", "\"eventObjectType\": " + "\"" + EscapeJson(EventObjectType) + "\"");
+            }
+            if(Id != null)
+            {
+                ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
+            ret.Add("objectId", "\"objectId\": " + ObjectId);
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaEventNotificationStatus), Status) + "\"");
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ActionType != null)
+            {
+                ret.Add("actionType", "<actionType>" + EscapeXml(ActionType) + "</actionType>");
+            }
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            if(EventObjectType != null)
+            {
+                ret.Add("eventObjectType", "<eventObjectType>" + EscapeXml(EventObjectType) + "</eventObjectType>");
+            }
+            if(Id != null)
+            {
+                ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
+            }
+            ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaEventNotificationStatus), Status) + "" + "</status>");
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            return ret;
+        }
+    }
+    public partial class KalturaEventNotificationFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(EventObjectTypeEqual != null)
+            {
+                ret.Add("eventObjectTypeEqual", "\"eventObjectTypeEqual\": " + "\"" + EscapeJson(EventObjectTypeEqual) + "\"");
+            }
+            if(IdEqual != null)
+            {
+                ret.Add("idEqual", "\"idEqual\": " + "\"" + EscapeJson(IdEqual) + "\"");
+            }
+            if(ObjectIdEqual.HasValue)
+            {
+                ret.Add("objectIdEqual", "\"objectIdEqual\": " + ObjectIdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(EventObjectTypeEqual != null)
+            {
+                ret.Add("eventObjectTypeEqual", "<eventObjectTypeEqual>" + EscapeXml(EventObjectTypeEqual) + "</eventObjectTypeEqual>");
+            }
+            if(IdEqual != null)
+            {
+                ret.Add("idEqual", "<idEqual>" + EscapeXml(IdEqual) + "</idEqual>");
+            }
+            if(ObjectIdEqual.HasValue)
+            {
+                ret.Add("objectIdEqual", "<objectIdEqual>" + ObjectIdEqual + "</objectIdEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaEventNotificationListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }

@@ -58,13 +58,27 @@ namespace WebAPI.Models.General
         [JsonProperty(PropertyName = "userIp")]
         [XmlElement(ElementName = "userIp", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public string UserIp { get; set; }
+        public string UserIp
+        {
+            get;
+            set;
+        }
 
         [DataMember(Name = "sequenceId")]
         [JsonProperty(PropertyName = "sequenceId")]
         [XmlElement(ElementName = "sequenceId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public string SequenceId { get; set; }
+        public string SequenceId
+        {
+            get;
+            set;
+        }
+
+        [DataMember(Name = "Id")]
+        [JsonProperty(PropertyName = "Id")]
+        [XmlElement(ElementName = "Id", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public string Id => Guid.NewGuid().ToString();
     }
 
     [Serializable]
