@@ -5979,11 +5979,11 @@ namespace DAL
         {
             try
             {
-                var sp = new StoredProcedure("DeleteRegion");
+                var sp = new StoredProcedure("Delete_linearChannelsRegions");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
+                sp.AddParameter("@id", id);
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@regionId", id);
                 sp.AddParameter("@updaterId", userId);
                 return sp.ExecuteReturnValue<int>() > 0;
             }
@@ -5998,18 +5998,17 @@ namespace DAL
         {
             try
             {
-                var sp = new StoredProcedure("AddRegion");
+                var sp = new StoredProcedure("Insert_linearChannelsRegions");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@regionId", region.id);
-                sp.AddParameter("@parentRegionId", region.parentId);
+                sp.AddParameter("@groupId", groupId);                
+                sp.AddParameter("@parentId", region.parentId);
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@isDefault", region.isDefault);
                 sp.AddParameter("@externalId", region.externalId);
+                sp.AddParameter("@linearChannelsExist", region.linearChannels?.Count > 0);
                 sp.AddKeyValueListParameter<string, string>("@linearChannels",
                     region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
-                sp.AddParameter("@regionId", region.id);
                 sp.AddParameter("@updaterId", userId);
                 return sp.ExecuteReturnValue<int>();
             }
@@ -6024,19 +6023,19 @@ namespace DAL
         {
             try
             {
-                var sp = new StoredProcedure("UpdateRegion");
+                var sp = new StoredProcedure("Update_linearChannelsRegions");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-
+                sp.AddParameter("@id", region.id);
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@regionId", region.id);
-                sp.AddParameter("@parentRegionId", region.parentId);
+                sp.AddParameter("@parentId", region.parentId);
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@isDefault", region.isDefault);
                 sp.AddParameter("@externalId", region.externalId);
+                sp.AddParameter("@linearChannelsExist", region.linearChannels != null);
                 sp.AddKeyValueListParameter<string, string>("@linearChannels", 
                     region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string,string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
-                sp.AddParameter("@regionId", region.id);
                 sp.AddParameter("@updaterId", userId);
+
                 return sp.ExecuteReturnValue<int>() > 0;
             }
             catch (Exception ex)
