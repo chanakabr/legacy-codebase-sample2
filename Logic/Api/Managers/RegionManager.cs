@@ -98,7 +98,7 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
@@ -171,7 +171,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
@@ -266,7 +266,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
@@ -374,7 +374,7 @@ namespace ApiLogic.Api.Managers
                                                           GetAllRegionsDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
                                                           groupId,
-                                                          LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
+                                                          LayeredCacheKeys.GetRegionsInvalidationKey(groupId)))
                 {
                     log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
@@ -596,19 +596,15 @@ namespace ApiLogic.Api.Managers
         private static bool ValidateLinearChannelsExist(int groupId, List<KeyValuePair> linearChannels)
         {
             bool result = false;
-
-            StringBuilder ksql = new StringBuilder("(or ");
-            foreach (var channel in linearChannels)
+            try
             {
-                ksql.AppendFormat("media_id='{0}' ", channel.key);
+                List<KeyValuePair<eAssetTypes, long>> assets = linearChannels.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.key))).ToList();
+                var allAssets = AssetManager.GetAssets(groupId, assets, true);
+                result = allAssets?.Count == linearChannels.Count;
             }
-
-            ksql.AppendFormat(")");
-
-            var res = api.SearchAssets(groupId, ksql.ToString(), 0, 0, false, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
-            if (res?.Length == linearChannels.Count)
+            catch (Exception ex)
             {
-                result = true;
+
             }
 
             return result;

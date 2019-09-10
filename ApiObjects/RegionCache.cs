@@ -11,7 +11,7 @@ namespace ApiObjects
     {
         #region Data Members
         [JsonProperty()]
-        public Dictionary<int,Region> Regions { get; set; }
+        public Dictionary<int, Region> Regions { get; set; }
 
         [JsonProperty()]
         public Dictionary<string, int> ExternalIdsMapping { get; set; }
