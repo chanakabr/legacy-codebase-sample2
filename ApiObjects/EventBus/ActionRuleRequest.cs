@@ -1,0 +1,37 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using ApiObjects.Json.Converters;
+using ApiObjects;
+using EventBus.Abstraction;
+
+namespace ApiObjects.EventBus
+{
+    [Serializable]
+    public class ActionRuleRequest : ServiceEvent
+    {
+        [JsonProperty("group_id")]
+        public int GroupId
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("rule_ids")]
+        public List<long> RuleIds
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("action_type")]
+        public RuleActionTaskType ActionType
+        {
+            get;
+            set;
+        }
+    }
+}
