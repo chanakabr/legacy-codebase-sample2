@@ -6,6 +6,7 @@ using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using DAL;
+using EventBus.RabbitMQ;
 using GroupsCacheManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -600,7 +601,7 @@ namespace Core.Catalog.CatalogManagement
             return responseStatus;
         }
 
-        private static bool InvalidateCacheForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId, 
+        private static bool InvalidateCacheForTagAssets(int groupId, long tagId, bool shouldUpdateRowsStatus, long userId,
             out List<int> mediaIds, out List<int> epgIds)
         {
             // preparing media list and epg
@@ -1237,7 +1238,7 @@ namespace Core.Catalog.CatalogManagement
                 foreach (AssetStruct connectedAssetStruct in connectedAssetStructs)
                 {
                     // Get only inheritedTopics and filtered with ProtectFromIngest false
-                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(x => (x.IsInherited.HasValue && x.IsInherited.Value) && 
+                    List<AssetStructMeta> inheritedTopics = connectedAssetStruct.AssetStructMetas.Values.Where(x => (x.IsInherited.HasValue && x.IsInherited.Value) &&
                                                                                                                         (!x.ProtectFromIngest.HasValue || x.ProtectFromIngest.Value == false)).ToList();
                     if (inheritedTopics != null && inheritedTopics.Count > 0)
                     {
@@ -1899,7 +1900,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        } 
+        }
 
         public static GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
@@ -1920,7 +1921,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
-                
+
                 if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
                     List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
@@ -2133,7 +2134,7 @@ namespace Core.Catalog.CatalogManagement
 
                         tagTopicIds.Add(id);
                     }
-                    else if(topic.Type == MetaType.ReleatedEntity)
+                    else if (topic.Type == MetaType.ReleatedEntity)
                     {
                         relatedEntitiesTopicIds.Add(id);
                     }
@@ -2431,7 +2432,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
                     return result;
                 }
-                
+
                 result = GetTagById(groupId, tagToUpdate.tagId);
                 if (!result.HasObject())
                 {
@@ -2482,7 +2483,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     return result;
                 }
-                
+
                 if (!isFromIngest)
                 {
                     List<int> mediaIds, epgIds;
@@ -2531,16 +2532,15 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool PartialTagIndexUpdate(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> mediaIds, List<int> epgIds)
         {
-            var queue = new CatalogQueue();
-
-            // we start optimistic
-            bool result = true;
+            var result = true;
 
             if (mediaIds != null && mediaIds.Count > 0)
             {
                 var castedMediaIds = mediaIds.Select(i => (long)i).ToList();
-                var mediaQueueData = new PartialUpdateData(groupId,
-                    new AssetsPartialUpdate()
+                var mediaQueueData = new PartialUpdateRequest
+                {
+                    GroupId = groupId,
+                    Assets = new AssetsPartialUpdate()
                     {
                         AssetIds = mediaIds,
                         AssetType = eObjectType.Media,
@@ -2557,15 +2557,27 @@ namespace Core.Catalog.CatalogManagement
                                 ShouldUpdateAllLanguages = false
                             }
                         }
-                    });
+                    },
+                };
 
-                result &= queue.Enqueue(mediaQueueData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
+                try
+                {
+                    var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    publisher.Publish(mediaQueueData);
+                }
+                catch (Exception e)
+                {
+
+                    log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", mediaIds)}]", e);
+                    result &= false;
+                }
             }
 
             if (epgIds != null && epgIds.Count > 0)
             {
-                var epgQueueData = new PartialUpdateData(groupId,
-                    new AssetsPartialUpdate()
+                var epgQueueData = new PartialUpdateRequest{
+                    GroupId = groupId,
+                    Assets = new AssetsPartialUpdate()
                     {
                         AssetIds = epgIds,
                         AssetType = eObjectType.EPG,
@@ -2582,8 +2594,19 @@ namespace Core.Catalog.CatalogManagement
                                 ShouldUpdateAllLanguages = false
                             }
                         }
-                    });
-                result &= queue.Enqueue(epgQueueData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
+                    },
+                };
+
+                try
+                {
+                    var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    publisher.Publish(epgQueueData);
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Error durin publish PartialTagIndexUpdate epgIds:[{string.Join(",", epgIds)}]", e);
+                    result &= false;
+                }
             }
 
             return result;
@@ -3097,7 +3120,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
-                    { 
+                    {
                         var dt = ApiDAL.GetMediaRegions(groupId.Value);
                         if (dt != null && dt.Rows != null)
                         {
@@ -3126,7 +3149,7 @@ namespace Core.Catalog.CatalogManagement
 
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
         }
-        
+
         internal static List<int> GetRegions(int groupId)
         {
             List<int> result = null;
@@ -3134,11 +3157,11 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 string key = LayeredCacheKeys.GetRegionsKey(groupId);
-                if (!LayeredCache.Instance.Get<List<int>>(key, 
-                                                          ref result, 
-                                                          GetRegionsFromDB, 
+                if (!LayeredCache.Instance.Get<List<int>>(key,
+                                                          ref result,
+                                                          GetRegionsFromDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
-                                                          groupId, 
+                                                          groupId,
                                                           LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
                 {
                     log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
