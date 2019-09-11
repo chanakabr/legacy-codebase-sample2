@@ -8240,31 +8240,45 @@ namespace Core.Api
 
             try
             {
-                ExportTaskData data = null;
 
-                // insert new message to tasks queue (for celery)
-                ExportTasksQueue queue = new ExportTasksQueue();
-                DateTime eta = DateTime.UtcNow.AddMinutes(taskFrequency);
-                if (taskFrequency != 0)
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ExportRequest()
                 {
-                    queue.storeForRecovery = true;
-                    data = new ExportTaskData(groupId, taskId, version, eta);
-                }
-                else
-                {
-                    data = new ExportTaskData(groupId, taskId, version);
-                }
-                log.DebugFormat("EnqueueExportTask: inserting data to rabbit mq. data = ", data);
+                    GroupId = groupId,
+                    TaskId = taskId,
+                    Version = version
+                };
 
-                if (queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_EXPORT, groupId)))
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                eventBus.Publish(serviceEvent);
 
-                    log.DebugFormat("EnqueueExportTask: successfully inserted task to rabbit mq. task id = {0}, version = {1}, frequency {2}", taskId, version, taskFrequency);
-                }
-                else
+                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                 {
-                    log.ErrorFormat("Enqueue of new export task failed", data);
+                    ExportTaskData data = null;
+
+                    // insert new message to tasks queue (for celery)
+                    ExportTasksQueue queue = new ExportTasksQueue();
+                    DateTime eta = DateTime.UtcNow.AddMinutes(taskFrequency);
+                    if (taskFrequency != 0)
+                    {
+                        queue.storeForRecovery = true;
+                        data = new ExportTaskData(groupId, taskId, version, eta);
+                    }
+                    else
+                    {
+                        data = new ExportTaskData(groupId, taskId, version);
+                    }
+                    log.DebugFormat("EnqueueExportTask: inserting data to rabbit mq. data = ", data);
+
+                    if (queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_EXPORT, groupId)))
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                        log.DebugFormat("EnqueueExportTask: successfully inserted task to rabbit mq. task id = {0}, version = {1}, frequency {2}", taskId, version, taskFrequency);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Enqueue of new export task failed", data);
+                    }
                 }
             }
             catch (Exception ex)
