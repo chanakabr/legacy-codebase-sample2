@@ -1870,7 +1870,7 @@ namespace WebAPI.Clients
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                pids = epgIds.ToArray(),
+                pids = epgIds,
                 eLang = ApiObjects.Language.English,
                 duration = 0
             };
@@ -1921,7 +1921,7 @@ namespace WebAPI.Clients
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                pids = epgIds.ToArray(),
+                pids = epgIds,
                 eLang = ApiObjects.Language.English,
                 duration = 0
             };

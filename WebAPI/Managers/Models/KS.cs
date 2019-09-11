@@ -383,10 +383,24 @@ namespace WebAPI.Managers.Models
         public static ContextData GetContextData()
         {
             var ks = GetFromRequest();
+            long? domainId = null, userId = null;
+
+            try
+            {
+                domainId = HouseholdUtils.GetHouseholdIDByKS();
+            }
+            catch (Exception) { }
+
+            try
+            {
+                userId = Utils.Utils.GetUserIdFromKs(ks);
+            }
+            catch (Exception) { }
+
             var contextData = new ContextData(ks.GroupId)
             {
-                DomainId = HouseholdUtils.GetHouseholdIDByKS(),
-                UserId = Utils.Utils.GetUserIdFromKs(ks)
+                DomainId = domainId,
+                UserId = userId
             };
 
             return contextData;

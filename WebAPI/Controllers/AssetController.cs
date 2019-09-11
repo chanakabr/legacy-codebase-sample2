@@ -610,6 +610,7 @@ namespace WebAPI.Controllers
         /// epg_channel_id – the channel identifier of the EPG program.
         /// entitled_assets - valid values: "free", "entitled", "not_entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
         /// asset_type - valid values: "media", "epg", "recording" or any number that represents media type in group.
+        /// aufo_fill - only valid value is "true": When enabled, auto fill assets will also return.
         /// Comparison operators: for numerical fields =, >, >=, <, <=, : (in). 
         /// For alpha-numerical fields =, != (not), ~ (like), !~, ^ (any word starts with), ^= (phrase starts with), + (exists), !+ (not exists).
         /// Logical conjunction: and, or. 
