@@ -5732,6 +5732,10 @@ namespace WebAPI.Models.General
             {
                 ret.Add("eventType", "\"eventType\": " + "\"" + Enum.GetName(typeof(KalturaEventAction), eventType) + "\"");
             }
+            if(Id != null)
+            {
+                ret.Add("Id", "\"Id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
             ret.Add("partnerId", "\"partnerId\": " + partnerId);
             if(SequenceId != null)
             {
@@ -5766,6 +5770,10 @@ namespace WebAPI.Models.General
             if(eventType.HasValue)
             {
                 ret.Add("eventType", "<eventType>" + "" + Enum.GetName(typeof(KalturaEventAction), eventType) + "" + "</eventType>");
+            }
+            if(Id != null)
+            {
+                ret.Add("Id", "<Id>" + EscapeXml(Id) + "</Id>");
             }
             ret.Add("partnerId", "<partnerId>" + partnerId + "</partnerId>");
             if(SequenceId != null)
@@ -14887,6 +14895,130 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaEventNotification
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ActionType != null)
+            {
+                ret.Add("actionType", "\"actionType\": " + "\"" + EscapeJson(ActionType) + "\"");
+            }
+            ret.Add("createDate", "\"createDate\": " + CreateDate);
+            if(EventObjectType != null)
+            {
+                ret.Add("eventObjectType", "\"eventObjectType\": " + "\"" + EscapeJson(EventObjectType) + "\"");
+            }
+            if(Id != null)
+            {
+                ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "\"message\": " + "\"" + EscapeJson(Message) + "\"");
+            }
+            ret.Add("objectId", "\"objectId\": " + ObjectId);
+            ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaEventNotificationStatus), Status) + "\"");
+            ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ActionType != null)
+            {
+                ret.Add("actionType", "<actionType>" + EscapeXml(ActionType) + "</actionType>");
+            }
+            ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            if(EventObjectType != null)
+            {
+                ret.Add("eventObjectType", "<eventObjectType>" + EscapeXml(EventObjectType) + "</eventObjectType>");
+            }
+            if(Id != null)
+            {
+                ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if(Message != null)
+            {
+                ret.Add("message", "<message>" + EscapeXml(Message) + "</message>");
+            }
+            ret.Add("objectId", "<objectId>" + ObjectId + "</objectId>");
+            ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaEventNotificationStatus), Status) + "" + "</status>");
+            ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            return ret;
+        }
+    }
+    public partial class KalturaEventNotificationFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(EventObjectTypeEqual != null)
+            {
+                ret.Add("eventObjectTypeEqual", "\"eventObjectTypeEqual\": " + "\"" + EscapeJson(EventObjectTypeEqual) + "\"");
+            }
+            if(IdEqual != null)
+            {
+                ret.Add("idEqual", "\"idEqual\": " + "\"" + EscapeJson(IdEqual) + "\"");
+            }
+            if(ObjectIdEqual.HasValue)
+            {
+                ret.Add("objectIdEqual", "\"objectIdEqual\": " + ObjectIdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(EventObjectTypeEqual != null)
+            {
+                ret.Add("eventObjectTypeEqual", "<eventObjectTypeEqual>" + EscapeXml(EventObjectTypeEqual) + "</eventObjectTypeEqual>");
+            }
+            if(IdEqual != null)
+            {
+                ret.Add("idEqual", "<idEqual>" + EscapeXml(IdEqual) + "</idEqual>");
+            }
+            if(ObjectIdEqual.HasValue)
+            {
+                ret.Add("objectIdEqual", "<objectIdEqual>" + ObjectIdEqual + "</objectIdEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaEventNotificationListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaExportFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -17067,6 +17199,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
             }
+            ret.Add("parentId", "\"parentId\": " + ParentId);
             if(RegionalChannels != null)
             {
                 propertyValue = "[" + String.Join(", ", RegionalChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -17091,6 +17224,7 @@ namespace WebAPI.Models.API
             {
                 ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
             }
+            ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
             if(RegionalChannels != null)
             {
                 propertyValue = RegionalChannels.Count > 0 ? "<item>" + String.Join("</item><item>", RegionalChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -17135,6 +17269,12 @@ namespace WebAPI.Models.API
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
             }
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            ret.Add("liveAssetIdEqual", "\"liveAssetIdEqual\": " + LiveAssetIdEqual);
+            ret.Add("parentIdEqual", "\"parentIdEqual\": " + ParentIdEqual);
             return ret;
         }
         
@@ -17148,6 +17288,12 @@ namespace WebAPI.Models.API
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
             }
+            if(IdIn != null)
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            ret.Add("liveAssetIdEqual", "<liveAssetIdEqual>" + LiveAssetIdEqual + "</liveAssetIdEqual>");
+            ret.Add("parentIdEqual", "<parentIdEqual>" + ParentIdEqual + "</parentIdEqual>");
             return ret;
         }
     }
@@ -23897,6 +24043,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("dateFormat", "\"dateFormat\": " + "\"" + EscapeJson(DateFormat) + "\"");
             }
+            if(DefaultRegion.HasValue)
+            {
+                ret.Add("defaultRegion", "\"defaultRegion\": " + DefaultRegion);
+            }
             if(DeleteMediaPolicy.HasValue)
             {
                 ret.Add("deleteMediaPolicy", "\"deleteMediaPolicy\": " + "\"" + Enum.GetName(typeof(KalturaDeleteMediaPolicy), DeleteMediaPolicy) + "\"");
@@ -23904,6 +24054,10 @@ namespace WebAPI.Models.Partner
             if(DowngradePolicy.HasValue)
             {
                 ret.Add("downgradePolicy", "\"downgradePolicy\": " + "\"" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "\"");
+            }
+            if(EnableRegionFiltering.HasValue)
+            {
+                ret.Add("enableRegionFiltering", "\"enableRegionFiltering\": " + EnableRegionFiltering.ToString().ToLower());
             }
             if(HouseholdLimitationModule.HasValue)
             {
@@ -23946,6 +24100,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("dateFormat", "<dateFormat>" + EscapeXml(DateFormat) + "</dateFormat>");
             }
+            if(DefaultRegion.HasValue)
+            {
+                ret.Add("defaultRegion", "<defaultRegion>" + DefaultRegion + "</defaultRegion>");
+            }
             if(DeleteMediaPolicy.HasValue)
             {
                 ret.Add("deleteMediaPolicy", "<deleteMediaPolicy>" + "" + Enum.GetName(typeof(KalturaDeleteMediaPolicy), DeleteMediaPolicy) + "" + "</deleteMediaPolicy>");
@@ -23953,6 +24111,10 @@ namespace WebAPI.Models.Partner
             if(DowngradePolicy.HasValue)
             {
                 ret.Add("downgradePolicy", "<downgradePolicy>" + "" + Enum.GetName(typeof(KalturaDowngradePolicy), DowngradePolicy) + "" + "</downgradePolicy>");
+            }
+            if(EnableRegionFiltering.HasValue)
+            {
+                ret.Add("enableRegionFiltering", "<enableRegionFiltering>" + EnableRegionFiltering.ToString().ToLower() + "</enableRegionFiltering>");
             }
             if(HouseholdLimitationModule.HasValue)
             {

@@ -429,7 +429,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.externalId))
               .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
-              .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels));
+              .ForMember(dest => dest.RegionalChannels, opt => opt.MapFrom(src => src.linearChannels))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.parentId));
+
+            cfg.CreateMap<KalturaRegion, Region>()
+              .ForMember(dest => dest.id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.externalId, opt => opt.MapFrom(src => src.ExternalId))
+              .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.IsDefault))
+              .ForMember(dest => dest.name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.linearChannels, opt => opt.MapFrom(src => src.RegionalChannels))
+              .ForMember(dest => dest.parentId, opt => opt.MapFrom(src => src.ParentId));
+
+            cfg.CreateMap<KalturaRegionalChannel, KeyValuePair>()
+             .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.LinearChannelId))
+             .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.ChannelNumber));
+
+            cfg.CreateMap<KalturaRegionFilter, RegionFilter>()
+                .ForMember(dest => dest.RegionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<int>, int>(src.IdIn, "KalturaRegionFilter.idIn", true, true)))
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.GetExternalIdIn()))
+                .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentIdEqual))
+                .ForMember(dest => dest.orderBy, opt => opt.MapFrom(src => ConvertRegionOrderBy(src.OrderBy)))
+                .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetIdEqual))
+                ;
 
             #endregion
 
@@ -1944,6 +1965,74 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             break;
                     }
                 });
+            #endregion
+
+            #region  EventNotification
+            //EventNotificationAction, KalturaEventNotification
+            cfg.CreateMap<EventNotificationAction, KalturaEventNotification>()
+                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.ActionType))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
+                .ForMember(dest => dest.EventObjectType, opt => opt.MapFrom(src => src.ObjectType))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<KalturaEventNotification, EventNotificationAction>()
+                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.ActionType))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
+                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectType))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                ;
+
+            cfg.CreateMap<KalturaEventNotificationFilter, EventNotificationActionFilter>()
+                .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectIdEqual))
+                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectTypeEqual))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdEqual))
+                ;
+
+            cfg.CreateMap<EventNotificationActionStatus, KalturaEventNotificationStatus>()
+                .ConvertUsing(eventNotificationActionStatus =>
+                {
+                    switch (eventNotificationActionStatus)
+                    {
+                        case EventNotificationActionStatus.Failed:
+                            return KalturaEventNotificationStatus.FAILED;
+                        case EventNotificationActionStatus.FailedToSend:
+                            return KalturaEventNotificationStatus.FAILED_TO_SEND;
+                        case EventNotificationActionStatus.Sent:
+                            return KalturaEventNotificationStatus.SENT;
+                        case EventNotificationActionStatus.Success:
+                            return KalturaEventNotificationStatus.SUCCESS;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown EventNotificationActionStatus value : {eventNotificationActionStatus.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaEventNotificationStatus, EventNotificationActionStatus>()
+                .ConvertUsing(eventNotificationActionStatus =>
+                {
+                    switch (eventNotificationActionStatus)
+                    {
+                        case KalturaEventNotificationStatus.FAILED:
+                            return EventNotificationActionStatus.Failed;
+                        case KalturaEventNotificationStatus.FAILED_TO_SEND:
+                            return EventNotificationActionStatus.FailedToSend;
+                        case KalturaEventNotificationStatus.SENT:
+                            return EventNotificationActionStatus.Sent;
+                        case KalturaEventNotificationStatus.SUCCESS:
+                            return EventNotificationActionStatus.Success;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaEventNotificationStatus value : {eventNotificationActionStatus.ToString()}");
+                    }
+                });
+            
             #endregion
         }
 

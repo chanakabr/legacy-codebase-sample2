@@ -29,6 +29,13 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+        [JsonProperty("save_event")]
+        public bool? SaveEvent
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("actions")]
         public List<NotificationAction> Actions { get; set; }
     }

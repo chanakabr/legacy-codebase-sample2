@@ -2296,6 +2296,40 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEventNotification":
+                    switch(property.Name)
+                    {
+                        case "ActionType":
+                            return "actionType";
+                        case "CreateDate":
+                            return "createDate";
+                        case "EventObjectType":
+                            return "eventObjectType";
+                        case "Id":
+                            return "id";
+                        case "Message":
+                            return "message";
+                        case "ObjectId":
+                            return "objectId";
+                        case "Status":
+                            return "status";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaEventNotificationFilter":
+                    switch(property.Name)
+                    {
+                        case "EventObjectTypeEqual":
+                            return "eventObjectTypeEqual";
+                        case "IdEqual":
+                            return "idEqual";
+                        case "ObjectIdEqual":
+                            return "objectIdEqual";
+                    }
+                    break;
+                    
                 case "KalturaExportTask":
                     switch(property.Name)
                     {
@@ -2537,10 +2571,14 @@ namespace WebAPI.Reflection
                     {
                         case "DateFormat":
                             return "dateFormat";
+                        case "DefaultRegion":
+                            return "defaultRegion";
                         case "DeleteMediaPolicy":
                             return "deleteMediaPolicy";
                         case "DowngradePolicy":
                             return "downgradePolicy";
+                        case "EnableRegionFiltering":
+                            return "enableRegionFiltering";
                         case "HouseholdLimitationModule":
                             return "householdLimitationModule";
                         case "MailSettings":
@@ -5015,6 +5053,8 @@ namespace WebAPI.Reflection
                             return "isDefault";
                         case "Name":
                             return "name";
+                        case "ParentId":
+                            return "parentId";
                         case "RegionalChannels":
                             return "linearChannels";
                     }
@@ -5035,6 +5075,12 @@ namespace WebAPI.Reflection
                     {
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "IdIn":
+                            return "idIn";
+                        case "LiveAssetIdEqual":
+                            return "liveAssetIdEqual";
+                        case "ParentIdEqual":
+                            return "parentIdEqual";
                     }
                     break;
                     
@@ -7568,6 +7614,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "eventnotification":
+                    switch(action)
+                    {
+                        case "update":
+                            RolesManager.ValidateActionPermitted("eventnotification", "update");
+                            return EventNotificationController.Update((string) methodParams[0], (KalturaEventNotification) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("eventnotification", "list");
+                            return EventNotificationController.List((KalturaEventNotificationFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "exporttask":
                     switch(action)
                     {
@@ -9301,9 +9361,22 @@ namespace WebAPI.Reflection
                 case "region":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("region", "add", false);
+                            return RegionController.Add((KalturaRegion) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("region", "delete", false);
+                            RegionController.Delete((int) methodParams[0]);
+                            return null;
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
                             return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("region", "update", false);
+                            return RegionController.Update((int) methodParams[0], (KalturaRegion) methodParams[1]);
                             
                     }
                     break;
@@ -13062,6 +13135,32 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "eventnotification":
+                    switch(action)
+                    {
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEventNotification),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEventNotificationFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "exporttask":
                     switch(action)
                     {
@@ -16505,11 +16604,38 @@ namespace WebAPI.Reflection
                 case "region":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("region", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegion),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("region", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegion),
                             });
                             return ret;
                             

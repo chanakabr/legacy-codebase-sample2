@@ -1,11 +1,7 @@
 ﻿using ApiObjects.Pricing;
 using ApiObjects.Response;
-using System;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
-using WebAPI.Models.General;
-using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
