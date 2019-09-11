@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.EventBus;
+using ConfigurationManager;
 using KLogMonitor;
 using QueueWrapper;
 using System;
@@ -42,18 +43,21 @@ namespace TVinciShared
 
                 log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
 
-                ////GenericCeleryQueue queue = new GenericCeleryQueue();
-                ////FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
-                ////bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
-                //if (enqueueSuccessful)
-                //{
-                //    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
-                //    result = true;
-                //}
-                //else
-                //{
-                //    log.ErrorFormat("Failed queuing free item index update {0}", data);
-                //}
+                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                {
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
+                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
+                    if (enqueueSuccessful)
+                    {
+                        log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
+                        result = true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed queuing free item index update {0}", data);
+                    }
+                }
             }
             catch (Exception ex)
             {

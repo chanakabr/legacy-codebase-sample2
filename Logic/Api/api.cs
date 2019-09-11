@@ -9454,18 +9454,22 @@ namespace Core.Api
                 log.Error($"Failed publishing service event of MigrateStatistics. group id = {groupId}, ex = {ex}");
             }
 
-            //var queueObject = new CelerySetupTaskData(groupId, eSetupTask.MigrateStatistics, dynamicData);
 
-            //try
-            //{
-            //    result = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.Error("MigrateStatistics - " +
-            //            string.Format("Error in MigrateStatistics: group = {0} ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace),
-            //            ex);
-            //}
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                var queueObject = new CelerySetupTaskData(groupId, eSetupTask.MigrateStatistics, dynamicData);
+
+                try
+                {
+                    bool enqueueResult = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
+                }
+                catch (Exception ex)
+                {
+                    log.Error("MigrateStatistics - " +
+                            string.Format("Error in MigrateStatistics: group = {0} ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace),
+                            ex);
+                }
+            }
 
             return result;
         }
