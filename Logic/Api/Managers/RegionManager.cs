@@ -563,24 +563,15 @@ namespace ApiLogic.Api.Managers
                         Region region;
 
                         if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                        {
-                            int defaultRegion = 0; 
-                            CatalogGroupCache catalogGroupCache;
-                            if (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
-                            {
-                                defaultRegion = catalogGroupCache.DefaultRegion;
-                            }                            
-
+                        {                           
                             foreach (DataRow row in ds.Tables[0].Rows)
                             {
-                                int id = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
-
                                 region = new Region()
                                 {
-                                    id = id,
+                                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
                                     name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                                     externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                                    isDefault = id == defaultRegion,
+                                    isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT_REGION") == 1,
                                     parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
                                     createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
                                 };
