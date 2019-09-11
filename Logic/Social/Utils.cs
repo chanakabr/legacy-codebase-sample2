@@ -26,7 +26,7 @@ namespace Core.Social
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
       
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
             ApiObjects.Credentials wsc = new ApiObjects.Credentials(sWSUserName, sWSPassword);
             return TvinciCache.WSCredentials.GetGroupID(ApiObjects.eWSModules.SOCIAL, wsc);
@@ -48,7 +48,7 @@ namespace Core.Social
             return response;
         }
 
-        static public UserResponseObject GetUserDataByFacebookID(string sUserFacebookID, Int32 nGroupID)
+        public static UserResponseObject GetUserDataByFacebookID(string sUserFacebookID, Int32 nGroupID)
         {
             UserResponseObject response = null;
             try
@@ -63,7 +63,7 @@ namespace Core.Social
             return response;
         }
 
-        static public UserResponseObject GetUserByUsername(string sUsername, Int32 nGroupID)
+        public static UserResponseObject GetUserByUsername(string sUsername, Int32 nGroupID)
         {
             UserResponseObject response = null;
             try
@@ -78,7 +78,7 @@ namespace Core.Social
             return response;
         }
 
-        static public UserResponseObject AddNewUser(Int32 nGroupID, UserBasicData ubd, UserDynamicData udd, string sPass, string sAffiliateCode)
+        public static UserResponseObject AddNewUser(Int32 nGroupID, UserBasicData ubd, UserDynamicData udd, string sPass, string sAffiliateCode)
         {
             UserResponseObject response = null;
             try
@@ -94,7 +94,7 @@ namespace Core.Social
 
         }
 
-        static public UserResponseObject SetUserData(Int32 nGroupID, string sSiteGuid, UserBasicData ubd, UserDynamicData udd)
+        public static UserResponseObject SetUserData(Int32 nGroupID, string sSiteGuid, UserBasicData ubd, UserDynamicData udd)
         {
             UserResponseObject response = null;
             try
@@ -120,7 +120,7 @@ namespace Core.Social
             }
         }
 
-        static public UserResponseObject CheckUserPassword(Int32 nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins)
+        public static UserResponseObject CheckUserPassword(Int32 nGroupID, string sUserName, string sPassword, bool bPreventDoubleLogins)
         {
             UserResponseObject response = null;
             try
@@ -135,7 +135,7 @@ namespace Core.Social
             return response;
         }
 
-        static public DomainResponseObject AddNewDomain(Int32 nGroupID, User user)
+        public static DomainResponseObject AddNewDomain(Int32 nGroupID, User user)
         {
             DomainResponseObject dObj = new DomainResponseObject();
             dObj.m_oDomainResponseStatus = DomainResponseStatus.UnKnown;
@@ -157,7 +157,7 @@ namespace Core.Social
             return dObj;
         }
 
-        static public BillingResponse DummyChargeUserForSubscription(int nGroupID, string sSiteGUID, string sSubscriptionCode, string sCouponCode, string sUserIP)
+        public static BillingResponse DummyChargeUserForSubscription(int nGroupID, string sSiteGUID, string sSubscriptionCode, string sCouponCode, string sUserIP)
         {
             BillingResponse bObj = new BillingResponse();
             bObj.m_oStatus = BillingResponseStatus.UnKnown;
@@ -295,7 +295,7 @@ namespace Core.Social
             return res;
         }
 
-        static public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
+        public static string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
         {
             HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
             HttpWebResponse oWebResponse = null;
@@ -334,7 +334,7 @@ namespace Core.Social
             }
         }
 
-        static public string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
+        public static string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
         {
             Int32 nStatusCode = -1;
 
@@ -384,7 +384,7 @@ namespace Core.Social
             return res;
         }
 
-        static public string SendPostHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
+        public static string SendPostHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
         {
             Int32 nStatusCode = -1;
 
@@ -435,7 +435,7 @@ namespace Core.Social
             return res;
         }
 
-        static public string SendPostHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, Dictionary<string, string> headers = null)
+        public static string SendPostHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, Dictionary<string, string> headers = null)
         {
             Int32 nStatusCode = -1;
 
@@ -531,7 +531,7 @@ namespace Core.Social
             return response;
         }
 
-        static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, ref Int32 nStatus)
+        public static string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, ref Int32 nStatus)
         {
             try
             {
@@ -574,7 +574,7 @@ namespace Core.Social
             }
         }
 
-        static public byte[] encryptStringToBytes_AES(string plainText, byte[] Key, byte[] IV)
+        public static byte[] encryptStringToBytes_AES(string plainText, byte[] Key, byte[] IV)
         {
             // Check arguments.
             if (plainText == null || plainText.Length <= 0)
@@ -633,7 +633,7 @@ namespace Core.Social
 
         }
 
-        static public string GetEncryptPass(string sSiteGuid)
+        public static string GetEncryptPass(string sSiteGuid)
         {
             string sPass = string.Empty;
 
@@ -730,7 +730,7 @@ namespace Core.Social
             return res;
         }
 
-        static public void AddParameter(string name, string val, ref string parameters)
+        public static void AddParameter(string name, string val, ref string parameters)
         {
             if (!string.IsNullOrEmpty(parameters))
             {
@@ -740,7 +740,7 @@ namespace Core.Social
             parameters += name + "=" + val;
         }
 
-        static public string ConvertToFBDate(DateTime date)
+        public static string ConvertToFBDate(DateTime date)
         {
             return string.Format("{0}-{1}-{2}T{3}:{4}:{5}", date.Year.ToString(), date.Month.ToString(), date.Day.ToString(), date.Hour.ToString(), date.Minute.ToString(), date.Second.ToString());
         }
@@ -832,7 +832,7 @@ namespace Core.Social
             return res;
         }
         
-        static public List<StatisticsView> DecodeSearchJsonObject(string sObj, ref int totalItems)
+        public static List<StatisticsView> DecodeSearchJsonObject(string sObj, ref int totalItems)
         {
             List<StatisticsView> documents = null;
             try
@@ -865,7 +865,7 @@ namespace Core.Social
             return documents;
         }
 
-        static public UserResponseObject Signin(Int32 nGroupID, string sSiteGuid, string sIP, string deviceID, bool bPreventDoubleLogins)
+        public static UserResponseObject Signin(Int32 nGroupID, string sSiteGuid, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             UserResponseObject response = null;
             try

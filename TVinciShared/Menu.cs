@@ -17,7 +17,7 @@ namespace TVinciShared
         {
         }
 
-        static public string GetFirstLink()
+        public static string GetFirstLink()
         {
             string sRet = "logout.aspx";
             Int32 nAcctID = LoginManager.GetLoginID();
@@ -202,12 +202,12 @@ namespace TVinciShared
             return nRet;
         }
 
-        static public string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
+        public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID)
         {
             return GetMainMenu(nMenuID, bAdmin, ref nSelID, "");
         }
 
-        static public string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
+        public static string GetMainMenu(Int32 nMenuID, bool bAdmin, ref Int32 nSelID, string sPageURL)
         {
             string sXML = "<root>" + GetMainMenu(ref nMenuID, bAdmin, ref nSelID, 0, sPageURL) + "</root>";
 
@@ -259,13 +259,13 @@ namespace TVinciShared
             return sTemp.ToString();
         }
 
-        static public string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID)
+        public static string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID)
         {
             return GetMainMenu(ref nMenuID, bAdmin, ref nSelID, nParentID, "");
 
         }
 
-        static public bool IsLayoutManagerVisible(int groupID)
+        public static bool IsLayoutManagerVisible(int groupID)
         {
             bool retVal = false;
             for (int i = 1; i < 7; i++)
@@ -280,7 +280,7 @@ namespace TVinciShared
             return retVal;
         }
 
-        static public string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID, string sPageURL)
+        public static string GetMainMenu(ref Int32 nMenuID, bool bAdmin, ref Int32 nSelID, Int32 nParentID, string sPageURL)
         {
             if (nParentID == 0)
             {
@@ -356,7 +356,7 @@ namespace TVinciShared
             return sXML.ToString();
         }
 
-        static public string GetSubMenu(Int32 nTopOrder, Int32 nSubOrder, bool bAdmin)
+        public static string GetSubMenu(Int32 nTopOrder, Int32 nSubOrder, bool bAdmin)
         {
             return "";
             //try
@@ -413,7 +413,7 @@ namespace TVinciShared
             //}
         }
 
-        static public string GetSubMenu(System.Collections.SortedList sortedMenu, Int32 nSubOrder, bool bFixSize)
+        public static string GetSubMenu(System.Collections.SortedList sortedMenu, Int32 nSubOrder, bool bFixSize)
         {
             try
             {

@@ -8,7 +8,7 @@ namespace TVinciShared
 {
     public class HashUtils
     {
-        static public string GetUTF8MD5Hash(string hash)
+        public static string GetUTF8MD5Hash(string hash)
         {
             using (MD5CryptoServiceProvider md5Provider = new MD5CryptoServiceProvider())
             {

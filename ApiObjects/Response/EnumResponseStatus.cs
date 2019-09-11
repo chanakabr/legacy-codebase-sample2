@@ -115,6 +115,7 @@ namespace ApiObjects.Response
         NoSSOAdapaterToInsert = 2057,
         SSOAdapterIdRequired = 2058,
         ParentIdNotExist = 2059,
+        UserFavoriteNotDeleted = 2060,
 
         #endregion
 
@@ -348,6 +349,10 @@ namespace ApiObjects.Response
         AssetRuleStatusNotWritable = 5061,
         PermissionNotFound = 5062,
         PermissionNameAlreadyInUse = 5063,
+        EventNotificationIdIsMissing = 5064,
+        EventNotificationIdNotFound = 5065,
+        RegionNotFound = 5066,
+        RegionCannotBeParent = 5067,
         #endregion
 
         #region Billing 6000 - 6999

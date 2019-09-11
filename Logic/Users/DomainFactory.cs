@@ -101,7 +101,7 @@ namespace Core.Users
             if (regionId.HasValue)
             {
                 // validate region exists
-                if (!CatalogManager.GetRegions(nGroupID).Contains(regionId.Value))
+                if (!ApiLogic.Api.Managers.RegionManager.GetRegionIds(nGroupID).Contains(regionId.Value))
                 {
                     domain.m_DomainStatus = DomainStatus.RegionDoesNotExist;
                     return domain;

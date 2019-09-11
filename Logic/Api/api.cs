@@ -126,7 +126,7 @@ namespace Core.Api
             m_nGroupID = nGroupID;
         }
 
-        static public UserIMRequestObject GetTvinciGUID(InitializationObject oInitObj, Int32 nGroupID)
+        public static UserIMRequestObject GetTvinciGUID(InitializationObject oInitObj, Int32 nGroupID)
         {
             Int32 nWatcherID = 0;
             GetStartValues(oInitObj.m_oUserIMRequestObject.m_sSiteGuid, ref oInitObj.m_oUserIMRequestObject.m_sTvinciGuid,
@@ -135,7 +135,7 @@ namespace Core.Api
 
         }
 
-        static public List<GroupOperator> GetOperators(int nGroupID, List<int> operatorIds)
+        public static List<GroupOperator> GetOperators(int nGroupID, List<int> operatorIds)
         {
             try
             {
@@ -336,7 +336,7 @@ namespace Core.Api
             return response;
         }
 
-        static public bool InitializeGroupNPlayer(ref ApiObjects.InitializationObject initObj)
+        public static bool InitializeGroupNPlayer(ref ApiObjects.InitializationObject initObj)
         {
             try
             {
@@ -358,7 +358,7 @@ namespace Core.Api
             }
         }
 
-        static public ApiObjects.MediaInfoObject TVAPI_GetMediaInfo(InitializationObject oInitObj, Int32 nGroupID, Int32 nMediaID)
+        public static ApiObjects.MediaInfoObject TVAPI_GetMediaInfo(InitializationObject oInitObj, Int32 nGroupID, Int32 nMediaID)
         {
             XmlDocument doc = null;
             ApiObjects.MediaInfoObject theInfo = new MediaInfoObject();
@@ -372,7 +372,7 @@ namespace Core.Api
             return theInfo;
         }
 
-        static public ApiObjects.MediaInfoStructObject GetMediaStructure(InitializationObject oInitObj, Int32 nGroupID)
+        public static ApiObjects.MediaInfoStructObject GetMediaStructure(InitializationObject oInitObj, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ApiObjects.MediaInfoStructObject theInfoStruct = new MediaInfoStructObject();
@@ -382,7 +382,7 @@ namespace Core.Api
             return theInfoStruct;
         }
 
-        static public ApiObjects.ChannelObject SearchMedia(InitializationObject oInitObj, SearchDefinitionObject theSearchCriteria, MediaInfoStructObject theInfoStruct, Int32 nGroupID)
+        public static ApiObjects.ChannelObject SearchMedia(InitializationObject oInitObj, SearchDefinitionObject theSearchCriteria, MediaInfoStructObject theInfoStruct, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ChannelObject ret = new ChannelObject();
@@ -405,7 +405,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.RateResponseObject RateMedia(InitializationObject oInitObj, Int32 nMediaID, Int32 nRateVal, Int32 nGroupID)
+        public static ApiObjects.RateResponseObject RateMedia(InitializationObject oInitObj, Int32 nMediaID, Int32 nRateVal, Int32 nGroupID)
         {
             XmlDocument doc = null;
             RateResponseObject ret = new RateResponseObject();
@@ -417,7 +417,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject SearchRelated(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nMediaID, Int32 nGroupID)
+        public static ApiObjects.ChannelObject SearchRelated(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nMediaID, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ChannelObject ret = new ChannelObject();
@@ -431,7 +431,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject NowPlaying(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nGroupID)
+        public static ApiObjects.ChannelObject NowPlaying(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ChannelObject ret = new ChannelObject();
@@ -445,7 +445,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject PersonalRateList(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nGroupID, Int32 nMinRate, Int32 nMaxRate)
+        public static ApiObjects.ChannelObject PersonalRateList(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nGroupID, Int32 nMinRate, Int32 nMaxRate)
         {
             XmlDocument doc = null;
             ChannelObject ret = new ChannelObject();
@@ -459,7 +459,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.TagResponseObject[] TagValues(InitializationObject oInitObj, ApiObjects.TagRequestObject[] sTagTypes, Int32 nGroupID)
+        public static ApiObjects.TagResponseObject[] TagValues(InitializationObject oInitObj, ApiObjects.TagRequestObject[] sTagTypes, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ApiObjects.TagResponseObject[] ret = null;
@@ -472,7 +472,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.OneTimeObject OneTimeLink(InitializationObject oInitObj, Int32 nMediaID, Int32 nMediaFileID,
+        public static ApiObjects.OneTimeObject OneTimeLink(InitializationObject oInitObj, Int32 nMediaID, Int32 nMediaFileID,
             string sBaseLink, string sCDNImpleType, Int32 nGroupID)
         {
             XmlDocument doc = null;
@@ -484,7 +484,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public List<string> GetAutoCompleteList(RequestObj request, int groupID)
+        public static List<string> GetAutoCompleteList(RequestObj request, int groupID)
         {
             log.Debug("AutoComplete - Start AutoComplete");
             List<string> retVal = new List<string>();
@@ -526,7 +526,7 @@ namespace Core.Api
             return retVal;
         }
 
-        static public ApiObjects.UserComment[] MediaComments(InitializationObject oInitObj, Int32 nMediaID, Int32 nGroupID, string sCommentType)
+        public static ApiObjects.UserComment[] MediaComments(InitializationObject oInitObj, Int32 nMediaID, Int32 nGroupID, string sCommentType)
         {
             XmlDocument doc = null;
             ApiObjects.UserComment[] ret = null;
@@ -537,7 +537,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.UserComment[] UserSaveComment(InitializationObject oInitObj, ApiObjects.UserComment theUserComment,
+        public static ApiObjects.UserComment[] UserSaveComment(InitializationObject oInitObj, ApiObjects.UserComment theUserComment,
             bool bAutoPublish, Int32 nGroupID, string sCommentType)
         {
             XmlDocument doc = null;
@@ -550,7 +550,7 @@ namespace Core.Api
         }
 
 
-        static public bool SetMediaDuration(InitializationObject oInitObj, Int32 nMediaFileID, Int32 nDurationInSec, Int32 nGroupID)
+        public static bool SetMediaDuration(InitializationObject oInitObj, Int32 nMediaFileID, Int32 nDurationInSec, Int32 nGroupID)
         {
             XmlDocument doc = null;
             bool ret = false;
@@ -562,7 +562,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public bool MediaMark(InitializationObject oInitObj, string sAction, Int32 nLocationSec,
+        public static bool MediaMark(InitializationObject oInitObj, string sAction, Int32 nLocationSec,
             ref MediaFileObject theMediaFile, Int32 nGroupID)
         {
             XmlDocument doc = null;
@@ -574,7 +574,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public bool Hit(InitializationObject oInitObj, Int32 nLocationInVideoSec,
+        public static bool Hit(InitializationObject oInitObj, Int32 nLocationInVideoSec,
             ref MediaFileObject theMediaFile, Int32 nGroupID)
         {
             XmlDocument doc = null;
@@ -586,7 +586,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject UserLastWatched(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nGroupID)
+        public static ApiObjects.ChannelObject UserLastWatched(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, PageDefinition thePageDef, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ChannelObject ret = new ChannelObject();
@@ -600,7 +600,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject PeopleWhoWatchedAlsoWatched(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, Int32 nGroupID, Int32 nMediaID, Int32 nMediaFileID)
+        public static ApiObjects.ChannelObject PeopleWhoWatchedAlsoWatched(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, Int32 nGroupID, Int32 nMediaID, Int32 nMediaFileID)
         {
             XmlDocument doc = null;
             ChannelObject ret = new ChannelObject();
@@ -614,7 +614,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject[] ChannelsMedia(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, ChannelRequestObject[] theChannelsRequestObj, Int32 nGroupID)
+        public static ApiObjects.ChannelObject[] ChannelsMedia(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, ChannelRequestObject[] theChannelsRequestObj, Int32 nGroupID)
         {
             XmlDocument doc = null;
             ChannelObject[] ret = new ChannelObject[theChannelsRequestObj.Length];
@@ -630,7 +630,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.CategoryObject[] CategoriesTree(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, Int32 nGroupID, Int32 nCategoryID, bool bWithChannels)
+        public static ApiObjects.CategoryObject[] CategoriesTree(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, Int32 nGroupID, Int32 nCategoryID, bool bWithChannels)
         {
             XmlDocument doc = null;
             CategoryObject[] ret = null;
@@ -646,7 +646,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject[] CategoryChannels(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, Int32 nGroupID, Int32 nCategoryID)
+        public static ApiObjects.ChannelObject[] CategoryChannels(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct, Int32 nGroupID, Int32 nCategoryID)
         {
             XmlDocument doc = null;
             ChannelObject[] ret = null;
@@ -660,7 +660,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject[] UserChannels(InitializationObject oInitObj,
+        public static ApiObjects.ChannelObject[] UserChannels(InitializationObject oInitObj,
             MediaInfoStructObject theInfoStruct, Int32 nGroupID, string sLang)
         {
             XmlDocument doc = null;
@@ -675,7 +675,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.ChannelObject[] DeleteUserChannel(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct,
+        public static ApiObjects.ChannelObject[] DeleteUserChannel(InitializationObject oInitObj, MediaInfoStructObject theInfoStruct,
             Int32 nGroupID, Int32 nChannelID)
         {
             XmlDocument doc = null;
@@ -690,7 +690,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.GenericWriteResponse saveUserPlaylist(InitializationObject oInitObj, Int32 nGroupID, Int32[] nMediaIDs, string sChannelTitle, bool bRewrite)
+        public static ApiObjects.GenericWriteResponse saveUserPlaylist(InitializationObject oInitObj, Int32 nGroupID, Int32[] nMediaIDs, string sChannelTitle, bool bRewrite)
         {
             XmlDocument doc = null;
             GenericWriteResponse ret = null;
@@ -701,7 +701,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.GenericWriteResponse SendMediaByEmail(InitializationObject oInitObj, Int32 nGroupID, Int32 nMediaID,
+        public static ApiObjects.GenericWriteResponse SendMediaByEmail(InitializationObject oInitObj, Int32 nGroupID, Int32 nMediaID,
             string sFromEmail, string sToEmail, string sRecieverName, string sSenderName, string sContent)
         {
             XmlDocument doc = null;
@@ -713,7 +713,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public bool SetTokenData(ref InitializationObject oInitObj, ref Int32 nCountryID, ref Int32 nDeviceID, Int32 nGroupID)
+        public static bool SetTokenData(ref InitializationObject oInitObj, ref Int32 nCountryID, ref Int32 nDeviceID, Int32 nGroupID)
         {
             string sIP = PageUtils.GetCallerIP();
             Int32 nCountryTokenID = 0;
@@ -735,7 +735,7 @@ namespace Core.Api
             return bAdminToken;
         }
 
-        static public ChannelObject SingleMedia(InitializationObject oInitObj, Int32 nGroupID, Int32[] nMediaIDs, MediaInfoStructObject theInfoStruct)
+        public static ChannelObject SingleMedia(InitializationObject oInitObj, Int32 nGroupID, Int32[] nMediaIDs, MediaInfoStructObject theInfoStruct)
         {
             ChannelObject ret = new ChannelObject();
             XmlDocument doc = null;
@@ -752,7 +752,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public void GetStartValues(string sSiteGUID, ref string sTVinciGUID, ref Int32 nWatcherID, Int32 nGroupID, bool bCreate, string sUserAgent, string sCallerIP)
+        public static void GetStartValues(string sSiteGUID, ref string sTVinciGUID, ref Int32 nWatcherID, Int32 nGroupID, bool bCreate, string sUserAgent, string sCallerIP)
         {
             if (sSiteGUID.Trim() != "")
             {
@@ -853,7 +853,7 @@ namespace Core.Api
             return new Tuple<int, bool>(fileTypeId, result);
         }
 
-        static public bool GetAdminTokenValues(string sIP, string sToken, Int32 nGroupID, ref string sCountryCd2, ref string sLanguageFullName, ref string sDeviceName, ref ApiObjects.UserStatus theUserStatus)
+        public static bool GetAdminTokenValues(string sIP, string sToken, Int32 nGroupID, ref string sCountryCd2, ref string sLanguageFullName, ref string sDeviceName, ref ApiObjects.UserStatus theUserStatus)
         {
             bool bRet = false;
             DataTable dt = DAL.ApiDAL.Get_AdminTokenValues(sIP, nGroupID);
@@ -873,7 +873,7 @@ namespace Core.Api
             return bRet;
         }
 
-        static public List<int> GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice, bool activeAssets, bool useStartDate)
+        public static List<int> GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice, bool activeAssets, bool useStartDate)
         {
             List<int> nMedias = new List<int>();
 
@@ -930,7 +930,7 @@ namespace Core.Api
             return nMedias.Distinct().ToList();
         }
 
-        static public Int32[] GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice)
+        public static Int32[] GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice)
         {
 
             List<int> nMedias = new List<int>();
@@ -938,7 +938,7 @@ namespace Core.Api
             return nMedias.Distinct().ToArray();
         }
 
-        static public Int32[] GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, Int32 nDeviceID)
+        public static Int32[] GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, Int32 nDeviceID)
         {
 
             // TO DO add call to catalog !!!!! SubsContainMedia
@@ -969,7 +969,7 @@ namespace Core.Api
             return nMedias.Distinct().ToArray();
         }
 
-        static public FileTypeContainer[] GetAvailableFileTypes(Int32 nGroupID)
+        public static FileTypeContainer[] GetAvailableFileTypes(Int32 nGroupID)
         {
             FileTypeContainer[] ret = null;
 
@@ -1013,7 +1013,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public Int32[] GetChannelMediaIDs(Int32 nChannelID, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID,
+        public static Int32[] GetChannelMediaIDs(Int32 nChannelID, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID,
             Int32 nLangID, bool bIsLangMain, Int32 nCountryID, Int32 nDeviceID)
         {
             Int32 nCount = 0;
@@ -1049,7 +1049,7 @@ namespace Core.Api
             return null;
         }
 
-        static public bool DoesMediaBelongToChannels(Int32[] nChannels, Int32[] nFileTypeIDs, Int32 nMediaID, bool bWithCache, Int32 nGroupID, Int32 nDeviceID)
+        public static bool DoesMediaBelongToChannels(Int32[] nChannels, Int32[] nFileTypeIDs, Int32 nMediaID, bool bWithCache, Int32 nGroupID, Int32 nDeviceID)
         {
             try
             {
@@ -1078,7 +1078,7 @@ namespace Core.Api
             }
         }
 
-        static public bool DoesMediaBelongToChannels(Int32[] nChannels, Int32[] nFileTypeIDs, Int32 nMediaID, bool bWithCache, Int32 nGroupID, string sDevice)
+        public static bool DoesMediaBelongToChannels(Int32[] nChannels, Int32[] nFileTypeIDs, Int32 nMediaID, bool bWithCache, Int32 nGroupID, string sDevice)
         {
             try
             {
@@ -1112,7 +1112,7 @@ namespace Core.Api
 
         }
 
-        static public bool ValidateBaseLink(Int32 nMediaFileID, string sBaseLink, Int32 nGroupID)
+        public static bool ValidateBaseLink(Int32 nMediaFileID, string sBaseLink, Int32 nGroupID)
         {
             bool bRet = false;
             string sDBBaseLink = "";
@@ -1156,7 +1156,7 @@ namespace Core.Api
             return bRet;
         }
 
-        //static public MeidaMaper[] MapMediaFiles(Int32[] mediaFileIds, Int32 groupID)
+        //public static MeidaMaper[] MapMediaFiles(Int32[] mediaFileIds, Int32 groupID)
         //{
         //    List<MeidaMaper> result = new List<MeidaMaper>();
 
@@ -1323,7 +1323,7 @@ namespace Core.Api
             return new Tuple<Dictionary<string, MeidaMaper>, bool>(result, res);
         }
 
-        static public MeidaMaper[] MapMediaFilesST(string sSeperatedMediaFileIDs, Int32 nGroupID)
+        public static MeidaMaper[] MapMediaFilesST(string sSeperatedMediaFileIDs, Int32 nGroupID)
         {
 
             string[] sToSep = { ";" };
@@ -1335,7 +1335,7 @@ namespace Core.Api
             return MapMediaFiles(nMediaFileIDs.ToArray<int>(), nGroupID);
         }
 
-        static public GroupInfo[] GetSubGroupsTree(string sGroupName, Int32 nGroupID)
+        public static GroupInfo[] GetSubGroupsTree(string sGroupName, Int32 nGroupID)
         {
             List<GroupInfo> lGroup = null;
             string key = string.Format("{0}_GetSubGroupTree_{1}", eWSModules.API.ToString(), sGroupName);
@@ -1373,7 +1373,7 @@ namespace Core.Api
             return lGroup.ToArray();
         }
 
-        static public string[] GetGroupPlayers(string sGroupName, bool sIncludeChildGroups, Int32 nGroupID)
+        public static string[] GetGroupPlayers(string sGroupName, bool sIncludeChildGroups, Int32 nGroupID)
         {
             List<string> ret = null;
             string key = string.Format("{0}_GetGroupPlayers_{1}", eWSModules.API.ToString(), sGroupName);
@@ -1432,7 +1432,7 @@ namespace Core.Api
             }
         }
 
-        static public string[] GetGroupMediaNames(string sGroupName, Int32 nGroupID)
+        public static string[] GetGroupMediaNames(string sGroupName, Int32 nGroupID)
         {
             List<string> lGroupMediaNames = null;
             string key = string.Format("{0}_GetGroupMediaNames_{1}", eWSModules.API.ToString(), sGroupName);
@@ -1475,7 +1475,7 @@ namespace Core.Api
             return ret;
         }
 
-        static public ApiObjects.MediaMarkObject GetMediaMark(Int32 nGroupID, Int32 nMediaID, string sSiteGUID)
+        public static ApiObjects.MediaMarkObject GetMediaMark(Int32 nGroupID, Int32 nMediaID, string sSiteGUID)
         {
             MediaMarkObject mmo = new MediaMarkObject();
             mmo.nGroupID = nGroupID;
@@ -1508,7 +1508,7 @@ namespace Core.Api
             return mmo;
         }
 
-        static public ApiObjects.RateMediaObject RateMedia(Int32 nGroupID, Int32 nMediaID, string sSiteGUID, Int32 nRateVal)
+        public static ApiObjects.RateMediaObject RateMedia(Int32 nGroupID, Int32 nMediaID, string sSiteGUID, Int32 nRateVal)
         {
             RateMediaObject rmo = new RateMediaObject();
             rmo.oStatus.Initialize("OK", 0);
@@ -1623,7 +1623,7 @@ namespace Core.Api
             selectQuery = null;
         }
 
-        static public ApiObjects.AdminAccountUserResponse GetAdminUserAccount(string user, string pass)
+        public static ApiObjects.AdminAccountUserResponse GetAdminUserAccount(string user, string pass)
         {
             ApiObjects.AdminAccountUserResponse retVal = new AdminAccountUserResponse();
 
@@ -1653,7 +1653,7 @@ namespace Core.Api
             return retVal;
         }
 
-        static public int InserEPGScheduleToChannel(int groupID, int channelID, string xml, bool deleteOld)
+        public static int InserEPGScheduleToChannel(int groupID, int channelID, string xml, bool deleteOld)
         {
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
@@ -1695,7 +1695,7 @@ namespace Core.Api
             return count;
         }
 
-        static public List<EPGChannelObject> GetEPGChannel(int groupID, string sPicSize)
+        public static List<EPGChannelObject> GetEPGChannel(int groupID, string sPicSize)
         {
             List<EPGChannelObject> res = new List<EPGChannelObject>();
             DataTable dt = DAL.ApiDAL.Get_EPGChannel(groupID);
@@ -1938,7 +1938,7 @@ namespace Core.Api
             return EPG_ResponseTag;
         }
 
-        static public List<EPGChannelProgrammeObject> GetEPGChannelPrograms_Old(Int32 groupID, string sEPGChannelID, string sPicSize, EPGUnit unit, int nFromOffsetUnit, int nToOffsetUnit, int nUTCOffset)
+        public static List<EPGChannelProgrammeObject> GetEPGChannelPrograms_Old(Int32 groupID, string sEPGChannelID, string sPicSize, EPGUnit unit, int nFromOffsetUnit, int nToOffsetUnit, int nUTCOffset)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
 
@@ -2299,9 +2299,9 @@ namespace Core.Api
 
             }
             return res;
-        }        
+        }
 
-        static public List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
+        public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
             List<EPGChannelProgrammeObject> res = new List<EPGChannelProgrammeObject>();
 
@@ -2384,7 +2384,7 @@ namespace Core.Api
             return dt;
         }
 
-        static public bool AddUserSocialAction(Int32 nGroupID, Int32 nMediaID, string sSiteGUID, Int32 nSocialAction, Int32 nSocialPlatform)
+        public static bool AddUserSocialAction(Int32 nGroupID, Int32 nMediaID, string sSiteGUID, Int32 nSocialAction, Int32 nSocialPlatform)
         {
             bool res = true;
 
@@ -2541,7 +2541,7 @@ namespace Core.Api
             return nlikeCounter;
         }
 
-        static public bool RunImporter(Int32 nGroupID, string extraParams)
+        public static bool RunImporter(Int32 nGroupID, string extraParams)
         {
             return false;
         }
@@ -2650,7 +2650,7 @@ namespace Core.Api
             return userRules;
         }
 
-        static public bool SendMailTemplate(MailRequestObj request)
+        public static bool SendMailTemplate(MailRequestObj request)
         {
             bool retVal = false;
             Mailer.IMailer mailer = Mailer.MailFactory.GetMailer(Mailer.MailImplementors.MCMailer);
@@ -2663,7 +2663,7 @@ namespace Core.Api
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        static public List<GroupRule> GetGroupRules(int groupId)
+        public static List<GroupRule> GetGroupRules(int groupId)
         {
             List<GroupRule> groupRules = new List<GroupRule>();
 
@@ -2725,7 +2725,7 @@ namespace Core.Api
 
         #region User Group Rules
 
-        static public List<GroupRule> GetUserGroupRules(int groupID, string siteGuid)
+        public static List<GroupRule> GetUserGroupRules(int groupID, string siteGuid)
         {
             return GetUserDomainGroupRules(groupID, siteGuid, 0);
 
@@ -2787,7 +2787,7 @@ namespace Core.Api
         /// <param name="pin"></param>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        static public bool SetUserGroupRule(string siteGuid, int ruleId, int ruleStatus, string pin, int groupId)
+        public static bool SetUserGroupRule(string siteGuid, int ruleId, int ruleStatus, string pin, int groupId)
         {
             bool result = false;
             bool setRuleResult = false;
@@ -3578,7 +3578,7 @@ namespace Core.Api
             return response;
         }
 
-        static public GroupOperator[] GetGroupOperators(int nGroupID, string sScope = "")
+        public static GroupOperator[] GetGroupOperators(int nGroupID, string sScope = "")
         {
             DataTable dt = DAL.ApiDAL.Get_GroupOperatorsDetails(nGroupID);
 
@@ -4626,65 +4626,6 @@ namespace Core.Api
                 return string.Empty;
             }
 
-        }
-
-        public static RegionsResponse GetRegions(int groupID, List<string> externalRegionList, RegionOrderBy orderBy)
-        {
-            RegionsResponse response = null;
-            DataSet ds = null;
-            try
-            {
-                if (externalRegionList == null)
-                {
-                    externalRegionList = new List<string>();
-
-                }
-
-                ds = DAL.ApiDAL.Get_RegionsByExternalRegions(groupID, externalRegionList, orderBy);
-
-                Region region;
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    response = new RegionsResponse();
-                    response.Regions = new List<Region>();
-
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            region = new Region()
-                            {
-                                id = APILogic.Utils.GetIntSafeVal(row, "id"),
-                                name = APILogic.Utils.GetSafeStr(row, "name"),
-                                externalId = APILogic.Utils.GetSafeStr(row, "external_id"),
-                                isDefault = APILogic.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
-                            };
-                            response.Regions.Add(region);
-                        }
-                    }
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
-                    {
-                        int regionId;
-                        foreach (DataRow row in ds.Tables[1].Rows)
-                        {
-                            regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
-                            region = response.Regions.Where(r => r.id == regionId).FirstOrDefault();
-                            if (region != null)
-                            {
-                                region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
-                            }
-                        }
-                    }
-
-                }
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
-            }
-            catch (Exception)
-            {
-                response = new RegionsResponse();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-            }
-            return response;
         }
 
         public static List<LanguageObj> GetGroupLanguages(int groupId)
@@ -11608,6 +11549,8 @@ namespace Core.Api
 
             try
             {
+                bool shouldInvalidateRegions = false;
+
                 // check for MainLanguage valid
                 if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
@@ -11670,6 +11613,23 @@ namespace Core.Api
                     }
                 }
 
+                if (partnerConfigToUpdate.DefaultRegion.HasValue)
+                {
+                    var defaultRegion = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, partnerConfigToUpdate.DefaultRegion.Value);
+                    if (defaultRegion == null)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
+                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.DlmNotExist.ToString());
+                        return response;
+                    }
+                    else
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
+                            && defaultRegion.id != catalogGroupCache.DefaultRegion);
+                    }
+                }
+
                 // upsert GeneralPartnerConfig            
                 if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
                 {
@@ -11681,6 +11641,11 @@ namespace Core.Api
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
+                }
+
+                if (shouldInvalidateRegions)
+                {
+                    ApiLogic.Api.Managers.RegionManager.InvalidateRegions(groupId);
                 }
 
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -11733,14 +11698,27 @@ namespace Core.Api
 
                         int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
                         int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
+                        int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
+                        int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
 
                         if (deleteMediaPolicy.HasValue)
                         {
                             generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
                         }
+
                         if (downgradePolicy.HasValue)
                         {
                             generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                        }
+
+                        if (enableRegionFiltering.HasValue)
+                        {
+                            generalPartnerConfig.EnableRegionFiltering = enableRegionFiltering.Value == 1;
+                        }
+
+                        if (defaultRegion.HasValue && defaultRegion.Value > 0)
+                        {
+                            generalPartnerConfig.DefaultRegion = defaultRegion.Value;
                         }
                     }
 
@@ -11871,6 +11849,12 @@ namespace Core.Api
             if (needToCreateVirtualAsset)
             {
                 CreateVirtualChannel(groupId, userId, channel);
+                return;
+            }
+
+            if(virtualAsset == null)
+            {
+                log.Warn($"No virtualAsset for ExternalChannel {channel.ID}");
                 return;
             }
 
@@ -12045,5 +12029,6 @@ namespace Core.Api
 
             return response;
         }
+
     }
 }

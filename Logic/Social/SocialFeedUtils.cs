@@ -44,7 +44,7 @@ namespace Core.Social
             static Dictionary<int, string> _accessTokenDict = new Dictionary<int, string>();
             static object _locker = new object();
 
-            static public List<SocialFeedItem> GetFacebookSocialFeed(string pageName, int numOfPosts, string accessToken)
+            public static List<SocialFeedItem> GetFacebookSocialFeed(string pageName, int numOfPosts, string accessToken)
             {
                 List<SocialFeedItem> result = new List<SocialFeed.SocialFeedItem>();
                 int httpStatus = 0;
@@ -82,7 +82,7 @@ namespace Core.Social
                 return JsonConvert.DeserializeObject<FacebookResp>(fbRespStr);
             }
 
-            static public string GetFacebookAppAccessToken(int groupId)
+            public static string GetFacebookAppAccessToken(int groupId)
             {
                 if (_accessTokenDict.ContainsKey(groupId))
                 {
@@ -116,7 +116,7 @@ namespace Core.Social
             static Dictionary<int, ApplicationOnlyAuthorizer> _accessTokenDictionary = new Dictionary<int, ApplicationOnlyAuthorizer>();
             static object _locker = new object();
 
-            static public List<SocialFeedItem> GetTwitterAppSocialFeed(string hashTagVal, int numOfPosts, int groupId)
+            public static List<SocialFeedItem> GetTwitterAppSocialFeed(string hashTagVal, int numOfPosts, int groupId)
             {
                 TwitterContext context = new TwitterContext(getAuthorizer(groupId));
 
@@ -130,7 +130,7 @@ namespace Core.Social
                 }).ToList()).SingleOrDefault();
             }
 
-            static public List<SocialFeedItem> GetTwitterUserSocialFeed(string hashTagVal, string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret, int numOfPosts)
+            public static List<SocialFeedItem> GetTwitterUserSocialFeed(string hashTagVal, string consumerKey, string consumerSecret, string accessToken, string accessTokenSecret, int numOfPosts)
             {
 
                 TwitterContext context = new TwitterContext(new SingleUserAuthorizer()
@@ -186,7 +186,7 @@ namespace Core.Social
 
         public static class InApp
         {
-            static public List<SocialFeedItem> GetInAppSocialFeed(int assetId, ApiObjects.eAssetType assetType, int groupId, int numOfPosts)
+            public static List<SocialFeedItem> GetInAppSocialFeed(int assetId, ApiObjects.eAssetType assetType, int groupId, int numOfPosts)
             {
                 string signatureString = Guid.NewGuid().ToString();
                 AssetCommentsRequest request = new AssetCommentsRequest()
@@ -225,7 +225,7 @@ namespace Core.Social
                 return (lstSocialFeed);
             }
 
-            static public List<SocialFeedItem> GetInAppSocialFeed(int mediaId, int groupId, int numOfPosts)
+            public static List<SocialFeedItem> GetInAppSocialFeed(int mediaId, int groupId, int numOfPosts)
             {
                 string signatureString = Guid.NewGuid().ToString();
                 CommentsListRequest request = new CommentsListRequest()

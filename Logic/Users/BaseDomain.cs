@@ -40,6 +40,16 @@ namespace Core.Users
 
         #region Public Virtual
 
+        public virtual DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID, string sCoGuid)
+        {
+            return AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, sCoGuid, null);
+        }
+
+        public virtual DomainResponseObject AddDomain(string sDomainName, string sDomainDescription, int nMasterUserGuid, int nGroupID)
+        {
+            return AddDomain(sDomainName, sDomainDescription, nMasterUserGuid, nGroupID, string.Empty, null);
+        }
+
         public virtual DomainResponseObject ChangeDomainMaster(int nDomainID, int nCurrentMasterID, int nNewMasterID)
         {
             //New domain
@@ -123,7 +133,7 @@ namespace Core.Users
                 if (regionId.HasValue)
                 {
                     // validate region exists
-                    if (!Catalog.CatalogManagement.CatalogManager.GetRegions(m_nGroupID).Contains(regionId.Value))
+                    if (!ApiLogic.Api.Managers.RegionManager.GetRegionIds(m_nGroupID).Contains(regionId.Value))
                     {
                         return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
                     }

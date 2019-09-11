@@ -24,7 +24,7 @@ namespace Core.Billing
         }
 
 
-        static public string GetSafeString(string val)
+        public static string GetSafeString(string val)
         {
             try
             {

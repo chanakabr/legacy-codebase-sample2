@@ -12,7 +12,7 @@ namespace ImageManager
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        static public bool DownloadAndCropImage(int nGroupID, string sURL, string sBasePath, List<ImageObj> images, string sPicBaseName, string sUploadedFileExt)
+        public static bool DownloadAndCropImage(int nGroupID, string sURL, string sBasePath, List<ImageObj> images, string sPicBaseName, string sUploadedFileExt)
         {
             _Logger.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, images:{1}", nGroupID, images.Count));
 
@@ -48,7 +48,7 @@ namespace ImageManager
 
 
 
-        static public bool DownloadImage(string sURL, string dest)
+        public static bool DownloadImage(string sURL, string dest)
         {
             bool res = false;
             try
@@ -87,7 +87,7 @@ namespace ImageManager
             return res;
         }
 
-        static public void RemoveImage(string sImagePath)
+        public static void RemoveImage(string sImagePath)
         {
             try
             {

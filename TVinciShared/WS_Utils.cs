@@ -18,27 +18,27 @@ namespace TVinciShared
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        static public bool IsNodeExists(ref XmlNode theItem, string sXpath)
+        public static bool IsNodeExists(ref XmlNode theItem, string sXpath)
         {
             return XmlUtils.IsNodeExists(ref theItem, sXpath);
         }
 
-        static public string GetNodeValue(ref XmlNode theItem, string sXpath)
+        public static string GetNodeValue(ref XmlNode theItem, string sXpath)
         {
             return XmlUtils.GetNodeValue(ref theItem, sXpath);
         }
 
-        static public string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
+        public static string GetItemParameterVal(ref XmlNode theNode, string sParameterName)
         {
             return XmlUtils.GetItemParameterVal(ref theNode, sParameterName);
         }
 
-        static public string GetNodeParameterVal(ref XmlNode theNode, string sXpath, string sParameterName)
+        public static string GetNodeParameterVal(ref XmlNode theNode, string sXpath, string sParameterName)
         {
             return XmlUtils.GetNodeParameterVal(ref theNode, sXpath, sParameterName);
         }
 
-        //static public string GetIP2CountryCode(string sIP)
+        //public static string GetIP2CountryCode(string sIP)
         //{
         //    if (string.IsNullOrEmpty(sIP))
         //    {
@@ -53,7 +53,7 @@ namespace TVinciShared
         //    return retVal;
         //}
 
-        static public Int32 GetGroupID(string sWSName, string sModuleName, string sUN, string sPass, string sIP)
+        public static Int32 GetGroupID(string sWSName, string sModuleName, string sUN, string sPass, string sIP)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace TVinciShared
             return 0;
         }
 
-        static public Int32 GetGroupID(string sWSName, string sUN, string sPass)
+        public static Int32 GetGroupID(string sWSName, string sUN, string sPass)
         {
             try
             {
@@ -81,13 +81,13 @@ namespace TVinciShared
             return 0;
         }
 
-        static public string GetSecretCode(string sWSName, string sModuleName, string sUN, ref Int32 nGroupID)
+        public static string GetSecretCode(string sWSName, string sModuleName, string sUN, ref Int32 nGroupID)
         {
             string sSecret = DAL.UtilsDal.GetSecretCode(sWSName, sModuleName, sUN, ref nGroupID);
             return sSecret;
         }
 
-        static public bool GetWSUNPass(Int32 nGroupID, string sWSFunctionName, string sWSName, string sIP, ref string sWSUN, ref string sWSPassword)
+        public static bool GetWSUNPass(Int32 nGroupID, string sWSFunctionName, string sWSName, string sIP, ref string sWSUN, ref string sWSPassword)
         {
             sWSUN = string.Empty;
             sWSPassword = string.Empty;
@@ -96,7 +96,7 @@ namespace TVinciShared
             return res;
         }
 
-        static public bool GetWSCredentials(Int32 nGroupID, string sWSName, ref string sWSUN, ref string sWSPassword)
+        public static bool GetWSCredentials(Int32 nGroupID, string sWSName, ref string sWSUN, ref string sWSPassword)
         {
             sWSUN = string.Empty;
             sWSPassword = string.Empty;
@@ -105,23 +105,23 @@ namespace TVinciShared
             return res;
         }
 
-        static public bool GetAllWSCredentials(string sIP, ref DataTable modules)
+        public static bool GetAllWSCredentials(string sIP, ref DataTable modules)
         {
             bool res = DAL.UtilsDal.GetAllWSCredentials(sIP, ref modules);
             return res;
         }
 
-        static public int GetModuleImplID(int nGroupID, int nModuleID, string connectionKey)
+        public static int GetModuleImplID(int nGroupID, int nModuleID, string connectionKey)
         {
             return DAL.UtilsDal.GetModuleImplID(nGroupID, nModuleID, connectionKey);
         }
 
-        static public string GetModuleImplName(int nGroupID, int nModuleID, string connectionKey, int operatorId = -1)
+        public static string GetModuleImplName(int nGroupID, int nModuleID, string connectionKey, int operatorId = -1)
         {
             return DAL.UtilsDal.GetModuleImplName(nGroupID, nModuleID, connectionKey, operatorId);
         }
 
-        static public string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, string contentType = "text/xml; charset=utf-8",
+        public static string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader, string contentType = "text/xml; charset=utf-8",
                                             string sUsernameField = "", string sUsername = "", string sPasswordField = "", string sPassword = "", string sMethod = "post")
         {
 
@@ -186,7 +186,7 @@ namespace TVinciShared
             }
         }
 
-        static public string SendXMLHttpReqWithHeaders(string sUrl, string sToSend, Dictionary<string, string> postHeaders, string contentType = "text/xml; charset=utf-8",
+        public static string SendXMLHttpReqWithHeaders(string sUrl, string sToSend, Dictionary<string, string> postHeaders, string contentType = "text/xml; charset=utf-8",
                                             string sUsernameField = "", string sUsername = "", string sPasswordField = "", string sPassword = "", string sMethod = "post")
         {
 

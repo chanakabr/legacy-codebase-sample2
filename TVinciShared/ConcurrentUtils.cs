@@ -10,7 +10,7 @@ namespace TVinciShared
     public class ConcurrentUtils
     {
 
-        static public bool IsConcurrent(string sSiteGUID, string sUDID, int nGroupID)
+        public static bool IsConcurrent(string sSiteGUID, string sUDID, int nGroupID)
         {
             /*
             * Method is deprecated. Use WS_Domains's ValidateLimitationModule instead.
@@ -20,7 +20,7 @@ namespace TVinciShared
         }
 
 
-        static public int GetConcurrentCount(int nGroupID, int nDomainID, string sUDID, ref int nFamilyConcurrentCount, int nDeviceFamilyID = 0)
+        public static int GetConcurrentCount(int nGroupID, int nDomainID, string sUDID, ref int nFamilyConcurrentCount, int nDeviceFamilyID = 0)
         {
             throw new NotImplementedException("Deprecated");
         }

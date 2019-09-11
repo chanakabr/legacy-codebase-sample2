@@ -285,7 +285,7 @@ namespace APILogic
             return false;
         }
 
-        static public bool SendGetHttpRequest(string url, ref string response, ref int statusCode)
+        public static bool SendGetHttpRequest(string url, ref string response, ref int statusCode)
         {
             bool result = false;
             statusCode = -1;

@@ -22,7 +22,7 @@ namespace ODBCWrapper
         private SqlConnection _Conn = null;
         private static string _ConnectionStr = "";
 
-        static public string GetConnectionString(string dbName, string sKey, bool bIsWritable)
+        public static string GetConnectionString(string dbName, string sKey, bool bIsWritable)
         {
             // get connString 
             string connString = GetConnectionString(sKey, bIsWritable);
@@ -35,7 +35,7 @@ namespace ODBCWrapper
         }
 
         //TODO : add connection string for WRITABLE 
-        static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
+        public static string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
             string returnValue = "";            
             string applicationIntent = (bIsWritable) ? "ReadWrite" : "ReadOnly";
@@ -121,7 +121,7 @@ namespace ODBCWrapper
             return returnValue;
         }
 
-        static public string GetConnectionString(string sKey, bool bIsWritable)
+        public static string GetConnectionString(string sKey, bool bIsWritable)
         {
             if (string.IsNullOrEmpty(sKey))
                 sKey = "CONNECTION_STRING";

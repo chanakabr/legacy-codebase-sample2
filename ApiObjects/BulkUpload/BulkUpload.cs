@@ -34,9 +34,6 @@ namespace ApiObjects.BulkUpload
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        [JsonProperty("Id")]
-        public long Id { get; set; }
-
         [JsonProperty("FileURL")]
         public string FileURL { get; set; }
 
@@ -54,9 +51,6 @@ namespace ApiObjects.BulkUpload
 
         [JsonProperty("NumOfObjects")]
         public int? NumOfObjects { get; set; }
-
-        [JsonProperty("GroupId")]
-        public int GroupId { get; set; }
 
         [JsonProperty("CreateDate")]
         public DateTime CreateDate { get; set; }

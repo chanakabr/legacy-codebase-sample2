@@ -27,6 +27,7 @@ namespace DAL
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
+        private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success (in sec)
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -40,7 +41,7 @@ namespace DAL
             if (ds != null)
                 return ds.Tables[0];
             return null;
-        }
+        }       
 
         public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
         {
@@ -5565,6 +5566,16 @@ namespace DAL
             sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
             sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
 
+            if (partnerConfig.EnableRegionFiltering.HasValue)
+            {
+                sp.AddParameter("@enableRegionFiltering", partnerConfig.EnableRegionFiltering.Value ? 1 : 0);
+            }
+
+            if (partnerConfig.DefaultRegion.HasValue)
+            {
+                sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
+            }
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
@@ -5691,15 +5702,36 @@ namespace DAL
             }
         }
 
-        public static List<IngestProfile> GetIngestProfiles(int? groupId = null, string externalId = null, int? profileId = null)
+        public static List<IngestProfile> Get_IngestProfileByExternalProfileId(string externalId)
         {
             try
             {
-                var sp = new StoredProcedure("Get_IngestProfile");
+                var sp = new StoredProcedure("Get_IngestProfileByExternalProfileId");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-                sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@profileExternalId", externalId);
+                var dbResponse = sp.ExecuteDataSet();
+
+                List<IngestProfile> profiles = CreateIngestProfiles(dbResponse.Tables[0]);
+                var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
+
+                // Map settings to relevent profile
+                profiles.ForEach(p => p.Settings = profileSettingsParams.Where(s => s.IngestProfileId == p.Id).ToList());
+
+                return profiles;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetIngestProfiles in DB, externalId: {externalId}, ex:{ex}");
+                throw;
+            }
+        }
+
+        public static List<IngestProfile> GetIngestProfilesByProfileId(int profileId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Get_IngestProfileByProfileId");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@profileId", profileId);
                 var dbResponse = sp.ExecuteDataSet();
 
@@ -5713,7 +5745,33 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetIngestProfiles in DB, groupId: {0}, ex:{1} ", groupId , ex);
+                log.Error($"Error while GetIngestProfilesByProfileId in DB, profileId: {profileId}, ex:{ex}");
+                throw;
+            }
+        }
+
+
+        public static List<IngestProfile> GetIngestProfilesByGroupId(int groupId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Get_IngestProfileByGroupId");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);
+                var dbResponse = sp.ExecuteDataSet();
+
+                List<IngestProfile> profiles = CreateIngestProfiles(dbResponse.Tables[0]);
+                var profileSettingsParams = dbResponse.Tables[1].ToList<IngestProfileAdapterParam>();
+
+                // Map settings to relevent profile
+                profiles.ForEach(p => p.Settings = profileSettingsParams.Where(s => s.IngestProfileId == p.Id).ToList());
+
+                return profiles;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Get_IngestProfileByGroupId in DB, groupId: {0}, ex:{1} ", groupId, ex);
                 throw;
             }
         }
@@ -5727,7 +5785,7 @@ namespace DAL
                 var ip = new IngestProfile
                 {
                     Id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
-                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "groupId"),
+                    GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
                     Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                     ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_identifier"),
                     TransformationAdapterUrl = ODBCWrapper.Utils.GetSafeStr(row, "transformation_adapter_url"),
@@ -5925,6 +5983,139 @@ namespace DAL
 
             var table = storedProcedure.Execute();
             return table;
+        }
+
+        public static bool DeleteRegion(int groupId, int id, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_linearChannelsRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while DeleteRegion from DB, groupId: {0}, regionId: {1})", groupId, id), ex);
+                throw;
+            }
+        }
+
+        public static int AddRegion(int groupId, Region region, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Insert_linearChannelsRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);                
+                sp.AddParameter("@parentId", region.parentId);
+                sp.AddParameter("@name", region.name);
+                sp.AddParameter("@externalId", region.externalId);
+                sp.AddParameter("@linearChannelsExist", region.linearChannels?.Count > 0);
+                sp.AddKeyValueListParameter<string, string>("@linearChannels",
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while AddRegion from DB, groupId: {0}, regionId: {1})", groupId, region.id), ex);
+                throw;
+            }
+        }
+
+        public static bool UpdateRegion(int groupId, Region region, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_linearChannelsRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", region.id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@parentId", region.parentId);
+                sp.AddParameter("@name", region.name);
+                sp.AddParameter("@externalId", region.externalId);
+                sp.AddParameter("@linearChannelsExist", region.linearChannels != null);
+                sp.AddKeyValueListParameter<string, string>("@linearChannels", 
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string,string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddParameter("@updaterId", userId);
+
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while UpdateRegion from DB, groupId: {0}, regionId: {1})", groupId, region.id), ex);
+                throw;
+            }
+        }
+
+        public static bool SaveEventNotificationActionIdCB(int groupId, EventNotificationAction eventNotificationAction)
+        {
+            if (eventNotificationAction != null)
+            {
+                string key = GetEventNotificationActionIdKey(groupId, eventNotificationAction.Id);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
+            }
+
+            return false;
+        }
+
+        private static string GetEventNotificationActionIdKey(int groupId, string id)
+        {
+            return $"event_notification_action_{groupId}_{id}";
+        }
+
+        private static string GetEventNotificationActionTypeIdKey(int groupId, string objectType, long objectId)
+        {
+            return $"event_notification_action_object_{groupId}_{objectType}_{objectId}";
+        }
+
+        public static EventNotificationAction GetEventNotificationActionCB(int groupId, string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                string key = GetEventNotificationActionIdKey(groupId, id);
+                return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
+            }
+
+            return null;
+        }
+
+        public static List<EventNotificationAction> GetEventNotificationActionsCB(int groupId, List<string> ids)
+        {
+            if (ids.Count > 0)
+            {
+                List<string> keys = new List<string>();
+                foreach (var id in ids)
+                {
+                    keys.Add(GetEventNotificationActionIdKey(groupId, id));
+                }
+
+                return UtilsDal.GetObjectListFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, keys, true);
+            }
+
+            return null;
+        }
+
+        public static List<string> GetEventNotificationActionCB(int groupId,string objectType, long objectId)
+        {
+            string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
+            return UtilsDal.GetObjectFromCB<List<string>>(eCouchbaseBucket.SOCIAL, key, true);
+        }
+
+        public static bool SaveEventNotificationActionTypeAndIdCB(int groupId, string objectType, long objectId, List<string> eventNotificationActionIds)
+        {
+            if (eventNotificationActionIds.Count > 0)
+            {
+                string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
+            }
+
+            return false;
         }
     }
 }

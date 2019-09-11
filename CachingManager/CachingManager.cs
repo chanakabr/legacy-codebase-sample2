@@ -52,14 +52,14 @@ namespace CachingManager
         private static readonly KLogger _Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         //static System.Collections.Hashtable cacheKeyList = new System.Collections.Hashtable();
 
-        static public bool Exist(string sName)
+        public static bool Exist(string sName)
         {
             if (MemoryCache.Default[sName] != null)
                 return true;
             return false;
         }
 
-        static public object GetCachedData(string sName)
+        public static object GetCachedData(string sName)
         {
             if (MemoryCache.Default[sName] != null)
             {
@@ -69,7 +69,7 @@ namespace CachingManager
             return "";
         }
 
-        static public object GetCachedDataNull(string name)
+        public static object GetCachedDataNull(string name)
         {
             if (MemoryCache.Default[name] != null)
             {
@@ -80,7 +80,7 @@ namespace CachingManager
         }
 
         /*GetCacheDataObject : this function return the CachingData object for a specific key*/
-        static public CachingData GetCacheDataObject(string sName)
+        public static CachingData GetCacheDataObject(string sName)
         {
             if (MemoryCache.Default[sName] != null)
             {
@@ -91,7 +91,7 @@ namespace CachingManager
         }
 
         /*GetCacheObject : this function return object for a specific key*/
-        static public object GetCacheObject(string sName)
+        public static object GetCacheObject(string sName)
         {
             if (MemoryCache.Default[sName] != null)
             {
@@ -100,7 +100,7 @@ namespace CachingManager
             return null;
         }
 
-        static public void RenewCachedData(string sName, CachingData sValue, int nHours, CacheItemPriority oPriority, int nMediaID, bool bToRenew)
+        public static void RenewCachedData(string sName, CachingData sValue, int nHours, CacheItemPriority oPriority, int nMediaID, bool bToRenew)
         {
             var bExist = Exist(sName);
             if (bExist) { MemoryCache.Default.Remove(sName); }
@@ -116,7 +116,7 @@ namespace CachingManager
             MemoryCache.Default.Add(sName, sValue, policy);
         }
 
-        static public void SetCachedData(string sName, object sValue, int nSeconds, CacheItemPriority oPriority, int nMediaID, bool bToRenew)
+        public static void SetCachedData(string sName, object sValue, int nSeconds, CacheItemPriority oPriority, int nMediaID, bool bToRenew)
         {
             var bExist = Exist(sName);
             if (bExist) { MemoryCache.Default.Remove(sName); }
@@ -132,7 +132,7 @@ namespace CachingManager
             MemoryCache.Default.Add(sName, theDate, policy);
         }
 
-        static public void RemoveFromCache(string sKey)
+        public static void RemoveFromCache(string sKey)
         {
             var removeList = new System.Collections.ArrayList();
 
@@ -152,7 +152,7 @@ namespace CachingManager
             }
         }
 
-        static public void CachedRemoved(CacheEntryRemovedArguments args)
+        public static void CachedRemoved(CacheEntryRemovedArguments args)
         {
             var key = args.CacheItem.Key;
             var value = args.CacheItem.Value;
@@ -196,7 +196,7 @@ namespace CachingManager
             }
         }
 
-        static public List<string> GetCachedKeys()
+        public static List<string> GetCachedKeys()
         {
             var keys = new List<string>();
             try

@@ -28,7 +28,7 @@ namespace TVinciShared
             //
         }
 
-        static public string DBStrEncode(string sToEncode)
+        public static string DBStrEncode(string sToEncode)
         {
             //sToEncode = HttpContext.Current.Server.HtmlEncode(sToEncode);
             sToEncode = sToEncode.Replace("\"", "&quot;");
@@ -43,7 +43,7 @@ namespace TVinciShared
             return true;
         }
 
-        static public bool validateParam(string sType, string sVal, double nMin, double nMax)
+        public static bool validateParam(string sType, string sVal, double nMin, double nMax)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace TVinciShared
             }
         }
 
-        static public DateTime GetEODTime()
+        public static DateTime GetEODTime()
         {
             DateTime t = DateTime.UtcNow;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -734,7 +734,7 @@ namespace TVinciShared
         //sMiddleFieldRefToCollection
         //sAddExtra
 
-        static public void GetManyToManyContainer(ref System.Collections.Specialized.NameValueCollection coll,
+        public static void GetManyToManyContainer(ref System.Collections.Specialized.NameValueCollection coll,
             string sMainPointerField,
             string sExtraFieldName,
             string sExtraFieldVal,
@@ -780,7 +780,7 @@ namespace TVinciShared
             HandleMany2Many(ref coll, ref selectQuery, sConnectionKey);
         }
 
-        static public void HandleMany2Many(ref System.Collections.Specialized.NameValueCollection coll, ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey,
+        public static void HandleMany2Many(ref System.Collections.Specialized.NameValueCollection coll, ref ODBCWrapper.DataSetSelectQuery selectQuery, string sConnectionKey,
             bool shouldReplaceQuotes = true)
         {
             //string sTableName = coll["table_name"].ToString();
@@ -1149,7 +1149,7 @@ namespace TVinciShared
          * 
          * 
          */
-        static public int BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nBaseID, Int32 nGroupID, string sOldText)
+        public static int BuildOrUpdateFictivicMedia(string sTagType, string sNewText, Int32 nBaseID, Int32 nGroupID, string sOldText)
         {
             int retVal = 0;
             string sCoGuid = string.Empty;
@@ -1374,12 +1374,12 @@ namespace TVinciShared
             return bRet;
         }
 
-        static public void UploadPicToGroup(int groupID, string sPicName)
+        public static void UploadPicToGroup(int groupID, string sPicName)
         {
             UploadPicToGroup(groupID, sPicName, false);
         }
 
-        static public void UploadPicToGroup(int groupID, string sPicName, bool isDelete)
+        public static void UploadPicToGroup(int groupID, string sPicName, bool isDelete)
         {
             BaseUploader uploader = UploaderFactory.GetUploader(groupID);
 
@@ -1391,7 +1391,7 @@ namespace TVinciShared
             }
         }
 
-        static public void UploadDirectoryToGroup(int groupID, string sDirectoryName)
+        public static void UploadDirectoryToGroup(int groupID, string sDirectoryName)
         {
             BaseUploader uploader = UploaderFactory.GetUploader(groupID);
 
@@ -1975,12 +1975,12 @@ namespace TVinciShared
             return enqueueSuccessful;
         }
         
-        static public Int32 DoTheWork()
+        public static Int32 DoTheWork()
         {
             return DoTheWork("");
         }
 
-        static public Int32 DoTheWork(string sConnectionKey)
+        public static Int32 DoTheWork(string sConnectionKey)
         {
             Int32 nID = 0;
             System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.GetForm();

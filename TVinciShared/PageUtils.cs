@@ -26,7 +26,7 @@ namespace TVinciShared
             //
         }
 
-        static public Int32 GetDefaultPICID(Int32 nGroupID)
+        public static Int32 GetDefaultPICID(Int32 nGroupID)
         {
             object oBaseDefaultPicID = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_PIC_ID", nGroupID, 3600);
             if (oBaseDefaultPicID != DBNull.Value && oBaseDefaultPicID != null)
@@ -35,27 +35,27 @@ namespace TVinciShared
                 return 0;
         }
 
-        static public void GetGroupName()
+        public static void GetGroupName()
         {
             HttpContext.Current.Response.Write(LoginManager.GetLoginGroupName());
         }
 
-        static public void GetLoginName()
+        public static void GetLoginName()
         {
             HttpContext.Current.Response.Write(LoginManager.GetLoginName());
         }
 
-        static public void GetCurrentDate()
+        public static void GetCurrentDate()
         {
             HttpContext.Current.Response.Write(DateUtils.GetStrFromDate(DateTime.UtcNow));
         }
 
-        static public void GetUserName()
+        public static void GetUserName()
         {
             HttpContext.Current.Response.Write(LoginManager.GetLoginName());
         }
 
-        static public string GetStatusQueryPart(string sPre)
+        public static string GetStatusQueryPart(string sPre)
         {
             bool bLogin = LoginManager.CheckLogin();
             string sStatus = "";
@@ -68,7 +68,7 @@ namespace TVinciShared
                 return " " + sStatus + " in (1,4) ";
         }
 
-        static public void GetTitle()
+        public static void GetTitle()
         {
             return;
             //string sHeader = "";
@@ -85,7 +85,7 @@ namespace TVinciShared
             //HttpContext.Current.Response.Write(sHeader);
         }
 
-        static public string ReWriteTableValue(string sVal)
+        public static string ReWriteTableValue(string sVal)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace TVinciShared
             }
         }
 
-        static public bool DoesAccountBelongToGroup(Int32 nAccountID, Int32 nGroupID)
+        public static bool DoesAccountBelongToGroup(Int32 nAccountID, Int32 nGroupID)
         {
             bool bBelongs = false;
             Int32 nParentGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("accounts", "group_id", nAccountID, 86400).ToString());
@@ -122,7 +122,7 @@ namespace TVinciShared
             return bBelongs;
         }
 
-        static public string GetBasePicURL(Int32 nGroupID)
+        public static string GetBasePicURL(Int32 nGroupID)
         {
             object oBasePicsURL = ODBCWrapper.Utils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID, 86400);
             string sBasePicsURL = "";
@@ -136,7 +136,7 @@ namespace TVinciShared
             return sBasePicsURL;
         }
 
-        static public string GetBasePicURL(string basePicUrl)
+        public static string GetBasePicURL(string basePicUrl)
         {
             string result = string.Empty;
 
@@ -158,7 +158,7 @@ namespace TVinciShared
             return result;
         }
 
-        static public string GetPicURL(Int32 nPicID, string sPicSize, string picDB)
+        public static string GetPicURL(Int32 nPicID, string sPicSize, string picDB)
         {
             if (nPicID == 0)
                 return "";
@@ -203,7 +203,7 @@ namespace TVinciShared
             return sBasePicsURL;
         }
 
-        static public string GetPicURL(long picID, string pic_base_url, string pic_remote_base_url, string sPicSize)
+        public static string GetPicURL(long picID, string pic_base_url, string pic_remote_base_url, string sPicSize)
         {
             string result = string.Empty;
 
@@ -235,11 +235,11 @@ namespace TVinciShared
             return result;
         }
 
-        static public string GetPicURL(Int32 nPicID, string sPicSize)
+        public static string GetPicURL(Int32 nPicID, string sPicSize)
         {
             return GetPicURL(nPicID, sPicSize, "pics");
         }
-        static public void GetAdminLogo()
+        public static void GetAdminLogo()
         {
             string sHeader = "";
 
@@ -259,7 +259,7 @@ namespace TVinciShared
             HttpContext.Current.Response.Write("http://tvm.tvinci.com/pics/" + ImageUtils.GetTNName(sHeader, "full"));
         }
 
-        static public void GetKeyWords()
+        public static void GetKeyWords()
         {
             return;
             //string sHeader = "";
@@ -276,7 +276,7 @@ namespace TVinciShared
             //HttpContext.Current.Response.Write(sHeader);
         }
 
-        static public void GetErrorMsg(Int32 nCollspan)
+        public static void GetErrorMsg(Int32 nCollspan)
         {
             if (HttpContext.Current.Session.Get("error_msg") == null && HttpContext.Current.Session.Get("ok_msg") == null)
                 return;
@@ -297,7 +297,7 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sTmp);
         }
 
-        static public void GetSiteMap()
+        public static void GetSiteMap()
         {
             string sRet = "";
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -352,7 +352,7 @@ namespace TVinciShared
         /// <param name="connectionString"></param>
         /// <param name="cachedSeconds"></param>
         /// <returns></returns>
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string connectionString = null, int cachedSeconds = 0)
+        public static object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string connectionString = null, int cachedSeconds = 0)
         {
             return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, connectionString, cachedSeconds);
         }
@@ -368,7 +368,7 @@ namespace TVinciShared
         /// <param name="connectionString"></param>
         /// <param name="cacheSeconds"></param>
         /// <returns></returns>
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string connectionString = null, int cacheSeconds = 0)
+        public static object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string connectionString = null, int cacheSeconds = 0)
         {
             object oRet = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -398,7 +398,7 @@ namespace TVinciShared
             return oRet;
         }
 
-        static public bool AddTag(string sTagName)
+        public static bool AddTag(string sTagName)
         {
             sTagName = sTagName.Trim();
             object t = GetTableSingleVal("tags", "id", "value", "=", sTagName);
@@ -413,7 +413,7 @@ namespace TVinciShared
             return true;
         }
 
-        static public string GetAllChildGroupsStr()
+        public static string GetAllChildGroupsStr()
         {
             StringBuilder sRet = new StringBuilder();
             sRet.Append("in (").Append(LoginManager.GetLoginGroupID());
@@ -423,7 +423,7 @@ namespace TVinciShared
             sRet.Append(")");
             return sRet.ToString();
         }
-        static public string GetFullChildGroupsStr(Int32 nGroupID, string sConnKey)
+        public static string GetFullChildGroupsStr(Int32 nGroupID, string sConnKey)
         {
             if (nGroupID == 0)
                 return "in (0)";
@@ -438,7 +438,7 @@ namespace TVinciShared
             CachingManager.CachingManager.SetCachedData("GetFullChildGroupsStr_" + nGroupID.ToString(), sRet.ToString(), 10800, CacheItemPriority.Default, 0, false);
             return sRet.ToString();
         }
-        static public string GetFullGroupsStr(Int32 nGroupID, string sConnKey)
+        public static string GetFullGroupsStr(Int32 nGroupID, string sConnKey)
         {
             if (CachingManager.CachingManager.Exist("GetFullGroupsStr_" + nGroupID.ToString()) == true)
                 return (string)(CachingManager.CachingManager.GetCachedData("GetFullGroupsStr_" + nGroupID.ToString()));
@@ -455,18 +455,18 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetAllGroupTreeStr()
+        public static string GetAllGroupTreeStr()
         {
             Int32 nGroupID = GetUpperGroupID(LoginManager.GetLoginGroupID());
             return GetAllGroupTreeStr(nGroupID);
         }
-        static public string GetAllGroupTreeStr(Int32 nGroupID)
+        public static string GetAllGroupTreeStr(Int32 nGroupID)
         {
             return GetAllGroupTreeStr(nGroupID, string.Empty);
 
         }
 
-        static public string GetAllGroupTreeStr(Int32 nGroupID, string sConnectionKey)
+        public static string GetAllGroupTreeStr(Int32 nGroupID, string sConnectionKey)
         {
             string sCachedData = string.Empty;
             if (TryGetCachedData("GetAllGroupTreeStr", nGroupID, ref sCachedData))
@@ -522,11 +522,11 @@ namespace TVinciShared
             return String.Concat(sKeyOfCachedData, "_", nGroupID.ToString());
         }
 
-        static public string GetAllGroupsStr(Int32 nID, ref string sRet)
+        public static string GetAllGroupsStr(Int32 nID, ref string sRet)
         {
             return GetAllGroupsStr(nID, ref sRet, string.Empty);
         }
-        static public string GetAllGroupsStr(Int32 nID, ref string sRet, string sConnKey)
+        public static string GetAllGroupsStr(Int32 nID, ref string sRet, string sConnKey)
         {
             if (CachingManager.CachingManager.Exist("GetAllGroupsStr_" + nID.ToString()) == true)
             {
@@ -554,7 +554,7 @@ namespace TVinciShared
             return sRet;
         }
 
-        static public void AddCutCroptDimentions(ref DataRecordUploadField dr_upload)
+        public static void AddCutCroptDimentions(ref DataRecordUploadField dr_upload)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select mps.width, mps.height, mps.TO_CROP, mps.ratio_id from media_pics_sizes mps where mps.status=1 and ";
@@ -581,7 +581,7 @@ namespace TVinciShared
         }
 
 
-        static public void AddCutCroptDimentionsEpg(ref DataRecordUploadField dr_upload)
+        public static void AddCutCroptDimentionsEpg(ref DataRecordUploadField dr_upload)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select eps.width, eps.height , eps.TO_CROP, eps.ratio_id  from EPG_pics_sizes eps where eps.status=1 and ";
@@ -607,7 +607,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public string GetPreHeader()
+        public static string GetPreHeader()
         {
             try
             {
@@ -636,7 +636,7 @@ namespace TVinciShared
             }
         }
 
-        static public bool IsTvinciUser()
+        public static bool IsTvinciUser()
         {
             Int32 nUpperGroup = int.Parse(GetTableSingleVal("accounts", "group_id", LoginManager.GetLoginID()).ToString());
             if (nUpperGroup == 1)
@@ -644,7 +644,7 @@ namespace TVinciShared
             return false;
         }
 
-        static public Int32 GetUpperGroupID(Int32 nGroupID)
+        public static Int32 GetUpperGroupID(Int32 nGroupID)
         {
             if (nGroupID == 1)
                 return 1;
@@ -654,7 +654,7 @@ namespace TVinciShared
             else
                 return GetUpperGroupID(nParentGroupID);
         }
-        static public Int32 GetUpperGroupID(Int32 nGroupID, string sConnectionKey)
+        public static Int32 GetUpperGroupID(Int32 nGroupID, string sConnectionKey)
         {
             if (nGroupID == 1)
                 return 1;
@@ -665,7 +665,7 @@ namespace TVinciShared
                 return GetUpperGroupID(nParentGroupID, sConnectionKey);
         }
 
-        static public string GetMiniParentsGroupsStr(Int32 nGroupID)
+        public static string GetMiniParentsGroupsStr(Int32 nGroupID)
         {
             if (nGroupID == 0)
                 return "";
@@ -690,7 +690,7 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public string GetGroupsStrByParent(Int32 nParentGroupID)
+        public static string GetGroupsStrByParent(Int32 nParentGroupID)
         {
             if (nParentGroupID == 0)
                 return "";
@@ -716,7 +716,7 @@ namespace TVinciShared
             }
             return groups;
         }
-        static public string GetConcatGroupsStrByParent(Int32 nParentGroupID)
+        public static string GetConcatGroupsStrByParent(Int32 nParentGroupID)
         {
             if (nParentGroupID == 0)
                 return "";
@@ -776,7 +776,7 @@ namespace TVinciShared
             return lRes;
         }
 
-        static public string GetParentsGroupsStr(Int32 nGroupID)
+        public static string GetParentsGroupsStr(Int32 nGroupID)
         {
             if (nGroupID == 0)
                 return "";
@@ -806,14 +806,14 @@ namespace TVinciShared
             return sRet.ToString();
         }
 
-        static public System.Data.DataColumn GetColumn(string sName, object defVal)
+        public static System.Data.DataColumn GetColumn(string sName, object defVal)
         {
             System.Data.DataColumn col1 = new System.Data.DataColumn(sName);
             col1.DataType = defVal.GetType();
             return col1;
         }
 
-        static public bool DoesGeoBlockTypeIncludeCountry(Int32 nGeoBlockID, Int32 nCountryID)
+        public static bool DoesGeoBlockTypeIncludeCountry(Int32 nGeoBlockID, Int32 nCountryID)
         {
             Int32 nCO = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -838,7 +838,7 @@ namespace TVinciShared
             return false;
         }
 
-        static public bool DoesPlayerRuleTypeIncludePlayer(Int32 nPlayerRuleID, Int32 nPlayerID)
+        public static bool DoesPlayerRuleTypeIncludePlayer(Int32 nPlayerRuleID, Int32 nPlayerID)
         {
             Int32 nCO = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -862,7 +862,7 @@ namespace TVinciShared
             return false;
         }
 
-        static public bool DoesWatchPermissionRuleOK(Int32 nWatchPermissionID, Int32 nGroup)
+        public static bool DoesWatchPermissionRuleOK(Int32 nWatchPermissionID, Int32 nGroup)
         {
             if (nWatchPermissionID == 0)
                 return false;
@@ -879,7 +879,7 @@ namespace TVinciShared
             return bOK;
         }
 
-        static public bool DoesPlayerRuleOK(Int32 nPlayerRuleID, Int32 nPlayerID)
+        public static bool DoesPlayerRuleOK(Int32 nPlayerRuleID, Int32 nPlayerID)
         {
             if (nPlayerRuleID == 0)
                 return true;
@@ -896,7 +896,7 @@ namespace TVinciShared
             return bOK;
         }
 
-        static public bool DoesWatchPermissionTypeIncludesGroup(Int32 nWatchPermissionID, Int32 nGroup, string sConnectionKey)
+        public static bool DoesWatchPermissionTypeIncludesGroup(Int32 nWatchPermissionID, Int32 nGroup, string sConnectionKey)
         {
             if (nWatchPermissionID == 0)
                 return true;
@@ -923,7 +923,7 @@ namespace TVinciShared
             return false;
         }
 
-        static public bool DoesWatchPermissionTypeIncludesGroup(Int32 nWatchPermissionID, Int32 nGroup)
+        public static bool DoesWatchPermissionTypeIncludesGroup(Int32 nWatchPermissionID, Int32 nGroup)
         {
             return DoesWatchPermissionTypeIncludesGroup(nWatchPermissionID, nGroup, string.Empty);
         }
@@ -993,7 +993,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public string GetCallerIP()
+        public static string GetCallerIP()
         {
             string sIP = "";
             if (HttpContext.Current.Request.GetForwardedForHeader() != null)
@@ -1021,7 +1021,7 @@ namespace TVinciShared
             return sIP;
         }
 
-        static public Int32 GetIPCountry2(string sIP)
+        public static Int32 GetIPCountry2(string sIP)
         {
             if (string.IsNullOrEmpty(sIP))
             {
@@ -1043,7 +1043,7 @@ namespace TVinciShared
             }
         }
 
-        static public Int32 GetIPCountry2NoCache(string sIP)
+        public static Int32 GetIPCountry2NoCache(string sIP)
         {
             Int32 nCountry = 0;
             if (sIP == "127.0.0.1" || sIP == "::1")
@@ -1075,7 +1075,7 @@ namespace TVinciShared
             return nCountry;
         }
 
-        static public Int32 GetIPCountry2()
+        public static Int32 GetIPCountry2()
         {
             string sIP = GetCallerIP();
             return GetIPCountry2(sIP);
@@ -1083,11 +1083,11 @@ namespace TVinciShared
 
 
 
-        static public string GetPermittedWatchRulesID(Int32 nGroupID)
+        public static string GetPermittedWatchRulesID(Int32 nGroupID)
         {
             return GetPermittedWatchRulesID(nGroupID, string.Empty);
         }
-        static public string GetPermittedWatchRulesID(Int32 nGroupID, string sConnectionKey)
+        public static string GetPermittedWatchRulesID(Int32 nGroupID, string sConnectionKey)
         {
             Int32 nUpeerGroup = GetUpperGroupID(nGroupID, sConnectionKey);
             string sIDs = "";
@@ -1095,7 +1095,7 @@ namespace TVinciShared
             return sIDs;
         }
 
-        static public bool DoesGroupIsParentOfGroup(Int32 nGroupToCheck)
+        public static bool DoesGroupIsParentOfGroup(Int32 nGroupToCheck)
         {
             bool bYes = false;
             Int32 nUpperGroup = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("accounts", "group_id", LoginManager.GetLoginID(), 86400).ToString());
@@ -1105,7 +1105,7 @@ namespace TVinciShared
             return bYes;
         }
 
-        static public Int32 GetStringMetaIDByMetaName(Int32 nGroupID, string sMetaName)
+        public static Int32 GetStringMetaIDByMetaName(Int32 nGroupID, string sMetaName)
         {
             Int32 nMetaID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1132,7 +1132,7 @@ namespace TVinciShared
             return nMetaID;
         }
 
-        static public Int32 GetDoubleMetaIDByMetaName(Int32 nGroupID, string sMetaName)
+        public static Int32 GetDoubleMetaIDByMetaName(Int32 nGroupID, string sMetaName)
         {
             Int32 nMetaID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1159,7 +1159,7 @@ namespace TVinciShared
             return nMetaID;
         }
 
-        static public Int32 GetBoolMetaIDByMetaName(Int32 nGroupID, string sMetaName)
+        public static Int32 GetBoolMetaIDByMetaName(Int32 nGroupID, string sMetaName)
         {
             Int32 nMetaID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1186,7 +1186,7 @@ namespace TVinciShared
             return nMetaID;
         }
 
-        static public void DoesGroupIsParentOfGroup(Int32 nParentGroupID, Int32 nGroupToCheck, ref bool bYes)
+        public static void DoesGroupIsParentOfGroup(Int32 nParentGroupID, Int32 nGroupToCheck, ref bool bYes)
         {
             if (bYes == true)
                 return;
@@ -1214,7 +1214,7 @@ namespace TVinciShared
             selectQuery = null;
         }
 
-        static public Int32 GetGroupByUNPass(string sUN, string sPass, ref Int32 nPlayerID)
+        public static Int32 GetGroupByUNPass(string sUN, string sPass, ref Int32 nPlayerID)
         {
             Int32 nGroupID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -1240,7 +1240,7 @@ namespace TVinciShared
             return nGroupID;
         }
 
-        static public bool DoesStringSecurityValid(string sToChek)
+        public static bool DoesStringSecurityValid(string sToChek)
         {
             sToChek = sToChek.ToLower();
             if (sToChek.IndexOf("onload") != -1 ||
@@ -1253,7 +1253,7 @@ namespace TVinciShared
             return true;
         }
 
-        static public Int32 GetGroupIDByDomain()
+        public static Int32 GetGroupIDByDomain()
         {
             Int32 nGroupID = 0;
             string sHost = "";
@@ -1277,7 +1277,7 @@ namespace TVinciShared
             return nGroupID;
         }
 
-        static public void SendBugMail(Int32 nBugID, string sAction, string sTemplate, bool bWithOpener)
+        public static void SendBugMail(Int32 nBugID, string sAction, string sTemplate, bool bWithOpener)
         {
             string sProject = PageUtils.GetTableSingleVal("bs_projects", "NAME", int.Parse(HttpContext.Current.Session.Get("project_id").ToString())).ToString();
             string sMessage = "";
@@ -1432,7 +1432,7 @@ namespace TVinciShared
             t.SendMail(sEmail, "", sMailData, sMailHeader, "TVM Bug/Features System", "support@tvinci.com");
         }
 
-        static public void SendGroupBugMail(Int32 nBugID, string sAction, string sTemplate)
+        public static void SendGroupBugMail(Int32 nBugID, string sAction, string sTemplate)
         {
             string sMessage = "";
             sMessage = "Your bug/feature message has entered to the TVM database";
@@ -1515,13 +1515,13 @@ namespace TVinciShared
             t.SendMail(sEmail, "", sMailData, sMailHeader, "TVM Bug/Features System", "support@tvinci.com");
         }
 
-        static public string MergeEmail(string sEmailLine, Int32 nAccountID)
+        public static string MergeEmail(string sEmailLine, Int32 nAccountID)
         {
             string sEmail = GetSafeAccountMail(nAccountID);
             return MergeEmail(sEmailLine, sEmail);
         }
 
-        static public string MergeEmail(string sEmailLine, string sEmail)
+        public static string MergeEmail(string sEmailLine, string sEmail)
         {
             if (sEmailLine.IndexOf(sEmail) != -1)
                 return sEmailLine;
@@ -1531,7 +1531,7 @@ namespace TVinciShared
             return sEmailLine;
         }
 
-        static public string GetSafeAccountMail(Int32 nAccountID)
+        public static string GetSafeAccountMail(Int32 nAccountID)
         {
             return ODBCWrapper.Utils.GetSafeStr(ODBCWrapper.Utils.GetTableSingleVal("accounts", "email_add", nAccountID));
         }

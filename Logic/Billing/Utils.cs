@@ -42,7 +42,7 @@ namespace Core.Billing
         { { "true", "1" }, { "yes", "1" }, { "1", "1" }, { "false", "0" }, { "no", "0" }, { "0", "0" } };
 
         
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseBilling t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseBilling t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
 
@@ -54,7 +54,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCreditCard t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCreditCard t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -74,7 +74,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        static public Int32 GetDummyGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCreditCard t)
+        public static Int32 GetDummyGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCreditCard t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -86,7 +86,7 @@ namespace Core.Billing
 
 
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePopup t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePopup t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -96,7 +96,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseSMS t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseSMS t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -106,7 +106,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseInAppPurchase t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseInAppPurchase t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -116,7 +116,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseDirectDebit t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseDirectDebit t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -126,7 +126,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCellularCreditCard t)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCellularCreditCard t)
         {
             Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
             if (nGroupID != 0)
@@ -136,7 +136,7 @@ namespace Core.Billing
             return nGroupID;
         }
 
-        //static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePaymentGateway t)
+        //public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePaymentGateway t)
         //{
         //    Int32 groupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
         //    if (groupID != 0)
@@ -151,7 +151,7 @@ namespace Core.Billing
         //}
 
 
-        static public Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName)
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName)
         {
             ApiObjects.Credentials wsc = new ApiObjects.Credentials(sWSUserName, sWSPassword);
             int nGroupID = TvinciCache.WSCredentials.GetGroupID(ApiObjects.eWSModules.BILLING, wsc);
@@ -267,7 +267,7 @@ namespace Core.Billing
             }
         }
 
-        static public string GetSafeValue(string sQueryKey, ref System.Xml.XmlNode theRoot)
+        public static string GetSafeValue(string sQueryKey, ref System.Xml.XmlNode theRoot)
         {
             try
             {
@@ -285,7 +285,7 @@ namespace Core.Billing
             }
         }
 
-        static public string GetSafeParValue(string sQueryKey, string sParName, ref System.Xml.XmlNode theRoot)
+        public static string GetSafeParValue(string sQueryKey, string sParName, ref System.Xml.XmlNode theRoot)
         {
             try
             {
@@ -303,19 +303,19 @@ namespace Core.Billing
             }
         }
 
-        static public Int32 GetCustomData(string sCustomData)
+        public static Int32 GetCustomData(string sCustomData)
         {
             return (int)BillingDAL.Get_LatestCustomDataID(sCustomData);
         }
 
-        static public string GetCustomData(long nCustomDataID)
+        public static string GetCustomData(long nCustomDataID)
         {
             string res = string.Empty;
             BillingDAL.Get_CustomDataByID(nCustomDataID, ref res);
             return res;
         }
 
-        static public Int32 AddCustomData(string sCustomData)
+        public static Int32 AddCustomData(string sCustomData)
         {
             Int32 nRet = GetCustomData(sCustomData);
             if (nRet == 0)
@@ -325,7 +325,7 @@ namespace Core.Billing
             return nRet;
         }
 
-        static public void SplitRefference(string sRefference, ref Int32 nMediaFileID, ref Int32 nMediaID, ref string sSubscriptionCode, ref string sPPVCode, ref string sPrePaidCode,
+        public static void SplitRefference(string sRefference, ref Int32 nMediaFileID, ref Int32 nMediaID, ref string sSubscriptionCode, ref string sPPVCode, ref string sPrePaidCode,
             ref string sPriceCode, ref double dPrice, ref string sCurrencyCd, ref bool bIsRecurring, ref string sPPVModuleCode,
             ref Int32 nNumberOfPayments, ref string sSiteGUID, ref string sRelevantSub, ref Int32 nMaxNumberOfUses,
             ref Int32 nMaxUsageModuleLifeCycle, ref Int32 nViewLifeCycleSecs, ref string sPurchaseType,
@@ -336,7 +336,7 @@ namespace Core.Billing
             SplitRefference(sRefference, ref nMediaFileID, ref nMediaID, ref sSubscriptionCode, ref sPPVCode, ref sPrePaidCode, ref sPriceCode, ref dPrice, ref sCurrencyCd, ref bIsRecurring, ref sPPVModuleCode, ref nNumberOfPayments, ref sSiteGUID, ref sRelevantSub, ref nMaxNumberOfUses, ref nMaxUsageModuleLifeCycle, ref nViewLifeCycleSecs, ref sPurchaseType, ref sCurrencyCd, ref sLanguageCd, ref sDeviceName, ref sPreviewModuleID, ref sCollectionCode);
         }
 
-        static public void SplitRefference(string sRefference, ref Int32 nMediaFileID, ref Int32 nMediaID, ref string sSubscriptionCode, ref string sPPVCode, ref string sPrePaidCode,
+        public static void SplitRefference(string sRefference, ref Int32 nMediaFileID, ref Int32 nMediaID, ref string sSubscriptionCode, ref string sPPVCode, ref string sPrePaidCode,
             ref string sPriceCode, ref double dPrice, ref string sCurrencyCd, ref bool bIsRecurring, ref string sPPVModuleCode,
             ref Int32 nNumberOfPayments, ref string sSiteGUID, ref string sRelevantSub, ref Int32 nMaxNumberOfUses,
             ref Int32 nMaxUsageModuleLifeCycle, ref Int32 nViewLifeCycleSecs, ref string sPurchaseType,
@@ -413,7 +413,7 @@ namespace Core.Billing
             sCollectionCode = collectioncode;
         }
 
-        static public string GetHash(string sToHash, string sHashParameterName)
+        public static string GetHash(string sToHash, string sHashParameterName)
         {
             string sSecret = ODBCWrapper.Utils.GetTableSingleVal("tikle_group_parameters", sHashParameterName, 1).ToString();
             sToHash += sSecret;
@@ -428,7 +428,7 @@ namespace Core.Billing
 
 
 
-        static public void GetBaseCreditCardImpl(ref BaseCreditCard t, Int32 nGroupID)
+        public static void GetBaseCreditCardImpl(ref BaseCreditCard t, Int32 nGroupID)
         {
             GetBaseCreditCardImpl(ref t, nGroupID, string.Empty, string.Empty);
         }
@@ -555,7 +555,7 @@ namespace Core.Billing
             }
         }
 
-        static public void GetBaseDirectDebitImpl(ref BaseDirectDebit t, Int32 nGroupID)
+        public static void GetBaseDirectDebitImpl(ref BaseDirectDebit t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseDirectDebitImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 7);
@@ -613,7 +613,7 @@ namespace Core.Billing
 
         }
 
-        static public void GetBaseInAppPurchaseImpl(ref BaseInAppPurchase t, Int32 nGroupID)
+        public static void GetBaseInAppPurchaseImpl(ref BaseInAppPurchase t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseInAppPurchaseImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 9);
@@ -656,7 +656,7 @@ namespace Core.Billing
             }
         }
 
-        static public void GetBaseBillingImpl(ref BaseBilling t, Int32 nGgroupID)
+        public static void GetBaseBillingImpl(ref BaseBilling t, Int32 nGgroupID)
         {
             int nImplID = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -689,7 +689,7 @@ namespace Core.Billing
         }
 
 
-        static public void GetBaseCellularCreditCardImpl(ref BaseCellularCreditCard t, Int32 nGroupID)
+        public static void GetBaseCellularCreditCardImpl(ref BaseCellularCreditCard t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseCellularCreditCardImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 10);
@@ -732,7 +732,7 @@ namespace Core.Billing
             }
         }
 
-        static public void GetBaseCellularDirectDebitImpl(ref BaseCellularDirectDebit t, Int32 nGroupID)
+        public static void GetBaseCellularDirectDebitImpl(ref BaseCellularDirectDebit t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseCellularDirectDebitImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 10);
@@ -1404,7 +1404,7 @@ namespace Core.Billing
 
         }
 
-        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
+        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
         {
             DateTime dRet = dBase;
             if (nVal == 1111111)
@@ -1438,7 +1438,7 @@ namespace Core.Billing
             return dRet;
         }
 
-        static public void GetBasePopupImpl(ref BasePopup t, Int32 nGroupID)
+        public static void GetBasePopupImpl(ref BasePopup t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBasePopupImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 3);
@@ -1487,7 +1487,7 @@ namespace Core.Billing
             return new Dictionary<long, long>();
         }
 
-        static public long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
+        public static long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
     string sPRICE_CODE, string sCURRENCY_CODE, string sCUSTOMDATA, Int32 nBILLING_STATUS, string sBILLING_REASON,
     bool bIS_RECURRING, Int32 nMEDIA_FILE_ID, Int32 nMEDIA_ID, string sPPVMODULE_CODE,
     string sSUBSCRIPTION_CODE, string sCELL_PHONE, Int32 ngroup_id, Int32 nBILLING_PROVIDER,
@@ -1504,7 +1504,7 @@ namespace Core.Billing
             sCountryCd, sLanguageCode, sDeviceName, nBILLING_PROCESSOR, nBILLING_METHOD, sPrePaidCode, string.Empty, string.Empty);
         }
 
-        static public long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
+        public static long InsertBillingTransaction(string sSITE_GUID, string sLAST_FOUR_DIGITS, double dPRICE,
             string sPRICE_CODE, string sCURRENCY_CODE, string sCUSTOMDATA, Int32 nBILLING_STATUS, string sBILLING_REASON,
             bool bIS_RECURRING, Int32 nMEDIA_FILE_ID, Int32 nMEDIA_ID, string sPPVMODULE_CODE,
             string sSUBSCRIPTION_CODE, string sCELL_PHONE, Int32 ngroup_id, Int32 nBILLING_PROVIDER,
@@ -1530,7 +1530,7 @@ namespace Core.Billing
             return lRet;
         }
 
-        static public void GetBaseSMSImpl(ref BaseSMS t, Int32 nGroupID)
+        public static void GetBaseSMSImpl(ref BaseSMS t, Int32 nGroupID)
         {
             Int32 nImplID = 0;
             string key = string.Format("{0}_GetBaseSMSImpl_{1}_{2}", ApiObjects.eWSModules.BILLING, nGroupID, 2);
@@ -1554,7 +1554,7 @@ namespace Core.Billing
             }
         }
 
-        static public void GetAppleValidationReceitsURL(ref string URL, ref string InAppToken, ref string InAppSharedSecret, Int32 nGroupID)
+        public static void GetAppleValidationReceitsURL(ref string URL, ref string InAppToken, ref string InAppSharedSecret, Int32 nGroupID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
             try
@@ -1586,7 +1586,7 @@ namespace Core.Billing
             }
         }
 
-        static public string GetLastTransactionFourDigits(string sSiteGUID)
+        public static string GetLastTransactionFourDigits(string sSiteGUID)
         {
             string retLastFourDigits = string.Empty;
             object objLastFourDigits = ApiDAL.Get_LastTransactionFourDigits(sSiteGUID);

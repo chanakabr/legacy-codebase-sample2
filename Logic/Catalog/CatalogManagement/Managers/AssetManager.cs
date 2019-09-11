@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
@@ -842,9 +843,13 @@ namespace Core.Catalog.CatalogManagement
                     {
                         bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                         if (!indexingResult)
-
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
+                        }
+
+                        if (assetToAdd.IsActive.HasValue && assetToAdd.IsActive.Value)
+                        {
+                            Notification.Module.AddFollowNotificationRequestForOpc(groupId, (MediaAsset)result.Object, userId, catalogGroupCache);
                         }
                     }
                     
@@ -1297,6 +1302,11 @@ namespace Core.Catalog.CatalogManagement
                         {
                             Catalog.Module.UpdateIndex(new List<int>() { (int)result.Object.Id }, groupId, eAction.GeoUpdate);
                         }
+
+                        if (assetToUpdate.IsActive.HasValue && assetToUpdate.IsActive.Value)
+                        {
+                            Notification.Module.AddFollowNotificationRequestForOpc(groupId, (MediaAsset)result.Object, userId, catalogGroupCache);
+                        }
                     }
 
                     // update meta inherited
@@ -1580,7 +1590,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
                 if (catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                    linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                 }
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
@@ -2901,7 +2911,7 @@ namespace Core.Catalog.CatalogManagement
                     Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
                     if (catalogGroupCache.IsRegionalizationEnabled)
                     {
-                        linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                        linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                     }
 
                     Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache, linearChannelsRegionsMapping);

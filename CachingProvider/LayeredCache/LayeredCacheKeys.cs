@@ -1137,7 +1137,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyTopicNotifications_groupId_{0}_type_{1}", groupId, SubscribeReferenceType);
         }
 
-        public static string GetRegionsKeyInvalidationKey(int groupId)
+        public static string GetRegionsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_Regions_{0}", groupId);
         }

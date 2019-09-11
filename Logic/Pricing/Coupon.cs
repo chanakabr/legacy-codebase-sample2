@@ -48,7 +48,7 @@ namespace Core.Pricing
             return true;
         }
 
-        static public CouponsStatus SetCouponUsed(string sCouponCode, Int32 nGroupID, string sSiteGUID, Int32 nCollectionCode, Int32 nMediaFileID, Int32 nSubCode, int nPrePaidCode, long domainId)
+        public static CouponsStatus SetCouponUsed(string sCouponCode, Int32 nGroupID, string sSiteGUID, Int32 nCollectionCode, Int32 nMediaFileID, Int32 nSubCode, int nPrePaidCode, long domainId)
         {
             Coupon c = new Coupon();
             ODBCWrapper.DirectQuery directQuery = null;

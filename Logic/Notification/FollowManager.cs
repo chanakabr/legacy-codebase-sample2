@@ -53,9 +53,10 @@ namespace Core.Notification
 
         public static MessageTemplateResponse SetMessageTemplate(int groupId, MessageTemplate messageTemplate)
         {
-            MessageTemplateResponse response = new MessageTemplateResponse();
-
-            response.Status = ValidateMessageTemplate(groupId, messageTemplate);
+            MessageTemplateResponse response = new MessageTemplateResponse
+            {
+                Status = ValidateMessageTemplate(groupId, messageTemplate)
+            };
 
             if (response.Status.Code != (int)eResponseStatus.OK)
             {
@@ -163,7 +164,7 @@ namespace Core.Notification
                 }
 
                 // create DB announcement
-                announcementId = DAL.NotificationDal.Insert_Announcement(followItem.GroupId, announcementName, externalAnnouncementId, (int)eMessageType.Push,
+                announcementId = NotificationDal.Insert_Announcement(followItem.GroupId, announcementName, externalAnnouncementId, (int)eMessageType.Push,
                     (int)eAnnouncementRecipientsType.Other, mailExternalAnnouncementId, followItem.FollowPhrase, followItem.FollowReference);
                 if (announcementId == 0)
                 {
@@ -288,8 +289,9 @@ namespace Core.Notification
         public static Status Unfollow(int groupId, int userId, FollowDataBase followData)
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
             // populate follow phrase
-            followData.FollowPhrase = GetSeriesFollowPhrase(groupId, followData.Title);
+            followData.FollowPhrase = GetFollowPhrase(groupId, followData.Title);
 
             // get announcement from DB
             List<DbAnnouncement> announcements = null;
@@ -340,90 +342,55 @@ namespace Core.Notification
         {
             GenericResponse<FollowDataBase> response = new GenericResponse<FollowDataBase>();
             followData.GroupId = groupId;
+            
+            // populate follow phrase
+            followData.FollowPhrase = GetFollowPhrase(groupId, followData.Title);
 
-            if (!SetFollowPhrase(groupId, userId, ref followData))
+            // validate asset type
+            var isFollowDataValidate = false;
+            if (followData is FollowDataTvSeries)
+            {
+                isFollowDataValidate = NotificationCache.Instance().GetOTTAssetTypeByMediaTypeId(groupId, followData.Type) == eOTTAssetTypes.Series;
+                if (!isFollowDataValidate)
+                    log.DebugFormat("Invalid asset: group: {0}, user: {1}, asset: {2}", groupId, userId, (followData as FollowDataTvSeries).AssetId);
+            }
+
+            if (!isFollowDataValidate)
             {
                 response.SetStatus(eResponseStatus.InvalidAssetId, "invalid asset");
                 return response;
             }
-
+           
             response = AddFollowItemToUser(userId, followData);
 
             return response;
         }
-
-        public static void AddFollowRequest(int groupId, string userId, int mediaID)
+        
+        public static void AddTvSeriesFollowRequestForNonOpc(int groupId, string userId, int mediaID)
         {
-            AddTvSeriesFollowRequest(groupId, userId, mediaID);
-        }
-
-        public static void AddTvSeriesFollowRequest(int groupId, string userId, int mediaID)
-        {
-            MediaResponse response = null;
-
-            // get media information
-            var request = new MediasProtocolRequest()
+            // Get catalog start date & series name && validate the media type ID is a series
+            MediaObj episodeMedia = GetMediaObj(groupId, mediaID, userId);
+            if (episodeMedia == null || episodeMedia.m_oMediaType.m_nTypeID != NotificationCache.Instance().GetEpisodeMediaTypeId(groupId))
             {
-                m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
-                m_sSignString = CatalogSignString,
-                m_lMediasIds = new List<int> { mediaID },
-                m_nGroupID = groupId,
-                m_oFilter = new Filter(),
-                m_sSiteGuid = userId
-            };
-
-            try
-            {
-                response = request.GetMediasByIDs(request);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error when calling catalog to get the ingested media information. request: {0}, ex: {1}", JsonConvert.SerializeObject(request), ex);
-                return;
+                return; 
             }
 
-            // Get catalog start date & series name
-            string[] seriesNames = null;
-            long catalogStartDate = 0;
-            MediaObj mediaObj = null;
-
-            if (response != null && response.m_lObj != null)
-            {
-                var firstItem = response.m_lObj.FirstOrDefault();
-                if (firstItem is MediaObj)
-                {
-                    mediaObj =  firstItem as MediaObj;
-                }
-            }
-            
-            if (mediaObj != null && mediaObj.m_lTags != null && mediaObj.m_lTags.FirstOrDefault() != null)
-            {
-                catalogStartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(mediaObj.m_dCatalogStartDate);
-
-                // validate the media type ID is a series
-                if (mediaObj.m_oMediaType != null &&
-                    NotificationCache.Instance().GetEpisodeMediaTypeId(groupId) == mediaObj.m_oMediaType.m_nTypeID)
-                {
-                    // check if media is an episode
-                    foreach (var tag in mediaObj.m_lTags)
-                    {
-                        if (tag.m_oTagMeta != null && tag.m_oTagMeta.m_sName.ToLower().Trim() == GetEpisodeAssociationTag(groupId).ToLower().Trim())
-                            seriesNames = tag.m_lValues.ToArray();
-                    }
-                }
-            }
+            var episodeAssociationTag = GetEpisodeAssociationTagForNonOpc(groupId);
+            var seriesNames = GetSeriesNames(ApiObjects.MetaType.Tag, episodeAssociationTag, episodeMedia.m_lTags);
 
             // check series name was found
-            if (seriesNames == null || seriesNames.Length == 0)
+            if (seriesNames.Count == 0)
             {
                 log.DebugFormat("ingested media is not a series episode (series name is empty). group {0}, media: {1}", groupId, mediaID);
                 return;
             }
             else
+            {
                 log.DebugFormat("ingested media is an episode of a series. group {0}, media: {1}, series name: {2}", groupId, mediaID, string.Join(",", seriesNames));
+            }
 
             // build of series phrases
-            List<string> phrases = seriesNames.Select(x => GetSeriesFollowPhrase(groupId, x)).ToList();
+            var phrases = seriesNames.Select(x => GetFollowPhrase(groupId, x)).ToList();
 
             // get announcement of message
             List<DbAnnouncement> dbAnnouncements = null;
@@ -433,16 +400,13 @@ namespace Core.Notification
 
             if (dbAnnouncements == null || dbAnnouncements.Count == 0)
             {
-                log.DebugFormat("no announcements found for ingested media: group {0}, media: {1}, search phrase phrases: {2}", groupId, mediaID, string.Join(",", phrases));
+                log.Debug($"no announcements found for ingested media: group {groupId}, media: {mediaID}, search phrase phrases: {string.Join(",", phrases)}");
                 return;
             }
             else
             {
                 log.DebugFormat("announcement found for ingested media: GID: {0}, media ID: {1}, Announcement ID: {2}, announcement name: {3}",
-                    groupId,
-                    mediaID,
-                    dbAnnouncements[0].ID,
-                    dbAnnouncements[0].Name);
+                                groupId, mediaID, dbAnnouncements[0].ID, dbAnnouncements[0].Name);
             }
 
             // validate if announcement should be automatically sent
@@ -471,7 +435,7 @@ namespace Core.Notification
                 MessageReference = mediaID.ToString(),
                 Name = string.Format("announcement_{0}_{1}", eOTTAssetTypes.Series.ToString(), mediaID),
                 Recipients = eAnnouncementRecipientsType.Other,
-                StartTime = catalogStartDate,
+                StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(episodeMedia.m_dCatalogStartDate),
                 Timezone = "UTC",
                 Status = eAnnouncementStatus.NotSent
             };
@@ -479,40 +443,27 @@ namespace Core.Notification
             SendMessageAnnouncement(announcement, message, mediaID, groupId);
         }
 
-        public Status AddTvSeriesFollowRequestForOpc(int groupId, long mediaId)
+        public Status AddTvSeriesFollowRequestForOpc(int groupId, MediaAsset episodeMediaAsset, CatalogGroupCache cache)
         {
             var response = new Status(eResponseStatus.Error);
-
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache cache))
-            {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTvSeriesFollowRequestForOpc", groupId);
-                return response;
-            }
-
-            var assetResponse = AssetManager.GetAsset(groupId, mediaId, eAssetTypes.MEDIA, false);
-            if (!assetResponse.HasObject())
-            {
-                log.DebugFormat(assetResponse.Status.ToString());
-                response.Set(assetResponse.Status);
-                return response;
-            }
-
-            var mediaAsset = assetResponse.Object as MediaAsset;
-            if (!TryGetEpisodeAssetStructByEpisode(mediaAsset, cache, out AssetStruct episodeAssetStruct) || !mediaAsset.CatalogStartDate.HasValue)
+            
+            if (!TryGetEpisodeAssetStructByEpisode(episodeMediaAsset, cache, out AssetStruct episodeAssetStruct) || !episodeMediaAsset.CatalogStartDate.HasValue)
             {
                 response.Set(eResponseStatus.InvalidAssetId, "invalid asset");
                 log.DebugFormat(response.ToString());
                 return response;
             }
-            
-            var followPhrase = GetFollowPhrase(mediaAsset, episodeAssetStruct, cache);
-            if (string.IsNullOrEmpty(followPhrase))
+
+            var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
+            var seriesName = GetSeriesNames(topic.Type, topic.SystemName, episodeMediaAsset.Tags, episodeMediaAsset.Metas).FirstOrDefault();
+            if (string.IsNullOrEmpty(seriesName))
             {
-                log.DebugFormat("ingested media is not a series episode (series name is empty). group {0}, media: {1}", groupId, mediaId);
+                log.DebugFormat("ingested media is not a series episode (series name is empty). group {0}, media: {1}", groupId, episodeMediaAsset.Id);
                 response.Set(eResponseStatus.Error, "ingested media is not a series episode (series name is empty)");
                 return response;
             }
-            
+
+            var followPhrase = GetFollowPhrase(groupId, seriesName, cache, episodeAssetStruct);
             DbAnnouncement announcement = null;
             List<DbAnnouncement> dbAnnouncements = null;
             if (NotificationCache.TryGetAnnouncements(groupId, ref dbAnnouncements))
@@ -522,7 +473,7 @@ namespace Core.Notification
                
             if (announcement == null)
             {
-                log.DebugFormat("no announcements found for ingested media: group {0}, media: {1}, followPhrase: {2}", groupId, mediaId, followPhrase);
+                log.DebugFormat("no announcements found for ingested media: group {0}, media: {1}, followPhrase: {2}", groupId, episodeMediaAsset.Id, followPhrase);
                 response.Set(eResponseStatus.Error, "no announcements found for ingested media");
                 return response;
             }
@@ -532,7 +483,7 @@ namespace Core.Notification
                || (!announcement.AutomaticIssueFollowNotification.HasValue && !NotificationSettings.ShouldIssueAutomaticFollowNotification(groupId)))
             {
                 log.DebugFormat("Notification wasn't sent due to 'ShouldIssueAutomaticFollowNotification' parameter is false. group:{0}, media:{1}, announcement:{2}.",
-                                groupId, mediaId, announcement.ToString());
+                                groupId, episodeMediaAsset.Id, announcement.ToString());
                 response.Set(eResponseStatus.Error, "Notification wasn't sent due to 'ShouldIssueAutomaticFollowNotification' parameter is false");
                 return response;
             }
@@ -551,16 +502,16 @@ namespace Core.Notification
                 AnnouncementId = announcement.ID,
                 Enabled = true,
                 Message = messageTemplateResponse.MessageTemplate.Message,
-                MessageReference = mediaId.ToString(),
-                Name = string.Format("announcement_{0}_{1}", eOTTAssetTypes.Series.ToString(), mediaId),
+                MessageReference = episodeMediaAsset.Id.ToString(),
+                Name = string.Format("announcement_{0}_{1}", eOTTAssetTypes.Series.ToString(), episodeMediaAsset.Id),
                 Recipients = eAnnouncementRecipientsType.Other,
-                StartTime = mediaAsset.CatalogStartDate.Value.ToUtcUnixTimestampSeconds(),
+                StartTime = episodeMediaAsset.CatalogStartDate.Value.ToUtcUnixTimestampSeconds(),
                 Timezone = "UTC",
                 Status = eAnnouncementStatus.NotSent
             };
 
             // check if previous unsent messages were queued for this announcement and asset (series).
-            if (SendMessageAnnouncement(announcement, message, mediaId, groupId))
+            if (SendMessageAnnouncement(announcement, message, episodeMediaAsset.Id, groupId))
             {
                 response.Set(eResponseStatus.OK);
             }
@@ -678,24 +629,38 @@ namespace Core.Notification
 
             return response;
         }
-
-        public static string GetSeriesFollowPhrase(int groupId, string title)
+        
+        public static string GetEpisodeAssociationTag(int groupId, ref CatalogGroupCache cache, ref AssetStruct episodeAssetStruct, long? seriesMediaTypeId = null)
         {
-            // validate association tag
-            string associationTag = Core.Notification.NotificationCache.Instance().GetEpisodeAssociationTagName(groupId);
-            if (string.IsNullOrEmpty(associationTag))
+            string associationTag = string.Empty;
+            if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                log.ErrorFormat("Error getting follow series phrase - Association tag wasn't found. groupId: {0}, title: {1}", groupId, title);
-                return null;
+                if (cache == null)
+                {
+                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out cache))
+                    {
+                        log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetEpisodeAssociationTag");
+                        return associationTag;
+                    }
+                }
+
+                if (episodeAssetStruct == null)
+                {
+                    if (!TryGetEpisodeAssetStructBySeries(cache, seriesMediaTypeId, out episodeAssetStruct))
+                    {
+                        log.Error($"failed to get GetEpisodeAssetStruct for groupId: {groupId}");
+                        return associationTag;
+                    }
+                }
+
+                associationTag = cache.TopicsMapById[episodeAssetStruct.ConnectingMetaId.Value].SystemName;
+            }
+            else
+            {
+                // validate association tag
+                associationTag = GetEpisodeAssociationTagForNonOpc(groupId);
             }
 
-            return string.Format(FOLLOW_PHRASE_FORMAT, associationTag, title);
-        }
-
-        public static string GetEpisodeAssociationTag(int groupId)
-        {
-            // validate association tag
-            string associationTag = Core.Notification.NotificationCache.Instance().GetEpisodeAssociationTagName(groupId);
             if (string.IsNullOrEmpty(associationTag))
             {
                 log.ErrorFormat("Error getting episode association tag - Association tag wasn't found. groupId: {0}", groupId);
@@ -703,7 +668,57 @@ namespace Core.Notification
 
             return associationTag;
         }
+
+        private static string GetEpisodeAssociationTagForNonOpc(int groupId)
+        {
+            string associationTag = NotificationCache.Instance().GetEpisodeAssociationTagName(groupId);
+            return associationTag;
+        }
+
+        public static List<string> GetSeriesNames(ApiObjects.MetaType topicType, string episodeConnectedTag, List<ApiObjects.Catalog.Tags> tags, List<ApiObjects.Catalog.Metas> metas = null)
+        {
+            List<string> seriesNames = new List<string>();
+            if (topicType == ApiObjects.MetaType.Tag)
+            {
+                if (tags != null && tags.Count > 0)
+                {
+                    var tag = tags.FirstOrDefault(x => x.m_oTagMeta != null && x.m_oTagMeta.m_sName.ToLower().Trim() == episodeConnectedTag.ToLower().Trim());
+                    if (tag != null && tag.m_lValues != null)
+                    {
+                        seriesNames.AddRange(tag.m_lValues);
+                    }
+                }
+            }
+            else
+            {
+                if (metas != null && metas.Count > 0)
+                {
+                    var meta = metas.FirstOrDefault(x => x.m_oTagMeta != null && x.m_oTagMeta.m_sName.ToLower().Trim() == episodeConnectedTag.ToLower().Trim());
+                    if (meta != null && !string.IsNullOrEmpty(meta.m_sValue))
+                    {
+                        seriesNames.Add(meta.m_sValue);
+                    }
+                }
+            }
+
+            // 'valueForM'
+            return seriesNames;
+        }
         
+        public static string GetFollowPhrase(int groupId, string seriesName, CatalogGroupCache cache = null, AssetStruct episodeAssetStruct = null, long? seriesMediaTypeId = null)
+        {
+            // validate association tag
+            string episodeAssociationTag = GetEpisodeAssociationTag(groupId, ref cache, ref episodeAssetStruct, seriesMediaTypeId);
+            if (string.IsNullOrEmpty(episodeAssociationTag))
+            {
+                log.ErrorFormat("Error getting follow series phrase - Association tag wasn't found. groupId: {0}, title: {1}", groupId, seriesName);
+                return null;
+            }
+
+            //SeriesId='valueForMedia'
+            return string.Format(FOLLOW_PHRASE_FORMAT, episodeAssociationTag, seriesName);
+        }
+
         #endregion
 
         #region CRUD methods
@@ -736,19 +751,22 @@ namespace Core.Notification
                 }
 
                 // validate asset type
-                var mediaAsset = assetResponse.Object as MediaAsset;
-                if (!TryGetEpisodeAssetStructBySeries(mediaAsset, cache, out AssetStruct episodeAssetStruct))
+                var seriesMediaAsset = assetResponse.Object as MediaAsset;
+                if (!TryGetEpisodeAssetStructBySeries(cache, seriesMediaAsset.MediaType.m_nTypeID, out AssetStruct episodeAssetStruct))
                 {
                     response.SetStatus(eResponseStatus.InvalidAssetId, "invalid asset");
                     return response;
                 }
 
-                var followPhrase = GetFollowPhrase(mediaAsset, episodeAssetStruct, cache);
-                if (!string.IsNullOrEmpty(followPhrase))
+                var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
+                followDataTvToAdd.Title = GetSeriesNames(topic.Type, topic.SystemName, seriesMediaAsset.Tags, seriesMediaAsset.Metas).FirstOrDefault();
+                if (string.IsNullOrEmpty(followDataTvToAdd.Title))
                 {
-                    followDataTvToAdd.FollowPhrase = followPhrase;
+                    response.SetStatus(eResponseStatus.InvalidAssetId, "media is not a series episode (series name is empty)");
+                    return response;
                 }
-                
+
+                followDataTvToAdd.FollowPhrase = GetFollowPhrase(contextData.GroupId, followDataTvToAdd.Title, cache, episodeAssetStruct);
                 response = AddFollowItemToUser((int)contextData.UserId.Value, followDataTvToAdd);
             }
             catch (Exception ex)
@@ -781,8 +799,41 @@ namespace Core.Notification
         }
 
         #endregion
-
+        
         #region Private Methods
+        
+        public static MediaObj GetMediaObj(int groupId, int mediaId, string userId = null)
+        {
+            // send get media to catalog
+            var request = new MediasProtocolRequest()
+            {
+                m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
+                m_sSignString = CatalogSignString,
+                m_lMediasIds = new List<int> { mediaId },
+                m_nGroupID = groupId,
+                m_oFilter = new Filter(),
+                m_sSiteGuid = userId
+            };
+
+            MediaResponse mediaResponse = null;
+            try
+            {
+                mediaResponse = request.GetMediasByIDs(request);
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetSeriesMediaObj: error when calling catalog: ", ex);
+                return null;
+            }
+            
+            if (mediaResponse != null && mediaResponse.m_lObj != null)
+            {
+                var mediaObj = mediaResponse.m_lObj.FirstOrDefault() as MediaObj;
+                return mediaObj;
+            }
+
+            return null;
+        }
 
         private static bool SendMessageAnnouncement(DbAnnouncement announcement, MessageAnnouncement message, long mediaId, int groupId)
         {
@@ -862,47 +913,28 @@ namespace Core.Notification
 
             return messageSent;
         }
-
-        private string GetFollowPhrase(MediaAsset mediaAsset, AssetStruct episodeAssetStruct, CatalogGroupCache cache)
-        {
-            string value = string.Empty;
-            var topic = cache.TopicsMapById[episodeAssetStruct.ConnectedParentMetaId.Value];
-            if (topic.Type == ApiObjects.MetaType.Tag)
-            {
-                var tag = mediaAsset.Tags.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
-                if (tag != null && tag.m_lValues != null)
-                {
-                    value = tag.m_lValues.FirstOrDefault();
-                }
-            }
-            else
-            {
-                var meta = mediaAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
-                if (meta != null)
-                {
-                    value = meta.m_sValue;
-                }
-            }
-
-            string followPhrase = null;
-            if (!string.IsNullOrEmpty(value))
-            {
-                followPhrase = string.Format(FOLLOW_PHRASE_FORMAT, cache.TopicsMapById[episodeAssetStruct.ConnectingMetaId.Value].SystemName, value);
-            }
-
-            return followPhrase;
-        }
-
-        private bool TryGetEpisodeAssetStructBySeries(MediaAsset mediaAsset, CatalogGroupCache cache, out AssetStruct episodeAssetStruct)
+        
+        private static bool TryGetEpisodeAssetStructBySeries(CatalogGroupCache cache, long? seriesTypeId, out AssetStruct episodeAssetStruct)
         {
             episodeAssetStruct = null;
-            
-            if (mediaAsset == null || !cache.AssetStructsMapById.ContainsKey(mediaAsset.MediaType.m_nTypeID) || !cache.AssetStructsMapById[mediaAsset.MediaType.m_nTypeID].IsSeriesAssetStruct)
+
+            if (!seriesTypeId.HasValue || seriesTypeId.Value == 0)
+            {
+                var seriesAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct);
+                if (seriesAssetStruct != null)
+                {
+                    seriesTypeId = seriesAssetStruct.Id;
+                }
+            }
+
+            if (!seriesTypeId.HasValue || seriesTypeId.Value == 0 || !cache.AssetStructsMapById.ContainsKey(seriesTypeId.Value) || !cache.AssetStructsMapById[seriesTypeId.Value].IsSeriesAssetStruct)
             {
                 return false;
             }
             
-            episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && x.ParentId.Value == mediaAsset.MediaType.m_nTypeID);
+            episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && x.ParentId.Value == seriesTypeId.Value);
+            //episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && cache.AssetStructsMapById.ContainsKey(x.ParentId.Value) && cache.AssetStructsMapById[x.ParentId.Value].IsSeriesAssetStruct);
+
             if (episodeAssetStruct == null || 
                 !episodeAssetStruct.ConnectedParentMetaId.HasValue || 
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
@@ -915,12 +947,12 @@ namespace Core.Notification
             return true;
         }
 
-        private bool TryGetEpisodeAssetStructByEpisode(MediaAsset mediaAsset, CatalogGroupCache cache, out AssetStruct episodeAssetStruct)
+        private bool TryGetEpisodeAssetStructByEpisode(MediaAsset episodeMediaAsset, CatalogGroupCache cache, out AssetStruct episodeAssetStruct)
         {
             episodeAssetStruct = null;
 
-            if (mediaAsset == null || 
-                !cache.AssetStructsMapById.TryGetValue(mediaAsset.MediaType.m_nTypeID, out episodeAssetStruct) || 
+            if (episodeMediaAsset == null || 
+                !cache.AssetStructsMapById.TryGetValue(episodeMediaAsset.MediaType.m_nTypeID, out episodeAssetStruct) || 
                 !episodeAssetStruct.ParentId.HasValue ||
                 !episodeAssetStruct.ConnectedParentMetaId.HasValue ||
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
@@ -1164,25 +1196,7 @@ namespace Core.Notification
                     log.DebugFormat("Successfully unsubscribed device from announcement group: {0}, userId: {1}", groupId, userId);
             }
         }
-
-        private static bool SetFollowPhrase(int groupId, int userId, ref FollowDataBase followData)
-        {
-            bool isFollowDataValidate = false;
-
-            // populate follow phrase
-            followData.FollowPhrase = GetSeriesFollowPhrase(groupId, followData.Title);
-
-            // validate asset type
-            if (followData is FollowDataTvSeries)
-            {
-                isFollowDataValidate = NotificationCache.Instance().GetOTTAssetTypeByMediaTypeId(groupId, followData.Type) == eOTTAssetTypes.Series;
-                if (!isFollowDataValidate)
-                    log.DebugFormat("Invalid asset: group: {0}, user: {1}, asset: {2}", groupId, userId, (followData as FollowDataTvSeries).AssetId);
-            }
-
-            return isFollowDataValidate;
-        }
-
+        
         private static GenericResponse<T> AddFollowItemToUser<T>(int userId, T followItem) where T : FollowDataBase, new()
         {
             var response = new GenericResponse<T>();
@@ -1506,11 +1520,14 @@ namespace Core.Notification
             foreach (var follow in follows)
             {
                 // if tv series take series asset id from follow reference field
-                if (follow.FollowPhrase.ToLower().Trim().StartsWith(GetEpisodeAssociationTag(groupId).ToLower().Trim()))
+                CatalogGroupCache cache = null;
+                AssetStruct assetStruct = null;
+                if (follow.FollowPhrase.ToLower().Trim().StartsWith(GetEpisodeAssociationTag(groupId, ref cache, ref assetStruct).ToLower().Trim()))
                 {
-                    int id = 0;
-                    if (int.TryParse(follow.FollowReference, out id))
+                    if (int.TryParse(follow.FollowReference, out int id))
+                    {
                         ret.Add(id);
+                    }
                 }
             }
 
