@@ -1,6 +1,7 @@
 ﻿using APILogic.AmazonSnsAdapter;
 using APILogic.Notification.Adapters;
 using ApiObjects;
+using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
@@ -567,18 +568,39 @@ namespace Core.Notification
 
         public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId = 0)
         {
-            EngagementQueue queue = new EngagementQueue();
-            EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
+            bool res = true;
+
+            try
             {
-                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
-            };
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new EngagementRequest()
+                {
+                    GroupId = groupId,
+                    EngagementBulkId = engagementBulkId,
+                    EngagementId = engagementId,
+                    StartTime = startTime
+                };
 
-            bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+                eventBus.Publish(serviceEvent);
+                log.Debug($"Successfully inserted engagement message to queue: engagement {engagementId}");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while inserting engagement {engagementId} to queue. ex = {ex}");
+                res = false;
+            }
+            //EngagementQueue queue = new EngagementQueue();
+            //EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
+            //{
+            //    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
+            //};
 
-            if (res)
-                log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
-            else
-                log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
+            //bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+
+            //if (res)
+            //    log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
+            //else
+            //    log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
 
             return res;
         }
@@ -661,7 +683,7 @@ namespace Core.Notification
             return response;
         }
 
-        internal static bool SendEngagement(int partnerId, int engagementId, int startTime)
+        internal static bool SendEngagement(int partnerId, int engagementId, long startTime)
         {
             DateTime utcNow = DateTime.UtcNow;
 
@@ -882,7 +904,7 @@ namespace Core.Notification
             return true;
         }
 
-        internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
+        internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, long startTime)
         {
             // get relevant engagement  
             Engagement engagement = EngagementDal.GetEngagement(partnerId, engagementId);

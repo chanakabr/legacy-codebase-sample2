@@ -1073,7 +1073,7 @@ namespace Core.Notification
             return EngagementManager.GetEngagements(groupId, convertedtypeIn, sendTimeLessThanOrEqual);
         }
 
-        public static bool SendEngagement(int partnerId, int engagementId, int startTime)
+        public static bool SendEngagement(int partnerId, int engagementId, long startTime)
         {
             try
             {
@@ -1090,7 +1090,7 @@ namespace Core.Notification
             }
         }
 
-        public static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
+        public static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, long startTime)
         {
             try
             {
