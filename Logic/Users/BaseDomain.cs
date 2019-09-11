@@ -2119,9 +2119,9 @@ namespace Core.Users
             return false;
         }
 
-        internal UserResponse LoginWithDevicePIN(int groupId, string pin, string sessionID, string ip, string udid, bool preventDoubleLogins, List<KeyValuePair> keyValueList)
+        internal GenericResponse<UserResponseObject> LoginWithDevicePIN(int groupId, string pin, string sessionID, string ip, string udid, bool preventDoubleLogins, List<KeyValuePair> keyValueList)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
 
             // get device
             Device device = new Device(groupId);
@@ -2129,7 +2129,7 @@ namespace Core.Users
             if (device == null || string.IsNullOrEmpty(device.m_deviceUDID))
             {
                 log.ErrorFormat("Device does not exist, UDID = {0}", udid);
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
+                response.SetStatus(eResponseStatus.DeviceNotExists, "Device does not exist");
                 return response;
             }
 
@@ -2137,21 +2137,21 @@ namespace Core.Users
             if (string.IsNullOrEmpty(device.m_pin))
             {
                 log.ErrorFormat("Device pin does not exists, UDID = {0}, pin = {1}", udid, pin);
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Device pin does not exists");
+                response.SetStatus(eResponseStatus.PinNotExists, "Device pin does not exists");
                 return response;
             }
 
             if (device.m_domainID == 0)
             {
                 log.ErrorFormat("Device is not in a domain, UDID = {0}", udid);
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device is not in a domain");
+                response.SetStatus(eResponseStatus.DeviceNotInDomain, "Device is not in a domain");
                 return response;
             }
 
             if (pin != device.m_pin)
             {
                 log.ErrorFormat("Device pin does not match the supplied pin, UDID = {0}, pin = {1}, device pin = {3}", udid, pin, device.m_pin);
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NoValidPin, "Supplied pin is not valid");
+                response.SetStatus(eResponseStatus.NoValidPin, "Supplied pin is not valid");
                 return response;
             }
 
@@ -2161,31 +2161,31 @@ namespace Core.Users
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
             {
                 log.ErrorFormat("Domain does not exist, UDID = {0}, domainId", udid, device.m_domainID);
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, "Domain does not exist");
+                response.SetStatus(eResponseStatus.DomainNotExists, "Domain does not exist");
                 return response;
             }
 
             if (domain.m_masterGUIDs == null || domain.m_masterGUIDs.Count == 0)
             {
                 log.ErrorFormat("Domain master users do not exist, UDID = {0}, domainId", udid, device.m_domainID);
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MasterUserNotFound, "Master user was not found");
+                response.SetStatus(eResponseStatus.MasterUserNotFound, "Master user was not found");
                 return response;
             }
 
             int masterUserId = domain.m_masterGUIDs[0];
 
-            response.user = Core.Users.Module.SignInWithUserId(groupId, masterUserId, sessionID, ip, udid, preventDoubleLogins, keyValueList);
-            if (response.user == null)
+            response.Object = Module.SignInWithUserId(groupId, masterUserId, sessionID, ip, udid, preventDoubleLogins, keyValueList);
+            if (response.Object == null)
             {
                 log.ErrorFormat("Failed to login with master user ID = {0}", masterUserId);
                 return response;
             }
 
-            response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
+            response.SetStatus(Utils.ConvertResponseStatusToResponseObject(response.Object.m_RespStatus));
 
-            if (response.resp.Code != (int)eResponseStatus.OK)
+            if (!response.IsOkStatusCode())
             {
-                log.ErrorFormat("Failed to login with master user ID = {0}, code = {1}, message = {2}", masterUserId, response.resp.Code, response.resp.Message);
+                log.ErrorFormat("Failed to login with master user ID = {0}, code = {1}, message = {2}", masterUserId, response.Status.Code, response.Status.Message);
                 return response;
             }
 

@@ -1565,7 +1565,12 @@ namespace Core.Notification
 
             return TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));
         }
-        
+
+        public GenericResponse<FollowDataTvSeries> ValidateCrudObject(ContextData contextData, int id = 0, FollowDataTvSeries objectToValidate = null)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

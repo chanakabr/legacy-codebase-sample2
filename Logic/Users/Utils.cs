@@ -39,7 +39,7 @@ namespace Core.Users
         private const double HANDLE_PURGE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
         private const string ROUTING_KEY_PURGE = "PROCESS_PURGE";
 
-        public static Int32 GetGroupID(string sWSUserName, string sPass)
+        static public Int32 GetGroupID(string sWSUserName, string sPass)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
@@ -49,7 +49,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        public static Int32 GetDomainGroupID(string sWSUserName, string sPass)
+        static public Int32 GetDomainGroupID(string sWSUserName, string sPass)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
@@ -59,7 +59,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers baseUser)
+        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseUsers baseUser)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
@@ -74,7 +74,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref KalturaBaseUsers user, int operatorId = -1)
+        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref KalturaBaseUsers user, int operatorId = -1)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
@@ -87,7 +87,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDomain t)
+        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDomain t)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
@@ -100,7 +100,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        public static Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDevice t)
+        static public Int32 GetGroupID(string sWSUserName, string sPass, string sFunctionName, ref BaseDevice t)
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
@@ -111,7 +111,7 @@ namespace Core.Users
             return nGroupID;
         }
 
-        public static void GetBaseImpl(ref BaseUsers t, Int32 nGroupID)
+        static public void GetBaseImpl(ref BaseUsers t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION);
 
@@ -134,7 +134,7 @@ namespace Core.Users
             }
         }
 
-        public static void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User")
+        static public void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User")
         {
             try
             {
@@ -190,8 +190,9 @@ namespace Core.Users
             }
         }
 
-        public static void GetBaseImpl(ref BaseEncrypter t, Int32 nGroupID)
+        static public BaseEncrypter GetBaseImpl(Int32 nGroupID)
         {
+            BaseEncrypter baseEncrypter = null;
             int nImplID = 0;
 
             string key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
@@ -214,24 +215,25 @@ namespace Core.Users
             switch (nImplID)
             {
                 case 1:
-                    t = new MD5Encrypter(nGroupID);
+                    baseEncrypter = new MD5Encrypter(nGroupID);
                     break;
                 case 2:
-                    t = new SHA1Encrypter(nGroupID);
+                    baseEncrypter = new SHA1Encrypter(nGroupID);
                     break;
                 case 3:
-                    t = new SHA256Encrypter(nGroupID);
+                    baseEncrypter = new SHA256Encrypter(nGroupID);
                     break;
                 case 4:
-                    t = new SHA384Encrypter(nGroupID);
+                    baseEncrypter = new SHA384Encrypter(nGroupID);
                     break;
                 default:
                     break;
             }
 
+            return baseEncrypter;
         }
 
-        public static void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
+        static public void GetBaseImpl(ref BaseDomain t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.DOMAINS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
 
@@ -248,7 +250,7 @@ namespace Core.Users
             }
         }
 
-        public static void GetBaseImpl(ref BaseDevice t, Int32 nGroupID)
+        static public void GetBaseImpl(ref BaseDevice t, Int32 nGroupID)
         {
             int nImplID = TvinciCache.ModulesImplementation.GetModuleID(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Domains, USERS_CONNECTION);
             switch (nImplID)
@@ -262,7 +264,7 @@ namespace Core.Users
             }
         }
 
-        public static Country[] GetCountryList()
+        static public Country[] GetCountryList()
         {
             Country[] ret = null;
 
@@ -291,7 +293,7 @@ namespace Core.Users
             return ret;
         }
 
-        public static State[] GetStateList(Int32 nCountryID)
+        static public State[] GetStateList(Int32 nCountryID)
         {
             State[] ret = null;
             List<State> lState;
@@ -320,7 +322,7 @@ namespace Core.Users
             return ret;
         }
 
-        public static Country GetIPCountry2(string sIP)
+        static public Country GetIPCountry2(string sIP)
         {
             Int32 nCountry = 0;
             string[] splited = sIP.Split('.');
@@ -339,7 +341,7 @@ namespace Core.Users
             return ret;
         }
 
-        public static DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
+        static public DateTime GetEndDateTime(DateTime dBase, Int32 nVal)
         {
             DateTime dRet = dBase;
             if (nVal == 1111111)
@@ -373,7 +375,7 @@ namespace Core.Users
             return dRet;
         }
 
-        public static BaseMailImpl GetBaseImpl(int nGroupID, int nRuleID, int nImpID)
+        static public BaseMailImpl GetBaseImpl(int nGroupID, int nRuleID, int nImpID)
         {
             BaseMailImpl retVal = null;
 
@@ -390,7 +392,7 @@ namespace Core.Users
             return retVal;
         }
 
-        public static bool SendMailTemplate(MailRequestObj request)
+        static public bool SendMailTemplate(MailRequestObj request)
         {
             bool retVal = false;
             Mailer.IMailer mailer = Mailer.MailFactory.GetMailer(Mailer.MailImplementors.MCMailer);
@@ -398,12 +400,12 @@ namespace Core.Users
             return retVal;
         }
 
-        public static bool SendMail(int nGroupID, MailRequestObj request)
+        static public bool SendMail(int nGroupID, MailRequestObj request)
         {
             return SendMailTemplate(request);
         }
 
-        public static bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
+        static public bool GetUserOperatorAndHouseholdIDs(int nGroupID, string sCoGuid, ref int nOperatorID, ref string sOperatorCoGuid, ref int nOperatorGroupID, ref int nHouseholdID)
         {
             if (string.IsNullOrEmpty(sCoGuid))
             {
@@ -437,39 +439,6 @@ namespace Core.Users
             }
 
             return true;
-        }
-
-        public static bool SetPassword(string sPassword, ref UserBasicData oBasicData, int nGroupID)
-        {
-            if (sPassword.Length > 0)
-            {
-                // check if we need to encrypt the password
-                BaseEncrypter encrypter = null;
-
-                Utils.GetBaseImpl(ref encrypter, nGroupID);
-                // if encrypter is null the group does not have an encrypter support
-                if (encrypter != null)
-                {
-                    string sEncryptedPassword = string.Empty;
-                    string sSalt = string.Empty;
-
-                    encrypter.GenerateEncryptPassword(sPassword, ref sEncryptedPassword, ref sSalt);
-
-                    oBasicData.m_sPassword = sEncryptedPassword;
-                    oBasicData.m_sSalt = sSalt;
-                }
-                else
-                {
-                    oBasicData.m_sPassword = sPassword;
-                    oBasicData.m_sSalt = string.Empty;
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         internal static List<HomeNetwork> GetHomeNetworksOfDomain(long lDomainID, int nGroupID, bool bCache = false)
@@ -557,7 +526,7 @@ namespace Core.Users
             return homeNetwork;
         }
 
-        public static bool IsGroupIDContainedInConfig(long lGroupID)
+        static public bool IsGroupIDContainedInConfig(long lGroupID)
         {
             bool res = false;
             string rawStrFromConfig = ApplicationConfiguration.ExcludePsDllImplementation.Value;
@@ -602,7 +571,7 @@ namespace Core.Users
             return res;
         }
 
-        public static void GetContentInfo(ref string subject, string key, Dictionary<string, string> info)
+        static public void GetContentInfo(ref string subject, string key, Dictionary<string, string> info)
         {
             if (info.ContainsKey(key))
             {
@@ -620,90 +589,90 @@ namespace Core.Users
                 (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
 
-        public static eResponseStatus ConvertResponseStatus(ResponseStatus status)
+        //// TODO SHIR - delete ConvertResponseStatus if there is no use for it
+        //public static eResponseStatus ConvertResponseStatus(ResponseStatus status)
+        //{
+        //    eResponseStatus result;
+
+        //    switch (status)
+        //    {
+        //        case ResponseStatus.OK:
+        //            result = eResponseStatus.OK;
+        //            break;
+        //        case ResponseStatus.UserExists:
+        //            result = eResponseStatus.UserExists;
+        //            break;
+        //        case ResponseStatus.UserDoesNotExist:
+        //            result = eResponseStatus.UserDoesNotExist;
+        //            break;
+        //        case ResponseStatus.WrongPasswordOrUserName:
+        //            result = eResponseStatus.WrongPasswordOrUserName;
+        //            break;
+        //        case ResponseStatus.InsideLockTime:
+        //            result = eResponseStatus.InsideLockTime;
+        //            break;
+        //        case ResponseStatus.UserNotActivated:
+        //            result = eResponseStatus.UserNotActivated;
+        //            break;
+        //        case ResponseStatus.UserAllreadyLoggedIn:
+        //            result = eResponseStatus.UserAllreadyLoggedIn;
+        //            break;
+        //        case ResponseStatus.UserDoubleLogIn:
+        //            result = eResponseStatus.UserDoubleLogIn;
+        //            break;
+        //        case ResponseStatus.DeviceNotRegistered:
+        //            result = eResponseStatus.DeviceNotRegistered;
+        //            break;
+        //        case ResponseStatus.UserNotMasterApproved:
+        //            result = eResponseStatus.UserNotMasterApproved;
+        //            break;
+        //        case ResponseStatus.ErrorOnInitUser:
+        //            result = eResponseStatus.ErrorOnInitUser;
+        //            break;
+        //        case ResponseStatus.UserNotIndDomain:
+        //            result = eResponseStatus.UserNotInDomain;
+        //            break;
+        //        case ResponseStatus.UserWithNoDomain:
+        //            result = eResponseStatus.UserWithNoDomain;
+        //            break;
+        //        case ResponseStatus.UserSuspended:
+        //            result = eResponseStatus.UserSuspended;
+        //            break;
+        //        case ResponseStatus.UserTypeNotExist:
+        //            result = eResponseStatus.UserTypeDoesNotExist;
+        //            break;
+        //        case ResponseStatus.TokenNotFound:
+        //            result = eResponseStatus.ActivationTokenNotFound;
+        //            break;
+        //        case ResponseStatus.UserAlreadyMasterApproved:
+        //            result = eResponseStatus.UserAlreadyMasterApproved;
+        //            break;
+        //        case ResponseStatus.LoginServerDown:
+        //            result = eResponseStatus.LoginServerDown;
+        //            break;
+        //        case ResponseStatus.ExternalIdAlreadyExists:
+        //            result = eResponseStatus.ExternalIdAlreadyExists;
+        //            break;
+        //        default:
+        //            result = eResponseStatus.Error;
+        //            break;
+        //    }
+
+        //    return result;
+        //}
+        
+        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
-            eResponseStatus result;
+            var result = new ApiObjects.Response.Status();
 
-            switch (status)
-            {
-                case ResponseStatus.OK:
-                    result = eResponseStatus.OK;
-                    break;
-                case ResponseStatus.UserExists:
-                    result = eResponseStatus.UserExists;
-                    break;
-                case ResponseStatus.UserDoesNotExist:
-                    result = eResponseStatus.UserDoesNotExist;
-                    break;
-                case ResponseStatus.WrongPasswordOrUserName:
-                    result = eResponseStatus.WrongPasswordOrUserName;
-                    break;
-                case ResponseStatus.InsideLockTime:
-                    result = eResponseStatus.InsideLockTime;
-                    break;
-                case ResponseStatus.UserNotActivated:
-                    result = eResponseStatus.UserNotActivated;
-                    break;
-                case ResponseStatus.UserAllreadyLoggedIn:
-                    result = eResponseStatus.UserAllreadyLoggedIn;
-                    break;
-                case ResponseStatus.UserDoubleLogIn:
-                    result = eResponseStatus.UserDoubleLogIn;
-                    break;
-                case ResponseStatus.DeviceNotRegistered:
-                    result = eResponseStatus.DeviceNotRegistered;
-                    break;
-                case ResponseStatus.UserNotMasterApproved:
-                    result = eResponseStatus.UserNotMasterApproved;
-                    break;
-                case ResponseStatus.ErrorOnInitUser:
-                    result = eResponseStatus.ErrorOnInitUser;
-                    break;
-                case ResponseStatus.UserNotIndDomain:
-                    result = eResponseStatus.UserNotInDomain;
-                    break;
-                case ResponseStatus.UserWithNoDomain:
-                    result = eResponseStatus.UserWithNoDomain;
-                    break;
-                case ResponseStatus.UserSuspended:
-                    result = eResponseStatus.UserSuspended;
-                    break;
-                case ResponseStatus.UserTypeNotExist:
-                    result = eResponseStatus.UserTypeDoesNotExist;
-                    break;
-                case ResponseStatus.TokenNotFound:
-                    result = eResponseStatus.ActivationTokenNotFound;
-                    break;
-                case ResponseStatus.UserAlreadyMasterApproved:
-                    result = eResponseStatus.UserAlreadyMasterApproved;
-                    break;
-                case ResponseStatus.LoginServerDown:
-                    result = eResponseStatus.LoginServerDown;
-                    break;
-                case ResponseStatus.ExternalIdAlreadyExists:
-                    result = eResponseStatus.ExternalIdAlreadyExists;
-                    break;
-                default:
-                    result = eResponseStatus.Error;
-                    break;
-            }
-
-            return result;
-        }
-
-
-        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status, bool isLogin = false, int externalCode = 0, string externalMessage = null)
-        {
-            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
-
-            if (isLogin && status == ResponseStatus.UserSuspended)
+            if (isLogin && responseStatus == ResponseStatus.UserSuspended)
             {
                 result.Code = (int)eResponseStatus.OK;
                 result.Message = "OK";
                 return result;
             }
 
-            switch (status)
+            switch (responseStatus)
             {
                 case ResponseStatus.OK:
                 case ResponseStatus.UserCreatedWithNoRole:
@@ -747,7 +716,7 @@ namespace Core.Users
                     result.Message = "User not master approved";
                     break;
                 case ResponseStatus.ErrorOnInitUser:
-                    result.Code = (int)eResponseStatus.ErrorOnInitUser;
+                    result.Code = (int)eResponseStatus.ErrorOnInitUser; 
                     result.Message = "Error on init user";
                     break;
                 case ResponseStatus.UserNotIndDomain:
@@ -794,6 +763,12 @@ namespace Core.Users
                         result.Message = "Error";
                     }
                     break;
+                case ResponseStatus.PasswordPolicyViolation:
+                    result.Set(status);
+                    break;
+                case ResponseStatus.PasswordExpired:
+                    result.Set(eResponseStatus.PasswordExpired, "Password Expired, please update password");
+                    break;
                 default:
                     result.Code = (int)eResponseStatus.Error;
                     result.Message = "Error";
@@ -802,8 +777,7 @@ namespace Core.Users
 
             return result;
         }
-
-
+        
         public static ApiObjects.Response.Status ConvertDomainResponseStatusToResponseObject(DomainResponseStatus status)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();

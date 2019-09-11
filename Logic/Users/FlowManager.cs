@@ -9,11 +9,10 @@ namespace Core.Users
 {
     public class FlowManager
     {
-        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount,
-                                                int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin,
+        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin, 
                                                 List<KeyValuePair> keyValueList, string username = null, string password = null)
         {
-            UserResponseObject response = new UserResponseObject();
+            var response = new UserResponseObject();
 
             try
             {
@@ -24,8 +23,7 @@ namespace Core.Users
                 if (response.m_RespStatus == ResponseStatus.OK)
                 {
                     // mid
-                    response = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId,
-                                          sessionId, ip, deviceId, preventDoubleLogin);
+                    response = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
 
                     // post
                     user.PostSignIn(ref response, ref keyValueList);
@@ -85,7 +83,7 @@ namespace Core.Users
             return response;
         }
 
-        public static int SaveUser(ref UserResponseObject userResponse, KalturaBaseUsers user, ref UserBasicData basicData, User userBo, Int32 groupId, bool bIsSetUserActive, List<KeyValuePair> keyValueList)
+        public static int SaveNewUser(ref UserResponseObject userResponse, KalturaBaseUsers user, ref UserBasicData basicData, User userBo, Int32 groupId, bool bIsSetUserActive, List<KeyValuePair> keyValueList)
         {
             int userId = 0;
 
@@ -95,7 +93,7 @@ namespace Core.Users
                 user.PreSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive, ref keyValueList);
 
                 // mid
-                userId = user.MidSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive);
+                userId = user.MidSaveNewUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive);
 
                 // post 
                 user.PostSaveUser(ref userResponse, ref basicData, userBo, groupId, bIsSetUserActive, userId, ref keyValueList);

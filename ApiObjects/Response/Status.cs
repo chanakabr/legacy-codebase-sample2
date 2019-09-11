@@ -133,6 +133,11 @@ namespace ApiObjects.Response
             }
         }
 
+        public void AddArg(eResponseStatus responseStatusKey, object value)
+        {
+            AddArg(((int)responseStatusKey).ToString(), value);
+        }
+
         public bool IsOkStatusCode()
         {
             return code == (int)eResponseStatus.OK;

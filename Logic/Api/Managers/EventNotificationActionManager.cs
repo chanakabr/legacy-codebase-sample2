@@ -155,5 +155,10 @@ namespace ApiLogic.Api.Managers
 
             return response;
         }
+
+        public GenericResponse<EventNotificationAction> ValidateCrudObject(ContextData contextData, string id = null, EventNotificationAction objectToValidate = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

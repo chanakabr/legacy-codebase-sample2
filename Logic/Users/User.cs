@@ -1,4 +1,6 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Managers;
+using ApiObjects;
+using ApiObjects.Base;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -10,6 +12,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Core.Users
 {
@@ -21,6 +24,48 @@ namespace Core.Users
     public class User : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
+        [JsonProperty()]
+        public UserBasicData m_oBasicData;
+
+        [JsonProperty()]
+        public UserDynamicData m_oDynamicData;
+
+        [JsonProperty()]
+        public UserState m_eUserState;
+
+        [JsonProperty()]
+        public DomainSuspentionStatus m_eSuspendState;
+
+        public string m_sSiteGUID;
+        public int m_domianID;
+        public bool m_isDomainMaster;
+        public int m_nSSOOperatorID;
+        public bool IsActivationGracePeriod;
+        
+        [XmlIgnore]
+        [JsonIgnore()]
+        public bool shouldSetUserActive;
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        public bool resetFailCount;
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        public bool shouldRemoveFromCache;
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        protected int userId;
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        public string activationToken;
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        private bool UpdateUserPassword;
 
         public User()
         {
@@ -252,7 +297,7 @@ namespace Core.Users
                 this.m_oDynamicData = oDynamicData;
             }
 
-            return Save(nGroupID);
+            return SaveForUpdate(nGroupID);
         }
 
         public void UpdateDynamicData(UserDynamicData oDynamicData, Int32 nGroupID)
@@ -355,15 +400,13 @@ namespace Core.Users
             return retVal;
         }
 
-        public bool Initialize(UserBasicData oBasicData, UserDynamicData oDynamicData, Int32 nGroupID, string sPassword)
+        public bool InitializeNewUser(UserBasicData userBasicData, UserDynamicData dynamicData, int groupID, string password)
         {
             try
             {
-                UserResponseObject u = null;
+                userBasicData.SetPassword(password, groupID);
 
-                Utils.SetPassword(sPassword, ref oBasicData, nGroupID);
-
-                u = CheckUserPassword(oBasicData.m_sUserName, oBasicData.m_sPassword, 3, 3, nGroupID, false, true);
+                UserResponseObject u = CheckUserPassword(userBasicData.m_sUserName, userBasicData.m_sPassword, 3, 3, groupID, false, true);
                 if (u.m_RespStatus == ResponseStatus.WrongPasswordOrUserName)
                 {
                     return false;
@@ -371,24 +414,18 @@ namespace Core.Users
 
                 m_sSiteGUID = (u != null && u.m_user != null) ? u.m_user.m_sSiteGUID : "";
 
-                m_oBasicData = oBasicData;
-                m_oDynamicData = oDynamicData;
+                m_oBasicData = userBasicData;
+                m_oDynamicData = dynamicData;
                 if (!string.IsNullOrEmpty(m_sSiteGUID))
                 {
-                    m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
+                    m_domianID = UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
                 }
 
                 return true;
             }
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at User.Initialize ");
-                sb.Append(String.Concat(" Basic Data: ", oBasicData.ToString()));
-                sb.Append(String.Concat(" Group ID: ", nGroupID));
-                sb.Append(String.Concat(" Msg: ", ex.Message));
-                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-
-                log.Error("Exception - " + sb.ToString(), ex);
+                log.Error($"Exception at User.InitializeNewUser. Basic Data: {userBasicData.ToString()}, groupID:{groupID}, Msg: {ex.Message}, Stack Trace:{ex.StackTrace}");
             }
 
             return false;
@@ -396,8 +433,8 @@ namespace Core.Users
 
         public void InitializeBasicAndDynamicData(UserBasicData oBasicData, UserDynamicData oDynamicData)
         {
-            m_oBasicData = oBasicData;
-            m_oDynamicData = oDynamicData;
+            this.m_oBasicData = oBasicData;
+            this.m_oDynamicData = oDynamicData;
         }
 
         public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldGoToDb = false)
@@ -432,12 +469,10 @@ namespace Core.Users
 
                     return result;
                 }
-
-                User user = null;
+                
                 // Get user from cache by siteGUID
                 UsersCache usersCache = UsersCache.Instance();
-                user = usersCache.GetUser(nUserID, nGroupID);
-
+                var user = usersCache.GetUser(nUserID, nGroupID);
                 if (user != null)
                 {
                     m_oBasicData = user.m_oBasicData;
@@ -453,7 +488,6 @@ namespace Core.Users
 
                     result = true;
                 }
-
             }
             catch (Exception ex)
             {
@@ -553,10 +587,17 @@ namespace Core.Users
             return "";
         }
 
-        public int Save(Int32 groupId, bool bIsSetUserActive = false, bool isSetFailCount = false)
+        public int SaveForInsert(Int32 groupId, bool bIsSetUserActive = false, bool isSetFailCount = false)
         {
             try
             {
+                // add user role
+                long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
+                if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
+                {
+                    m_oBasicData.RoleIds.Add(roleId);
+                }
+
                 this.GroupId = groupId;
                 this.shouldRemoveFromCache = true;
                 this.shouldSetUserActive = bIsSetUserActive;
@@ -567,8 +608,27 @@ namespace Core.Users
                 {
                     this.Insert();
                 }
+            }
+            catch
+            {
+                this.userId = -1;
+            }
+
+            return this.userId;
+        }
+
+        public int SaveForUpdate(Int32 groupId, bool bIsSetUserActive = false, bool isSetFailCount = false, bool updateUserPassword = false)
+        {
+            try
+            {
+                this.GroupId = groupId;
+                this.shouldRemoveFromCache = true;
+                this.shouldSetUserActive = bIsSetUserActive;
+                this.resetFailCount = isSetFailCount;
+                this.UpdateUserPassword = updateUserPassword;
+
                 // Existing user - Remove & Update from cache
-                else if (int.TryParse(m_sSiteGUID, out this.userId))
+                if (int.TryParse(m_sSiteGUID, out this.userId))
                 {
                     this.Update();
                 }
@@ -609,14 +669,7 @@ namespace Core.Users
             if (this.userId > 0)
             {
                 m_sSiteGUID = this.userId.ToString();
-
-                // add user role
-                long roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
-                if (roleId > 0 && !m_oBasicData.RoleIds.Contains(roleId))
-                {
-                    m_oBasicData.RoleIds.Add(roleId);
-                }
-
+                
                 if (UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
                 {
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(this.m_sSiteGUID);
@@ -671,7 +724,7 @@ namespace Core.Users
             // update
             else
             {
-                bool saved = m_oBasicData.Save(this.userId, this.GroupId, this.resetFailCount);
+                bool saved = m_oBasicData.Save(this.userId, this.GroupId, this.resetFailCount, this.UpdateUserPassword);
 
                 if (!saved)
                 {
@@ -754,7 +807,7 @@ namespace Core.Users
             return saved;
         }
 
-        public static bool Hit(string sSiteGUID)
+        static public bool Hit(string sSiteGUID)
         {
             if (string.IsNullOrEmpty(sSiteGUID))
             {
@@ -765,7 +818,7 @@ namespace Core.Users
             return res;
         }
 
-        public static bool Logout(string sSiteGUID)
+        static public bool Logout(string sSiteGUID)
         {
             if (string.IsNullOrEmpty(sSiteGUID))
             {
@@ -843,7 +896,7 @@ namespace Core.Users
             return UsersDal.Update_UserActivenessForUserSessionBySessionIDAndIPAndReturnID(siteGuid, sessionID, sIP, !isRemove);
         }
 
-        public static UserResponseObject SignOut(int siteGuid, int nGroupID, string sessionID, string sIP, string sDeviceUDID)
+        static public UserResponseObject SignOut(int siteGuid, int nGroupID, string sessionID, string sIP, string sDeviceUDID)
         {
             UserResponseObject retVal = new UserResponseObject();
             User u = new User();
@@ -916,15 +969,7 @@ namespace Core.Users
                 bool bIsDeviceActivated = false;
                 Device device = CreateAndInitializeDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
                 bIsDeviceActivated = (device != null && device.m_state == DeviceState.Activated) || (device == null); // device == null means web login
-
-                //Ignore device check for now (token issue)
-                //if (!bIsDeviceActivated)
-                //{
-                //    retObj.m_RespStatus = ResponseStatus.DeviceNotRegistered;
-                //    return retObj;
-                //}
-                //else
-
+                
                 {
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
@@ -1014,14 +1059,13 @@ namespace Core.Users
                     }
                     retObj.m_user.m_eUserState = GetCurrentUserState(nSiteGuid, nGroupID);
                 }
-
             }
             retObj.m_userInstanceID = instanceID.ToString();
 
             return retObj;
         }
 
-        public static UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        static public UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             UserResponseObject retObj = new UserResponseObject();
             User u = new User();
@@ -1037,98 +1081,133 @@ namespace Core.Users
             return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
         }
 
-        public static UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
+        static public UserResponseObject SignIn(string username, string password, int maxFailCount, int lockMinutes, int groupId, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
-            UserResponseObject retObj = CheckUserPassword(sUN, sPass, nMaxFailCount, nLockMinutes, nGroupID, bPreventDoubleLogins, false);
-            return InnerSignIn(ref retObj, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, nGroupID);
+            var userResponseObject = CheckUserPassword(username, password, maxFailCount, lockMinutes, groupId, bPreventDoubleLogins, false);
+            return InnerSignIn(ref userResponseObject, maxFailCount, lockMinutes, groupId, sessionID, sIP, deviceID, bPreventDoubleLogins, groupId);
         }
-
-        public static UserResponseObject CheckUserPassword(string sUN, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins, bool checkHitDate)
+        
+        static public UserResponseObject CheckUserPassword(string username, string password, int defaultMaxFailCount, int lockMinutes, int groupId, bool preventDoubleLogins, bool checkHitDate)
         {
-            UserResponseObject o = new UserResponseObject();
-            ResponseStatus ret = ResponseStatus.WrongPasswordOrUserName;
-            User res = null;
-
-            if (!string.IsNullOrEmpty(sUN) && !string.IsNullOrEmpty(sPass))
+            var userResponseObject = new UserResponseObject();
+            var responseStatus = ResponseStatus.WrongPasswordOrUserName;
+            User user = null;
+           
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
             {
+                DateTime passwordUpdateDate = DateTime.MinValue;
                 int nFailCount = 0;
-                DateTime dNow = DateTime.UtcNow;
+                var dNow = DateTime.UtcNow;
                 DateTime dLastFailDate = new DateTime(2020, 1, 1);
                 DateTime dLastHitDate = new DateTime(2020, 1, 1);
 
-                int nID = DAL.UsersDal.GetUserPasswordFailHistory(sUN, nGroupID, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate);
-
-                if (nID <= 0)
+                var userId = UsersDal.GetUserPasswordFailHistory(username, groupId, ref dNow, ref nFailCount, ref dLastFailDate, ref dLastHitDate, ref passwordUpdateDate);
+                if (userId <= 0)
                 {
-                    o.m_RespStatus = ResponseStatus.UserDoesNotExist;
-                    return o;
+                    userResponseObject.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                    return userResponseObject;
                 }
 
-                if (nID > 0)
+                var initializedUser = new User();
+                var isUserInitialized = initializedUser.Initialize(userId, groupId);
+
+                if (isUserInitialized && initializedUser.m_oBasicData != null && initializedUser.m_oDynamicData != null && !string.IsNullOrEmpty(initializedUser.m_oBasicData.m_sPassword))
                 {
-                    User u = new User();
-                    bool bOk = u.Initialize(nID, nGroupID);
+                    responseStatus = ResponseStatus.OK;
 
-                    if (bOk && u.m_oBasicData != null && u.m_oDynamicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
+                    bool isPasswordEqual = (password == initializedUser.m_oBasicData.m_sPassword);
+
+                    if (!isPasswordEqual)
                     {
-                        ret = ResponseStatus.OK;
-
-                        bool bOK = (sPass == u.m_oBasicData.m_sPassword);
-
-                        if (bOK == false)
+                        BaseEncrypter encrypter = Utils.GetBaseImpl(groupId);
+                        if (encrypter != null)
                         {
-                            BaseEncrypter encrypter = null;
-
-                            Utils.GetBaseImpl(ref encrypter, nGroupID);
-
-                            if (encrypter != null)
-                            {
-                                bOK = (u.m_oBasicData.m_sPassword == encrypter.Encrypt(sPass, u.m_oBasicData.m_sSalt));
-                            }
+                            isPasswordEqual = (initializedUser.m_oBasicData.m_sPassword == encrypter.Encrypt(password, initializedUser.m_oBasicData.m_sSalt));
                         }
+                    }
 
-                        if (bOK == true)
+                    GetMaxFailuresCountAndExpiration(defaultMaxFailCount, initializedUser.m_oBasicData.RoleIds, groupId, out int maxFailuresCount, out int maxExpiration);
+
+                    if (isPasswordEqual)
+                    {
+                        if (nFailCount > maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
                         {
-                            if (nFailCount > nMaxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < nLockMinutes)
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        }
+                        else if (preventDoubleLogins)
+                        {
+                            if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
                             {
-                                ret = ResponseStatus.InsideLockTime;
-                            }
-                            else if (bPreventDoubleLogins == true)
-                            {
-                                if (dLastHitDate.AddSeconds(60) > dNow && checkHitDate)
-                                {
-                                    ret = ResponseStatus.UserAllreadyLoggedIn;
-                                }
-                                else
-                                {
-                                    UpdateFailCount(nGroupID ,0, nID, true);
-                                }
+                                responseStatus = ResponseStatus.UserAllreadyLoggedIn;
                             }
                             else
                             {
-                                UpdateFailCount(nGroupID, 0, nID, true);
-                                res = u;
+                                UpdateFailCount(groupId, 0, userId, true);
                             }
+                        }
+                        else if (maxExpiration > 0 && passwordUpdateDate.AddDays(maxExpiration) < dNow)
+                        {
+                            responseStatus = ResponseStatus.PasswordExpired;
                         }
                         else
                         {
-                            UpdateFailCount(nGroupID, 1, nID);
-
-                            if (nFailCount >= nMaxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < nLockMinutes)
-                                ret = ResponseStatus.InsideLockTime;
-                            else
-                                ret = ResponseStatus.WrongPasswordOrUserName;
+                            UpdateFailCount(groupId, 0, userId, true);
+                            user = initializedUser;
                         }
                     }
                     else
-                        ret = ResponseStatus.UserDoesNotExist;
+                    {
+                        UpdateFailCount(groupId, 1, userId);
+
+                        if (nFailCount >= maxFailuresCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < lockMinutes)
+                        {
+                            responseStatus = ResponseStatus.InsideLockTime;
+                        }
+                        else
+                        {
+                            responseStatus = ResponseStatus.WrongPasswordOrUserName;
+                        }
+                    }
                 }
                 else
-                    ret = ResponseStatus.UserDoesNotExist;
+                {
+                    responseStatus = ResponseStatus.UserDoesNotExist;
+                }
             }
 
-            o.Initialize(ret, res);
-            return o;
+            userResponseObject.Initialize(responseStatus, user);
+            return userResponseObject;
+        }
+
+        private static void GetMaxFailuresCountAndExpiration(int defaultMaxFailCount, List<long> roleIds, int groupId, out int maxFailuresCount, out int maxExpiration)
+        {
+            maxFailuresCount = 0;
+            maxExpiration = 0;
+
+            if (roleIds?.Count > 0)
+            {
+                var passwordPoliciesResponse = PasswordPolicyManager.Instance.List(new ContextData(groupId), new PasswordPolicyFilter() { RoleIdsIn = roleIds });
+                if (passwordPoliciesResponse.HasObjects())
+                {
+                    foreach (var passwordPolicy in passwordPoliciesResponse.Objects)
+                    {
+                        if (passwordPolicy.LockoutFailuresCount.HasValue && passwordPolicy.LockoutFailuresCount > 0 && passwordPolicy.LockoutFailuresCount > maxFailuresCount)
+                        {
+                            maxFailuresCount = passwordPolicy.LockoutFailuresCount.Value;
+                        }
+
+                        if (passwordPolicy.Expiration.HasValue & passwordPolicy.Expiration > 0 && passwordPolicy.Expiration > maxExpiration)
+                        {
+                            maxExpiration = passwordPolicy.Expiration.Value;
+                        }
+                    }
+                }
+            }
+            
+            if (maxFailuresCount == 0)
+            {
+                maxFailuresCount = defaultMaxFailCount;
+            }
         }
 
         private static bool IsIDInDevicesExist(string sIDInDevices)
@@ -1186,42 +1265,5 @@ namespace Core.Users
 
             return (resp.m_RespStatus == ResponseStatus.OK);
         }
-
-
-        [JsonProperty()]
-        public UserBasicData m_oBasicData;
-
-        [JsonProperty()]
-        public UserDynamicData m_oDynamicData;
-
-        [JsonProperty()]
-        public UserState m_eUserState;
-
-        [JsonProperty()]
-        public DomainSuspentionStatus m_eSuspendState;
-
-        public string m_sSiteGUID;
-        public int m_domianID;
-        public bool m_isDomainMaster;
-        public int m_nSSOOperatorID;
-        public bool IsActivationGracePeriod;
-
-        // Save / Update method members
-
-        [System.Xml.Serialization.XmlIgnore]
-        [JsonIgnore()]
-        public bool shouldSetUserActive;
-        [System.Xml.Serialization.XmlIgnore]
-        [JsonIgnore()]
-        public bool resetFailCount;
-        [System.Xml.Serialization.XmlIgnore]
-        [JsonIgnore()]
-        public bool shouldRemoveFromCache;
-        [System.Xml.Serialization.XmlIgnore]
-        [JsonIgnore()]
-        protected int userId;
-        [System.Xml.Serialization.XmlIgnore]
-        [JsonIgnore()]
-        public string activationToken;
     }
 }
