@@ -120,6 +120,11 @@ namespace ApiObjects.Response
             }
         }
 
+        public void AddArg(eResponseStatus key, object value)
+        {
+            AddArg(((int)key).ToString(), value);
+        }
+
         public void AddArg(string key, object value)
         {
             if (args == null)
