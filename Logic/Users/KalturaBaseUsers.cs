@@ -9,6 +9,7 @@ namespace Core.Users
 {
     public abstract class KalturaBaseUsers
     {
+        protected const int DEFAULT_LOCKOUT_FAILURES_COUNT = 3;
         protected Int32 GroupId { get; set; }
         protected Int32 activationMustHours;
         protected Int32 tokenValidityHours;
@@ -83,7 +84,7 @@ namespace Core.Users
 
         // save user
         public abstract void PreSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, ref List<KeyValuePair> keyValueList);
-        internal abstract int MidSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive);
+        internal abstract int MidSaveNewUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive);
         public abstract void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList);
 
         // get user data

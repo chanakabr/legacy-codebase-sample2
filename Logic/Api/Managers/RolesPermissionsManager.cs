@@ -224,6 +224,7 @@ namespace APILogic.Api.Managers
                     domain = domainResponse.Domain;
                 }
             }
+
             if (domain != null && domain.roleId > 0)
             {
                 status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, "Not allowed for role id [@roleId@]", new List<KeyValuePair>()

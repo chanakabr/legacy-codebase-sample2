@@ -2589,7 +2589,7 @@ namespace Core.ConditionalAccess
                     }
 
                     var theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-                    // TODO SHIR - ASK IRA GetBaseRenewMultiUsageSubscriptionData
+
                     var renewDetails = new RenewDetails()
                     {
                         ProductId = int.Parse(subscriptionCode),

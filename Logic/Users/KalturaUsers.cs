@@ -122,7 +122,7 @@ namespace Core.Users
 
         public override UserResponseObject PreSignIn(ref Int32 siteGuid, ref string userName, ref string password, ref int maxFailCount, ref int lockMin, ref int groupId, ref string sessionId, ref string ip, ref string deviceId, ref bool preventDoubleLogin, ref List<KeyValuePair> keyValueList)
         {
-            return new UserResponseObject(); 
+            return new UserResponseObject();
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Core.Users
         /// <returns></returns>
         internal override UserResponseObject MidSignIn(Int32 siteGuid, string userName, string password, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin)
         {
-            UserResponseObject Response = new UserResponseObject();
+            var userResponseObject = new UserResponseObject();
             Int32 oldSiteGuid = siteGuid;
             bool isGracePeriod = false;
 
@@ -152,66 +152,66 @@ namespace Core.Users
                 switch (userStatus)
                 {
                     case UserActivationState.UserDoesNotExist:
-                        Response.m_RespStatus = ResponseStatus.UserDoesNotExist;
+                        userResponseObject.m_RespStatus = ResponseStatus.UserDoesNotExist;
                         break;
 
                     case UserActivationState.NotActivated:
-                        Response.m_user = new User(groupId, siteGuid);
-                        Response.m_RespStatus = ResponseStatus.UserNotActivated;
+                        userResponseObject.m_user = new User(groupId, siteGuid);
+                        userResponseObject.m_RespStatus = ResponseStatus.UserNotActivated;
                         break;
 
                     case UserActivationState.NotActivatedByMaster:
-                        Response.m_user = new User(groupId, siteGuid);
-                        Response.m_RespStatus = ResponseStatus.UserNotMasterApproved;
+                        userResponseObject.m_user = new User(groupId, siteGuid);
+                        userResponseObject.m_RespStatus = ResponseStatus.UserNotMasterApproved;
                         break;
 
                     case UserActivationState.UserRemovedFromDomain:
-                        Response.m_user = new User(groupId, siteGuid);
-                        Response.m_RespStatus = ResponseStatus.UserNotIndDomain;
+                        userResponseObject.m_user = new User(groupId, siteGuid);
+                        userResponseObject.m_RespStatus = ResponseStatus.UserNotIndDomain;
                         break;
                     case UserActivationState.UserWIthNoDomain:
-                        Response.m_user = new User(groupId, siteGuid);
-                        bool bValidDomainStat = MidAddDomain(ref Response, Response.m_user, userName, siteGuid, new DomainInfo(groupId));
+                        userResponseObject.m_user = new User(groupId, siteGuid);
+                        bool bValidDomainStat = MidAddDomain(ref userResponseObject, userResponseObject.m_user, userName, siteGuid, new DomainInfo(groupId));
                         if (!bValidDomainStat)
-                            return Response;
+                            return userResponseObject;
                         break;
                     case UserActivationState.UserSuspended:
-                        Response.m_user = new User(groupId, siteGuid);
-                        Response.m_RespStatus = ResponseStatus.UserSuspended;
+                        userResponseObject.m_user = new User(groupId, siteGuid);
+                        userResponseObject.m_RespStatus = ResponseStatus.UserSuspended;
                         break;
                     default:
-                        Response.m_RespStatus = ResponseStatus.UserNotActivated;
+                        userResponseObject.m_RespStatus = ResponseStatus.UserNotActivated;
                         break;
                 }
 
                 if (userStatus != UserActivationState.UserWIthNoDomain)
-                    return Response;
+                    return userResponseObject;
             }
 
             if (oldSiteGuid == 0)
             {
                 // check username and password
-                Response = User.SignIn(userName, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
-                if (Response != null && Response.m_user != null)
+                userResponseObject = User.SignIn(userName, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                if (userResponseObject != null && userResponseObject.m_user != null)
                 {
-                    Response.m_user.IsActivationGracePeriod = isGracePeriod;
+                    userResponseObject.m_user.IsActivationGracePeriod = isGracePeriod;
                 }
-                return Response;
+                return userResponseObject;
             }
             else if (oldSiteGuid == siteGuid)
             {
                 // validate siteguid received is legal
-                Response = User.SignIn(siteGuid, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
-                if (Response != null && Response.m_user != null)
+                userResponseObject = User.SignIn(siteGuid, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                if (userResponseObject != null && userResponseObject.m_user != null)
                 {
-                    Response.m_user.IsActivationGracePeriod = isGracePeriod;
+                    userResponseObject.m_user.IsActivationGracePeriod = isGracePeriod;
                 }
-                return Response;
+                return userResponseObject;
             }
             
-            Response.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
+            userResponseObject.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
 
-            return Response;
+            return userResponseObject;
         }
 
         public override void PostSignIn(ref UserResponseObject response, ref List<KeyValuePair> keyValueList) { }
@@ -228,7 +228,8 @@ namespace Core.Users
             if (!string.IsNullOrEmpty(basicData.m_sUserName) && basicData.m_sUserName.ToLower().Contains("anonymous"))
                 basicData.m_sUserName = string.Format(basicData.m_sUserName + "_{0}", User.GetNextGUID());
 
-            newUser.Initialize(basicData, dynamicData, GroupId, password);
+            newUser.InitializeNewUser(basicData, dynamicData, GroupId, password);
+            
             if (!string.IsNullOrEmpty(newUser.m_sSiteGUID) || newUser.m_oBasicData != basicData)
             {
                 userResponse.Initialize(ResponseStatus.UserExists, newUser);
@@ -242,7 +243,7 @@ namespace Core.Users
             }
             
             // save user
-            int userId = FlowManager.SaveUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
+            int userId = FlowManager.SaveNewUser(ref userResponse, this, ref basicData, newUser, GroupId, !IsActivationNeeded(basicData), keyValueList);
             if (userId <= 0)
             {
                 userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
@@ -275,9 +276,9 @@ namespace Core.Users
 
         public override void PreSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, ref List<KeyValuePair> keyValueList) { }
 
-        internal override int MidSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive)
+        internal override int MidSaveNewUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive)
         {
-            return user.Save(GroupId, !IsActivationNeeded(basicData));
+            return user.SaveForInsert(GroupId, !IsActivationNeeded(basicData));
         }
 
         public override void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 groupId, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList) { }
@@ -349,7 +350,7 @@ namespace Core.Users
 
         public UserActivationState GetUserStatus(ref string username, ref Int32 userId, ref bool isGracePeriod)
         {
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
+            UserActivationState activStatus = (UserActivationState)UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
 
             return activStatus;
         }
@@ -592,12 +593,11 @@ namespace Core.Users
         }
         internal override ApiObjects.Response.Status MidDeleteUser(int userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            var response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
             try
             {
                 UserResponseObject userResponse = GetUserData(userId.ToString());
-
                 if (userResponse.m_RespStatus != ResponseStatus.OK)
                 {
                     response = Utils.ConvertResponseStatusToResponseObject(userResponse.m_RespStatus);
@@ -605,7 +605,7 @@ namespace Core.Users
                 }
 
                 // get User's domain 
-                Core.Users.BaseDomain baseDomain = null;
+                BaseDomain baseDomain = null;
                 Utils.GetBaseImpl(ref baseDomain, GroupId);
 
                 if (baseDomain == null)
@@ -614,10 +614,8 @@ namespace Core.Users
                     response.Message = HOUSEHOLD_NOT_INITIALIZED;
                     return response;
                 }
-
-
+                
                 Domain userDomain = baseDomain.GetDomainInfo(userResponse.m_user.m_domianID, GroupId);
-
                 if (userDomain == null)
                 {
                     response.Code = (int)eResponseStatus.UserNotExistsInDomain;

@@ -2043,49 +2043,29 @@ namespace Core.Catalog
         internal static void SetSearchRegions(int groupId, bool isOPC, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
         {
             regionIds = null;
-            linearMediaTypes = null;
+            linearMediaTypes = new List<string>();
+            bool isRegionalizationEnabled = false;
+            int defaultRegion = 0;
 
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(groupId);
-            
-            // If this group has regionalization enabled at all
-            if (group.isRegionalizationEnabled)
+            if (isOPC)
             {
-                regionIds = new List<int>();
-                linearMediaTypes = new List<string>();
-
-                // If this is a guest user or something like this - get default region
-                if (domainId == 0)
+                CatalogGroupCache catalogGroupCache;
+                if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    int defaultRegion = group.defaultRegion;
+                    isRegionalizationEnabled = true;
+                    defaultRegion = catalogGroupCache.DefaultRegion;
 
-                    if (defaultRegion != 0)
-                    {
-                        regionIds.Add(defaultRegion);
-                    }
+                    linearMediaTypes.AddRange(catalogGroupCache.AssetStructsMapById.Values.Where(v => v.IsLinearAssetStruct).Select(a => a.Id.ToString()));
                 }
-                // Otherwise get the region of the requesting domain
-                else
+            }
+            else
+            {
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
+                if (group != null && group.isRegionalizationEnabled)
                 {
-                    int regionId = GetRegionIdOfDomain(groupId, domainId, siteGuid, group);
-
-                    if (regionId > -1)
-                    {
-                        regionIds.Add(regionId);
-                    }
-                }
-
-                if (isOPC)
-                {
-                    CatalogGroupCache catalogGroupCache;
-                    if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        linearMediaTypes.AddRange(catalogGroupCache.AssetStructsMapById.Values.Where(v => v.IsLinearAssetStruct).Select(a => a.Id.ToString()));
-                    }
-                }
-                else
-                {
-                    // Now we need linear media types - so we filter them and not other media types
+                    isRegionalizationEnabled = true;
+                    defaultRegion = group.defaultRegion;
                     Dictionary<string, string> dictionary = CatalogLogic.GetLinearMediaTypeIDsAndWatchRuleIDs(groupId);
 
                     if (dictionary.ContainsKey(CatalogLogic.LINEAR_MEDIA_TYPES_KEY))
@@ -2098,9 +2078,35 @@ namespace Core.Catalog
                     }
                 }
             }
+            
+            // If this group has regionalization enabled at all
+            if (isRegionalizationEnabled)
+            {
+                // If this is a guest user or something like this - get default region
+                if (domainId == 0)
+                {
+                    if (defaultRegion != 0)
+                    {
+                        regionIds = new List<int> { defaultRegion };
+                    }
+                }
+                // Otherwise get the region of the requesting domain
+                else
+                {
+                    int regionId = GetRegionIdOfDomain(groupId, domainId, siteGuid, defaultRegion);
+                    if (regionId > -1)
+                    {
+                        Region region = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, regionId);
+                        if (region != null)
+                        {
+                            regionIds = new List<int> { region.parentId == 0 ? regionId : region.parentId };
+                        }
+                    }
+                }
+            }
         }
         
-        public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, Group group = null)
+        public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
         {
             int regionId = -1;
             Domain domain = null;
@@ -2114,14 +2120,18 @@ namespace Core.Catalog
             // If the domain is not associated to a domain - get default region
             if (domain.m_nRegion == 0)
             {
-                if (group == null)
+                if (defaultRegion > -1)
                 {
-                    group = GroupsCache.Instance().GetGroup(groupId);
+                    regionId = defaultRegion;
                 }
-                
-                if (group != null && group.defaultRegion != 0)
+                else
                 {
-                    regionId = group.defaultRegion;
+                    Group group = GroupsCache.Instance().GetGroup(groupId);
+                    
+                    if (group != null && group.defaultRegion != 0)
+                    {
+                        regionId = group.defaultRegion;
+                    }
                 }
             }
             else
@@ -3291,22 +3301,24 @@ namespace Core.Catalog
 
             if (ids != null && ids.Count > 0)
             {
-                GroupManager groupManager = new GroupManager();
-
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int parentGroupID = catalogCache.GetParentGroup(groupId);
-
-                Group group = groupManager.GetGroup(parentGroupID);
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
 
-                if (group != null)
+                if (!doesGroupUsesTemplates)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
+                    GroupManager groupManager = new GroupManager();
+
+                    CatalogCache catalogCache = CatalogCache.Instance();
+                    groupId = catalogCache.GetParentGroup(groupId);
+                }
+
+                if (groupId > 0)
+                {
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupId,
                         ids, objectType, action, DateTime.UtcNow);
 
                     var queue = new CatalogQueue();
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
                     if (isUpdateIndexSucceeded)
                         log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
                     else
@@ -3316,8 +3328,8 @@ namespace Core.Catalog
                     if (objectType == eObjectType.EPG)
                     {
                         var legacyQueue = new CatalogQueue(true);
-                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
-                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupId, objectType, action);
+                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
 
                         // invalidate epg's for OPC and NON-OPC accounts
                         CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
@@ -6703,13 +6715,16 @@ namespace Core.Catalog
                             GroupManager manager = new GroupManager();
                             Group group = manager.GetGroup(request.m_nGroupID);
 
-                            int regionId = GetRegionIdOfDomain(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group);
-
-                            DataRow regionRow = ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
-
-                            if (regionRow != null)
+                            if (group != null && group.isRegionalizationEnabled)
                             {
-                                dictionary["region"] = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+                                int regionId = GetRegionIdOfDomain(request.m_nGroupID, request.domainId, request.m_sSiteGuid, group.defaultRegion);
+
+                                DataRow regionRow = ODBCWrapper.Utils.GetTableSingleRow("linear_channels_regions", regionId);
+
+                                if (regionRow != null)
+                                {
+                                    dictionary["region"] = ODBCWrapper.Utils.ExtractString(regionRow, "EXTERNAL_ID");
+                                }
                             }
 
                             break;

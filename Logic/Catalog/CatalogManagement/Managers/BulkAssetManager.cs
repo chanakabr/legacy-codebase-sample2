@@ -27,7 +27,7 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, ref MediaAsset mediaAsset, long userId, Dictionary<long, Image> images, 
+        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, ref MediaAsset mediaAsset, long userId, Dictionary<long, Image> images,
             Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia, bool isFromIngest = false, HashSet<long> topicIdsToRemove = null)
         {
             GenericListResponse<Status> response = new GenericListResponse<Status>();

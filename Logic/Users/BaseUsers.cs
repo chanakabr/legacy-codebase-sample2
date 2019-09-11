@@ -71,20 +71,13 @@ namespace Core.Users
         protected BaseUsers(Int32 nGroupID)
         {
             m_nGroupID = nGroupID;
-            //m_bIsInitialized = false;
-            //IsActivationNeeded(null);
             Initialize();
         }
 
         #region Abstract Methods
-
-        ////Domain
-        //public abstract Domain AddDomain(string domainName, string domainDescription, Int32 masterUserGuid, Int32 nGroupID);
-        //public abstract Domain SetDomainInfo(Int32 domainID, string domainName, Int32 nGroupID, string domainDescription);
+        
         public abstract Domain AddUserToDomain(Int32 nGroupID, Int32 domainID, Int32 userGuid, bool isMaster);
-        //public abstract Domain RemoveUserFromDomain(Int32 nGroupID, Int32 domainID, Int32 userGUID);
-        //public abstract Domain GetDomainInfo(Int32 domainID, Int32 nGroupID);
-        public abstract UserResponseObject CheckUserPassword(string sUN, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLogins);
+        public abstract UserResponseObject CheckUserPassword(string username, string sPass, Int32 nMaxFailCount, Int32 nLockMinutes, Int32 nGroupID, bool bPreventDoubleLoginsbool);
         public abstract UserResponseObject SignIn(string sUN, string sPass, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
         public abstract UserResponseObject SignIn(int siteGuid, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
         public abstract UserResponseObject SignInWithToken(string sToken, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins);
@@ -106,21 +99,21 @@ namespace Core.Users
         public abstract DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID);
         public abstract ApiObjects.Response.Status DeleteUser(int userId);
         public abstract ApiObjects.Response.Status ChangeUsers(string userId, string userIdToChange, string udid, int groupId);
-        public abstract UserResponse GetUserByExternalID(string externalID, int operatorID);
-        public abstract UserResponse GetUserByName(string userName, int groupId);
+        public abstract GenericResponse<UserResponseObject> GetUserByExternalID(string externalID, int operatorID);
+        public abstract GenericResponse<UserResponseObject> GetUserByName(string userName, int groupId);
         public abstract UserResponseObject CheckToken(string sToken);
         public abstract bool ResendWelcomeMail(string sUN);
         public abstract bool ResendActivationMail(string sUN);
-        public abstract UserResponseObject RenewPassword(string sUN, string sPass, int nGroupID);
+        public abstract GenericResponse<UserResponseObject> RenewPassword(string sUN, string sPass, int nGroupID);
         public abstract UserResponseObject ActivateAccount(string sUN, string sToken);
         public abstract UserResponseObject ActivateAccountByDomainMaster(string sMasterUN, string sUN, string sToken);
         public abstract bool IsUserActivated(ref string sUserName, ref Int32 nUserID);
         public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod);
         public abstract bool SendPasswordMail(string sUN);
         public abstract void Initialize();
-        public abstract UserResponseObject SetUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
+        public abstract UserResponseObject UpdateUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
         public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
-        public abstract UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
+        public abstract GenericResponse<UserResponseObject> ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
         public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
         public abstract UserResponseObject ForgotPassword(string sUN, string templateName);
         public abstract UserResponseObject ChangePassword(string sUN);
@@ -658,7 +651,7 @@ namespace Core.Users
                 m_bIsActivationNeeded = UsersDal.GetIsActivationNeeded(m_nGroupID);
             }
 
-            return (m_bIsActivationNeeded.HasValue ? m_bIsActivationNeeded.Value : true);
+            return (m_bIsActivationNeeded ?? true);
         }
 
         public virtual bool AddItemToList(UserItemList userItemList, int nGroupID)
@@ -1209,9 +1202,9 @@ namespace Core.Users
         /// <param name="PIN"></param>
         /// <param name="secret"></param>
         /// <returns>UserResponse</returns>
-        public UserResponse ValidateLoginWithPin(string PIN, string secret)
+        public GenericResponse<UserResponseObject> ValidateLoginWithPin(string PIN, string secret)
         {
-            UserResponse response = new UserResponse();
+            var response = new GenericResponse<UserResponseObject>();
             try
             {
                 //Try to get users by PIN from DB 
@@ -1223,12 +1216,12 @@ namespace Core.Users
 
                 if (!loginViaPin)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.LoginViaPinNotAllowed, "Login via pin is not allowed");
+                    response.SetStatus(eResponseStatus.LoginViaPinNotAllowed, "Login via pin is not allowed");
                     return response;
                 }
                 if (dr == null)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exists");
+                    response.SetStatus(eResponseStatus.PinNotExists, "Pin code not exists");
                     return response;
                 }
                 // check secret 
@@ -1243,26 +1236,28 @@ namespace Core.Users
                     DateTime expiredDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "expired_date");
                     if (DateTime.UtcNow >= expiredDate) // pincode is expired
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinExpired, "Pin code expired at " + expiredDate.ToString());
+                        response.SetStatus(eResponseStatus.PinExpired, "Pin code expired at " + expiredDate.ToString());
                     }
                     else
                     {
-                        response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "valid pin and user");
-                        response.user = new UserResponseObject();
-                        response.user.m_user = new User(m_nGroupID, userId);
+                        response.SetStatus(eResponseStatus.OK, "valid pin and user");
+                        response.Object = new UserResponseObject()
+                        {
+                            m_user = new User(m_nGroupID, userId)
+                        };
                     }
                 }
                 else
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.SecretIsWrong, "Problems with the secret code");
+                    response.SetStatus(eResponseStatus.SecretIsWrong, "Problems with the secret code");
                 }
             }
             catch (Exception ex)
             {
-                response = new UserResponse();
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exists");
+                response = new GenericResponse<UserResponseObject>(eResponseStatus.PinNotExists, "Pin code not exists");
                 log.ErrorFormat("SignInWithPIN - Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, m_nGroupID);
             }
+
             return response;
         }
 

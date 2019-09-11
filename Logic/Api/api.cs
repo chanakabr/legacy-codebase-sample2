@@ -2299,7 +2299,7 @@ namespace Core.Api
 
             }
             return res;
-        }        
+        }
 
         public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -4628,65 +4628,6 @@ namespace Core.Api
 
         }
 
-        public static RegionsResponse GetRegions(int groupID, List<string> externalRegionList, RegionOrderBy orderBy)
-        {
-            RegionsResponse response = null;
-            DataSet ds = null;
-            try
-            {
-                if (externalRegionList == null)
-                {
-                    externalRegionList = new List<string>();
-
-                }
-
-                ds = DAL.ApiDAL.Get_RegionsByExternalRegions(groupID, externalRegionList, orderBy);
-
-                Region region;
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    response = new RegionsResponse();
-                    response.Regions = new List<Region>();
-
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            region = new Region()
-                            {
-                                id = APILogic.Utils.GetIntSafeVal(row, "id"),
-                                name = APILogic.Utils.GetSafeStr(row, "name"),
-                                externalId = APILogic.Utils.GetSafeStr(row, "external_id"),
-                                isDefault = APILogic.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
-                            };
-                            response.Regions.Add(region);
-                        }
-                    }
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
-                    {
-                        int regionId;
-                        foreach (DataRow row in ds.Tables[1].Rows)
-                        {
-                            regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
-                            region = response.Regions.Where(r => r.id == regionId).FirstOrDefault();
-                            if (region != null)
-                            {
-                                region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
-                            }
-                        }
-                    }
-
-                }
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
-            }
-            catch (Exception)
-            {
-                response = new RegionsResponse();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-            }
-            return response;
-        }
-
         public static List<LanguageObj> GetGroupLanguages(int groupId)
         {
             List<LanguageObj> response = null;
@@ -5940,15 +5881,15 @@ namespace Core.Api
 
         #region Utility
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
+        internal static Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
         {
             Users.Domain domain;
             return ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
         }
-
-        private static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
+        
+        private static Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            var status = new Status();
             domain = null;
 
             // If no user - go immediately to domain validation
@@ -11608,6 +11549,8 @@ namespace Core.Api
 
             try
             {
+                bool shouldInvalidateRegions = false;
+
                 // check for MainLanguage valid
                 if (partnerConfigToUpdate.MainLanguage.HasValue)
                 {
@@ -11670,6 +11613,23 @@ namespace Core.Api
                     }
                 }
 
+                if (partnerConfigToUpdate.DefaultRegion.HasValue)
+                {
+                    var defaultRegion = ApiLogic.Api.Managers.RegionManager.GetRegion(groupId, partnerConfigToUpdate.DefaultRegion.Value);
+                    if (defaultRegion == null)
+                    {
+                        log.ErrorFormat("Error while update generalPartnerConfig. DefaultRegion {0} not exist in groupId: {1}", partnerConfigToUpdate.DefaultRegion.Value, groupId);
+                        response.Set((int)eResponseStatus.RegionDoesNotExist, eResponseStatus.DlmNotExist.ToString());
+                        return response;
+                    }
+                    else
+                    {
+                        CatalogGroupCache catalogGroupCache;
+                        shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
+                            && defaultRegion.id != catalogGroupCache.DefaultRegion);
+                    }
+                }
+
                 // upsert GeneralPartnerConfig            
                 if (!ApiDAL.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate))
                 {
@@ -11681,6 +11641,11 @@ namespace Core.Api
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
+                }
+
+                if (shouldInvalidateRegions)
+                {
+                    ApiLogic.Api.Managers.RegionManager.InvalidateRegions(groupId);
                 }
 
                 response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -11733,14 +11698,27 @@ namespace Core.Api
 
                         int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
                         int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
+                        int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
+                        int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
 
                         if (deleteMediaPolicy.HasValue)
                         {
                             generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
                         }
+
                         if (downgradePolicy.HasValue)
                         {
                             generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                        }
+
+                        if (enableRegionFiltering.HasValue)
+                        {
+                            generalPartnerConfig.EnableRegionFiltering = enableRegionFiltering.Value == 1;
+                        }
+
+                        if (defaultRegion.HasValue && defaultRegion.Value > 0)
+                        {
+                            generalPartnerConfig.DefaultRegion = defaultRegion.Value;
                         }
                     }
 
@@ -12051,5 +12029,6 @@ namespace Core.Api
 
             return response;
         }
+
     }
 }

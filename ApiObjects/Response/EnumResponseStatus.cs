@@ -50,6 +50,11 @@ namespace ApiObjects.Response
         DlmExist = 1035,
         MasterUserNotFound = 1036,
         RegionDoesNotExist = 1037,
+        PasswordPolicyDoesNotExist = 1038,
+        PasswordPolicyViolation = 1039,
+        PasswordExpired = 1040,
+        PasswordCannotBeReused = 1041,
+        InvalidPasswordComplexity = 1042,
 
         #endregion
 
@@ -346,6 +351,10 @@ namespace ApiObjects.Response
         PermissionNameAlreadyInUse = 5063,
         EventNotificationIdIsMissing = 5064,
         EventNotificationIdNotFound = 5065,
+        RegionNotFound = 5066,
+        RegionCannotBeParent = 5067,
+        DefaultRegionCannotBeDeleted = 5068,
+        RegionInUseCannotBeDeleted = 5069,
         #endregion
 
         #region Billing 6000 - 6999

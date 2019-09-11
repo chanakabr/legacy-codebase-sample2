@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using KLogMonitor;
 using ApiObjects;
 
@@ -11,84 +8,13 @@ namespace Core.Users
     public class EutelsatUsers : TvinciUsers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-
+        
         public EutelsatUsers(int nGroupID)
             : base(nGroupID)
         {
 
         }
-
-        public override UserResponseObject AddNewUser(UserBasicData oBasicData, UserDynamicData sDynamicData, string sPassword)
-        {
-            UserResponseObject userResponse = new UserResponseObject();
-            User newUser = new User();
-            // if username or password empty return with WrongPasswordOrUserName response
-            if (string.IsNullOrEmpty(oBasicData.m_sUserName) || string.IsNullOrEmpty(sPassword))
-            {
-                userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
-                return userResponse;
-            }
-
-            if (!string.IsNullOrEmpty(oBasicData.m_sUserName) && oBasicData.m_sUserName.ToLower().Contains("anonymous"))
-            {
-                oBasicData.m_sUserName = string.Format(oBasicData.m_sUserName + "_{0}", User.GetNextGUID());
-            }
-
-            newUser.Initialize(oBasicData, sDynamicData, m_nGroupID, sPassword);
-
-            if (!string.IsNullOrEmpty(newUser.m_sSiteGUID) || newUser.m_oBasicData != oBasicData)
-            {
-                userResponse.Initialize(ResponseStatus.UserExists, newUser);
-                return userResponse;
-            }
-            
-            int newUserID = newUser.Save(m_nGroupID, !IsActivationNeeded(oBasicData));
-
-            if (newUserID <= 0)
-            {
-                userResponse.Initialize(ResponseStatus.ErrorOnSaveUser, newUser);
-                return userResponse;
-            }
-
-            if (newUser.m_domianID <= 0)
-            {
-                base.CheckAddDomain(ref userResponse, newUser, oBasicData.m_sUserName, newUserID);
-            }
-            else
-            {
-                userResponse.Initialize(ResponseStatus.OK, newUser);
-            }
-
-            //Send Wellcome Email
-            if (m_mailImpl != null)
-            {
-                SendMailImpl(userResponse.m_user);
-            }
-            else
-            {
-                WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
-                Utils.SendMail(m_nGroupID, sMailReq);
-            }
-
-            if (userResponse.m_RespStatus != ResponseStatus.OK)
-            {
-                return userResponse;
-            }
-
-            string sOperatorCoGuid = string.Empty;
-            int nOperatorID = 0;
-            int nOperatorGroupID = 0;
-            int nHouseholdID = 0;
-
-            if (Utils.GetUserOperatorAndHouseholdIDs(m_nGroupID, userResponse.m_user.m_oBasicData.m_CoGuid, ref nOperatorID, ref sOperatorCoGuid, ref nOperatorGroupID, ref nHouseholdID))
-            {
-                DAL.UsersDal.InsertUserOperator(userResponse.m_user.m_sSiteGUID, userResponse.m_user.m_oBasicData.m_CoGuid, nOperatorID);
-            }
-
-            return userResponse;
-        }
-
+        
         public override UserResponseObject ActivateAccount(string sUN, string sToken)
         {
             int nUserID = GetUserIDByUserName(sUN);
@@ -227,8 +153,7 @@ namespace Core.Users
 
             return false;
         }
-
-
+        
         public bool SendWelcomePasswordMail(UserResponseObject user)
         {
             bool sent = false;

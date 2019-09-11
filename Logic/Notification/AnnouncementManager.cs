@@ -28,7 +28,7 @@ namespace Core.Notification
     public class AnnouncementManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         private const string ROUTING_KEY_NOTIFICATION_CLEANUP = "PROCESS_NOTIFIACTION_CLEANUP";
         private const int MAX_MSG_LENGTH = 250 * 1024;
         private const int MIN_TIME_FOR_START_TIME_SECONDS = 30;
@@ -250,7 +250,7 @@ namespace Core.Notification
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
-        
+
         private static bool HandleRecipientOtherTvSeries(int groupId, int messageId, long startTime, int announcementId, ref DataRow messageAnnouncementDataRow, ref string url, ref string ImageUrl, ref string sound,
                                                          ref string category, out string annExternalId, out string singleQueueName, out bool failRes, out List<KeyValuePair<string, string>> mergeVars, out string mailExternalId)
         {
@@ -624,7 +624,7 @@ namespace Core.Notification
                 log.ErrorFormat("CreateSystemAnnouncement failed groupId = {0}, ex = {1}", groupId, ex);
                 return new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
-            
+
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
@@ -762,11 +762,11 @@ namespace Core.Notification
 
                     if (NotificationSettings.IsPartnerSmsNotificationEnabled(groupId) && includeSms)
                     {
-                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements, 
+                        PublishSmsSystemAnnouncement(groupId, messageAnnouncementDataRow, announcements,
                             ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), url, sound, category, imageUrl);
                     }
 
-                        break;
+                    break;
 
                 case eAnnouncementRecipientsType.LoggedIn:
 

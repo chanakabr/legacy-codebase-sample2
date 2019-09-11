@@ -19,7 +19,7 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";        
+        protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
 
         /// <summary>
         /// Add notification request to the db, using NotificationManager object.
@@ -620,7 +620,7 @@ namespace Core.Notification
 
             return response;
         }
-        
+
         public static GenericResponse<FollowDataBase> AddPersonalListItemToUser(int userId, int groupId, FollowDataBase personalListItemToFollow)
         {
             personalListItemToFollow.GroupId = groupId;
@@ -1450,7 +1450,7 @@ namespace Core.Notification
                 var followUpTagNotifications = NotificationManager.Instance.GetNotifications(groupId, NotificationTriggerType.FollowUpByTag, mediaId);
 
                 //Indication if notification(s) exist for this 
-                if (followUpTagNotifications != null) 
+                if (followUpTagNotifications != null)
                 {
                     DataTable request = NotificationManager.Instance.BuildTagNotificationsRequest(followUpTagNotifications);
                     if (request != null && request.Rows != null && request.Rows.Count > 0)
