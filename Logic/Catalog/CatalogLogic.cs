@@ -3,6 +3,7 @@ using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
+using ApiObjects.EventBus;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -3238,14 +3239,25 @@ namespace Core.Catalog
                 }
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
-                    var queue = new CatalogQueue();
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ElasticSearchRequest()
+                    {
+                        GroupId = groupId,
+                        Action = action,
+                        DocumentIDs = ids,
+                        Type = updatedObjectType
+                    };
 
-                    // backward compatibility
-                    var legacyQueue = new CatalogQueue(true);
-                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
-                    legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    eventBus.Publish(serviceEvent);
+
+                    //ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
+                    //var queue = new CatalogQueue();
+                    //isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+
+                    //// backward compatibility
+                    //var legacyQueue = new CatalogQueue(true);
+                    //ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
+                    //legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
                 }
 
                 switch (updatedObjectType)
@@ -3301,23 +3313,42 @@ namespace Core.Catalog
 
                 if (group != null)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        ids, objectType, action, DateTime.UtcNow);
+                    try
+                    {
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ElasticSearchRequest()
+                        {
+                            GroupId = groupId,
+                            Action = action,
+                            DocumentIDs = ids,
+                            Type = objectType
+                        };
 
-                    var queue = new CatalogQueue();
+                        eventBus.Publish(serviceEvent);
+                        log.Debug($"successfully enqueue of epg upload. ids = {string.Join(",", ids)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed enqueue of epg upload. ids = {string.Join(",", ids)}, ex = {ex}");
+                    }
 
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
-                    if (isUpdateIndexSucceeded)
-                        log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
-                    else
-                        log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
+                    //ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
+                    //    ids, objectType, action, DateTime.UtcNow);
+
+                    //var queue = new CatalogQueue();
+
+                    //isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    //if (isUpdateIndexSucceeded)
+                    //    log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
+                    //else
+                    //    log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
 
                     // Backward compatibility
                     if (objectType == eObjectType.EPG)
                     {
-                        var legacyQueue = new CatalogQueue(true);
-                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
-                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                        //var legacyQueue = new CatalogQueue(true);
+                        //ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
+                        //legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
 
                         // invalidate epg's for OPC and NON-OPC accounts
                         CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
@@ -6067,12 +6098,30 @@ namespace Core.Catalog
 
                 if (group != null)
                 {
-                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
-                        eAction.Rebase, date);
+                    try
+                    {
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ElasticSearchRequest()
+                        {
+                            GroupId = groupId,
+                            Action = eAction.Rebase,
+                            StartDate = date,
+                            Type = type
+                        };
 
-                    var queue = new CatalogQueue();
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
+                    }
 
-                    result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                    //ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
+                    //    eAction.Rebase, date);
+
+                    //var queue = new CatalogQueue();
+
+                    //result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
                 }
             }
             catch (Exception ex)

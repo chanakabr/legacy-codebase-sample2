@@ -400,7 +400,7 @@ namespace Core.Catalog.CatalogManagement
             return metaValue;
         }
             
-        public static bool DeleteMedia(int groupId, int assetId)
+        public static bool DeleteMedia(int groupId, long assetId)
         {
             bool result = false;
             string index = groupId.ToString();
