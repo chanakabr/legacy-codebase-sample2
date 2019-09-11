@@ -3161,7 +3161,7 @@ namespace Core.Catalog.CatalogManagement
                                                           GetRegionsFromDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
                                                           groupId,
-                                                          LayeredCacheKeys.GetRegionsKeyInvalidationKey(groupId)))
+                                                          LayeredCacheKeys.GetRegionsInvalidationKey(groupId)))
                 {
                     log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }

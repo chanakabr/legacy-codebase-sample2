@@ -1272,10 +1272,5 @@ namespace CachingProvider.LayeredCache
         {
             return "allLanguageList";
         }
-
-        public static string GetRegionsKeyInvalidationKey(int groupId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
