@@ -1,17 +1,16 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using Core.Api;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using DAL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Linq;
-using DAL;
-using CachingProvider.LayeredCache;
-using Core.Catalog.CatalogManagement;
-using Core.Api;
-using KLogMonitor;
 using System.Reflection;
-using Core.Catalog;
 
 namespace ApiLogic.Api.Managers
 {
@@ -86,15 +85,28 @@ namespace ApiLogic.Api.Managers
                 Region region = GetRegion(groupId, id);
                 if (region == null)
                 {
-                    log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, id);
+                    log.Error($"Region wasn't found. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.RegionNotFound, "Region was not found");
+                }
+
+                if(region.isDefault)
+                {
+                    log.Error($"Default region cannot be deleted. groupId:{groupId}, id:{id}");
+                    return new Status((int)eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted");
                 }
 
                 // TODO: what if the region is a parent??
 
+                // check if region in use
+                if (!DomainDal.IsRegionInUse(groupId, id))
+                {
+                    log.Error($"Region in use cannot be deleted. groupId:{groupId}, id:{id}");
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
                 {
-                    log.ErrorFormat("Error while trying to delete region. groupId:{0}, id:{1}", groupId, id);
+                    log.Error($"Error while trying to delete region. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.Error); ;
                 }
 
@@ -102,7 +114,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception exc)
             {
-                log.ErrorFormat("DeleteRegion Failed. regionId {0}, groupId: {1}. ex: {2}", id, groupId, exc);
+                log.Error($"DeleteRegion Failed. regionId {id}, groupId: {groupId}. ex: {exc}");
                 return new Status((int)eResponseStatus.Error); ;
             }
 
