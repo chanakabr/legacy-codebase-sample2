@@ -10907,13 +10907,16 @@ namespace Core.Api
 
                     eventBus.Publish(serviceEvent);
 
-                    //GenericCeleryQueue queue = new GenericCeleryQueue();
-                    //BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
-                    //{
-                    //    ETA = nextExecutionDate
-                    //};
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        GenericCeleryQueue queue = new GenericCeleryQueue();
+                        BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+                        {
+                            ETA = nextExecutionDate
+                        };
 
-                    //bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                        bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                    }
                 }
             }
 

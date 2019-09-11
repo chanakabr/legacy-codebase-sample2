@@ -3260,14 +3260,17 @@ namespace Core.Catalog
 
                     eventBus.Publish(serviceEvent);
 
-                    //ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
-                    //var queue = new CatalogQueue();
-                    //isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
+                        var queue = new CatalogQueue();
+                        isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
 
-                    //// backward compatibility
-                    //var legacyQueue = new CatalogQueue(true);
-                    //ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
-                    //legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                        // backward compatibility
+                        var legacyQueue = new CatalogQueue(true);
+                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
+                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    }
                 }
 
                 switch (updatedObjectType)
@@ -6131,12 +6134,15 @@ namespace Core.Catalog
                         log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
                     }
 
-                    //ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
-                    //    eAction.Rebase, date);
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
+                            eAction.Rebase, date);
 
-                    //var queue = new CatalogQueue();
+                        var queue = new CatalogQueue();
 
-                    //result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                        result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
+                    }
                 }
             }
             catch (Exception ex)

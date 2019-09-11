@@ -4,6 +4,7 @@ using ApiObjects.EventBus;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using Core.Catalog.Response;
 using DAL;
 using EventBus.RabbitMQ;
@@ -1106,8 +1107,12 @@ namespace Core.Catalog.CatalogManagement
                                 var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
                                 eventBus.Publish(serviceEvent);
 
-                                //var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
-                                //bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                                {
+                                    var queue = new GenericCeleryQueue();
+                                    var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
+                                    bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                                }
                             }
                             catch
                             {
@@ -2855,7 +2860,6 @@ namespace Core.Catalog.CatalogManagement
 
                     try
                     {
-
                         AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
                         {
                             Data = JsonConvert.SerializeObject(data),
@@ -2870,8 +2874,12 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed enqueue of inheritance {0}. ex ={1}", data, ex);
                     }
-                    //InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
-                    //bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
+                        bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
+                    }
                 }
             }
             catch (Exception ex)

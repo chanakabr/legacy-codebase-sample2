@@ -589,18 +589,22 @@ namespace Core.Notification
                 log.Error($"Error while inserting engagement {engagementId} to queue. ex = {ex}");
                 res = false;
             }
-            //EngagementQueue queue = new EngagementQueue();
-            //EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
-            //{
-            //    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
-            //};
 
-            //bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                EngagementQueue queue = new EngagementQueue();
+                EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
+                {
+                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
+                };
 
-            //if (res)
-            //    log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
-            //else
-            //    log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
+                bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+
+                if (res)
+                    log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
+                else
+                    log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
+            }
 
             return res;
         }
