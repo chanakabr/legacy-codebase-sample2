@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using System.Linq;
 
 
 namespace WebAPI.Models.API
@@ -41,6 +42,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
+        [SchemeProperty(ReadOnly = true)]
         public bool IsDefault{ get; set; }
 
         /// <summary>
