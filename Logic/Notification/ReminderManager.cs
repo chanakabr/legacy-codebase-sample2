@@ -25,6 +25,8 @@ using System.Threading.Tasks;
 using CachingProvider.LayeredCache;
 using APILogic.Notification;
 using ConfigurationManager;
+using ApiObjects.EventBus;
+using EventBus.RabbitMQ;
 
 namespace Core.Notification
 {
@@ -35,7 +37,7 @@ namespace Core.Notification
         private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
         private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
         private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
-        
+
         private static string CatalogSignString = Guid.NewGuid().ToString();
         private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
 
@@ -916,7 +918,7 @@ namespace Core.Notification
                   userNotificationData.Settings.EnableMail.HasValue && userNotificationData.Settings.EnableMail.Value &&
                   !string.IsNullOrEmpty(userNotificationData.UserData.Email))
             {
-                List<DbSeriesReminder> reminders = NotificationDal.GetSeriesReminders(groupId, new List<long> () { reminderId });
+                List<DbSeriesReminder> reminders = NotificationDal.GetSeriesReminders(groupId, new List<long>() { reminderId });
                 if (reminders != null && reminders.Count > 0)
                 {
                     if (!MailNotificationAdapterClient.UnSubscribeToAnnouncement(groupId, new List<string>() { reminders[0].MailExternalId }, userNotificationData.UserData, userId))
@@ -1254,7 +1256,7 @@ namespace Core.Notification
                     {
                         reminder.IsSent = true;
                         log.DebugFormat("Successfully sent reminder to mail. reminder Id: {0}", reminder.ID);
-                        
+
                         // update series reminder external result
                         if (NotificationDal.AddMailExternalResult(partnerId, reminder.ID, MailMessageType.Reminder, string.Empty, true) == 0)
                         {
@@ -1549,20 +1551,26 @@ namespace Core.Notification
 
         public static bool AddReminderToQueue(int groupId, DbReminder reminder)
         {
-            MessageReminderQueue que = new MessageReminderQueue();
-            MessageReminderData messageReminderData = new MessageReminderData(groupId, reminder.SendTime, reminder.ID)
+            var msg = new MessageReminderRequest
             {
-                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime)
+                GroupId = groupId,
+                MessageReminderId = reminder.ID,
+                StartTime = reminder.SendTime,
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime),
             };
 
-            bool res = que.Enqueue(messageReminderData, ROUTING_KEY_REMINDERS_MESSAGES);
-
-            if (res)
-                log.DebugFormat("Successfully inserted a reminder message to reminder queue: {0}", messageReminderData);
-            else
-                log.ErrorFormat("Error while inserting reminder {0} to queue", messageReminderData);
-
-            return res;
+            try
+            {
+                var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                eventBus.Publish(msg);
+                log.Debug($"Successfully inserted a reminder message to reminder queue: {msg}");
+                return true;
+            }
+            catch (Exception e)
+            {
+                log.Error($"Error while inserting reminder {msg} to queue", e);
+                return false;
+            }
         }
 
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
