@@ -4030,6 +4030,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPasswordPolicy":
+                    switch(property.Name)
+                    {
+                        case "Complexities":
+                            return "complexities";
+                        case "Expiration":
+                            return "expiration";
+                        case "HistoryCount":
+                            return "historyCount";
+                        case "Id":
+                            return "id";
+                        case "LockoutFailuresCount":
+                            return "lockoutFailuresCount";
+                        case "Name":
+                            return "name";
+                        case "UserRoleIds":
+                            return "userRoleIds";
+                    }
+                    break;
+                    
+                case "KalturaPasswordPolicyFilter":
+                    switch(property.Name)
+                    {
+                        case "UserRoleIdIn":
+                            return "userRoleIdIn";
+                    }
+                    break;
+                    
                 case "KalturaPaymentGateway":
                     switch(property.Name)
                     {
@@ -5001,6 +5029,16 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaRegex":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                        case "Expression":
+                            return "expression";
                     }
                     break;
                     
@@ -8760,6 +8798,29 @@ namespace WebAPI.Reflection
                         case "externallogin":
                             RolesManager.ValidateActionPermitted("partner", "externalLogin", false);
                             return PartnerController.ExternalLogin();
+                            
+                    }
+                    break;
+                    
+                case "passwordpolicy":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "add");
+                            return PasswordPolicyController.Add((KalturaPasswordPolicy) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "update");
+                            return PasswordPolicyController.Update((long) methodParams[0], (KalturaPasswordPolicy) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "delete");
+                            PasswordPolicyController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "list");
+                            return PasswordPolicyController.List((KalturaPasswordPolicyFilter) methodParams[0]);
                             
                     }
                     break;
@@ -15451,6 +15512,47 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "externallogin":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "passwordpolicy":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPasswordPolicy),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPasswordPolicy),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPasswordPolicyFilter),
+                            });
                             return ret;
                             
                     }

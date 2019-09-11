@@ -12124,6 +12124,21 @@
             Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaRegex">
+            <summary>
+            KalturaRegex
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRegex.Expression">
+            <summary>
+            regex expression 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRegex.Description">
+            <summary>
+            description 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
             <summary>
             Define KalturaRelatedObjectFilter
@@ -15928,6 +15943,56 @@
         <member name="P:WebAPI.Models.Users.KalturaOTTUserType.Description">
             <summary>
             User type description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Users.KalturaPasswordPolicy">
+            <summary>
+            Password policy settings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Id">
+            <summary>
+            id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.UserRoleIds">
+            <summary>
+            Comma separated UserRole Ids list which the policy is applied on
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.HistoryCount">
+            <summary>
+            The number of passwords that should be remembered for each user so that they cannot be reused.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Expiration">
+            <summary>
+            When should the password expire (will represent time as days).
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Complexities">
+            <summary>
+            array of  KalturaRegex
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.LockoutFailuresCount">
+            <summary>
+             the number of passwords failures before the account is locked.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Users.KalturaPasswordPolicyFilter">
+            <summary>
+            Password policy settings filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicyFilter.UserRoleIdIn">
+            <summary>
+            Comma separated list of role Ids.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">

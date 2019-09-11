@@ -5877,6 +5877,42 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
+    public partial class KalturaRegex
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Description != null)
+            {
+                ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
+            }
+            if(Expression != null)
+            {
+                ret.Add("expression", "\"expression\": " + "\"" + EscapeJson(Expression) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Description != null)
+            {
+                ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
+            }
+            if(Expression != null)
+            {
+                ret.Add("expression", "<expression>" + EscapeXml(Expression) + "</expression>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaReport
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22430,6 +22466,126 @@ namespace WebAPI.Models.Users
             {
                 ret.Add("id", "<id>" + Id + "</id>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaPasswordPolicy
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Complexities != null)
+            {
+                propertyValue = "[" + String.Join(", ", Complexities.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("complexities", "\"complexities\": " + propertyValue);
+            }
+            if(Expiration.HasValue)
+            {
+                ret.Add("expiration", "\"expiration\": " + Expiration);
+            }
+            if(HistoryCount.HasValue)
+            {
+                ret.Add("historyCount", "\"historyCount\": " + HistoryCount);
+            }
+            ret.Add("id", "\"id\": " + Id);
+            if(LockoutFailuresCount.HasValue)
+            {
+                ret.Add("lockoutFailuresCount", "\"lockoutFailuresCount\": " + LockoutFailuresCount);
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if(UserRoleIds != null)
+            {
+                ret.Add("userRoleIds", "\"userRoleIds\": " + "\"" + EscapeJson(UserRoleIds) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Complexities != null)
+            {
+                propertyValue = Complexities.Count > 0 ? "<item>" + String.Join("</item><item>", Complexities.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("complexities", "<complexities>" + propertyValue + "</complexities>");
+            }
+            if(Expiration.HasValue)
+            {
+                ret.Add("expiration", "<expiration>" + Expiration + "</expiration>");
+            }
+            if(HistoryCount.HasValue)
+            {
+                ret.Add("historyCount", "<historyCount>" + HistoryCount + "</historyCount>");
+            }
+            ret.Add("id", "<id>" + Id + "</id>");
+            if(LockoutFailuresCount.HasValue)
+            {
+                ret.Add("lockoutFailuresCount", "<lockoutFailuresCount>" + LockoutFailuresCount + "</lockoutFailuresCount>");
+            }
+            if(Name != null)
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if(UserRoleIds != null)
+            {
+                ret.Add("userRoleIds", "<userRoleIds>" + EscapeXml(UserRoleIds) + "</userRoleIds>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPasswordPolicyFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(UserRoleIdIn != null)
+            {
+                ret.Add("userRoleIdIn", "\"userRoleIdIn\": " + "\"" + EscapeJson(UserRoleIdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(UserRoleIdIn != null)
+            {
+                ret.Add("userRoleIdIn", "<userRoleIdIn>" + EscapeXml(UserRoleIdIn) + "</userRoleIdIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPasswordPolicyListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }
