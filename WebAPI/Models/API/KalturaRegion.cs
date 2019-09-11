@@ -1,8 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+
 
 namespace WebAPI.Models.API
 {
@@ -38,6 +42,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
+        [SchemeProperty(ReadOnly = true)]
         public bool IsDefault{ get; set; }
 
         /// <summary>
@@ -47,5 +52,28 @@ namespace WebAPI.Models.API
         [JsonProperty("linearChannels")]
         [XmlElement(ElementName = "linearChannels")]
         public List<KalturaRegionalChannel> RegionalChannels { get; set; }
+
+
+        /// <summary>
+        /// Parent region ID
+        /// </summary>
+        [DataMember(Name = "parentId")]
+        [JsonProperty("parentId")]
+        [XmlElement(ElementName = "parentId")]
+        public long ParentId { get; set; }
+
+
+        public void Validate()
+        {
+            if (ParentId != 0 && RegionalChannels?.Count > 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "parentRegionId", "linearChannels");
+            }
+
+            if (RegionalChannels?.Count > 0 && RegionalChannels.Select(c => c.LinearChannelId).Distinct().Count() != RegionalChannels.Count)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "linearChannels.linearChannelId");
+            }
+        }
     }
 }

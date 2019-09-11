@@ -29,11 +29,9 @@ namespace WebAPI.Clients
         {
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId,
-            Dictionary<string, KalturaStringValue> extraParams, bool shouldSupportSingleLogin)
+        public KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<string, KalturaStringValue> extraParams, bool shouldSupportSingleLogin)
         {
-            WebAPI.Models.Users.KalturaOTTUser user = null;
-            UserResponse response = null;            
+            GenericResponse<UserResponseObject> userResponse = null;            
 
             try
             {
@@ -44,7 +42,7 @@ namespace WebAPI.Clients
                     {
                         keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
                     }
-                    response = Core.Users.Module.LogIn(groupId, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
+                    userResponse = Core.Users.Module.LogIn(groupId, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
                         shouldSupportSingleLogin, keyValueList);
                 }
             }
@@ -54,30 +52,29 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (userResponse == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!userResponse.IsOkStatusCode())
             {
-                if (response.resp.Code == (int)eResponseStatus.UserExternalError)
+                if (userResponse.Status.Code == (int)eResponseStatus.UserExternalError)
                 {
-                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
+                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, userResponse.Status.Code, userResponse.Status.Message, userResponse.Object.ExternalCode, userResponse.Object.ExternalMessage);
                 }
                 else
                 {
-                    throw new ClientException((int)response.resp.Code, response.resp.Message, response.resp.Args);
+                    throw new ClientException((int)userResponse.Status.Code, userResponse.Status.Message, userResponse.Status.Args);
                 }
             }
 
-            if (response.user == null)
+            if (userResponse.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
-
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(userResponse.Object);
             return user;
         }
 
@@ -108,10 +105,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public Models.Users.KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)
+        public KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)
         {
-            WebAPI.Models.Users.KalturaOTTUser user = null;
-            UserResponse response = null;
+            GenericResponse<UserResponseObject> response = null;
             
             try
             {
@@ -131,26 +127,25 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while SignUp.  Password: {0}, exception: {1}", password, ex);
                 ErrorUtils.HandleWSException(ex);
             }
-
-            if (response == null || response.user == null)
+            
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.resp.Code != (int)StatusCode.OK)
-            {
-                if (response.resp.Code == (int)eResponseStatus.UserExternalError)
+                if (response.Status.Code == (int)eResponseStatus.UserExternalError)
                 {
-                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, response.resp.Code, response.resp.Message, response.user.ExternalCode, response.user.ExternalMessage);
+                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, response.Status.Code, response.Status.Message, response.Object.ExternalCode, response.Object.ExternalMessage);
                 }
                 else
                 {
-                    throw new ClientException((int)response.resp.Code, response.resp.Message);
+                    throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
                 }
             }
             
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
-
+            if (response.Object == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            
+            var user = Mapper.Map<KalturaOTTUser>(response.Object);
             return user;
         }
 
@@ -308,12 +303,10 @@ namespace WebAPI.Clients
             return pinCode;
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser LoginWithPin(int groupId, string deviceId, string pin, string secret)
+        public KalturaOTTUser LoginWithPin(int groupId, string deviceId, string pin, string secret)
         {
-            WebAPI.Models.Users.KalturaOTTUser user = null;
-
-
-            UserResponse response = null;
+            KalturaOTTUser user = null;
+            GenericResponse<UserResponseObject> response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -328,26 +321,25 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.user == null)
+            if (response == null || response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message, response.resp.Args);
+                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+            user = Mapper.Map<KalturaOTTUser>(response.Object);
 
             return user;
         }
 
-        public Models.Users.KalturaOTTUser CheckPasswordToken(int groupId, string token)
+        public KalturaOTTUser CheckPasswordToken(int groupId, string token)
         {
-            UserResponse response = null;
-
-            WebAPI.Models.Users.KalturaOTTUser user = null;
+            GenericResponse<UserResponseObject> response = null;
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -361,18 +353,17 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.user == null)
+            if (response == null || response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user.m_user);
-
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object.m_user);
             return user;
         }
 
@@ -501,9 +492,9 @@ namespace WebAPI.Clients
             return users;
         }
         
-        public Models.Users.KalturaOTTUser SetUserData(int groupId, string siteGuid, KalturaOTTUser user)
+        public KalturaOTTUser UpdateOTTUser(int groupId, string siteGuid, KalturaOTTUser user)
         {
-            UserResponse response = null;
+            GenericResponse<UserResponseObject> response = null;
             UserBasicData userBasicData = Mapper.Map<UserBasicData>(user);
             UserDynamicData userDynamicData = Mapper.Map<UserDynamicData>(user.DynamicData);
             
@@ -511,7 +502,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.SetUser(groupId, siteGuid, userBasicData, userDynamicData);
+                    response = Core.Users.Module.UpdateUser(groupId, siteGuid, userBasicData, userDynamicData);
                 }
             }
             catch (Exception ex)
@@ -520,17 +511,17 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.user == null)
+            if (response == null || response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
-            WebAPI.Models.Users.KalturaOTTUser responseUser = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+            KalturaOTTUser responseUser = Mapper.Map<KalturaOTTUser>(response.Object);
             return responseUser;
         }
 
@@ -844,8 +835,7 @@ namespace WebAPI.Clients
 
         public WebAPI.Models.Users.KalturaOTTUser ActivateAccount(int groupId, string username, string token)
         {
-            WebAPI.Models.Users.KalturaOTTUser user = null;
-            UserResponse response = null;
+            GenericResponse<UserResponseObject> response = null;
 
             try
             {
@@ -865,17 +855,17 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
-            if (response.user == null)
+            if (response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object);
 
             return user;
         }
@@ -1124,10 +1114,8 @@ namespace WebAPI.Clients
         internal KalturaOTTUserListResponse GetUserByExternalID(int groupId, string externalID)
         {
             KalturaOTTUserListResponse listUser = null;
-            UserResponse response = null;
-
-
-
+            GenericResponse<UserResponseObject> response = null;
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1141,23 +1129,18 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+                throw new ClientException((int)response.Status.Code, response.Status.Message.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.resp.Code, response.resp.Message.ToString());
-            }
-
-            if (response.user == null)
+            if (response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             KalturaOTTUser User;
-            User = Mapper.Map<KalturaOTTUser>(response.user);
+            User = Mapper.Map<KalturaOTTUser>(response.Object);
             listUser = new KalturaOTTUserListResponse()
             {
                 Users = new List<KalturaOTTUser>() { User },
@@ -1169,11 +1152,8 @@ namespace WebAPI.Clients
 
         internal KalturaOTTUserListResponse GetUserByName(int groupId, string userName)
         {
-            KalturaOTTUserListResponse listUser = null;
-            UserResponse response = null;
-
-
-
+            GenericResponse<UserResponseObject> response = null;
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1192,19 +1172,18 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message.ToString());
+                throw new ClientException((int)response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
-            if (response.user == null)
+            if (response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
-
-            KalturaOTTUser User;
-            User = Mapper.Map<KalturaOTTUser>(response.user);
-            listUser = new KalturaOTTUserListResponse()
+            
+            KalturaOTTUser User = Mapper.Map<KalturaOTTUser>(response.Object);
+            var listUser = new KalturaOTTUserListResponse()
             {
                 Users = new List<KalturaOTTUser>() { User },
                 TotalCount = 1,
@@ -1374,10 +1353,8 @@ namespace WebAPI.Clients
 
         internal KalturaOTTUser LoginWithDevicePin(int groupId, string udid, string pin)
         {
-            WebAPI.Models.Users.KalturaOTTUser user = null;
+            GenericResponse<UserResponseObject> response = null;
 
-
-            UserResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1392,17 +1369,17 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.user == null)
+            if (response == null || response.Object == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (!response.IsOkStatusCode())
             {
-                throw new ClientException(response.resp.Code, response.resp.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+            KalturaOTTUser user = Mapper.Map<KalturaOTTUser>(response.Object);
 
             return user;
         }

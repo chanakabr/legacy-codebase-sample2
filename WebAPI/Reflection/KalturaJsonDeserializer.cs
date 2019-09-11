@@ -1118,6 +1118,15 @@ namespace WebAPI.Reflection
                 case "KalturaPartnerNotificationSettings":
                     return new KalturaPartnerNotificationSettings(parameters);
                     
+                case "KalturaPasswordPolicy":
+                    return new KalturaPasswordPolicy(parameters);
+                    
+                case "KalturaPasswordPolicyFilter":
+                    return new KalturaPasswordPolicyFilter(parameters);
+                    
+                case "KalturaPasswordPolicyListResponse":
+                    return new KalturaPasswordPolicyListResponse(parameters);
+                    
                 case "KalturaPaymentGateway":
                     return new KalturaPaymentGateway(parameters);
                     
@@ -1363,6 +1372,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaRecordingListResponse":
                     return new KalturaRecordingListResponse(parameters);
+                    
+                case "KalturaRegex":
+                    return new KalturaRegex(parameters);
                     
                 case "KalturaRegion":
                     return new KalturaRegion(parameters);
@@ -7229,6 +7241,23 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaRegex
+    {
+        public KalturaRegex(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("expression") && parameters["expression"] != null)
+                {
+                    Expression = (String) Convert.ChangeType(parameters["expression"], typeof(String));
+                }
+                if (parameters.ContainsKey("description") && parameters["description"] != null)
+                {
+                    Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
                 }
             }
         }
@@ -17446,10 +17475,22 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegion
     {
+        private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaRegion(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
                     Id = (Int32) Convert.ChangeType(parameters["id"], typeof(Int32));
@@ -17464,6 +17505,10 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        IsDefaultSchemaProperty.Validate("isDefault", parameters["isDefault"]);
+                    }
                     IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("linearChannels") && parameters["linearChannels"] != null)
@@ -17476,6 +17521,10 @@ namespace WebAPI.Models.API
                     {
                         RegionalChannels = buildList(typeof(KalturaRegionalChannel), parameters["linearChannels"] as object[]);
                     }
+                }
+                if (parameters.ContainsKey("parentId") && parameters["parentId"] != null)
+                {
+                    ParentId = (Int64) Convert.ChangeType(parameters["parentId"], typeof(Int64));
                 }
             }
         }
@@ -17506,6 +17555,18 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("externalIdIn") && parameters["externalIdIn"] != null)
                 {
                     ExternalIdIn = (String) Convert.ChangeType(parameters["externalIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("parentIdEqual") && parameters["parentIdEqual"] != null)
+                {
+                    ParentIdEqual = (Int32) Convert.ChangeType(parameters["parentIdEqual"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("liveAssetIdEqual") && parameters["liveAssetIdEqual"] != null)
+                {
+                    LiveAssetIdEqual = (Int32) Convert.ChangeType(parameters["liveAssetIdEqual"], typeof(Int32));
                 }
             }
         }
@@ -22259,6 +22320,131 @@ namespace WebAPI.Models.Users
             }
         }
     }
+    public partial class KalturaPasswordPolicy
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+        };
+        private static RuntimeSchemePropertyAttribute UserRoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = 1,
+        };
+        public KalturaPasswordPolicy(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        NameSchemaProperty.Validate("name", parameters["name"]);
+                    }
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("userRoleIds") && parameters["userRoleIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserRoleIdsSchemaProperty.Validate("userRoleIds", parameters["userRoleIds"]);
+                    }
+                    UserRoleIds = (String) Convert.ChangeType(parameters["userRoleIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("historyCount") && parameters["historyCount"] != null)
+                {
+                    HistoryCount = (Int32) Convert.ChangeType(parameters["historyCount"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("expiration") && parameters["expiration"] != null)
+                {
+                    Expiration = (Int32) Convert.ChangeType(parameters["expiration"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("complexities") && parameters["complexities"] != null)
+                {
+                    if (parameters["complexities"] is JArray)
+                    {
+                        Complexities = buildList<KalturaRegex>(typeof(KalturaRegex), (JArray) parameters["complexities"]);
+                    }
+                    else if (parameters["complexities"] is IList)
+                    {
+                        Complexities = buildList(typeof(KalturaRegex), parameters["complexities"] as object[]);
+                    }
+                }
+                if (parameters.ContainsKey("lockoutFailuresCount") && parameters["lockoutFailuresCount"] != null)
+                {
+                    LockoutFailuresCount = (Int32) Convert.ChangeType(parameters["lockoutFailuresCount"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaPasswordPolicyFilter
+    {
+        private static RuntimeSchemePropertyAttribute UserRoleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicyFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicMinInt = 0,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaPasswordPolicyFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("userRoleIdIn") && parameters["userRoleIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserRoleIdInSchemaProperty.Validate("userRoleIdIn", parameters["userRoleIdIn"]);
+                    }
+                    UserRoleIdIn = (String) Convert.ChangeType(parameters["userRoleIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPasswordPolicyListResponse
+    {
+        public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaSession
     {
         private static RuntimeSchemePropertyAttribute privilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSession")
@@ -24092,6 +24278,14 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("householdLimitationModule") && parameters["householdLimitationModule"] != null)
                 {
                     HouseholdLimitationModule = (Int32) Convert.ChangeType(parameters["householdLimitationModule"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("enableRegionFiltering") && parameters["enableRegionFiltering"] != null)
+                {
+                    EnableRegionFiltering = (Boolean) Convert.ChangeType(parameters["enableRegionFiltering"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("defaultRegion") && parameters["defaultRegion"] != null)
+                {
+                    DefaultRegion = (Int32) Convert.ChangeType(parameters["defaultRegion"], typeof(Int32));
                 }
             }
         }

@@ -203,7 +203,7 @@ namespace WebAPI.Controllers
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
             KalturaT result = null;
@@ -239,7 +239,7 @@ namespace WebAPI.Controllers
 
             if (status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(status.Code, status.Message);
+                throw new ClientException(status.Code, status.Message, status.Args);
             }
         }
 
@@ -267,7 +267,7 @@ namespace WebAPI.Controllers
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
             KalturaT result = null;

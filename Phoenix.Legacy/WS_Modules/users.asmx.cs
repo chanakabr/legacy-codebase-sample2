@@ -41,12 +41,12 @@ namespace WS_Users
             {
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
-
-
+                
                 Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
-                    return Core.Users.Module.CheckUserPassword(nGroupID, sUserName, sPassword, bPreventDoubleLogins);
+                    var checkUserPasswordRespone = Core.Users.Module.CheckUserPassword(nGroupID, sUserName, sPassword, bPreventDoubleLogins);
+                    return checkUserPasswordRespone;
                 }
                 else
                 {
@@ -778,7 +778,7 @@ namespace WS_Users
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.SetUserData(nGroupID, sSiteGUID, oBasicData, sDynamicData);
+                return Core.Users.Module.UpdateUserData(nGroupID, sSiteGUID, oBasicData, sDynamicData);
             }
             else
             {
@@ -820,31 +820,7 @@ namespace WS_Users
                 HttpContext.Current.Response.StatusCode = 404;
             }
         }
-        /*
-        [WebMethod]
-        [System.Xml.Serialization.XmlInclude(typeof(User))]
-        [System.Xml.Serialization.XmlInclude(typeof(UserBasicData))]
-        [System.Xml.Serialization.XmlInclude(typeof(UserDynamicData))]
-        [System.Xml.Serialization.XmlInclude(typeof(UserDynamicDataContainer))]
-        [System.Xml.Serialization.XmlInclude(typeof(ResponseStatus))]
-        [System.Xml.Serialization.XmlInclude(typeof(BaseUsers))]
-        [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
-        public virtual UserResponseObject SetUserDataST(string sWSUserName, string sWSPassword, string sSiteGUID, string sBasicDataXML, string sDynamicDataXML)
-        {
-            Users.BaseUsers t = null;
-            Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, "SetUserDataST", ref t);
-            if (nGroupID != 0)
-            {
-                return Core.Users.Module.SetUserData(nGroupID, sSiteGUID, sBasicDataXML, sDynamicDataXML);
-            }
-            else
-            {
-                if (nGroupID == 0)
-                    HttpContext.Current.Response.StatusCode = 404;
-                return null;
-            }
-        }
-        */
+        
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(User))]
         [System.Xml.Serialization.XmlInclude(typeof(UserBasicData))]
@@ -988,14 +964,14 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(ResponseStatus))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseUsers))]
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
-        public virtual UserResponseObject RenewUserPassword(string sWSUserName, string sWSPassword, string sUserName,
-            string sNewPassword)
+        public virtual UserResponseObject RenewUserPassword(string sWSUserName, string sWSPassword, string sUserName, string sNewPassword)
         {
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.RenewUserPassword(nGroupID, sUserName, sNewPassword);
+                var response = Core.Users.Module.RenewUserPassword(nGroupID, sUserName, sNewPassword);
+                return response.Object;
             }
             else
             {
@@ -1066,18 +1042,20 @@ namespace WS_Users
         public virtual UserResponse ActivateAccount(string sWSUserName, string sWSPassword, string sUserName,
             string sToken)
         {
-            UserResponse response = new UserResponse();
-
-
+            var response = new UserResponse();
+            
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.ActivateAccount(nGroupID, sUserName, sToken);
+                var activateAccountResponse = Core.Users.Module.ActivateAccount(nGroupID, sUserName, sToken);
+                response.user = activateAccountResponse.Object;
+                response.resp = activateAccountResponse.Status;
             }
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
             }
+
             return response;
         }
 
@@ -1615,16 +1593,17 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins,
-            List<ApiObjects.KeyValuePair> keyValueList, string secret)
+        public virtual UserResponse LoginWithPIN(string sWSUserName, string sWSPassword, string PIN, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList, string secret)
         {
-            UserResponse response = new UserResponse();
+            var response = new UserResponse();
 
             // get group ID + user implementation
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.LoginWithPIN(nGroupID, PIN, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, secret);
+                var loginWithPINResponse = Core.Users.Module.LoginWithPIN(nGroupID, PIN, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, secret);
+                response.user = loginWithPINResponse.Object;
+                response.resp = loginWithPINResponse.Status;
             }
             else
             {
@@ -1672,10 +1651,9 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual UserResponse LogIn(string sWSUserName, string sWSPassword, string userName, string password, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins,
-            List<ApiObjects.KeyValuePair> keyValueList)
+        public virtual UserResponse LogIn(string sWSUserName, string sWSPassword, string userName, string password, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<KeyValuePair> keyValueList)
         {
-            UserResponse response = new UserResponse();
+            var response = new UserResponse();
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -1686,13 +1664,14 @@ namespace WS_Users
                     // convert response status
                     response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
                     int userID;
-
-                    if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
+                    if (response.resp.Code == (int)eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
                     {
                         Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, userID, deviceID);
                     }
                     else
+                    {
                         log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, nGroupID, response.resp.Code);
+                    }
                 }
             }
             else
@@ -1707,7 +1686,7 @@ namespace WS_Users
         [WebMethod]
         public virtual UserResponse SignUp(string sWSUserName, string sWSPassword, UserBasicData oBasicData, UserDynamicData dynamicData, string password, string affiliateCode)
         {
-            UserResponse response = new UserResponse();
+            var response = new UserResponse();
 
             // add username to logs/monitor
             if (oBasicData != null && !string.IsNullOrEmpty(oBasicData.m_sUserName))
@@ -1796,12 +1775,14 @@ namespace WS_Users
         [WebMethod]
         public virtual UserResponse CheckPasswordToken(string sWSUserName, string sWSPassword, string token)
         {
-            UserResponse response = new UserResponse();
+            var response = new UserResponse();
 
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.CheckPasswordToken(nGroupID, token);
+                var checkPasswordTokenResponse = Core.Users.Module.CheckPasswordToken(nGroupID, token);
+                response.user = checkPasswordTokenResponse.Object;
+                response.resp = checkPasswordTokenResponse.Status;
             }
             else
             {
@@ -1833,22 +1814,23 @@ namespace WS_Users
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGUID != null ? siteGUID : "null";
-
-
-            UserResponse response = new UserResponse();
+            var response = new UserResponse();
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Users.Module.SetUser(nGroupID, siteGUID, basicData, dynamicData);
+                var setUserResponse = Core.Users.Module.UpdateUser(nGroupID, siteGUID, basicData, dynamicData);
+                response.user = setUserResponse.Object;
+                response.resp = setUserResponse.Status;
             }
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
                 response = new UserResponse();
-                response.resp.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.resp.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
-                return response;
+                response.resp.Code = (int)eResponseStatus.Error;
+                response.resp.Message = eResponseStatus.Error.ToString();
             }
+
+            return response;
         }
 
         [WebMethod]
@@ -2067,36 +2049,39 @@ namespace WS_Users
         [WebMethod]
         public virtual UserResponse GetUserByExternalID(string sWSUserName, string sWSPassword, string externalId, int operatorID)
         {
-            UserResponse response = new UserResponse()
+            var response = new UserResponse()
             {
                 resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
-
-
+            
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                response = Core.Users.Module.GetUserByExternalID(nGroupID, externalId, operatorID);
+                var getUserByExternalIDResponse = Core.Users.Module.GetUserByExternalID(nGroupID, externalId, operatorID);
+                response.user = getUserByExternalIDResponse.Object;
+                response.resp = getUserByExternalIDResponse.Status;
             }
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
             }
+
             return response;
         }
         [WebMethod]
         public virtual UserResponse GetUserByName(string sWSUserName, string sWSPassword, string username)
         {
-            UserResponse response = new UserResponse()
+            var response = new UserResponse()
             {
                 resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
-
-
+            
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                response = Core.Users.Module.GetUserByName(nGroupID, username);
+                var getUserByNameResponse = Core.Users.Module.GetUserByName(nGroupID, username);
+                response.user = getUserByNameResponse.Object;
+                response.resp = getUserByNameResponse.Status;
             }
             else
             {
