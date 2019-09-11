@@ -598,9 +598,9 @@ namespace Core.Notification
                     ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
                 };
 
-                bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+                bool enqueueResult = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
 
-                if (res)
+                if (enqueueResult)
                     log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
                 else
                     log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
