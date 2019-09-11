@@ -19,6 +19,7 @@ namespace ConfigurationManager
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
+        public static BooleanConfigurationValue ShouldSupportCeleryMessages;
 
         #endregion
 
@@ -608,6 +609,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            ShouldSupportCeleryMessages = new BooleanConfigurationValue("should_support_celery_messages")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = true
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -720,7 +726,8 @@ namespace ConfigurationManager
                     MediaMarksListLength,
                     MediaMarksTTL,
                     EpgInitialId,
-                    ShouldAddInvalidationKeysToHeader
+                    ShouldAddInvalidationKeysToHeader,
+                    ShouldSupportCeleryMessages
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
