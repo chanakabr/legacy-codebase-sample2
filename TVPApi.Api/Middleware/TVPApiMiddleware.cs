@@ -18,15 +18,9 @@ namespace TVPApi.Web.Middleware
         /// </summary>
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
-            var test = new CommonTest().Test;
             app.UseMiddleware<TVPApiExceptionHandler>();
             app.UseMiddleware<TVPApiRequestExecutor>();
-            //app.UseMiddleware<PhoenixExceptionHandler>();
-            //AutoMapperConfig.RegisterMappings();
-            //app.UseMiddleware<PhoenixSessionId>();
-            //app.UseMiddleware<PhoenixCors>();
-            //app.UseMiddleware<PhoenixRequestContextBuilder>();
-            //app.UseMiddleware<PhoenixRequestExecutor>();
+
             return app;
         }
     }
