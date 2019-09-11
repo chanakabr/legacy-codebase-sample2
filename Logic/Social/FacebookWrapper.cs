@@ -1083,8 +1083,8 @@ namespace Core.Social
         public FacebookResponse FBUserMerge(string token, string fbid, string sUserName, string sPass)
         {
             FacebookResponse facebookResponse = new FacebookResponse();
-
-            UserResponseObject uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false);
+            
+            var uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false);
 
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
             {

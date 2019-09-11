@@ -281,7 +281,7 @@ namespace Core.Users
 
                     if (nUserID > 0)
                     {
-                        Utils.SetPassword(sPass, ref userBasic, m_nGroupID);
+                        userBasic.SetPassword(sPass, m_nGroupID);
                         userBasic.Save(nUserID, m_nGroupID);
                         userDynamic.Save(nUserID, m_nGroupID);
                         //userDynamic.Save(nUserID);

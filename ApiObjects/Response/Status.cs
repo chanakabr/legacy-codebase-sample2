@@ -14,8 +14,8 @@ namespace ApiObjects.Response
         private string message = string.Empty;
         private int code;
         private List<KeyValuePair> args;
-        
-        public static Status Ok => new Status((int) eResponseStatus.OK);
+
+        public static Status Ok => new Status((int)eResponseStatus.OK);
         public static Status Error => new Status((int)eResponseStatus.Error);
 
         public Status(int code = 0, string message = "", List<KeyValuePair> args = null)
@@ -118,6 +118,11 @@ namespace ApiObjects.Response
                 this.message = newStatus.message;
                 this.args = newStatus.args;
             }
+        }
+
+        public void AddArg(eResponseStatus key, object value)
+        {
+            AddArg(((int)key).ToString(), value);
         }
 
         public void AddArg(string key, object value)

@@ -754,7 +754,7 @@ namespace Core.Notification
                 // get EPG information
                 epgRequest = new EpgProgramDetailsRequest()
                 {
-                    m_lProgramsIds = assetIds.Cast<int>().ToList(),
+                    m_lProgramsIds = assetIds.Select(id => unchecked((int)id)).ToList(),
                     m_nGroupID = groupId,
                     m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
                     m_sSignString = CatalogSignString

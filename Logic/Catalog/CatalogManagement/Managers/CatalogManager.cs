@@ -2497,7 +2497,6 @@ namespace Core.Catalog.CatalogManagement
                     //
                     InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
 
-                    // TODO SHIR - TALK WITH SUNNY DO THE SAME IN INGEST
                     if (!PartialTagIndexUpdate(groupId, topic.SystemName, tagToUpdate.value, result.Object.value, string.Empty, mediaIds, epgIds))
                     {
                         log.ErrorFormat("Failed to PartialTagIndexUpdate after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagToUpdate.tagId);
@@ -3087,7 +3086,7 @@ namespace Core.Catalog.CatalogManagement
 
             return parentAssetsIds;
         }
-
+        
         public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
         {
             Dictionary<long, List<int>> res = null;
@@ -3218,7 +3217,7 @@ namespace Core.Catalog.CatalogManagement
 
             return new Tuple<List<int>, bool>(result, res);
         }
-
+        
         #endregion
     }
 }

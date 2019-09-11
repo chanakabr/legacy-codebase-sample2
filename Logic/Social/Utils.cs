@@ -99,7 +99,7 @@ namespace Core.Social
             UserResponseObject response = null;
             try
             {
-                response = Core.Users.Module.SetUserData(nGroupID, sSiteGuid, ubd, udd);
+                response = Core.Users.Module.UpdateUserData(nGroupID, sSiteGuid, ubd, udd);
             }
             catch (Exception ex)
             {
