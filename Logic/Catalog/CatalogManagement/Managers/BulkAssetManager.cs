@@ -358,7 +358,7 @@ namespace Core.Catalog.CatalogManagement
                             // check if changes in the start date require future index update call, incase ppvStartDate is in more than 2 years we don't update the index (per Ira's request)
                             if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileStartDate, ppvStartDate))
                             {
-                                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { (int)assetId }, ppvStartDate.Value))
+                                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<long>() { assetId }, ppvStartDate.Value))
                                 {
                                     log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", ppvStartDate.Value, assetId, groupId));
                                 }
@@ -367,7 +367,7 @@ namespace Core.Catalog.CatalogManagement
                             // check if changes in the end date require future index update call, incase ppvEndDate is in more than 2 years we don't update the index (per Ira's request)
                             if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileEndDate, ppvStartDate))
                             {
-                                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { (int)assetId }, ppvEndDate.Value))
+                                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<long>() { assetId }, ppvEndDate.Value))
                                 {
                                     log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", ppvEndDate.Value, assetId, groupId));
                                 }

@@ -3,12 +3,12 @@ using Newtonsoft.Json;
 
 namespace ApiObjects.EventBus
 {
-public class MessageInterestRequest : DelayedServiceEvent
+    public class MessageInterestRequest : DelayedServiceEvent
     {
         [JsonProperty("start_time")]
         public long StartTime { get; set; }
 
-    [JsonProperty("message_interest_id")]
+        [JsonProperty("message_interest_id")]
         public int MessageInterestId { get; set; }
 
         public override string ToString()

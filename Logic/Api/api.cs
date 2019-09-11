@@ -8757,7 +8757,7 @@ namespace Core.Api
                     totalAssetsToInitialize += freeItemsToInitialize.Count;
                     foreach (KeyValuePair<int, DateTime> itemToUpdate in freeItemsToInitialize)
                     {
-                        if (RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { itemToUpdate.Key }, itemToUpdate.Value))
+                        if (RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<long>() { itemToUpdate.Key }, itemToUpdate.Value))
                         {
                             totalEnqueuedItems++;
                         }
