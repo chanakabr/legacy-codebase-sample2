@@ -12,6 +12,5 @@ namespace ApiLogic.Base
         Status Delete(ContextData contextData, IdentifierT id);
         GenericResponse<ICrudHandeledObject> Get(ContextData contextData, IdentifierT id);
         GenericListResponse<ICrudHandeledObject> List(ContextData contextData, ICrudFilter filter);
-        GenericResponse<ICrudHandeledObject> ValidateCrudObject(ContextData contextData, IdentifierT id = default, ICrudHandeledObject objectToValidate = default);
     }
 }

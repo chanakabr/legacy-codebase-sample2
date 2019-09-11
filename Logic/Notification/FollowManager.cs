@@ -312,7 +312,7 @@ namespace Core.Notification
 
             return statusResult;
         }
-        
+
         internal static Status DeletePersonalListItemFromUser(int groupId, int userId, long personalListId)
         {
             // get announcement from DB
@@ -342,7 +342,7 @@ namespace Core.Notification
         {
             GenericResponse<FollowDataBase> response = new GenericResponse<FollowDataBase>();
             followData.GroupId = groupId;
-            
+
             // populate follow phrase
             followData.FollowPhrase = GetFollowPhrase(groupId, followData.Title);
 
@@ -360,19 +360,19 @@ namespace Core.Notification
                 response.SetStatus(eResponseStatus.InvalidAssetId, "invalid asset");
                 return response;
             }
-           
+
             response = AddFollowItemToUser(userId, followData);
 
             return response;
         }
-        
+
         public static void AddTvSeriesFollowRequestForNonOpc(int groupId, string userId, int mediaID)
         {
             // Get catalog start date & series name && validate the media type ID is a series
             MediaObj episodeMedia = GetMediaObj(groupId, mediaID, userId);
             if (episodeMedia == null || episodeMedia.m_oMediaType.m_nTypeID != NotificationCache.Instance().GetEpisodeMediaTypeId(groupId))
             {
-                return; 
+                return;
             }
 
             var episodeAssociationTag = GetEpisodeAssociationTagForNonOpc(groupId);
@@ -446,7 +446,7 @@ namespace Core.Notification
         public Status AddTvSeriesFollowRequestForOpc(int groupId, MediaAsset episodeMediaAsset, CatalogGroupCache cache)
         {
             var response = new Status(eResponseStatus.Error);
-            
+
             if (!TryGetEpisodeAssetStructByEpisode(episodeMediaAsset, cache, out AssetStruct episodeAssetStruct) || !episodeMediaAsset.CatalogStartDate.HasValue)
             {
                 response.Set(eResponseStatus.InvalidAssetId, "invalid asset");
@@ -470,7 +470,7 @@ namespace Core.Notification
             {
                 announcement = dbAnnouncements.FirstOrDefault(x => x.FollowPhrase == followPhrase);
             }
-               
+
             if (announcement == null)
             {
                 log.DebugFormat("no announcements found for ingested media: group {0}, media: {1}, followPhrase: {2}", groupId, episodeMediaAsset.Id, followPhrase);
@@ -538,7 +538,7 @@ namespace Core.Notification
             List<int> followedAssets = Get_FollowedAssets(groupId, userFollows.Follows);
 
             response.Ids = followedAssets.Where(x => assets.Contains(x)).ToList();
-            
+
             return response;
         }
 
@@ -629,7 +629,7 @@ namespace Core.Notification
 
             return response;
         }
-        
+
         public static string GetEpisodeAssociationTag(int groupId, ref CatalogGroupCache cache, ref AssetStruct episodeAssetStruct, long? seriesMediaTypeId = null)
         {
             string associationTag = string.Empty;
@@ -704,7 +704,7 @@ namespace Core.Notification
             // 'valueForM'
             return seriesNames;
         }
-        
+
         public static string GetFollowPhrase(int groupId, string seriesName, CatalogGroupCache cache = null, AssetStruct episodeAssetStruct = null, long? seriesMediaTypeId = null)
         {
             // validate association tag
@@ -734,7 +734,7 @@ namespace Core.Notification
                     response.SetStatus(eResponseStatus.InvalidUser);
                     return response;
                 }
-                
+
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(contextData.GroupId, out CatalogGroupCache cache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling FollowManager.Add", contextData.GroupId);
@@ -799,9 +799,9 @@ namespace Core.Notification
         }
 
         #endregion
-        
+
         #region Private Methods
-        
+
         public static MediaObj GetMediaObj(int groupId, int mediaId, string userId = null)
         {
             // send get media to catalog
@@ -825,7 +825,7 @@ namespace Core.Notification
                 log.Error("GetSeriesMediaObj: error when calling catalog: ", ex);
                 return null;
             }
-            
+
             if (mediaResponse != null && mediaResponse.m_lObj != null)
             {
                 var mediaObj = mediaResponse.m_lObj.FirstOrDefault() as MediaObj;
@@ -913,7 +913,7 @@ namespace Core.Notification
 
             return messageSent;
         }
-        
+
         private static bool TryGetEpisodeAssetStructBySeries(CatalogGroupCache cache, long? seriesTypeId, out AssetStruct episodeAssetStruct)
         {
             episodeAssetStruct = null;
@@ -931,12 +931,12 @@ namespace Core.Notification
             {
                 return false;
             }
-            
+
             episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && x.ParentId.Value == seriesTypeId.Value);
             //episodeAssetStruct = cache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId.HasValue && cache.AssetStructsMapById.ContainsKey(x.ParentId.Value) && cache.AssetStructsMapById[x.ParentId.Value].IsSeriesAssetStruct);
 
-            if (episodeAssetStruct == null || 
-                !episodeAssetStruct.ConnectedParentMetaId.HasValue || 
+            if (episodeAssetStruct == null ||
+                !episodeAssetStruct.ConnectedParentMetaId.HasValue ||
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
                 !episodeAssetStruct.ConnectingMetaId.HasValue ||
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectingMetaId.Value))
@@ -951,8 +951,8 @@ namespace Core.Notification
         {
             episodeAssetStruct = null;
 
-            if (episodeMediaAsset == null || 
-                !cache.AssetStructsMapById.TryGetValue(episodeMediaAsset.MediaType.m_nTypeID, out episodeAssetStruct) || 
+            if (episodeMediaAsset == null ||
+                !cache.AssetStructsMapById.TryGetValue(episodeMediaAsset.MediaType.m_nTypeID, out episodeAssetStruct) ||
                 !episodeAssetStruct.ParentId.HasValue ||
                 !episodeAssetStruct.ConnectedParentMetaId.HasValue ||
                 !cache.TopicsMapById.ContainsKey(episodeAssetStruct.ConnectedParentMetaId.Value) ||
@@ -963,7 +963,7 @@ namespace Core.Notification
             {
                 return false;
             }
-            
+
             return true;
         }
 
@@ -1196,7 +1196,7 @@ namespace Core.Notification
                     log.DebugFormat("Successfully unsubscribed device from announcement group: {0}, userId: {1}", groupId, userId);
             }
         }
-        
+
         private static GenericResponse<T> AddFollowItemToUser<T>(int userId, T followItem) where T : FollowDataBase, new()
         {
             var response = new GenericResponse<T>();
@@ -1319,7 +1319,7 @@ namespace Core.Notification
         private static Status RemoveFollowItemFromUser(int groupId, int userId, DbAnnouncement userDbAnnouncement)
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             // get user notification data
             bool docExists = false;
             UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(groupId, userId, ref docExists);
@@ -1564,11 +1564,6 @@ namespace Core.Notification
             }
 
             return TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-personalizedFeedTtlDay));
-        }
-
-        public GenericResponse<FollowDataTvSeries> ValidateCrudObject(ContextData contextData, int id = 0, FollowDataTvSeries objectToValidate = null)
-        {
-            throw new NotImplementedException();
         }
 
         #endregion

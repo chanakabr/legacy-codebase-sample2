@@ -828,8 +828,8 @@ namespace Core.Catalog.CatalogManagement
                                                         relatedEntitiesXmlDoc);
 
                 Dictionary<string, DataTable> tables = null;
-                Status status  = BuildTableDicAfterInsertMediaAsset(ds, out tables);
-                if( status.Code != (int)eResponseStatus.OK)
+                Status status = BuildTableDicAfterInsertMediaAsset(ds, out tables);
+                if (status.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(status);
                     return result;
@@ -852,7 +852,7 @@ namespace Core.Catalog.CatalogManagement
                             Notification.Module.AddFollowNotificationRequestForOpc(groupId, (MediaAsset)result.Object, userId, catalogGroupCache);
                         }
                     }
-                    
+
                     CatalogManager.UpdateChildAssetsMetaInherited(groupId, catalogGroupCache, userId, assetStruct, assetToAdd, null);
                 }
             }
@@ -862,7 +862,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }       
+        }
 
         private static Status CreateAssetResponseStatusFromResult(long result)
         {
@@ -1163,7 +1163,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static GenericResponse<Asset> UpdateMediaAsset(int groupId, ref CatalogGroupCache catalogGroupCache, MediaAsset currentAsset, MediaAsset assetToUpdate, bool isLinear,
-                                                                long userId, bool isFromIngest = false, bool isForMigration = false , bool isFromChannel = false)
+                                                                long userId, bool isFromIngest = false, bool isForMigration = false, bool isFromChannel = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
             Status status = null;
@@ -1182,7 +1182,7 @@ namespace Core.Catalog.CatalogManagement
                 // validate asset
                 XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
                 XmlDocument relatedEntitiesXmlDocToAdd = null, relatedEntitiesXmlDocToUpdate = null;
-                
+
                 AssetStruct assetStruct = null;
                 DateTime? assetCatalogStartDate = null, assetFinalEndDate = null;
                 if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
@@ -1198,7 +1198,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
-                                                        ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate, 
+                                                        ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
                                                         ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, currentAsset, isFromIngest);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
@@ -1219,7 +1219,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, NAME_META_SYSTEM_NAME);
                 }
-                
+
                 // Add Description meta values (for languages that are not default), Description can be updated or added
                 if (currentAsset.Description == null && !string.IsNullOrEmpty(assetToUpdate.Description))
                 {
@@ -1235,7 +1235,7 @@ namespace Core.Catalog.CatalogManagement
                 DateTime endDate = assetToUpdate.EndDate ?? (currentAsset.EndDate ?? DateTime.MaxValue);
 
                 AssetInheritancePolicy inheritancePolicy = assetToUpdate.InheritancePolicy ?? (currentAsset.InheritancePolicy ?? AssetInheritancePolicy.Enable);
-                
+
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
                 DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
@@ -1255,7 +1255,7 @@ namespace Core.Catalog.CatalogManagement
                     if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
                     {
                         DataSet updateDS = UpdateAssetInheritancePolicy(groupId, userId, catalogGroupCache, assetStruct, inheritancePolicy, result.Object);
-                        
+
                         if (updateDS != null)
                         {
                             status = BuildTableDicAfterUpdateMediaAsset(updateDS, assetToUpdate.Id, out tables);
@@ -1319,7 +1319,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }       
+        }
 
         private static void UpdateAssetInheritancePolicy(int groupId, long userId, CatalogGroupCache catalogGroupCache, MediaAsset mediaAsset)
         {
