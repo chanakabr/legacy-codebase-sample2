@@ -842,9 +842,13 @@ namespace Core.Catalog.CatalogManagement
                     {
                         bool indexingResult = IndexManager.UpsertMedia(groupId, (int)result.Object.Id);
                         if (!indexingResult)
-
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
+                        }
+
+                        if (assetToAdd.IsActive.HasValue && assetToAdd.IsActive.Value)
+                        {
+                            Notification.Module.AddFollowNotificationRequestForOpc(groupId, (MediaAsset)result.Object, userId, catalogGroupCache);
                         }
                     }
                     
@@ -1296,6 +1300,11 @@ namespace Core.Catalog.CatalogManagement
                         else if (Core.Api.Managers.AssetRuleManager.IsGeoAssetRulesEnabled(groupId))
                         {
                             Catalog.Module.UpdateIndex(new List<int>() { (int)result.Object.Id }, groupId, eAction.GeoUpdate);
+                        }
+
+                        if (assetToUpdate.IsActive.HasValue && assetToUpdate.IsActive.Value)
+                        {
+                            Notification.Module.AddFollowNotificationRequestForOpc(groupId, (MediaAsset)result.Object, userId, catalogGroupCache);
                         }
                     }
 

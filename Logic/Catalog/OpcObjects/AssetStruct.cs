@@ -132,7 +132,6 @@ namespace Core.Catalog
         {
             Copy(assetStructToCopy);
         }
-
         #endregion
 
         public string GetCommaSeparatedFeatures()
@@ -234,9 +233,10 @@ namespace Core.Catalog
         private void Copy(AssetStruct assetStructToCopy)
         {
             this.Id = assetStructToCopy.Id;
-            this.Name = string.Copy(assetStructToCopy.SystemName);
             this.NamesInOtherLanguages = new List<LanguageContainer>(assetStructToCopy.NamesInOtherLanguages);
-            this.SystemName = string.Copy(assetStructToCopy.SystemName);
+            var defaultName = this.NamesInOtherLanguages?.FirstOrDefault(x => x.IsDefault)?.m_sValue;
+            this.Name = string.IsNullOrEmpty(assetStructToCopy.Name) ? defaultName : assetStructToCopy.Name;
+            this.SystemName = assetStructToCopy.SystemName;
             this.MetaIds = new List<long>(assetStructToCopy.MetaIds);
             this.IsPredefined = assetStructToCopy.IsPredefined;
             this.ParentId = assetStructToCopy.ParentId;
@@ -305,7 +305,7 @@ namespace Core.Catalog
                     {
                         foreach (var topic in this.TopicsMapBySystemName)
                         {
-                            if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME) || 
+                            if (topic.Value.SystemName.Equals(AssetManager.EXTERNAL_ID_META_SYSTEM_NAME) ||
                                 topic.Value.Type == MetaType.ReleatedEntity ||
                                 (!lang.Value.IsDefault && topic.Value.Type != MetaType.MultilingualString))
                             {
@@ -313,7 +313,7 @@ namespace Core.Catalog
                             }
 
                             string language = lang.Value.IsDefault ? null : lang.Value.Code;
-                           
+
                             if (systemNameToExcelAttribute.ContainsKey(topic.Value.SystemName) &&
                                 systemNameToExcelAttribute[topic.Value.SystemName].Item1.IsUniqueMeta)
                             {
