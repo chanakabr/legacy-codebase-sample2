@@ -14,6 +14,12 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <Compile Remove="EventBus\NewFolder\**" />
+    <EmbeddedResource Remove="EventBus\NewFolder\**" />
+    <None Remove="EventBus\NewFolder\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Compile Remove="Notification\SubscribeReference.cs" />
     <Compile Remove="Notification\TopicNotification.cs" />
     <Compile Remove="Notification\TopicNotificationMessage.cs" />
@@ -55,10 +61,6 @@
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
     <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="EventBus\NewFolder\" />
   </ItemGroup>
   
   <!-- 
