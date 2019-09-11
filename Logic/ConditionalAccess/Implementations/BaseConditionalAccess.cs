@@ -10,6 +10,7 @@ using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Catalog;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.EventBus;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.MediaMarks;
 using ApiObjects.Pricing;
@@ -2571,9 +2572,9 @@ namespace Core.ConditionalAccess
             * returns true if user exists. false otherwise. throws exception if cannot deliver all data required for renewal
             * 
         */
-        protected bool GetBaseRenewMultiUsageSubscriptionData(string userId, string subscriptionCode, string userIP, Int32 nPurchaseID, Int32 nPaymentNumber, 
-                                                              int nTotalPaymentsNumber, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int nNumOfPayments, 
-                                                              bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate, ref double dPrice, ref string sCustomData, 
+        protected bool GetBaseRenewMultiUsageSubscriptionData(string userId, string subscriptionCode, string userIP, Int32 nPurchaseID, Int32 nPaymentNumber,
+                                                              int nTotalPaymentsNumber, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int nNumOfPayments,
+                                                              bool bIsPurchasedWithPreviewModule, DateTime dtCurrentEndDate, ref double dPrice, ref string sCustomData,
                                                               ref string sCurrency, ref int nRecPeriods, ref bool bIsMPPRecurringInfinitely, ref int nMaxVLCOfSelectedUsageModule)
         {
             UserResponseObject ExistUser = Utils.GetExistUser(userId, m_nGroupID);
@@ -2636,8 +2637,8 @@ namespace Core.ConditionalAccess
             UnifiedBillingCycle unifiedBillingCycle = null;
             return GetMultiSubscriptionUsageModule(renewSubscriptionDetails, userIp, ref nRecPeriods, ref isMPPRecurringInfinitely, subscription, ref unifiedBillingCycle, 0, ignoreUnifiedBillingCycle, isRenew);
         }
-        
-        protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewDetails, string userIp, ref int recPeriods, ref bool isMPPRecurringInfinitely, 
+
+        protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewDetails, string userIp, ref int recPeriods, ref bool isMPPRecurringInfinitely,
                                                                 Subscription subscription, ref UnifiedBillingCycle unifiedBillingCycle, int groupId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
@@ -2659,8 +2660,8 @@ namespace Core.ConditionalAccess
 
                 PriceCode price = null;
                 DiscountModule externalDisount = null;
-                if (!string.IsNullOrEmpty(renewDetails.CountryCode) && 
-                    !string.IsNullOrEmpty(renewDetails.PreviousPurchaseCurrencyCode) && 
+                if (!string.IsNullOrEmpty(renewDetails.CountryCode) &&
+                    !string.IsNullOrEmpty(renewDetails.PreviousPurchaseCurrencyCode) &&
                     Utils.IsValidCurrencyCode(m_nGroupID, renewDetails.PreviousPurchaseCurrencyCode))
                 {
                     price = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, renewDetails.CountryCode, renewDetails.PreviousPurchaseCurrencyCode);
@@ -2697,10 +2698,10 @@ namespace Core.ConditionalAccess
                     oCurrency = clonedPrice.m_oPrise.m_oCurrency;
                     renewDetails.Currency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                 }
-                
+
                 bool recurringCouponFirstExceeded = false;
                 var originalPrice = renewDetails.Price;
-                HandleRecurringCoupon(renewDetails, subscription, oCurrency, out recurringCouponFirstExceeded);                
+                HandleRecurringCoupon(renewDetails, subscription, oCurrency, out recurringCouponFirstExceeded);
 
                 if (renewDetails.RecurringData.Compensation != null)
                 {
@@ -2758,7 +2759,7 @@ namespace Core.ConditionalAccess
 
             return isSuccess;
         }
-        
+
         /// <summary>
         /// Direct debit Renew Subscription
         /// </summary>
@@ -3206,10 +3207,10 @@ namespace Core.ConditionalAccess
                     tempDate = tempDate.AddMinutes(umtotal);
 
                     totalperiod += uList[i].m_num_of_rec_periods + 1;
-                    if (/*i == 0 && uList[i].m_is_renew == 0*/ 
-                        IsSkipOnFirstUsageModule(i, 
-                                                 uList[i].m_is_renew == 1, 
-                                                 renewDetails.RecurringData.TotalNumOfRenews, 
+                    if (/*i == 0 && uList[i].m_is_renew == 0*/
+                        IsSkipOnFirstUsageModule(i,
+                                                 uList[i].m_is_renew == 1,
+                                                 renewDetails.RecurringData.TotalNumOfRenews,
                                                  renewDetails.NumOfPayments,
                                                  renewDetails.RecurringData.IsPurchasedWithPreviewModule))
                     {
@@ -3355,7 +3356,7 @@ namespace Core.ConditionalAccess
             }
             return ret;
         }
-        
+
         /// <summary>
         /// Checks if there is recurring coupon definition on the subscription and if yes 
         /// activate the discount of the coupon on the price and return the updated price and the coupon code. 
@@ -3407,7 +3408,7 @@ namespace Core.ConditionalAccess
                 log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
             }
         }
-        
+
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
         {
             if (Utils.IsAnonymousUser(sSiteGUID))
@@ -3504,7 +3505,7 @@ namespace Core.ConditionalAccess
         }
 
         public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink,
-            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType, 
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, PlayContextType contextType,
             out string drmData)
         {
             drmData = string.Empty;
@@ -5513,8 +5514,8 @@ namespace Core.ConditionalAccess
                         if (theReason == PriceReason.ForPurchase || theReason == PriceReason.EntitledToPreviewModule)
                         {
                             if (price != null && price.m_dPrice == dPrice && price.m_oCurrency.m_sCurrencyCD3 == sCurrency)
-                            {                                
-                                if (price.m_dPrice != 0  || !string.IsNullOrEmpty(sCouponCode ) || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
+                            {
+                                if (price.m_dPrice != 0 || !string.IsNullOrEmpty(sCouponCode) || (theReason == PriceReason.EntitledToPreviewModule && IsPreviewModuleInGroupIDCostsZero()))
                                 {
                                     if (!string.IsNullOrEmpty(sCampaignCode))
                                     {
@@ -6320,7 +6321,7 @@ namespace Core.ConditionalAccess
                         Subscription s = null;
                         double couponRemainder = 0;
                         UnifiedBillingCycle unifiedBillingCycle = null;
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip, 
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip,
                                                                       ref unifiedBillingCycle, out couponRemainder, currencyCode, false, blockEntitlement);
 
                         if (price != null)
@@ -6501,17 +6502,17 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Items Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid, 
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid,
                                                                      string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE, bool isDownloadPlayContext = false)
         {
             MediaFileItemPricesContainer[] ret = null;
-            
+
             try
             {
                 // get details about files + media (validity about files)    
                 Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
                 Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(mediaFiles, ref mediaFilesProductCode, m_nGroupID, Utils.GetIP2CountryId(m_nGroupID, ip));
-                
+
                 List<int> mediaFilesNotForPurchase = new List<int>();
                 List<int> mediaFilesForPurchase = new List<int>();
 
@@ -6526,10 +6527,10 @@ namespace Core.ConditionalAccess
                         mediaFilesForPurchase.Add(validMediaFile.Key);
                     }
                 }
-                
+
                 bool isValidCurrencyCode = false;
                 MediaFileItemPricesContainer tempItemPricesContainer = null;
-                
+
                 //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase
                 List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
 
@@ -6546,7 +6547,7 @@ namespace Core.ConditionalAccess
                                 m_oItemPrices = new ItemPriceContainer[1] { new ItemPriceContainer() { m_PriceReason = PriceReason.InvalidCurrency } },
                                 m_sProductCode = string.Empty
                             };
-                            
+
                             tempRet.Add(tempItemPricesContainer);
                         }
 
@@ -6605,7 +6606,7 @@ namespace Core.ConditionalAccess
                 {
                     // create mapper
                     mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesForPurchase.ToArray());
-                    
+
                     if (mapper != null)
                     {
                         long lUserId = long.Parse(userId);
@@ -6657,7 +6658,7 @@ namespace Core.ConditionalAccess
                         MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
                         Int32 nMediaFileID = oModules[i].m_nMediaFileID;
                         int mediaID = mapper != null ? Utils.ExtractMediaIDOutOfMediaMapper(mapper, nMediaFileID) : 0;
-                        
+
                         if (!isDownloadPlayContext)
                         {
                             // check if there are any Seasonal promotion rules (free item)
@@ -6682,14 +6683,14 @@ namespace Core.ConditionalAccess
                                 {
                                     priceContainer[0].m_dtEndDate = DateUtils.UtcUnixTimestampSecondsToDateTime(maxDate);
                                 }
-                                
+
                                 mf.Initialize(nMediaFileID, priceContainer);
                                 ret[i] = mf;
 
                                 continue;
                             }
                         }
-                        
+
                         int nMediaFileTypeID = Utils.GetMediaFileTypeID(m_nGroupID, nMediaFileID);
                         PPVModuleWithExpiry[] ppvModules = oModules[i].m_oPPVModules;
 
@@ -6874,7 +6875,7 @@ namespace Core.ConditionalAccess
                     MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
                     foreach (int mediaFileID in mediaFilesForPurchase)
                     {
-                        ItemPriceContainer[] priceContainer = new ItemPriceContainer[1] 
+                        ItemPriceContainer[] priceContainer = new ItemPriceContainer[1]
                         {
                             new ItemPriceContainer() { m_PriceReason = PriceReason.Free }
                         };
@@ -6918,7 +6919,7 @@ namespace Core.ConditionalAccess
 
             return ret;
         }
-        
+
         ///*
         // * 1. This method is a helper function for GetItemsPrices.
         // * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
@@ -7099,7 +7100,7 @@ namespace Core.ConditionalAccess
             }
             return sRet;
         }
-        
+
         /*
         /// <summary>
         /// Get Safe Double
@@ -7523,7 +7524,7 @@ namespace Core.ConditionalAccess
                     if (Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(m_nGroupID))
                     {
                         GenericResponse<Catalog.Asset> assetResponse = Catalog.CatalogManagement.AssetManager.GetAsset(m_nGroupID, nMediaID, eAssetTypes.MEDIA, true);
-                        if(assetResponse?.Object != null)
+                        if (assetResponse?.Object != null)
                         {
                             res.m_sPurchasedItemName = assetResponse.Object.Name;
                         }
@@ -7625,7 +7626,7 @@ namespace Core.ConditionalAccess
         {
             BillingTransactions res = null;
             try
-            {                
+            {
                 res = GetUserBillingHistoryExt(sUserGUID, startDate, endDate, nStartIndex, nNumberOfItems, orderBy);
             }
             catch (Exception ex)
@@ -7684,7 +7685,7 @@ namespace Core.ConditionalAccess
                 double dPercent = Utils.GetCouponDiscountPercent(m_nGroupID, couponCode, domainId);
                 if (dPercent < 100) { return; }
             }
-            
+
             try
             {
                 Pricing.Module.SetCouponUses(m_nGroupID, couponCode, userId, mediaFileId, subscriptionId, collectionId, 0, domainId);
@@ -7698,8 +7699,8 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Handle Coupon Uses
         /// </summary>
-        protected internal virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode, string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, string sCouponCode, 
-                                                         string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection, 
+        protected internal virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode, string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, string sCouponCode,
+                                                         string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection,
                                                          long domainId)
         {
             Int32 nSubCode = 0;
@@ -8168,7 +8169,7 @@ namespace Core.ConditionalAccess
                                             sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, domainId);
 
                                         HandleCouponUses(relevantSub, sPPVModuleCode, sSiteGUID, p.m_dPrice, sCurrency, nMediaFileID, sCouponCode,
-                                            sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0,domainId);
+                                            sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, true, 0, 0, domainId);
 
                                         insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
                                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
@@ -9146,15 +9147,15 @@ namespace Core.ConditionalAccess
                 return nNumOfRecPeriods <= nPaymentNumber;
             return false;
         }
-        
+
         private string GetIsRecurringStrForSubscriptionCustomData(bool bIsRecurring, string sPreviewModuleID)
         {
             long lPreviewModuleID = 0;
             return bIsRecurring || (Int64.TryParse(sPreviewModuleID, out lPreviewModuleID) && lPreviewModuleID > 0) ? "true" : "false";
         }
 
-        protected virtual string GetCustomDataForMPPRenewal(RenewDetails renewSubscriptionDetails, Subscription subscription, UsageModule usageModule, 
-                                                            PriceCode p, string subscriptionCode, string userIP, bool isPartialPrice = false, string languageCode = null, 
+        protected virtual string GetCustomDataForMPPRenewal(RenewDetails renewSubscriptionDetails, Subscription subscription, UsageModule usageModule,
+                                                            PriceCode p, string subscriptionCode, string userIP, bool isPartialPrice = false, string languageCode = null,
                                                             string deviceName = null)
         {
 
@@ -9203,8 +9204,8 @@ namespace Core.ConditionalAccess
             if (renewSubscriptionDetails.RecurringData.Compensation != null)
             {
                 sb.AppendFormat("<compensation type=\"{0}\" amount=\"{1}\" totalRenewals=\"{2}\" renewalNumber=\"{3}\" />",
-                                 renewSubscriptionDetails.RecurringData.Compensation.CompensationType, 
-                                 renewSubscriptionDetails.RecurringData.Compensation.Amount, 
+                                 renewSubscriptionDetails.RecurringData.Compensation.CompensationType,
+                                 renewSubscriptionDetails.RecurringData.Compensation.Amount,
                                  renewSubscriptionDetails.RecurringData.Compensation.TotalRenewals,
                                  renewSubscriptionDetails.RecurringData.Compensation.Renewals + 1);
             }
@@ -10026,7 +10027,7 @@ namespace Core.ConditionalAccess
                         {
                             log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
                             return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        }   
+                        }
                     }
 
                     // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
@@ -10660,7 +10661,7 @@ namespace Core.ConditionalAccess
 
             return status;
         }
-        
+
         public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode,
                                                              string languageCode, string deviceName, string couponCode)
         {
@@ -10675,20 +10676,20 @@ namespace Core.ConditionalAccess
 
         }
 
-        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
+        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode,
                                                              string languageCode, string deviceName, string couponCode, ref int fileMainStreamingCoId, ref string fileType)
         {
             int mediaId = 0;
             int drmId = 0;
             string fileCoGuid = string.Empty;
 
-            return GetLicensedLinks(userId, mediaFileId, basicLink, ip, refferer, countryCode, 
-                                    languageCode, deviceName, couponCode, eObjectType.Media, ref fileMainStreamingCoId, 
+            return GetLicensedLinks(userId, mediaFileId, basicLink, ip, refferer, countryCode,
+                                    languageCode, deviceName, couponCode, eObjectType.Media, ref fileMainStreamingCoId,
                                     ref mediaId, ref fileType, out drmId, ref fileCoGuid);
         }
-        
-        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode, 
-                                                             string languageCode, string udid, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId, 
+
+        public virtual LicensedLinkResponse GetLicensedLinks(string userId, Int32 mediaFileId, string basicLink, string ip, string refferer, string countryCode,
+                                                             string languageCode, string udid, string couponCode, eObjectType eLinkType, ref int fileMainStreamingCoId,
                                                              ref int mediaId, ref string fileType, out int drmId, ref string fileCoGuid, long programId = 0, string npvrId = "")
         {
             LicensedLinkResponse response = new LicensedLinkResponse();
@@ -10749,7 +10750,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // validate file parameters
-                    if (!Utils.TryGetFileUrlLinks(m_nGroupID, mediaFileId, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoId, 
+                    if (!Utils.TryGetFileUrlLinks(m_nGroupID, mediaFileId, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoId,
                                                   ref fileAltStreamingCoID, ref nMediaID, ref fileCoGuid))
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", userId, mediaFileId, basicLink));
@@ -10804,7 +10805,7 @@ namespace Core.ConditionalAccess
                     {
                         playType = ePlayType.NPVR;
                     }
-                    
+
                     ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, nMediaID, 0, programId, playType, npvrId);
 
                     if (concurrencyResponse.Status != DomainResponseStatus.OK)
@@ -10817,12 +10818,12 @@ namespace Core.ConditionalAccess
 
                     if (Utils.IsItemPurchased(prices[0]))
                     {
-                        PlayUsesManager.HandlePlayUses(this, prices[0], userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode, 
+                        PlayUsesManager.HandlePlayUses(this, prices[0], userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode,
                                                        concurrencyResponse.Data.DomainId, m_nGroupID);
                     }
                     // item must be free otherwise we wouldn't get this far
-                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && 
-                             !Utils.InsertOrSetCachedEntitlementResults(concurrencyResponse.Data.DomainId, mediaFileId, 
+                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value &&
+                             !Utils.InsertOrSetCachedEntitlementResults(concurrencyResponse.Data.DomainId, mediaFileId,
                                 new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
                     // transaction type doesn't matter when item is free so just pass PPV
                     {
@@ -10898,7 +10899,7 @@ namespace Core.ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         response.status = concurrencyResponse.Status.ToString();
                     }
-                    
+
                     // create PlayCycle
                     InsertDevicePlayData(concurrencyResponse.Data, mediaFileId, ip, eExpirationTTL.Long);
                 }
@@ -10944,11 +10945,11 @@ namespace Core.ConditionalAccess
             if (devicePlayDataToInsert.UserId > 0)
             {
                 int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayDataToInsert.DomainId, this.m_nGroupID, devicePlayDataToInsert.UDID);
-                
+
                 devicePlayDataToInsert = CatalogDAL.InsertDevicePlayDataToCB(devicePlayDataToInsert.UserId, devicePlayDataToInsert.UDID, devicePlayDataToInsert.DomainId,
                                                                              devicePlayDataToInsert.MediaConcurrencyRuleIds, devicePlayDataToInsert.AssetMediaConcurrencyRuleIds,
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
-                                                                             devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(), 
+                                                                             devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
                                                                              devicePlayDataToInsert.NpvrId, ttl);
             }
 
@@ -10972,12 +10973,12 @@ namespace Core.ConditionalAccess
                 }
 
                 int nCountryID = Utils.GetIP2CountryId(m_nGroupID, userIp);
-                CatalogDAL.InsertPlayCycleKey(devicePlayDataToInsert.UserId.ToString(), devicePlayDataToInsert.AssetId, mediaFileID, devicePlayDataToInsert.UDID, 0, 
+                CatalogDAL.InsertPlayCycleKey(devicePlayDataToInsert.UserId.ToString(), devicePlayDataToInsert.AssetId, mediaFileID, devicePlayDataToInsert.UDID, 0,
                                               nCountryID, ruleID, m_nGroupID, playCycleKey);
             }
         }
 
-        internal ConcurrencyResponse CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId, 
+        internal ConcurrencyResponse CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId,
             int domainId, long programId, ePlayType playType, string npvrId = "")
         {
             ConcurrencyResponse response = new ConcurrencyResponse()
@@ -10992,7 +10993,7 @@ namespace Core.ConditionalAccess
                     NpvrId = npvrId
                 }
             };
-            
+
             if (Utils.IsAnonymousUser(userId))
             {
                 return response;
@@ -11035,7 +11036,7 @@ namespace Core.ConditionalAccess
 
                     // Get Media Concurrency Rules
                     List<MediaConcurrencyRule> mediaConcurrencyRules = Core.Api.Module.GetMediaConcurrencyRules(m_nGroupID, mediaId, bmID, eBM);
-                    
+
                     // get domain limit Id (whether we have domain Id or not)
                     DomainResponse domainResponse = null;
 
@@ -11056,9 +11057,9 @@ namespace Core.ConditionalAccess
                         List<int> limitationModulesRules = Core.Api.Module.GetMediaConcurrencyRulesByDomainLimitionModule(this.m_nGroupID, dlmId);
 
                         /* MediaConurrency Check */
-                        if (limitationModulesRules != null && 
+                        if (limitationModulesRules != null &&
                             limitationModulesRules.Count > 0 &&
-                            mediaConcurrencyRules != null && 
+                            mediaConcurrencyRules != null &&
                             mediaConcurrencyRules.Count() > 0)
                         {
                             mediaConcurrencyRuleIds.AddRange(mediaConcurrencyRules.Where(rule => limitationModulesRules.Contains(rule.RuleID)).Select(x => x.RuleID));
@@ -11071,7 +11072,7 @@ namespace Core.ConditionalAccess
 
                 response.Data.DomainId = domainId;
                 response.Data.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
-                
+
                 // validate Concurrency for domain
                 validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, response.Data);
 
@@ -11100,7 +11101,7 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-        
+
         private Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,
             string userIP, string countryCode, string langCode,
             string deviceName, string couponCode)
@@ -11179,7 +11180,7 @@ namespace Core.ConditionalAccess
             throw new NotImplementedException("Not implemented yet.");
         }
 
-        public virtual RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId, 
+        public virtual RecordResponse RecordSeriesBySeriesId(string siteGuid, string seriesId, int seasonNumber, int seasonSeed, int episodeSeed, int channelId,
             List<string> lookupCriteria, int? version)
         {
             throw new NotImplementedException("Not implemented yet.");
@@ -11232,7 +11233,7 @@ namespace Core.ConditionalAccess
         }
 
         protected virtual string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmId, string fileCoGuid, 
+            string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmId, string fileCoGuid,
             PlayContextType contextType, out string drmData)
         {
             drmData = string.Empty;
@@ -11570,7 +11571,7 @@ namespace Core.ConditionalAccess
         }
 
 
-        private TransactionResponse ProcessPPVReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, 
+        private TransactionResponse ProcessPPVReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken,
                                                       string paymentGwName, int contentId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -11620,7 +11621,7 @@ namespace Core.ConditionalAccess
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
-                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID, ref ePriceReason, ref relevantSub, 
+                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID, ref ePriceReason, ref relevantSub,
                                                                                 ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
 
                 if (ePriceReason == PriceReason.ForPurchase ||
@@ -11653,7 +11654,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // purchase
-                    response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId, ppvCode, 
+                    response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData, productId, ppvCode,
                                               eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken, adapterData);
                     if (response != null && response.Status != null)
                     {
@@ -11733,7 +11734,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, 
+        private TransactionResponse ProcessSubscriptionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken,
                                                                string paymentGwName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -11760,7 +11761,7 @@ namespace Core.ConditionalAccess
                 // validate item is for purchased
                 PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
-                Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country, 
+                Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason, ref subscription, country,
                                                                       string.Empty, deviceName);
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
@@ -11845,7 +11846,7 @@ namespace Core.ConditionalAccess
 
                                             // enqueue renew transaction
                                             RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, 
+                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
                                                 TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)subscriptionEndDate), nextRenewalDate);
 
                                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
@@ -11925,7 +11926,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, 
+        private TransactionResponse ProcessCollectionReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken,
                                                              string paymentGwName, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -11960,7 +11961,7 @@ namespace Core.ConditionalAccess
                 {
                     // item is for purchase
                     // price validated, create the Custom Data
-                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, 
+                    string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                    string.Empty, userIp, country, string.Empty, deviceName, string.Empty);
 
                     // create new GUID for billing_transaction
@@ -12051,7 +12052,7 @@ namespace Core.ConditionalAccess
         }
 
         protected TransactionResponse VerifyPurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                     int productID, string productCode, eTransactionType transactionType, string billingGuid, string paymentGWName, 
+                                                     int productID, string productCode, eTransactionType transactionType, string billingGuid, string paymentGWName,
                                                      int contentId, string purchaseToken, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
@@ -12074,7 +12075,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // call new billing method for charge adapter
-                var transactionResponse = Billing.Module.VerifyReceipt(m_nGroupID, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, productCode, 
+                var transactionResponse = Billing.Module.VerifyReceipt(m_nGroupID, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, productCode,
                                                                        transactionType, contentId, purchaseToken, paymentGWName, billingGuid, adapterData);
 
                 response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
@@ -12467,7 +12468,7 @@ namespace Core.ConditionalAccess
                     response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-                
+
                 if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements != null)
                 {
                     // Get all subscriptions
@@ -13747,7 +13748,7 @@ namespace Core.ConditionalAccess
 
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
-                    
+
                     recording.RecordingStatus = tstvRecordingStatus;
                 }
                 else
@@ -14560,12 +14561,12 @@ namespace Core.ConditionalAccess
                                                     {
                                                         recordingId = serieRecording.Id;
                                                         isRecordingSuccess = true;
-                                                        log.DebugFormat("successfully recorded epg as series on IngestRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);                                                        
+                                                        log.DebugFormat("successfully recorded epg as series on IngestRecording, epgId = {0}, recordingId = {1}", epg.EPG_ID, serieRecording.Id);
                                                     }
                                                 }
 
                                                 if (isPrivateCopy || isRecordingSuccess)
-                                                {                                                    
+                                                {
                                                     DateTime distributeTime = startDate.AddMinutes(1);
                                                     eRecordingTask task = eRecordingTask.DistributeRecording;
                                                     RecordingsManager.EnqueueMessage(m_nGroupID, epg.EPG_ID, recordingId, startDate, distributeTime, task);
@@ -14739,7 +14740,7 @@ namespace Core.ConditionalAccess
                     Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainID, out domain);
 
                 // Validate user and domain
-                if (validationStatus.Code != (int) eResponseStatus.OK)
+                if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userId);
                     recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
@@ -14748,12 +14749,12 @@ namespace Core.ConditionalAccess
 
                 // Validate recording exists
                 recording = Utils.ValidateRecordID(m_nGroupID, domainID, domainRecordingId);
-                if (recording.Status.Code != (int) eResponseStatus.OK)
+                if (recording.Status.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat(
                         "Recording is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}",
                         domainRecordingId, domainID, userId, recording != null ? recording.ToString() : string.Empty);
-      
+
                     return recording;
                 }
 
@@ -14765,7 +14766,7 @@ namespace Core.ConditionalAccess
                     log.DebugFormat(
                         "RecordingStatus is not valid for protection, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}",
                         domainRecordingId, domainID, userId, recording.ToString());
-                    recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.RecordingStatusNotValid,
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid,
                         "Protection failed, only recording in status Recorded can be protected");
 
                     return recording;
@@ -14841,7 +14842,7 @@ namespace Core.ConditionalAccess
                             log.ErrorFormat(
                                 "Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}",
                                 domainID, userId, domainRecordingId);
-                            recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
                                 eResponseStatus.Error.ToString());
 
                             return recording;
@@ -14852,7 +14853,7 @@ namespace Core.ConditionalAccess
                                 "Protect is not enabled on the account, DomainID: {0}, UserID: {1}, recordID: {2}",
                                 domainID, userId, domainRecordingId);
                             recording.Status = new ApiObjects.Response.Status(
-                                (int) eResponseStatus.AccountProtectRecordNotEnabled,
+                                (int)eResponseStatus.AccountProtectRecordNotEnabled,
                                 eResponseStatus.AccountProtectRecordNotEnabled.ToString());
 
                             return recording;
@@ -14873,15 +14874,15 @@ namespace Core.ConditionalAccess
                             log.ErrorFormat(
                                 "Failed getting account protection quota percentage, DomainID: {0}, UserID: {1}, recordID: {2}",
                                 domainID, userId, domainRecordingId);
-                            recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
                                 eResponseStatus.Error.ToString());
 
                             return recording;
                         }
 
                         // Calculate total protection quota (round up according to spec)
-                        int availableProtectionSeconds = (int) Math.Ceiling(
-                            (double) ((domainsQuotaInSeconds * accountSettings.ProtectionQuotaPercentage.Value) / 100));
+                        int availableProtectionSeconds = (int)Math.Ceiling(
+                            (double)((domainsQuotaInSeconds * accountSettings.ProtectionQuotaPercentage.Value) / 100));
 
                         // Get domain used protection minutes
                         Dictionary<long, Recording> domainProtectedRecordings =
@@ -14891,19 +14892,19 @@ namespace Core.ConditionalAccess
                         ApiObjects.Response.Status protectionQuotaStatus =
                             QuotaManager.Instance.CheckQuotaByTotalSeconds(
                                 m_nGroupID, domainID, availableProtectionSeconds, false,
-                                new List<Recording>() {recording},
+                                new List<Recording>() { recording },
                                 domainProtectedRecordings != null
                                     ? domainProtectedRecordings.Values.ToList()
                                     : new List<Recording>());
 
-                        if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int) eResponseStatus.OK ||
-                            recording.Status == null || recording.Status.Code != (int) eResponseStatus.OK)
+                        if (protectionQuotaStatus == null || protectionQuotaStatus.Code != (int)eResponseStatus.OK ||
+                            recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                         {
                             log.DebugFormat(
                                 "Domain Exceeded Protection Quota, DomainID: {0}, UserID: {1}, recordID: {2}",
                                 domainID, userId, domainRecordingId);
                             recording.Status = new ApiObjects.Response.Status(
-                                (int) eResponseStatus.ExceededProtectionQuota,
+                                (int)eResponseStatus.ExceededProtectionQuota,
                                 eResponseStatus.ExceededProtectionQuota.ToString());
 
                             return recording;
@@ -14915,7 +14916,7 @@ namespace Core.ConditionalAccess
                             log.ErrorFormat(
                                 "Failed getting account protection period, DomainID: {0}, UserID: {1}, recordID: {2}",
                                 domainID, userId, domainRecordingId);
-                            recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
                                 eResponseStatus.Error.ToString());
 
                             return recording;
@@ -14942,7 +14943,7 @@ namespace Core.ConditionalAccess
                         log.DebugFormat(
                             "Failed updating recording protection details on DB, DomainID: {0}, UserID: {1}, recordID: {2}",
                             domainID, userId, domainRecordingId);
-                        recording.Status = new ApiObjects.Response.Status((int) eResponseStatus.Error,
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
                             eResponseStatus.Error.ToString());
                     }
                 }
@@ -14958,7 +14959,7 @@ namespace Core.ConditionalAccess
 
                 log.Error(sb.ToString(), ex);
                 recording.Status =
-                    new ApiObjects.Response.Status((int) eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
             return recording;
@@ -15004,7 +15005,7 @@ namespace Core.ConditionalAccess
             }
 
             recording.Status =
-                new ApiObjects.Response.Status((int) eResponseStatus.OK, eResponseStatus.OK.ToString());
+                new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         public bool CleanupRecordings()
@@ -15052,7 +15053,7 @@ namespace Core.ConditionalAccess
                     int adapterId = 0;
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
-                        
+
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15069,7 +15070,7 @@ namespace Core.ConditionalAccess
                             // pair.key = groupId
                             if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                             {
-                                adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);                                
+                                adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
                                 if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
                                 {
                                     log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
@@ -15425,15 +15426,23 @@ namespace Core.ConditionalAccess
                 List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings = new List<HandleDomainQuataByRecordingTask>();
                 if (expiredRecordingsToSchedule != null)
                 {
-                    foreach (HandleDomainQuataByRecordingTask expiredRecording in expiredRecordingsToSchedule.Values)
+                    var messagesToSend = expiredRecordingsToSchedule.Values.Select(r => new ModifiedRecordingRequest
                     {
-                        GenericCeleryQueue queue = new GenericCeleryQueue();
-                        RecordingModificationData data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
-                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
-                        if (!queueExpiredRecordingResult)
-                        {
-                            log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
-                        }
+                        GroupId = r.GroupId,
+                        Id = r.Id,
+                        RecordingId = r.RecordingId,
+                        OldRecordingDuration = r.OldRecordingDuration,
+                        ScheduledExpirationEpoch = r.ScheduledExpirationEpoch
+                    });
+
+                    try
+                    {
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        eventBus.Publish(messagesToSend);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error($"Failed to queue ExpiredRecordingScheduledTask", e);
                     }
 
                     recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
@@ -16223,7 +16232,7 @@ namespace Core.ConditionalAccess
                 return result;
             }
 
-            log.DebugFormat("recording id = {0}, crid = {1}", id, recording.Crid);            
+            log.DebugFormat("recording id = {0}, crid = {1}", id, recording.Crid);
 
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
             if (epgs == null || epgs.Count != 1)
@@ -16380,7 +16389,7 @@ namespace Core.ConditionalAccess
                         log.ErrorFormat("failed parsing SEASON_NUMBER, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
                         return result;
                     }
-                    
+
                     followingDomains = RecordingsDAL.GetSeriesFollowingDomains(m_nGroupID, seriesId, epgSeasonNumber, maxDomainSeriesId);
                 }
 
@@ -16407,61 +16416,61 @@ namespace Core.ConditionalAccess
                     accountQuotaOverage = true;
                 }
 
-                    //2. parallel (queryrecording) 
-                    Parallel.For(0, followingDomains.Rows.Count, options, i =>
+                //2. parallel (queryrecording) 
+                Parallel.For(0, followingDomains.Rows.Count, options, i =>
+            {
+                contextData.Load();
+                var quotaOverage = false;
+
+                DataRow followingDomainRow = followingDomains.Rows[i];
+                long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
+                long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
+                int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
+                long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
+                RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
+
+                if (domainId > 0 && userId > 0)
                 {
-                    contextData.Load();
-                    var quotaOverage = false;
-
-                    DataRow followingDomainRow = followingDomains.Rows[i];
-                    long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
-                    long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
-                    int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
-                    long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
-                    RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
-
-                    if (domainId > 0 && userId > 0)
+                    var recordingResponse = QueryRecords(userId.ToString(), new List<long>() { epgId }, ref domainId, recordingType, true, true);
+                    if (recordingResponse.Status.Code == (int)eResponseStatus.OK && recordingResponse.TotalItems > 0)
                     {
-                        var recordingResponse = QueryRecords(userId.ToString(), new List<long>() { epgId }, ref domainId, recordingType, true, true);
-                        if (recordingResponse.Status.Code == (int)eResponseStatus.OK && recordingResponse.TotalItems > 0)
+                        var recording = recordingResponse.Recordings[0];
+                        if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                         {
-                            var recording = recordingResponse.Recordings[0];
-                            if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
+                            //check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
+                            //else return exceedeQuota
+                            if (recording.Status.Code == (int)eResponseStatus.ExceededQuota && accountQuotaOverage)
                             {
-                                //check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
-                                //else return exceedeQuota
-                                if (recording.Status.Code == (int)eResponseStatus.ExceededQuota && accountQuotaOverage)
-                                {
-                                    quotaOverage = true;
-                                }
-
-                                if (quotaOverage)
-                                {
-                                    domains.Add(new Tuple<long, long, bool, long, RecordingType> (domainId, userId, quotaOverage,domainSeriesRecordingId, recordingType));
-                                }
+                                quotaOverage = true;
                             }
-                            else
-                            {
-                                if (sharedRecording == null)
-                                {
-                                    lock (locker)
-                                    {
-                                        if (sharedRecording == null)
-                                        {
-                                            sharedRecording = recording;
-                                        }
-                                    }
-                                }
 
+                            if (quotaOverage)
+                            {
                                 domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
                             }
                         }
+                        else
+                        {
+                            if (sharedRecording == null)
+                            {
+                                lock (locker)
+                                {
+                                    if (sharedRecording == null)
+                                    {
+                                        sharedRecording = recording;
+                                    }
+                                }
+                            }
+
+                            domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
+                        }
                     }
-                });
+                }
+            });
 
                 HashSet<long> failedDomainIds;
                 sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, sharedRecording.EpgStartDate, sharedRecording.EpgEndDate, sharedRecording.Crid,
-                                                                domains.Select(x=>x.Item1).ToList(), out failedDomainIds);
+                                                                domains.Select(x => x.Item1).ToList(), out failedDomainIds);
 
                 if (sharedRecording != null && sharedRecording.Status != null && sharedRecording.Status.Code == (int)eResponseStatus.OK
                      && sharedRecording.Id > 0 && Utils.IsValidRecordingStatus(sharedRecording.RecordingStatus))
@@ -16583,14 +16592,14 @@ namespace Core.ConditionalAccess
                                     Parallel.ForEach(dtNotEntitled.AsEnumerable(), options, (drow) =>
                                     {
                                         contextData.Load();
-                                            //call cancelOrDelete                  
-                                            string userId = ODBCWrapper.Utils.GetSafeStr(drow, "user_id");
+                                        //call cancelOrDelete                  
+                                        string userId = ODBCWrapper.Utils.GetSafeStr(drow, "user_id");
                                         long domainId = ODBCWrapper.Utils.GetLongSafeVal(drow, "domain_id");
                                         long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "id");
                                         long currentRecordingId = ODBCWrapper.Utils.GetLongSafeVal(drow, "recording_id");
                                         TstvRecordingStatus currentTstv = currentRecordingId == recordingId ? TstvRecordingStatus.Deleted : TstvRecordingStatus.Canceled;
-                                            // cancel or delete all of these recordings 
-                                            CancelOrDeleteRecord(userId, domainId, domainRecordingId, currentTstv, false);
+                                        // cancel or delete all of these recordings 
+                                        CancelOrDeleteRecord(userId, domainId, domainRecordingId, currentTstv, false);
                                     });
                                 }
                             }
@@ -16743,8 +16752,8 @@ namespace Core.ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
                         return response;
                     }
-                    
-                    ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, linearMediaId, (int)domainId, recording.EpgId, ePlayType.NPVR, 
+
+                    ConcurrencyResponse concurrencyResponse = CheckMediaConcurrency(userId, udid, prices, linearMediaId, (int)domainId, recording.EpgId, ePlayType.NPVR,
                         recording.Id.ToString());
                     if (concurrencyResponse.Status != DomainResponseStatus.OK)
                     {
@@ -17011,11 +17020,11 @@ namespace Core.ConditionalAccess
             return GrantManager.SwapSubscription(this, this.m_nGroupID, userId, oldSubscriptionCode, newSubscriptionCode, ip, udid, history);
         }
 
-        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, 
+        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType,
                                                           string mediaProtocol, PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice,
                                                           UrlType urlType)
         {
-            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, 
+            return PlaybackManager.GetPlaybackContext(this, m_nGroupID, userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid,
                                                       out filePrice, urlType);
         }
 
@@ -17165,7 +17174,7 @@ namespace Core.ConditionalAccess
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on SuspendPaymentGatewayEntitlements key = {0}", invalidationKey);
-                            }                            
+                            }
                         }
                     }
                 }
@@ -17255,7 +17264,7 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-        
+
         internal EntitlementRenewalResponse GetEntitlementNextRenewal(long householdId, int purchaseId, long userId)
         {
             return RenewManager.GetEntitlementNextRenewal(this, this.m_nGroupID, householdId, purchaseId, userId);
@@ -17265,7 +17274,7 @@ namespace Core.ConditionalAccess
         {
             return RenewManager.GetUnifiedPaymentNextRenewal(this, this.m_nGroupID, householdId, unifiedPaymentId, userId);
         }
-        
+
         internal bool RenewalReminder(string siteGuid, long purchaseId, long endDate)
         {
             return RenewManager.RenewalReminder(this, this.m_nGroupID, siteGuid, purchaseId, endDate);
@@ -17356,7 +17365,7 @@ namespace Core.ConditionalAccess
             try
             {
                 Domain domain = null;
-                long domainId = 0;            
+                long domainId = 0;
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out domain);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
@@ -17408,7 +17417,7 @@ namespace Core.ConditionalAccess
                     response = RecordingsManager.Instance.AddExternalRecording(groupId, externalRecording, viewableUntilDate, protectedUntilDate, domainId, userId, externalViewableUntilDate);
                 }
                 else
-                {                    
+                {
                     log.ErrorFormat("Failed to parse epg start date and \\ or epg end date for EpgId: {0}", externalRecording.EpgId);
                 }
             }

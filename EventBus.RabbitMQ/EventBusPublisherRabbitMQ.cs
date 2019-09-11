@@ -53,7 +53,7 @@ namespace EventBus.RabbitMQ
                 channel.ConfirmSelect();
                 channel.BasicAcks += (o, e) =>
                 {
-                    _Logger.Info($"Event delivered with tag:[{e.DeliveryTag}]");
+                    _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
                 };
                 foreach (var serviceEvent in serviceEvents)
                 {
