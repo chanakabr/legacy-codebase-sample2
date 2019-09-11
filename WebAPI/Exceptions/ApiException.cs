@@ -297,6 +297,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PERMISSION_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.PermissionNameAlreadyInUse, "Permission Name Already In Use", "Permission name already in use");
         public static ClientExceptionType EVENT_NOTIFICATION_ID_IS_MISSING = new ClientExceptionType(eResponseStatus.EventNotificationIdIsMissing, "event notification id is missing", "event notification id is missing");
         public static ClientExceptionType EVENT_NOTIFICATION_ID_NOT_FOUND = new ClientExceptionType(eResponseStatus.EventNotificationIdNotFound, "Event notification id not found", "Event notification id not found");
+        public static ClientExceptionType REGION_NOT_FOUND = new ClientExceptionType(eResponseStatus.RegionNotFound, "Region was not found", "Region was not found");
+        public static ClientExceptionType DEFAULT_REGION_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted", "Default region cannot be deleted");
+        public static ClientExceptionType REGION_IN_USE_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.RegionInUseCannotBeDeleted, "Region in use cannot be deleted", "Region in use cannot be deleted");
 
         #endregion
 

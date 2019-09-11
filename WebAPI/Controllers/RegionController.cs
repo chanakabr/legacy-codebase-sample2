@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ApiObjects.Response;
+using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -105,6 +105,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RegionNotFound)]
+        [Throws(eResponseStatus.DefaultRegionCannotBeDeleted)]
+        [Throws(eResponseStatus.RegionInUseCannotBeDeleted)]
         static public void Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
