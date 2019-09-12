@@ -1551,6 +1551,24 @@ namespace Core.Notification
 
         public static bool AddReminderToQueue(int groupId, DbReminder reminder)
         {
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                var que = new MessageReminderQueue();
+                var messageReminderCeleryData = new MessageReminderData(groupId, reminder.SendTime, reminder.ID)
+                {
+                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime)
+                };
+
+                bool res = que.Enqueue(messageReminderCeleryData, ROUTING_KEY_REMINDERS_MESSAGES);
+
+                if (res)
+                    log.DebugFormat("Successfully inserted a reminder message to reminder queue: {0}", messageReminderCeleryData);
+                else
+                    log.ErrorFormat("Error while inserting reminder {0} to queue", messageReminderCeleryData);
+
+                return res;
+            }
+
             var msg = new MessageReminderRequest
             {
                 GroupId = groupId,
