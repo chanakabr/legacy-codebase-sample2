@@ -18,6 +18,7 @@ using ApiObjects.EventBus;
 using EventBus.RabbitMQ;
 using TVinciShared;
 using EventBus.Abstraction;
+using ConfigurationManager;
 
 namespace APILogic.Notification
 {
@@ -1078,6 +1079,26 @@ namespace APILogic.Notification
 
         public static bool AddInterestToQueue(int groupId, InterestNotificationMessage interestNotificationMessage)
         {
+
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                var que = new MessageInterestQueue();
+                var messageReminderCeleryData = new MessageInterestData(groupId, DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime), interestNotificationMessage.Id)
+                {
+                    ETA = interestNotificationMessage.SendTime
+                };
+
+                bool res = que.Enqueue(messageReminderCeleryData, ROUTING_KEY_INTEREST_MESSAGES);
+
+                if (res)
+                    log.DebugFormat("Successfully inserted interest notification message to interest queue: {0}", messageReminderCeleryData);
+                else
+                    log.ErrorFormat("Error while inserting interest notification message to queue. Message: {0}", messageReminderCeleryData);
+
+                return res;
+            }
+
+
             var messageReminderData = new MessageInterestRequest
             {
                 GroupId = groupId,
