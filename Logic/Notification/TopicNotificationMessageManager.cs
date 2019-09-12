@@ -2,6 +2,7 @@
 using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Notification.Adapters;
 using Core.Pricing;
 using DAL;
@@ -382,27 +383,42 @@ namespace Core.Notification
 
         public static bool AddTopicNotificationMessageToQueue(int groupId, long topicNotificationMessageId, long sendDate)
         {
-            bool result = false;
-
-            QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
-            ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
-                groupId,
-                sendDate,
-                (int)topicNotificationMessageId, MessageAnnouncementRequestType.TopicNotificationMessage)
+            bool result = true;
+            
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
             {
-                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(sendDate)
+                GroupId = groupId,
+                MessageAnnouncementId = (int)topicNotificationMessageId,
+                StartTime = sendDate,
+                Type = MessageAnnouncementRequestType.TopicNotificationMessage,
+                ETA = DateTime.UtcNow
             };
 
-            if (queue.Enqueue(messageAnnouncementData, AnnouncementManager.ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS))
-            {
-                log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
-                result = true;
-            }
-            else
-            {
-                log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
-            }
+            eventBus.Publish(serviceEvent);
 
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
+                ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
+                    groupId,
+                    sendDate,
+                    (int)topicNotificationMessageId, MessageAnnouncementRequestType.TopicNotificationMessage)
+                {
+                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(sendDate)
+                };
+
+                if (queue.Enqueue(messageAnnouncementData, AnnouncementManager.ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS))
+                {
+                    log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                    log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
+                }
+            }
 
             return result;
         }

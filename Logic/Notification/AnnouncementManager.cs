@@ -472,18 +472,34 @@ namespace Core.Notification
 
         private static bool AddMessageAnnouncementToQueue(int groupId, MessageAnnouncement announcement)
         {
-            MessageAnnouncementQueue que = new MessageAnnouncementQueue();
-            MessageAnnouncementData messageAnnouncementData = new MessageAnnouncementData(groupId, announcement.StartTime, announcement.MessageAnnouncementId)
+            bool res = true;
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
             {
+                GroupId = groupId,
+                MessageAnnouncementId = announcement.MessageAnnouncementId,
+                StartTime = announcement.StartTime,
+                Type = MessageAnnouncementRequestType.MessageAnnoncement,
                 ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
             };
 
-            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
+            eventBus.Publish(serviceEvent);
 
-            if (res)
-                log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
-            else
-                log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                MessageAnnouncementQueue que = new MessageAnnouncementQueue();
+                MessageAnnouncementData messageAnnouncementData = new MessageAnnouncementData(groupId, announcement.StartTime, announcement.MessageAnnouncementId)
+                {
+                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
+                };
+
+                res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
+
+                if (res)
+                    log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
+                else
+                    log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
+            }
 
             return res;
         }
