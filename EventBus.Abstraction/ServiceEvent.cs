@@ -15,5 +15,10 @@ namespace EventBus.Abstraction
         public long UserId { get; set; }
         public static string GetEventName(Type eventType) => $"{eventType.Namespace}.{eventType.Name}";
         public static string GetEventName(ServiceEvent e) => GetEventName(e.GetType());
+
+        public override string ToString()
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this).ToString();
+        }
     }
 }
