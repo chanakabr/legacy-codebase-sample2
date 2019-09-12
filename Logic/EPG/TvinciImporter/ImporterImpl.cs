@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
+using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ConfigurationManager;
@@ -2346,19 +2347,36 @@ namespace TvinciImporter
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
-
-                var queue = new ImageUploadQueue();
-
-                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
-
-                if (!enqueueSuccessful)
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new RemoteImageUploadRequest()
                 {
-                    log.ErrorFormat("Failed enqueue of image upload. data: {0}", data);
-                }
-                else
+                    GroupId = parentGroupId,
+                    ImageId = picNewName,
+                    ImageServerUrl = imageServerUrl,
+                    MediaType = mediaType,
+                    RowId = picId,
+                    SourcePath = sourcePath,
+                    Version = version
+                };
+
+                eventBus.Publish(serviceEvent);
+                 
+                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                 {
-                    log.DebugFormat("successfully enqueue image upload. data: {0}", data);
+                    ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
+
+                    var queue = new ImageUploadQueue();
+
+                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
+
+                    if (!enqueueSuccessful)
+                    {
+                        log.ErrorFormat("Failed enqueue of image upload. data: {0}", data);
+                    }
+                    else
+                    {
+                        log.DebugFormat("successfully enqueue image upload. data: {0}", data);
+                    }
                 }
             }
             catch (Exception exc)
