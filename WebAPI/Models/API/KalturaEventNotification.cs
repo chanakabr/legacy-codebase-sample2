@@ -108,13 +108,12 @@ namespace WebAPI.Models.API
         }
 
         internal override void ValidateForUpdate()
-        {
-            throw new NotImplementedException();
+        {            
         }
 
         internal override void SetId(string id)
         {
-            throw new NotImplementedException();
+            Id = id;            
         }
     }
 
