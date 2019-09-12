@@ -15397,8 +15397,8 @@ namespace Core.ConditionalAccess
             try
             {
                 // try to get interval for next run take default
-                BaseScheduledTaskLastRunDetails recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.recordingsScheduledTasks);
-                ScheduledTaskLastRunDetails lastRunDetails = recordingsScheduledTask.GetLastRunDetails();
+                var recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.recordingsScheduledTasks);
+                var lastRunDetails = recordingsScheduledTask.GetLastRunDetails();
                 recordingsScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
                 if (recordingsScheduledTask != null && recordingsScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsScheduledTask.NextRunIntervalInSeconds > 0)
                 {
@@ -15426,6 +15426,20 @@ namespace Core.ConditionalAccess
                 List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings = new List<HandleDomainQuataByRecordingTask>();
                 if (expiredRecordingsToSchedule != null)
                 {
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        foreach (var expiredRecording in expiredRecordingsToSchedule.Values)
+                        {
+                            var queue = new GenericCeleryQueue();
+                            var data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
+                            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
+                            if (!queueExpiredRecordingResult)
+                            {
+                                log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
+                            }
+                        }
+                    }
+
                     var messagesToSend = expiredRecordingsToSchedule.Values.Select(r => new ModifiedRecordingRequest
                     {
                         GroupId = r.GroupId,
