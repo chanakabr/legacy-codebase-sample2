@@ -807,7 +807,17 @@ namespace Core.Api
 
         public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy)
         {
-            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, externalRegionList, orderBy);
+            RegionsResponse response = null;
+            RegionFilter filter = new RegionFilter() { ExternalIds = externalRegionList };
+            var regions = GetRegions(groupId, filter);
+            if (regions != null && regions.HasObjects())
+            {
+                response = new RegionsResponse();
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+                response.Regions = regions.Objects;
+            }
+
+            return response;
         }
 
         public static List<LanguageObj> GetGroupLanguages(int groupId)

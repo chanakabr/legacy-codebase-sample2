@@ -18,66 +18,6 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static RegionsResponse GetRegions(int groupID, List<string> externalRegionList, RegionOrderBy orderBy)
-        {
-            RegionsResponse response = null;
-            DataSet ds = null;
-            try
-            {
-                if (externalRegionList == null)
-                {
-                    externalRegionList = new List<string>();
-
-                }
-
-                ds = DAL.ApiDAL.Get_RegionsByExternalRegions(groupID, externalRegionList, orderBy);
-
-                Region region;
-                if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
-                {
-                    response = new RegionsResponse();
-                    response.Regions = new List<Region>();
-
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            region = new Region()
-                            {
-                                id = APILogic.Utils.GetIntSafeVal(row, "id"),
-                                name = APILogic.Utils.GetSafeStr(row, "name"),
-                                externalId = APILogic.Utils.GetSafeStr(row, "external_id"),
-                                isDefault = APILogic.Utils.GetIntSafeVal(row, "is_default_region") == 1 ? true : false,
-                                parentId = APILogic.Utils.GetIntSafeVal(row, "parent_id")
-                            };
-                            response.Regions.Add(region);
-                        }
-                    }
-                    if (ds.Tables[1] != null && ds.Tables[1].Rows != null)
-                    {
-                        int regionId;
-                        foreach (DataRow row in ds.Tables[1].Rows)
-                        {
-                            regionId = APILogic.Utils.GetIntSafeVal(row, "region_id");
-                            region = response.Regions.Where(r => r.id == regionId).FirstOrDefault();
-                            if (region != null)
-                            {
-                                region.linearChannels.Add(new ApiObjects.KeyValuePair(APILogic.Utils.GetIntSafeVal(row, "media_id").ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
-                            }
-                        }
-                    }
-
-                }
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
-            }
-            catch (Exception)
-            {
-                response = new RegionsResponse();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-            }
-            return response;
-        }
-
         internal static Status DeleteRegion(int groupId, int id, long userId)
         {
             try
@@ -135,10 +75,11 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                if (regionToUpdate.externalId != null && regionToUpdate.externalId != region.externalId)
+                if (!string.IsNullOrEmpty(regionToUpdate.externalId) && regionToUpdate.externalId != region.externalId)
                 {
-                    RegionsResponse regions = GetRegions(groupId, new List<string>() { region.externalId }, RegionOrderBy.CreateDateAsc);
-                    if (regions != null && regions.Regions != null && regions.Regions.Count > 0)
+                    RegionFilter filter = new RegionFilter() { ExternalIds = new List<string>() { regionToUpdate.externalId } };
+                    var regions = GetRegions(groupId, filter);
+                    if (regions != null && regions.HasObjects())
                     {
                         log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, region.externalId);
                         response.SetStatus((int)eResponseStatus.ExternalIdAlreadyExists, "Region external ID already exists");
@@ -160,7 +101,19 @@ namespace ApiLogic.Api.Managers
                     if (parentRegion.parentId != 0)
                     {
                         log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
-                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be parent");
+                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be sub region");
+                        return response;
+                    }
+                }
+
+                if (regionToUpdate.parentId == 0 && region.parentId > 0)
+                {
+                    RegionFilter filter = new RegionFilter() { ParentId = region.parentId };
+                    var regions = GetRegions(groupId, filter);
+                    if (regions != null && regions.HasObjects())
+                    {
+                        //log.ErrorFormat("");
+                        response.SetStatus((int)eResponseStatus.Error, "Cannot set region to sub region");
                         return response;
                     }
                 }
@@ -206,7 +159,6 @@ namespace ApiLogic.Api.Managers
                         }
                     }
                 }
-
             }
             catch (Exception exc)
             {
@@ -236,18 +188,22 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-    internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
+        internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
             GenericResponse<Region> response = new GenericResponse<Region>();
 
             try
             {
-                RegionsResponse regions = GetRegions(groupId, new List<string>() { region.externalId }, RegionOrderBy.CreateDateAsc);
-                if (regions != null && regions.Regions != null && regions.Regions.Count > 0)
+                if (!string.IsNullOrEmpty(region.externalId))
                 {
-                    log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, region.externalId);
-                    response.SetStatus((int)eResponseStatus.ExternalIdAlreadyExists, "Region external ID already exists");
-                    return response;
+                    RegionFilter filter = new RegionFilter() { ExternalIds = new List<string>() { region.externalId } };
+                    var regions = GetRegions(groupId, filter);
+                    if (regions != null && regions.HasObjects())
+                    {
+                        log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, region.externalId);
+                        response.SetStatus((int)eResponseStatus.ExternalIdAlreadyExists, "Region external ID already exists");
+                        return response;
+                    }
                 }
 
                 Region parentRegion = null;
@@ -409,7 +365,7 @@ namespace ApiLogic.Api.Managers
 
             RegionsCache regionsCache = GetRegionsFromCache(groupId);
 
-            if (regionsCache != null && regionsCache.Regions != null)
+            if (regionsCache != null && regionsCache.Regions != null && regionsCache.Regions.ContainsKey(id))
             {
                 result = regionsCache.Regions[id];
             }
@@ -443,6 +399,10 @@ namespace ApiLogic.Api.Managers
                     if (map != null && map.ContainsKey(filter.LiveAssetId))
                     {
                         filter.RegionIds = map[filter.LiveAssetId];
+                    }
+                    else
+                    {
+                        return result;
                     }
                 }
 
@@ -563,24 +523,15 @@ namespace ApiLogic.Api.Managers
                         Region region;
 
                         if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                        {
-                            int defaultRegion = 0; 
-                            CatalogGroupCache catalogGroupCache;
-                            if (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
-                            {
-                                defaultRegion = catalogGroupCache.DefaultRegion;
-                            }                            
-
+                        {                           
                             foreach (DataRow row in ds.Tables[0].Rows)
                             {
-                                int id = ODBCWrapper.Utils.GetIntSafeVal(row, "id");
-
                                 region = new Region()
                                 {
-                                    id = id,
+                                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
                                     name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                                     externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                                    isDefault = id == defaultRegion,
+                                    isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT_REGION") == 1,
                                     parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
                                     createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
                                 };

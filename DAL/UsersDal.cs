@@ -747,13 +747,13 @@ namespace DAL
             return retVal;
         }
 
-        public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate, ref DateTime passwordUpdateDate)
+        public static int GetUserPasswordFailHistory(string username, int groupId, ref DateTime dNow, ref int failCount, ref DateTime lastFailDate, ref DateTime lastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
             var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@username", sUN);
-            sp.AddParameter("@groupID", nGroupID);
+            sp.AddParameter("@username", username);
+            sp.AddParameter("@groupID", groupId);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -763,14 +763,12 @@ namespace DAL
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
-                    nFailCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["FAIL_COUNT"]);
-                    userId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
-                    dLastFailDate = new DateTime(2020, 1, 1);
-                    dLastHitDate = new DateTime(2020, 1, 1);
-                    dLastFailDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
-                    dLastHitDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
-                    passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0]["PASSWORD_UPDATE_DATE"]);
+                    dNow = Utils.GetDateSafeVal(dt.Rows[0], "dNow");
+                    failCount = Utils.GetIntSafeVal(dt.Rows[0], "FAIL_COUNT");
+                    userId = Utils.GetIntSafeVal(dt.Rows[0], "id");
+                    lastFailDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_FAIL_DATE");
+                    lastHitDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_HIT_DATE");
+                    passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0], "PASSWORD_UPDATE_DATE");
                 }
             }
 
