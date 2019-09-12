@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiObjects.Response;
+using Core.Users;
+using Newtonsoft.Json;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -23,6 +21,15 @@ namespace TVPApiModule.Objects.Responses
             }
         }
 
+        public UserResponse(GenericResponse<UserResponseObject> user)
+        {
+            if (user != null)
+            {
+                this.Status = new Status(user.Status.Code, user.Status.Message);
+                this.Result = new UserResult(user.Object);
+            }
+        }
+
         public UserResponse()
         {
         }
@@ -37,6 +44,11 @@ namespace TVPApiModule.Objects.Responses
         public UserResult(Core.Users.UserResponse userResponse)
         {
             this.user = userResponse.user;
+        }
+
+        public UserResult(UserResponseObject User)
+        {
+            this.user = user;
         }
     }
 }

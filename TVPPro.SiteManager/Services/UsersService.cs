@@ -1,18 +1,16 @@
-﻿using System;
+﻿using ApiObjects;
+using Core.ConditionalAccess;
+using Core.Users;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TVPPro.Configuration.PlatformServices;
+using System.Reflection;
 using System.Web;
+using TVinciShared;
+using TVPPro.Configuration.PlatformServices;
 using TVPPro.SiteManager.Context;
 using TVPPro.SiteManager.Helper;
-using System.Collections;
-using KLogMonitor;
-using System.Reflection;
-using Core.Users;
-using ApiObjects;
-using Core.ConditionalAccess;
-using TVinciShared;
 
 namespace TVPPro.SiteManager.Services
 {
@@ -502,7 +500,11 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                tempUserContext.UserResponse = Core.Users.Module.RenewUserPassword(nGroupID, UserName, Password);
+                var response = Core.Users.Module.RenewUserPassword(nGroupID, UserName, Password);
+                if( response != null && response.HasObject())
+                {
+                    tempUserContext.UserResponse = response.Object;
+                }
 
                 if (tempUserContext.UserResponse.m_RespStatus == ResponseStatus.OK)
                 {
@@ -586,7 +588,7 @@ namespace TVPPro.SiteManager.Services
                 var usersResponse = Core.Users.Module.ActivateAccount(nGroupID, UserName, UserToken);
                 if (usersResponse != null)
                 {
-                    UserContext.UserResponse = usersResponse.user;
+                    UserContext.UserResponse = usersResponse.Object;
                 }
 
                 if (UserContext.UserResponse.m_RespStatus == ResponseStatus.OK)
@@ -732,9 +734,8 @@ namespace TVPPro.SiteManager.Services
                         UserContext.UserResponse.m_user.m_oBasicData.m_bIsFacebookImagePermitted = true;
 
 
-                        UserContext.UserResponse = Core.Users.Module.SetUserData(nGroupID, UserContext.UserResponse.m_user.m_sSiteGUID,
+                        UserContext.UserResponse = Core.Users.Module.UpdateUserData(nGroupID, UserContext.UserResponse.m_user.m_sSiteGUID,
                             UserContext.UserResponse.m_user.m_oBasicData, UserContext.UserResponse.m_user.m_oDynamicData);
-
 
                         if (AutoLogin)
                         {
@@ -788,7 +789,7 @@ namespace TVPPro.SiteManager.Services
                     if (!string.IsNullOrEmpty(UserPic))
                         UserContext.UserResponse.m_user.m_oBasicData.m_sFacebookImage = UserPic;
                     
-                    Core.Users.Module.SetUserData(nGroupID, UserContext.UserResponse.m_user.m_sSiteGUID, UserContext.UserResponse.m_user.m_oBasicData, UserContext.UserResponse.m_user.m_oDynamicData);
+                    Core.Users.Module.UpdateUserData(nGroupID, UserContext.UserResponse.m_user.m_sSiteGUID, UserContext.UserResponse.m_user.m_oBasicData, UserContext.UserResponse.m_user.m_oDynamicData);
 
                     return true;
                 }
@@ -806,7 +807,7 @@ namespace TVPPro.SiteManager.Services
             UserResponseObject uroRet = null;
             try
             {
-                uroRet = Core.Users.Module.SetUserData(nGroupID, sSiteGUID, userBasicData, userDynamicData);
+                uroRet = Core.Users.Module.UpdateUserData(nGroupID, sSiteGUID, userBasicData, userDynamicData);
                 if (uroRet != null && uroRet.m_RespStatus == ResponseStatus.OK)
                 {
                     UserContext.UserResponse = uroRet;
