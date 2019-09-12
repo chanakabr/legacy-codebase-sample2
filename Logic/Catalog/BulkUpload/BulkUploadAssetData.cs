@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
+using ConfigurationManager;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using QueueWrapper;
@@ -102,16 +103,32 @@ namespace Core.Catalog
                 var mediaAsset = results[i].Object as MediaAsset;
                 if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
                 {
-                    // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, mediaAsset);
-                    if (queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId)))
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new MediaAssetBulkUploadRequest()
                     {
-                        log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
-                    }
-                    else
+                        GroupId = bulkUpload.GroupId,
+                        BulkUploadId = bulkUpload.Id,
+                        JobAction = bulkUpload.Action,
+                        ObjectData = mediaAsset,
+                        ResultIndex = i,
+                        UserId = bulkUpload.UpdaterId
+                    };
+
+                    eventBus.Publish(serviceEvent);
+
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                     {
-                        log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
+                        // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
+                        GenericCeleryQueue queue = new GenericCeleryQueue();
+                        var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, mediaAsset);
+                        if (queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId)))
+                        {
+                            log.DebugFormat("Success enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
+                        }
+                        else
+                        {
+                            log.DebugFormat("Failed enqueue bulkUploadObject. bulkUploadId:{0}, resultIndex:{1}", bulkUpload.Id, i);
+                        }
                     }
                 }
             }
