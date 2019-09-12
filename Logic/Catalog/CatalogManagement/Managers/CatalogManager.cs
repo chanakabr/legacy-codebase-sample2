@@ -2538,82 +2538,83 @@ namespace Core.Catalog.CatalogManagement
         {
             var result = true;
 
-            if (mediaIds != null && mediaIds.Count > 0)
+            if (mediaIds?.Any() == true)
             {
-                var castedMediaIds = mediaIds.Select(i => (long)i).ToList();
-                var mediaQueueData = new PartialUpdateRequest
-                {
-                    GroupId = groupId,
-                    Assets = new AssetsPartialUpdate()
-                    {
-                        AssetIds = mediaIds,
-                        AssetType = eObjectType.Media,
-                        Updates = new List<PartialUpdate>()
-                        {
-                            new PartialUpdate()
-                            {
-                                Action = eUpdateFieldAction.Replace,
-                                FieldName = fieldName,
-                                FieldType = eUpdateFieldType.Tag,
-                                LanguageCode = languageCode,
-                                NewValue = newValue,
-                                OriginalValue = originalValue,
-                                ShouldUpdateAllLanguages = false
-                            }
-                        }
-                    },
-                };
-
-                try
-                {
-                    var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    publisher.Publish(mediaQueueData);
-                }
-                catch (Exception e)
-                {
-
-                    log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", mediaIds)}]", e);
-                    result &= false;
-                }
+                result &= EnqueuePatialUpdateEvent(groupId, fieldName, newValue, originalValue, languageCode, mediaIds);
             }
 
-            if (epgIds != null && epgIds.Count > 0)
+            if (epgIds?.Any() == true)
             {
-                var epgQueueData = new PartialUpdateRequest{
-                    GroupId = groupId,
-                    Assets = new AssetsPartialUpdate()
-                    {
-                        AssetIds = epgIds,
-                        AssetType = eObjectType.EPG,
-                        Updates = new List<PartialUpdate>()
-                        {
-                            new PartialUpdate()
-                            {
-                                Action = eUpdateFieldAction.Replace,
-                                FieldName = fieldName,
-                                FieldType = eUpdateFieldType.Tag,
-                                LanguageCode = languageCode,
-                                NewValue = newValue,
-                                OriginalValue = originalValue,
-                                ShouldUpdateAllLanguages = false
-                            }
-                        }
-                    },
-                };
-
-                try
-                {
-                    var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    publisher.Publish(epgQueueData);
-                }
-                catch (Exception e)
-                {
-                    log.Error($"Error durin publish PartialTagIndexUpdate epgIds:[{string.Join(",", epgIds)}]", e);
-                    result &= false;
-                }
+                result &= EnqueuePatialUpdateEvent(groupId, fieldName, newValue, originalValue, languageCode, epgIds);
             }
 
             return result;
+        }
+
+        private static bool EnqueuePatialUpdateEvent(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> assetIds)
+        {
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                var queue = new CatalogQueue();
+                var mediaQueueCeleryData = new PartialUpdateData(groupId,
+                   new AssetsPartialUpdate()
+                   {
+                       AssetIds = assetIds,
+                       AssetType = eObjectType.Media,
+                       Updates = new List<PartialUpdate>()
+                       {
+                            new PartialUpdate()
+                            {
+                                Action = eUpdateFieldAction.Replace,
+                                FieldName = fieldName,
+                                FieldType = eUpdateFieldType.Tag,
+                                LanguageCode = languageCode,
+                                NewValue = newValue,
+                                OriginalValue = originalValue,
+                                ShouldUpdateAllLanguages = false
+                            }
+                       }
+                   });
+
+                return queue.Enqueue(mediaQueueCeleryData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
+            }
+
+            var mediaQueueData = new PartialUpdateRequest
+            {
+                GroupId = groupId,
+                Assets = new AssetsPartialUpdate()
+                {
+                    AssetIds = assetIds,
+                    AssetType = eObjectType.Media,
+                    Updates = new List<PartialUpdate>()
+                    {
+                        new PartialUpdate()
+                        {
+                            Action = eUpdateFieldAction.Replace,
+                            FieldName = fieldName,
+                            FieldType = eUpdateFieldType.Tag,
+                            LanguageCode = languageCode,
+                            NewValue = newValue,
+                            OriginalValue = originalValue,
+                            ShouldUpdateAllLanguages = false
+                        }
+                    }
+                },
+            };
+
+            try
+            {
+                var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                publisher.Publish(mediaQueueData);
+            }
+            catch (Exception e)
+            {
+
+                log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", assetIds)}]", e);
+                return false;
+            }
+
+            return true;
         }
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
@@ -3094,7 +3095,7 @@ namespace Core.Catalog.CatalogManagement
 
             return parentAssetsIds;
         }
-        
+
         public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
         {
             Dictionary<long, List<int>> res = null;
@@ -3225,7 +3226,7 @@ namespace Core.Catalog.CatalogManagement
 
             return new Tuple<List<int>, bool>(result, res);
         }
-        
+
         #endregion
     }
 }
