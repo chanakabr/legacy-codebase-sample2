@@ -1059,7 +1059,7 @@ namespace Validator.Managers.Scheme
                 Description = actionAttribute.GetDescription(parameter.Name),
             };
 
-            if (parameter.IsOptional)
+            if (prameterDetails.IsOptional)
             {
                 prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
             }
