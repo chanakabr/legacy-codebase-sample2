@@ -20,6 +20,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+				deleteDir()
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
                 dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
