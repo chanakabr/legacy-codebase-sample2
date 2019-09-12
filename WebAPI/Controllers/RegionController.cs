@@ -24,7 +24,6 @@ namespace WebAPI.Controllers
             KalturaRegionListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            long householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
@@ -82,7 +81,6 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             long userId = long.Parse(KS.GetFromRequest().UserId);
-
 
             region.Id = id;
 
