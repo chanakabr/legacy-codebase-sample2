@@ -1,6 +1,7 @@
 ﻿using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
+using ApiObjects.EventBus;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
@@ -1487,14 +1488,30 @@ namespace Core.Api.Managers
                 {
                     assetRule.Status = RuleStatus.InProgress;
 
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id,
-                        countriesToRemove, removeBlocked, removeAllowed, updateKsql)
-                    { ETA = DateTime.UtcNow };
-                    bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
-                    if (!queueGeoRuleUpdateResult)
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new GeoRuleUpdateRequest()
                     {
-                        log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
+                        GroupId = groupId,
+                        AssetRuleId = assetRule.Id,
+                        CountriesToRemove = countriesToRemove,
+                        RemoveAllowed = removeAllowed,
+                        RemoveBlocked = removeBlocked,
+                        UpdateKsql = updateKsql
+                    };
+
+                    eventBus.Publish(serviceEvent);
+
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        GenericCeleryQueue queue = new GenericCeleryQueue();
+                        ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id,
+                            countriesToRemove, removeBlocked, removeAllowed, updateKsql)
+                        { ETA = DateTime.UtcNow };
+                        bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
+                        if (!queueGeoRuleUpdateResult)
+                        {
+                            log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
+                        }
                     }
                 }                
             }
