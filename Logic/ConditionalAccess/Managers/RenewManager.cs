@@ -333,18 +333,45 @@ namespace Core.ConditionalAccess
 
         internal static void EnqueueSubscriptionEndsMessage(int groupId, string siteguid, long purchaseId, long endDateUnix)
         {
-            RenewTransactionsQueue queue = new RenewTransactionsQueue();
-
             DateTime endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(endDateUnix);
 
-            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, string.Empty,
-                            endDateUnix, endDate, eSubscriptionRenewRequestType.SubscriptionEnds);
-
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
-            if (!enqueueSuccessful)
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
             {
-                log.ErrorFormat("Failed enqueue of subscription ends event {0}", data);
+                GroupId = groupId,
+                EndDate = endDateUnix,
+                ETA = endDate,
+                SiteGuid = siteguid,
+                PurchaseId = purchaseId,
+                BillingGuid = string.Empty,
+                Type = eSubscriptionRenewRequestType.SubscriptionEnds
+            };
+
+            bool enqueueSuccessful = true;
+
+            try
+            {
+                eventBus.Publish(serviceEvent);
+            }
+            catch (Exception ex)
+            {
+                enqueueSuccessful = false;
+                log.ErrorFormat("Failed enqueue of subscription ends event {0} ex = {1}", serviceEvent, ex);
+            }
+
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, string.Empty,
+                                endDateUnix, endDate, eSubscriptionRenewRequestType.SubscriptionEnds);
+
+                enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of subscription ends event {0}", data);
+                }
             }
         }
 
@@ -755,23 +782,41 @@ namespace Core.ConditionalAccess
                 log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
             }
 
-            // enqueue renew transaction
-            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+            long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
             DateTime nextRenewalDate = endDate.AddMinutes(0);
 
-            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
-            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-            if (!enqueueSuccessful)
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
             {
-                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                return true;
-            }
-            else
-            {
-                PurchaseManager.SendRenewalReminder(data, householdId);
-                log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
-            }
+                GroupId = groupId,
+                BillingGuid = billingGuid,
+                EndDate = endDateUnix,
+                ETA = nextRenewalDate,
+                Type = eSubscriptionRenewRequestType.Renew,
+                SiteGuid = siteguid,
+                PurchaseId = purchaseId
+            };
 
+            eventBus.Publish(serviceEvent);
+
+            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            {
+                // enqueue renew transaction
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, endDateUnix, nextRenewalDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                    return true;
+                }
+                else
+                {
+                    PurchaseManager.SendRenewalReminder(data, householdId);
+                    log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                }
+            }
             // PS message 
             if (billingTransitionId > 0)
             {
@@ -1586,20 +1631,54 @@ namespace Core.ConditionalAccess
             {
                 log.DebugFormat("HandleResumeDomainSubscription. groupId: {0}, householdId: {1}, siteguid: {2}, purchaseId: {3}, billingGuid: {4}", groupId, householdId, siteguid, purchaseId, billingGuid);
 
+                bool enqueueSuccessful = true;
+
                 DateTime nextRenewalDate = DateTime.UtcNow;
-                // enqueue renew transaction
-                RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate), nextRenewalDate);
-                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-                if (!enqueueSuccessful)
+                long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
+
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
                 {
-                    log.ErrorFormat("Failed enqueue of renew transaction for resume domain {0}", data);
-                    return false;
+                    GroupId = groupId,
+                    BillingGuid = billingGuid,
+                    EndDate = endDateUnix,
+                    ETA = nextRenewalDate,
+                    Type = eSubscriptionRenewRequestType.Renew,
+                    SiteGuid = siteguid,
+                    PurchaseId = purchaseId
+                };
+
+                try
+                {
+                    eventBus.Publish(serviceEvent);
                 }
-                else
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                    enqueueSuccessful = false;
+                }
+
+                RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, endDateUnix, nextRenewalDate);
+
+                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                {
+                    // enqueue renew transaction
+                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                    enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                    if (!enqueueSuccessful)
+                    {
+                        log.ErrorFormat("Failed enqueue of renew transaction for resume domain {0}", data);
+                        return false;
+                    }
+                    else
+                    {
+                        log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                    }
+                }
+
+                if (enqueueSuccessful)
                 {
                     PurchaseManager.SendRenewalReminder(data, householdId);
-                    log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
                 }
             }
             catch (Exception)

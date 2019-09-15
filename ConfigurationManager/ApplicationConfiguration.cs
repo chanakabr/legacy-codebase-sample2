@@ -20,6 +20,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
         public static BooleanConfigurationValue ShouldSupportCeleryMessages;
+        public static BooleanConfigurationValue ShouldRecoverSubscriptionRenewalToMessageBus;
 
         #endregion
 
@@ -614,6 +615,11 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = true
             };
+            ShouldRecoverSubscriptionRenewalToMessageBus = new BooleanConfigurationValue("should_recover_subscription_renewal_to_message_bus")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -727,7 +733,8 @@ namespace ConfigurationManager
                     MediaMarksTTL,
                     EpgInitialId,
                     ShouldAddInvalidationKeysToHeader,
-                    ShouldSupportCeleryMessages
+                    ShouldSupportCeleryMessages,
+                    ShouldRecoverSubscriptionRenewalToMessageBus
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
