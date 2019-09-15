@@ -15346,11 +15346,39 @@ namespace Core.ConditionalAccess
 
                     if (shouldCallAgain)
                     {
-                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                        ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId, string.Empty, string.Empty, 0,
-                                                                                                                     eSeriesRecordingTask.CompleteRecordings)
-                        { ETA = DateTime.UtcNow.AddMinutes(1) };
-                        queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                        var eta = DateTime.UtcNow.AddMinutes(1);
+
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
+                        {
+                            GroupId = m_nGroupID,
+                            SiteGuid = string.Empty,
+                            DomainId = domainId,
+                            ChannelId = string.Empty,
+                            SeriesId = string.Empty,
+                            SeasonNumber = 0,
+                            ETA = eta,
+                            SeriesRecordingTaskType = eSeriesRecordingTask.CompleteRecordings
+                        };
+
+                        try
+                        {
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
+                        }
+
+                        if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                        {
+                            QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                            ApiObjects.QueueObjects.SeriesRecordingTaskData data = 
+                                new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId,
+                                string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
+                            { ETA = eta };
+                            queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                        }
                         return response;
                     }
                 }
@@ -16250,11 +16278,38 @@ namespace Core.ConditionalAccess
                 // if series is already followed then complete the series recordings for the domain
                 if (isSeriesFollowed)
                 {
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                    ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0,
-                                                                                                                    eSeriesRecordingTask.CompleteRecordings)
-                    { ETA = DateTime.UtcNow.AddMinutes(1) };
-                    queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                    var eta = DateTime.UtcNow.AddMinutes(1);
+
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
+                    {
+                        GroupId = m_nGroupID,
+                        SiteGuid = string.Empty,
+                        DomainId = domainID,
+                        ChannelId = string.Empty,
+                        SeriesId = string.Empty,
+                        SeasonNumber = 0,
+                        ETA = eta,
+                        SeriesRecordingTaskType = eSeriesRecordingTask.CompleteRecordings
+                    };
+
+                    try
+                    {
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
+                    }
+
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                        ApiObjects.QueueObjects.SeriesRecordingTaskData data = 
+                            new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
+                        { ETA = eta };
+                        queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                    }
                 }
                 // if first user, SeriesRecordingTask should be filled on FollowSeasonOrSeries
                 else
@@ -16265,11 +16320,37 @@ namespace Core.ConditionalAccess
                                         m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId);
                     }
 
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                    SeriesRecordingTaskData SeriesRecordingTask = new SeriesRecordingTaskData(m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId, seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
-                    queue.Enqueue(SeriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                }
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
+                    {
+                        GroupId = m_nGroupID,
+                        SiteGuid = userID,
+                        DomainId = domainID,
+                        ChannelId = seriesRecording.EpgChannelId.ToString(),
+                        SeriesId = seriesRecording.SeriesId,
+                        SeasonNumber = seriesRecording.SeasonNumber,
+                        ETA = DateTime.UtcNow,
+                        SeriesRecordingTaskType = eSeriesRecordingTask.FirstFollower
+                    };
 
+                    try
+                    {
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
+                    }
+
+                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    {
+                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                        SeriesRecordingTaskData seriesRecordingTask = new SeriesRecordingTaskData(
+                            m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId,
+                            seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
+                        queue.Enqueue(seriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
+                    }
+                }
             }
             catch (Exception ex)
             {
