@@ -146,9 +146,6 @@ namespace WebAPI.Reflection
                 case "KalturaAssetFilter":
                     return new KalturaAssetFilter(parameters);
                     
-                case "KalturaAssetFirstImagePerRatioFilter":
-                    return new KalturaAssetFirstImagePerRatioFilter(parameters);
-                    
                 case "KalturaAssetGroupBy":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -160,6 +157,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetHistoryListResponse":
                     return new KalturaAssetHistoryListResponse(parameters);
+                    
+                case "KalturaAssetImagePerRatioFilter":
+                    return new KalturaAssetImagePerRatioFilter(parameters);
                     
                 case "KalturaAssetInfo":
                     return new KalturaAssetInfo(parameters);
@@ -9830,12 +9830,6 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
-    public partial class KalturaAssetFirstImagePerRatioFilter
-    {
-        public KalturaAssetFirstImagePerRatioFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaAssetGroupBy
     {
         public KalturaAssetGroupBy(Dictionary<string, object> parameters = null) : base(parameters)
@@ -10062,6 +10056,12 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaAssetImagePerRatioFilter
+    {
+        public KalturaAssetImagePerRatioFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaAssetInfo

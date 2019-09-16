@@ -778,9 +778,9 @@ namespace WebAPI.Utils
 
         internal static void HandleResponseProfile(KalturaBaseResponseProfile responseProfile, List<KalturaAsset> assets)
         {
-            if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
+            if (responseProfile != null &&  responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
             {
-                var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAssetFirstImagePerRatioFilter);
+                var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAssetImagePerRatioFilter);
 
                 if (profile != null)
                 {

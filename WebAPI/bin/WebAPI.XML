@@ -7628,11 +7628,6 @@
             dynamicOrderBy - order by Meta
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetFirstImagePerRatioFilter">
-            <summary>
-            Kaltura asset first image per ratio filter
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetGroupBy">
             <summary>
             Abstarct class - represents an asset parameter that can be used for grouping
@@ -7698,6 +7693,11 @@
             <summary>
             Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetImagePerRatioFilter">
+            <summary>
+            Kaltura asset image per ratio filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
