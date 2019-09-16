@@ -776,5 +776,38 @@ namespace WebAPI.Utils
             }
         }
 
+        internal static void HandleResponseProfile(KalturaBaseResponseProfile responseProfile, List<KalturaAsset> assets)
+        {
+            if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
+            {
+                var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAssetFirstImagePerRatioFilter);
+
+                if (profile != null)
+                {
+                    int indexToRemove = 0;
+                    // Select the first ration of every image
+                    foreach (var asset in assets)
+                    {
+                        if (asset.Images?.Count > 0)
+                        {
+                            asset.Images = asset.Images.GroupBy(y => y.Ratio).Select(y => y.FirstOrDefault()).ToList();
+                            asset.Images.ForEach(x =>
+                            {
+                                x.Width = null;
+                                x.Height = null;
+                                if (!string.IsNullOrEmpty(x.Url))
+                                {
+                                    indexToRemove = x.Url.ToLower().IndexOf("/width");
+                                    if (indexToRemove >= 0)
+                                    {
+                                        x.Url = x.Url.Remove(indexToRemove);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
     }
 }
