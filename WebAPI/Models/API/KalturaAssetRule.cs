@@ -120,7 +120,7 @@ namespace WebAPI.Models.API
                     default:
                         break;
                 }
-                
+
                 condition.Validate();
             }
 
@@ -151,7 +151,7 @@ namespace WebAPI.Models.API
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "actions");
             }
         }
-        
+
         private void ValidateActions()
         {
             if (this.Actions == null || this.Actions.Count == 0)
@@ -184,7 +184,7 @@ namespace WebAPI.Models.API
                     "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
             }
         }
-        
+
         /// <summary>
         /// Fill current AssetRule data members with givven assetRule only if they are empty\null
         /// </summary>
@@ -198,7 +198,11 @@ namespace WebAPI.Models.API
                     this.Name = oldAssetRule.Name;
                 }
 
-                if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
+                if (this.NullableProperties != null && this.NullableProperties.Contains("description"))
+                {
+                    this.Description = string.Empty;
+                }
+                else if (string.IsNullOrEmpty(this.Description) || string.IsNullOrWhiteSpace(this.Description))
                 {
                     this.Description = oldAssetRule.Description;
                 }

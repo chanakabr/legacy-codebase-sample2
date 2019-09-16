@@ -9,7 +9,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Rule base
     /// </summary>
-    public abstract partial class KalturaRule : KalturaOTTObject
+    public abstract partial class KalturaRule : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// ID
@@ -33,7 +33,8 @@ namespace WebAPI.Models.API
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]
-        [XmlElement(ElementName = "description")]
+        [XmlElement(ElementName = "description", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string Description { get; set; }
 
         /// <summary>
