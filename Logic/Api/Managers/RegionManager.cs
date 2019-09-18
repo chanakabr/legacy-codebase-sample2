@@ -38,10 +38,10 @@ namespace ApiLogic.Api.Managers
                 // TODO: what if the region is a parent??
 
                 // check if region in use
-                if (!DomainDal.IsRegionInUse(groupId, id))
+                if (DomainDal.IsRegionInUse(groupId, id))
                 {
                     log.Error($"Region in use cannot be deleted. groupId:{groupId}, id:{id}");
-                    return new Status((int)eResponseStatus.Error); ;
+                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted"); 
                 }
 
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
