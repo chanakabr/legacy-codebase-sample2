@@ -4,7 +4,9 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "REGION_MNG",
+        "REGION_VIEW"
       ],
       "excluded_permissions": [],
       "name": "Region_List",
