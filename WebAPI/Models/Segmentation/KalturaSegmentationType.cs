@@ -47,6 +47,15 @@ namespace WebAPI.Models.Segmentation
         public List<KalturaBaseSegmentCondition> Conditions { get; set; }
 
         /// <summary>
+        /// Segmentation conditions - can be empty
+        /// </summary>
+        [DataMember(Name = "actions", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "actions", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "actions", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaBaseSegmentAction> Actions { get; set; }
+
+        /// <summary>
         /// Segmentation values - can be empty (so only one segment will be created)
         /// </summary>
         [DataMember(Name = "value")]
@@ -71,7 +80,6 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "version")]
         [SchemeProperty(ReadOnly = true)]
         public long Version { get; set; }
-
     }
 
     public enum KalturaContentAction

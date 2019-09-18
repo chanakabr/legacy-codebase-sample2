@@ -14481,6 +14481,26 @@
             Indicates that usage is targeted for offline playback
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Segmentation.KalturaBaseSegmentAction">
+            <summary>
+            Base class that defines segment action
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Segmentation.KalturaAssetOrderSegmentAction">
+            <summary>
+            Asset order segment action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaAssetOrderSegmentAction.Name">
+            <summary>
+            Action name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaAssetOrderSegmentAction.Values">
+            <summary>
+            Action values
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Segmentation.KalturaBaseSegmentCondition">
             <summary>
             Base class that defines segment condition
@@ -14628,6 +14648,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.Segmentation.KalturaSegmentationType.Conditions">
+            <summary>
+            Segmentation conditions - can be empty
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Segmentation.KalturaSegmentationType.Actions">
             <summary>
             Segmentation conditions - can be empty
             </summary>

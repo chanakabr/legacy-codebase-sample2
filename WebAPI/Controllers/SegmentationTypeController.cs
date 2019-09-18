@@ -29,6 +29,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+
                 return ClientsManager.ApiClient().AddSegmentationType(groupId, segmentationType);
             }
 
@@ -54,6 +55,7 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 segmentationType.Id = segmentationTypeId;
+
                 return ClientsManager.ApiClient().UpdateSegmentationType(groupId, segmentationType);
             }
             catch (ClientException ex)

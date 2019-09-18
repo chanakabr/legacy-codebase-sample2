@@ -22,8 +22,8 @@ using WebAPI.App_Start;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.API;
 using WebAPI.Models.Pricing;
-using WebAPI.Models.Users;
 using WebAPI.Models.Segmentation;
+using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
 using WebAPI.Models.DMS;
@@ -543,6 +543,16 @@ namespace WebAPI.Reflection
                     {
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaAssetOrderSegmentAction":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                        case "Values":
+                            return "values";
                     }
                     break;
                     
@@ -5305,6 +5315,8 @@ namespace WebAPI.Reflection
                 case "KalturaSegmentationType":
                     switch(property.Name)
                     {
+                        case "Actions":
+                            return "actions";
                         case "Conditions":
                             return "conditions";
                         case "CreateDate":

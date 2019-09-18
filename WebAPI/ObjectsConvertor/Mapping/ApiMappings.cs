@@ -1338,6 +1338,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.Ignore())
                 .ForMember(dest => dest.Version, opt => opt.Ignore());
@@ -1347,6 +1348,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
+                .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.Actions))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
@@ -1395,6 +1397,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(d => d.Field, opt => opt.MapFrom(s => s.Field))
                 ;
 
+            // segmentation action
+            cfg.CreateMap<KalturaBaseSegmentAction, SegmentAction>()
+                .Include<KalturaAssetOrderSegmentAction, SegmentAssetOrderAction>()
+                ;
+
+            cfg.CreateMap<SegmentAction, KalturaBaseSegmentAction>()
+                .Include<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
+                ;
+
+            // segment order action
+            cfg.CreateMap<KalturaAssetOrderSegmentAction, SegmentAssetOrderAction>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => x.value).ToList()))
+                ;
+
+            cfg.CreateMap<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                ;
+
             // segmentation condition
             cfg.CreateMap<KalturaBaseSegmentCondition, SegmentCondition>()
                 .Include<KalturaUserDataCondition, SegmentUserDataCondition>()
@@ -1407,7 +1429,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .Include<ContentScoreCondition, KalturaContentScoreCondition>()
                 .Include<MonetizationCondition, KalturaMonetizationCondition>()
                 ;
-
+            
             // user data condition
             cfg.CreateMap<KalturaUserDataCondition, SegmentUserDataCondition>()
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
