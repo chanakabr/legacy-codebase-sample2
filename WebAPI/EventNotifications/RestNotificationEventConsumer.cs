@@ -12,6 +12,7 @@ using WebAPI.Models.General;
 using KlogMonitorHelper;
 using DAL;
 using TVinciShared;
+using ApiLogic.Api.Managers;
 
 namespace WebAPI
 {
@@ -254,16 +255,18 @@ namespace WebAPI
                 return;
             }
 
+            var actionType = action.GetType().FullName;
+
             if (!action.IsAsync)
             {
                 try
                 {
                     action.Handle(kalturaEvent, eventWrapper);
-                    SaveEventNotificationAction(eventWrapper, EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
+                    SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
                 }
                 catch (Exception ex)
                 {
-                    SaveEventNotificationAction(eventWrapper, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
+                    SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
                     throw ex;
                 }
             }
@@ -288,7 +291,7 @@ namespace WebAPI
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
 
                         action.Handle(kalturaEvent, eventWrapper);
-                        SaveEventNotificationAction(eventWrapper,EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
+                        SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
 
                         log.DebugFormat("Finished async action: action name = {0}, partner {1},  specific notification is {2}",
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
@@ -298,20 +301,20 @@ namespace WebAPI
                     {
                         log.ErrorFormat("Error when performing async action. partner {0}, system name {1}, ex = {2}",
                             kalturaEvent.PartnerId, action.SystemName, ex);
-                        SaveEventNotificationAction(eventWrapper, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
+                        SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
                     }
                 });
             }
         }
 
-        private void SaveEventNotificationAction(KalturaNotification eventWrapper, EventNotificationActionStatus status, string message, bool saveEvent, long? id)
+        private void SaveEventNotificationAction(KalturaNotification eventWrapper, string actionType, EventNotificationActionStatus status, string message, bool saveEvent, long? id)
         {
             if (saveEvent && id > 0)
             {
-                ApiDAL.SaveEventNotificationActionIdCB(eventWrapper.partnerId, new EventNotificationAction
+                EventNotificationActionManager.Instance.Add(new ApiObjects.Base.ContextData(eventWrapper.partnerId), new EventNotificationAction
                 {
-                    ActionType = eventWrapper.eventObjectType,
-                    ObjectType = eventWrapper.objectType,
+                    ActionType = actionType,
+                    ObjectType = eventWrapper.eventObjectType,
                     ObjectId = id.Value,
                     Id = eventWrapper.Id,
                     Status = status,
