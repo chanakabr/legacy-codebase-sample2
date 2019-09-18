@@ -107,7 +107,7 @@ namespace WebAPI.Managers
                 RefreshToken = token.RefreshToken
             };
         }
-        
+
         public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, int domainId, string udid = null, Dictionary<string, string> privileges = null)
         {
             if (string.IsNullOrEmpty(userId))
@@ -115,7 +115,7 @@ namespace WebAPI.Managers
                 log.ErrorFormat("GenerateSession: userId is missing");
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
             }
-            
+
             // generate access token and refresh token pair
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
 
@@ -304,13 +304,13 @@ namespace WebAPI.Managers
                 log.ErrorFormat("StartSessionWithAppToken: AppToken expired, id = {0}", id);
                 throw new ForbiddenException(ForbiddenException.APP_TOKEN_EXPIRED);
             }
-            
+
             // if expiry was supplied - take the minimum
             if (expiry != null && expiry.Value > 0)
             {
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
-            
+
             // 6. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
@@ -440,7 +440,8 @@ namespace WebAPI.Managers
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken);
             int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)utcNow : 0;
-            if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
+
+            if (!DAL.UtilsDal.SaveObjectInCB(CB_SECTION_NAME, appTokenCbKey, cbAppToken, true, (uint)appTokenExpiryInSeconds))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException();
@@ -563,7 +564,7 @@ namespace WebAPI.Managers
             if (string.IsNullOrEmpty(revokedSessionKeyFormat))
             {
                 revokedSessionKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
-                
+
                 if (string.IsNullOrEmpty(revokedSessionKeyFormat))
                 {
                     revokedSessionKeyFormat = REVOKED_SESSION_KEY_FORMAT;
@@ -595,7 +596,7 @@ namespace WebAPI.Managers
         {
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
-            if(ksRandomHeader == ks.Random)
+            if (ksRandomHeader == ks.Random)
             {
                 return true;
             }

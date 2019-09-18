@@ -3906,6 +3906,28 @@
             <param name="filter">Regions filter</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.RegionController.Add(WebAPI.Models.API.KalturaRegion)">
+            <summary>
+            Adds a new region for partner
+            </summary>
+            <param name="region">Region to add</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RegionController.Update(System.Int32,WebAPI.Models.API.KalturaRegion)">
+            <summary>
+            Update an existing region 
+            </summary>
+            <param name="region">Region to update</param>
+            <param name="id">Region ID to update</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.RegionController.Delete(System.Int32)">
+            <summary>
+            Delete an existing region 
+            </summary>
+            <param name="id">Region ID to delete</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.RegistrySettingsController.List">
             <summary>
             Retrieve the registry settings.        
@@ -6655,6 +6677,11 @@
             List of associated linear channels
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaRegion.ParentId">
+            <summary>
+            Parent region ID
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaRegionalChannel.LinearChannelId">
             <summary>
             The identifier of the linear media representing the channel
@@ -6667,7 +6694,22 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaRegionFilter.ExternalIdIn">
             <summary>
-            List of comma separated regions external identifiers
+            List of comma separated regions external IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRegionFilter.IdIn">
+            <summary>
+            List of comma separated regions Ids
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRegionFilter.ParentIdEqual">
+            <summary>
+            Region parent ID to filter by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaRegionFilter.LiveAssetIdEqual">
+            <summary>
+            Region parent ID to filter by
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaRegionListResponse">
@@ -7651,6 +7693,11 @@
             <summary>
             Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetImagePerRatioFilter">
+            <summary>
+            Kaltura asset image per ratio filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
@@ -12082,6 +12129,21 @@
             Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaRegex">
+            <summary>
+            KalturaRegex
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRegex.Expression">
+            <summary>
+            regex expression 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaRegex.Description">
+            <summary>
+            description 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaRelatedObjectFilter">
             <summary>
             Define KalturaRelatedObjectFilter
@@ -13254,6 +13316,16 @@
         <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.HouseholdLimitationModule">
             <summary>
             Household limitation module
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.EnableRegionFiltering">
+            <summary>
+            Enable Region Filtering
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Partner.KalturaGeneralPartnerConfig.DefaultRegion">
+            <summary>
+            Default Region
             </summary>
         </member>
         <member name="T:WebAPI.Models.Partner.KalturaPartnerConfiguration">
@@ -15901,6 +15973,56 @@
         <member name="P:WebAPI.Models.Users.KalturaOTTUserType.Description">
             <summary>
             User type description
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Users.KalturaPasswordPolicy">
+            <summary>
+            Password policy settings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Id">
+            <summary>
+            id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.UserRoleIds">
+            <summary>
+            Comma separated UserRole Ids list which the policy is applied on
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.HistoryCount">
+            <summary>
+            The number of passwords that should be remembered for each user so that they cannot be reused.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Expiration">
+            <summary>
+            When should the password expire (will represent time as days).
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.Complexities">
+            <summary>
+            array of  KalturaRegex
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicy.LockoutFailuresCount">
+            <summary>
+             the number of passwords failures before the account is locked.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Users.KalturaPasswordPolicyFilter">
+            <summary>
+            Password policy settings filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaPasswordPolicyFilter.UserRoleIdIn">
+            <summary>
+            Comma separated list of role Ids.
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSession">

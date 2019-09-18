@@ -55,7 +55,8 @@
         "EXT_COLLECTIONS_MNG",
         "USER_SEG_MNG",
         "TARGET_OFFER_MNG",
-        "OPC_PREF_VIEW"
+        "OPC_PREF_VIEW",
+        "REGION_MNG"
       ],
       "excluded_permissions": [],
       "name": "Operator"
@@ -80,7 +81,8 @@
         "TARGET_OFFER_MNG",
         "GROUP_CONFIG_MNG",
         "OPC_PREF_MNG",
-        "MY_USER_MNG"
+        "MY_USER_MNG",
+        "REGION_MNG"
       ],
       "excluded_permissions": [],
       "name": "Manager"
@@ -107,7 +109,8 @@
         "GROUP_CONFIG_MNG",
         "OPC_PREF_MNG",
         "ADMIN_SET_MNG",
-        "MY_USER_MNG"
+        "MY_USER_MNG",
+        "REGION_MNG"
       ],
       "excluded_permissions": [],
       "name": "Administrator"

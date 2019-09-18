@@ -88,7 +88,23 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "householdLimitationModule")]
         [JsonProperty("householdLimitationModule")]
         [XmlElement(ElementName = "householdLimitationModule")]
-        public int? HouseholdLimitationModule { get; set; } 
+        public int? HouseholdLimitationModule { get; set; }
+
+        /// <summary>
+        /// Enable Region Filtering
+        /// </summary>
+        [DataMember(Name = "enableRegionFiltering")]
+        [JsonProperty("enableRegionFiltering")]
+        [XmlElement(ElementName = "enableRegionFiltering")]
+        public bool? EnableRegionFiltering { get; set; }
+
+        /// <summary>
+        /// Default Region
+        /// </summary>
+        [DataMember(Name = "defaultRegion")]
+        [JsonProperty("defaultRegion")]
+        [XmlElement(ElementName = "defaultRegion")]
+        public int? DefaultRegion { get; set; }
     }
 
     public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }

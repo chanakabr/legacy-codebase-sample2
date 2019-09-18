@@ -341,6 +341,8 @@ namespace WebAPI.Controllers
                 {
                     throw new InternalServerErrorException();
                 }
+
+                CatalogUtils.HandleResponseProfile(responseProfile, response.Objects);
             }
             catch (ClientException ex)
             {
@@ -348,7 +350,7 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
+        }        
 
         /// <summary>
         /// Returns media or EPG asset by media / EPG internal or external identifier
@@ -1421,7 +1423,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return bulkUpload;
+            return bulkUpload;        
         }
     }
 }

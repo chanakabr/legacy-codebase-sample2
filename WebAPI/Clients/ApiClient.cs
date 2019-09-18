@@ -56,7 +56,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
         }
-
+        
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
@@ -90,7 +90,7 @@ namespace WebAPI.Clients
             return roles;
 
         }
-
+        
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
@@ -3075,17 +3075,17 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaRegionListResponse GetRegions(int groupId, List<string> externalIds, KalturaRegionOrderBy orderBy)
+        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter)
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
-            RegionsResponse response = null;
+            GenericListResponse<Region> response = null;
 
-            RegionOrderBy wsOrderBy = ApiMappings.ConvertRegionOrderBy(orderBy);
+            RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(filter);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetRegions(groupId, externalIds != null ? externalIds : null, wsOrderBy);
+                    response = Core.Api.Module.GetRegions(groupId, wsFilter);
                 }
             }
             catch (Exception ex)
@@ -3104,9 +3104,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Regions);
+            regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
 
-            return new KalturaRegionListResponse() { Regions = regions, TotalCount = regions != null ? regions.Count : 0 };
+            return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
         }
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
@@ -4374,6 +4374,26 @@ namespace WebAPI.Clients
 
             return response;
 
-        }       
+        }
+
+        internal KalturaRegion AddRegion(int groupId, KalturaRegion region, long userId)
+        {
+            Func<Region, GenericResponse<Region>> addRegionFunc = (Region regionToToAdd) => Core.Api.Module.AddRegion(groupId, regionToToAdd, userId);
+
+            return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, addRegionFunc);
+        }
+
+        internal KalturaRegion UpdateRegion(int groupId, KalturaRegion region, long userId)
+        {
+            Func<Region, GenericResponse<Region>> updateRegionFunc = (Region regionToToUpdate) => Core.Api.Module.UpdateRegion(groupId, regionToToUpdate, userId);
+
+            return ClientUtils.GetResponseFromWS<KalturaRegion, Region>(region, updateRegionFunc);
+        }
+
+        internal void DeleteRegion(int groupId, int id, long userId)
+        {
+            Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id, userId);
+            ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
+        }
     }
 }

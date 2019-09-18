@@ -201,6 +201,18 @@
       "name": "ADMIN_SET_MNG",
       "users_group": "",
       "friendly_name": "Access the Admin Settings section"
+    },
+    {
+      "name": "REGION_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting regions",
+      "depends_on_permission_names": "Bouquets"
+    },
+    {
+      "name": "REGION_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing regions",
+      "depends_on_permission_names": "Bouquets"
     }
   ]
 }

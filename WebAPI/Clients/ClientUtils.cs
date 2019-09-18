@@ -42,7 +42,7 @@ namespace WebAPI.Clients
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
             if (response.Object != null)
@@ -79,7 +79,7 @@ namespace WebAPI.Clients
 
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message, response.Status.Args);
             }
 
             if (response.Object != null)
@@ -163,7 +163,7 @@ namespace WebAPI.Clients
 
             if (status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(status.Code, status.Message);
+                throw new ClientException(status.Code, status.Message, status.Args);
             }
 
             return true;
@@ -196,7 +196,7 @@ namespace WebAPI.Clients
 
             if (status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException(status.Code, status.Message);
+                throw new ClientException(status.Code, status.Message, status.Args);
             }
         }
     }

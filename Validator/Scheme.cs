@@ -633,7 +633,15 @@ namespace Validator.Managers.Scheme
 
             foreach (var action in controller.Actions)
             {
-                writeAction(action, controller);
+                try
+                {
+                    writeAction(action, controller);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception while writeAction for service. controller:{controller.ServiceId}, action:{action.Name}, ex:{ex.ToString()}");
+                    throw;
+                }
             }
             
             writer.WriteEndElement(); // service
@@ -1051,7 +1059,7 @@ namespace Validator.Managers.Scheme
                 Description = actionAttribute.GetDescription(parameter.Name),
             };
 
-            if (parameter.IsOptional)
+            if (prameterDetails.IsOptional)
             {
                 prameterDetails.DefaultValue = SchemeManager.VarToString(parameter.DefaultValue);
             }

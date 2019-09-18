@@ -4,12 +4,47 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "REGION_MNG",
+        "REGION_VIEW"
       ],
       "excluded_permissions": [],
       "name": "Region_List",
       "service": "Region",
       "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "REGION_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "Region_Update",
+      "service": "Region",
+      "action": "Update",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "REGION_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "Region_Add",
+      "service": "Region",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Operator",
+        "REGION_MNG"
+      ],
+      "excluded_permissions": [],
+      "name": "Region_Delete",
+      "service": "Region",
+      "action": "Delete",
       "type": "Action"
     }
   ],

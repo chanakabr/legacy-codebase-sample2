@@ -2581,10 +2581,14 @@ namespace WebAPI.Reflection
                     {
                         case "DateFormat":
                             return "dateFormat";
+                        case "DefaultRegion":
+                            return "defaultRegion";
                         case "DeleteMediaPolicy":
                             return "deleteMediaPolicy";
                         case "DowngradePolicy":
                             return "downgradePolicy";
+                        case "EnableRegionFiltering":
+                            return "enableRegionFiltering";
                         case "HouseholdLimitationModule":
                             return "householdLimitationModule";
                         case "MailSettings":
@@ -4036,6 +4040,34 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPasswordPolicy":
+                    switch(property.Name)
+                    {
+                        case "Complexities":
+                            return "complexities";
+                        case "Expiration":
+                            return "expiration";
+                        case "HistoryCount":
+                            return "historyCount";
+                        case "Id":
+                            return "id";
+                        case "LockoutFailuresCount":
+                            return "lockoutFailuresCount";
+                        case "Name":
+                            return "name";
+                        case "UserRoleIds":
+                            return "userRoleIds";
+                    }
+                    break;
+                    
+                case "KalturaPasswordPolicyFilter":
+                    switch(property.Name)
+                    {
+                        case "UserRoleIdIn":
+                            return "userRoleIdIn";
+                    }
+                    break;
+                    
                 case "KalturaPaymentGateway":
                     switch(property.Name)
                     {
@@ -5010,6 +5042,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaRegex":
+                    switch(property.Name)
+                    {
+                        case "Description":
+                            return "description";
+                        case "Expression":
+                            return "expression";
+                    }
+                    break;
+                    
                 case "KalturaRegion":
                     switch(property.Name)
                     {
@@ -5021,6 +5063,8 @@ namespace WebAPI.Reflection
                             return "isDefault";
                         case "Name":
                             return "name";
+                        case "ParentId":
+                            return "parentId";
                         case "RegionalChannels":
                             return "linearChannels";
                     }
@@ -5041,6 +5085,12 @@ namespace WebAPI.Reflection
                     {
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "IdIn":
+                            return "idIn";
+                        case "LiveAssetIdEqual":
+                            return "liveAssetIdEqual";
+                        case "ParentIdEqual":
+                            return "parentIdEqual";
                     }
                     break;
                     
@@ -8764,6 +8814,29 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "passwordpolicy":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "add");
+                            return PasswordPolicyController.Add((KalturaPasswordPolicy) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "update");
+                            return PasswordPolicyController.Update((long) methodParams[0], (KalturaPasswordPolicy) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "delete");
+                            PasswordPolicyController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("passwordpolicy", "list");
+                            return PasswordPolicyController.List((KalturaPasswordPolicyFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "paymentgateway":
                     switch(action)
                     {
@@ -9300,9 +9373,22 @@ namespace WebAPI.Reflection
                 case "region":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("region", "add", false);
+                            return RegionController.Add((KalturaRegion) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("region", "delete", false);
+                            RegionController.Delete((int) methodParams[0]);
+                            return null;
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
                             return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("region", "update", false);
+                            return RegionController.Update((int) methodParams[0], (KalturaRegion) methodParams[1]);
                             
                     }
                     break;
@@ -15443,6 +15529,49 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "passwordpolicy":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPasswordPolicy),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPasswordPolicy),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPasswordPolicyFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "paymentgateway":
                     switch(action)
                     {
@@ -16489,11 +16618,38 @@ namespace WebAPI.Reflection
                 case "region":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("region", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegion),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("region", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaRegion),
                             });
                             return ret;
                             
