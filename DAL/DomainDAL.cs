@@ -2522,14 +2522,14 @@ namespace DAL
         {
             int status = 0;
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsRegionInUse");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DomainRegionAmount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@regionId", regionId);
 
             status = sp.ExecuteReturnValue<int>();
 
-            return status == 1;
+            return status > 0;
         }
     }
 }
