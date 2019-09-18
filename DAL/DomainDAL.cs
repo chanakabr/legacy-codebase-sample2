@@ -2517,5 +2517,19 @@ namespace DAL
             sp.AddParameter("@groupId", groupId);
             return sp.Execute();
         }
+
+        public static bool IsRegionInUse(int groupId, int regionId)
+        {
+            int status = 0;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DomainRegionAmount");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@regionId", regionId);
+
+            status = sp.ExecuteReturnValue<int>();
+
+            return status > 0;
+        }
     }
 }

@@ -27,15 +27,15 @@ namespace Core.Catalog.CatalogManagement
 
         // ERRORS
         private const string WATCH_PERMISSION_RULE_NOT_RECOGNIZED = "Watch permission rule not recognized";
-        
+
         private const string PLAYERS_RULE_NOT_RECOGNIZED = "Players rule not recognized ";
         private const string UPDATE_INDEX_FAILED = "Update index failed";
         private const string MEDIA_ID_NOT_EXIST = "Media Id not exist";
-        
+
 
         private const long USER_ID = 999;
         private const string ASSET_FILE_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
-        
+
         #endregion
 
         public static IngestResponse HandleMediaIngest(int groupId, string xml)
@@ -69,7 +69,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 IngestMedia media = feedResponse.Object.Export.MediaList[i];
                 ingestResponse.AssetsStatus.Add(IngestAssetStatus.Default);
-                
+
                 try
                 {
                     int mediaId;
@@ -119,7 +119,7 @@ namespace Core.Catalog.CatalogManagement
                                 Notification.Module.AddFollowNotificationRequestForOpc(groupId, mediaAsset, USER_ID, cache);
                             }
                         }
-                        
+
                         // succeeded import media
                         ingestResponse.AssetsStatus[i].Status.Set(eResponseStatus.OK);
                         log.DebugFormat("succeeded import media. CoGuid:{0}, MediaID:{1}, ErrorMessage:{2}", media.CoGuid, mediaId, media.IsActive, ingestResponse.Description);
@@ -152,12 +152,12 @@ namespace Core.Catalog.CatalogManagement
             {
                 IndexAndInvalidateAssets(groupId, assetsWithNoTags);
             }
-            
+
             log.DebugFormat("End HandleMediaIngest. groupId:{0}", groupId);
 
             return ingestResponse;
         }
-        
+
         private static GenericResponse<IngestVODFeed> DeserializeXmlToFeed(string xml, int groupId, ref IngestResponse ingestResponse)
         {
             var response = new GenericResponse<IngestVODFeed>();
@@ -282,7 +282,7 @@ namespace Core.Catalog.CatalogManagement
                     tagsTranslations.Add(tagKey, new TagsTranslations(topicSystemName, defaultTagValue, translations, mediaId, isMediaExists));
                 }
             }
-            
+
             if (existingTagsTranslations.Count > 0)
             {
                 foreach (var translation in existingTagsTranslations)
@@ -300,7 +300,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-        
+
         private static void HandleTagsTranslations(Dictionary<string, TagsTranslations> tagsTranslations, int groupId, CatalogGroupCache cache, ref IngestResponse response)
         {
             var tagMetaType = MetaType.Tag.ToString();
@@ -314,7 +314,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     Topic topicTag = cache.TopicsMapBySystemNameAndByType[tag.Value.TopicSystemName][tagMetaType];
                     tag.Value.TopicId = topicTag.Id;
-                    
+
                     var tagResponse = CatalogManager.SearchTags(groupId, true, tag.Value.DefaultTagValue, (int)topicTag.Id, defaultLanguageId, 0, 1);
 
                     if (!tagResponse.HasObjects())
@@ -334,7 +334,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static TagToInvalidate AddTagTranslations(int groupId, TagsTranslations tag, int defaultLanguageId, ref IngestResponse response)
         {
-            var tagToInvalidate = tag.GetTagToInvalidate(false, defaultLanguageId); 
+            var tagToInvalidate = tag.GetTagToInvalidate(false, defaultLanguageId);
 
             var addTagResponse = CatalogManager.AddTag(groupId, tagToInvalidate.TagValue, USER_ID, true);
             if (!addTagResponse.HasObject())
@@ -383,7 +383,7 @@ namespace Core.Catalog.CatalogManagement
 
             return tagToInvalidate;
         }
-        
+
         private static void IndexAndInvalidateTags(int groupId, List<TagToInvalidate> tagsToInvalidate, CatalogGroupCache catalogGroupCache)
         {
             var wrapper = new ElasticsearchWrapper();
@@ -427,7 +427,7 @@ namespace Core.Catalog.CatalogManagement
 
             IndexAndInvalidateAssets(groupId, assetsToInvalidate);
         }
-        
+
         private static void IndexAndInvalidateAssets(int groupId, Dictionary<int, bool> assetsToInvalidate)
         {
             foreach (var asset in assetsToInvalidate)
@@ -470,7 +470,7 @@ namespace Core.Catalog.CatalogManagement
             ingestResponse.AssetsStatus[mediaIndex].InternalAssetId = mediaId;
             return true;
         }
-        
+
         private static string GetMainLanguageValue(string mainLanguageName, IngestMultilingual multilingual)
         {
             if (multilingual != null && multilingual.Values != null && multilingual.Values.Count > 0)
@@ -494,7 +494,7 @@ namespace Core.Catalog.CatalogManagement
 
             return null;
         }
-        
+
         private static DateTime GetDateTimeFromString(string date, DateTime defaultDate)
         {
             try
@@ -539,7 +539,7 @@ namespace Core.Catalog.CatalogManagement
                 return DateTime.UtcNow;
             }
         }
-        
+
         // TODO - use good method
         private static int GetBillingTypeIdByName(string billingTypeName)
         {
@@ -570,7 +570,7 @@ namespace Core.Catalog.CatalogManagement
 
             return 0;
         }
-        
+
         private static Dictionary<long, Image> GetImages(IngestBasic basic, int groupId, string groupDefaultRatio, Dictionary<string, ImageType> groupRatioNamesToImageTypes)
         {
             Dictionary<long, Image> images = null;

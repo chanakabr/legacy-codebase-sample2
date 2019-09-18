@@ -2589,7 +2589,7 @@ namespace Core.ConditionalAccess
                     }
 
                     var theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-                    // TODO SHIR - ASK IRA GetBaseRenewMultiUsageSubscriptionData
+
                     var renewDetails = new RenewDetails()
                     {
                         ProductId = int.Parse(subscriptionCode),
@@ -9988,6 +9988,14 @@ namespace Core.ConditionalAccess
                             result.Message = "Cancellation is blocked for this subscription";
                             return result;
                         }
+
+                        if (subscriptionToCancel.PreSaleDate.HasValue)
+                        {
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this seasonal-pass subscription";
+                            return result;
+                        }
+
                     }
 
                     // Check if within cancellation window

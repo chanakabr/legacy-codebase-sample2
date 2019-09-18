@@ -24,6 +24,7 @@ namespace DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
+        private const eCouchbaseBucket EVENT_NOTIFICATION_ACTION_BUCKET = eCouchbaseBucket.SOCIAL;
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
@@ -5566,6 +5567,16 @@ namespace DAL
             sp.AddParameter("@shouldDeleteSecondaryLanguages", partnerConfig.SecondaryLanguages?.Count == 0 ? 1 : 0);
             sp.AddParameter("@shouldDeleteSecondaryCurrencies", partnerConfig.SecondaryCurrencies?.Count == 0 ? 1 : 0);
 
+            if (partnerConfig.EnableRegionFiltering.HasValue)
+            {
+                sp.AddParameter("@enableRegionFiltering", partnerConfig.EnableRegionFiltering.Value ? 1 : 0);
+            }
+
+            if (partnerConfig.DefaultRegion.HasValue)
+            {
+                sp.AddParameter("@defaultRegion", partnerConfig.DefaultRegion.Value);
+            }
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
@@ -5975,12 +5986,80 @@ namespace DAL
             return table;
         }
 
+        public static bool DeleteRegion(int groupId, int id, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_linearChannelsRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while DeleteRegion from DB, groupId: {0}, regionId: {1})", groupId, id), ex);
+                throw;
+            }
+        }
+
+        public static int AddRegion(int groupId, Region region, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Insert_linearChannelsRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@groupId", groupId);                
+                sp.AddParameter("@parentId", region.parentId);
+                sp.AddParameter("@name", region.name);
+                sp.AddParameter("@externalId", region.externalId);
+                sp.AddParameter("@linearChannelsExist", region.linearChannels?.Count > 0);
+                sp.AddKeyValueListParameter<string, string>("@linearChannels",
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while AddRegion from DB, groupId: {0}, regionId: {1})", groupId, region.id), ex);
+                throw;
+            }
+        }
+
+        public static bool UpdateRegion(int groupId, Region region, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Update_linearChannelsRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@id", region.id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@parentId", region.parentId);
+                sp.AddParameter("@name", region.name);
+                sp.AddParameter("@externalId", region.externalId);
+                sp.AddParameter("@linearChannelsExist", region.linearChannels != null);
+                sp.AddKeyValueListParameter<string, string>("@linearChannels", 
+                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string,string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddParameter("@updaterId", userId);
+
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while UpdateRegion from DB, groupId: {0}, regionId: {1})", groupId, region.id), ex);
+                throw;
+            }
+        }
+
         public static bool SaveEventNotificationActionIdCB(int groupId, EventNotificationAction eventNotificationAction)
         {
             if (eventNotificationAction != null)
             {
                 string key = GetEventNotificationActionIdKey(groupId, eventNotificationAction.Id);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
+                return UtilsDal.SaveObjectInCB(EVENT_NOTIFICATION_ACTION_BUCKET, key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;
@@ -6001,7 +6080,7 @@ namespace DAL
             if (!string.IsNullOrEmpty(id))
             {
                 string key = GetEventNotificationActionIdKey(groupId, id);
-                return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
+                return UtilsDal.GetObjectFromCB<EventNotificationAction>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
             }
 
             return null;
@@ -6017,7 +6096,7 @@ namespace DAL
                     keys.Add(GetEventNotificationActionIdKey(groupId, id));
                 }
 
-                return UtilsDal.GetObjectListFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, keys, true);
+                return UtilsDal.GetObjectListFromCB<EventNotificationAction>(EVENT_NOTIFICATION_ACTION_BUCKET, keys, true);
             }
 
             return null;
@@ -6026,7 +6105,7 @@ namespace DAL
         public static List<string> GetEventNotificationActionCB(int groupId,string objectType, long objectId)
         {
             string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
-            return UtilsDal.GetObjectFromCB<List<string>>(eCouchbaseBucket.SOCIAL, key, true);
+            return UtilsDal.GetObjectFromCB<List<string>>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
         }
 
         public static bool SaveEventNotificationActionTypeAndIdCB(int groupId, string objectType, long objectId, List<string> eventNotificationActionIds)
@@ -6034,7 +6113,7 @@ namespace DAL
             if (eventNotificationActionIds.Count > 0)
             {
                 string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
+                return UtilsDal.SaveObjectInCB(EVENT_NOTIFICATION_ACTION_BUCKET, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;

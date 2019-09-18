@@ -203,6 +203,11 @@ namespace DAL
 
         public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
         {
+            return SaveObjectInCB(couchbaseBucket.ToString(), key, objectToSave, serializeToString, expirationTTL);
+        }
+
+        public static bool SaveObjectInCB<T>(string couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
+        {
             if (objectToSave != null)
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);

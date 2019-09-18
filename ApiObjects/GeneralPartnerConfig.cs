@@ -23,5 +23,9 @@ namespace ApiObjects
         public string DateFormat { get; set; }
 
         public int? HouseholdLimitationModule { get; set; }
+
+        public int? DefaultRegion { get; set; }
+
+        public bool? EnableRegionFiltering { get; set; }
     }
 }

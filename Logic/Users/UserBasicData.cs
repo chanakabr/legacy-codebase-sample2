@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Managers;
+using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using DAL;
@@ -233,7 +234,7 @@ namespace Core.Users
             return res;
         }
         
-        public bool Save(Int32 nUserID, int groupId, bool resetFailCount = false)
+        public bool Save(Int32 nUserID, int groupId, bool resetFailCount = false, bool updateUserPassword = false)
         {
             int nCountryID = (-1);
             int nStateID = (-1);
@@ -273,8 +274,8 @@ namespace Core.Users
                                                     this.UpdateDate,
                                                     m_CoGuid,
                                                     m_ExternalToken,
-                                                    resetFailCount);
-                                                    //m_UserType
+                                                    resetFailCount,
+                                                    updateUserPassword);
 
             if(UsersDal.UpsertUserRoleIds(groupId, nUserID, this.RoleIds))
             {
@@ -395,6 +396,36 @@ namespace Core.Users
             }
 
             return isBasicChanged;
+        }
+
+        public bool SetPassword(string password, int nGroupID)
+        {
+            if (password.Length == 0)
+            {
+                return false;
+            }
+
+            // check if we need to encrypt the password
+            BaseEncrypter encrypter = Utils.GetBaseImpl(nGroupID);
+
+            // if encrypter is null the group does not have an encrypter support
+            if (encrypter != null)
+            {
+                string sEncryptedPassword = string.Empty;
+                string sSalt = string.Empty;
+
+                encrypter.GenerateEncryptPassword(password, ref sEncryptedPassword, ref sSalt);
+
+                this.m_sPassword = sEncryptedPassword;
+                this.m_sSalt = sSalt;
+            }
+            else
+            {
+                this.m_sPassword = password;
+                this.m_sSalt = string.Empty;
+            }
+
+            return true;
         }
     }
 }

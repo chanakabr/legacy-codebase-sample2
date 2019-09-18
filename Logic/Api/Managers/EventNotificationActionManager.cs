@@ -21,51 +21,34 @@ namespace ApiLogic.Api.Managers
 
         private EventNotificationActionManager() { }
 
-        public GenericResponse<EventNotificationAction> Add(ContextData contextData, EventNotificationAction eventNotificationActionToAdd)
+        public void SaveEventNotificationAction(int groupId, EventNotificationAction eventNotificationAction)
         {
-            var response = new GenericResponse<EventNotificationAction>();
+            long epocNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
 
+            eventNotificationAction.CreateDate = epocNow;
+            eventNotificationAction.UpdateDate = epocNow;
+
+            // Save eventNotificationAction by id At CB                    
+            if (!ApiDAL.SaveEventNotificationActionIdCB(groupId, eventNotificationAction))
+            {
+                log.Error($"Error while SaveEventNotificationActionCB. group id: { groupId }");
+            }
+        }
+
+        public void SaveEventNotificationObjectActions(int groupId, List<string> ids, string objectType, long objectId)
+        {
             try
             {
-                long epocNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-
-                eventNotificationActionToAdd.CreateDate = epocNow;
-                eventNotificationActionToAdd.UpdateDate = epocNow;
-
-                // Save eventNotificationAction by id At CB                    
-                if (!ApiDAL.SaveEventNotificationActionIdCB(contextData.GroupId, eventNotificationActionToAdd))
-                {
-                    log.Error($"Error while SaveEventNotificationActionCB. contextData: {contextData.ToString()}");
-                    return response;
-                }
-
-                // EventNotificationAction by object Type & Id
-                List<string> eventNotificationActions = ApiDAL.GetEventNotificationActionCB(contextData.GroupId, eventNotificationActionToAdd.ObjectType, eventNotificationActionToAdd.ObjectId);
-                if (eventNotificationActions?.Count > 0)
-                {
-                    eventNotificationActions.Add(eventNotificationActionToAdd.Id);
-                }
-                else
-                {
-                    eventNotificationActions = new List<string>() { eventNotificationActionToAdd.Id };
-                }
-
                 // Save eventNotificationAction by type and id At CB                    
-                if (!ApiDAL.SaveEventNotificationActionTypeAndIdCB(contextData.GroupId, eventNotificationActionToAdd.ObjectType, eventNotificationActionToAdd.ObjectId, eventNotificationActions))
+                if (!ApiDAL.SaveEventNotificationActionTypeAndIdCB(groupId, objectType, objectId, ids))
                 {
-                    log.Error($"Error while SaveEventNotificationActionCB. contextData: {contextData.ToString()}");
-                    return response;
+                    log.Error($"Error while SaveEventNotificationActionCB");
                 }
-
-                response.Object = eventNotificationActionToAdd;
-                response.Status.Set(eResponseStatus.OK);
             }
             catch (Exception ex)
             {
-                log.Error($"An Exception was occurred in SaveEventNotificationActionCB. contextData:{contextData.ToString()}. ex: {ex}");
+                log.Error($"An Exception was occurred in SaveEventNotificationActionCB. ex: {ex}");
             }
-
-            return response;
         }
 
         public GenericResponse<EventNotificationAction> Update(ContextData contextData, EventNotificationAction eventNotificationActionToUpdate)
@@ -106,6 +89,11 @@ namespace ApiLogic.Api.Managers
         }
 
         public Status Delete(ContextData contextData, string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GenericResponse<EventNotificationAction> Add(ContextData contextData, EventNotificationAction eventNotificationActionToAdd)
         {
             throw new NotImplementedException();
         }
@@ -154,6 +142,11 @@ namespace ApiLogic.Api.Managers
             }
 
             return response;
+        }
+
+        public GenericResponse<EventNotificationAction> ValidateCrudObject(ContextData contextData, string id = null, EventNotificationAction objectToValidate = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

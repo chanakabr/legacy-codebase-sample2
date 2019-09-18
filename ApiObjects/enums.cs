@@ -862,7 +862,9 @@ namespace ApiObjects
         UserSuspended = 23,
         UserCreatedWithNoRole = 24,
         ExternalIdAlreadyExists = 25,
-        ExternalError = 26
+        ExternalError = 26,
+        PasswordPolicyViolation = 27,
+        PasswordExpired = 28
     }
 
     public enum SubscriptionPurchaseStatus

@@ -23,21 +23,18 @@ namespace Core.Users
                 resObj = User.CheckUserPassword(sCoGuid, sPass, 0, 0, m_nGroupID, false, false);
                 if (resObj.m_RespStatus == ResponseStatus.OK)
                 {
-                    resObj = User.CheckUserPassword(sCoGuid, sPass, 0, 0, m_nGroupID, false, false);
-                    if (resObj.m_RespStatus == ResponseStatus.OK)
-                    {
-                        resObj.Initialize(ResponseStatus.OK, u);
-                        return User.InnerSignIn(ref resObj, 0, 0, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins, m_nGroupID);
-                    }
-                    else return resObj;
+                    resObj.Initialize(ResponseStatus.OK, u);
+                    return User.InnerSignIn(ref resObj, 0, 0, m_nGroupID, sSessionID, sIP, sDeviceID, bPreventDoubleLogins, m_nGroupID);
                 }
-                else return resObj;
             }
-            else resObj.m_RespStatus = ResponseStatus.UserDoesNotExist;
+            else
+            {
+                resObj.m_RespStatus = ResponseStatus.UserDoesNotExist;
+            }
+
             return resObj;
         }
-
-
+        
         public UserResponseObject CheckLogin(string sUserName, int nOperatorID)
         {
             User u = new User();

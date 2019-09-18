@@ -1084,7 +1084,7 @@ namespace Core.Social
         {
             FacebookResponse facebookResponse = new FacebookResponse();
 
-            UserResponseObject uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false);
+            var uObj = Utils.CheckUserPassword(m_nGroupID, sUserName, sPass, false);
 
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
             {
@@ -1658,9 +1658,13 @@ namespace Core.Social
                     //Update user FBToken
                     if (sFBToken != sEncryptToken)
                     {
-                        uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
-                        uObj.m_user.m_oBasicData.m_sUserName = string.Empty;
-                        uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
+                        var cBasicData = Utils.CopyObject(uObj.m_user.m_oBasicData);
+                        if (cBasicData != null)
+                        {
+                            cBasicData.m_sUserName = string.Empty;
+                            cBasicData.m_sFacebookToken = sEncryptToken;
+                            uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, cBasicData, uObj.m_user.m_oDynamicData);
+                        }
                     }
                     fbs.user = Utils.Signin(m_nGroupID, uObj.m_user.m_sSiteGUID, sIP, deviceID, bPreventDoubleLogins);
                     fbs.status.Code = (int)eResponseStatus.OK;

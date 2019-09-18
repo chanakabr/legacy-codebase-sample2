@@ -25,7 +25,7 @@ namespace Core.Social
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-      
+
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
             ApiObjects.Credentials wsc = new ApiObjects.Credentials(sWSUserName, sWSPassword);
@@ -99,7 +99,7 @@ namespace Core.Social
             UserResponseObject response = null;
             try
             {
-                response = Core.Users.Module.SetUserData(nGroupID, sSiteGuid, ubd, udd);
+                response = Core.Users.Module.UpdateUserData(nGroupID, sSiteGuid, ubd, udd);
             }
             catch (Exception ex)
             {
@@ -831,7 +831,7 @@ namespace Core.Social
 
             return res;
         }
-        
+
         public static List<StatisticsView> DecodeSearchJsonObject(string sObj, ref int totalItems)
         {
             List<StatisticsView> documents = null;
@@ -927,6 +927,38 @@ namespace Core.Social
             return id;
         }
 
+        /// <summary>
+        /// Clone object by value
+        /// </summary>
+        /// <typeparam name="T">Source type</typeparam>
+        /// <param name="obj">Source object</param>
+        /// <returns></returns>
+        public static T CopyObject<T>(T obj) where T : new()
+        {
+            var copyObj = new T();
+            try
+            {
+                var type = obj.GetType();
+                var props = type.GetProperties();
+                var fields = type.GetFields();
+
+                foreach (var item in props)
+                {
+                    item.SetValue(copyObj, item.GetValue(obj));
+                }
+                foreach (var item in fields)
+                {
+                    item.SetValue(copyObj, item.GetValue(obj));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(($"Error - exception caught in social utils (CopyObject). ex={ex.Message}; stack={ex.StackTrace}"), ex);
+            }
+
+            return copyObj;
+        }
+
         // Removed as it is not in use and not supported by .net core
         //#region create client to WCF service
 
@@ -950,7 +982,7 @@ namespace Core.Social
             dt.Columns.Add("site_guid", typeof(string));
             dt.Columns.Add("group_id", typeof(int));
             dt.Columns.Add("action_id", typeof(int));
-            dt.Columns.Add("social_platform", typeof(int));            
+            dt.Columns.Add("social_platform", typeof(int));
             dt.Columns.Add("internal_share", typeof(int));
             dt.Columns.Add("external_share", typeof(int));
             dt.Columns.Add("external_privacy", typeof(int));

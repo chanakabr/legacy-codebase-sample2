@@ -1,5 +1,7 @@
-﻿using ApiObjects.SSOAdapter;
+﻿using ApiObjects;
+using ApiObjects.SSOAdapter;
 using ConfigurationManager;
+using CouchbaseManager;
 using KLogMonitor;
 using ODBCWrapper;
 using System;
@@ -38,11 +40,12 @@ namespace DAL
         private const string DELETE_USER = "Delete_User";
 
         #endregion
-        
+
         /*
          * IsUseModifiedSP == true calls SP: Get_DevicesToUsersPushAction
          * IsUseModifiedSP == false calls SP: Get_DevicesToUsersNonPushAction
          */
+
         public static DataTable GetDevicesToUsers(long? lGroupID, long? lUserID, bool bIsUseModifiedSP)
         {
             try
@@ -744,13 +747,13 @@ namespace DAL
             return retVal;
         }
 
-        public static int GetUserPasswordFailHistory(string sUN, int nGroupID, ref DateTime dNow, ref int nFailCount, ref DateTime dLastFailDate, ref DateTime dLastHitDate)
+        public static int GetUserPasswordFailHistory(string username, int groupId, ref DateTime dNow, ref int failCount, ref DateTime lastFailDate, ref DateTime lastHitDate, ref DateTime passwordUpdateDate)
         {
-            int nID = 0;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LoginFailCount");
+            int userId = 0;
+            var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@username", sUN);
-            sp.AddParameter("@groupID", nGroupID);
+            sp.AddParameter("@username", username);
+            sp.AddParameter("@groupID", groupId);
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -760,17 +763,16 @@ namespace DAL
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    dNow = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["dNow"]);
-                    nFailCount = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["FAIL_COUNT"]);
-                    nID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
-                    dLastFailDate = new DateTime(2020, 1, 1);
-                    dLastHitDate = new DateTime(2020, 1, 1);
-                    dLastFailDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_FAIL_DATE"]);
-                    dLastHitDate = ODBCWrapper.Utils.GetDateSafeVal(dt.Rows[0]["LAST_HIT_DATE"]);
+                    dNow = Utils.GetDateSafeVal(dt.Rows[0], "dNow");
+                    failCount = Utils.GetIntSafeVal(dt.Rows[0], "FAIL_COUNT");
+                    userId = Utils.GetIntSafeVal(dt.Rows[0], "id");
+                    lastFailDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_FAIL_DATE");
+                    lastHitDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_HIT_DATE");
+                    passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0], "PASSWORD_UPDATE_DATE");
                 }
             }
 
-            return nID;
+            return userId;
         }
 
         public static bool InsertUserOperator(string nSiteGuid, string sCoGuid, int nOperatorID)
@@ -1358,66 +1360,67 @@ namespace DAL
         public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted, 
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity, 
                                          int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount)
+                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
         {
             try
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                var updateQuery = new UpdateQuery("users");
                 updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SALT", "=", sSalt);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE", "=", sFacebookImage);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_IMAGE_PERMITTED", "=", bIsFacebookImagePermitted);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FB_TOKEN", "=", sFacebookToken);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ExternalToken", "=", externalToken);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_Token", "=", twitterToken);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Twitter_TokenSecret", "=", twitterTokenSecret);
+                updateQuery += Parameter.NEW_PARAM("SALT", "=", sSalt);
+                updateQuery += Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
+                updateQuery += Parameter.NEW_PARAM("FACEBOOK_IMAGE", "=", sFacebookImage);
+                updateQuery += Parameter.NEW_PARAM("FACEBOOK_IMAGE_PERMITTED", "=", bIsFacebookImagePermitted);
+                updateQuery += Parameter.NEW_PARAM("FB_TOKEN", "=", sFacebookToken);
+                updateQuery += Parameter.NEW_PARAM("ExternalToken", "=", externalToken);
+                updateQuery += Parameter.NEW_PARAM("Twitter_Token", "=", twitterToken);
+                updateQuery += Parameter.NEW_PARAM("Twitter_TokenSecret", "=", twitterTokenSecret);
+                updateQuery += Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
+                updateQuery += Parameter.NEW_PARAM("LAST_NAME", "=", sLastName);
+                updateQuery += Parameter.NEW_PARAM("EMAIL_ADD", "=", sEmail);
+                updateQuery += Parameter.NEW_PARAM("ADDRESS", "=", sAddress);
+                updateQuery += Parameter.NEW_PARAM("CITY", "=", sCity);
+                updateQuery += Parameter.NEW_PARAM("ZIP", "=", sZip);
+                updateQuery += Parameter.NEW_PARAM("PHONE", "=", sPhone);
+                updateQuery += Parameter.NEW_PARAM("UPDATE_DATE", "=", updateDate);
+                updateQuery += Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
+
                 if (!string.IsNullOrEmpty(sUserName))
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUserName);
+                    updateQuery += Parameter.NEW_PARAM("USERNAME", "=", sUserName);
                 }
 
                 if (!string.IsNullOrEmpty(sCoGuid))
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
+                    updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
-
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FIRST_NAME", "=", sFirstName);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LAST_NAME", "=", sLastName);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EMAIL_ADD", "=", sEmail);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ADDRESS", "=", sAddress);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CITY", "=", sCity);
-
+                
                 if (nCountryID >= 0)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
+                    updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
                 }
 
                 if (nStateID >= 0)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
+                    updateQuery += Parameter.NEW_PARAM("STATE_ID", "=", nStateID);
                 }
-
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ZIP", "=", sZip);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PHONE", "=", sPhone);
-                updateQuery += Parameter.NEW_PARAM("UPDATE_DATE", "=", updateDate);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("REG_AFF", "=", sAffiliateCode);
-
+                
                 if (resetFailCount)
                 {
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                    updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                }
+
+                if (updateUserPassword)
+                {
+                    updateQuery += Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
+                    updateQuery += Parameter.NEW_PARAM("PASSWORD_UPDATE_DATE", "=", updateDate);
                 }
 
                 updateQuery += "WHERE";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nUserID);
+                updateQuery += Parameter.NEW_PARAM("ID", "=", nUserID);
 
                 bool inserted = updateQuery.Execute();
-
                 updateQuery.Finish();
                 updateQuery = null;
-
-
                 return inserted;
             }
             catch (Exception ex)
@@ -1427,8 +1430,7 @@ namespace DAL
 
             return false;
         }
-
-
+        
         private static void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
@@ -2370,6 +2372,69 @@ namespace DAL
             }
 
             return userIds;
+        }
+
+        private static string GetUserRolesToPasswordPolicyKey(int groupId)
+        {
+            return string.Format("user_roles_to_password_policy_{0}", groupId);
+        }
+
+        public static Dictionary<long, HashSet<long>> GetUserRolesToPasswordPolicy(int groupId)
+        {
+            var key = GetUserRolesToPasswordPolicyKey(groupId);
+            return UtilsDal.GetObjectFromCB<Dictionary<long, HashSet<long>>>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        private static string GetPasswordPolicyKey(long passwordPolicyId)
+        {
+            return string.Format("password_policy_{0}", passwordPolicyId);
+        }
+
+        public static PasswordPolicy GetPasswordPolicy(long passwordPolicyId)
+        {
+            var key = GetPasswordPolicyKey(passwordPolicyId);
+            return UtilsDal.GetObjectFromCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePasswordPolicy(PasswordPolicy policy)
+        {
+            string key = GetPasswordPolicyKey(policy.Id);
+            return UtilsDal.SaveObjectInCB<PasswordPolicy>(eCouchbaseBucket.OTT_APPS, key, policy);
+        }
+
+        public static bool SaveUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
+        {
+            var key = GetUserRolesToPasswordPolicyKey(groupId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
+        }
+
+        public static bool DeletePasswordPolicy(int groupId, long id)
+        {
+            string assetRuleKey = GetPasswordPolicyKey(id);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
+        }
+
+        private static string GetPasswordsHistoryKey(long userId)
+        {
+            return string.Format("user_passwords_history_{0}", userId);
+        }
+
+        public static HashSet<string> GetPasswordsHistory(long userId)
+        {
+            var key = GetPasswordsHistoryKey(userId);
+            return UtilsDal.GetObjectFromCB<HashSet<string>>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool SavePasswordsHistory(long userId, HashSet<string> passwordsHistory)
+        {
+            var key = GetPasswordsHistoryKey(userId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
+        }
+
+        public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
+        {
+            var key = GetUserRolesToPasswordPolicyKey(groupId);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
         }
     }
 }

@@ -101,7 +101,7 @@ namespace Core.Users
             if (regionId.HasValue)
             {
                 // validate region exists
-                if (!CatalogManager.GetRegions(nGroupID).Contains(regionId.Value))
+                if (!ApiLogic.Api.Managers.RegionManager.GetRegionIds(nGroupID).Contains(regionId.Value))
                 {
                     domain.m_DomainStatus = DomainStatus.RegionDoesNotExist;
                     return domain;
@@ -163,7 +163,7 @@ namespace Core.Users
                     monkeyUser.m_oBasicData.m_CoGuid = string.Empty;
                     monkeyUser.m_oBasicData.RoleIds = new List<long>(); //BEO-5488
 
-                    int monkeyID = monkeyUser.Save(resDomain.m_nGroupID, true);
+                    int monkeyID = monkeyUser.SaveForInsert(resDomain.m_nGroupID, true);
 
                     if ((monkeyID <= 0) || (string.IsNullOrEmpty(monkeyUser.m_sSiteGUID)))
                     {
