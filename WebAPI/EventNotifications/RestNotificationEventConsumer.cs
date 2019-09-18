@@ -189,6 +189,8 @@ namespace WebAPI
 
             #region Handle actions
 
+            var idsToSave = new List<string>();
+
             // Perform the actions for this event
             foreach (var action in actions.Values)
             {
@@ -196,6 +198,11 @@ namespace WebAPI
                     action.SystemName, kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString());
 
                 var saveEvent = action.SaveEvent.HasValue && action.SaveEvent.Value;
+
+                if (saveEvent && !string.IsNullOrEmpty(eventWrapper.Id))
+                {
+                    idsToSave.Add(eventWrapper.Id);
+                }
 
                 try
                 {
@@ -216,6 +223,11 @@ namespace WebAPI
                         }
                     }
                 }
+            }
+
+            if (idsToSave?.Count > 0 && objectEvent.Object?.Id > 0)
+            {
+                EventNotificationActionManager.Instance.SaveEventNotificationObjectActions(eventWrapper.partnerId, idsToSave, eventWrapper.eventObjectType, objectEvent.Object.Id);
             }
 
             #endregion
@@ -311,16 +323,14 @@ namespace WebAPI
         {
             if (saveEvent && id > 0)
             {
-                EventNotificationActionManager.Instance.Add(new ApiObjects.Base.ContextData(eventWrapper.partnerId), new EventNotificationAction
+                EventNotificationActionManager.Instance.SaveEventNotificationAction(eventWrapper.partnerId, new EventNotificationAction
                 {
                     ActionType = actionType,
                     ObjectType = eventWrapper.eventObjectType,
                     ObjectId = id.Value,
                     Id = eventWrapper.Id,
                     Status = status,
-                    Message = message,
-                    CreateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow),
-                    UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)
+                    Message = message
                 });
             }
         }
