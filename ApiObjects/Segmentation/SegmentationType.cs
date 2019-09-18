@@ -30,6 +30,9 @@ namespace ApiObjects.Segmentation
         public List<SegmentCondition> Conditions;
 
         [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
+        public List<SegmentAction> Actions;
+
+        [JsonProperty(ItemTypeNameHandling = TypeNameHandling.Auto)]
         public SegmentBaseValue Value;
 
         [JsonProperty()]

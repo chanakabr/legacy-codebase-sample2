@@ -8676,10 +8676,8 @@ namespace Core.Catalog
                     {
                         foreach (var condition in segmentationType.Conditions)
                         {
-                            if (condition is ContentScoreCondition)
+                            if (condition is ContentScoreCondition castedCondition)
                             {
-                                var castedCondition = (condition as ContentScoreCondition);
-
                                 if (!string.IsNullOrEmpty(castedCondition.Field) && castedCondition.Values != null && castedCondition.Values.Count > 0)
                                 {
                                     bool isTagOrMeta;
@@ -8694,6 +8692,23 @@ namespace Core.Catalog
                                                 definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value));
                                             }
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (segmentationType.Actions != null)
+                    {
+                        foreach (var action in segmentationType.Actions)
+                        {
+                            if (action is SegmentAssetOrderAction castedAction)
+                            {
+                                if (!string.IsNullOrEmpty(castedAction.Name) && castedAction.Values != null && castedAction.Values.Count > 0)
+                                {
+                                    foreach (var value in castedAction.Values)
+                                    {
+                                        definitions.boostScoreValues.Add(new KeyValuePair<string, string>(castedAction.Name, value));
                                     }
                                 }
                             }
