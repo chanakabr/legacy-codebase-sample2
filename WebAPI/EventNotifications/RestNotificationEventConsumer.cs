@@ -194,7 +194,7 @@ namespace WebAPI
                 log.DebugFormat("Notification event action: action name = {0}, partner {1}, event type {2}, event action {3}, specific notification is {4}", 
                     action.SystemName, kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString());
 
-                var saveEvent = generalNotification != null && generalNotification.SaveEvent.HasValue && generalNotification.SaveEvent.Value;
+                var saveEvent = action.SaveEvent.HasValue && action.SaveEvent.Value;
 
                 try
                 {

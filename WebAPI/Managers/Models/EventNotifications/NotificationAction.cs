@@ -52,6 +52,14 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+
+        [JsonProperty("save_event")]
+        public bool? SaveEvent
+        {
+            get;
+            set;
+        }
+
         internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification wrapper);
     }
 }
