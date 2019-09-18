@@ -567,6 +567,15 @@ namespace ApiLogic.Api.Managers
                                     region.linearChannels.Add(new ApiObjects.KeyValuePair(assetId.ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
                                 }
                             }
+
+                            foreach (var key in regionsCache.ParentIdsToRegionIdsMapping.Keys)
+                            {
+                                Region parent = regionsCache.Regions[key];
+                                foreach (var item in regionsCache.ParentIdsToRegionIdsMapping[key])
+                                {
+                                    regionsCache.Regions[item].linearChannels = parent.linearChannels;
+                                }
+                            }
                         }
                     }
                 }
