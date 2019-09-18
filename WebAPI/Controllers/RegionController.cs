@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.RegionNotFound)]
         [Throws(eResponseStatus.DefaultRegionCannotBeDeleted)]
-        [Throws(eResponseStatus.RegionInUseCannotBeDeleted)]
+        [Throws(eResponseStatus.CannotDeleteRegionInUse)]
         static public void Delete(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;

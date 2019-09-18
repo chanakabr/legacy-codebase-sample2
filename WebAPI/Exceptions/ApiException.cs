@@ -299,7 +299,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EVENT_NOTIFICATION_ID_NOT_FOUND = new ClientExceptionType(eResponseStatus.EventNotificationIdNotFound, "Event notification id not found", "Event notification id not found");
         public static ClientExceptionType REGION_NOT_FOUND = new ClientExceptionType(eResponseStatus.RegionNotFound, "Region was not found", "Region was not found");
         public static ClientExceptionType DEFAULT_REGION_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted", "Default region cannot be deleted");
-        public static ClientExceptionType REGION_IN_USE_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.RegionInUseCannotBeDeleted, "Region in use cannot be deleted", "Region in use cannot be deleted");
+        public static ClientExceptionType CANNOT_DELETE_REGION_IN_USE = new ClientExceptionType(eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted", "Region in use cannot be deleted");
 
         #endregion
 
