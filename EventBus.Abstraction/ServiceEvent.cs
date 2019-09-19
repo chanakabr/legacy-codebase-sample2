@@ -38,7 +38,6 @@ namespace EventBus.Abstraction
             {
                 return $"Could not serialize object: {ex}";
             }
-            }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace ApiObjects.EventBus
 
         public override string ToString()
         {
-            return $"{{{nameof(type)}={type}, {nameof(asset_ids)}={string.Join(","asset_ids)}, {nameof(ETA)}={ETA}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+            return $"{{{nameof(type)}={type}, {nameof(asset_ids)}={string.Join(",", asset_ids)}, {nameof(ETA)}={ETA}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
         }
     }
 }

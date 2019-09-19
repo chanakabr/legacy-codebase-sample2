@@ -16,7 +16,7 @@ namespace ApiObjects.EventBus
 
         public override string ToString()
         {
-            return $"{{{nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(ProgramsToIngest)}={string.Join(','ProgramsToIngest)}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+            return $"{{{nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(ProgramsToIngest)}={string.Join(",", ProgramsToIngest)}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
         }
     }
 }
