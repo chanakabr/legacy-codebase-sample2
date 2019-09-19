@@ -886,7 +886,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> MainGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Main.ToString())
+                where galleries.GalleryLocation != null && galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Main.ToString())
                 select galleries;
 
                 if (MainGalleryList != null && MainGalleryList.Count() > 0)
@@ -903,7 +903,7 @@ namespace TVPApi
             {
                 IEnumerable<PageGallery> TopGalleryList =
                 from galleries in GetLocaleGalleries()
-                where galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Top.ToString())
+                where galleries.GalleryLocation != null && galleries.GalleryLocation.Equals(TVPApi.GalleryLocation.Top.ToString())
                 select galleries;
 
                 if (TopGalleryList != null && TopGalleryList.Count() > 0)
