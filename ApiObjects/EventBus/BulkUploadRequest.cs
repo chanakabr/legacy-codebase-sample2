@@ -12,5 +12,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("user_id")]
         public long UserId { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(BulkUploadId)}={BulkUploadId}, {nameof(UserId)}={UserId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }
