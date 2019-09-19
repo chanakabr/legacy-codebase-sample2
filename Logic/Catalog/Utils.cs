@@ -1580,11 +1580,11 @@ namespace Core.Catalog
 
                         if (mappedAssets.ContainsKey(key))
                         {
+                            BaseObject obj = mappedAssets[key];
+
                             if (isNpvr)
                             {
-                                BaseObject obj = mappedAssets[key];
-                                long recordingId;
-                                if (obj != null && long.TryParse(baseAsset.AssetId, out recordingId) && recordingId > 0)
+                                if (long.TryParse(baseAsset.AssetId, out long recordingId) && recordingId > 0)
                                 {
                                     ProgramObj programObject = obj as ProgramObj;
                                     RecordingObj recordingObject = new RecordingObj()
@@ -1596,10 +1596,14 @@ namespace Core.Catalog
 
                                     result.Add(recordingObject);
                                 }
+                                else
+                                {
+                                    result.Add(obj);
+                                }
                             }
                             else
                             {
-                                result.Add(mappedAssets[key]);
+                                result.Add(obj);
                             }
                         }
                         // support for TVPAPI (returns empty object for assets that don't exist)
