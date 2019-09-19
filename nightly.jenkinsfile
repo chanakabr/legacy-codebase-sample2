@@ -94,7 +94,8 @@ pipeline {
                         job: 'Phoenix-Clients', 
                         parameters: [
                             [$class: 'StringParameterValue', name: 'phoenix_version', value: phoenixVersion],
-                            [$class: 'BooleanParameterValue', name: 'pre_docker', value: true]
+                            [$class: 'BooleanParameterValue', name: 'pre_docker', value: true],
+							[$class: 'StringParameterValue', name: 'libraries', value: 'csharp,java,node'],
                         ]
                     )
                 }
