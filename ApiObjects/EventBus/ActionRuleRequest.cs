@@ -33,5 +33,10 @@ namespace ApiObjects.EventBus
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(GroupId)}={GroupId}, {nameof(RuleIds)}={RuleIds}, {nameof(ActionType)}={ActionType}, {nameof(ETA)}={ETA}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

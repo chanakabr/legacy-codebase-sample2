@@ -33,5 +33,10 @@ namespace ApiObjects.EventBus
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(UserAction)}={UserAction}, {nameof(Udid)}={Udid}, {nameof(pushToken)}={pushToken}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

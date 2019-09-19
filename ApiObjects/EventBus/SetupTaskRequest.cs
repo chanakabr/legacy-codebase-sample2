@@ -33,5 +33,11 @@ namespace ApiObjects.EventBus
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(GroupID)}={GroupID}, {nameof(Mission)}={Mission}, {nameof(DynamicData)}={DynamicData}, {nameof(GroupId)}={GroupId}," +
+                $" {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

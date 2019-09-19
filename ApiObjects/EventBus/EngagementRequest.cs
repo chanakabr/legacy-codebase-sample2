@@ -18,5 +18,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("engagement_bulk_id")]
         public int EngagementBulkId { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(StartTime)}={StartTime}, {nameof(EngagementId)}={EngagementId}, {nameof(EngagementBulkId)}={EngagementBulkId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

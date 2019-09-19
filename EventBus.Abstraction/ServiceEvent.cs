@@ -18,7 +18,27 @@ namespace EventBus.Abstraction
 
         public override string ToString()
         {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this).ToString();
+            try
+            {
+                return $"groupId {GroupId} requestId {RequestId} eventName: {GetEventName(this.GetType())}";
+            }
+            catch
+            {
+                return base.ToString();
+            }
+        }
+
+        public string ToJSON()
+        {
+            try
+            {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(this).ToString();
+            }
+            catch (Exception ex)
+            {
+                return $"Could not serialize object: {ex}";
+            }
+            }
         }
     }
 }

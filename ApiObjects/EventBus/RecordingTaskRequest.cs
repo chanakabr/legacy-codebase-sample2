@@ -45,5 +45,10 @@ namespace ApiObjects.EventBus
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(Task)}={Task}, {nameof(ProgramId)}={ProgramId}, {nameof(RecordingId)}={RecordingId}, {nameof(EpgStartDate)}={EpgStartDate}, {nameof(MaxDomainSeriesId)}={MaxDomainSeriesId}, {nameof(ETA)}={ETA}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

@@ -59,5 +59,10 @@ namespace ApiObjects.EventBus
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(BillingGuid)}={BillingGuid}, {nameof(SiteGuid)}={SiteGuid}, {nameof(PurchaseId)}={PurchaseId}, {nameof(EndDate)}={EndDate}, {nameof(Type)}={Type}, {nameof(HouseholdId)}={HouseholdId}, {nameof(ProcessId)}={ProcessId}, {nameof(ETA)}={ETA}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

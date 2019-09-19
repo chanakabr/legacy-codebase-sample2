@@ -65,5 +65,10 @@ namespace ApiObjects.EventBus
             get;
             set;
         }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(DocumentIDs)}={string.Join(",", DocumentIDs)}, {nameof(Action)}={Action}, {nameof(Type)}={Type}, {nameof(SwitchIndexAlias)}={SwitchIndexAlias}, {nameof(DeleteOldIndices)}={DeleteOldIndices}, {nameof(StartDate)}={StartDate}, {nameof(EndDate)}={EndDate}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

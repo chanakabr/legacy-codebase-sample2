@@ -16,5 +16,10 @@ namespace ApiObjects.EventBus
         
         [JsonProperty("domain_id")]
         public int DomainId { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(Task)}={Task}, {nameof(DomainId)}={DomainId}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

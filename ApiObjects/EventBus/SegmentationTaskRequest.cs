@@ -25,6 +25,11 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("total_message_count")]
         public int TotalMessageCount { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(TaskType)}={TaskType}, {nameof(UsersSegments)}={UsersSegments}, {nameof(SegmentAffectedUsers)}={SegmentAffectedUsers}, {nameof(ProcessId)}={ProcessId}, {nameof(MessageCount)}={MessageCount}, {nameof(TotalMessageCount)}={TotalMessageCount}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 
     public enum SegmentationTaskType

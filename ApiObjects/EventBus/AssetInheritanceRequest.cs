@@ -19,5 +19,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("type")]
         public InheritanceType? Type { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(GroupId)}={GroupId}, {nameof(Data)}={Data}, {nameof(UserId)}={UserId}, {nameof(Type)}={Type}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

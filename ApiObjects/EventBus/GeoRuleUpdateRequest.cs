@@ -25,5 +25,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("update_ksql")]
         public bool UpdateKsql { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(AssetRuleId)}={AssetRuleId}, {nameof(CountriesToRemove)}={string.Join(",", CountriesToRemove)}, {nameof(RemoveBlocked)}={RemoveBlocked}, {nameof(RemoveAllowed)}={RemoveAllowed}, {nameof(UpdateKsql)}={UpdateKsql}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

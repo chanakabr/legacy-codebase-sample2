@@ -28,5 +28,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("media_type")]
         public ApiObjects.eMediaType MediaType { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(ImageId)}={ImageId}, {nameof(Version)}={Version}, {nameof(SourcePath)}={SourcePath}, {nameof(RowId)}={RowId}, {nameof(ImageServerUrl)}={ImageServerUrl}, {nameof(MediaType)}={MediaType}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

@@ -16,5 +16,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("version")]
         public string Version { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(TaskId)}={TaskId}, {nameof(Version)}={Version}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }

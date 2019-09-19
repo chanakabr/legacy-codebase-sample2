@@ -20,5 +20,10 @@ namespace ApiObjects.EventBus
 
         [JsonProperty("type")]
         public MessageAnnouncementRequestType? Type { get; set; }
+
+        public override string ToString()
+        {
+            return $"{{{nameof(StartTime)}={StartTime}, {nameof(MessageAnnouncementId)}={MessageAnnouncementId}, {nameof(Type)}={Type}, {nameof(ETA)}={ETA}, {nameof(GroupId)}={GroupId}, {nameof(RequestId)}={RequestId}, {nameof(UserId)}={UserId}}}";
+        }
     }
 }
