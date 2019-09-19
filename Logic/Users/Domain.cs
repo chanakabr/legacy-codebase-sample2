@@ -30,7 +30,7 @@ namespace Core.Users
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_USER_TASK\\{0}";
-        
+
         //Name of the Domain       
         public string m_sName;
 
@@ -130,7 +130,7 @@ namespace Core.Users
         [XmlIgnore]
         [JsonProperty()]
         public LimitationsManager m_oLimitationsManager { get; protected set; }
-        
+
         [JsonProperty()]
         public int m_nRegion;
 
@@ -349,7 +349,7 @@ namespace Core.Users
                     Quantity = limitationsManager.Quantity,
                     NextActionFreqDate = nextAction
                 };
-                
+
                 npvrQuotaInSecs = limitationsManager.npvrQuotaInSecs;
 
                 if (m_deviceFamilies == null)
@@ -360,17 +360,17 @@ namespace Core.Users
                 {
                     DeviceFamiliesMapping = new Dictionary<int, DeviceContainer>();
                 }
-                
+
                 if (limitationsManager.lDeviceFamilyLimitations != null)
                 {
                     m_oLimitationsManager.lDeviceFamilyLimitations = limitationsManager.lDeviceFamilyLimitations;
 
                     foreach (DeviceFamilyLimitations currDeviceFamilyLimitations in m_oLimitationsManager.lDeviceFamilyLimitations)
                     {
-                        DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyLimitations.deviceFamily, 
-                                                                                  currDeviceFamilyLimitations.deviceFamilyName, 
-                                                                                  currDeviceFamilyLimitations.quantity, 
-                                                                                  currDeviceFamilyLimitations.concurrency, 
+                        DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyLimitations.deviceFamily,
+                                                                                  currDeviceFamilyLimitations.deviceFamilyName,
+                                                                                  currDeviceFamilyLimitations.quantity,
+                                                                                  currDeviceFamilyLimitations.concurrency,
                                                                                   currDeviceFamilyLimitations.Frequency);
 
                         this.InitDeviceFamily(currDeviceContainer, currDeviceFamilyLimitations.deviceFamily);
@@ -410,7 +410,7 @@ namespace Core.Users
             {
                 bool bInitialize = Initialize(out npvrQuotaInSecs, oLimitationsManager, nextAction);
             }
-            
+
             return npvrQuotaInSecs;
         }
 
@@ -442,7 +442,7 @@ namespace Core.Users
             {
                 m_nRegion = regionId.Value;
             }
-            
+
             this.MasterGuID = masterGuID;
 
             // Pending - until proved otherwise
@@ -469,7 +469,7 @@ namespace Core.Users
                 return null;
             }
         }
-        
+
         public DomainResponseStatus Remove()
         {
             this.removeResponse = DomainResponseStatus.UnKnown;
@@ -478,7 +478,7 @@ namespace Core.Users
 
             return this.removeResponse;
         }
-        
+
         /// <summary>
         /// Remove User from the Domain
         /// </summary>
@@ -825,7 +825,7 @@ namespace Core.Users
             int nDeviceID = 0;
 
             //BEO-4478
-            if (!forceRemove && 
+            if (!forceRemove &&
                 m_DomainStatus == DomainStatus.DomainSuspended &&
                 (roleId == 0 || (m_masterGUIDs != null &&
                                     m_masterGUIDs.Count > 0 &&
@@ -1038,7 +1038,7 @@ namespace Core.Users
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Activate/Deactivate device in Domain
         /// </summary>
@@ -1132,7 +1132,7 @@ namespace Core.Users
 
             return domainResponseStatus;
         }
-        
+
         /// <summary>
         /// Add User to the Domain
         /// </summary>
@@ -1503,7 +1503,7 @@ namespace Core.Users
                 return DomainResponseStatus.Error;
             }
         }
-        
+
         public DomainResponseStatus ValidateFrequency(string udid)
         {
             // check if the frequency assigned to the device family is 0 - in that case the device family is excluded from global DLM policy
@@ -1522,7 +1522,7 @@ namespace Core.Users
             {
                 return DomainResponseStatus.LimitationPeriod;
             }
-                
+
             return DomainResponseStatus.OK;
         }
 
@@ -1648,7 +1648,7 @@ namespace Core.Users
             {
                 int currDeviceFamilyId = string.IsNullOrEmpty(currDeviceFamily[0]) ? 0 : Int32.Parse(currDeviceFamily[0]);
                 string currDeviceFamilyName = currDeviceFamily[1];
-                
+
                 int overrideConcurrencyLimit = -1;
                 if (concurrencyOverride != null && concurrencyOverride.Count > 0 && concurrencyOverride.ContainsKey(currDeviceFamilyId))
                 {
@@ -1661,10 +1661,10 @@ namespace Core.Users
                     overrideQuantityLimit = quantityOverride[currDeviceFamilyId];
                 }
 
-                DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyId, 
-                                                                          currDeviceFamilyName, 
-                                                                          overrideQuantityLimit > -1 ? overrideQuantityLimit : m_oLimitationsManager.Quantity, 
-                                                                          overrideConcurrencyLimit > -1 ? overrideConcurrencyLimit : m_oLimitationsManager.Concurrency, 
+                DeviceContainer currDeviceContainer = new DeviceContainer(currDeviceFamilyId,
+                                                                          currDeviceFamilyName,
+                                                                          overrideQuantityLimit > -1 ? overrideQuantityLimit : m_oLimitationsManager.Quantity,
+                                                                          overrideConcurrencyLimit > -1 ? overrideConcurrencyLimit : m_oLimitationsManager.Concurrency,
                                                                           m_oLimitationsManager.Frequency);
 
                 this.InitDeviceFamily(currDeviceContainer, currDeviceFamilyId);
@@ -1809,7 +1809,7 @@ namespace Core.Users
 
             return null;
         }
-        
+
         private void InitDeviceFamilyMapping()
         {
             if (DeviceFamiliesMapping == null)
@@ -1972,13 +1972,13 @@ namespace Core.Users
                         MapUdidToDeviceFamilyId(device.m_deviceUDID, device.m_deviceFamilyID);
                         IncrementDeviceCount(device);
                     }
-                    
+
                     if (bIsActiveInDevices && bIsActiveInDomainsDevices && !domainDevices.ContainsKey(device.m_deviceUDID))
                     {
                         domainDevices.Add(device.m_deviceUDID, device.m_deviceFamilyID);
                     }
                 }
-                
+
                 CatalogDAL.SaveDomainDevices(domainDevices, this.m_nDomainID);
             }
             else
@@ -1997,7 +1997,7 @@ namespace Core.Users
                 }
             }
         }
-        
+
         private bool AddDeviceToContainer(Device device)
         {
             bool res = false;
@@ -2138,15 +2138,15 @@ namespace Core.Users
             {
                 case ValidationType.Concurrency:
                     {
-                        res = DeviceFamiliesMapping != null && 
-                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) && 
+                        res = DeviceFamiliesMapping != null &&
+                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) &&
                             DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedConcurrency();
                         break;
                     }
                 case ValidationType.Quantity:
                     {
-                        res = DeviceFamiliesMapping != null && 
-                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) && 
+                        res = DeviceFamiliesMapping != null &&
+                            DeviceFamiliesMapping.ContainsKey(deviceFamilyId) &&
                             DeviceFamiliesMapping[deviceFamilyId].IsUnlimitedQuantity();
                         break;
                     }
@@ -2673,12 +2673,12 @@ namespace Core.Users
 
             return (new DomainResponseObject(this, DomainResponseStatus.UnKnown));
         }
-        
+
         private bool IsDomainRemovedSuccessfully(int statusRes)
         {
             return statusRes == 2;
         }
-        
+
         /// <summary>
         /// This method get NPVRConcurrencyLimit (int) , domain and npvrID
         /// Get from CB all media play at the last 
@@ -2702,10 +2702,10 @@ namespace Core.Users
                         CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices((int)domainId, this.m_nGroupID),
                                                      new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
                                                      Utils.CONCURRENCY_MILLISEC_THRESHOLD, udid);
-                    
+
                     if (devicePlayDataList != null)
                     {
-                        int mediaConcurrencyCount = devicePlayDataList.Count(c => 
+                        int mediaConcurrencyCount = devicePlayDataList.Count(c =>
                             c.NpvrId == npvr &&
                             DateUtils.UtcUnixTimestampSecondsToDateTime(c.TimeStamp).AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow);
                         if (mediaConcurrencyCount >= npvrConcurrencyLimit)
@@ -2724,7 +2724,7 @@ namespace Core.Users
                 throw;
             }
         }
-        
+
         internal void SetDeviceFamiliesMapping(List<DeviceContainer> dc)
         {
             this.m_deviceFamilies = dc;
@@ -2979,12 +2979,6 @@ namespace Core.Users
                 {
                     m_DomainStatus = DomainStatus.Error;
                 }
-                else
-                {
-                    DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain(m_nDomainID);
-                    InvalidateDomain();
-                }
 
                 result &= updateInfoResult;
             }
@@ -2996,6 +2990,12 @@ namespace Core.Users
                 result &= suspendUpdateSuccess;
             }
 
+            if (result)
+            {
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(m_nDomainID);
+                InvalidateDomain();
+            }
             return result;
         }
 

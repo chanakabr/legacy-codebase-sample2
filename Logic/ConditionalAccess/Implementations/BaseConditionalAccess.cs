@@ -9989,6 +9989,14 @@ namespace Core.ConditionalAccess
                             result.Message = "Cancellation is blocked for this subscription";
                             return result;
                         }
+
+                        if (subscriptionToCancel.PreSaleDate.HasValue)
+                        {
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this seasonal-pass subscription";
+                            return result;
+                        }
+
                     }
 
                     // Check if within cancellation window

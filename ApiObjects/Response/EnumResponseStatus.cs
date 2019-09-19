@@ -354,7 +354,7 @@ namespace ApiObjects.Response
         RegionNotFound = 5066,
         RegionCannotBeParent = 5067,
         DefaultRegionCannotBeDeleted = 5068,
-        RegionInUseCannotBeDeleted = 5069,
+        CannotDeleteRegionInUse = 5069,
         #endregion
 
         #region Billing 6000 - 6999

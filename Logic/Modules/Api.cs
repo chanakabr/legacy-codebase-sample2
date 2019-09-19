@@ -2127,8 +2127,7 @@ namespace Core.Api
 
             try
             {
-                int totalCount;
-                result.Objects = UserSegment.List(groupId, userId, pageIndex, pageSize, out totalCount);
+                result.Objects = UserSegment.List(groupId, userId, pageIndex, pageSize, out int totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

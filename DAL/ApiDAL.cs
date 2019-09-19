@@ -24,6 +24,7 @@ namespace DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
+        private const eCouchbaseBucket EVENT_NOTIFICATION_ACTION_BUCKET = eCouchbaseBucket.SOCIAL;
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
@@ -6058,7 +6059,7 @@ namespace DAL
             if (eventNotificationAction != null)
             {
                 string key = GetEventNotificationActionIdKey(groupId, eventNotificationAction.Id);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL,key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
+                return UtilsDal.SaveObjectInCB(EVENT_NOTIFICATION_ACTION_BUCKET, key, eventNotificationAction, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;
@@ -6079,7 +6080,7 @@ namespace DAL
             if (!string.IsNullOrEmpty(id))
             {
                 string key = GetEventNotificationActionIdKey(groupId, id);
-                return UtilsDal.GetObjectFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, key, true);
+                return UtilsDal.GetObjectFromCB<EventNotificationAction>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
             }
 
             return null;
@@ -6095,7 +6096,7 @@ namespace DAL
                     keys.Add(GetEventNotificationActionIdKey(groupId, id));
                 }
 
-                return UtilsDal.GetObjectListFromCB<EventNotificationAction>(eCouchbaseBucket.SOCIAL, keys, true);
+                return UtilsDal.GetObjectListFromCB<EventNotificationAction>(EVENT_NOTIFICATION_ACTION_BUCKET, keys, true);
             }
 
             return null;
@@ -6104,7 +6105,7 @@ namespace DAL
         public static List<string> GetEventNotificationActionCB(int groupId,string objectType, long objectId)
         {
             string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
-            return UtilsDal.GetObjectFromCB<List<string>>(eCouchbaseBucket.SOCIAL, key, true);
+            return UtilsDal.GetObjectFromCB<List<string>>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
         }
 
         public static bool SaveEventNotificationActionTypeAndIdCB(int groupId, string objectType, long objectId, List<string> eventNotificationActionIds)
@@ -6112,7 +6113,7 @@ namespace DAL
             if (eventNotificationActionIds.Count > 0)
             {
                 string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.SOCIAL, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
+                return UtilsDal.SaveObjectInCB(EVENT_NOTIFICATION_ACTION_BUCKET, key, eventNotificationActionIds, false, BULK_UPLOAD_CB_TTL);
             }
 
             return false;

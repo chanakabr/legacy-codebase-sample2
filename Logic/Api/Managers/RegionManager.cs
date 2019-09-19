@@ -38,10 +38,10 @@ namespace ApiLogic.Api.Managers
                 // TODO: what if the region is a parent??
 
                 // check if region in use
-                if (!DomainDal.IsRegionInUse(groupId, id))
+                if (DomainDal.IsRegionInUse(groupId, id))
                 {
                     log.Error($"Region in use cannot be deleted. groupId:{groupId}, id:{id}");
-                    return new Status((int)eResponseStatus.Error); ;
+                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted"); 
                 }
 
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
@@ -341,12 +341,14 @@ namespace ApiLogic.Api.Managers
             try
             {
                 string key = LayeredCacheKeys.GetRegionsKey(groupId);
+                List<string> regionsInvalidationKey = new List<string>() { LayeredCacheKeys.GetRegionsInvalidationKey(groupId) };
                 if (!LayeredCache.Instance.Get<RegionsCache>(key,
                                                           ref regionsCache,
                                                           GetAllRegionsDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
                                                           groupId,
-                                                          LayeredCacheKeys.GetRegionsInvalidationKey(groupId)))
+                                                          LayeredCacheConfigNames.GET_GROUP_REGIONS,
+                                                          regionsInvalidationKey))
                 {
                     log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
@@ -565,6 +567,15 @@ namespace ApiLogic.Api.Managers
                                 {
                                     assetId = APILogic.Utils.GetIntSafeVal(row, "media_id");
                                     region.linearChannels.Add(new ApiObjects.KeyValuePair(assetId.ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
+                                }
+                            }
+
+                            foreach (var key in regionsCache.ParentIdsToRegionIdsMapping.Keys)
+                            {
+                                Region parent = regionsCache.Regions[key];
+                                foreach (var item in regionsCache.ParentIdsToRegionIdsMapping[key])
+                                {
+                                    regionsCache.Regions[item].linearChannels = parent.linearChannels;
                                 }
                             }
                         }
