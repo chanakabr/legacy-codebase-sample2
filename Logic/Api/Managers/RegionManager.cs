@@ -341,12 +341,14 @@ namespace ApiLogic.Api.Managers
             try
             {
                 string key = LayeredCacheKeys.GetRegionsKey(groupId);
+                List<string> regionsInvalidationKey = new List<string>() { LayeredCacheKeys.GetRegionsInvalidationKey(groupId) };
                 if (!LayeredCache.Instance.Get<RegionsCache>(key,
                                                           ref regionsCache,
                                                           GetAllRegionsDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
                                                           groupId,
-                                                          LayeredCacheKeys.GetRegionsInvalidationKey(groupId)))
+                                                          LayeredCacheConfigNames.GET_GROUP_REGIONS,
+                                                          regionsInvalidationKey))
                 {
                     log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
