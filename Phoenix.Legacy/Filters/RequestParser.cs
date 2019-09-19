@@ -320,7 +320,7 @@ namespace WebAPI.Filters
                         RequestContext.SetContext(requestParams, currentController, currentAction);
 
                         List<Object> methodParams;
-                        if (currentController == "multirequest")
+                        if (currentController.ToLower() == "multirequest")
                         {
                             methodParams = RequestParsingHelpers.BuildMultirequestActions(requestParams);
                         }
