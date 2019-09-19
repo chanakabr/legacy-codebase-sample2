@@ -318,6 +318,14 @@ namespace WebAPI.Managers
             if (!string.IsNullOrEmpty(appToken.SessionUserId))
             {
                 userId = appToken.SessionUserId;
+                if (domainId == 0)//handle anonymous login ks
+                {
+                    var domainResponse = Core.Domains.Module.GetDomainByUser(groupId, userId);
+                    if (domainResponse != null && domainResponse.Domain != null)
+                    {
+                        domainId = Convert.ToInt32(domainResponse.Domain.m_nDomainID);
+                    }
+                }
             }
 
             // 8. get the group secret by the session type
@@ -360,6 +368,7 @@ namespace WebAPI.Managers
 
             // set udid in payload
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
+            log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
             {
