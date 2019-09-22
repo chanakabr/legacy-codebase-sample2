@@ -194,19 +194,22 @@ namespace WebAPI
             // Perform the actions for this event
             foreach (var action in actions.Values)
             {
+                var cloned = ObjectCopier.Clone(eventWrapper);
+                cloned.Id = Guid.NewGuid().ToString();
+
                 log.DebugFormat("Notification event action: action name = {0}, partner {1}, event type {2}, event action {3}, specific notification is {4}", 
                     action.SystemName, kalturaEvent.PartnerId, objectEvent.Type, actionEvent, action.GetType().ToString());
 
                 var saveEvent = action.SaveEvent.HasValue && action.SaveEvent.Value;
 
-                if (saveEvent && !string.IsNullOrEmpty(eventWrapper.Id))
+                if (saveEvent && !string.IsNullOrEmpty(cloned.Id))
                 {
-                    idsToSave.Add(eventWrapper.Id);
+                    idsToSave.Add(cloned.Id);
                 }
 
                 try
                 {
-                    PerformAction(action, kalturaEvent, eventWrapper, saveEvent, objectEvent.Object?.Id);
+                    PerformAction(action, kalturaEvent, cloned, saveEvent, objectEvent.Object?.Id);
                 }
                 catch (Exception ex)
                 {
@@ -219,7 +222,7 @@ namespace WebAPI
                     {
                         foreach (var handler in action.FailureHandlers)
                         {
-                            PerformAction(action, kalturaEvent, eventWrapper, saveEvent, objectEvent.Object?.Id);
+                            PerformAction(action, kalturaEvent, cloned, saveEvent, objectEvent.Object?.Id);
                         }
                     }
                 }
@@ -239,7 +242,7 @@ namespace WebAPI
 
         #region Protected methods
 
-        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaNotification eventWrapper, bool saveEvent, long? id)
+        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaNotification eventWrapper, bool saveEvent, long? objectId)
         {
             // first check action's status - if it isn't good,
             if (action.Status != 1)
@@ -274,11 +277,11 @@ namespace WebAPI
                 try
                 {
                     action.Handle(kalturaEvent, eventWrapper);
-                    SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
+                    SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.Sent, string.Empty, saveEvent, objectId);
                 }
                 catch (Exception ex)
                 {
-                    SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
+                    SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, objectId);
                     throw ex;
                 }
             }
@@ -303,7 +306,7 @@ namespace WebAPI
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
 
                         action.Handle(kalturaEvent, eventWrapper);
-                        SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.Sent, string.Empty, saveEvent, id);
+                        SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.Sent, string.Empty, saveEvent, objectId);
 
                         log.DebugFormat("Finished async action: action name = {0}, partner {1},  specific notification is {2}",
                             action.SystemName, kalturaEvent.PartnerId, action.GetType().ToString());
@@ -313,7 +316,7 @@ namespace WebAPI
                     {
                         log.ErrorFormat("Error when performing async action. partner {0}, system name {1}, ex = {2}",
                             kalturaEvent.PartnerId, action.SystemName, ex);
-                        SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, id);
+                        SaveEventNotificationAction(eventWrapper, actionType, EventNotificationActionStatus.FailedToSend, ex.Message, saveEvent, objectId);
                     }
                 });
             }
