@@ -78,7 +78,7 @@ namespace WebAPI.Models.General
         [JsonProperty(PropertyName = "Id")]
         [XmlElement(ElementName = "Id", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public string Id => Guid.NewGuid().ToString();
+        public string Id { get; } = Guid.NewGuid().ToString();
     }
 
     [Serializable]
