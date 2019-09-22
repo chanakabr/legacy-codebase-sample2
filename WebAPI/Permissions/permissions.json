@@ -213,6 +213,18 @@
       "users_group": "",
       "friendly_name": "Viewing regions",
       "depends_on_permission_names": "Bouquets"
+    },
+    {
+      "name": "NOTIF_VIEW",
+      "users_group": "",
+      "friendly_name": "View Notifications Setting",
+      "depends_on_permission_names": "Notifications"
+    },
+    {
+      "name": "NOTIF_MNG",
+      "users_group": "",
+      "friendly_name": "Manage Notification Settings",
+      "depends_on_permission_names": "Notifications"
     }
   ]
 }

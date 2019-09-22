@@ -4,7 +4,8 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Notification_SetDevicePushToken",
@@ -16,7 +17,8 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Notification_Register",
@@ -46,7 +48,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Notification_SendPush",
@@ -56,7 +59,8 @@
     },
     {
       "permissions": [
-        "Operator"
+        "Operator",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Notification_SendSms",

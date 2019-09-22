@@ -4,7 +4,9 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "NOTIF_VIEW",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "notificationsSettings_Get",
@@ -16,7 +18,8 @@
       "permissions": [
         "User",
         "Master",
-        "Operator"
+        "Operator",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "notificationsSettings_Update",

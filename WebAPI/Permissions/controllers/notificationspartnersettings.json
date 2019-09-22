@@ -4,7 +4,9 @@
       "permissions": [
         "Anonymous",
         "Master",
-        "Operator"
+        "Operator",
+        "NOTIF_VIEW",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "NotificationsPartnerSettings_Get",
@@ -14,7 +16,8 @@
     },
     {
       "permissions": [
-        "Manager"
+        "Manager",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "notificationsPartnerSettings_Update",

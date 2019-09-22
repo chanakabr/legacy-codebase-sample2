@@ -56,7 +56,8 @@
         "USER_SEG_MNG",
         "TARGET_OFFER_MNG",
         "OPC_PREF_VIEW",
-        "REGION_MNG"
+        "REGION_MNG",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Operator"
@@ -82,7 +83,8 @@
         "GROUP_CONFIG_MNG",
         "OPC_PREF_MNG",
         "MY_USER_MNG",
-        "REGION_MNG"
+        "REGION_MNG",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Manager"
@@ -110,7 +112,8 @@
         "OPC_PREF_MNG",
         "ADMIN_SET_MNG",
         "MY_USER_MNG",
-        "REGION_MNG"
+        "REGION_MNG",
+        "NOTIF_MNG"
       ],
       "excluded_permissions": [],
       "name": "Administrator"
