@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ApiObjects;
-using Core.Catalog;
-using Ingest.Models;
-using Ingest;
+﻿using ApiObjects;
 using ApiObjects.Catalog;
-using System.ServiceModel;
-using KLogMonitor;
-using System.Reflection;
+using Core.Catalog;
 using Ingest.Clients.ClientManager;
 using Ingest.Importers;
+using Ingest.Models;
+using KLogMonitor;
+using System.Reflection;
+using System.ServiceModel;
 
-namespace IngetsNetCore
+namespace Ingest
 {
     public class IngestService : IService
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public BusinessModuleIngestResponse IngestBusinessModules(string username, string password, string xml)
         {
@@ -40,7 +34,7 @@ namespace IngetsNetCore
             }
             else
             {
-                _Logger.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
+                log.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
             }
             return response;
         }
@@ -58,8 +52,8 @@ namespace IngetsNetCore
         [ServiceKnownType(typeof(EpgIngestResponse))]
         public IngestResponse IngestKalturaEpg(IngestRequest request)
         {
-            _Logger.Topic = "EPGIngest";
-            IngestResponse response = IngestController.IngestData(request, eIngestType.KalturaEpg);
+            log.Topic = "EPGIngest";
+            IngestResponse response = (IngestResponse)IngestController.IngestData(request, eIngestType.KalturaEpg);
             return response;
         }
     }
