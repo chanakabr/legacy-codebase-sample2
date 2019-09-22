@@ -233,7 +233,12 @@ namespace Core.Users
 
             return res;
         }
-        
+
+        public bool Save(Int32 nUserID, int groupId)
+        {
+            return Save(nUserID, groupId, false, false);
+        }
+
         public bool Save(Int32 nUserID, int groupId, bool resetFailCount = false, bool updateUserPassword = false)
         {
             int nCountryID = (-1);
