@@ -125,7 +125,7 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
 
-                if (!ApiDAL.UpdateRegion(groupId, region, userId))
+                if (!ApiDAL.UpdateRegion(groupId, regionToUpdate, userId))
                 {
                     log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
                     response.SetStatus(eResponseStatus.Error);
