@@ -29,7 +29,7 @@ namespace ApiLogic.Api.Managers
                     return new Status((int)eResponseStatus.RegionNotFound, "Region was not found");
                 }
 
-                if(region.isDefault)
+                if (region.isDefault)
                 {
                     log.Error($"Default region cannot be deleted. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted");
@@ -41,7 +41,7 @@ namespace ApiLogic.Api.Managers
                 if (DomainDal.IsRegionInUse(groupId, id))
                 {
                     log.Error($"Region in use cannot be deleted. groupId:{groupId}, id:{id}");
-                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted"); 
+                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted");
                 }
 
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
@@ -311,11 +311,11 @@ namespace ApiLogic.Api.Managers
                             var parents = regions.Objects.Where(x => x.parentId == 0).ToList();
                             if (parents?.Count > 0)
                             {
-                                foreach(var region in parents)
+                                foreach (var region in parents)
                                 {
                                     if (region.linearChannels?.Count > 0)
                                     {
-                                        foreach(var kvp in region.linearChannels)
+                                        foreach (var kvp in region.linearChannels)
                                         {
                                             int mediaId = 0;
                                             if (int.TryParse(kvp.key, out mediaId) && mediaId > 0)
@@ -403,7 +403,7 @@ namespace ApiLogic.Api.Managers
         internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
-            
+
             try
             {
                 if (filter.LiveAssetId > 0)
@@ -536,7 +536,7 @@ namespace ApiLogic.Api.Managers
                         Region region;
 
                         if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
-                        {                           
+                        {
                             foreach (DataRow row in ds.Tables[0].Rows)
                             {
                                 region = new Region()
@@ -603,7 +603,9 @@ namespace ApiLogic.Api.Managers
 
         private static List<long> GetLinearChannelsDiff(List<KeyValuePair> originalLinearChannels, List<KeyValuePair> linearChannels)
         {
-            return originalLinearChannels.Select(lc => long.Parse(lc.key)).Except(linearChannels.Select(lc => long.Parse(lc.key))).ToList();
+            return originalLinearChannels.Concat(linearChannels)
+                   .GroupBy(x => x.key).Where(group => group.Count() == 1)
+                   .Select(lc => long.Parse(lc.Key)).ToList();
         }
 
         private static bool ValidateLinearChannelsExist(int groupId, List<KeyValuePair> linearChannels)
