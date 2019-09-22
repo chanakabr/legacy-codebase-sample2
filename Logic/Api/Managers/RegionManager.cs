@@ -279,7 +279,7 @@ namespace ApiLogic.Api.Managers
             try
             {
                 string key = LayeredCacheKeys.GetLinearMediaRegionsKey(groupId);
-                if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsFromDB, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsMap, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                     LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetRegionsInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting GetLinearMediaRegions from LayeredCache, groupId: {0}", groupId);
@@ -293,7 +293,7 @@ namespace ApiLogic.Api.Managers
             return res;
         }
 
-        private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsFromDB(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsMap(Dictionary<string, object> funcParams)
         {
             bool res = false;
             Dictionary<long, List<int>> result = new Dictionary<long, List<int>>();
@@ -305,20 +305,31 @@ namespace ApiLogic.Api.Managers
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
-                        var dt = ApiDAL.GetMediaRegions(groupId.Value);
-                        if (dt != null && dt.Rows != null)
+                        var regions = GetRegions(groupId.Value, new RegionFilter());
+                        if (regions != null && regions.HasObjects())
                         {
-                            foreach (DataRow row in dt.Rows)
+                            var parents = regions.Objects.Where(x => x.parentId == 0).ToList();
+                            if (parents?.Count > 0)
                             {
-                                long linearChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "MEDIA_ID");
-                                int regionId = ODBCWrapper.Utils.GetIntSafeVal(row, "REGION_ID");
-
-                                if (!result.ContainsKey(linearChannelId))
+                                foreach(var region in parents)
                                 {
-                                    result.Add(linearChannelId, new List<int>());
-                                }
+                                    if (region.linearChannels?.Count > 0)
+                                    {
+                                        foreach(var kvp in region.linearChannels)
+                                        {
+                                            int mediaId = 0;
+                                            if (int.TryParse(kvp.key, out mediaId) && mediaId > 0)
+                                            {
+                                                if (!result.ContainsKey(mediaId))
+                                                {
+                                                    result.Add(mediaId, new List<int>());
+                                                }
 
-                                result[linearChannelId].Add(regionId);
+                                                result[mediaId].Add(region.id);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
