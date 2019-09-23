@@ -8,8 +8,8 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_7', description: 'Pre-Prod Target Version Folder')
-        string(name: 'config_version_folder_name', defaultValue: 'v5_2_7', description: 'Configuration folder name from Configuration Repo')
+        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_2_6', description: 'Configuration folder name from Configuration Repo')
         booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
 
     }
@@ -52,7 +52,20 @@ pipeline {
                         )
                 }
             }        
-        }        
+        }
+        stage("Generate KalturaClient.xml"){
+            steps { 
+                dir("tvpapi_rest"){
+                    dir("Generator"){
+                        bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4 /nr:false")
+                        dir("bin/Release/netcoreapp2.0"){
+                            bat ("dotnet Generator.dll")
+                            bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\tvpapi_rest\\clientlibs\\")
+                        }
+                    }
+                }
+            }
+        }
         stage("Patch Config Files"){
             steps{
                 dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\Kaltura_OTT_API\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /Y"}
@@ -68,6 +81,25 @@ pipeline {
                     bat "(robocopy . \\\\Tvpapic1\\ott\\kaltura_ott_api\\${params.version_folder_name} /E /NFL /NDL /MIR) ^& IF %ERRORLEVEL% GEQ 8 exit %ERRORLEVEL%"
                 }
             }
-        }        
+        }
+        stage("Generate Clients"){
+            steps{
+                script {
+                    def phoenixVersion = params.version_folder_name.replaceAll('_', ".")
+                    phoenixVersion = phoenixVersion.replaceAll('v', "")
+                    phoenixVersion = "${phoenixVersion}.0"
+                    echo "version for client libs generator: ${phoenixVersion}"
+                    
+                    build(
+                        job: 'Phoenix-Clients', 
+                        parameters: [
+                            [$class: 'StringParameterValue', name: 'phoenix_version', value: phoenixVersion],
+                            [$class: 'BooleanParameterValue', name: 'pre_docker', value: true],
+							[$class: 'StringParameterValue', name: 'libraries', value: 'csharp,java,node'],
+                        ]
+                    )
+                }
+            }
+        }
     }
 }

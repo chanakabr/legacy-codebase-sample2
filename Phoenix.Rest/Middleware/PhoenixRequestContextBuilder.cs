@@ -194,7 +194,7 @@ namespace Phoenix.Rest.Middleware
             {
                 return await ParseFormDataBody(request);
             }
-            else if (request.ContentType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+            else if (request.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase))
             {
                 return await ParseJsonBody(request);
             }
