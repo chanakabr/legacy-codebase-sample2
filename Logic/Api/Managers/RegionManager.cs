@@ -429,8 +429,8 @@ namespace ApiLogic.Api.Managers
 
                     if (filter.RegionIds?.Count > 0)
                     {
-                        result.Objects = regionsCache.Regions.Values.ToList();
-                        result.TotalItems = regionsCache.Regions.Count;
+                        result.Objects = regionsCache.Regions.Where(r => filter.RegionIds.Contains(r.Key)).Select(r => r.Value).ToList();
+                        result.TotalItems = result.Objects.Count;
                     }
                     else if (filter.ExternalIds?.Count > 0)
                     {
