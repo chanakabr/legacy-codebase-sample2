@@ -40,7 +40,6 @@ namespace Core.Catalog
             var programsByDate = programResults.GroupBy(p => p.StartDate.Date);
             var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
 
-
             var bulkUploadIngestEvents = programsByDate.Select(p => new BulkUploadIngestEvent
             {
                 BulkUploadId = bulkUpload.Id,

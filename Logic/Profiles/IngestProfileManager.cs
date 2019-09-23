@@ -99,7 +99,7 @@ namespace Core.Profiles
             var response = new GenericResponse<IngestProfile>();
             try
             {
-                var profile = ApiDAL.GetIngestProfilesByProfileId(profileId.Value).FirstOrDefault();
+                var profile = ApiDAL.GetIngestProfilesByProfileId(profileId.Value).FirstOrDefault(profileItem => profileItem.GroupId.Equals(groupId));
                 if (profile == null)
                 {
                     response.SetStatus(eResponseStatus.IngestProfileNotExists);
