@@ -341,8 +341,6 @@
       <DependentUpon>domains.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="WS_Modules\INotificationService.cs" />
-    <Compile Include="WS_Modules\Iservice.cs" />
     <Compile Include="WS_Modules\notification.svc.cs">
       <DependentUpon>notification.svc</DependentUpon>
     </Compile>

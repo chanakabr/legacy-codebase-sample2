@@ -16235,6 +16235,98 @@
             A list of UserInterests
             </summary>
         </member>
+        <member name="M:WebAPI.WebServices.CatalogService.UpdateChannelIndex(System.Collections.Generic.List{System.Int32},System.Int32,ApiObjects.eAction)">
+            <summary>
+            Updates channel index AND CACHE as well
+            </summary>
+            <param name="channelIds"></param>
+            <param name="groupId"></param>
+            <param name="action"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.WebServices.ISocialService">
+            <summary>
+            Pun intended
+            </summary>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.AddNotificationRequest(System.String,System.String,System.String,ApiObjects.Notification.NotificationTriggerType,System.Int32)">
+            <summary>
+            Add notification request to the db, using NotificationManager object.
+            </summary>
+            <param name="groupID"></param>
+            <param name="userID"></param>
+            <param name="triggerType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.GetDeviceNotifications(System.String,System.String,System.String,System.String,ApiObjects.Notification.NotificationMessageType,ApiObjects.Notification.NotificationMessageViewStatus,System.Nullable{System.Int32})">
+            <summary>
+            Get Device Notification
+            </summary>
+            <param name="nGroupID"></param>
+            <param name="nUserID"></param>
+            <param name="sDeviceUDID"></param>
+            <param name="status"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.AddMessageAnnouncement(System.String,System.String,ApiObjects.Notification.MessageAnnouncement)">
+            <summary>
+            Add a Message Announcement to DB and send to rabbit.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.SendMessageAnnouncement(System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Sends a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.SendMessageReminder(System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Sends a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.UpdateMessageAnnouncement(System.String,System.String,System.Int32,ApiObjects.Notification.MessageAnnouncement)">
+            <summary>
+            Updates a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.DeleteAnnouncement(System.String,System.String,System.Int64)">
+            <summary>
+            Deletes an announcement (topic)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.UpdateMessageAnnouncementStatus(System.String,System.String,System.Int64,System.Boolean)">
+            <summary>
+            Updates a Message Announcement status.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.DeleteMessageAnnouncement(System.String,System.String,System.Int64)">
+            <summary>
+            Deletes a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.DeleteAnnouncementsOlderThan(System.String,System.String)">
+            <summary>
+            Deletes announcements (topics) older than partner configured date. 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.NotificationService.DeleteOldReminders(System.String,System.String)">
+            <summary>
+            Deletes reminder (topics) older than yesterday
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.WebServices.SocialService">
+            <summary>
+            Pun intended
+            </summary>
+        </member>
         <member name="M:ObjectsConvertor.Mapping.UsersMappings.ConvertUserAssetsListType(Core.Users.ListType)">
             <summary>
             ListType to KalturaUserAssetsListType

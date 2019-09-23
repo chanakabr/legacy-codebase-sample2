@@ -20,7 +20,13 @@ namespace PermissionsDeployment
         static void Main(string[] args)
         {
             bool result = false;
-            
+
+            //RecursionTest(0);
+
+            //PermissionsManager.PermissionsManager.CBTest();
+
+            //return;
+
             Dictionary<string, string> arguments = ResolveArguments(args);
 
             string fileName = string.Empty;
@@ -89,6 +95,16 @@ namespace PermissionsDeployment
                 Environment.Exit(0);
 
             Environment.Exit(-1);
+        }
+
+        private static void RecursionTest(int index)
+        {
+            if (index < 10)
+            {
+                Console.WriteLine(index);
+                index++;
+                RecursionTest(index);
+            }
         }
 
         private static Dictionary<string, string> ResolveArguments(string[] args)

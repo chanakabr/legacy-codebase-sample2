@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
-using System.ServiceModel.Web;
 using System.Text;
 using ApiObjects.CrowdsourceItems.Base;
-using System.ServiceModel.Activation;
 using ApiObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -14,21 +12,20 @@ using Core.Catalog;
 
 namespace WS_Catalog
 {
-    
-    [ServiceContract(Namespace = "")]
+    [ServiceContract()]
     public interface Iservice
     {
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "InjestAdiData", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "InjestAdiData", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         IngestResponse IngestAdiData(IngestRequest request);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "InjestTvinciData", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "InjestTvinciData", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         IngestResponse IngestTvinciData(IngestRequest request);
 
         [OperationContract]
         [ServiceKnownType(typeof(EpgIngestResponse))]
-        [WebInvoke(Method = "POST", UriTemplate = "IngestKalturaEpg", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "IngestKalturaEpg", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         IngestResponse IngestKalturaEpg(IngestRequest request);
 
         [OperationContract]
@@ -99,73 +96,73 @@ namespace WS_Catalog
         [ServiceKnownType(typeof(AssetCommentsRequest))]
         [ServiceKnownType(typeof(AssetCommentAddRequest))]
         [ServiceKnownType(typeof(ScheduledRecordingsRequest))]
-        [WebInvoke(Method = "POST", UriTemplate = "GetResponse", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "GetResponse", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         BaseResponse GetResponse(BaseRequest request);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "GetMediasByIDs", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "GetMediasByIDs", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         MediaResponse GetMediasByIDs(MediasProtocolRequest mediaRequest);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateChannel", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateChannel", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateChannel(int nGroupId, int nChannelId);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "RemoveChannelFromCache", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "RemoveChannelFromCache", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool RemoveChannelFromCache(int nGroupId, int nChannelId);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateChannelIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateChannelIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "GetProgramsByIDs", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "GetProgramsByIDs", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         [ServiceKnownType(typeof(EpgProgramDetailsRequest))]
         EpgProgramResponse GetProgramsByIDs(EpgProgramDetailsRequest programRequest);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateOperator", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateOperator", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateEpgIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateEpgIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateEpgChannelIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateEpgChannelIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateEpgChannelIndex(List<int> lEpgChannelIds, int nGroupId, eAction eAction);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "RebuildIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "RebuildIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool RebuildIndex(int groupId, eObjectType type, bool switchIndexAlias, bool deleteOldIndices, DateTime? startDate, DateTime? endDate);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "RebuildGroup", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "RebuildGroup", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool RebuildGroup(int nGroupId, bool rebuild);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "GetGroup", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "GetGroup", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         string GetGroup(int nGroupId);
 
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateRecordingsIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "UpdateRecordingsIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "RebuildEpgChannel", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "RebuildEpgChannel", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate, bool duplicates);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "ClearStatistics", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "ClearStatistics", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", UriTemplate = "RebaseIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
+        //[WebInvoke(Method = "POST", UriTemplate = "RebaseIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool RebaseIndex(int groupId, eObjectType type, DateTime startDate);
 
     }
