@@ -437,26 +437,29 @@ namespace Core.ConditionalAccess
                                     #region Renew transaction message in queue
 
                                     bool enqueueSuccessful = true;
-                                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                                    var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                                     {
-                                        GroupId = groupId,
-                                        BillingGuid = billingGuid,
-                                        EndDate = endDateUnix,
-                                        ETA = nextRenewalDate,
-                                        Type = eSubscriptionRenewRequestType.Renew,
-                                        SiteGuid = userId,
-                                        PurchaseId = purchaseID
-                                    };
+                                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                                        {
+                                            GroupId = groupId,
+                                            BillingGuid = billingGuid,
+                                            EndDate = endDateUnix,
+                                            ETA = nextRenewalDate,
+                                            Type = eSubscriptionRenewRequestType.Renew,
+                                            SiteGuid = userId,
+                                            PurchaseId = purchaseID
+                                        };
 
-                                    try
-                                    {
-                                        eventBus.Publish(serviceEvent);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                                        enqueueSuccessful = false;
+                                        try
+                                        {
+                                            eventBus.Publish(serviceEvent);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                                            enqueueSuccessful = false;
+                                        }
                                     }
 
                                     RenewTransactionData data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
@@ -598,29 +601,30 @@ namespace Core.ConditionalAccess
 
             var eta = previousSubsriptionPurchaseDetails.dtEndDate.AddHours(-6);
 
-            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                BillingGuid = string.Empty,
-                EndDate = 0,
-                ETA = eta,
-                Type = eSubscriptionRenewRequestType.Downgrade,
-                SiteGuid = userId,
-                PurchaseId = subscriptionSetModifyDetailsId
-            };
+                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                {
+                    GroupId = groupId,
+                    BillingGuid = string.Empty,
+                    EndDate = 0,
+                    ETA = eta,
+                    Type = eSubscriptionRenewRequestType.Downgrade,
+                    SiteGuid = userId,
+                    PurchaseId = subscriptionSetModifyDetailsId
+                };
 
-            try
-            {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-
-                eventBus.Publish(serviceEvent);
-
-                response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed enqueue of subscription set downgrade scheduled purchase {0}, ex = {1}", serviceEvent, ex);
-                response = new Status((int)eResponseStatus.Error, "Failed to enqueue subscription set downgrade scheduled purchase");
+                try
+                {
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    eventBus.Publish(serviceEvent);
+                    response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed enqueue of subscription set downgrade scheduled purchase {0}, ex = {1}", serviceEvent, ex);
+                    response = new Status((int)eResponseStatus.Error, "Failed to enqueue subscription set downgrade scheduled purchase");
+                }
             }
 
             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -692,26 +696,30 @@ namespace Core.ConditionalAccess
                 else if (nextAttempt <= downgradeDetails.StartDate)
                 {
                     bool enqueueSuccessful = true;
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                    
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        GroupId = groupId,
-                        BillingGuid = string.Empty,
-                        EndDate = 0,
-                        ETA = nextAttempt,
-                        Type = eSubscriptionRenewRequestType.Downgrade,
-                        SiteGuid = downgradeDetails.UserId,
-                        PurchaseId = subscriptionSetModifyDetailsId
-                    };
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                        {
+                            GroupId = groupId,
+                            BillingGuid = string.Empty,
+                            EndDate = 0,
+                            ETA = nextAttempt,
+                            Type = eSubscriptionRenewRequestType.Downgrade,
+                            SiteGuid = downgradeDetails.UserId,
+                            PurchaseId = subscriptionSetModifyDetailsId
+                        };
 
-                    try
-                    {
-                        eventBus.Publish(serviceEvent);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                        enqueueSuccessful = false;
+                        try
+                        {
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                            enqueueSuccessful = false;
+                        }
                     }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -1583,25 +1591,28 @@ namespace Core.ConditionalAccess
 
                     if (eta > DateTime.UtcNow)
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                         {
-                            GroupId = groupId,
-                            BillingGuid = billingGuid,
-                            EndDate = endDateUnix,
-                            ETA = eta,
-                            Type = eSubscriptionRenewRequestType.RenewalReminder,
-                            SiteGuid = siteguid,
-                            PurchaseId = purchaseId
-                        };
+                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                            {
+                                GroupId = groupId,
+                                BillingGuid = billingGuid,
+                                EndDate = endDateUnix,
+                                ETA = eta,
+                                Type = eSubscriptionRenewRequestType.RenewalReminder,
+                                SiteGuid = siteguid,
+                                PurchaseId = purchaseId
+                            };
 
-                        try
-                        {
-                            eventBus.Publish(serviceEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                            try
+                            {
+                                eventBus.Publish(serviceEvent);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                            }
                         }
 
                         if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -1664,25 +1675,29 @@ namespace Core.ConditionalAccess
                         if (eta > DateTime.UtcNow)
                         {
                             var type = data.type == eSubscriptionRenewRequestType.Reminder ? eSubscriptionRenewRequestType.Reminder : eSubscriptionRenewRequestType.RenewalReminder;
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                            
+                            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                             {
-                                GroupId = data.GroupId,
-                                BillingGuid = data.billingGuid,
-                                EndDate = data.endDate,
-                                ETA = data.ETA.Value,
-                                Type = type,
-                                SiteGuid = masterSiteGuid,
-                                PurchaseId = data.purchaseId
-                            };
+                                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                                {
+                                    GroupId = data.GroupId,
+                                    BillingGuid = data.billingGuid,
+                                    EndDate = data.endDate,
+                                    ETA = data.ETA.Value,
+                                    Type = type,
+                                    SiteGuid = masterSiteGuid,
+                                    PurchaseId = data.purchaseId
+                                };
 
-                            try
-                            {
-                                eventBus.Publish(serviceEvent);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed event bus publish of reminder transaction {0} ex = {1} ", data, ex);
+                                try
+                                {
+                                    eventBus.Publish(serviceEvent);
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat("Failed event bus publish of reminder transaction {0} ex = {1} ", data, ex);
+                                }
                             }
 
                             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -1759,26 +1774,29 @@ namespace Core.ConditionalAccess
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
 
             bool enqueueSuccessful = true;
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                BillingGuid = billingGuid,
-                EndDate = endDateUnix,
-                ETA = nextRenewalDate,
-                Type = eSubscriptionRenewRequestType.Renew,
-                SiteGuid = siteguid,
-                PurchaseId = purchaseID
-            };
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                {
+                    GroupId = groupId,
+                    BillingGuid = billingGuid,
+                    EndDate = endDateUnix,
+                    ETA = nextRenewalDate,
+                    Type = eSubscriptionRenewRequestType.Renew,
+                    SiteGuid = siteguid,
+                    PurchaseId = purchaseID
+                };
 
-            try
-            {
-                eventBus.Publish(serviceEvent);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                enqueueSuccessful = false;
+                try
+                {
+                    eventBus.Publish(serviceEvent);
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                    enqueueSuccessful = false;
+                }
             }
 
             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -1851,25 +1869,28 @@ namespace Core.ConditionalAccess
 
                         if (eta > DateTime.UtcNow)
                         {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                             {
-                                GroupId = groupId,
-                                BillingGuid = billingGuid,
-                                EndDate = endDate,
-                                ETA = eta,
-                                Type = eSubscriptionRenewRequestType.GiftCardReminder,
-                                SiteGuid = masterSiteGuid,
-                                PurchaseId = purchaseId
-                            };
+                                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                                {
+                                    GroupId = groupId,
+                                    BillingGuid = billingGuid,
+                                    EndDate = endDate,
+                                    ETA = eta,
+                                    Type = eSubscriptionRenewRequestType.GiftCardReminder,
+                                    SiteGuid = masterSiteGuid,
+                                    PurchaseId = purchaseId
+                                };
 
-                            try
-                            {
-                                eventBus.Publish(serviceEvent);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                                try
+                                {
+                                    eventBus.Publish(serviceEvent);
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                                }
                             }
 
                             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)

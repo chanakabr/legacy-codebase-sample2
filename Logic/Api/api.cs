@@ -8182,15 +8182,18 @@ namespace Core.Api
             try
             {
 
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new ExportRequest()
+                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                 {
-                    GroupId = groupId,
-                    TaskId = taskId,
-                    Version = version
-                };
-
-                eventBus.Publish(serviceEvent);
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ExportRequest()
+                    {
+                        GroupId = groupId,
+                        TaskId = taskId,
+                        Version = version
+                    };
+                
+                    eventBus.Publish(serviceEvent);
+                }
 
                 if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                 {
@@ -9434,25 +9437,30 @@ namespace Core.Api
             {
                 dynamicData.Add("START_DATE", startDate.Value.ToString("yyyyMMddHHmmss"));
             }
-            try
-            {
 
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new SetupTaskRequest()
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            {
+                try
                 {
-                    GroupID = groupId,
-                    Mission = eSetupTask.MigrateStatistics,
-                    DynamicData = dynamicData
-                };
 
-                eventBus.Publish(serviceEvent);
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new SetupTaskRequest()
+                    {
+                        GroupID = groupId,
+                        Mission = eSetupTask.MigrateStatistics,
+                        DynamicData = dynamicData
+                    };
 
-                result = true;
+                    eventBus.Publish(serviceEvent);
+
+                    result = true;
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Failed publishing service event of MigrateStatistics. group id = {groupId}, ex = {ex}");
+                }
             }
-            catch (Exception ex)
-            {
-                log.Error($"Failed publishing service event of MigrateStatistics. group id = {groupId}, ex = {ex}");
-            }
+
 
 
             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -10900,16 +10908,18 @@ namespace Core.Api
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
 
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new ActionRuleRequest()
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        ActionType = RuleActionTaskType.Asset,
-                        GroupId = 0,
-                        ETA = nextExecutionDate
-                    };
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ActionRuleRequest()
+                        {
+                            ActionType = RuleActionTaskType.Asset,
+                            GroupId = 0,
+                            ETA = nextExecutionDate
+                        };
 
-
-                    eventBus.Publish(serviceEvent);
+                        eventBus.Publish(serviceEvent);
+                    }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                     {

@@ -30,18 +30,20 @@ namespace TVinciShared
                     return result;
                 }
 
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new FreeAssetUpdateRequest()
+                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                 {
-                    GroupId = parentGroupId,
-                    asset_ids = assetIDs,
-                    type = type,
-                    ETA = updateIndexDate
-                };
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new FreeAssetUpdateRequest()
+                    {
+                        GroupId = parentGroupId,
+                        asset_ids = assetIDs,
+                        type = type,
+                        ETA = updateIndexDate
+                    };
 
-                eventBus.Publish(serviceEvent);
-
-                log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
+                    eventBus.Publish(serviceEvent);
+                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
+                }
 
                 if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                 {

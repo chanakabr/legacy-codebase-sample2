@@ -473,17 +473,21 @@ namespace Core.Notification
         private static bool AddMessageAnnouncementToQueue(int groupId, MessageAnnouncement announcement)
         {
             bool res = true;
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
-            {
-                GroupId = groupId,
-                MessageAnnouncementId = announcement.MessageAnnouncementId,
-                StartTime = announcement.StartTime,
-                Type = MessageAnnouncementRequestType.MessageAnnoncement,
-                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
-            };
 
-            eventBus.Publish(serviceEvent);
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            {
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
+                {
+                    GroupId = groupId,
+                    MessageAnnouncementId = announcement.MessageAnnouncementId,
+                    StartTime = announcement.StartTime,
+                    Type = MessageAnnouncementRequestType.MessageAnnoncement,
+                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
+                };
+
+                eventBus.Publish(serviceEvent);
+            }
 
             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
             {

@@ -385,17 +385,20 @@ namespace Core.Notification
         {
             bool result = true;
             
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                MessageAnnouncementId = (int)topicNotificationMessageId,
-                StartTime = sendDate,
-                Type = MessageAnnouncementRequestType.TopicNotificationMessage,
-                ETA = DateTime.UtcNow
-            };
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
+                {
+                    GroupId = groupId,
+                    MessageAnnouncementId = (int)topicNotificationMessageId,
+                    StartTime = sendDate,
+                    Type = MessageAnnouncementRequestType.TopicNotificationMessage,
+                    ETA = DateTime.UtcNow
+                };
 
-            eventBus.Publish(serviceEvent);
+                eventBus.Publish(serviceEvent);
+            }
 
             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
             {

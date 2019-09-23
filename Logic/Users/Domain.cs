@@ -555,22 +555,25 @@ namespace Core.Users
                     // GDPR TTV
                     UserSegment.Remove(nUserID.ToString());
 
-                    try
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ApiObjects.EventBus.UserTaskRequest()
+                        try
                         {
-                            GroupId = m_nGroupID,
-                            DomainId = nDomainID,
-                            Task = UserTaskType.Delete,
-                            UserId = nUserID
-                        };
+                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                            var serviceEvent = new ApiObjects.EventBus.UserTaskRequest()
+                            {
+                                GroupId = m_nGroupID,
+                                DomainId = nDomainID,
+                                Task = UserTaskType.Delete,
+                                UserId = nUserID
+                            };
 
-                        eventBus.Publish(serviceEvent);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Failed publishing service event of user task. domain id = {nDomainID} user id = {nUserID} ex = {ex}");
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error($"Failed publishing service event of user task. domain id = {nDomainID} user id = {nUserID} ex = {ex}");
+                        }
                     }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)

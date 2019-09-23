@@ -1097,15 +1097,18 @@ namespace Core.Catalog.CatalogManagement
 
                             try
                             {
-                                AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
+                                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                                 {
-                                    Data = JsonConvert.SerializeObject(data),
-                                    GroupId = groupId,
-                                    Type = InheritanceType.ParentUpdate,
-                                    UserId = userId
-                                };
-                                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                                eventBus.Publish(serviceEvent);
+                                    AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
+                                    {
+                                        Data = JsonConvert.SerializeObject(data),
+                                        GroupId = groupId,
+                                        Type = InheritanceType.ParentUpdate,
+                                        UserId = userId
+                                    };
+                                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                    eventBus.Publish(serviceEvent);
+                                }
 
                                 if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                                 {
@@ -2579,39 +2582,42 @@ namespace Core.Catalog.CatalogManagement
                 return queue.Enqueue(mediaQueueCeleryData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
             }
 
-            var mediaQueueData = new PartialUpdateRequest
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                Assets = new AssetsPartialUpdate()
+                var mediaQueueData = new PartialUpdateRequest
                 {
-                    AssetIds = assetIds,
-                    AssetType = eObjectType.Media,
-                    Updates = new List<PartialUpdate>()
+                    GroupId = groupId,
+                    Assets = new AssetsPartialUpdate()
                     {
-                        new PartialUpdate()
+                        AssetIds = assetIds,
+                        AssetType = eObjectType.Media,
+                        Updates = new List<PartialUpdate>()
                         {
-                            Action = eUpdateFieldAction.Replace,
-                            FieldName = fieldName,
-                            FieldType = eUpdateFieldType.Tag,
-                            LanguageCode = languageCode,
-                            NewValue = newValue,
-                            OriginalValue = originalValue,
-                            ShouldUpdateAllLanguages = false
+                            new PartialUpdate()
+                            {
+                                Action = eUpdateFieldAction.Replace,
+                                FieldName = fieldName,
+                                FieldType = eUpdateFieldType.Tag,
+                                LanguageCode = languageCode,
+                                NewValue = newValue,
+                                OriginalValue = originalValue,
+                                ShouldUpdateAllLanguages = false
+                            }
                         }
-                    }
-                },
-            };
+                    },
+                };
 
-            try
-            {
-                var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                publisher.Publish(mediaQueueData);
-            }
-            catch (Exception e)
-            {
+                try
+                {
+                    var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    publisher.Publish(mediaQueueData);
+                }
+                catch (Exception e)
+                {
 
-                log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", assetIds)}]", e);
-                return false;
+                    log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", assetIds)}]", e);
+                    return false;
+                }
             }
 
             return true;
@@ -2851,33 +2857,35 @@ namespace Core.Catalog.CatalogManagement
 
                 if (needToHandleHeritage)
                 {
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-
-                    InheritanceAssetStructMeta data = new InheritanceAssetStructMeta()
+                    var data = new InheritanceAssetStructMeta()
                     {
                         AssetStructId = assetStructId,
                         MetaId = metaId
                     };
 
-                    try
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
+                        try
                         {
-                            Data = JsonConvert.SerializeObject(data),
-                            GroupId = groupId,
-                            Type = InheritanceType.AssetStructMeta,
-                            UserId = userId
-                        };
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        eventBus.Publish(serviceEvent);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorFormat("Failed enqueue of inheritance {0}. ex ={1}", data, ex);
+                            AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
+                            {
+                                Data = JsonConvert.SerializeObject(data),
+                                GroupId = groupId,
+                                Type = InheritanceType.AssetStructMeta,
+                                UserId = userId
+                            };
+                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed enqueue of inheritance {0}. ex ={1}", data, ex);
+                        }
                     }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                     {
+                        var queue = new QueueWrapper.GenericCeleryQueue();
                         InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
                         bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                     }

@@ -1098,28 +1098,32 @@ namespace APILogic.Notification
                 return res;
             }
 
-
-            var messageReminderData = new MessageInterestRequest
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                MessageInterestId = interestNotificationMessage.Id,
-                StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime),
-                ETA = interestNotificationMessage.SendTime
-            };
+                var messageReminderData = new MessageInterestRequest
+                {
+                    GroupId = groupId,
+                    MessageInterestId = interestNotificationMessage.Id,
+                    StartTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(interestNotificationMessage.SendTime),
+                    ETA = interestNotificationMessage.SendTime
+                };
 
-            try
-            {
-                var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                eventBus.Publish(messageReminderData);
-                log.Debug($"Successfully while inserting interest notification message to queue. Message: {messageReminderData}");
-                return true;
+                try
+                {
+                    var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    eventBus.Publish(messageReminderData);
+                    log.Debug($"Successfully while inserting interest notification message to queue. Message: {messageReminderData}");
+                    return true;
 
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error while inserting interest notification message to queue. Message: {messageReminderData}", ex);
+                    return false;
+                }
             }
-            catch (Exception ex)
-            {
-                log.Error($"Error while inserting interest notification message to queue. Message: {messageReminderData}", ex);
-                return false;
-            }
+
+            return true;
         }
 
         private static bool PushToWeb(int partnerId, int interestMessageId, string routeName, MessageData messageData, long sendTime)

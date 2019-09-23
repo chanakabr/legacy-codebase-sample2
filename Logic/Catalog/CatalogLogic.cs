@@ -3249,16 +3249,19 @@ namespace Core.Catalog
                 }
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new ElasticSearchRequest()
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        GroupId = groupId,
-                        Action = action,
-                        DocumentIDs = ids,
-                        Type = updatedObjectType
-                    };
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ElasticSearchRequest()
+                        {
+                            GroupId = groupId,
+                            Action = action,
+                            DocumentIDs = ids,
+                            Type = updatedObjectType
+                        };
 
-                    eventBus.Publish(serviceEvent);
+                        eventBus.Publish(serviceEvent);
+                    }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                     {
@@ -3328,23 +3331,26 @@ namespace Core.Catalog
 
                 if (groupId > 0)
                 {
-                    try
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ElasticSearchRequest()
+                        try
                         {
-                            GroupId = groupId,
-                            Action = action,
-                            DocumentIDs = ids,
-                            Type = objectType
-                        };
+                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                            var serviceEvent = new ElasticSearchRequest()
+                            {
+                                GroupId = groupId,
+                                Action = action,
+                                DocumentIDs = ids,
+                                Type = objectType
+                            };
 
-                        eventBus.Publish(serviceEvent);
-                        log.Debug($"successfully enqueue of epg upload. ids = {string.Join(",", ids)}");
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Failed enqueue of epg upload. ids = {string.Join(",", ids)}, ex = {ex}");
+                            eventBus.Publish(serviceEvent);
+                            log.Debug($"successfully enqueue of epg upload. ids = {string.Join(",", ids)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error($"Failed enqueue of epg upload. ids = {string.Join(",", ids)}, ex = {ex}");
+                        }
                     }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
@@ -6116,22 +6122,25 @@ namespace Core.Catalog
 
                 if (group != null)
                 {
-                    try
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ElasticSearchRequest()
+                        try
                         {
-                            GroupId = groupId,
-                            Action = eAction.Rebase,
-                            StartDate = date,
-                            Type = type
-                        };
+                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                            var serviceEvent = new ElasticSearchRequest()
+                            {
+                                GroupId = groupId,
+                                Action = eAction.Rebase,
+                                StartDate = date,
+                                Type = type
+                            };
 
-                        eventBus.Publish(serviceEvent);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
+                        }
                     }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)

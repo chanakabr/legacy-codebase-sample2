@@ -1569,26 +1569,31 @@ namespace Core.Notification
                 return res;
             }
 
-            var msg = new MessageReminderRequest
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                MessageReminderId = reminder.ID,
-                StartTime = reminder.SendTime,
-                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime),
-            };
+                var msg = new MessageReminderRequest
+                {
+                    GroupId = groupId,
+                    MessageReminderId = reminder.ID,
+                    StartTime = reminder.SendTime,
+                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime),
+                };
 
-            try
-            {
-                var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                eventBus.Publish(msg);
-                log.Debug($"Successfully inserted a reminder message to reminder queue: {msg}");
-                return true;
+                try
+                {
+                    var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    eventBus.Publish(msg);
+                    log.Debug($"Successfully inserted a reminder message to reminder queue: {msg}");
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Error while inserting reminder {msg} to queue", e);
+                    return false;
+                }
             }
-            catch (Exception e)
-            {
-                log.Error($"Error while inserting reminder {msg} to queue", e);
-                return false;
-            }
+
+            return true;
         }
 
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)

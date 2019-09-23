@@ -1488,18 +1488,21 @@ namespace Core.Api.Managers
                 {
                     assetRule.Status = RuleStatus.InProgress;
 
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new GeoRuleUpdateRequest()
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        GroupId = groupId,
-                        AssetRuleId = assetRule.Id,
-                        CountriesToRemove = countriesToRemove,
-                        RemoveAllowed = removeAllowed,
-                        RemoveBlocked = removeBlocked,
-                        UpdateKsql = updateKsql
-                    };
-
-                    eventBus.Publish(serviceEvent);
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new GeoRuleUpdateRequest()
+                        {
+                            GroupId = groupId,
+                            AssetRuleId = assetRule.Id,
+                            CountriesToRemove = countriesToRemove,
+                            RemoveAllowed = removeAllowed,
+                            RemoveBlocked = removeBlocked,
+                            UpdateKsql = updateKsql
+                        };
+                    
+                        eventBus.Publish(serviceEvent);
+                    }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                     {

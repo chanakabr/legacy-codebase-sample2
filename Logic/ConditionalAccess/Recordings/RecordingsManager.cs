@@ -776,25 +776,28 @@ namespace Core.Recordings
 
         public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task, long maxDomainSeriesId = 0)
         {
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.RecordingTaskRequest()
+            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                GroupId = groupId,
-                EpgStartDate = epgStartDate,
-                ETA = etaTime,
-                MaxDomainSeriesId = maxDomainSeriesId,
-                ProgramId = programId,
-                RecordingId = recordingId,
-                Task = task
-            };
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ApiObjects.EventBus.RecordingTaskRequest()
+                {
+                    GroupId = groupId,
+                    EpgStartDate = epgStartDate,
+                    ETA = etaTime,
+                    MaxDomainSeriesId = maxDomainSeriesId,
+                    ProgramId = programId,
+                    RecordingId = recordingId,
+                    Task = task
+                };
 
-            try
-            {
-                eventBus.Publish(serviceEvent);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
+                try
+                {
+                    eventBus.Publish(serviceEvent);
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
+                }
             }
 
             if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)

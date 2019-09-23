@@ -1047,17 +1047,20 @@ namespace Core.Users
         {
             if (Notification.NotificationSettings.IsNotificationSettingsExistsForPartner(groupId))
             {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new InitiateNotificationActionRequest()
+                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                 {
-                    GroupId = groupId,
-                    pushToken = pushToken,
-                    Udid = udid,
-                    UserAction = userAction,
-                    UserId = userId
-                };
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new InitiateNotificationActionRequest()
+                    {
+                        GroupId = groupId,
+                        pushToken = pushToken,
+                        Udid = udid,
+                        UserAction = userAction,
+                        UserId = userId
+                    };
 
-                eventBus.Publish(serviceEvent);
+                    eventBus.Publish(serviceEvent);
+                }
 
                 if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                 {

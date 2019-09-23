@@ -1953,19 +1953,22 @@ namespace TVinciShared
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new RemoteImageUploadRequest()
+                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                 {
-                    GroupId = parentGroupId,
-                    ImageId = picNewName,
-                    ImageServerUrl = imageServerUrl,
-                    MediaType = mediaType,
-                    RowId = picId,
-                    SourcePath = sourcePath,
-                    Version = version
-                };
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new RemoteImageUploadRequest()
+                    {
+                        GroupId = parentGroupId,
+                        ImageId = picNewName,
+                        ImageServerUrl = imageServerUrl,
+                        MediaType = mediaType,
+                        RowId = picId,
+                        SourcePath = sourcePath,
+                        Version = version
+                    };
 
-                eventBus.Publish(serviceEvent);
+                    eventBus.Publish(serviceEvent);
+                }
 
                 if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                 {

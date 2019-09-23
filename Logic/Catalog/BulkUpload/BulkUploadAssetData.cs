@@ -103,18 +103,21 @@ namespace Core.Catalog
                 var mediaAsset = results[i].Object as MediaAsset;
                 if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new MediaAssetBulkUploadRequest()
+                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        GroupId = bulkUpload.GroupId,
-                        BulkUploadId = bulkUpload.Id,
-                        JobAction = bulkUpload.Action,
-                        ObjectData = mediaAsset,
-                        ResultIndex = i,
-                        UserId = bulkUpload.UpdaterId
-                    };
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new MediaAssetBulkUploadRequest()
+                        {
+                            GroupId = bulkUpload.GroupId,
+                            BulkUploadId = bulkUpload.Id,
+                            JobAction = bulkUpload.Action,
+                            ObjectData = mediaAsset,
+                            ResultIndex = i,
+                            UserId = bulkUpload.UpdaterId
+                        };
 
-                    eventBus.Publish(serviceEvent);
+                        eventBus.Publish(serviceEvent);
+                    }
 
                     if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
                     {
