@@ -21,7 +21,9 @@ namespace IngetsNetCore
         {
             services.TryAddSingleton<WS_Catalog.Iservice, CatalogService>();
             services.TryAddSingleton<WS_Notification.INotificationService, NotificationService>();
-            services.TryAddSingleton<WebAPI.WebServices.ISocialService, SocialService>();
+            services.TryAddSingleton<ISocialService, SocialService>();
+            services.TryAddSingleton<IPricingService, PricingService>();
+
             services.AddMvc();
         }
 
@@ -31,7 +33,8 @@ namespace IngetsNetCore
             app.UseSoapEndpoint<WS_Catalog.Iservice>("/ws_catalog_service.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<WS_Catalog.Iservice>("/catalog.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<WS_Notification.INotificationService>("/notification.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
-            app.UseSoapEndpoint<WebAPI.WebServices.ISocialService>("/ws_social_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<ISocialService>("/ws_social_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IPricingService>("/ws_pricing_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
             app.UseMvc();
         }
