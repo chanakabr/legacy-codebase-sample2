@@ -16484,6 +16484,18 @@
             <param name="action"></param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.WebServices.ConditionalAccessService.Purchase(System.String,System.String,System.String,System.Int64,System.Double,System.String,System.Int32,System.Int32,ApiObjects.eTransactionType,System.String,System.String,System.String,System.Int32,System.Int32,System.String)">
+            Charge a household for specific content utilizing the household’s pre-assigned payment gateway. 
+            Online, one-time charge only of various content types. 
+            Upon successful charge, watch entitlements are granted.
+            siteGUID : User’s household to charge 
+            price : Net sum to charge
+            currency	: Identifier for paying currency, according to ISO 4217
+            contentID : Identifier for the content to purchase. Relevant only if Product type = PPV
+            productID : Identifier for the package from which this content is offered  
+            transactionType : Package type. Possible values: PPV, Subscription, Collection (eTransactionType not include prepaid)
+            coupon :	A valid coupon to apply for this purchase
+        </member>
         <member name="T:WebAPI.WebServices.ISocialService">
             <summary>
             Pun intended
