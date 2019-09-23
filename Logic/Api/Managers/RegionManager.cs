@@ -87,6 +87,16 @@ namespace ApiLogic.Api.Managers
                     }
                 }
 
+                RegionFilter filterParent = new RegionFilter() { ParentId = region.id };
+                var subRegions = GetRegions(groupId, filterParent);
+                if (subRegions != null && subRegions.HasObjects())
+                {
+                    log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, region.id);
+                    response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Sub region cannot be parent");
+                    return response;
+                }
+
+
                 Region parentRegion = null;
                 if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
                 {
