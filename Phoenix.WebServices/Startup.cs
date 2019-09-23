@@ -23,6 +23,7 @@ namespace IngetsNetCore
             services.TryAddSingleton<WS_Notification.INotificationService, NotificationService>();
             services.TryAddSingleton<ISocialService, SocialService>();
             services.TryAddSingleton<IPricingService, PricingService>();
+            services.TryAddSingleton<IApiService, ApiService>();
 
             services.AddMvc();
         }
@@ -34,7 +35,7 @@ namespace IngetsNetCore
             app.UseSoapEndpoint<WS_Catalog.Iservice>("/catalog.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<WS_Notification.INotificationService>("/notification.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<ISocialService>("/ws_social_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
-            app.UseSoapEndpoint<IPricingService>("/ws_pricing_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IApiService>("/api.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
             app.UseMvc();
         }

@@ -16235,6 +16235,246 @@
             A list of UserInterests
             </summary>
         </member>
+        <member name="M:WebAPI.WebServices.ApiService.CheckGeoCommerceBlock(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Check subscription Geo Commerce Block Roule
+            </summary>
+            <param name="sWSUserName">Set web service user name</param>
+            <param name="sWSPassword">Set web service password</param>
+            <param name="SubscriptionGeoCommerceID">set subscription geo commerce roule ID</param>
+            <param name="sIP">set client IP</param>
+            <returns>return true if the enable purchase subscription in spasfic country by IP</returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetParentalRules(System.String,System.String)">
+            <summary>
+            All of the parental rules for the account.
+            Includes specification of what of which is the default rule/s for the account
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetDomainParentalRules(System.String,System.String,System.Int32)">
+            <summary>
+            Gets the parental rules that applies for the domain
+            Includes distinction if rule was defined at account, HH or user level
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetUserParentalRules(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Gets the parental rules that applies for the User.
+            Includes distinction if rule was defined at account, HH or user level
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.SetUserParentalRules(System.String,System.String,System.String,System.Int64,System.Int32,System.Int32)">
+            <summary>
+            Enable or disable a parental rule for the user
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="siteGuid"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.SetDomainParentalRules(System.String,System.String,System.Int32,System.Int64,System.Int32)">
+            <summary>
+            Enable or disable a parental rule for the domain 
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="domainId"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetParentalPIN(System.String,System.String,System.Int32,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Get the parental PIN for the household or user.
+            Includes specification of where the PIN was defined at – account, household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.UpdateParentalPIN(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Set a parental PIN for the household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.SetParentalPIN(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Set a parental PIN for the household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetPurchaseSettings(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Get purchase settings.
+            Includes specification of where these settings were defined – account, household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.SetPurchaseSettings(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <summary>
+            Set purchase settings for the household or user.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="setting"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.UpdatePurchaseSettings(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <summary>
+            Set purchase settings for the household or user.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="setting"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetPurchasePIN(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Get the purchase PIN for the household or user.
+            Includes specification of where the PIN was defined at – household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.UpdatePurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Set purchase pin for household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.SetPurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Set purchase pin for household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.ValidateParentalPIN(System.String,System.String,System.String,System.String,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            Validate that a given parental PIN for a user is valid.
+            Take into account PIN definition hierarchy.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.ValidatePurchasePIN(System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Validate that a given purchase PIN for a user is valid.
+            Take into account PIN definition hierarchy.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetParentalMediaRules(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <summary>
+            Get all the rules that applies for a specific media and a specific user according to the user parental settings.
+            Take into account that rules are hierarchically defined – and get the rules that applies for the user regardless of where the rule was defined
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="mediaId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetParentalEPGRules(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <summary>
+            Get all the rules that applies for a specific EPG and a specific user according to the user parental settings.
+            Take into account that rules are hierarchically defined – and get the rules that applies for the user regardless of where the rule was defined
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="mediaId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.DisableUserDefaultParentalRule(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Disable the default parental rule for the user
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="siteGuid"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.DisableDomainDefaultParentalRule(System.String,System.String,System.Int32)">
+            <summary>
+            Disable the default parental rule for the domain 
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="domainId"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.WebServices.ApiService.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,ApiObjects.GenericRuleOrderBy)">
+            <summary>
+            Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media 
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="mediaId"></param>
+            <param name="ip"></param>
+            <param name="udid"></param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:WebAPI.WebServices.ApiService.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,ApiObjects.GenericRuleOrderBy)" -->
         <member name="M:WebAPI.WebServices.CatalogService.UpdateChannelIndex(System.Collections.Generic.List{System.Int32},System.Int32,ApiObjects.eAction)">
             <summary>
             Updates channel index AND CACHE as well
