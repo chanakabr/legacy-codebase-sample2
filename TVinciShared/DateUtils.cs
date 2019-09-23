@@ -385,7 +385,7 @@ namespace TVinciShared
         public static long StringToUtcUnixTimestampSeconds(string date)
         {
             DateTime parsedDate;
-            if (DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
+            if (DateTime.TryParse(date, null, DateTimeStyles.AdjustToUniversal, out parsedDate))
             {
                 return DateTimeToUtcUnixTimestampSeconds(parsedDate);
             }

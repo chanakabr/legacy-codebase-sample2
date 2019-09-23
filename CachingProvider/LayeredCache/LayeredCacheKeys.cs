@@ -833,11 +833,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyCatalogGroupCache_groupId_{0}", groupId);
         }
 
-        public static string GetLinearMediaRegionsInvalidationKey(int groupId)
-        {
-            return string.Format("invalidationKeyLinearMediaRegions_groupId_{0}", groupId);
-        }
-
         public static string GetGroupDeviceRulesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyGroupDeviceRules_groupId_{0}", groupId);
