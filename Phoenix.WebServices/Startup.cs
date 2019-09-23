@@ -24,6 +24,7 @@ namespace IngetsNetCore
             services.TryAddSingleton<ISocialService, SocialService>();
             services.TryAddSingleton<IPricingService, PricingService>();
             services.TryAddSingleton<IApiService, ApiService>();
+            services.TryAddSingleton<IBillingService, BillingService>();
 
             services.AddMvc();
         }
@@ -36,6 +37,7 @@ namespace IngetsNetCore
             app.UseSoapEndpoint<WS_Notification.INotificationService>("/notification.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<ISocialService>("/ws_social_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<IApiService>("/api.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IBillingService>("/ws_billing_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
             app.UseMvc();
         }
