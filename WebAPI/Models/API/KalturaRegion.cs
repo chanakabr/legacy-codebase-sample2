@@ -26,6 +26,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
+        [SchemeProperty(MinLength = 1)]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -63,7 +65,7 @@ namespace WebAPI.Models.API
         public long ParentId { get; set; }
 
 
-        public void Validate()
+        public void Validate(bool validateRequiredFields = false)
         {
             if (ParentId != 0 && RegionalChannels?.Count > 0)
             {
@@ -73,6 +75,14 @@ namespace WebAPI.Models.API
             if (RegionalChannels?.Count > 0 && RegionalChannels.Select(c => c.LinearChannelId).Distinct().Count() != RegionalChannels.Count)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "linearChannels.linearChannelId");
+            }
+            if (validateRequiredFields && string.IsNullOrEmpty(Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "name");
+            }
+            if (validateRequiredFields && string.IsNullOrEmpty(ExternalId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "externalId");
             }
         }
     }
