@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
         {
             KalturaRegion response = null;
 
-            region.Validate();
+            region.Validate(true);
 
             int groupId = KS.GetFromRequest().GroupId;
             long userId = long.Parse(KS.GetFromRequest().UserId);
