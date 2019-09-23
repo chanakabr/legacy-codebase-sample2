@@ -3096,27 +3096,6 @@ namespace Core.Catalog.CatalogManagement
             return parentAssetsIds;
         }
 
-        public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
-        {
-            Dictionary<long, List<int>> res = null;
-
-            try
-            {
-                string key = LayeredCacheKeys.GetLinearMediaRegionsKey(groupId);
-                if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsFromDB, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                    LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetLinearMediaRegionsInvalidationKey(groupId) }))
-                {
-                    log.ErrorFormat("Failed getting GetLinearMediaRegions from LayeredCache, groupId: {0}", groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetLinearMediaRegions with groupId: {0}", groupId), ex);
-            }
-
-            return res;
-        }
-
         private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsFromDB(Dictionary<string, object> funcParams)
         {
             bool res = false;
