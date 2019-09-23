@@ -1477,7 +1477,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     KalturaLongValue metaValue = meta.Value as KalturaLongValue;
                     metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.DateTime.ToString();
-                    metaToAdd.m_sValue = DateUtils.UtcUnixTimestampSecondsToDateTime(metaValue.value).ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                    metaToAdd.m_sValue = DateUtils.UtcUnixTimestampSecondsToDateTime(metaValue.value).ToString("dd/MM/yyyy HH:mm:ss");
                 }
                 else if (metaType == typeof(KalturaIntegerValue))
                 {
