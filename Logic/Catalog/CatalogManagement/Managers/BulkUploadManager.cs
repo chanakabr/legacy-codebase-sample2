@@ -347,10 +347,11 @@ namespace Core.Catalog.CatalogManagement
             {
                 return objectsListResponse;
             }
+            else
+            {
+                bulkUploadResponse.SetStatus(objectsListResponse.Status);
+            }
 
-            // 0 = {bulkUpload.Id}
-            // 1 = {bulkUploadResponse.Status.Code}
-            // 2 = {bulkUploadResponse.Status.Message}
             var errorMessage = string.Format("Error while trying to deserialize file. bulkUpload.Id:[{0}],  bulkUploadResponse.Status.Code:[{1}] bulkUploadResponse.Status.Message:[{2}].",
                 bulkUpload.Id, bulkUploadResponse.Status.Code, bulkUploadResponse.Status.Message);
             log.Error(errorMessage);
