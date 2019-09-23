@@ -1,4 +1,5 @@
 ﻿using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 
 namespace EventBus.Abstraction
@@ -10,9 +11,28 @@ namespace EventBus.Abstraction
             this.RequestId = KLogger.GetRequestId();
         }
 
+        [JsonProperty("group_id")]
         public int GroupId { get; set; }
+
+        [JsonProperty("req_id")]
         public string RequestId { get; set; }
-        public long UserId { get; set; }
+
+        private long _UserId;
+
+        [JsonProperty("user_id")]
+        public long UserId
+        {
+            get => _UserId;
+            set => _UserId = value;
+        }
+
+        [JsonProperty("site_guid")]
+        public long SiteGuid
+        {
+            get => _UserId;
+            set => _UserId = value;
+        }
+
         public static string GetEventName(Type eventType) => $"{eventType.Namespace}.{eventType.Name}";
         public static string GetEventName(ServiceEvent e) => GetEventName(e.GetType());
 
