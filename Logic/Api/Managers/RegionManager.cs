@@ -415,6 +415,7 @@ namespace ApiLogic.Api.Managers
                     }
                     else
                     {
+                        result.SetStatus(eResponseStatus.RegionNotFound, "Region not found");
                         return result;
                     }
                 }
