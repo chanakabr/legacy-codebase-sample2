@@ -603,9 +603,27 @@ namespace ApiLogic.Api.Managers
 
         private static List<long> GetLinearChannelsDiff(List<KeyValuePair> originalLinearChannels, List<KeyValuePair> linearChannels)
         {
-            return originalLinearChannels.Concat(linearChannels)
-                   .GroupBy(x => x.key).Where(group => group.Count() == 1)
-                   .Select(lc => long.Parse(lc.Key)).ToList();
+            Dictionary<long, int> linearChannelsDic = new Dictionary<long, int>();
+            foreach (var originalLinearChannel in originalLinearChannels)
+            {
+                linearChannelsDic.Add(long.Parse(originalLinearChannel.key), 1);
+            }
+
+            foreach (var linearChannel in linearChannels)
+            {
+                var mediaId = long.Parse(linearChannel.key);
+
+                if (linearChannelsDic.ContainsKey(mediaId))
+                {
+                    linearChannelsDic[mediaId] = 2;
+                }
+                else
+                {
+                    linearChannelsDic.Add(mediaId, 1);
+                }
+            }
+
+            return linearChannelsDic.Where(x => x.Value == 1).Select(y => y.Key).ToList();
         }
 
         private static bool ValidateLinearChannelsExist(int groupId, List<KeyValuePair> linearChannels)
