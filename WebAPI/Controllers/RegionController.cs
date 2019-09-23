@@ -19,6 +19,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RegionNotFound)]
         static public KalturaRegionListResponse List(KalturaRegionFilter filter)
         {
             KalturaRegionListResponse response = null;
@@ -44,6 +45,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.RegionNotFound)]
+        [Throws(eResponseStatus.RegionCannotBeParent)]
         static public KalturaRegion Add(KalturaRegion region)
         {
             KalturaRegion response = null;
@@ -73,6 +77,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RegionNotFound)]
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.RegionCannotBeParent)]
         static public KalturaRegion Update(int id, KalturaRegion region)
         {
             KalturaRegion response = null;
