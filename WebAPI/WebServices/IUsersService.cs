@@ -6,7 +6,7 @@ using Core.Users;
 
 namespace WebAPI.WebServices
 {
-    [ServiceContract(Namespace="http://user.tvinci.com/")]
+    [ServiceContract(Namespace="http://users.tvinci.com/")]
     public interface IUsersService
     {
         [OperationContract]
