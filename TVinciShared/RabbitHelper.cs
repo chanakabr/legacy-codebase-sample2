@@ -30,35 +30,29 @@ namespace TVinciShared
                     return result;
                 }
 
-                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new FreeAssetUpdateRequest()
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new FreeAssetUpdateRequest()
-                    {
-                        GroupId = parentGroupId,
-                        asset_ids = assetIDs,
-                        type = type,
-                        ETA = updateIndexDate
-                    };
+                    GroupId = parentGroupId,
+                    asset_ids = assetIDs,
+                    type = type,
+                    ETA = updateIndexDate
+                };
 
-                    eventBus.Publish(serviceEvent);
-                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
+                eventBus.Publish(serviceEvent);
+                log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
+
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
+                if (enqueueSuccessful)
+                {
+                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
+                    result = true;
                 }
-
-                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                else
                 {
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
-                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
-                    if (enqueueSuccessful)
-                    {
-                        log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
-                        result = true;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed queuing free item index update {0}", data);
-                    }
+                    log.ErrorFormat("Failed queuing free item index update {0}", data);
                 }
             }
             catch (Exception ex)
@@ -71,7 +65,7 @@ namespace TVinciShared
 
         public static bool IsFutureIndexUpdate(DateTime? previousDate, DateTime? currentDate)
         {
-            return currentDate.HasValue 
+            return currentDate.HasValue
                     && (currentDate > DateTime.UtcNow && currentDate.Value <= DateTime.UtcNow.AddYears(2))
                     && (!previousDate.HasValue || currentDate.Value != previousDate.Value);
         }

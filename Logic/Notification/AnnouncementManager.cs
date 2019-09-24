@@ -474,36 +474,30 @@ namespace Core.Notification
         {
             bool res = true;
 
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
             {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
-                {
-                    GroupId = groupId,
-                    MessageAnnouncementId = announcement.MessageAnnouncementId,
-                    StartTime = announcement.StartTime,
-                    Type = MessageAnnouncementRequestType.MessageAnnoncement,
-                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
-                };
+                GroupId = groupId,
+                MessageAnnouncementId = announcement.MessageAnnouncementId,
+                StartTime = announcement.StartTime,
+                Type = MessageAnnouncementRequestType.MessageAnnoncement,
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
+            };
 
-                eventBus.Publish(serviceEvent);
-            }
+            eventBus.Publish(serviceEvent);
 
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            MessageAnnouncementQueue que = new MessageAnnouncementQueue();
+            MessageAnnouncementData messageAnnouncementData = new MessageAnnouncementData(groupId, announcement.StartTime, announcement.MessageAnnouncementId)
             {
-                MessageAnnouncementQueue que = new MessageAnnouncementQueue();
-                MessageAnnouncementData messageAnnouncementData = new MessageAnnouncementData(groupId, announcement.StartTime, announcement.MessageAnnouncementId)
-                {
-                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
-                };
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
+            };
 
-                res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
+            res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
 
-                if (res)
-                    log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
-                else
-                    log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
-            }
+            if (res)
+                log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);
+            else
+                log.ErrorFormat("Error while inserting announcement {0} to queue", messageAnnouncementData);
 
             return res;
         }

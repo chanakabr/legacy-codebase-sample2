@@ -130,7 +130,7 @@ namespace TVinciShared
                 bool isRaw = false;
                 var collIsRaw = coll[nCounter.ToString() + "_raw"];
 
-                if (collIsRaw  != null)
+                if (collIsRaw != null)
                 {
                     bool.TryParse(collIsRaw.ToString(), out isRaw);
                 }
@@ -138,7 +138,7 @@ namespace TVinciShared
                 int duplicate = 1;
                 if (coll[nCounter.ToString() + "_mulFactor"] != null && !string.IsNullOrEmpty(coll[nCounter.ToString() + "_mulFactor"].ToString()))
                 {
-                    duplicate = int.Parse(coll[nCounter.ToString() + "_mulFactor"].ToString());                    
+                    duplicate = int.Parse(coll[nCounter.ToString() + "_mulFactor"].ToString());
                 }
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
                 bool ignore = coll[nCounter.ToString() + "_ignore"] != null ? coll[nCounter.ToString() + "_ignore"].ToLower() == "true" : false;
@@ -210,7 +210,7 @@ namespace TVinciShared
                     if (sType == "int" && sVal != "")
                     {
                         bValid = validateParam("int", sVal, -1, -1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sVal.ToString())*duplicate);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sVal.ToString()) * duplicate);
                     }
                     if (sType == "int" && sVal == "")
                     {
@@ -603,7 +603,7 @@ namespace TVinciShared
             }
             else
             {
-                HttpContext.Current.Session.Set("error_msg","* הנתונים שהוSendו אינם חוקיים או מלאים");
+                HttpContext.Current.Session.Set("error_msg", "* הנתונים שהוSendו אינם חוקיים או מלאים");
             }
             updateQuery.Finish();
             updateQuery = null;
@@ -941,9 +941,9 @@ namespace TVinciShared
                             }
                         }
 
-                        if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" && sCollectionTable != "lu_languages" && 
+                        if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" && sCollectionTable != "lu_languages" &&
                             sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands"
-                            && sCollectionTable != "pricing.dbo.lu_currency" )
+                            && sCollectionTable != "pricing.dbo.lu_currency")
                         {
                             selectQuery1 += " and ";
 
@@ -1440,11 +1440,11 @@ namespace TVinciShared
                     sVal = coll[nCounter.ToString() + "_val"].ToString().Trim();
                 string sVal2 = "";
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
-                
+
                 bool isRaw = false;
                 var collIsRaw = coll[nCounter.ToString() + "_raw"];
 
-                if (collIsRaw  != null)
+                if (collIsRaw != null)
                 {
                     bool.TryParse(collIsRaw.ToString(), out isRaw);
                 }
@@ -1953,39 +1953,32 @@ namespace TVinciShared
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new RemoteImageUploadRequest()
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new RemoteImageUploadRequest()
-                    {
-                        GroupId = parentGroupId,
-                        ImageId = picNewName,
-                        ImageServerUrl = imageServerUrl,
-                        MediaType = mediaType,
-                        RowId = picId,
-                        SourcePath = sourcePath,
-                        Version = version
-                    };
+                    GroupId = parentGroupId,
+                    ImageId = picNewName,
+                    ImageServerUrl = imageServerUrl,
+                    MediaType = mediaType,
+                    RowId = picId,
+                    SourcePath = sourcePath,
+                    Version = version
+                };
 
-                    eventBus.Publish(serviceEvent);
+                eventBus.Publish(serviceEvent);
+
+                var data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
+                var queue = new ImageUploadQueue();
+
+                enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
+
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of image upload {0}", data);
                 }
-
-                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                else
                 {
-                    ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
-
-                    var queue = new ImageUploadQueue();
-
-                    enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
-
-                    if (!enqueueSuccessful)
-                    {
-                        log.ErrorFormat("Failed enqueue of image upload {0}", data);
-                    }
-                    else
-                    {
-                        log.DebugFormat("image upload: data: {0}", data);
-                    }
+                    log.DebugFormat("image upload: data: {0}", data);
                 }
             }
             catch (Exception exc)
@@ -1995,7 +1988,7 @@ namespace TVinciShared
 
             return enqueueSuccessful;
         }
-        
+
         public static Int32 DoTheWork()
         {
             return DoTheWork("");

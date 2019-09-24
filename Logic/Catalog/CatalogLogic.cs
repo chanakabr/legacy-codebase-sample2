@@ -1177,7 +1177,7 @@ namespace Core.Catalog
             }
             return langContainers;
         }
-        
+
         private static string GetWatchPermissionTypeName(int assetGroupId, int watchPermissionRuleId)
         {
             Dictionary<int, string> watchPermissionsTypes = CatalogCache.Instance().GetGroupWatchPermissionsTypes(assetGroupId);
@@ -1994,7 +1994,7 @@ namespace Core.Catalog
                     else
                     {
                         searchObj.m_dAnd = m_dAnd;
-                    }                    
+                    }
                 }
 
                 searchObj.m_bExact = request.m_bExact;
@@ -2079,7 +2079,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             // If this group has regionalization enabled at all
             if (isRegionalizationEnabled)
             {
@@ -2106,7 +2106,7 @@ namespace Core.Catalog
                 }
             }
         }
-        
+
         public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
         {
             int regionId = -1;
@@ -2128,7 +2128,7 @@ namespace Core.Catalog
                 else
                 {
                     Group group = GroupsCache.Instance().GetGroup(groupId);
-                    
+
                     if (group != null && group.defaultRegion != 0)
                     {
                         regionId = group.defaultRegion;
@@ -2472,11 +2472,11 @@ namespace Core.Catalog
                 mediaSearchRequest.m_lMetas = new List<KeyValue>();
                 // metas that are related and shouldn't be ignored
                 if (mediaAsset.Metas != null && mediaAsset.Metas.Count > 0 && mediaAsset.Metas.Any(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
-                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) 
+                                                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                                                     && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                                                     && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated))
                 {
-                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) 
+                    mediaSearchRequest.m_lMetas.AddRange(mediaAsset.Metas.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated)
@@ -2489,7 +2489,7 @@ namespace Core.Catalog
                                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                                                 && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated))
                 {
-                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName) 
+                    List<Tags> mediaRelatedAssetTags = mediaAsset.Tags.Where(x => !metasToIgnore.Contains(x.m_oTagMeta.m_sName)
                                                                             && catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
                                                                             && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType)
                                                                             && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].SearchRelated).ToList();
@@ -3020,12 +3020,12 @@ namespace Core.Catalog
                     watchPermissionRules = new List<string>();
                     DataTable dt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(groupId.Value, lSubGroup);
                     if (dt != null && dt.Rows.Count > 0)
-                    {                        
+                    {
                         foreach (DataRow dr in dt.Rows)
                         {
                             watchPermissionRules.Add(Utils.GetStrSafeVal(dr, "RuleID"));
                         }
-                    }                    
+                    }
                 }
 
                 res = watchPermissionRules != null;
@@ -3039,14 +3039,14 @@ namespace Core.Catalog
         }
 
         private static string GetPermittedWatchRules(int groupId, DataTable extractedPermittedWatchRulesDT)
-        {            
+        {
             List<string> watchPermissionRules = null;
             if (extractedPermittedWatchRulesDT == null)
             {
                 watchPermissionRules = GetGroupPermittedWatchRules(groupId);
             }
             else
-            {                
+            {
                 if (extractedPermittedWatchRulesDT != null && extractedPermittedWatchRulesDT.Rows.Count > 0)
                 {
                     watchPermissionRules = new List<string>();
@@ -3056,7 +3056,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             string sRules = string.Empty;
             if (watchPermissionRules != null && watchPermissionRules.Count > 0)
             {
@@ -3249,31 +3249,25 @@ namespace Core.Catalog
                 }
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ElasticSearchRequest()
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ElasticSearchRequest()
-                        {
-                            GroupId = groupId,
-                            Action = action,
-                            DocumentIDs = ids,
-                            Type = updatedObjectType
-                        };
+                        GroupId = groupId,
+                        Action = action,
+                        DocumentIDs = ids,
+                        Type = updatedObjectType
+                    };
 
-                        eventBus.Publish(serviceEvent);
-                    }
+                    eventBus.Publish(serviceEvent);
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                    {
-                        ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
-                        var queue = new CatalogQueue();
-                        isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
+                    var queue = new CatalogQueue();
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
 
-                        // backward compatibility
-                        var legacyQueue = new CatalogQueue(true);
-                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
-                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
-                    }
+                    // backward compatibility
+                    var legacyQueue = new CatalogQueue(true);
+                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupIdForCelery, updatedObjectType, action);
+                    legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
                 }
 
                 switch (updatedObjectType)
@@ -3331,51 +3325,45 @@ namespace Core.Catalog
 
                 if (groupId > 0)
                 {
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    try
                     {
-                        try
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ElasticSearchRequest()
                         {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ElasticSearchRequest()
-                            {
-                                GroupId = groupId,
-                                Action = action,
-                                DocumentIDs = ids,
-                                Type = objectType
-                            };
+                            GroupId = groupId,
+                            Action = action,
+                            DocumentIDs = ids,
+                            Type = objectType
+                        };
 
-                            eventBus.Publish(serviceEvent);
-                            log.Debug($"successfully enqueue of epg upload. ids = {string.Join(",", ids)}");
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error($"Failed enqueue of epg upload. ids = {string.Join(",", ids)}, ex = {ex}");
-                        }
+                        eventBus.Publish(serviceEvent);
+                        log.Debug($"successfully enqueue of epg upload. ids = {string.Join(",", ids)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed enqueue of epg upload. ids = {string.Join(",", ids)}, ex = {ex}");
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupId,
+                        ids, objectType, action, DateTime.UtcNow);
+
+                    var queue = new CatalogQueue();
+
+                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
+                    if (isUpdateIndexSucceeded)
+                        log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
+                    else
+                        log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
+
+                    // Backward compatibility
+                    if (objectType == eObjectType.EPG)
                     {
-                        ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupId,
-                            ids, objectType, action, DateTime.UtcNow);
+                        var legacyQueue = new CatalogQueue(true);
+                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupId, objectType, action);
+                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
 
-                        var queue = new CatalogQueue();
-
-                        isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
-                        if (isUpdateIndexSucceeded)
-                            log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
-                        else
-                            log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
-
-                        // Backward compatibility
-                        if (objectType == eObjectType.EPG)
-                        {
-                            var legacyQueue = new CatalogQueue(true);
-                            ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupId, objectType, action);
-                            legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
-
-                            // invalidate epg's for OPC and NON-OPC accounts
-                            CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
-                        }
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        CatalogManagement.EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates);
                     }
                 }
             }
@@ -4332,7 +4320,7 @@ namespace Core.Catalog
                                         { "mapping", assetIdToAssetStatsMapping },
                                     };
 
-                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap, 
+                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
                                     ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
 
                                 if (!success)
@@ -4520,7 +4508,7 @@ namespace Core.Catalog
                     {
                         assetIds = funcParams["assetsIds"] as List<int>;
                     }
-                    
+
                     int groupId = Convert.ToInt32(funcParams["groupId"]);
                     StatsType statsType = (StatsType)funcParams["statsType"];
                     Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
@@ -5788,7 +5776,7 @@ namespace Core.Catalog
         /// <param name="defaultUsers"></param>
         /// <param name="usersDictionary"></param>
         /// <returns></returns>
-        internal static AssetBookmarks GetAssetLastPosition(int groupID, string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, 
+        internal static AssetBookmarks GetAssetLastPosition(int groupID, string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users,
                                                             List<int> defaultUsers, Dictionary<string, User> usersDictionary)
         {
             AssetBookmarks response = null;
@@ -6122,36 +6110,30 @@ namespace Core.Catalog
 
                 if (group != null)
                 {
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    try
                     {
-                        try
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ElasticSearchRequest()
                         {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ElasticSearchRequest()
-                            {
-                                GroupId = groupId,
-                                Action = eAction.Rebase,
-                                StartDate = date,
-                                Type = type
-                            };
+                            GroupId = groupId,
+                            Action = eAction.Rebase,
+                            StartDate = date,
+                            Type = type
+                        };
 
-                            eventBus.Publish(serviceEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
-                        }
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                    {
-                        ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
-                            eAction.Rebase, date);
+                    ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
+                        eAction.Rebase, date);
 
-                        var queue = new CatalogQueue();
+                    var queue = new CatalogQueue();
 
-                        result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
-                    }
+                    result = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, type.ToString()));
                 }
             }
             catch (Exception ex)
@@ -6237,7 +6219,7 @@ namespace Core.Catalog
             {
                 return status;
             }
-            
+
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
@@ -7683,7 +7665,7 @@ namespace Core.Catalog
 
             long userId = 0;
             if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
-            {                
+            {
                 UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
             }
 
@@ -8504,9 +8486,9 @@ namespace Core.Catalog
                 // and media will never have 0 media type
                 bool hasZeroMediaType = definitions.mediaTypes != null ? definitions.mediaTypes.Remove(0) : false;
                 bool hasMinusTwentySixMediaType = definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
-                
+
                 // Special case - if no type was specified or "All" is contained, search all types
-                if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) || 
+                if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) ||
                     (!hasZeroMediaType && (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)))
                 {
                     definitions.shouldSearchEpg = true;
@@ -8540,7 +8522,7 @@ namespace Core.Catalog
                         }
                     }
                 }
-                
+
                 // If there are items left in media types after removing 0, we are searching for media
                 if (definitions.mediaTypes.Count > 0)
                 {
@@ -8610,7 +8592,7 @@ namespace Core.Catalog
                 definitions.shouldSearchMedia = true;
 
                 #region Channel Tags
-                
+
                 // If there is at least one tag
                 if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
                 {
@@ -8729,16 +8711,16 @@ namespace Core.Catalog
 
             #region Asset User Rule
 
-            if( channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
+            if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
                 UnifiedSearchDefinitionsBuilder.GetChannelUserAssetRulesPhrase(request, group, ref definitions, groupId, channel.AssetUserRuleId.Value);
             }
 
             long userId = 0;
-            if( long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
-            {                
+            if (long.TryParse(request.m_sSiteGuid, out userId) && userId > 0)
+            {
                 UnifiedSearchDefinitionsBuilder.GetUserAssetRulesPhrase(request, group, ref definitions, groupId, userId);
-            }            
+            }
 
             #endregion
 
@@ -9328,7 +9310,7 @@ namespace Core.Catalog
         {
             log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
 
-            List <WatchHistory> usersWatchHistory = new List<WatchHistory>();
+            List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
             var mediaMarksManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEDIAMARK);
 
             totalItems = 0;
@@ -9351,7 +9333,7 @@ namespace Core.Catalog
                         staleState = CouchbaseManager.ViewStaleState.Ok;
                     }
                 }
-                
+
                 string documentKey = UtilsDal.GetUserAllAssetMarksDocKey(siteGuid);
                 var allUserAssetMarks = mediaMarksManager.Get<UserMediaMarks>(documentKey);
 
@@ -9374,7 +9356,7 @@ namespace Core.Catalog
                 {
                     int recordingId = 0;
                     int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
-                    
+
                     return new WatchHistory()
                     {
                         AssetId = mediaMarkLog.LastMark.AssetID.ToString(),
@@ -9640,7 +9622,7 @@ namespace Core.Catalog
             try
             {
                 object[] obj = null;
-                
+
                 // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
                 if (ApplicationConfiguration.CatalogLogicConfiguration.ShouldAddUserIPToStats.Value)
                 {

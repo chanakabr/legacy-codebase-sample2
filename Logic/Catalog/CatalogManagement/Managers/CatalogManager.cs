@@ -1097,25 +1097,19 @@ namespace Core.Catalog.CatalogManagement
 
                             try
                             {
-                                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                                var serviceEvent = new AssetInheritanceRequest()
                                 {
-                                    AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
-                                    {
-                                        Data = JsonConvert.SerializeObject(data),
-                                        GroupId = groupId,
-                                        Type = InheritanceType.ParentUpdate,
-                                        UserId = userId
-                                    };
-                                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                                    eventBus.Publish(serviceEvent);
-                                }
+                                    Data = JsonConvert.SerializeObject(data),
+                                    GroupId = groupId,
+                                    Type = InheritanceType.ParentUpdate,
+                                    UserId = userId
+                                };
+                                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                eventBus.Publish(serviceEvent);
 
-                                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                                {
-                                    var queue = new GenericCeleryQueue();
-                                    var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
-                                    bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                                }
+                                var queue = new GenericCeleryQueue();
+                                var inheritanceData = new InheritanceData(groupId, InheritanceType.ParentUpdate, JsonConvert.SerializeObject(data), userId);
+                                bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                             }
                             catch
                             {
@@ -2556,16 +2550,15 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool EnqueuePatialUpdateEvent(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> assetIds)
         {
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-            {
-                var queue = new CatalogQueue();
-                var mediaQueueCeleryData = new PartialUpdateData(groupId,
-                   new AssetsPartialUpdate()
+            bool result;
+            var queue = new CatalogQueue();
+            var mediaQueueCeleryData = new PartialUpdateData(groupId,
+               new AssetsPartialUpdate()
+               {
+                   AssetIds = assetIds,
+                   AssetType = eObjectType.Media,
+                   Updates = new List<PartialUpdate>()
                    {
-                       AssetIds = assetIds,
-                       AssetType = eObjectType.Media,
-                       Updates = new List<PartialUpdate>()
-                       {
                             new PartialUpdate()
                             {
                                 Action = eUpdateFieldAction.Replace,
@@ -2576,51 +2569,48 @@ namespace Core.Catalog.CatalogManagement
                                 OriginalValue = originalValue,
                                 ShouldUpdateAllLanguages = false
                             }
-                       }
-                   });
+                   }
+               });
 
-                return queue.Enqueue(mediaQueueCeleryData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
-            }
+            result = queue.Enqueue(mediaQueueCeleryData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
 
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            var mediaQueueData = new PartialUpdateRequest
             {
-                var mediaQueueData = new PartialUpdateRequest
+                GroupId = groupId,
+                Assets = new AssetsPartialUpdate()
                 {
-                    GroupId = groupId,
-                    Assets = new AssetsPartialUpdate()
+                    AssetIds = assetIds,
+                    AssetType = eObjectType.Media,
+                    Updates = new List<PartialUpdate>()
                     {
-                        AssetIds = assetIds,
-                        AssetType = eObjectType.Media,
-                        Updates = new List<PartialUpdate>()
+                        new PartialUpdate()
                         {
-                            new PartialUpdate()
-                            {
-                                Action = eUpdateFieldAction.Replace,
-                                FieldName = fieldName,
-                                FieldType = eUpdateFieldType.Tag,
-                                LanguageCode = languageCode,
-                                NewValue = newValue,
-                                OriginalValue = originalValue,
-                                ShouldUpdateAllLanguages = false
-                            }
+                            Action = eUpdateFieldAction.Replace,
+                            FieldName = fieldName,
+                            FieldType = eUpdateFieldType.Tag,
+                            LanguageCode = languageCode,
+                            NewValue = newValue,
+                            OriginalValue = originalValue,
+                            ShouldUpdateAllLanguages = false
                         }
-                    },
-                };
+                    }
+                },
+            };
 
-                try
-                {
-                    var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    publisher.Publish(mediaQueueData);
-                }
-                catch (Exception e)
-                {
+            try
+            {
+                var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                publisher.Publish(mediaQueueData);
+                result = true;
+            }
+            catch (Exception e)
+            {
 
-                    log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", assetIds)}]", e);
-                    return false;
-                }
+                log.Error($"Error durin publish PartialTagIndexUpdate mediaIds:[{string.Join(",", assetIds)}]", e);
+                result = false;
             }
 
-            return true;
+            return result;
         }
 
         public static Status DeleteTag(int groupId, long tagId, long userId)
@@ -2863,32 +2853,26 @@ namespace Core.Catalog.CatalogManagement
                         MetaId = metaId
                     };
 
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    try
                     {
-                        try
+                        var serviceEvent = new AssetInheritanceRequest()
                         {
-                            AssetInheritanceRequest serviceEvent = new AssetInheritanceRequest()
-                            {
-                                Data = JsonConvert.SerializeObject(data),
-                                GroupId = groupId,
-                                Type = InheritanceType.AssetStructMeta,
-                                UserId = userId
-                            };
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            eventBus.Publish(serviceEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Failed enqueue of inheritance {0}. ex ={1}", data, ex);
-                        }
+                            Data = JsonConvert.SerializeObject(data),
+                            GroupId = groupId,
+                            Type = InheritanceType.AssetStructMeta,
+                            UserId = userId
+                        };
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed enqueue of inheritance {0}. ex ={1}", data, ex);
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                    {
-                        var queue = new QueueWrapper.GenericCeleryQueue();
-                        InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
-                        bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
-                    }
+                    var queue = new QueueWrapper.GenericCeleryQueue();
+                    InheritanceData inheritanceData = new InheritanceData(groupId, InheritanceType.AssetStructMeta, JsonConvert.SerializeObject(data), userId);
+                    bool enqueueSuccessful = queue.Enqueue(inheritanceData, string.Format("PROCESS_ASSET_INHERITANCE\\{0}", groupId));
                 }
             }
             catch (Exception ex)

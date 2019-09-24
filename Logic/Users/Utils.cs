@@ -660,7 +660,7 @@ namespace Core.Users
 
         //    return result;
         //}
-        
+
         public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             var result = new ApiObjects.Response.Status();
@@ -716,7 +716,7 @@ namespace Core.Users
                     result.Message = "User not master approved";
                     break;
                 case ResponseStatus.ErrorOnInitUser:
-                    result.Code = (int)eResponseStatus.ErrorOnInitUser; 
+                    result.Code = (int)eResponseStatus.ErrorOnInitUser;
                     result.Message = "Error on init user";
                     break;
                 case ResponseStatus.UserNotIndDomain:
@@ -777,7 +777,7 @@ namespace Core.Users
 
             return result;
         }
-        
+
         public static ApiObjects.Response.Status ConvertDomainResponseStatusToResponseObject(DomainResponseStatus status)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
@@ -1047,33 +1047,27 @@ namespace Core.Users
         {
             if (Notification.NotificationSettings.IsNotificationSettingsExistsForPartner(groupId))
             {
-                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new InitiateNotificationActionRequest()
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new InitiateNotificationActionRequest()
-                    {
-                        GroupId = groupId,
-                        pushToken = pushToken,
-                        Udid = udid,
-                        UserAction = userAction,
-                        UserId = userId
-                    };
+                    GroupId = groupId,
+                    pushToken = pushToken,
+                    Udid = udid,
+                    UserAction = userAction,
+                    UserId = userId
+                };
 
-                    eventBus.Publish(serviceEvent);
-                }
+                eventBus.Publish(serviceEvent);
 
-                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                {
-                    InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
-                    ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+                InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
+                ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
-                    bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+                bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
 
-                    if (res)
-                        log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-                    else
-                        log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-                }
+                if (res)
+                    log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+                else
+                    log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
             }
         }
 

@@ -34,7 +34,7 @@ namespace Core.Api.Managers
         private const string ASSET_RULE_NOT_EXIST = "Asset rule doesn't exist";
         private const string ASSET_RULE_FAILED_DELETE = "failed to delete Asset rule";
         private const string ASSET_RULE_FAILED_UPDATE = "failed to update Asset rule";
-        
+
         private const int MAX_ASSETS_TO_UPDATE = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -210,7 +210,7 @@ namespace Core.Api.Managers
             }
             else
             {
-                return true; 
+                return true;
             }
 
             if (!string.IsNullOrEmpty(ksqlFilter))
@@ -555,9 +555,9 @@ namespace Core.Api.Managers
             try
             {
                 List<AssetRule> allAssetRules = new List<AssetRule>();
-                
+
                 string allAssetRulesKey = LayeredCacheKeys.GetAllAssetRulesKey(groupId, (int)assetRuleConditionType, ruleActionType.HasValue ? (int)ruleActionType.Value : (int?)null);
-                string allAssetRulesInvalidationKey = groupId != 0 ? 
+                string allAssetRulesInvalidationKey = groupId != 0 ?
                     LayeredCacheKeys.GetAllAssetRulesGroupInvalidationKey(groupId)
                         : LayeredCacheKeys.GetAllAssetRulesInvalidationKey();
 
@@ -577,9 +577,9 @@ namespace Core.Api.Managers
                     log.ErrorFormat("GetAssetRules - GetAllAssetRules - Failed get data from cache. groupId: {0}", groupId);
                     return response;
                 }
-                
+
                 response.Objects = allAssetRules;
-                
+
                 if (slimAsset != null)
                 {
                     List<AssetRule> assetRulesByAsset = new List<AssetRule>();
@@ -622,7 +622,7 @@ namespace Core.Api.Managers
 
                     response.Objects = assetRulesByAsset;
                 }
-                
+
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -633,7 +633,7 @@ namespace Core.Api.Managers
 
             return response;
         }
-        
+
         internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRuleToAdd)
         {
             GenericResponse<AssetRule> response = new GenericResponse<AssetRule>();
@@ -909,7 +909,7 @@ namespace Core.Api.Managers
             {
                 new SlimAsset(epgId, eAssetTypes.NPVR)
             };
-            
+
             if (epgChannelId != 0 && linearMediaId == 0)
             {
                 var linearChannelSettings = EpgManager.GetLinearChannelSettings(groupId, epgChannelId);
@@ -926,10 +926,10 @@ namespace Core.Api.Managers
                 int altStreamingCoID = 0;
                 string fileCoGuid = string.Empty;
 
-                ConditionalAccess.Utils.TryGetFileUrlLinks(groupId, mediaFileId, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID, 
+                ConditionalAccess.Utils.TryGetFileUrlLinks(groupId, mediaFileId, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID,
                                                            ref linearMediaId, ref fileCoGuid);
             }
-            
+
             if (linearMediaId != 0)
             {
                 assetsToCheck.Add(new SlimAsset(linearMediaId, eAssetTypes.MEDIA));
@@ -956,7 +956,7 @@ namespace Core.Api.Managers
                 Headers = headers,
                 Ip = convertedIp
             };
-            log.DebugFormat("CheckNetworkRules - ConditionScope: {0}.",conditionScope.ToString());
+            log.DebugFormat("CheckNetworkRules - ConditionScope: {0}.", conditionScope.ToString());
 
             foreach (var asset in assetsToCheck)
             {
@@ -979,7 +979,7 @@ namespace Core.Api.Managers
                     }
                 }
             }
-            
+
             return new Status((int)eResponseStatus.OK);
         }
 
@@ -1009,7 +1009,7 @@ namespace Core.Api.Managers
                 return group.isGeoAvailabilityWindowingEnabled;
             }
         }
-        
+
         #endregion
 
         #region Private Methods
@@ -1147,7 +1147,7 @@ namespace Core.Api.Managers
                             Parallel.ForEach(assetRulesWithKsql, (currAssetRuleWithKsql) =>
                             {
                                 StringBuilder ksqlFilter = new StringBuilder();
-                                
+
                                 if (eAssetTypes.EPG == slimAsset.Type)
                                 {
                                     ksqlFilter.AppendFormat(string.Format("(and asset_type='epg' epg_id = '{0}' (or", slimAsset.Id));
@@ -1194,7 +1194,7 @@ namespace Core.Api.Managers
 
             return new Tuple<List<AssetRule>, bool>(assetRulesByAsset, assetRulesByAsset != null);
         }
-        
+
         /// <summary>
         /// GetAllAssetRules from DB with no filter
         /// </summary>
@@ -1235,7 +1235,7 @@ namespace Core.Api.Managers
 
             return new Tuple<List<AssetRule>, bool>(assetRules, assetRules != null);
         }
-        
+
         private static void ResetMediaCountries(int groupId, long ruleId)
         {
             DataTable mediaTable = ApiDAL.UpdateMediaCountries(groupId, ruleId);
@@ -1281,7 +1281,7 @@ namespace Core.Api.Managers
                     }
                 }
 
-                foreach(int item in countries)
+                foreach (int item in countries)
                 {
                     if (!result.Contains(item))
                         result.Add(item);
@@ -1447,7 +1447,7 @@ namespace Core.Api.Managers
                 bool updateKsql = false;
 
                 var oldRule = oldRuleResopnse.Object;
-                
+
                 //1. countries
                 HashSet<int> oldCountries = GetRuleCountriesList(groupId, oldRule);
                 HashSet<int> newCountries = GetRuleCountriesList(groupId, assetRule);
@@ -1488,35 +1488,28 @@ namespace Core.Api.Managers
                 {
                     assetRule.Status = RuleStatus.InProgress;
 
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    var serviceEvent = new GeoRuleUpdateRequest()
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new GeoRuleUpdateRequest()
-                        {
-                            GroupId = groupId,
-                            AssetRuleId = assetRule.Id,
-                            CountriesToRemove = countriesToRemove,
-                            RemoveAllowed = removeAllowed,
-                            RemoveBlocked = removeBlocked,
-                            UpdateKsql = updateKsql
-                        };
-                    
-                        eventBus.Publish(serviceEvent);
-                    }
+                        GroupId = groupId,
+                        AssetRuleId = assetRule.Id,
+                        CountriesToRemove = countriesToRemove,
+                        RemoveAllowed = removeAllowed,
+                        RemoveBlocked = removeBlocked,
+                        UpdateKsql = updateKsql
+                    };
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration().Publish(serviceEvent);
+
+                    var queue = new GenericCeleryQueue();
+                    ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id,
+                        countriesToRemove, removeBlocked, removeAllowed, updateKsql)
+                    { ETA = DateTime.UtcNow };
+                    bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
+                    if (!queueGeoRuleUpdateResult)
                     {
-                        GenericCeleryQueue queue = new GenericCeleryQueue();
-                        ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id,
-                            countriesToRemove, removeBlocked, removeAllowed, updateKsql)
-                        { ETA = DateTime.UtcNow };
-                        bool queueGeoRuleUpdateResult = queue.Enqueue(data, string.Format(ROUTING_KEY_GEO_RULE_UPDATE, groupId));
-                        if (!queueGeoRuleUpdateResult)
-                        {
-                            log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
-                        }
+                        log.ErrorFormat("Failed to queue GeoRuleUpdateData, assetRuleId: {0}, groupId: {1}", assetRule.Id, groupId);
                     }
-                }                
+                }
             }
         }
 

@@ -1551,49 +1551,41 @@ namespace Core.Notification
 
         public static bool AddReminderToQueue(int groupId, DbReminder reminder)
         {
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+            var que = new MessageReminderQueue();
+            var messageReminderCeleryData = new MessageReminderData(groupId, reminder.SendTime, reminder.ID)
             {
-                var que = new MessageReminderQueue();
-                var messageReminderCeleryData = new MessageReminderData(groupId, reminder.SendTime, reminder.ID)
-                {
-                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime)
-                };
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime)
+            };
 
-                bool res = que.Enqueue(messageReminderCeleryData, ROUTING_KEY_REMINDERS_MESSAGES);
+            bool res = que.Enqueue(messageReminderCeleryData, ROUTING_KEY_REMINDERS_MESSAGES);
 
-                if (res)
-                    log.DebugFormat("Successfully inserted a reminder message to reminder queue: {0}", messageReminderCeleryData);
-                else
-                    log.ErrorFormat("Error while inserting reminder {0} to queue", messageReminderCeleryData);
+            if (res)
+                log.DebugFormat("Successfully inserted a reminder message to reminder queue: {0}", messageReminderCeleryData);
+            else
+                log.ErrorFormat("Error while inserting reminder {0} to queue", messageReminderCeleryData);
 
-                return res;
+            var msg = new MessageReminderRequest
+            {
+                GroupId = groupId,
+                MessageReminderId = reminder.ID,
+                StartTime = reminder.SendTime,
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime),
+            };
+
+            try
+            {
+                var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                eventBus.Publish(msg);
+                log.Debug($"Successfully inserted a reminder message to reminder queue: {msg}");
+                res = true;
+            }
+            catch (Exception e)
+            {
+                log.Error($"Error while inserting reminder {msg} to queue", e);
+                res = false;
             }
 
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
-            {
-                var msg = new MessageReminderRequest
-                {
-                    GroupId = groupId,
-                    MessageReminderId = reminder.ID,
-                    StartTime = reminder.SendTime,
-                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime),
-                };
-
-                try
-                {
-                    var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    eventBus.Publish(msg);
-                    log.Debug($"Successfully inserted a reminder message to reminder queue: {msg}");
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    log.Error($"Error while inserting reminder {msg} to queue", e);
-                    return false;
-                }
-            }
-
-            return true;
+            return res;
         }
 
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)

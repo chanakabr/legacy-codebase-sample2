@@ -562,10 +562,18 @@ namespace Core.Catalog.CatalogManagement
                 result = false;
             }
 
-            //GenericCeleryQueue queue = new GenericCeleryQueue();
-            //BulkUploadData data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
-            //bool enqueueSuccessful = queue.Enqueue(data, data.GetRoutingKey());
-            
+            var queue = new GenericCeleryQueue();
+            var data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
+            result &= queue.Enqueue(data, data.GetRoutingKey());
+            if (!result)
+            {
+                log.ErrorFormat("Failed to enqueue BulkUpload. data: {0}", data);
+            }
+            else
+            {
+                log.DebugFormat("Success to enqueue BulkUpload. data: {0}", data);
+            }
+
             return result;
         }
 

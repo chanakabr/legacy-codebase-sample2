@@ -27,10 +27,10 @@ namespace EventBus.Abstraction
         }
 
         [JsonProperty("site_guid")]
-        public long SiteGuid
+        public string SiteGuid
         {
-            get => _UserId;
-            set => _UserId = value;
+            get => _UserId.ToString();
+            set => _UserId = long.Parse(value);
         }
 
         public static string GetEventName(Type eventType) => $"{eventType.Namespace}.{eventType.Name}";

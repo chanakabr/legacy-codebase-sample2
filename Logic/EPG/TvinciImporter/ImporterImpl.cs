@@ -2347,39 +2347,31 @@ namespace TvinciImporter
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new RemoteImageUploadRequest()
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new RemoteImageUploadRequest()
-                    {
-                        GroupId = parentGroupId,
-                        ImageId = picNewName,
-                        ImageServerUrl = imageServerUrl,
-                        MediaType = mediaType,
-                        RowId = picId,
-                        SourcePath = sourcePath,
-                        Version = version
-                    };
+                    GroupId = parentGroupId,
+                    ImageId = picNewName,
+                    ImageServerUrl = imageServerUrl,
+                    MediaType = mediaType,
+                    RowId = picId,
+                    SourcePath = sourcePath,
+                    Version = version
+                };
 
-                    eventBus.Publish(serviceEvent);
+                eventBus.Publish(serviceEvent);
+
+                var data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
+                var queue = new ImageUploadQueue();
+                var enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
+
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of image upload. data: {0}", data);
                 }
-                 
-                if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                else
                 {
-                    ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
-
-                    var queue = new ImageUploadQueue();
-
-                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
-
-                    if (!enqueueSuccessful)
-                    {
-                        log.ErrorFormat("Failed enqueue of image upload. data: {0}", data);
-                    }
-                    else
-                    {
-                        log.DebugFormat("successfully enqueue image upload. data: {0}", data);
-                    }
+                    log.DebugFormat("successfully enqueue image upload. data: {0}", data);
                 }
             }
             catch (Exception exc)

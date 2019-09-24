@@ -11855,48 +11855,42 @@ namespace Core.ConditionalAccess
                                             long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)subscriptionEndDate);
                                             // enqueue renew transaction
                                             bool enqueueSuccessful = true;
-                                            
-                                            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
-                                            {
-                                                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                                                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-                                                {
-                                                    GroupId = m_nGroupID,
-                                                    BillingGuid = billingGuid,
-                                                    EndDate = endDateUnix,
-                                                    ETA = nextRenewalDate,
-                                                    Type = eSubscriptionRenewRequestType.Renew,
-                                                    SiteGuid = siteguid,
-                                                    PurchaseId = purchaseID
-                                                };
 
-                                                try
-                                                {
-                                                    eventBus.Publish(serviceEvent);
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                                                    enqueueSuccessful = false;
-                                                }
+                                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                                            {
+                                                GroupId = m_nGroupID,
+                                                BillingGuid = billingGuid,
+                                                EndDate = endDateUnix,
+                                                ETA = nextRenewalDate,
+                                                Type = eSubscriptionRenewRequestType.Renew,
+                                                SiteGuid = siteguid,
+                                                PurchaseId = purchaseID
+                                            };
+
+                                            try
+                                            {
+                                                eventBus.Publish(serviceEvent);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                                                enqueueSuccessful = false;
                                             }
 
-                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
+                                            var data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
                                                     endDateUnix, nextRenewalDate);
 
-                                            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                                            {
-                                                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                            var queue = new RenewTransactionsQueue();
 
-                                                enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                                                if (!enqueueSuccessful)
-                                                {
-                                                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                                }
-                                                else
-                                                {
-                                                    log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
-                                                }
+                                            enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                            if (!enqueueSuccessful)
+                                            {
+                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                            }
+                                            else
+                                            {
+                                                log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
                                             }
 
                                             if (enqueueSuccessful)
@@ -12919,45 +12913,39 @@ namespace Core.ConditionalAccess
                                             endDateUnix, nextRenewalDate);
 
                                         bool enqueueSuccessful = true;
-                                        
-                                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
-                                        {
-                                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-                                            {
-                                                GroupId = m_nGroupID,
-                                                BillingGuid = billingGuid,
-                                                EndDate = endDateUnix,
-                                                ETA = nextRenewalDate,
-                                                Type = eSubscriptionRenewRequestType.Renew,
-                                                SiteGuid = userId,
-                                                PurchaseId = purchaseID
-                                            };
 
-                                            try
-                                            {
-                                                eventBus.Publish(serviceEvent);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                                                enqueueSuccessful = false;
-                                            }
+                                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
+                                        {
+                                            GroupId = m_nGroupID,
+                                            BillingGuid = billingGuid,
+                                            EndDate = endDateUnix,
+                                            ETA = nextRenewalDate,
+                                            Type = eSubscriptionRenewRequestType.Renew,
+                                            SiteGuid = userId,
+                                            PurchaseId = purchaseID
+                                        };
+
+                                        try
+                                        {
+                                            eventBus.Publish(serviceEvent);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                                            enqueueSuccessful = false;
                                         }
 
-                                        if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                                        // enqueue renew transaction
+                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                        if (!enqueueSuccessful)
                                         {
-                                            // enqueue renew transaction
-                                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                            enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                                            if (!enqueueSuccessful)
-                                            {
-                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                            }
-                                            else
-                                            {
-                                                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
-                                            }
+                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        }
+                                        else
+                                        {
+                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                                         }
 
                                         if (enqueueSuccessful)
@@ -15364,40 +15352,34 @@ namespace Core.ConditionalAccess
                     {
                         var eta = DateTime.UtcNow.AddMinutes(1);
 
-                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
                         {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
-                            {
-                                GroupId = m_nGroupID,
-                                SiteGuid = string.Empty,
-                                DomainId = domainId,
-                                ChannelId = string.Empty,
-                                SeriesId = string.Empty,
-                                SeasonNumber = 0,
-                                ETA = eta,
-                                SeriesRecordingTaskType = eSeriesRecordingTask.CompleteRecordings
-                            };
+                            GroupId = m_nGroupID,
+                            SiteGuid = string.Empty,
+                            DomainId = domainId,
+                            ChannelId = string.Empty,
+                            SeriesId = string.Empty,
+                            SeasonNumber = 0,
+                            ETA = eta,
+                            SeriesRecordingTaskType = eSeriesRecordingTask.CompleteRecordings
+                        };
 
-                            try
-                            {
-                                eventBus.Publish(serviceEvent);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
-                            }
+                        try
+                        {
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
                         }
 
-                        if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                        {
-                            QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                            ApiObjects.QueueObjects.SeriesRecordingTaskData data = 
-                                new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId,
-                                string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
+                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                        ApiObjects.QueueObjects.SeriesRecordingTaskData data =
+                            new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId,
+                            string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
                             { ETA = eta };
-                            queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                        }
+                        queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                         return response;
                     }
                 }
@@ -15537,40 +15519,34 @@ namespace Core.ConditionalAccess
                 List<HandleDomainQuataByRecordingTask> alreadyDeletedOrCanceledRecordings = new List<HandleDomainQuataByRecordingTask>();
                 if (expiredRecordingsToSchedule != null)
                 {
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                    foreach (var expiredRecording in expiredRecordingsToSchedule.Values)
                     {
-                        foreach (var expiredRecording in expiredRecordingsToSchedule.Values)
+                        var queue = new GenericCeleryQueue();
+                        var data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
+                        bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
+                        if (!queueExpiredRecordingResult)
                         {
-                            var queue = new GenericCeleryQueue();
-                            var data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
-                            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
-                            if (!queueExpiredRecordingResult)
-                            {
-                                log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
-                            }
+                            log.ErrorFormat("Failed to queue ExpiredRecordingScheduledTask: {0}", expiredRecording.ToString());
                         }
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    var messagesToSend = expiredRecordingsToSchedule.Values.Select(r => new ModifiedRecordingRequest
                     {
-                        var messagesToSend = expiredRecordingsToSchedule.Values.Select(r => new ModifiedRecordingRequest
-                        {
-                            GroupId = r.GroupId,
-                            Id = r.Id,
-                            RecordingId = r.RecordingId,
-                            OldRecordingDuration = r.OldRecordingDuration,
-                            ScheduledExpirationEpoch = r.ScheduledExpirationEpoch
-                        });
+                        GroupId = r.GroupId,
+                        Id = r.Id,
+                        RecordingId = r.RecordingId,
+                        OldRecordingDuration = r.OldRecordingDuration,
+                        ScheduledExpirationEpoch = r.ScheduledExpirationEpoch
+                    });
 
-                        try
-                        {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            eventBus.Publish(messagesToSend);
-                        }
-                        catch (Exception e)
-                        {
-                            log.Error($"Failed to queue ExpiredRecordingScheduledTask", e);
-                        }
+                    try
+                    {
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        eventBus.Publish(messagesToSend);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error($"Failed to queue ExpiredRecordingScheduledTask", e);
                     }
 
                     recordingsScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, expiredRecordingsToSchedule.Count, scheduledTaskIntervalSec, ScheduledTaskType.recordingsScheduledTasks);
@@ -16302,39 +16278,33 @@ namespace Core.ConditionalAccess
                 {
                     var eta = DateTime.UtcNow.AddMinutes(1);
 
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
-                        {
-                            GroupId = m_nGroupID,
-                            SiteGuid = string.Empty,
-                            DomainId = domainID,
-                            ChannelId = string.Empty,
-                            SeriesId = string.Empty,
-                            SeasonNumber = 0,
-                            ETA = eta,
-                            SeriesRecordingTaskType = eSeriesRecordingTask.CompleteRecordings
-                        };
+                        GroupId = m_nGroupID,
+                        SiteGuid = string.Empty,
+                        DomainId = domainID,
+                        ChannelId = string.Empty,
+                        SeriesId = string.Empty,
+                        SeasonNumber = 0,
+                        ETA = eta,
+                        SeriesRecordingTaskType = eSeriesRecordingTask.CompleteRecordings
+                    };
 
-                        try
-                        {
-                            eventBus.Publish(serviceEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
-                        }
+                    try
+                    {
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                    {
-                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                        ApiObjects.QueueObjects.SeriesRecordingTaskData data = 
-                            new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                    ApiObjects.QueueObjects.SeriesRecordingTaskData data =
+                        new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0, eSeriesRecordingTask.CompleteRecordings)
                         { ETA = eta };
-                        queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                    }
+                    queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                 }
                 // if first user, SeriesRecordingTask should be filled on FollowSeasonOrSeries
                 else
@@ -16345,39 +16315,33 @@ namespace Core.ConditionalAccess
                                         m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId);
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
                     {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ApiObjects.EventBus.SeriesRecordingTaskRequest()
-                        {
-                            GroupId = m_nGroupID,
-                            SiteGuid = userID,
-                            DomainId = domainID,
-                            ChannelId = seriesRecording.EpgChannelId.ToString(),
-                            SeriesId = seriesRecording.SeriesId,
-                            SeasonNumber = seriesRecording.SeasonNumber,
-                            ETA = DateTime.UtcNow,
-                            SeriesRecordingTaskType = eSeriesRecordingTask.FirstFollower
-                        };
+                        GroupId = m_nGroupID,
+                        SiteGuid = userID,
+                        DomainId = domainID,
+                        ChannelId = seriesRecording.EpgChannelId.ToString(),
+                        SeriesId = seriesRecording.SeriesId,
+                        SeasonNumber = seriesRecording.SeasonNumber,
+                        ETA = DateTime.UtcNow,
+                        SeriesRecordingTaskType = eSeriesRecordingTask.FirstFollower
+                    };
 
-                        try
-                        {
-                            eventBus.Publish(serviceEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
-                        }
+                    try
+                    {
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
                     }
 
-                    if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-                    {
-                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
-                        SeriesRecordingTaskData seriesRecordingTask = new SeriesRecordingTaskData(
-                            m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId,
-                            seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
-                        queue.Enqueue(seriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
-                    }
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+                    SeriesRecordingTaskData seriesRecordingTask = new SeriesRecordingTaskData(
+                        m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId,
+                        seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
+                    queue.Enqueue(seriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                 }
             }
             catch (Exception ex)
@@ -17150,56 +17114,50 @@ namespace Core.ConditionalAccess
                     //billing guid is already validated on the stored procedure
                     if (purchaseId > 0 && !string.IsNullOrEmpty(siteGuid) && endDate.HasValue)
                     {
-                        DateTime nextRenewalDate = endDate.Value.AddMinutes(renewalStartMin);
-                        long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value);
-                        RenewTransactionData data = new RenewTransactionData(groupId, siteGuid, purchaseId, billingGuid,
+                        var nextRenewalDate = endDate.Value.AddMinutes(renewalStartMin);
+                        var endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate.Value);
+                        var data = new RenewTransactionData(groupId, siteGuid, purchaseId, billingGuid,
                                                         endDateUnix, nextRenewalDate);
 
-                        bool enqueueSuccessful = true;
-                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                        var enqueueSuccessful = true;
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
                         {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-                            {
-                                GroupId = groupId,
-                                BillingGuid = billingGuid,
-                                EndDate = endDateUnix,
-                                ETA = nextRenewalDate,
-                                Type = eSubscriptionRenewRequestType.Renew,
-                                SiteGuid = siteGuid,
-                                PurchaseId = purchaseId
-                            };
+                            GroupId = groupId,
+                            BillingGuid = billingGuid,
+                            EndDate = endDateUnix,
+                            ETA = nextRenewalDate,
+                            Type = eSubscriptionRenewRequestType.Renew,
+                            SiteGuid = siteGuid,
+                            PurchaseId = purchaseId
+                        };
 
-                            try
+                        try
+                        {
+                            if (ApplicationConfiguration.ShouldRecoverSubscriptionRenewalToMessageBus.Value)
                             {
-                                if (ApplicationConfiguration.ShouldRecoverSubscriptionRenewalToMessageBus.Value)
-                                {
-                                    eventBus.Publish(serviceEvent);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                                enqueueSuccessful = false;
+                                eventBus.Publish(serviceEvent);
                             }
                         }
-
-                        if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                        catch (Exception ex)
                         {
-                            // enqueue renew transaction
-                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                            log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
+                            enqueueSuccessful = false;
+                        }
 
-                            enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-                            if (enqueueSuccessful)
-                            {
-                                totalRenewTransactionsAdded++;
+                        // enqueue renew transaction
+                        var queue = new RenewTransactionsQueue();
 
-                                log.DebugFormat("New task created for renew recovery. next renewal date: {0}, data: {1}", nextRenewalDate, data);
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Failed enqueue recovery of renew transaction {0}", data);
-                            }
+                        enqueueSuccessful &= queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        if (enqueueSuccessful)
+                        {
+                            totalRenewTransactionsAdded++;
+
+                            log.DebugFormat("New task created for renew recovery. next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed enqueue recovery of renew transaction {0}", data);
                         }
 
                         if (enqueueSuccessful)

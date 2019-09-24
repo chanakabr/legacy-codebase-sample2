@@ -540,34 +540,27 @@ namespace Core.Notification
         public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
             bool res = true;
-
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new InitiateNotificationActionRequest()
             {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new InitiateNotificationActionRequest()
-                {
-                    GroupId = groupId,
-                    pushToken = pushToken,
-                    Udid = udid,
-                    UserAction = userAction,
-                    UserId = userId
-                };
+                GroupId = groupId,
+                pushToken = pushToken,
+                Udid = udid,
+                UserAction = userAction,
+                UserId = userId
+            };
 
-                eventBus.Publish(serviceEvent);
-            }
+            eventBus.Publish(serviceEvent);
 
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-            {
-                InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
-                ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+            var que = new InitiateNotificationActionQueue();
+            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
-                res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+            res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
 
-                if (res)
-                    log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-                else
-                    log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-            }
+            if (res)
+                log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+            else
+                log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
 
             return res;
         }

@@ -2227,43 +2227,37 @@ namespace Core.Billing
         private void EnqueuPendingRequest(int groupID, int productId, int productType, string siteGuid, PaymentGatewayPending paymentGWPending)
         {
             // enqueue pending transaction
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-            {
-                var queue = new PendingTransactionsQueue();
-                var data = new PendingTransactionData(groupID,
-                    paymentGWPending,
-                    siteGuid,
-                    productId,
-                    (int)productType);
+            var queue = new PendingTransactionsQueue();
+            var data = new PendingTransactionData(groupID,
+                paymentGWPending,
+                siteGuid,
+                productId,
+                (int)productType);
 
-                var enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_CHECK_PENDING_TRANSACTION, groupID));
+            var enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_CHECK_PENDING_TRANSACTION, groupID));
 
-                if (!enqueueSuccessful) { log.ErrorFormat("Failed enqueue of pending transaction {0}", data); }
-            }
+            if (!enqueueSuccessful) { log.ErrorFormat("Failed enqueue of pending transaction {0}", data); }
 
             //enque using eventBus
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            var pendingTransactionData = new ApiObjects.EventBus.PendingTransactionRequest
             {
-                var pendingTransactionData = new ApiObjects.EventBus.PendingTransactionRequest
-                {
-                    GroupId = groupID,
-                    SiteGuid = siteGuid,
-                    ProductId = productId,
-                    ProductType = (int)productType,
-                    BillingGuide = paymentGWPending.BillingGuid,
-                    NumberOfRetries = paymentGWPending.AdapterRetryCount,
-                    PaymentGatewayPendingId = paymentGWPending.ID,
-                    PaymentGatewayTransactionId = paymentGWPending.PaymentGatewayTransactionId,
-                };
-                try
-                {
-                    var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    publisher.Publish(pendingTransactionData);
-                }
-                catch (Exception e)
-                {
-                    log.Error($"Failed enqueue of pending transaction {pendingTransactionData}", e);
-                }
+                GroupId = groupID,
+                SiteGuid = siteGuid,
+                ProductId = productId,
+                ProductType = (int)productType,
+                BillingGuide = paymentGWPending.BillingGuid,
+                NumberOfRetries = paymentGWPending.AdapterRetryCount,
+                PaymentGatewayPendingId = paymentGWPending.ID,
+                PaymentGatewayTransactionId = paymentGWPending.PaymentGatewayTransactionId,
+            };
+            try
+            {
+                var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                publisher.Publish(pendingTransactionData);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed enqueue of pending transaction {pendingTransactionData}", e);
             }
         }
 
@@ -2997,7 +2991,7 @@ namespace Core.Billing
                                 break;
                         }
 
-                        
+
 
                         PaymentGatewayPending pending = new PaymentGatewayPending()
                         {

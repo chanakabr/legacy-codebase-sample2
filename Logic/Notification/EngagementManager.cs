@@ -570,44 +570,38 @@ namespace Core.Notification
         {
             bool res = true;
 
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            try
             {
-                try
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new EngagementRequest()
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new EngagementRequest()
-                    {
-                        GroupId = groupId,
-                        EngagementBulkId = engagementBulkId,
-                        EngagementId = engagementId,
-                        StartTime = startTime
-                    };
-
-                    eventBus.Publish(serviceEvent);
-                    log.Debug($"Successfully inserted engagement message to queue: engagement {engagementId}");
-                }
-                catch (Exception ex)
-                {
-                    log.Error($"Error while inserting engagement {engagementId} to queue. ex = {ex}");
-                    res = false;
-                }
-            }
-
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-            {
-                EngagementQueue queue = new EngagementQueue();
-                EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
-                {
-                    ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
+                    GroupId = groupId,
+                    EngagementBulkId = engagementBulkId,
+                    EngagementId = engagementId,
+                    StartTime = startTime
                 };
 
-                bool enqueueResult = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
-
-                if (enqueueResult)
-                    log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
-                else
-                    log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
+                eventBus.Publish(serviceEvent);
+                log.Debug($"Successfully inserted engagement message to queue: engagement {engagementId}");
             }
+            catch (Exception ex)
+            {
+                log.Error($"Error while inserting engagement {engagementId} to queue. ex = {ex}");
+                res = false;
+            }
+
+            var queue = new EngagementQueue();
+            var queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
+            {
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(startTime)
+            };
+
+            bool enqueueResult = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+
+            if (enqueueResult)
+                log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
+            else
+                log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
 
             return res;
         }

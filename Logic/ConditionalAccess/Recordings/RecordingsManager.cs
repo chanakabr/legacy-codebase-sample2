@@ -776,36 +776,30 @@ namespace Core.Recordings
 
         public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task, long maxDomainSeriesId = 0)
         {
-            if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.RecordingTaskRequest()
             {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new ApiObjects.EventBus.RecordingTaskRequest()
-                {
-                    GroupId = groupId,
-                    EpgStartDate = epgStartDate,
-                    ETA = etaTime,
-                    MaxDomainSeriesId = maxDomainSeriesId,
-                    ProgramId = programId,
-                    RecordingId = recordingId,
-                    Task = task
-                };
+                GroupId = groupId,
+                EpgStartDate = epgStartDate,
+                ETA = etaTime,
+                MaxDomainSeriesId = maxDomainSeriesId,
+                ProgramId = programId,
+                RecordingId = recordingId,
+                Task = task
+            };
 
-                try
-                {
-                    eventBus.Publish(serviceEvent);
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
-                }
+            try
+            {
+                eventBus.Publish(serviceEvent);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
             }
 
-            if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
-            {
-                var queue = new GenericCeleryQueue();
-                var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId, maxDomainSeriesId);
-                queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
-            }
+            var queue = new GenericCeleryQueue();
+            var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId, maxDomainSeriesId);
+            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 
         internal void RecoverRecordings(int groupId)
@@ -1103,7 +1097,7 @@ namespace Core.Recordings
 
                 try
                 {
-                    EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength:0);
+                    EnqueueRecordingModificationEvent(groupId, currentRecording, oldRecordingLength: 0);
                 }
                 catch (Exception e)
                 {
@@ -1164,7 +1158,7 @@ namespace Core.Recordings
                 // Update all domains that have this recording   
                 try
                 {
-                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength:0);
+                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
                 }
                 catch (Exception e)
                 {
@@ -1295,7 +1289,7 @@ namespace Core.Recordings
             // Update all domains that have this recording
             try
             {
-                EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength:0);
+                EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
             }
             catch (Exception e)
             {

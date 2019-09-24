@@ -26,11 +26,11 @@ namespace Core.ConditionalAccess
         internal const string ERROR_SUBSCRIPTION_NOT_RENEWABLE = "Subscription \\{0} not renewable";
         internal const string ERROR_SUBSCRIPTION_ALREADY_PURCHASED = "Subscription \\{0} already purchased";
 
-        public static Status GrantEntitlements(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, 
+        public static Status GrantEntitlements(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId,
             eTransactionType transactionType, string ip, string udid, bool history)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             // log request
             string logString = string.Format("GrantEntitlements request: siteguid {0}, contentId {1}, productId {2}, productType {3}, userIp {4}, deviceName {5}",
                 !string.IsNullOrEmpty(userId) ? userId : string.Empty,     // {0}
@@ -50,7 +50,7 @@ namespace Core.ConditionalAccess
                 log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 return status;
             }
-            
+
             try
             {
                 // validate user
@@ -98,7 +98,7 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        internal static Status GrantPPV(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, string ip, 
+        internal static Status GrantPPV(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, string ip,
                                                             string udid, bool saveHistory, DateTime? startDate = null, DateTime? endDate = null)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -164,17 +164,17 @@ namespace Core.ConditionalAccess
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
-                
+
                 // get country by user IP
                 string country = string.IsNullOrEmpty(ip) ? string.Empty : Utils.GetIP2CountryName(groupId, ip);
-                
+
                 // create custom data
                 string customData = cas.GetCustomData(relevantSub, thePPVModule, null, userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, contentId,
                     mediaID, productId.ToString(), string.Empty, string.Empty, ip, country, string.Empty, udid, householdId);
-                
+
                 // purchase
                 BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, priceResponse, ip, customData);
-                
+
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
                     status.Set((int)eResponseStatus.PurchaseFailed, BaseConditionalAccess.PURCHASE_FAILED);
@@ -226,7 +226,7 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        internal static Status GrantSubscription(BaseConditionalAccess cas, int groupId, string userId, long householdId, int productId, string ip, string udid, bool saveHistory, 
+        internal static Status GrantSubscription(BaseConditionalAccess cas, int groupId, string userId, long householdId, int productId, string ip, string udid, bool saveHistory,
                                                                     int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, GrantContext context = GrantContext.Grant)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -244,7 +244,7 @@ namespace Core.ConditionalAccess
             {
                 // get country by user IP
                 string country = string.IsNullOrEmpty(ip) ? string.Empty : Utils.GetIP2CountryName(groupId, ip);
-                
+
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
@@ -296,13 +296,13 @@ namespace Core.ConditionalAccess
                         return status;
                     }
                 }
-                
+
                 // price is validated, create custom data
                 string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                  string.Empty, ip, country, string.Empty, udid, string.Empty,
                                                                  entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
                                                                  entitleToPreview, true, recurringNumber, saveHistory, (int)context);
-                
+
                 // purchase
                 BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, priceResponse, ip, customData);
 
@@ -332,7 +332,7 @@ namespace Core.ConditionalAccess
 
                 if (!result)
                 {
-                       status.Set((int)eResponseStatus.PurchasePassedEntitlementFailed, "Failed to insert subscription purchase.");
+                    status.Set((int)eResponseStatus.PurchasePassedEntitlementFailed, "Failed to insert subscription purchase.");
                 }
                 else
                 {
@@ -353,53 +353,44 @@ namespace Core.ConditionalAccess
                     if (subscription.m_bIsRecurring)
                     {
                         bool enqueueSuccessful = true;
-
-                        DateTime nextRenewalDate = endDate.Value.AddMinutes(0); // default                                           
+                        var nextRenewalDate = endDate.Value.AddMinutes(0); // default                                           
                         var endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate);
 
-                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
                         {
-                            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-                            {
-                                GroupId = groupId,
-                                BillingGuid = billingGuid,
-                                EndDate = endDateUnix,
-                                ETA = nextRenewalDate,
-                                Type = eSubscriptionRenewRequestType.Renew,
-                                SiteGuid = userId,
-                                PurchaseId = purchaseID
-                            };
+                            GroupId = groupId,
+                            BillingGuid = billingGuid,
+                            EndDate = endDateUnix,
+                            ETA = nextRenewalDate,
+                            Type = eSubscriptionRenewRequestType.Renew,
+                            SiteGuid = userId,
+                            PurchaseId = purchaseID
+                        };
 
-                            try
-                            {
-                                eventBus.Publish(serviceEvent);
-                            }
-                            catch (Exception ex)
-                            {
-                                enqueueSuccessful = false;
-                                log.ErrorFormat("Failed enqueue of renew transaction {0} ex = {1}", serviceEvent, ex);
-                            }
+                        try
+                        {
+                            eventBus.Publish(serviceEvent);
+                        }
+                        catch (Exception ex)
+                        {
+                            enqueueSuccessful = false;
+                            log.ErrorFormat("Failed enqueue of renew transaction {0} ex = {1}", serviceEvent, ex);
                         }
 
-                        RenewTransactionData data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
+                        var data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
                             TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate), nextRenewalDate);
 
-                        if (ApplicationConfiguration.ShouldSupportCeleryMessages.Value)
+                        var queue = new RenewTransactionsQueue();
+                        enqueueSuccessful &= queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+                        if (!enqueueSuccessful)
                         {
-                            // enqueue renew transaction
-                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
-
-                            enqueueSuccessful &= queue.Enqueue(data, string.Format(BaseConditionalAccess.ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
-
-                            if (!enqueueSuccessful)
-                            {
-                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                            }
-                            else
-                            {
-                                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
-                            }
+                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                        }
+                        else
+                        {
+                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                         }
 
                         if (enqueueSuccessful)
@@ -454,7 +445,7 @@ namespace Core.ConditionalAccess
             {
                 // get country by user IP
                 string country = string.IsNullOrEmpty(ip) ? string.Empty : Utils.GetIP2CountryName(groupId, ip);
-                
+
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
                 Price priceResponse = null;
@@ -488,10 +479,10 @@ namespace Core.ConditionalAccess
                 // price validated, create the Custom Data
                 string customData = cas.GetCustomDataForCollection(collection, productId.ToString(), userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                                                                ip, country, string.Empty, udid, string.Empty);
-                
+
                 // purchase
                 BillingResponse billingResponse = HandleTransactionPurchase(saveHistory, cas, userId, priceResponse, ip, customData);
-                
+
                 if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
                 {
                     // purchase failed - no status error
@@ -521,7 +512,7 @@ namespace Core.ConditionalAccess
                 if (saveHistory)
                 {
                     // entitlement passed - build notification message
-                    var dicData = new Dictionary<string, object>() 
+                    var dicData = new Dictionary<string, object>()
                     { {"CollectionCode", productId},
                       {"BillingTransactionID", lBillingTransactionID},
                       {"SiteGUID", userId},
@@ -545,8 +536,8 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        internal static Status SwapSubscription(BaseConditionalAccess cas, int groupId, string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)          
-        {   
+        internal static Status SwapSubscription(BaseConditionalAccess cas, int groupId, string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)
+        {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
             {
@@ -598,7 +589,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                Subscription s = null;                
+                Subscription s = null;
                 s = Core.Pricing.Module.GetSubscriptionData(groupId, newSubscriptionCode.ToString(), string.Empty, string.Empty, string.Empty, false);
                 if (s == null || string.IsNullOrEmpty(s.m_SubscriptionCode))
                 {
@@ -616,7 +607,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // check overlapping DLM or Quota in any of subscriptions (except old one)
-                List<string> subCodes = userSubsArray.Where(x => x.m_sSubscriptionCode != oldSubscriptionCode.ToString()).Select(y=>y.m_sSubscriptionCode).ToList();
+                List<string> subCodes = userSubsArray.Where(x => x.m_sSubscriptionCode != oldSubscriptionCode.ToString()).Select(y => y.m_sSubscriptionCode).ToList();
 
                 if (subCodes.Count > 0)
                 {
@@ -638,12 +629,12 @@ namespace Core.ConditionalAccess
                 sb.Append(String.Concat(" Ex Msg: ", exc.Message));
                 sb.Append(String.Concat(" Site Guid: ", userId));
                 sb.Append(String.Concat(" New Sub: ", newSubscriptionCode));
-                sb.Append(String.Concat(" Old Sub: ", oldSubscriptionCode));              
+                sb.Append(String.Concat(" Old Sub: ", oldSubscriptionCode));
                 sb.Append(String.Concat(" Ex Type: ", exc.GetType().Name));
                 sb.Append(String.Concat(" ST: ", exc.StackTrace));
                 log.Error("Exception - " + sb.ToString(), exc);
                 #endregion
-            } 
+            }
             return response;
         }
 
@@ -664,7 +655,7 @@ namespace Core.ConditionalAccess
 
                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(houseHoldID));
                 ApiObjects.Response.Status status = GrantSubscription(cas, groupId, userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, GrantContext.Swap);
-               
+
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GrantEntitlements fail");
@@ -684,8 +675,8 @@ namespace Core.ConditionalAccess
                 #endregion
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format("fail to swap subscription {0} to {1}", oldSubscription.m_sSubscriptionCode, newSubscription.m_SubscriptionCode)); //status = ChangeSubscriptionStatus.Error;
             }
-           
-            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); 
+
+            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response;
         }
 
@@ -739,7 +730,7 @@ namespace Core.ConditionalAccess
                 if (npvrCheck && permittedSubscriptions != null)
                 {
                     if (permittedSubscriptions.Count(x => x.m_lServices != null && x.m_lServices.Count(y => y.ID == (long)eService.NPVR) > 0) > 0)
-                    { 
+                    {
                         status = new Status((int)eResponseStatus.ServiceAlreadyExists, eResponseStatus.ServiceAlreadyExists.ToString());
                         return status;
                     }
@@ -764,7 +755,7 @@ namespace Core.ConditionalAccess
         private static BillingResponse HandleTransactionPurchase(bool saveHistory, BaseConditionalAccess cas, string userId, Price price, string ip, string customData)
         {
             BillingResponse billingResponse = new BillingResponse() { m_oStatus = BillingResponseStatus.UnKnown };
-            
+
             if (saveHistory)
             {
                 billingResponse = cas.HandleCCChargeUser(userId, price.m_dPrice, price.m_oCurrency.m_sCurrencyCD3, ip, customData,
@@ -775,7 +766,7 @@ namespace Core.ConditionalAccess
                 billingResponse.m_oStatus = BillingResponseStatus.Success;
                 billingResponse.m_sRecieptCode = string.Empty;
             }
-            
+
             return billingResponse;
         }
     }
