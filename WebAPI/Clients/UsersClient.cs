@@ -1216,7 +1216,7 @@ namespace WebAPI.Clients
 
             if (response.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException((int)response.Code, response.Message, response.Args);
             }
         }
 
