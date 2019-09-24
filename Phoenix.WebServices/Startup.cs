@@ -49,6 +49,7 @@ namespace IngetsNetCore
             app.UseSoapEndpoint<IConditionalAccessService>("/ws_cas_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<IDomainsService>("/ws_domains_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
             app.UseSoapEndpoint<IUsersService>("/ws_users_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IPricingService>("/ws_pricing_module.asmx", new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
             app.UseMvc();
         }
