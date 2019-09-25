@@ -12,7 +12,7 @@ using Core.Catalog;
 
 namespace WS_Catalog
 {
-    [ServiceContract()]
+    [ServiceContract(Namespace ="")]
     public interface Iservice
     {
         [OperationContract]
