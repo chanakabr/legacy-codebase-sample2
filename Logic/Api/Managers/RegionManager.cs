@@ -423,9 +423,10 @@ namespace ApiLogic.Api.Managers
                     {
                         filter.RegionIds = map[filter.LiveAssetId];
                     }
-                    else
+                    
+                    if (filter.RegionIds?.Count == 0)
                     {
-                        result.SetStatus(eResponseStatus.RegionNotFound, "Region not found");
+                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return result;
                     }
                 }
@@ -457,15 +458,9 @@ namespace ApiLogic.Api.Managers
                             result.Objects = regionsCache.Regions.Where(r => idsToFilter.Contains(r.Key)).Select(r => r.Value).ToList();
                             result.TotalItems = result.Objects.Count;
                         }
-                        else
-                        {
-                            result.Objects = null;
-                            result.TotalItems = 0;
-                            result.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
-                        }
                     }
 
-                    if (result.Status.Code == (int)eResponseStatus.OK)
+                    if (result.Status.Code == (int)eResponseStatus.OK && result.Objects?.Count > 0)
                     {
                         if (filter.orderBy == RegionOrderBy.CreateDateAsc)
                         {
