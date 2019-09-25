@@ -1012,12 +1012,11 @@ namespace APILogic
                 {
                     foreach (var tag in program.Tags)
                     {
-                        xml.AppendFormat("<tags><TagType>{0}</TagType>",
-                            TVinciShared.ProtocolsFuncs.XMLEncode(tag.m_oTagMeta.m_sName, true)                    // {0} - TagType
-                        );
-
                         foreach (var tagVal in tag.m_lValues)
                         {
+                            xml.AppendFormat("<tags><TagType>{0}</TagType>",
+                                TVinciShared.ProtocolsFuncs.XMLEncode(tag.m_oTagMeta.m_sName, true) // {0} - TagType
+                            );
                             xml.AppendFormat("<TagValues lang=\"{0}\">{1}</TagValues>",
                                 TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),              // {0} - lang
                                 TVinciShared.ProtocolsFuncs.XMLEncode(tagVal, true)                 // {1} - TagValues

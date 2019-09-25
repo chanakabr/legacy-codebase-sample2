@@ -103,7 +103,7 @@ namespace TVinciShared
                 else
                     return DateTime.UtcNow;
                 string[] splited = sDate.Split('/');
-                
+
                 Int32 nYear = 1;
                 Int32 nMounth = 1;
                 Int32 nDay = 1;
@@ -121,7 +121,7 @@ namespace TVinciShared
                     nSec = int.Parse(splited1[2].ToString());
                 }
 
-                return new DateTime(nYear, nMounth, nDay , nHour , nMin , nSec);
+                return new DateTime(nYear, nMounth, nDay, nHour, nMin, nSec);
             }
             catch
             {
@@ -294,7 +294,7 @@ namespace TVinciShared
             return "";
 
         }
-        
+
         private static DateTime GetTruncDateTimeUtc()
         {
             DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -378,14 +378,14 @@ namespace TVinciShared
             {
                 return DateTimeToUtcUnixTimestampSeconds(parsedDate);
             }
-            
+
             return 0;
         }
 
         public static long StringToUtcUnixTimestampSeconds(string date)
         {
             DateTime parsedDate;
-            if (DateTime.TryParse(date, null, DateTimeStyles.AdjustToUniversal, out parsedDate))
+            if (DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
             {
                 return DateTimeToUtcUnixTimestampSeconds(parsedDate);
             }
