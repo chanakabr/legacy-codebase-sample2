@@ -11,6 +11,7 @@ using SoapCore;
 using System.ServiceModel;
 using WebAPI.WebServices;
 using WS_Notification;
+using System.ServiceModel.Channels;
 
 namespace IngetsNetCore
 {
@@ -41,38 +42,46 @@ namespace IngetsNetCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseSoapEndpoint<WS_Catalog.Iservice>("/ws_catalog_service.svc", 
-                new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
+            var transportBinding = new HttpTransportBindingElement();
+            var soap12EncodingBinding = new TextMessageEncodingBindingElement(MessageVersion.Soap12WSAddressing10, System.Text.Encoding.UTF8);
+            var soap11EncodingBinding = new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressingAugust2004, System.Text.Encoding.UTF8);
+            
+            var bindingElements = new List<BindingElement>() { soap11EncodingBinding, soap12EncodingBinding, transportBinding };
 
-            app.UseSoapEndpoint<WS_Catalog.Iservice>("/catalog.svc", 
-                new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
+            var customBinding = new CustomBinding(bindingElements);
 
-            app.UseSoapEndpoint<INotificationService>("/notification.svc", 
-                new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<WS_Catalog.Iservice>("/ws_catalog_service.svc",
+                customBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<INotificationService>("/ws_notification_service.svc", 
-                new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<WS_Catalog.Iservice>("/catalog.svc",
+                customBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<ISocialService>("/ws_social_module.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<INotificationService>("/notification.svc",
+                customBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<IApiService>("/api.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<INotificationService>("/ws_notification_service.svc",
+                customBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<IBillingService>("/ws_billing_module.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<ISocialService>("/ws_social_module.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<IConditionalAccessService>("/ws_cas_module.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IApiService>("/api.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<IDomainsService>("/ws_domains_module.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IBillingService>("/ws_billing_module.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<IUsersService>("/ws_users_module.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IConditionalAccessService>("/ws_cas_module.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
-            app.UseSoapEndpoint<IPricingService>("/ws_pricing_module.asmx", 
-                new BasicHttpsBinding(), SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+            app.UseSoapEndpoint<IDomainsService>("/ws_domains_module.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+
+            app.UseSoapEndpoint<IUsersService>("/ws_users_module.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
+
+            app.UseSoapEndpoint<IPricingService>("/ws_pricing_module.asmx",
+                customBinding, SoapSerializer.XmlSerializer, caseInsensitivePath: true);
 
             app.UseMvc();
         }
