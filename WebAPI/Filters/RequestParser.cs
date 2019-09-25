@@ -253,7 +253,7 @@ namespace WebAPI.Filters
             if (HttpContext.Current.Items.Contains(REQUEST_FORMAT))
             {
                 HttpContext.Current.Items.Remove(REQUEST_FORMAT);
-            } 
+            }
             if (!string.IsNullOrEmpty(HttpContext.Current.Request.QueryString[REQUEST_FORMAT]))
             {
                 HttpContext.Current.Items.Add(REQUEST_FORMAT, HttpContext.Current.Request.QueryString[REQUEST_FORMAT]);
@@ -442,7 +442,19 @@ namespace WebAPI.Filters
             {
                 currentController = formData["service"].ToString();
                 currentAction = formData["action"].ToString();
-                pathData = formData["pathData"].ToString();
+                if (formData.ContainsKey("pathData"))
+                {
+                    pathData = formData["pathData"].ToString();
+                }
+
+                if (formData.ContainsKey("apiVersion"))
+                {
+                    Version version;
+                    if (!Version.TryParse((string)formData["apiVersion"], out version))
+                        throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
+                    
+                    HttpContext.Current.Items[REQUEST_VERSION] = version;
+                }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
