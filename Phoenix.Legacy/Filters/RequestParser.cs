@@ -216,7 +216,7 @@ namespace WebAPI.Filters
                     if (!Version.TryParse((string)formData["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
                     
-                    HttpContext.Current.Items[REQUEST_VERSION] = version;
+                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
                 }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
