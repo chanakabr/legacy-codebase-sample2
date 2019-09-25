@@ -5131,7 +5131,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
-            string language, int? orderNum, int outputProtecationLevel, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
+            string language, int? orderNum, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
             bool? isActive, DateTime? catalogEndDate)
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
@@ -5152,7 +5152,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@externalStoreId", externalStoreId);
             sp.AddParameter("@language", language);
             sp.AddParameter("@isDefaultLanguage", isDefaultLanguage.HasValue && isDefaultLanguage.Value ? 1 : 0);
-            sp.AddParameter("@outputProtecationLevel", outputProtecationLevel);
+            sp.AddParameter("@outputProtecationLevel", 0);
             sp.AddParameter("@startDate", startDate);
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", altExternalId);
@@ -5185,7 +5185,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
-            long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, int outputProtecationLevel, DateTime? startDate,
+            long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, DateTime? startDate,
             string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
@@ -5206,7 +5206,6 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@externalStoreId", externalStoreId);
             sp.AddParameter("@language", language);
             sp.AddParameter("@isDefaultLanguage", isDefaultLanguage);
-            sp.AddParameter("@outputProtecationLevel", outputProtecationLevel);
             sp.AddParameter("@startDate", startDate);
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", altExternalId);

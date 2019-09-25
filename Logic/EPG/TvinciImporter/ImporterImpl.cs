@@ -3703,7 +3703,7 @@ namespace TvinciImporter
             }
         }
 
-        static private void SetPolicyToFile(string outputProtectionLevel, int groupId, string coGuid, ref string errorMessage)
+        public static void SetPolicyToFile(string outputProtectionLevel, int groupId, string coGuid, ref string errorMessage)
         {
             try
             {
