@@ -87,6 +87,16 @@ namespace ApiLogic.Api.Managers
                     }
                 }
 
+                RegionFilter filterParent = new RegionFilter() { ParentId = region.id };
+                var subRegions = GetRegions(groupId, filterParent);
+                if (subRegions != null && subRegions.HasObjects())
+                {
+                    log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, region.id);
+                    response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Sub region cannot be parent");
+                    return response;
+                }
+
+
                 Region parentRegion = null;
                 if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
                 {
@@ -415,6 +425,7 @@ namespace ApiLogic.Api.Managers
                     }
                     else
                     {
+                        result.SetStatus(eResponseStatus.RegionNotFound, "Region not found");
                         return result;
                     }
                 }
@@ -429,8 +440,8 @@ namespace ApiLogic.Api.Managers
 
                     if (filter.RegionIds?.Count > 0)
                     {
-                        result.Objects = regionsCache.Regions.Values.ToList();
-                        result.TotalItems = regionsCache.Regions.Count;
+                        result.Objects = regionsCache.Regions.Where(r => filter.RegionIds.Contains(r.Key)).Select(r => r.Value).ToList();
+                        result.TotalItems = result.Objects.Count;
                     }
                     else if (filter.ExternalIds?.Count > 0)
                     {
