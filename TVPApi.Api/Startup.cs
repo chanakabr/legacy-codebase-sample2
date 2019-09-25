@@ -28,8 +28,8 @@ namespace TVPApi.Web
             services.AddHttpContextAccessor();
 
             var provider = services.BuildServiceProvider();
-            var htttpContextAccessor = provider.GetService<IHttpContextAccessor>();
-            System.Web.HttpContext.Configure(htttpContextAccessor);
+            var httpContextAccessor = provider.GetService<IHttpContextAccessor>();
+            System.Web.HttpContext.Configure(httpContextAccessor);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
