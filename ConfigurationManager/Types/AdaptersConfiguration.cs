@@ -8,17 +8,18 @@ namespace ConfigurationManager.Types
 {
     public class AdaptersConfiguration : ConfigurationValue
     {
-        public Dictionary<string, AdapterConfiguration> configurationDictionary;
-        JObject json;
+        public Dictionary<string, AdapterConfiguration> ConfigurationDictionary;
+        private readonly JObject _Json;
         public AdaptersConfiguration(string key) : base(key)
         {
             string objectValue = Convert.ToString(ObjectValue);
             if (!string.IsNullOrEmpty(objectValue))
             {
-                json = JObject.Parse(objectValue);
-                configurationDictionary = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(json.ToString());
+                _Json = JObject.Parse(objectValue);
+                ConfigurationDictionary = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
             }
 
+            ShouldAllowEmpty = true;
         }
 
         internal override bool Validate()
@@ -26,12 +27,12 @@ namespace ConfigurationManager.Types
             try
             {
                 base.Validate();
-                var configuration =  JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(json.ToString());
-                var res = configuration["default"]; //verify defult configuration exists
+                var configuration =  JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
+                var res = configuration["default"]; //verify default configuration exists
             }
             catch (Exception ex)
             {
-                LogError($"failed to deserilized adapter configuration: {ex.Message}", ConfigurationValidationErrorLevel.Failure);
+                LogError($"failed to deserialized adapter configuration: {ex.Message}", ConfigurationValidationErrorLevel.Failure);
 
                 return false;
             }
