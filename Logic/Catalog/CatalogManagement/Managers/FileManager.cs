@@ -573,7 +573,7 @@ namespace Core.Catalog.CatalogManagement
                     ImporterImpl.SetPolicyToFile(assetFileToAdd.OutputProtecationLevel, groupId, assetFileToAdd.ExternalId, ref errorMsg);
                     if (!string.IsNullOrEmpty(errorMsg))
                     {
-                        log.ErrorFormat("Failed to SetPolicyToFile for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
+                        log.ErrorFormat("Failed to SetPolicyToFile for assetId: {0}, groupId: {1} after InsertMediaFile with error message: ", assetFileToAdd.AssetId, groupId, errorMsg);
                     }
 
                     if (!isFromIngest)
