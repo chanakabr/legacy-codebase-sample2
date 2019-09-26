@@ -569,6 +569,9 @@ namespace Core.Catalog.CatalogManagement
                     if (!isFromIngest)
                     {
                         string errorMsg = string.Empty;
+
+                        log.DebugFormat("Calling ImporterImpl.SetPolicyToFile with parameter OutputProtecationLevel: {0}", assetFileToAdd.OutputProtecationLevel);
+
                         ImporterImpl.SetPolicyToFile(assetFileToAdd.OutputProtecationLevel, groupId, assetFileToAdd.ExternalId, ref errorMsg);
                         if (!string.IsNullOrEmpty(errorMsg))
                         {

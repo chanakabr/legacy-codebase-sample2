@@ -3780,6 +3780,9 @@ namespace TvinciImporter
 
                         string postResponse = string.Empty;
                         string postErrorMsg = string.Empty;
+
+                        log.DebugFormat("SetPolicyToFile sending http post request to: {0} with json data: {1}", address, jsonData);
+
                         if (WS_Utils.TrySendHttpPostRequest(address, jsonData, "application/x-www-form-urlencoded", Encoding.UTF8, ref postResponse, ref postErrorMsg))
                         {
                             if (!string.IsNullOrEmpty(postResponse) && postResponse.ToLower().Trim() == "true")

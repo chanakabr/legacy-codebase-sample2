@@ -48,7 +48,7 @@ namespace ApiLogic.Users.Managers
                     response.SetStatus(modifiedRoleIdsResponse.Status);
                     return response;
                 }
-                
+
                 if (!UsersDal.SavePasswordPolicy(objectToAdd))
                 {
                     log.ErrorFormat($"Error while saving Password Policy. Policy: {JsonConvert.SerializeObject(objectToAdd)}, Status: {response.Status}");
@@ -275,7 +275,9 @@ namespace ApiLogic.Users.Managers
                             passwordsHistory = UsersDal.GetPasswordsHistory(userId);
                             if (passwordsHistory != null && passwordsHistory.Contains(password))
                             {
-                                response.AddArg(eResponseStatus.PasswordCannotBeReused, $"The password shall be different from the last {passwordPolicy.HistoryCount} passwords used by the user");
+                                response.AddArg(eResponseStatus.PasswordCannotBeReused, 
+                                    $"The password shall be different from the last {passwordPolicy.HistoryCount} " +
+                                    $"passwords used by the user");
                             }
                         }
 
@@ -285,7 +287,7 @@ namespace ApiLogic.Users.Managers
                             {
                                 if (!Regex.IsMatch(password, passwordPolicy.Complexities[i].Expression))
                                 {
-                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {i + 1}",
+                                    response.AddArg($"{eResponseStatus.InvalidPasswordComplexity.ToString()} {passwordPolicy.Id}_{i + 1}",
                                         $"Your password needs to be more complex. It requires: {passwordPolicy.Complexities[i].Description}. Please enter a new password in accordance with these requirements");
                                 }
                             }
@@ -527,7 +529,7 @@ namespace ApiLogic.Users.Managers
                         modifiedRole.Add(role);
                     }
                 }
-                
+
                 if (roleIdsToUpdate != null)
                 {
                     foreach (var role in roleIdsToUpdate)//update for all relevant
