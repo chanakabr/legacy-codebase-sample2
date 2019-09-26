@@ -87,6 +87,16 @@ namespace ApiLogic.Api.Managers
                     }
                 }
 
+                RegionFilter filterParent = new RegionFilter() { ParentId = region.id };
+                var subRegions = GetRegions(groupId, filterParent);
+                if (subRegions != null && subRegions.HasObjects())
+                {
+                    log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, region.id);
+                    response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Sub region cannot be parent");
+                    return response;
+                }
+
+
                 Region parentRegion = null;
                 if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
                 {
@@ -413,8 +423,10 @@ namespace ApiLogic.Api.Managers
                     {
                         filter.RegionIds = map[filter.LiveAssetId];
                     }
-                    else
+                    
+                    if (filter.RegionIds?.Count == 0)
                     {
+                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                         return result;
                     }
                 }
@@ -429,8 +441,8 @@ namespace ApiLogic.Api.Managers
 
                     if (filter.RegionIds?.Count > 0)
                     {
-                        result.Objects = regionsCache.Regions.Values.ToList();
-                        result.TotalItems = regionsCache.Regions.Count;
+                        result.Objects = regionsCache.Regions.Where(r => filter.RegionIds.Contains(r.Key)).Select(r => r.Value).ToList();
+                        result.TotalItems = result.Objects.Count;
                     }
                     else if (filter.ExternalIds?.Count > 0)
                     {
@@ -446,15 +458,9 @@ namespace ApiLogic.Api.Managers
                             result.Objects = regionsCache.Regions.Where(r => idsToFilter.Contains(r.Key)).Select(r => r.Value).ToList();
                             result.TotalItems = result.Objects.Count;
                         }
-                        else
-                        {
-                            result.Objects = null;
-                            result.TotalItems = 0;
-                            result.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
-                        }
                     }
 
-                    if (result.Status.Code == (int)eResponseStatus.OK)
+                    if (result.Status.Code == (int)eResponseStatus.OK && result.Objects?.Count > 0)
                     {
                         if (filter.orderBy == RegionOrderBy.CreateDateAsc)
                         {
