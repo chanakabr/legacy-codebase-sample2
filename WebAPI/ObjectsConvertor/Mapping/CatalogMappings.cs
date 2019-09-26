@@ -272,7 +272,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                 .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                 .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
-                .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src =>  ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
+                .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
                 .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
 
@@ -314,7 +314,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                 .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
                 .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
-            
+
             //KalturaManualChannel to Channel (Catalog)
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaManualChannel, GroupsCacheManager.Channel>()
                .ForMember(dest => dest.m_nChannelID, opt => opt.MapFrom(src => src.Id))
@@ -337,7 +337,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
                .AfterMap((src, dest) => dest.MetaData = src.MetaData != null ? dest.MetaData : null);
-            
+
             //CategoryResponse to Category
             cfg.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -388,7 +388,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateUtils.StringExactToUtcUnixTimestampSeconds(src.START_DATE)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.StringExactToUtcUnixTimestampSeconds(src.END_DATE)))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.EPG_Meta)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))                
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.EPG_TAGS)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.EPG_PICTURES))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.EPG_IDENTIFIER))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
@@ -419,7 +419,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dCreationDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))                
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.m_ExternalIDs))
@@ -448,8 +448,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
                 .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.m_oMediaType.m_sTypeName))
-                .ForMember(dest => dest.DeviceRuleId, opt => opt.MapFrom(src => src.DeviceRule))
-                .ForMember(dest => dest.GeoBlockRuleId, opt => opt.MapFrom(src => src.GeoblockRule))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
+                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoblockRule))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
@@ -1131,7 +1131,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
             #endregion
-        }       
+        }
 
         private static int? ConvertToNullableInt(bool? value)
         {
@@ -2769,12 +2769,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             Id = kalturaRelatedEntity.Id,
                             Type = ConvertRelatedEntityType(kalturaRelatedEntity.Type)
                         };
-                        
+
                         if (relatedEntitiesToAdd.Items.Contains(relatedEntity))
                         {
                             throw new ClientException((int)StatusCode.Error, string.Format("The request contains relatedEntity with the id {0} and type {1} more than once", relatedEntity.Id, relatedEntity.Type));
                         }
-                        
+
                         relatedEntitiesToAdd.Items.Add(relatedEntity);
                     }
                 }
@@ -2792,13 +2792,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (type)
             {
                 case KalturaRelatedEntityType.CHANNEL:
-                    return RelatedEntityType.Channel;                    
+                    return RelatedEntityType.Channel;
                 case KalturaRelatedEntityType.EXTERNAL_CHANNEL:
-                    return RelatedEntityType.ExternalChannel;                    
+                    return RelatedEntityType.ExternalChannel;
                 case KalturaRelatedEntityType.MEDIA:
-                    return RelatedEntityType.Media;                    
+                    return RelatedEntityType.Media;
                 case KalturaRelatedEntityType.PROGRAM:
-                    return RelatedEntityType.Program;                    
+                    return RelatedEntityType.Program;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown KalturaRelatedEntryType");
             }
@@ -2828,14 +2828,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 return null;
             }
-            
+
             SerializableDictionary<string, KalturaRelatedEntityArray> result = new SerializableDictionary<string, KalturaRelatedEntityArray>();
 
             foreach (var item in relatedEntitiesList)
             {
                 result.Add(item.TagMeta.m_sName, new KalturaRelatedEntityArray()
                 {
-                    Objects = item.Items.Select( v => new KalturaRelatedEntity() {  Id = v.Id, Type = ConvertRelatedEntityType(v.Type)}).ToList()
+                    Objects = item.Items.Select(v => new KalturaRelatedEntity() { Id = v.Id, Type = ConvertRelatedEntityType(v.Type) }).ToList()
                 });
             }
 

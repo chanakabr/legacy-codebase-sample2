@@ -209,6 +209,15 @@ namespace WebAPI.Filters
                 {
                     pathData = formData["pathData"].ToString();
                 }
+
+                if (formData.ContainsKey("apiVersion"))
+                {
+                    Version version;
+                    if (!Version.TryParse((string)formData["apiVersion"], out version))
+                        throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
+                    
+                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
+                }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
