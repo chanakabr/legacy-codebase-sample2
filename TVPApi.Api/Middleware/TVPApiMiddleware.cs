@@ -18,6 +18,7 @@ namespace TVPApi.Web.Middleware
         /// </summary>
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
+            app.UseMiddleware<TVPApiSessionId>();
             app.UseMiddleware<TVPApiExceptionHandler>();
             app.UseMiddleware<TVPApiRequestExecutor>();
 
