@@ -66,6 +66,7 @@ namespace APILogic.Users
 
         internal static ServiceClient GetSSOAdapterServiceClient(string adapterUrl)
         {
+            adapterUrl = @"https://localhost:943/SSOAdapter/Service.svc";//@"http://localhost:90/SSOAdapter/Service.svc";
             _Logger.Debug($"Constructing SSOAdapterService Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
