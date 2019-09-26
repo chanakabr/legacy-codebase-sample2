@@ -17,8 +17,6 @@ namespace Phoenix.WebServices
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
@@ -39,16 +37,20 @@ namespace Phoenix.WebServices
             services.AddMvc();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // add request id to logging and response header
             app.UseMiddleware<WebServicesSessionId>();
 
-            var transportBinding = new HttpTransportBindingElement();
+            var httpTransportBinding = new HttpTransportBindingElement();
+            var httpsTransportBinding = new HttpsTransportBindingElement()
+            {
+                
+            };
             var soap12EncodingBinding = new TextMessageEncodingBindingElement(MessageVersion.Soap12WSAddressing10, System.Text.Encoding.UTF8);
             var soap11EncodingBinding = new TextMessageEncodingBindingElement(MessageVersion.Soap11WSAddressingAugust2004, System.Text.Encoding.UTF8);
             
-            var bindingElements = new List<BindingElement>() { soap11EncodingBinding, soap12EncodingBinding, transportBinding };
+            var bindingElements = new List<BindingElement>() { soap11EncodingBinding, soap12EncodingBinding, httpTransportBinding, httpsTransportBinding };
 
             var customBinding = new CustomBinding(bindingElements);
 
