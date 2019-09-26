@@ -65,17 +65,6 @@ namespace QueueWrapper
                         {
                             Instance.failCounterLimit = tcmFailCountLimit;
                         }
-                        else
-                        {
-                            int appSettingsFailCountLimit;
-                            bool isParseSucceeded = int.TryParse(System.Configuration.ConfigurationManager.AppSettings["queue_fail_limit"], 
-                                out appSettingsFailCountLimit);
-
-                            if (isParseSucceeded)
-                            {
-                                Instance.failCounterLimit = appSettingsFailCountLimit;
-                            }
-                        }
                     }
                     catch (Exception ex)
                     {
