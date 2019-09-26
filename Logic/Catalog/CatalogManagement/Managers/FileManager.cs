@@ -567,13 +567,10 @@ namespace Core.Catalog.CatalogManagement
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
                     string errorMsg = string.Empty;
-
-                    log.DebugFormat("Calling ImporterImpl.SetPolicyToFile with parameter OutputProtecationLevel: {0}", assetFileToAdd.OutputProtecationLevel);
-
                     ImporterImpl.SetPolicyToFile(assetFileToAdd.OutputProtecationLevel, groupId, assetFileToAdd.ExternalId, ref errorMsg);
                     if (!string.IsNullOrEmpty(errorMsg))
                     {
-                        log.ErrorFormat("Failed to SetPolicyToFile for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
+                        log.ErrorFormat("Failed to SetPolicyToFile for assetId: {0}, groupId: {1} after InsertMediaFile with error message: {2}", assetFileToAdd.AssetId, groupId, errorMsg);
                     }
 
                     if (!isFromIngest)
