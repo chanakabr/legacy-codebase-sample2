@@ -21,10 +21,12 @@ namespace TVinciShared
             var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
             serviceToConfigure.Endpoint.EndpointBehaviors.Add(addRequestIdToHeadersBehaviour);
 
-            //todo: check null if default not exist
-            var adapterNamespace =  serviceToConfigure.Endpoint.Contract.ContractType.FullName;
-            AdapterConfiguration adapterConfiguration = GetCurrentConfiguration(adapterNamespace);
-            SetConfiguration(serviceToConfigure, adapterConfiguration);
+            if (ApplicationConfiguration.AdaptersConfiguration?.ConfigurationDictionary != null)
+            {
+                var adapterNamespace = serviceToConfigure.Endpoint.Contract.ContractType.FullName;
+                AdapterConfiguration adapterConfiguration = GetCurrentConfiguration(adapterNamespace);
+                SetConfiguration(serviceToConfigure, adapterConfiguration);
+            }
 
             return serviceToConfigure;
         }
@@ -52,8 +54,8 @@ namespace TVinciShared
         {
             adapterNamespace = adapterNamespace.Replace('.','_').ToLower();
            //todo: check null if default not exist
-            var defaultConfiguration = ApplicationConfiguration.AdaptersConfiguration.configurationDictionary["default"];
-            if (ApplicationConfiguration.AdaptersConfiguration.configurationDictionary.TryGetValue(adapterNamespace, out var specificConfiguration))
+            var defaultConfiguration = ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary["default"];
+            if (ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary.TryGetValue(adapterNamespace, out var specificConfiguration))
             {
                 _Logger.Debug($"set specific configuration for Adapter:  {adapterNamespace}");
                 defaultConfiguration.CloseTimeout = specificConfiguration.CloseTimeout ?? defaultConfiguration.CloseTimeout;
