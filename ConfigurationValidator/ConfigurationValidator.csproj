@@ -63,10 +63,6 @@
       <Project>{27CC9E99-D886-4403-899B-1E0769FDB649}</Project>
       <Name>ConfigurationManager</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebAPI\WebAPI.csproj">
-      <Project>{223f9697-c15b-46e8-b71b-52ffbafbeba2}</Project>
-      <Name>WebAPI</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
