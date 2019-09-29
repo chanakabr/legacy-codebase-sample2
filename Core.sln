@@ -118,6 +118,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StaticHttpContextForNetCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitQueueWrapper", "RabbitQueueWrapper\RabbitQueueWrapper.csproj", "{5A431435-6605-4A09-B4AC-89B78B90B08B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{D1C998A9-6183-4F7D-9569-E154287F91DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -486,6 +488,14 @@ Global
 		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Local|Any CPU.Build.0 = Debug|Any CPU
 		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A431435-6605-4A09-B4AC-89B78B90B08B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1C998A9-6183-4F7D-9569-E154287F91DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

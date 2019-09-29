@@ -1,0 +1,15 @@
+﻿using System;
+
+namespace WebAPI.Models.General
+{
+    /// <summary>
+    /// Application token status
+    /// </summary>
+    [Obsolete]
+    public enum KalturaAppTokenStatus
+    {
+        DELETED = 0,
+        DISABLED = 1,	
+        ACTIVE = 2,		
+    }
+}

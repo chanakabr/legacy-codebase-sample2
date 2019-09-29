@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetHistory_List",
+      "service": "AssetHistory",
+      "action": "List",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "AssetHistory_Clean",
+      "service": "AssetHistory",
+      "action": "Clean",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

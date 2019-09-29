@@ -1,0 +1,230 @@
+{
+  "permissions": [
+    {
+      "name": "Anonymous",
+      "users_group": ""
+    },
+    {
+      "name": "User",
+      "users_group": ""
+    },
+    {
+      "name": "PLAYBACK_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "PLAYBACK_PPV",
+      "users_group": ""
+    },
+    {
+      "name": "PURCHASE_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "PURCHASE_PPV",
+      "users_group": ""
+    },
+    {
+      "name": "RENEW_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "PURCHASE_SERVICE",
+      "users_group": ""
+    },
+    {
+      "name": "LOGIN",
+      "users_group": ""
+    },
+    {
+      "name": "Master",
+      "users_group": "household*"
+    },
+    {
+      "name": "Operator",
+      "users_group": "partner*"
+    },
+    {
+      "name": "DELETE_ALL_APP_TOKENS",
+      "users_group": ""
+    },
+    {
+      "name": "VIEW_INACTIVE_ASSETS",
+      "users_group": ""
+    },
+    {
+      "name": "Manager",
+      "users_group": "partner*"
+    },
+    {
+      "name": "Administrator",
+      "users_group": "partner*"
+    },
+    {
+      "name": "ExternalPaymentGateway",
+      "users_group": "partner*"
+    },
+    {
+      "name": "CANCEL_SUBSCRIPTION",
+      "users_group": ""
+    },
+    {
+      "name": "OLD_SUSPEND",
+      "users_group": ""
+    },
+    {
+      "name": "FAVORITES_SERVICE",
+      "users_group": ""
+    },
+    {
+      "name": "ASSETSTRUCT_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "IMAGETYPE_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "MEDIAFILETYPE_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "ASSETSTRUCT_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "IMAGETYPE_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "MEDIAFILETYPE_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "ADMIN_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "MANAGER_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "MY_USER_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "TEAM_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "RULES_MNG",
+      "users_group": ""
+    },
+    {
+      "name": "RULES_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "ASSETS_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing media assets metadata"
+    },
+    {
+      "name": "BSC_ASSETS_MNG",
+      "users_group": "",
+      "friendly_name": "Basic media asset management - Metadata, Availability, Images and EPG Tabs"
+    },
+    {
+      "name": "ASSETS_MNG",
+      "users_group": "",
+      "friendly_name": "Complete media asset management - including Time Shifted TV and Rules"
+    },
+    {
+      "name": "COLLECTIONS_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing manual and dynamic collections"
+    },
+    {
+      "name": "COLLECTIONS_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting manual and dynamic collections"
+    },
+    {
+      "name": "EXT_COLLECTIONS_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing external collections",
+      "depends_on_permission_names": "External Collections"
+    },
+    {
+      "name": "EXT_COLLECTIONS_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting external collections",
+      "depends_on_permission_names": "External Collections"
+    },
+    {
+      "name": "USER_SEG_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing user segments",
+      "depends_on_permission_names": "Targeted TV"
+    },
+    {
+      "name": "USER_SEG_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting user segments",
+      "depends_on_permission_names": "Targeted TV"
+    },
+    {
+      "name": "TARGET_OFFER_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing targeted offerings"
+    },
+    {
+      "name": "TARGET_OFFER_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting targeted offerings"
+    },
+    {
+      "name": "GROUP_CONFIG_MNG",
+      "users_group": "",
+      "friendly_name": "Editing the group configuration settings"
+    },
+    {
+      "name": "OPC_PREF_VIEW",
+      "users_group": ""
+    },
+    {
+      "name": "OPC_PREF_MNG",
+      "users_group": "",
+      "friendly_name": "Editing the OPC Preferences section"
+    },
+    {
+      "name": "ADMIN_SET_MNG",
+      "users_group": "",
+      "friendly_name": "Access the Admin Settings section"
+    },
+    {
+      "name": "REGION_MNG",
+      "users_group": "",
+      "friendly_name": "Adding, editing and deleting regions",
+      "depends_on_permission_names": "Bouquets"
+    },
+    {
+      "name": "REGION_VIEW",
+      "users_group": "",
+      "friendly_name": "Viewing regions",
+      "depends_on_permission_names": "Bouquets"
+    },
+    {
+      "name": "NOTIF_VIEW",
+      "users_group": "",
+      "friendly_name": "View Notifications Setting",
+      "depends_on_permission_names": "Notifications"
+    },
+    {
+      "name": "NOTIF_MNG",
+      "users_group": "",
+      "friendly_name": "Manage Notification Settings",
+      "depends_on_permission_names": "Notifications"
+    }
+  ]
+}

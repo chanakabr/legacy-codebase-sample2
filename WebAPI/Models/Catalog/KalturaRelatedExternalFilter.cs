@@ -1,0 +1,53 @@
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+
+namespace WebAPI.Models.Catalog
+{
+    public partial class KalturaRelatedExternalFilter : KalturaAssetFilter
+    {
+         /// <summary>
+        /// the External ID of the asset for which to return related assets
+        /// </summary>
+        [DataMember(Name = "idEqual")]
+        [JsonProperty("idEqual")]
+        [XmlElement(ElementName = "idEqual")]
+        [SchemeProperty(MinInteger = 1)]
+        public int IdEqual { get; set; }
+
+         /// <summary>
+        /// Comma separated list of asset types to search within. 
+        /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
+        /// If omitted – all types should be included.
+        /// </summary>
+        [DataMember(Name = "typeIn")]
+        [JsonProperty("typeIn")]
+        [XmlElement(ElementName = "typeIn", IsNullable = true)]
+        public string TypeIn { get; set; }        
+
+        /// <summary>
+        /// UtcOffsetEqual 
+        /// </summary>
+        [DataMember(Name = "utcOffsetEqual")]
+        [JsonProperty("utcOffsetEqual")]
+        [XmlElement(ElementName = "utcOffsetEqual")]
+        public int UtcOffsetEqual { get; set; }
+
+         /// <summary>
+        ///FreeText
+        /// </summary>
+        [DataMember(Name = "freeText")]
+        [JsonProperty("freeText")]
+        [XmlElement(ElementName = "freeText", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string FreeText { get; set; }
+
+       
+        internal List<int> getTypeIn()
+        {
+            return this.GetItemsIn<List<int>, int>(TypeIn, "KalturaRelatedExternalFilter.typeIn");
+        }
+    }
+}
