@@ -49,6 +49,13 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public long Version;
 
+        public GenericResponse<SegmentationType> ValidateForInsert()
+        {
+            var response = new GenericResponse<SegmentationType>();
+
+            return response;
+        }
+
         protected override bool DoInsert()
         {
             bool result = false;
@@ -120,6 +127,13 @@ namespace ApiObjects.Segmentation
             result = setResult;
 
             return result;
+        }
+
+        public GenericResponse<SegmentationType> ValidateForUpdate()
+        {
+            var response = new GenericResponse<SegmentationType>();
+
+            return response;
         }
 
         protected override bool DoUpdate()
