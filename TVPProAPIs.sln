@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28917.181
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{223F9697-C15B-46E8-B71B-52FFBAFBEBA2}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -314,6 +314,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phoenix.Rest", "Phoenix.Rest\Phoenix.Rest.csproj", "{3D274706-3E81-43DC-A560-60B5818F9F73}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Phoenix.Legacy", "Phoenix.Legacy\Phoenix.Legacy.csproj", "{C9C6DE80-38FF-4350-8250-38EACF68D759}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Phoenix.WebServices", "Phoenix.WebServices\Phoenix.WebServices.csproj", "{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -864,6 +866,16 @@ Global
 		{C9C6DE80-38FF-4350-8250-38EACF68D759}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
 		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9C6DE80-38FF-4350-8250-38EACF68D759}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC321B92-7E90-4FE8-BCFD-A2A1384FB98F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -928,7 +940,7 @@ Global
 		{49B94D77-9B91-4BCC-9FBA-6466B6340504} = {BB5EE93A-9128-4339-8040-5EA834D2BDD1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal
