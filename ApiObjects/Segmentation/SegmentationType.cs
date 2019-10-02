@@ -52,6 +52,7 @@ namespace ApiObjects.Segmentation
         public GenericResponse<SegmentationType> ValidateForInsert()
         {
             var response = new GenericResponse<SegmentationType>();
+            response.SetStatus(eResponseStatus.OK);
 
             return response;
         }
@@ -132,6 +133,7 @@ namespace ApiObjects.Segmentation
         public GenericResponse<SegmentationType> ValidateForUpdate()
         {
             var response = new GenericResponse<SegmentationType>();
+            response.SetStatus(eResponseStatus.OK);
 
             return response;
         }
