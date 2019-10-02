@@ -2,12 +2,8 @@
 using ConfigurationManager.Types;
 using KLogMonitor;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TVinciShared
 {
@@ -21,21 +17,24 @@ namespace TVinciShared
             var addRequestIdToHeadersBehaviour = new ServiceExtensions.ClientEndpointBehavior();
             serviceToConfigure.Endpoint.EndpointBehaviors.Add(addRequestIdToHeadersBehaviour);
 
-            if (ApplicationConfiguration.AdaptersConfiguration?.ConfigurationDictionary != null)
-            {
-                var adapterNamespace = serviceToConfigure.Endpoint.Contract.ContractType.FullName;
-                AdapterConfiguration adapterConfiguration = GetCurrentConfiguration(adapterNamespace);
-                SetConfiguration(serviceToConfigure, adapterConfiguration);
-            }
+            var adapterNamespace = serviceToConfigure.Endpoint.Contract.ContractType.FullName;
+            AdapterConfiguration adapterConfiguration = GetCurrentConfiguration(adapterNamespace);
+            SetConfiguration(serviceToConfigure, adapterConfiguration);
 
             return serviceToConfigure;
         }
-        
+
 
         private static void SetConfiguration<TChannel>(ClientBase<TChannel> serviceToConfigure, AdapterConfiguration adapterConfiguration) where TChannel : class
         {
             var bindingBase = serviceToConfigure.Endpoint.Binding as HttpBindingBase;
+
             bindingBase.MaxReceivedMessageSize = adapterConfiguration.MaxReceivedMessageSize.Value;
+            bindingBase.SendTimeout = TimeSpan.FromSeconds(adapterConfiguration.SendTimeout.Value);
+            bindingBase.OpenTimeout = TimeSpan.FromSeconds(adapterConfiguration.OpenTimeout.Value);
+            bindingBase.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value);
+            bindingBase.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value);
+            bindingBase.MaxBufferSize = (int)bindingBase.MaxReceivedMessageSize;
 
             if (serviceToConfigure.Endpoint.Address.Uri.Scheme.ToLower().Equals("https"))
             {
@@ -44,16 +43,11 @@ namespace TVinciShared
                 securityMode.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
             }
 
-            serviceToConfigure.Endpoint.Binding.SendTimeout = TimeSpan.FromSeconds(adapterConfiguration.SendTimeout.Value);
-            serviceToConfigure.Endpoint.Binding.OpenTimeout = TimeSpan.FromSeconds(adapterConfiguration.OpenTimeout.Value);
-            serviceToConfigure.Endpoint.Binding.CloseTimeout = TimeSpan.FromSeconds(adapterConfiguration.CloseTimeout.Value);
-            serviceToConfigure.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromSeconds(adapterConfiguration.ReceiveTimeout.Value);
         }
 
         private static AdapterConfiguration GetCurrentConfiguration(string adapterNamespace)
         {
             adapterNamespace = adapterNamespace.Replace('.','_').ToLower();
-           //todo: check null if default not exist
             var defaultConfiguration = ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary["default"];
             if (ApplicationConfiguration.AdaptersConfiguration.ConfigurationDictionary.TryGetValue(adapterNamespace, out var specificConfiguration))
             {
