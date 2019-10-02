@@ -780,7 +780,7 @@ namespace WebAPI.Utils
         {
             if (responseProfile != null && assets != null && responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
             {
-                var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAssetImagePerRatioFilter);
+                var profile = detachedResponseProfile.RelatedProfiles?.FirstOrDefault(x => x.Filter is KalturaAssetImagePerRatioFilter);
 
                 if (profile != null)
                 {
