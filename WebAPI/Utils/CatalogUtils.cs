@@ -508,7 +508,7 @@ namespace WebAPI.Utils
                 bool isProfileExists = false;
                 if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
                 {
-                    var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAggregationCountFilter);
+                    var profile = detachedResponseProfile.RelatedProfiles?.FirstOrDefault(x => x.Filter is KalturaAggregationCountFilter);
 
                     if (profile != null)
                     {
