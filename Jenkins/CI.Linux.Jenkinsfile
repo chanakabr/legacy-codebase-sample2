@@ -25,7 +25,7 @@ pipeline {
                 script{
                     dir("tvpapi_rest"){ 
                         GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim() 
-                        FULL_VERSION = sh(script: 'cd tvpapi_rest && ../core/get-version-tag.sh', , returnStdout: true).trim()
+                        FULL_VERSION = sh(script: '../core/get-version-tag.sh', , returnStdout: true).trim()
                     }
                 }
             }
@@ -83,6 +83,7 @@ pipeline {
                     sh(
                         label: "Docker build ${REPOSITORY_NAME}", 
                         script: "docker build "+
+                        "-f WebServices.Dockerfile " +
                         "-t ${ECR_REPOSITORY}:build  "+
                         "-t ${ECR_REPOSITORY}:${GIT_COMMIT} "+
                         "--build-arg BRANCH=${BRANCH_NAME} "+
