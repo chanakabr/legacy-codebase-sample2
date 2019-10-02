@@ -369,8 +369,10 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.UsersClient().CheckPasswordToken(partnerId, token);
-                ClientsManager.UsersClient().RenewPassword(partnerId, response.Username, password);
-                AuthorizationManager.RevokeSessions(partnerId, response.Id);
+                if (ClientsManager.UsersClient().RenewPassword(partnerId, response.Username, password))
+                {
+                    AuthorizationManager.RevokeSessions(partnerId, response.Id);
+                }
             }
             catch (ClientException ex)
             {
