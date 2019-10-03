@@ -1310,10 +1310,11 @@ namespace Core.Users
 
             // validate pin
             response = baseUser.ValidateLoginWithPin(PIN, secret);
-            
             if (response.Object == null)
             {
                 response.Object = new UserResponseObject();
+                response.SetStatus(eResponseStatus.Error);
+                return response;
             }
 
             if (!response.IsOkStatusCode())
