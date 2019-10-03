@@ -95,6 +95,18 @@ namespace Core.Notification
             }
         }
 
+        public static bool DispatchEventNotification(int groupId, EventNotificationScope ens)
+        {
+            if (ens is EventNotificationEventObjectType)
+            {
+                var eneot = ens as EventNotificationEventObjectType;
+                eneot.EventObject.Notify(type: ens.ScopeType);
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
         {
             // get group ID
