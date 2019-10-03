@@ -772,9 +772,9 @@ namespace APILogic
                 // dates
                 xml.AppendFormat("<dates><catalog_start>{0}</catalog_start><start>{1}</start><catalog_end>{2}</catalog_end><final_end>{3}</final_end></dates>",
                     TVinciShared.ProtocolsFuncs.XMLEncode((asset.CatalogStartDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss") , true),    // {0} - catalog start date
-                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.StartDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss"), true),            // {1} - start date
-                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.EndDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true),              // {2} - catalog end date
-                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.FinalEndDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true)             // {3} - end date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.StartDate.HasValue ? asset.StartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss"), true),            // {1} - start date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.EndDate.HasValue ? asset.EndDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true),              // {2} - catalog end date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.FinalEndDate.HasValue ? asset.FinalEndDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true)             // {3} - end date
                     );
 
                 xml.Append("</basic>");
