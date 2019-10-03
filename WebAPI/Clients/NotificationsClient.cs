@@ -14,6 +14,7 @@ using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
@@ -68,6 +69,26 @@ namespace WebAPI.Clients
 
                 return settings;
             }
+        }
+
+        internal bool DispatchEventNotification(int groupId, KalturaEventNotificationScope scope)
+        {
+            try
+            {
+                EventNotificationScope ens = AutoMapper.Mapper.Map<EventNotificationScope>(scope);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    return Core.Notification.Module.DispatchEventNotification(groupId, ens);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling dispatching event notification. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return false;
         }
 
         internal bool SendEmail(int groupId, KalturaEmailMessage emailMessage)

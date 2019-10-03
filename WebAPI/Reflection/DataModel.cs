@@ -1458,6 +1458,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaConcurrencyEventNotificationScope":
+                    switch(property.Name)
+                    {
+                        case "AssetID":
+                            return "assetID";
+                        case "HouseholdID":
+                            return "householdID";
+                        case "Time":
+                            return "time";
+                        case "UDID":
+                            return "udid";
+                        case "UserID":
+                            return "userID";
+                        case "ViolationRule":
+                            return "violationRule";
+                    }
+                    break;
+                    
                 case "KalturaConcurrencyPartnerConfig":
                     switch(property.Name)
                     {
@@ -2325,6 +2343,14 @@ namespace WebAPI.Reflection
                             return "status";
                         case "UpdateDate":
                             return "updateDate";
+                    }
+                    break;
+                    
+                case "KalturaEventNotificationEventObjectType":
+                    switch(property.Name)
+                    {
+                        case "EventObject":
+                            return "eventObject";
                     }
                     break;
                     
@@ -7622,6 +7648,17 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("epgChannel", "list", false);
                             return EpgChannelController.List((KalturaEpgChannelFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "eventnotificationaction":
+                    switch(action)
+                    {
+                        case "dispatch":
+                            RolesManager.ValidateActionPermitted("eventNotificationAction", "dispatch", false);
+                            EventNotificationActionController.Dispatch((KalturaEventNotificationScope) methodParams[0]);
+                            return null;
                             
                     }
                     break;
@@ -13141,6 +13178,20 @@ namespace WebAPI.Reflection
                                 IsList = true,
                                 GenericType = typeof(KalturaCatalogWithHolder),
                                 Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "eventnotificationaction":
+                    switch(action)
+                    {
+                        case "dispatch":
+                            ret.Add("scope", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEventNotificationScope),
                             });
                             return ret;
                             

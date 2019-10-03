@@ -1452,6 +1452,13 @@
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.EventNotificationActionController.Dispatch(WebAPI.Models.API.KalturaEventNotificationScope)">
+            <summary>
+            Dispatches event notification
+            </summary>
+            <returns></returns>
+            <param name="scope">Scope</param>
+        </member>
         <member name="M:WebAPI.Controllers.ExportTaskController.Add(WebAPI.Models.API.KalturaExportTask)">
             <summary>
             Adds a new bulk export task
@@ -5750,6 +5757,31 @@
         <member name="P:WebAPI.Models.API.KalturaEventNotificationFilter.EventObjectTypeEqual">
             <summary>
             Indicates which objectType to return by their event notifications.
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaEventNotificationScope">
+            <summary>
+            Kaltura event notification scope
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationScope.Scope">
+            <summary>
+            The Scope
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaScopeType">
+            <summary>
+            Kaltura Scope type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaEventNotificationEventObjectType">
+            <summary>
+            Kaltura event notification event object type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationEventObjectType.EventObject">
+            <summary>
+            Event object to fire
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaExportFilter">
@@ -12522,6 +12554,36 @@
         <member name="P:WebAPI.Models.Notifications.KalturaSubscriptionTrigger.Offset">
             <summary>
             Subscription trigger offset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.Timestamp">
+            <summary>
+            Time
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.UDID">
+            <summary>
+            UDID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.AssetId">
+            <summary>
+            Asset ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.ViolationRule">
+            <summary>
+            Violation Rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.HouseholdId">
+            <summary>
+            Household ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.UserId">
+            <summary>
+            User ID
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">

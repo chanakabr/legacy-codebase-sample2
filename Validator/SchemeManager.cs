@@ -454,7 +454,7 @@ namespace Validator.Managers.Scheme
                     valid = false;
                 }
             }
-            else if (attribute.IsClass && attribute != typeof(string) && attribute != typeof(KalturaOTTFile) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)))
+            else if (attribute.IsClass && attribute != typeof(string) && attribute != typeof(KalturaOTTFile) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)) && attribute != typeof(KalturaOTTObject))
             {
                 logError("Error", declaringClass, string.Format("{0} object must inherit from KalturaOTTObject (or something that extends it)", description));
                 valid = false;
