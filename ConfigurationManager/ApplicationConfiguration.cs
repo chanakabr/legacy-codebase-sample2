@@ -42,6 +42,12 @@ namespace ConfigurationManager
 
         #endregion
 
+        #region TVP Api
+
+        public static TVPApiConfiguration TVPApiConfiguration;
+
+        #endregion
+
         #region Configuration values
 
         public static NumericConfigurationValue CrowdSourceTimeSpan;
@@ -608,6 +614,10 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            TVPApiConfiguration = new TVPApiConfiguration("tvpapi_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -720,7 +730,8 @@ namespace ConfigurationManager
                     MediaMarksListLength,
                     MediaMarksTTL,
                     EpgInitialId,
-                    ShouldAddInvalidationKeysToHeader
+                    ShouldAddInvalidationKeysToHeader,
+                    TVPApiConfiguration
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

@@ -7,13 +7,15 @@ namespace ConfigurationManager
 {
     public class BooleanConfigurationValue : ConfigurationValue
     {
+        private bool isEmpty = false;
+
         public BooleanConfigurationValue(string key) : base(key)
         {
         }
 
         public BooleanConfigurationValue(string key, ConfigurationValue parent) : base(key, parent)
         {
-            bool isEmpty = false;
+            isEmpty = false;
 
             if (this.ObjectValue == null)
             {
@@ -81,6 +83,15 @@ namespace ConfigurationManager
             return result;
         }
 
+        public override void LoadDefault()
+        {
+            base.LoadDefault();
+
+            if (isEmpty && this.DefaultValue != null)
+            {
+                this.ObjectValue = this.DefaultValue;
+            }
+        }
         public bool Value
         {
             get
