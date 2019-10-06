@@ -2,6 +2,7 @@
 using KLogMonitor;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Phoenix.Rest
 {
@@ -18,6 +19,7 @@ namespace Phoenix.Rest
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
                 .ConfigureKestrel(o => o.AllowSynchronousIO = false)
                 .UseStartup<Startup>();
     }

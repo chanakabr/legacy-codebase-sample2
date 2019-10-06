@@ -25,6 +25,7 @@ namespace Phoenix.WebServices
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>();
     }
