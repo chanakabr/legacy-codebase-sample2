@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ConfigurationManager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -20,9 +21,7 @@ namespace TVPApi.Web
         {
             Configuration = configuration;
         }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
@@ -31,11 +30,10 @@ namespace TVPApi.Web
             var httpContextAccessor = provider.GetService<IHttpContextAccessor>();
             System.Web.HttpContext.Configure(httpContextAccessor);
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = System.Configuration.ConfigurationManager.AppSettings["CatalogServiceSignatureKey"];
+            Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
 
             app.Map("/Gateways/JsonPostGW.aspx", apiApp =>
             {
