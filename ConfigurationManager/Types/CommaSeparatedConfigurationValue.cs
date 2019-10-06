@@ -10,38 +10,28 @@ namespace ConfigurationManager
 
         public CommaSeparatedConfigurationValue(string key) : base(key)
         {
-            values = new HashSet<string>();
         }
 
         public CommaSeparatedConfigurationValue(string key, ConfigurationValue parent) : base(key, parent)
         {
-            values = new HashSet<string>();
+            PopulateList();
         }
 
-        internal override bool Validate()
+        private void PopulateList()
         {
-            bool isValid = base.Validate();
+            values = new HashSet<string>();
 
-            try
+            if (!string.IsNullOrEmpty(this.Value))
             {
-                if (!string.IsNullOrEmpty(this.Value))
-                {
-                    string[] splitted = this.Value.Split(',');
+                string[] splitted = this.Value.Split(',');
 
-                    foreach (var value in splitted)
-                    {
-                        values.Add(value);
-                    }
+                foreach (var value in splitted)
+                {
+                    values.Add(value);
                 }
             }
-            catch (Exception ex)
-            {
-                LogError($"Validating comma separted list failed because {ex}", ConfigurationValidationErrorLevel.Failure);
-                isValid = false;
-            }
-
-            return isValid;
         }
+
         public bool ContainsValue(string value)
         {
             return values.Contains(value);
