@@ -14,6 +14,7 @@ using Core.Catalog;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -96,8 +97,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 // Store in Cache the medias from Catalog
                 Log("Got MediaResponse from Catalog", oMediaResponse);
                 Log("Storing Medias in Cache", oMediaResponse.m_lObj);
-                int duration;
-                int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
                 CacheManager.Cache.StoreObjects(oMediaResponse.m_lObj, string.Format("{0}_lng{1}", CACHE_KEY_PREFIX, Language), duration);
             }
 

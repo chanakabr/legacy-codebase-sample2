@@ -13,13 +13,14 @@ using Core.Catalog;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using ConfigurationManager;
 
 namespace TVPApi
 {
     public class APIExternalRelatedMediaLoader : TVPPro.SiteManager.DataLoaders.ExternalRelatedMoviesLoader
     {
         private TVPApiModule.CatalogLoaders.APIExternalRelatedMediaLoader m_oCatalogExternalRelatedLoader;
-        private bool m_bShouldUseCache;
+        
 
         public APIExternalRelatedMediaLoader(long mediaID, string freeParam = null)
             : base(mediaID, string.Empty, string.Empty, freeParam)
@@ -118,7 +119,7 @@ namespace TVPApi
 
         public override List<BaseObject> Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogExternalRelatedLoader = new TVPApiModule.CatalogLoaders.APIExternalRelatedMediaLoader(
                     (int)MediaID,

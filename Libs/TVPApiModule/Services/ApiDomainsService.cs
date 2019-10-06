@@ -8,6 +8,7 @@ using TVPApiModule.Objects;
 using Domain = TVPApiModule.Objects.Domain;
 using System.Linq;
 using DomainResponseObject = TVPApiModule.Objects.DomainResponseObject;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -45,8 +46,8 @@ namespace TVPApiModule.Services
 
         public ApiDomainsService(int groupID, PlatformType platform)
         {
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.DomainsService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).DomainsCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).DomainsCredentials.Password;
 
             m_groupID = groupID;
             m_platform = platform;

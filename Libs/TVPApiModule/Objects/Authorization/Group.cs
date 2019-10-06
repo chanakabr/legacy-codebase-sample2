@@ -132,6 +132,8 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("languages")]
         public List<Language> Languages { get; set; }
 
+        [JsonProperty("database_configurations")]
+        public Dictionary<TVPApi.PlatformType, DatabaseConfiguration> DatabaseConfigurations { get; set; }
     }
 
 
@@ -164,4 +166,30 @@ namespace TVPApiModule.Objects.Authorization
         public bool IsDefault { get; set; }
     }
 
+    [Serializable]
+    public class DatabaseConfiguration
+    {
+        [JsonProperty()]
+        public string DatabaseInstance { get; set; }
+        [JsonProperty()]
+        public string IP { get; set; }
+        [JsonProperty()]
+        public string User { get; set; }
+        [JsonProperty()]
+        public string Password { get; set; }
+    }
+    //string dbInstance =
+    ////GroupsManager.GetGroup(m_groupID).
+    //ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
+    //        //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
+    //        if (m_isShared)
+    //        {
+    //            int index = dbInstance.IndexOf(m_Platform.ToString());
+    //dbInstance = dbInstance.Substring(0, index - 1);
+    //        }
+    //        //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
+    //        return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.IP,
+    //        ";Database=", dbInstance,
+    //        ";Uid=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.User,
+    //        ";Pwd=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.Pass,
 }

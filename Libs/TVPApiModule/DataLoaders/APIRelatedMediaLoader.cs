@@ -9,6 +9,7 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApi
 {
@@ -16,7 +17,7 @@ namespace TVPApi
     {
 
         private TVPApiModule.CatalogLoaders.APIRelatedMediaLoader m_oCatalogRelatedLoader;
-        private bool m_bShouldUseCache;
+        
 
         public APIRelatedMediaLoader(long mediaID)
             : this(mediaID, string.Empty, string.Empty)
@@ -115,7 +116,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogRelatedLoader = new TVPApiModule.CatalogLoaders.APIRelatedMediaLoader(
                     (int)MediaID, 
@@ -145,7 +146,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogRelatedLoader.TryGetItemsCount(out count);
             }

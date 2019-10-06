@@ -20,7 +20,7 @@ using ApiObjects.Response;
 //    public class APIExternalSearchMediaLoader : TVPPro.SiteManager.DataLoaders.ExternalSearchMoviesLoader
 //    {
 //        private TVPApiModule.CatalogLoaders.APIExternalSearchMediaLoader m_oCatalogExternalSearchLoader;
-//        private bool m_bShouldUseCache;
+//        
 
 //        public APIExternalSearchMediaLoader(string query)
 //            : base(query, string.Empty, string.Empty)
@@ -119,7 +119,7 @@ using ApiObjects.Response;
 
 //        public override List<BaseObject> Execute()
 //        {
-//            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+//            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
 //            {
 //                m_oCatalogExternalSearchLoader = new TVPApiModule.CatalogLoaders.APIExternalSearchMediaLoader(
 //                    Query,

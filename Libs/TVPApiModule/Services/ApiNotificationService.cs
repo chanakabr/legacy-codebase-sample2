@@ -7,6 +7,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Notification;
 using Notification = TVPApiModule.Objects.Notification;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -21,13 +22,8 @@ namespace TVPApiModule.Services
 
         public ApiNotificationService(int groupID, PlatformType platform)
         {
-            m_wsUserName = ConfigManager.GetInstance()
-                           .GetConfig(groupID, platform)
-                           .PlatformServicesConfiguration.Data.NotificationService.DefaultUser;
-            m_wsPassword =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.NotificationService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).NotificationsCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).NotificationsCredentials.Password;
 
             m_groupID = groupID;
             m_platform = platform;

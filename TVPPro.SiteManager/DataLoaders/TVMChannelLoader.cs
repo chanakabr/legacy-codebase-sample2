@@ -22,6 +22,7 @@ using TVPPro.SiteManager.Services;
 using KLogMonitor;
 using System.Reflection;
 using Tvinci.Data.TVMDataLoader.Protocols.VastProtocol;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -29,7 +30,7 @@ namespace TVPPro.SiteManager.DataLoaders
     public class TVMChannelLoader : TVMAdapter<dsItemInfo>
     {
         private ChannelMediaLoader m_oCatalogChannelLoader;
-        private bool m_bShouldUseCache;
+        
 
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string m_tvmUser;
@@ -209,7 +210,7 @@ namespace TVPPro.SiteManager.DataLoaders
         public override dsItemInfo Execute()
         {
 
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogChannelLoader = new ChannelMediaLoader((int)ChannelID, m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageSize != 0 ? PageIndex / PageSize : PageIndex, PicSize, OrderObj)
                 {
@@ -519,7 +520,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogChannelLoader.TryGetItemsCount(out count);
             }

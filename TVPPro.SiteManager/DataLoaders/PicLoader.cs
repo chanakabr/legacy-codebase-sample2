@@ -12,6 +12,7 @@ using System.Configuration;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -139,7 +140,7 @@ namespace TVPPro.SiteManager.DataLoaders
     public class PicLoader : TVMAdapter<SerializableDictionary<string, string>>
     {
         private PicturesLoader m_oPicturesLoader;
-        private bool m_bShouldUseCache;
+        
 
         private string m_tvmUser;
         private string m_tvmPass;
@@ -216,7 +217,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override SerializableDictionary<string, string> Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 List<int> picIDs = PicsIDArr.Select(id => int.Parse(id)).ToList();
                 m_oPicturesLoader = new PicturesLoader(picIDs, m_tvmUser, SiteHelper.GetClientIP(), PictureSize)

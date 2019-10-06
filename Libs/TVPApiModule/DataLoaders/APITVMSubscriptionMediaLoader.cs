@@ -10,6 +10,7 @@ using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.DataEntities;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -17,7 +18,7 @@ namespace TVPApiModule.DataLoaders
     {        
         private long m_BaseID;
         private TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader m_oSubscriptionMediaLoader;
-        private bool m_bShouldUseCache;
+        
 
         protected string TvmUser
         {
@@ -113,7 +114,7 @@ namespace TVPApiModule.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oSubscriptionMediaLoader = new TVPApiModule.CatalogLoaders.APISubscriptionMediaLoader(
                     (int)BaseID,
@@ -142,7 +143,7 @@ namespace TVPApiModule.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oSubscriptionMediaLoader.TryGetItemsCount(out count);
             }

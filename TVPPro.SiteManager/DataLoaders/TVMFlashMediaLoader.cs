@@ -11,6 +11,7 @@ using System.Configuration;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -91,8 +92,8 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override XmlDocument Execute()
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return new FlashMediaLoader(int.Parse(MediaID), m_tvmUser, SiteHelper.GetClientIP(), m_FlashLoadersParams.Pic2Size)
                 {

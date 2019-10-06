@@ -12,6 +12,7 @@ using System.Reflection;
 using Core.Catalog.Request;
 using Core.Catalog;
 using Core.Catalog.Response;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -92,8 +93,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 // Store in Cache the pictures from Catalog
                 Log("Got PicResponse from Catalog", oPicResponse);
                 Log("Storing Pictures in Cache", oPicResponse.m_lObj);
-                int duration;
-                int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
                 CacheManager.Cache.StoreObjects(oPicResponse.m_lObj, CACHE_KEY_PREFIX, duration);
             }
             else if (providerResult != eProviderResult.Success)

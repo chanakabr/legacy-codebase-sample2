@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using TVPPro.SiteManager.Services;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -23,7 +24,7 @@ namespace TVPPro.SiteManager.DataLoaders
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private RelatedMediaLoader m_oCatalogRelatedLoader;
-        private bool m_bShouldUseCache;
+        
 
         #region Properties
         public long MediaID
@@ -154,7 +155,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogRelatedLoader = new RelatedMediaLoader((int)MediaID, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -278,7 +279,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogRelatedLoader.TryGetItemsCount(out count);
             }

@@ -11,6 +11,7 @@ using System.Configuration;
 using TVPPro.SiteManager.Manager;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -20,7 +21,7 @@ namespace TVPPro.SiteManager.DataLoaders
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private PersonalLastWatchedLoader m_oPersonalLastWatchedLoader;
-        private bool m_bShouldUseCache;
+        
 
         public string PicSize
         {
@@ -117,7 +118,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oPersonalLastWatchedLoader = new PersonalLastWatchedLoader(SiteGuid, TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -134,7 +135,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oPersonalLastWatchedLoader.TryGetItemsCount(out count);
             }

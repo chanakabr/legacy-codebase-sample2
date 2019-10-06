@@ -7,6 +7,7 @@ using System.Data;
 using KLogMonitor;
 using System.Reflection;
 using System.Data.SqlClient;
+using ConfigurationManager;
 
 namespace TVPApi.ODBCWrapper
 {
@@ -22,21 +23,10 @@ namespace TVPApi.ODBCWrapper
             m_myDataSet = new System.Data.DataSet();
             command = null;
 
-            if (System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"] != null &&
-                System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString() != "")
-            {
-                m_nCachedSec = int.Parse(System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString());
-            }
-            //else if (HttpContext.Current != null && HttpContext.Current.Session != null)
-            //{
-            //    if (HttpContext.Current.Session["ODBC_CACH_SEC"] != null)
-            //        m_nCachedSec = int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
-            //    else
-            //        m_nCachedSec = 60;
-            //}
-            else
-                m_nCachedSec = 60;
+            m_nCachedSec = ApplicationConfiguration.TVPApiConfiguration.OdbcCacheSeconds.IntValue;
 
+            if (m_nCachedSec == 0)
+                m_nCachedSec = 60;
         }
 
         public override void Finish()

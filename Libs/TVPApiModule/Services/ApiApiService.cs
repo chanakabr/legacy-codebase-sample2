@@ -10,6 +10,7 @@ using TVPApiModule.Objects.Responses;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -23,8 +24,10 @@ namespace TVPApiModule.Services
 
         public ApiApiService(int groupID, PlatformType platform)
         {
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).ApiCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).ApiCredentials.Password;
+            //ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.DefaultUser;
+            //ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ApiService.DefaultPassword;
 
             m_groupID = groupID;
             m_platform = platform;

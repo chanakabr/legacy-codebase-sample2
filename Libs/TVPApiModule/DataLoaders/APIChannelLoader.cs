@@ -13,12 +13,13 @@ using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
 using ApiObjects.SearchObjects;
 using Core.Catalog;
+using ConfigurationManager;
 
 namespace TVPApi
 {
     public class APIChannelLoader : TVPPro.SiteManager.DataLoaders.TVMChannelLoader
     {
-        private bool m_bShouldUseCache;
+        
         private APIChannelMediaLoader m_oCatalogChannelLoader;
 
         public string SiteGuid
@@ -137,7 +138,7 @@ namespace TVPApi
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogChannelLoader = new APIChannelMediaLoader((int)ChannelID, SiteMapManager.GetInstance.GetPageData(GroupID, Platform).GetTVMAccountByUser(TvmUser).BaseGroupID, GroupID, Platform.ToString(), SiteHelper.GetClientIP(), PageSize, PageIndex, 
                     OrderObj, PicSize, TagsMetas, CutWith)
@@ -163,7 +164,7 @@ namespace TVPApi
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogChannelLoader.TryGetItemsCount(out count);
             }

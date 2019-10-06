@@ -10,6 +10,7 @@ using TVPPro.SiteManager.CatalogLoaders;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -66,7 +67,7 @@ namespace TVPPro.SiteManager.DataLoaders
 	public class TVMCommentsLoader : TVMAdapter<MediaComments>
 	{
         private MediaCommentsListLoader m_oCommentsListLoader;
-        private bool m_bShouldUseCache;
+        
 
 		//Comments type : All, All except users, type name
 		const string AllTypes = "All";
@@ -166,7 +167,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override MediaComments Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCommentsListLoader = new MediaCommentsListLoader(int.Parse(MediaID), m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex)
                 {
@@ -184,7 +185,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCommentsListLoader.TryGetItemsCount(out count);
             }

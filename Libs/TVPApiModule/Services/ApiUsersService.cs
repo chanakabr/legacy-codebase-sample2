@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TVPApi;
+using TVPApiModule.Manager;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
 using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
@@ -36,8 +37,10 @@ namespace TVPApiModule.Services
 
         public ApiUsersService(int groupID, PlatformType platform)
         {
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).UsersCredentials.Username;
+                //ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultUser;
+            m_wsPassword = GroupsManager.GetGroup(groupID).UsersCredentials.Password;
+            //ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.UsersService.DefaultPassword;
 
             m_groupID = groupID;
             m_platform = platform;

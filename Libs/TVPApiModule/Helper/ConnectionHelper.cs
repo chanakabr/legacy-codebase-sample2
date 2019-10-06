@@ -8,6 +8,7 @@ using System.Collections;
 using System.Configuration;
 using System.Reflection;
 using KLogMonitor;
+using ConfigurationManager;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -132,11 +133,12 @@ namespace TVPApi
         //Get the TVINCI DB connection string
         public static string GetTvinciConnectionString()
         {
-            return string.Concat("Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
-                    ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
-                    ";Uid=", TVinciDBConfiguration.GetConfig().User,
-                    ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
-                    ";");
+            return ApplicationConfiguration.TVPApiConfiguration.MainConnectionString.Value;
+                //"Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
+                //    ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
+                //    ";Uid=", TVinciDBConfiguration.GetConfig().User,
+                //    ";Pwd=", TVinciDBConfiguration.GetConfig().Pass,
+                //    ";");
         }
 
         //Get client specific connection string 

@@ -9,6 +9,7 @@ using Core.Social.Requests;
 using ApiObjects;
 using Core.Social.Responses;
 using Core.Social;
+using TVPApiModule.Manager;
 
 namespace TVPApiModule.Services
 {
@@ -23,14 +24,8 @@ namespace TVPApiModule.Services
 
         public ApiSocialService(int groupID, PlatformType platform)
         {
-            m_wsUserName =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.DefaultUser;
-            m_wsPassword =
-                ConfigManager.GetInstance()
-                             .GetConfig(groupID, platform)
-                             .PlatformServicesConfiguration.Data.SocialService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).SocialCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).SocialCredentials.Password;
 
             m_groupID = groupID;
             m_platform = platform;

@@ -8,6 +8,7 @@ using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
 using System.Configuration;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -15,7 +16,7 @@ namespace TVPPro.SiteManager.DataLoaders
     public class PeopleWhoWatchedLoader : TVMAdapter<dsItemInfo>
     {
         private TVPPro.SiteManager.CatalogLoaders.PeopleWhoWatchedLoader m_oPeopleWhoWatchedLoader;
-        private bool m_bShouldUseCache;
+        
 
         private string m_tvmUser;
         private string m_tvmPass;
@@ -109,7 +110,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oPeopleWhoWatchedLoader = new TVPPro.SiteManager.CatalogLoaders.PeopleWhoWatchedLoader((int)MediaID, 0, m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize)
                 {
@@ -127,7 +128,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oPeopleWhoWatchedLoader.TryGetItemsCount(out count);
             }

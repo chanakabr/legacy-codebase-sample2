@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ConfigurationManager;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Caching;
 using System.Text;
@@ -26,21 +27,12 @@ namespace TVPApi.ODBCWrapper
         static protected string m_sLocker = "";
         static public Int32 GetCachedSec()
         {
-            if (System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"] != null &&
-                System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString() != "")
-            {
-                return int.Parse(System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString());
-            }
-            //if (HttpContext.Current != null)
-            //{
-            //    if (HttpContext.Current.Session.try
-            //        ["ODBC_CACH_SEC"] != null)
-            //        return int.Parse(HttpContext.Current.Session["ODBC_CACH_SEC"].ToString());
-            //    else
-            //        return 60;
-            //}
-            else
-                return 60;
+            int m_nCachedSec = ApplicationConfiguration.TVPApiConfiguration.OdbcCacheSeconds.IntValue;
+
+            if (m_nCachedSec == 0)
+                m_nCachedSec = 60;
+
+            return m_nCachedSec;
         }
         protected SelectCacher()
         {
@@ -48,10 +40,11 @@ namespace TVPApi.ODBCWrapper
 
         static public System.Data.DataTable GetCachedDataTable(string sCachStr)
         {
-            if (System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"] != null &&
-                System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString() != "")
+            int cacheSeconds = GetCachedSec();
+            
+            if (cacheSeconds > 0)
             {
-                return GetCachedDataTable(sCachStr, int.Parse(System.Configuration.ConfigurationManager.AppSettings["ODBC_CACH_SEC"].ToString()));
+                return GetCachedDataTable(sCachStr, GetCachedSec());
             }
             //if (HttpContext.Current != null)
             //{

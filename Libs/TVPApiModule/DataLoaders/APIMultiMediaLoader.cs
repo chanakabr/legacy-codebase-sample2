@@ -10,6 +10,7 @@ using TVPPro.SiteManager.DataEntities;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Manager;
+using ConfigurationManager;
 
 namespace TVPApiModule.DataLoaders
 {
@@ -81,8 +82,8 @@ namespace TVPApiModule.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 List<int> mediaIDs = new List<int>();
                 foreach (var id in MediaArrayID)

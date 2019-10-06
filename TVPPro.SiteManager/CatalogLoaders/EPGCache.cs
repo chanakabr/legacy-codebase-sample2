@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects.SearchObjects;
+using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -31,7 +32,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public EPGCache(List<SearchResult> programIDs, int groupID, string userIP, Filter filter) :
             base(groupID, userIP, 0, 0)
         {
-            int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out Duration);
+            Duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
 
             ProgramIDs = programIDs;
             m_oFilter = filter;

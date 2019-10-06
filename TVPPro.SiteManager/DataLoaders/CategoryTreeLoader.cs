@@ -10,6 +10,8 @@ using TVPPro.SiteManager.Helper;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ApiObjects;
+using ConfigurationManager;
+
 namespace TVPPro.SiteManager.DataLoaders
 {
     [Serializable]
@@ -34,8 +36,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsCategory Execute()
         {
-            bool shouldUseNewCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 CatalogLoaders.CategoryLoader categoryLoader = new CatalogLoaders.CategoryLoader(m_tvmUser, SiteHelper.GetClientIP(), CategoryId);
                 return categoryLoader.Execute() as dsCategory;

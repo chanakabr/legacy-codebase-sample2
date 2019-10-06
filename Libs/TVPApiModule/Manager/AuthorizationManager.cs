@@ -15,6 +15,7 @@ using TVPApiModule.Services;
 using TVPPro.SiteManager.Helper;
 using Domain = Core.Users.Domain;
 using TVinciShared;
+using ConfigurationManager;
 
 namespace TVPApiModule.Manager
 {
@@ -55,12 +56,12 @@ namespace TVPApiModule.Manager
         {
             try
             {
-                string groupConfigsTtlSeconds = System.Configuration.ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
+                _groupConfigsTtlSeconds = ApplicationConfiguration.TVPApiConfiguration.AuthorizationGroupConfigsTtlSeconds.LongValue;
 
                 cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
                 _lock = new ReaderWriterLockSlim();
 
-                if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
+                if (_groupConfigsTtlSeconds <= 0)
                 { 
                     logger.ErrorFormat("AuthorizationManager: Configuration Authorization.GroupConfigsTtlSeconds is missing!");
                     throw new Exception("Configuration Authorization.GroupConfigsTtlSeconds is missing!");

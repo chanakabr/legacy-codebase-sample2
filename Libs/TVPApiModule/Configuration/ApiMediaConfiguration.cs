@@ -9,6 +9,7 @@ using Tvinci.Configuration.ConfigSvc;
 using TVPPro.Configuration.Media;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVPApi.Configuration.Media
 {
@@ -18,8 +19,8 @@ namespace TVPApi.Configuration.Media
 
         public ApiMediaConfiguration()
         {
-            base.SyncFromFile(System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Media"], true);
-            m_syncFile = System.Configuration.ConfigurationManager.AppSettings["TVPPro.Configuration.Media"];
+            base.SyncFromFile("", true);
+            m_syncFile = "";
         }
 
         public ApiMediaConfiguration(string syncFile)

@@ -4,6 +4,7 @@ using System.Data;
 using System.Configuration;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace Tvinci.Data.DataLoader
 {
@@ -413,8 +414,8 @@ namespace Tvinci.Data.DataLoader
 
         object ILoaderAdapter.Execute(eExecuteBehaivor behaivor)
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return BCExecute(behaivor);
             }
@@ -431,8 +432,8 @@ namespace Tvinci.Data.DataLoader
 
         object ILoaderAdapter.Execute()
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return BCExecute(eExecuteBehaivor.None);
             }

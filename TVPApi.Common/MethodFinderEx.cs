@@ -20,6 +20,7 @@ using System.Collections;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TVinciShared;
+using ConfigurationManager;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -580,7 +581,7 @@ public partial class MethodFinder
 
     private class ParameterJsonInit : ParameterInitBase
     {
-        private static List<string> _authorizationUnsupportedGroupsPlatforms = string.IsNullOrEmpty(System.Configuration.ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"]) ? null : System.Configuration.ConfigurationManager.AppSettings["Authorization.UnsupportedGroupsPlatforms"].Split(',').ToList();
+        private static List<string> _authorizationUnsupportedGroupsPlatforms = ApplicationConfiguration.TVPApiConfiguration.AuthorizationUnsupportedGroupsPlatforms.Values;
 
         /// <summary>
         /// enumerate over the parameter of type Object to check it has properties of type enum

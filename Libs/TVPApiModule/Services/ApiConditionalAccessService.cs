@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using TVPApi;
+using TVPApiModule.Manager;
 using TVPApiModule.Objects.Responses;
 using TVPPro.SiteManager.Helper;
 using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus;
@@ -29,8 +30,8 @@ namespace TVPApiModule.Services
 
         public ApiConditionalAccessService(int groupID, PlatformType platform)
         {
-            m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
+            m_wsUserName = GroupsManager.GetGroup(groupID).ConditionalAccessCredentials.Username;
+            m_wsPassword = GroupsManager.GetGroup(groupID).ConditionalAccessCredentials.Password;
 
             m_groupID = groupID;
             m_platform = platform;
@@ -1663,9 +1664,10 @@ namespace TVPApiModule.Services
         public TVPApiModule.Objects.Responses.LicensedLinkResponse GetEPGLicensedLink(string siteGUID, int mediaFileID, int EPGItemID, DateTime startTime, string basicLink, string userIP, string refferer, string countryCd2, string languageCode3, string deviceUDID, int formatType)
         {
             TVPApiModule.Objects.Responses.LicensedLinkResponse response = null;
-            string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
-            string wsPassword = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
 
+            string wsUser = GroupsManager.GetGroup(m_groupID).ConditionalAccessCredentials.Username;
+            string wsPassword = GroupsManager.GetGroup(m_groupID).ConditionalAccessCredentials.Password;
+            
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))

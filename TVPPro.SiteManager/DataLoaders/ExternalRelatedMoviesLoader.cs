@@ -21,6 +21,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using ApiObjects.Response;
 using SearchRelated = ApiObjects.SearchObjects.SearchRelated;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -29,7 +30,7 @@ namespace TVPPro.SiteManager.DataLoaders
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private ExternalRelatedMediaLoader m_oCatalogExternalRelatedLoader;
-        private bool m_bShouldUseCache;
+        
 
         #region Properties 
         public long MediaID
@@ -192,7 +193,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override List<BaseObject> Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogExternalRelatedLoader = new ExternalRelatedMediaLoader((int)MediaID, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, FreeParam)
                 {
@@ -267,7 +268,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogExternalRelatedLoader.TryGetItemsCount(out count);
             }

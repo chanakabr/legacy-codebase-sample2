@@ -15,6 +15,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using TVPPro.SiteManager.Helper;
 using ApiObjects.Catalog;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -160,8 +161,8 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool Execute()
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 MediaCommentLoader commentLoader = new MediaCommentLoader(
                     m_tvmUser, 

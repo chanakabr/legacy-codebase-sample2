@@ -18,6 +18,7 @@ using System.Reflection;
 using Core.Catalog.Response;
 using Core.Catalog.Request;
 using Core.Catalog;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -35,7 +36,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         #region Members
         TVPPro.SiteManager.CatalogLoaders.SearchMediaLoader m_CatalogSearchLoader;
-        private bool m_bShouldUseCache;
+        
         private string m_ShowNameMeta = string.Empty;
         private string m_SeasonNumerMeta = string.Empty;
         private string m_EpisodeNumberMeta = string.Empty;
@@ -241,7 +242,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
 
                 m_CatalogSearchLoader = new TVPPro.SiteManager.CatalogLoaders.SearchMediaLoader(m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PictureSize, null)
@@ -432,7 +433,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         protected override bool TryGetItemsCountInSource(object retrievedData, out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_CatalogSearchLoader.TryGetItemsCount(out count);
             }
@@ -463,7 +464,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_CatalogSearchLoader.TryGetItemsCount(out count);
             }

@@ -16,6 +16,7 @@ using TVPPro.SiteManager.Manager;
 using TVPPro.SiteManager.Services;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -199,8 +200,8 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            bool bShouldUseCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out bShouldUseCache) && bShouldUseCache)
+            
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 List<int> mediaIDs = new List<int>();
                 foreach (var id in MediaArrayID)

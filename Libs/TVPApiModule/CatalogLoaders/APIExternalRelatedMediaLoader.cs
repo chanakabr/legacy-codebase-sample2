@@ -17,6 +17,7 @@ using TVPApiModule.Objects.Responses;
 using TVPPro.Configuration.Technical;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Helper;
+using ConfigurationManager;
 
 namespace TVPApiModule.CatalogLoaders
 {
@@ -270,8 +271,7 @@ namespace TVPApiModule.CatalogLoaders
                     }
 
                     // Store in Cache the medias and epgs from Catalog
-                    int duration;
-                    int.TryParse(System.Configuration.ConfigurationManager.AppSettings["Tvinci.DataLoader.CacheLite.DurationInMinutes"], out duration);
+                    int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
 
                     List<BaseObject> baseObjects = null;
 

@@ -11,6 +11,7 @@ using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.SendToFriend;
 using ApiObjects;
 using ApiObjects.Response;
+using ConfigurationManager;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -37,7 +38,8 @@ namespace TVPApi
                                          string sUDID, int extraVal)
         {
             bool retVal = false;
-            string isOfflineSync = System.Configuration.ConfigurationManager.AppSettings[string.Concat(groupID, "_OfflineFavoriteSync")];
+
+            bool isOfflineSync = ApplicationConfiguration.TVPApiConfiguration.OfflineFavoriteSyncGroups.IsOfflineSync(groupID);
 
             switch (action)
             {
@@ -48,7 +50,7 @@ namespace TVPApi
                         {
                             int regGroupID = SiteMapManager.GetInstance.GetPageData(groupID, platform).GetTVMAccountByAccountType(AccountType.Regular).BaseGroupID;
 
-                            if (!string.IsNullOrEmpty(isOfflineSync))
+                            if (isOfflineSync)
                                 new ApiUsersService(groupID, platform).AddUserOfflineMedia(sUserID, mediaID);
 
                             retVal = new ApiUsersService(groupID, platform).AddUserFavorite(sUserID, iDomainID, sUDID, mediaType.ToString(), mediaID.ToString(), extraVal.ToString());
@@ -60,7 +62,7 @@ namespace TVPApi
                         new ApiUsersService(groupID, platform).RemoveUserFavorite(sUserID, new long[] { mediaID });
                         retVal = true;
 
-                        if (!string.IsNullOrEmpty(isOfflineSync))
+                        if (isOfflineSync)
                             new ApiUsersService(groupID, platform).RemoveUserOfflineMedia(sUserID, mediaID);
 
 

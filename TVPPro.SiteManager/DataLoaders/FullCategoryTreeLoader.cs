@@ -8,6 +8,7 @@ using Tvinci.Data.TVMDataLoader.Protocols.CategoriesTree;
 using Tvinci.Data.TVMDataLoader.Protocols.MH_CategoriesTree;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -69,8 +70,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsCategory Execute()
         {
-            bool shouldUseNewCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 CatalogLoaders.CategoryLoader categoryLoader = new CatalogLoaders.CategoryLoader(TVMUser, SiteHelper.GetClientIP(), CategoryId);
                 return categoryLoader.Execute() as dsCategory;

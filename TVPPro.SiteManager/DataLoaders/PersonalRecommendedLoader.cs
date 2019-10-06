@@ -11,6 +11,7 @@ using TVPPro.SiteManager.Helper;
 using TVPPro.Configuration.Technical;
 using System.Configuration;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -19,7 +20,7 @@ namespace TVPPro.SiteManager.DataLoaders
     {
         #region members
         private TVPPro.SiteManager.CatalogLoaders.PersonalRecommendedLoader m_oPersonalRecommendedLoader;
-        private bool m_bShouldUseCache;
+        
 
         private string m_tvmUser;
         private string m_tvmPass;
@@ -92,7 +93,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oPersonalRecommendedLoader = new TVPPro.SiteManager.CatalogLoaders.PersonalRecommendedLoader(SiteGuid, m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -109,7 +110,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oPersonalRecommendedLoader.TryGetItemsCount(out count);
             }

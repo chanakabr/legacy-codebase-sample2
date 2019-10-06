@@ -14,6 +14,7 @@ using System.Data;
 using System.Configuration;
 using TVPPro.SiteManager.CatalogLoaders;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -22,7 +23,7 @@ namespace TVPPro.SiteManager.DataLoaders
     {
 
         private SubscriptionMediaLoader m_oSubscriptionMediaLoader;
-        private bool m_bShouldUseCache;
+        
 
         public enum eOrderDirection
         {
@@ -151,7 +152,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oSubscriptionMediaLoader = new SubscriptionMediaLoader((int)BaseID, m_tvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -173,7 +174,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (m_bShouldUseCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oSubscriptionMediaLoader.TryGetItemsCount(out count);
             }

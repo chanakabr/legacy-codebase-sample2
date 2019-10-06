@@ -114,7 +114,7 @@ namespace TVPApi
             ConfigType configType = new ConfigType();
             string sEnvironment = System.Configuration.ConfigurationManager.AppSettings["DomainEnv"];
 
-            configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
+            //configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.TechnichalConfiguration = new ApiTechnichalConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.MediaConfiguration = new ApiMediaConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
             configType.SiteConfiguration = new ApiSiteConfiguration(nGroupID, sPlatform.ToString(), sEnvironment);
@@ -125,35 +125,35 @@ namespace TVPApi
         private ConfigType FileGetConfig(int groupID, PlatformType platform)
         {
             ConfigType configType = new ConfigType();
-            string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(System.Configuration.ConfigurationManager.AppSettings[groupID.ToString()], System.Configuration.ConfigurationManager.AppSettings["DomainEnv"], "/"));
-            string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
-            string directoryStr = string.Concat(parentDirectoryStr, platform);
+            //string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(System.Configuration.ConfigurationManager.AppSettings[groupID.ToString()], System.Configuration.ConfigurationManager.AppSettings["DomainEnv"], "/"));
+            //string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
+            //string directoryStr = string.Concat(parentDirectoryStr, platform);
 
-            if (!string.IsNullOrEmpty(directoryStr))
-            {
-                string[] fileNames = Directory.GetFiles(directoryStr);
-                foreach (string file in fileNames)
-                {
-                    if (file.Contains("Technical"))
-                    {
-                        configType.TechnichalConfiguration = new TVPApi.Configuration.Technical.ApiTechnichalConfiguration(file);
-                    }
-                    else if (file.Contains("Platform"))
-                    {
-                        configType.PlatformServicesConfiguration = new TVPApi.Configuration.PlatformServices.ApiPlatformServicesConfiguration(file);
-                    }
-                    else if (file.Contains("Site"))
-                    {
-                        configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
-                    }
-                    else if (file.Contains("OrcaRecommendations"))
-                    {
-                        configType.OrcaRecommendationsConfiguration = new TVPApi.Configuration.OrcaConfiguration.ApiOrcaRecommendationsConfiguration(file);
-                    }
-                }
-            }
+            //if (!string.IsNullOrEmpty(directoryStr))
+            //{
+            //    string[] fileNames = Directory.GetFiles(directoryStr);
+            //    foreach (string file in fileNames)
+            //    {
+            //        if (file.Contains("Technical"))
+            //        {
+            //            configType.TechnichalConfiguration = new TVPApi.Configuration.Technical.ApiTechnichalConfiguration(file);
+            //        }
+            //        else if (file.Contains("Platform"))
+            //        {
+            //            configType.PlatformServicesConfiguration = new TVPApi.Configuration.PlatformServices.ApiPlatformServicesConfiguration(file);
+            //        }
+            //        else if (file.Contains("Site"))
+            //        {
+            //            configType.SiteConfiguration = new TVPApi.Configuration.Site.ApiSiteConfiguration(file);
+            //        }
+            //        else if (file.Contains("OrcaRecommendations"))
+            //        {
+            //            configType.OrcaRecommendationsConfiguration = new TVPApi.Configuration.OrcaConfiguration.ApiOrcaRecommendationsConfiguration(file);
+            //        }
+            //    }
+            //}
 
-            configType.MediaConfiguration = new TVPApi.Configuration.Media.ApiMediaConfiguration(mediaConfigFile);
+            //configType.MediaConfiguration = new TVPApi.Configuration.Media.ApiMediaConfiguration(mediaConfigFile);
 
             return configType;
         }

@@ -10,6 +10,7 @@ using TVPPro.SiteManager.Services;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPPro.SiteManager.Manager;
+using ConfigurationManager;
 
 namespace TVPPro.SiteManager.DataLoaders
 {
@@ -274,8 +275,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override string Execute()
         {
-            bool shouldUseNewCache;
-            if (bool.TryParse(System.Configuration.ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
+            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 CatalogLoaders.MediaHitLoader mediaMarkLoader =
                     new CatalogLoaders.MediaHitLoader(PageData.Instance.GetTVMAccountByUserName(TvmUser).BaseGroupID, SiteHelper.GetClientIP(), SiteGUID, DeviceUDID, 

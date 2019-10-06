@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVPApiModule.Manager;
 
 namespace TVPApi
 {
@@ -21,10 +22,11 @@ namespace TVPApi
         //Get client specific connection string 
         public string GetClientConnectionString()
         {
-
             //Get the techinchal manager associated with the current request
 
-            string dbInstance = ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
+            var databaseConfiguration = GroupsManager.GetGroup(m_groupID).DatabaseConfigurations[m_Platform];
+            string dbInstance = databaseConfiguration.DatabaseInstance;
+                //ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.DatabaseInstance;
             //Patchy - for now take all shared items (like favorites) from Web DB! (Waiting for service from Guy)
             if (m_isShared)
             {
@@ -32,10 +34,10 @@ namespace TVPApi
                 dbInstance = dbInstance.Substring(0, index - 1);
             }
             //return ConfigManager.GetInstance(groupID).TechnichalConfiguration.GenerateConnectionString();
-            return string.Concat("Driver={SQL Server};Server=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.IP,
+            return string.Concat("Driver={SQL Server};Server=", databaseConfiguration.IP,
             ";Database=", dbInstance,
-            ";Uid=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.User,
-            ";Pwd=", ConfigManager.GetInstance().GetConfig(m_groupID, m_Platform).TechnichalConfiguration.Data.DBConfiguration.Pass,
+            ";Uid=", databaseConfiguration.User,
+            ";Pwd=", databaseConfiguration.Password,
             ";");
 
 
