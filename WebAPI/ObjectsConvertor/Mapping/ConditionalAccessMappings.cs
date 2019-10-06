@@ -19,6 +19,8 @@ using Core.ConditionalAccess.Modules;
 using AutoMapper.Configuration;
 using TVinciShared;
 using ApiLogic.ConditionalAccess.Modules;
+using WebAPI.Models.Notification;
+using ApiObjects.Notification;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -103,22 +105,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
                ;
             cfg.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
-                //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
+              //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
-                //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
-                //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.currentDate)))
-                //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.lastViewDate)))
+               //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+               //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.currentDate)))
+               //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.lastViewDate)))
                .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.entitlementDate)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
-                //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+               //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
                .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
-                //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
-                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+               //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+               //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
-                //.ForMember(dest => dest.PaymentMethod, opt => opt.ResolveUsing(src => ConvertPaymentMethod(src.paymentMethod)))
-                //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
+               //.ForMember(dest => dest.PaymentMethod, opt => opt.ResolveUsing(src => ConvertPaymentMethod(src.paymentMethod)))
+               //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.contentId)))
-                //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.)))
+               //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumOfViews))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
@@ -327,17 +329,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.Type))
               .ForMember(dest => dest.FileIds, opt => opt.MapFrom(src =>
-                  //{
-                  //if (src.FileIds != null)
-                  //{
-                  //    return null;
-                  //}
-                  //else
-                  //{
+                          //{
+                          //if (src.FileIds != null)
+                          //{
+                          //    return null;
+                          //}
+                          //else
+                          //{
                           src.FileIds
-                  //.Select(i => (long)i).ToList();
-                  //}
-                  //}
+                //.Select(i => (long)i).ToList();
+                //}
+                //}
                 ))
               ;
             #endregion
@@ -386,7 +388,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.UpdateDate)))
                 .ForMember(dest => dest.Status, opt => opt.Ignore());
-            
+
             // Recording to KalturaRecording
             cfg.CreateMap<Recording, KalturaRecording>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
@@ -408,7 +410,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // ExternalRecording to KalturaExternalRecording
             cfg.CreateMap<ExternalRecording, KalturaExternalRecording>()
                 .IncludeBase<Recording, KalturaRecording>()
-                .ForMember(dest => dest.ExternalId, opt=>opt.MapFrom(src=>src.ExternalDomainRecordingId))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalDomainRecordingId))
                 .ForMember(dest => dest.MetaData, opt => opt.ResolveUsing(src => ConvertMetaData(src.MetaData)))
                 .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
@@ -473,8 +475,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.DirectUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
               .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => string.IsNullOrEmpty(src.Url) || !src.Url.Contains(".") ? string.Empty : src.Url.Substring(src.Url.LastIndexOf('.'))))
-              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))                          
-              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString(): string.Empty))
+              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))
+              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.HasValue ? src.StreamerType.ToString() : string.Empty))
               .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
               .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
               .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0));

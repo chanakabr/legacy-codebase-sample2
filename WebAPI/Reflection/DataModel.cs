@@ -1461,16 +1461,16 @@ namespace WebAPI.Reflection
                 case "KalturaConcurrencyEventNotificationScope":
                     switch(property.Name)
                     {
-                        case "AssetID":
-                            return "assetID";
-                        case "HouseholdID":
-                            return "householdID";
-                        case "Time":
-                            return "time";
+                        case "AssetId":
+                            return "assetId";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "Timestamp":
+                            return "timestamp";
                         case "UDID":
                             return "udid";
-                        case "UserID":
-                            return "userID";
+                        case "UserId":
+                            return "userId";
                         case "ViolationRule":
                             return "violationRule";
                     }
@@ -7657,8 +7657,7 @@ namespace WebAPI.Reflection
                     {
                         case "dispatch":
                             RolesManager.ValidateActionPermitted("eventNotificationAction", "dispatch", false);
-                            EventNotificationActionController.Dispatch((KalturaEventNotificationScope) methodParams[0]);
-                            return null;
+                            return EventNotificationActionController.Dispatch((KalturaEventNotificationScope) methodParams[0]);
                             
                     }
                     break;

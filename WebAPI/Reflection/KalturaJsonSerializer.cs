@@ -6887,7 +6887,27 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-           
+            if(AssetId != null)
+            {
+                ret.Add("assetId", "\"assetId\": " + "\"" + EscapeJson(AssetId) + "\"");
+            }
+            if(HouseholdId != null)
+            {
+                ret.Add("householdId", "\"householdId\": " + "\"" + EscapeJson(HouseholdId) + "\"");
+            }
+            ret.Add("timestamp", "\"timestamp\": " + Timestamp);
+            if(UDID != null)
+            {
+                ret.Add("udid", "\"udid\": " + "\"" + EscapeJson(UDID) + "\"");
+            }
+            if(UserId != null)
+            {
+                ret.Add("userId", "\"userId\": " + "\"" + EscapeJson(UserId) + "\"");
+            }
+            if(ViolationRule != null)
+            {
+                ret.Add("violationRule", "\"violationRule\": " + "\"" + EscapeJson(ViolationRule) + "\"");
+            }
             return ret;
         }
         
@@ -6897,7 +6917,27 @@ namespace WebAPI.Models.Notification
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-         
+            if(AssetId != null)
+            {
+                ret.Add("assetId", "<assetId>" + EscapeXml(AssetId) + "</assetId>");
+            }
+            if(HouseholdId != null)
+            {
+                ret.Add("householdId", "<householdId>" + EscapeXml(HouseholdId) + "</householdId>");
+            }
+            ret.Add("timestamp", "<timestamp>" + Timestamp + "</timestamp>");
+            if(UDID != null)
+            {
+                ret.Add("udid", "<udid>" + EscapeXml(UDID) + "</udid>");
+            }
+            if(UserId != null)
+            {
+                ret.Add("userId", "<userId>" + EscapeXml(UserId) + "</userId>");
+            }
+            if(ViolationRule != null)
+            {
+                ret.Add("violationRule", "<violationRule>" + EscapeXml(ViolationRule) + "</violationRule>");
+            }
             return ret;
         }
     }

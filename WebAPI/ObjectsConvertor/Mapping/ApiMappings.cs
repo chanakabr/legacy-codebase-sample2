@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
+using ApiObjects.Notification;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
@@ -17,6 +18,7 @@ using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.Models.Notification;
 using WebAPI.Models.Segmentation;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 
@@ -326,7 +328,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
-            #region TimeShiftedTv
+            #region Time Shifted Tv
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
             cfg.CreateMap<TimeShiftedTvPartnerSettings, WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings>()
@@ -418,7 +420,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region regions
+            #region Regions
+
             cfg.CreateMap<KeyValuePair, KalturaRegionalChannel>()
               .ForMember(dest => dest.LinearChannelId, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.ChannelNumber, opt => opt.MapFrom(src => src.value));
@@ -454,7 +457,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region DeviceFamily
+            #region Device Family
 
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
             cfg.CreateMap<DeviceFamily, WebAPI.Models.Domains.KalturaDeviceFamily>()
@@ -468,7 +471,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region KalturaCountry
+            #region Kaltura Country
 
             cfg.CreateMap<CountryLocale, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1336,6 +1339,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Personal List
+
             cfg.CreateMap<PersonalListItem, Models.Api.KalturaPersonalList>()
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.Timestamp))
               .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
@@ -1624,7 +1628,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region BusinessModuleRule
+            #region Business Module Rule
 
             cfg.CreateMap<BusinessModuleRule, KalturaBusinessModuleRule>()
               .ForMember(dest => dest.Actions, opt => opt.ResolveUsing(src => src.Actions))
@@ -1653,6 +1657,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Playback Profile
+
             cfg.CreateMap<PlaybackProfile, KalturaPlaybackProfile>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1693,7 +1698,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region KalturaPlaybackContext, PlaybackAdapter.AdapterPlaybackContext
+            #region Kaltura Playback Context
 
             cfg.CreateMap<ApiObjects.PlaybackAdapter.PlaybackContext, KalturaPlaybackContext>()
              .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => GetKalturaPlaybackContextActions(src.Actions)))
@@ -1989,7 +1994,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
             #endregion
 
-            #region  EventNotification
+            #region EventNotification
+
             //EventNotificationAction, KalturaEventNotification
             cfg.CreateMap<EventNotificationAction, KalturaEventNotification>()
                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.ActionType))
@@ -1999,17 +2005,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                 .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
                 .ForMember(dest => dest.EventObjectType, opt => opt.MapFrom(src => src.ObjectType))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                ;
-
-            cfg.CreateMap<KalturaEventNotification, EventNotificationAction>()
-                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => src.ActionType))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
-                .ForMember(dest => dest.ObjectId, opt => opt.MapFrom(src => src.ObjectId))
-                .ForMember(dest => dest.ObjectType, opt => opt.MapFrom(src => src.EventObjectType))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
 
@@ -2054,9 +2049,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown KalturaEventNotificationStatus value : {eventNotificationActionStatus.ToString()}");
                     }
                 });
-            
+
+            //EventNotificationScope, KalturaEventNotificationScope
+            cfg.CreateMap<KalturaEventNotificationScope, EventNotificationScope>()
+                .Include<KalturaEventNotificationEventObjectType, EventNotificationEventObjectType>()
+                .ForMember(dest => dest.ScopeType, opt => opt.MapFrom(src => src.Scope));
+
+            cfg.CreateMap<KalturaEventNotificationEventObjectType, EventNotificationEventObjectType>()
+                .ForMember(dest => dest.EventObject, opt => opt.MapFrom(src => src.EventObject));
+
             #endregion
         }
+
+        #region Private Convertors
 
         private static ContentConditionLengthType? ConvertLengthType(KalturaContentActionConditionLengthType? lengthType)
         {
@@ -2255,6 +2260,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
+
         private static MathemticalOperatorType ConvertMathematicalOperator(KalturaMathemticalOperatorType operatorType)
         {
             MathemticalOperatorType result;
@@ -3602,5 +3608,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             var kalturaActionRules = new List<KalturaRuleAction>(actions.Select(x => new KalturaAccessControlBlockAction() { Description = x.Description }));
             return kalturaActionRules;
         }
+
+        #endregion
     }
 }

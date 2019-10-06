@@ -76,7 +76,7 @@ namespace WebAPI.Clients
             try
             {
                 EventNotificationScope ens = AutoMapper.Mapper.Map<EventNotificationScope>(scope);
-
+                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     return Core.Notification.Module.DispatchEventNotification(groupId, ens);

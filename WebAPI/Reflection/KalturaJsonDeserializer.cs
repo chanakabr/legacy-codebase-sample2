@@ -8066,7 +8066,30 @@ namespace WebAPI.Models.Notification
         {
             if (parameters != null)
             {
-
+                if (parameters.ContainsKey("timestamp") && parameters["timestamp"] != null)
+                {
+                    Timestamp = (Int64) Convert.ChangeType(parameters["timestamp"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
+                {
+                    UDID = (String) Convert.ChangeType(parameters["udid"], typeof(String));
+                }
+                if (parameters.ContainsKey("assetId") && parameters["assetId"] != null)
+                {
+                    AssetId = (String) Convert.ChangeType(parameters["assetId"], typeof(String));
+                }
+                if (parameters.ContainsKey("violationRule") && parameters["violationRule"] != null)
+                {
+                    ViolationRule = (String) Convert.ChangeType(parameters["violationRule"], typeof(String));
+                }
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    HouseholdId = (String) Convert.ChangeType(parameters["householdId"], typeof(String));
+                }
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    UserId = (String) Convert.ChangeType(parameters["userId"], typeof(String));
+                }
             }
         }
     }

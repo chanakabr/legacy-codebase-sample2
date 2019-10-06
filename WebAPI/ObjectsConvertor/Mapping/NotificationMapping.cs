@@ -293,7 +293,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
 
-            
+            cfg.CreateMap<KalturaOTTObject, CoreObject>()
+                .Include<KalturaConcurrencyEventNotificationScope, ConcurrencyEventNotificationScope>();
+
+            cfg.CreateMap<KalturaConcurrencyEventNotificationScope, ConcurrencyEventNotificationScope>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
+                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
+                .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
             #region Engagement Adapter
 
             cfg.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
