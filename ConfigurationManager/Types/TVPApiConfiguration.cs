@@ -8,8 +8,6 @@ namespace ConfigurationManager
     public class TVPApiConfiguration : ConfigurationValue
     {
         public NumericConfigurationValue CacheLiteDurationInMinutes;
-        //public StringConfigurationValue MediaConfigurationVirtualPath;
-        //public StringConfigurationValue OrcaRecommendationsConfigurationVirtualPath;
         public BooleanConfigurationValue ShouldUseNewCache;
         public OfflineFavoriteSyncGroupsConfiguration OfflineFavoriteSyncGroups;
         public NumericConfigurationValue OdbcCacheSeconds;
@@ -22,25 +20,20 @@ namespace ConfigurationManager
             CacheLiteDurationInMinutes = new NumericConfigurationValue("cache_lite_duration_in_minutes", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = 1440
+                DefaultValue = 1440,
+                Description = "Originally in web.config: Tvinci.DataLoader.CacheLite.DurationInMinutes"
             };
-            //MediaConfigurationVirtualPath = new StringConfigurationValue("media_configuration_virtual_path", this)
-            //{
-            //    ShouldAllowEmpty = true
-            //};
-            //OrcaRecommendationsConfigurationVirtualPath = new StringConfigurationValue("orca_recommendation_configuration_virtual_path", this)
-            //{
-            //    ShouldAllowEmpty = true
-            //};
             ShouldUseNewCache = new BooleanConfigurationValue("should_use_new_cache", this)
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = true
+                DefaultValue = true,
+                Description = "Originally in web.config: ShouldUseNewCache"
             };
             OfflineFavoriteSyncGroups = new OfflineFavoriteSyncGroupsConfiguration("offline_favorite_sync_groups", this)
             {
                 ShouldAllowEmpty = true,
-                Description = "Comma separted list of groups that should use offline favorite sync"
+                Description = "Originally in web.config: {group_id}_OfflineFavoriteSync. " +
+                "Now it is a comma separted list of groups that should use offline favorite sync"
             };
             OdbcCacheSeconds = new NumericConfigurationValue("odbc_cache_seconds", this)
             {
@@ -54,11 +47,14 @@ namespace ConfigurationManager
             };
             AuthorizationUnsupportedGroupsPlatforms = new CommaSeparatedConfigurationValue("authorization_unsupported_groups_platforms", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                Description = "Originally in web.config: Authorization.UnsupportedGroupsPlatforms. " +
+                "Comma separated list of {group_id}_{platform}"
             };
             MainConnectionString = new StringConfigurationValue("main_connection_string", this)
             {
-                ShouldAllowEmpty = true
+                ShouldAllowEmpty = true,
+                Description = "Originally in web.config: TVinciDBConfig section, but now it is put together."
             };
         }
     }
