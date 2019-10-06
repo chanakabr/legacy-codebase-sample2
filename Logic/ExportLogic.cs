@@ -782,7 +782,7 @@ namespace APILogic
 
                 // strings
                 xml.Append("<strings>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.String.ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.String.ToString() || m.m_oTagMeta.m_sType == MetaType.MultilingualString.ToString()))
                 {
                     xml.Append(GetStringMetaSection(meta, mainLang));
                 }
