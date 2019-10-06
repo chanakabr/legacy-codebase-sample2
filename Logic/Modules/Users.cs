@@ -1310,11 +1310,10 @@ namespace Core.Users
 
             // validate pin
             response = baseUser.ValidateLoginWithPin(PIN, secret);
+            
             if (response.Object == null)
             {
                 response.Object = new UserResponseObject();
-                response.SetStatus(eResponseStatus.Error);
-                return response;
             }
 
             if (!response.IsOkStatusCode())
@@ -1500,7 +1499,7 @@ namespace Core.Users
             if (t != null)
             {
                 var renewPasswordResponse = t.RenewPassword(userName, newPassword, nGroupID);
-                if (!renewPasswordResponse.HasObject())
+                if (renewPasswordResponse.HasObject())
                 {
                     // convert response status
                     response = Utils.ConvertResponseStatusToResponseObject(renewPasswordResponse.Object.m_RespStatus, renewPasswordResponse.Status);

@@ -5206,6 +5206,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@externalStoreId", externalStoreId);
             sp.AddParameter("@language", language);
             sp.AddParameter("@isDefaultLanguage", isDefaultLanguage);
+            sp.AddParameter("@outputProtecationLevel", 0);
             sp.AddParameter("@startDate", startDate);
             sp.AddParameter("@endDate", endDate);
             sp.AddParameter("@altCoGuid", altExternalId);

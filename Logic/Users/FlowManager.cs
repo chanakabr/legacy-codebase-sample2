@@ -9,7 +9,7 @@ namespace Core.Users
 {
     public class FlowManager
     {
-        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin, 
+        public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin,
                                                 List<KeyValuePair> keyValueList, string username = null, string password = null)
         {
             var response = new UserResponseObject();
@@ -24,9 +24,11 @@ namespace Core.Users
                 {
                     // mid
                     response = user.MidSignIn(siteGuid, username, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
-
-                    // post
-                    user.PostSignIn(ref response, ref keyValueList);
+                    if (response != null && response.m_user != null)
+                    {
+                        // post
+                        user.PostSignIn(ref response, ref keyValueList);
+                    }
                 }
             }
             catch (Exception ex)
@@ -224,7 +226,7 @@ namespace Core.Users
             }
             return userResponses;
         }
-        
+
         public static ApiObjects.Response.Status DeleteUser(Int32 siteGuid, KalturaBaseUsers user)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
