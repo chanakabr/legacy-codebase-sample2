@@ -85,7 +85,7 @@ namespace TVPApiModule.Manager
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CB_SECTION_NAME, QueryType = KLogEnums.eDBQueryType.SELECT })
                 {
-                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
+                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.OTT_APPS, false, true);
                     group = cbManager.Get<Group>(string.Format(groupKeyFormat, groupId), true);
                 }
 
