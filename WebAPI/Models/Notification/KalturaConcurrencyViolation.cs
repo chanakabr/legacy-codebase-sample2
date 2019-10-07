@@ -9,10 +9,10 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public partial class KalturaConcurrencyEventNotificationScope : KalturaOTTObject
+    public partial class KalturaConcurrencyViolation : KalturaOTTObject
     {
         /// <summary>
-        /// Time
+        /// Timestamp
         /// </summary>
         [DataMember(Name = "timestamp")]
         [JsonProperty(PropertyName = "timestamp")]
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Notification
         public string UDID { get; set; }
 
         /// <summary>
-        /// Asset ID
+        /// Asset Id
         /// </summary>
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Notification
         public string ViolationRule { get; set; }
 
         /// <summary>
-        /// Household ID
+        /// Household Id
         /// </summary>
         [DataMember(Name = "householdId")]
         [JsonProperty(PropertyName = "householdId")]
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Notification
         public string HouseholdId { get; set; }
 
         /// <summary>
-        /// User ID
+        /// User Id
         /// </summary>
         [DataMember(Name = "userId")]
         [JsonProperty(PropertyName = "userId")]

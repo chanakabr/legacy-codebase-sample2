@@ -2,11 +2,7 @@
   "permission_items": [
     {
       "permissions": [
-        "Anonymous",
-        "User",
-        "Master",
-        "Operator",
-        "Administrator"
+        "Operator"
       ],
       "excluded_permissions": [],
       "name": "EventNotificationAction_Dispatch",

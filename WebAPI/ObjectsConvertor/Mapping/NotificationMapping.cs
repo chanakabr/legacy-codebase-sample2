@@ -294,9 +294,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
 
             cfg.CreateMap<KalturaOTTObject, CoreObject>()
-                .Include<KalturaConcurrencyEventNotificationScope, ConcurrencyEventNotificationScope>();
+                .Include<KalturaConcurrencyViolation, ConcurrencyViolation>();
 
-            cfg.CreateMap<KalturaConcurrencyEventNotificationScope, ConcurrencyEventNotificationScope>()
+            cfg.CreateMap<KalturaConcurrencyViolation, ConcurrencyViolation>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))

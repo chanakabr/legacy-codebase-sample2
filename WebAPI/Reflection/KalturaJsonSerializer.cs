@@ -6879,7 +6879,7 @@ namespace WebAPI.Models.Notification
             return ret;
         }
     }
-    public partial class KalturaConcurrencyEventNotificationScope
+    public partial class KalturaConcurrencyViolation
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {
@@ -15037,36 +15037,6 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
-    public partial class KalturaEventNotificationEventObjectType
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(EventObject != null)
-            {
-                propertyValue = EventObject.ToJson(currentVersion, omitObsolete);
-                ret.Add("eventObject", "\"eventObject\": " + propertyValue);
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            if(EventObject != null)
-            {
-                propertyValue = EventObject.ToXml(currentVersion, omitObsolete);
-                ret.Add("eventObject", "<eventObject>" + propertyValue + "</eventObject>");
-            }
-            return ret;
-        }
-    }
     public partial class KalturaEventNotificationFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -15128,6 +15098,36 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            return ret;
+        }
+    }
+    public partial class KalturaEventNotificationObjectScope
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(EventObject != null)
+            {
+                propertyValue = EventObject.ToJson(currentVersion, omitObsolete);
+                ret.Add("eventObject", "\"eventObject\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(EventObject != null)
+            {
+                propertyValue = EventObject.ToXml(currentVersion, omitObsolete);
+                ret.Add("eventObject", "<eventObject>" + propertyValue + "</eventObject>");
+            }
             return ret;
         }
     }

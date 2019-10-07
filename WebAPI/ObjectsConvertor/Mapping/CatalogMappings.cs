@@ -704,7 +704,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
                 .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs));
 
-            cfg.CreateMap<ConcurrencyEventNotificationScope, KalturaConcurrencyEventNotificationScope>()
+            cfg.CreateMap<ConcurrencyViolation, KalturaConcurrencyViolation>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))

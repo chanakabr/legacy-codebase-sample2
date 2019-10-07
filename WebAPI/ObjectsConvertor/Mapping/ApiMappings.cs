@@ -2052,10 +2052,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //EventNotificationScope, KalturaEventNotificationScope
             cfg.CreateMap<KalturaEventNotificationScope, EventNotificationScope>()
-                .Include<KalturaEventNotificationEventObjectType, EventNotificationEventObjectType>()
-                .ForMember(dest => dest.ScopeType, opt => opt.MapFrom(src => src.Scope));
+                .Include<KalturaEventNotificationObjectScope, EventNotificationObjectScope>();
 
-            cfg.CreateMap<KalturaEventNotificationEventObjectType, EventNotificationEventObjectType>()
+            cfg.CreateMap<KalturaEventNotificationObjectScope, EventNotificationObjectScope>()
                 .ForMember(dest => dest.EventObject, opt => opt.MapFrom(src => src.EventObject));
 
             #endregion

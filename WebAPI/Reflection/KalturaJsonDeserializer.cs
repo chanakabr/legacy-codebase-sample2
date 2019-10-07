@@ -467,11 +467,11 @@ namespace WebAPI.Reflection
                 case "KalturaConcurrencyCondition":
                     return new KalturaConcurrencyCondition(parameters);
                     
-                case "KalturaConcurrencyEventNotificationScope":
-                    return new KalturaConcurrencyEventNotificationScope(parameters);
-                    
                 case "KalturaConcurrencyPartnerConfig":
                     return new KalturaConcurrencyPartnerConfig(parameters);
+                    
+                case "KalturaConcurrencyViolation":
+                    return new KalturaConcurrencyViolation(parameters);
                     
                 case "KalturaCondition":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -704,14 +704,14 @@ namespace WebAPI.Reflection
                 case "KalturaEventNotification":
                     return new KalturaEventNotification(parameters);
                     
-                case "KalturaEventNotificationEventObjectType":
-                    return new KalturaEventNotificationEventObjectType(parameters);
-                    
                 case "KalturaEventNotificationFilter":
                     return new KalturaEventNotificationFilter(parameters);
                     
                 case "KalturaEventNotificationListResponse":
                     return new KalturaEventNotificationListResponse(parameters);
+                    
+                case "KalturaEventNotificationObjectScope":
+                    return new KalturaEventNotificationObjectScope(parameters);
                     
                 case "KalturaEventNotificationScope":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -8060,9 +8060,9 @@ namespace WebAPI.Models.Notification
         {
         }
     }
-    public partial class KalturaConcurrencyEventNotificationScope
+    public partial class KalturaConcurrencyViolation
     {
-        public KalturaConcurrencyEventNotificationScope(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConcurrencyViolation(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15614,26 +15614,6 @@ namespace WebAPI.Models.API
             }
         }
     }
-    public partial class KalturaEventNotificationEventObjectType
-    {
-        public KalturaEventNotificationEventObjectType(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("eventObject") && parameters["eventObject"] != null)
-                {
-                    if (parameters["eventObject"] is JObject)
-                    {
-                        EventObject = (KalturaOTTObject) Deserializer.deserialize(typeof(KalturaOTTObject), ((JObject) parameters["eventObject"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["eventObject"] is IDictionary)
-                    {
-                        EventObject = (KalturaOTTObject) Deserializer.deserialize(typeof(KalturaOTTObject), (Dictionary<string, object>) parameters["eventObject"]);
-                    }
-                }
-            }
-        }
-    }
     public partial class KalturaEventNotificationFilter
     {
         private static RuntimeSchemePropertyAttribute ObjectIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotificationFilter")
@@ -15678,22 +15658,31 @@ namespace WebAPI.Models.API
         {
         }
     }
+    public partial class KalturaEventNotificationObjectScope
+    {
+        public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("eventObject") && parameters["eventObject"] != null)
+                {
+                    if (parameters["eventObject"] is JObject)
+                    {
+                        EventObject = (KalturaOTTObject) Deserializer.deserialize(typeof(KalturaOTTObject), ((JObject) parameters["eventObject"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["eventObject"] is IDictionary)
+                    {
+                        EventObject = (KalturaOTTObject) Deserializer.deserialize(typeof(KalturaOTTObject), (Dictionary<string, object>) parameters["eventObject"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaEventNotificationScope
     {
         public KalturaEventNotificationScope(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("Scope") && parameters["Scope"] != null)
-                {
-                    Scope = (KalturaScopeType) Enum.Parse(typeof(KalturaScopeType), parameters["Scope"].ToString(), true);
 
-                    if (!Enum.IsDefined(typeof(KalturaScopeType), Scope))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Scope, typeof(KalturaScopeType)));
-                    }
-                }
-            }
         }
     }
     public partial class KalturaExportFilter

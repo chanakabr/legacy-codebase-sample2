@@ -13,24 +13,13 @@ namespace WebAPI.Models.API
     /// </summary>
     public abstract partial class KalturaEventNotificationScope : KalturaOTTObject
     {
-        /// <summary>
-        /// The Scope
-        /// </summary>
-        public KalturaScopeType Scope { get; set; }
+
     }
 
     /// <summary>
-    /// Kaltura Scope type
+    /// Kaltura event notification object scope
     /// </summary>
-    public enum KalturaScopeType
-    {
-        ConcurrencyEventNotification
-    }
-
-    /// <summary>
-    /// Kaltura event notification event object type
-    /// </summary>
-    public partial class KalturaEventNotificationEventObjectType : KalturaEventNotificationScope
+    public partial class KalturaEventNotificationObjectScope : KalturaEventNotificationScope
     {
         /// <summary>
         /// Event object to fire

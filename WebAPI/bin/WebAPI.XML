@@ -5764,22 +5764,12 @@
             Kaltura event notification scope
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaEventNotificationScope.Scope">
+        <member name="T:WebAPI.Models.API.KalturaEventNotificationObjectScope">
             <summary>
-            The Scope
+            Kaltura event notification object scope
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaScopeType">
-            <summary>
-            Kaltura Scope type
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.API.KalturaEventNotificationEventObjectType">
-            <summary>
-            Kaltura event notification event object type
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.API.KalturaEventNotificationEventObjectType.EventObject">
+        <member name="P:WebAPI.Models.API.KalturaEventNotificationObjectScope.EventObject">
             <summary>
             Event object to fire
             </summary>
@@ -12556,34 +12546,34 @@
             Subscription trigger offset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.Timestamp">
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyViolation.Timestamp">
             <summary>
-            Time
+            Timestamp
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.UDID">
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyViolation.UDID">
             <summary>
             UDID
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.AssetId">
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyViolation.AssetId">
             <summary>
-            Asset ID
+            Asset Id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.ViolationRule">
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyViolation.ViolationRule">
             <summary>
             Violation Rule
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.HouseholdId">
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyViolation.HouseholdId">
             <summary>
-            Household ID
+            Household Id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyEventNotificationScope.UserId">
+        <member name="P:WebAPI.Models.Notification.KalturaConcurrencyViolation.UserId">
             <summary>
-            User ID
+            User Id
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEmailMessage.TemplateName">

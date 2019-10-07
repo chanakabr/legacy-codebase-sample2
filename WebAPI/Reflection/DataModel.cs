@@ -1458,7 +1458,17 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaConcurrencyEventNotificationScope":
+                case "KalturaConcurrencyPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DeviceFamilyIds":
+                            return "deviceFamilyIds";
+                        case "EvictionPolicy":
+                            return "evictionPolicy";
+                    }
+                    break;
+                    
+                case "KalturaConcurrencyViolation":
                     switch(property.Name)
                     {
                         case "AssetId":
@@ -1473,16 +1483,6 @@ namespace WebAPI.Reflection
                             return "userId";
                         case "ViolationRule":
                             return "violationRule";
-                    }
-                    break;
-                    
-                case "KalturaConcurrencyPartnerConfig":
-                    switch(property.Name)
-                    {
-                        case "DeviceFamilyIds":
-                            return "deviceFamilyIds";
-                        case "EvictionPolicy":
-                            return "evictionPolicy";
                     }
                     break;
                     
@@ -2346,14 +2346,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaEventNotificationEventObjectType":
-                    switch(property.Name)
-                    {
-                        case "EventObject":
-                            return "eventObject";
-                    }
-                    break;
-                    
                 case "KalturaEventNotificationFilter":
                     switch(property.Name)
                     {
@@ -2363,6 +2355,14 @@ namespace WebAPI.Reflection
                             return "idEqual";
                         case "ObjectIdEqual":
                             return "objectIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaEventNotificationObjectScope":
+                    switch(property.Name)
+                    {
+                        case "EventObject":
+                            return "eventObject";
                     }
                     break;
                     
