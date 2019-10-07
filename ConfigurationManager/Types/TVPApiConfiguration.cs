@@ -14,6 +14,9 @@ namespace ConfigurationManager
         public NumericConfigurationValue AuthorizationGroupConfigsTtlSeconds;
         public CommaSeparatedConfigurationValue AuthorizationUnsupportedGroupsPlatforms;
         public StringConfigurationValue MainConnectionString;
+        public StringConfigurationValue DefaultTechnicalConfigurationFileLocation;
+        public StringConfigurationValue DefaultMediaConfigurationFileLocation;
+        public StringConfigurationValue DefaultSiteConfigurationFileLocation;
 
         public TVPApiConfiguration(string key) : base(key)
         {
@@ -55,6 +58,24 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true,
                 Description = "Originally in web.config: TVinciDBConfig section, but now it is put together."
+            };
+            DefaultTechnicalConfigurationFileLocation = new StringConfigurationValue("default_technical_configuration_file_location", this)
+            {
+                ShouldAllowEmpty = true,
+                Description = "Location of XML file that will contain all group-platform default values for technical configuration.",
+                DefaultValue = "DefaultTechnicalConfiguration.config"
+            };
+            DefaultSiteConfigurationFileLocation = new StringConfigurationValue("default_site_configuration_file_location", this)
+            {
+                ShouldAllowEmpty = true,
+                Description = "Location of XML file that will contain group-platform default values for site configuration.",
+                DefaultValue = "DefaultSiteConfiguration.config"
+            };
+            DefaultMediaConfigurationFileLocation = new StringConfigurationValue("default_media_configuration_file_location", this)
+            {
+                ShouldAllowEmpty = true,
+                Description = "Location of XML file that will contain group-platform default values for media configuration.",
+                DefaultValue = "DefaultMediaConfiguration.config"
             };
         }
     }
