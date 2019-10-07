@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ApiObjects.Notification
 {
-    public class ConcurrencyEventNotificationScope : CoreObject
+    public class ConcurrencyViolation : CoreObject
     {
         public long Timestamp { get; set; }
         public string UDID { get; set; }
@@ -12,7 +12,6 @@ namespace ApiObjects.Notification
         public string ViolationRule { get; set; }
         public string HouseholdId { get; set; }
         public string UserId { get; set; }
-
 
         public override CoreObject CoreClone()
         {

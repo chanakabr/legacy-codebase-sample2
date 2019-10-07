@@ -97,9 +97,9 @@ namespace Core.Notification
 
         public static bool DispatchEventNotification(int groupId, EventNotificationScope ens)
         {
-            if (ens is EventNotificationEventObjectType eneot)
+            if (ens is EventNotificationObjectScope eneot)
             {
-                eneot.EventObject.Notify(type: ens.ScopeType);
+                eneot.EventObject.Notify(type: eneot.EventObject.GetType().Name.ToLower());
                 return true;
             }
 

@@ -6,10 +6,9 @@ namespace ApiObjects.Notification
 {
     public abstract class EventNotificationScope
     {
-        public string ScopeType { get; set; }
     }
 
-    public partial class EventNotificationEventObjectType : EventNotificationScope
+    public partial class EventNotificationObjectScope : EventNotificationScope
     {
         public CoreObject EventObject { get; set; }
     }
