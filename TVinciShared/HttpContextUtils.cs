@@ -310,7 +310,7 @@ namespace TVinciShared
                 //    contentRootPath = string.Concat(contentRootPath, "\\");
                 //}
 
-                result = string.Concat(contentRootPath, path);
+                result = Path.Combine(contentRootPath, path);
             }
 
             return result;
