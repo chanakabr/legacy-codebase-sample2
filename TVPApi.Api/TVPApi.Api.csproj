@@ -22,6 +22,12 @@
     <Content Update="app.config">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Content Update="DefaultMediaConfiguration.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="DefaultSiteConfiguration.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -30,9 +36,17 @@
     <None Include="Configuration\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Configuration\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Configuration2\**" />
+    <Content Remove="Configuration2\**" />
+    <EmbeddedResource Remove="Configuration2\**" />
+    <None Remove="Configuration2\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="DefaultTechnicalConfiguration.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DefaultTechnicalConfiguration.config" />
+    <None Include="DefaultTechnicalConfiguration.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

@@ -219,12 +219,12 @@ namespace Tvinci.Configuration
                 StopSync();
             }
             
-            // create absolute file path and store for later use
-            if (!Path.IsPathRooted(virtualPath))
-            {
-                m_file = HttpContext.Current.ServerMapPath(virtualPath);
-            }
-            else
+            //// create absolute file path and store for later use
+            //if (!Path.IsPathRooted(virtualPath))
+            //{
+            //    m_file = HttpContext.Current.ServerMapPath(virtualPath);
+            //}
+            //else
             {
                 m_file = virtualPath;
             }
