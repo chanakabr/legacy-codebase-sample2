@@ -125,14 +125,38 @@ namespace TVPApi
 
         private ConfigType FileGetConfig(int groupID, PlatformType platform)
         {
-            ConfigType configType = new ConfigType()
+            ConfigType configType = new ConfigType();
+
+            try
             {
-                MediaConfiguration = new ApiMediaConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultMediaConfigurationFileLocation.Value),
-                OrcaRecommendationsConfiguration = new ApiOrcaRecommendationsConfiguration(),
-                PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(),
-                SiteConfiguration = new ApiSiteConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultSiteConfigurationFileLocation.Value),
-                TechnichalConfiguration = new ApiTechnichalConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultTechnicalConfigurationFileLocation.Value)
-            };
+                configType.MediaConfiguration = new ApiMediaConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultMediaConfigurationFileLocation.Value);
+
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            try
+            {
+                configType.OrcaRecommendationsConfiguration = new ApiOrcaRecommendationsConfiguration();
+                configType.PlatformServicesConfiguration = new ApiPlatformServicesConfiguration();
+            }
+            catch { }
+            try
+            {
+                configType.SiteConfiguration = new ApiSiteConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultSiteConfigurationFileLocation.Value);
+            }
+            catch (Exception ex)
+            {
+            }
+            try
+            {
+                configType.TechnichalConfiguration = new ApiTechnichalConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultTechnicalConfigurationFileLocation.Value);
+            }
+            catch (Exception ex)
+            {
+            }
+
             //string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(System.Configuration.ConfigurationManager.AppSettings[groupID.ToString()], System.Configuration.ConfigurationManager.AppSettings["DomainEnv"], "/"));
             //string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
             //string directoryStr = string.Concat(parentDirectoryStr, platform);
