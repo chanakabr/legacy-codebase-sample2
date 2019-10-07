@@ -14,6 +14,7 @@ using TVPApi.Configuration.OrcaConfiguration;
 using KLogMonitor;
 using System.Reflection;
 using TVinciShared;
+using ConfigurationManager;
 
 /// <summary>
 /// Summary description for ConfigurationManager
@@ -124,7 +125,14 @@ namespace TVPApi
 
         private ConfigType FileGetConfig(int groupID, PlatformType platform)
         {
-            ConfigType configType = new ConfigType();
+            ConfigType configType = new ConfigType()
+            {
+                MediaConfiguration = new ApiMediaConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultMediaConfigurationFileLocation.Value),
+                OrcaRecommendationsConfiguration = new ApiOrcaRecommendationsConfiguration(),
+                PlatformServicesConfiguration = new ApiPlatformServicesConfiguration(),
+                SiteConfiguration = new ApiSiteConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultSiteConfigurationFileLocation.Value),
+                TechnichalConfiguration = new ApiTechnichalConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultTechnicalConfigurationFileLocation.Value)
+            };
             //string parentDirectoryStr = HttpContext.Current.ServerMapPath(string.Concat(System.Configuration.ConfigurationManager.AppSettings[groupID.ToString()], System.Configuration.ConfigurationManager.AppSettings["DomainEnv"], "/"));
             //string mediaConfigFile = string.Concat(parentDirectoryStr, "MediaConfiguration.config");
             //string directoryStr = string.Concat(parentDirectoryStr, platform);

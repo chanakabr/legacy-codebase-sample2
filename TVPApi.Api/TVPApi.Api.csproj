@@ -27,8 +27,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Configuration\**"
-          CopyToOutputDirectory="PreserveNewest"
-          LinkBase="Configuration\" />
+    <None Include="Configuration\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Configuration\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="DefaultTechnicalConfiguration.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DefaultTechnicalConfiguration.config" />
   </ItemGroup>
 </Project>
