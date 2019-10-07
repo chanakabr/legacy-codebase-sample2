@@ -305,10 +305,10 @@ namespace TVinciShared
             {
                 string contentRootPath = ctx.Items["ContentRootPath"].ToString();
 
-                if (!contentRootPath.EndsWith("\\"))
-                {
-                    contentRootPath = string.Concat(contentRootPath, "\\");
-                }
+                //if (!contentRootPath.EndsWith("\\"))
+                //{
+                //    contentRootPath = string.Concat(contentRootPath, "\\");
+                //}
 
                 result = string.Concat(contentRootPath, path);
             }
