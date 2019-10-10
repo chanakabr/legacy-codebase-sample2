@@ -487,8 +487,7 @@ namespace APILogic
         }
 
         internal static Tuple<ApiObjects.Country, bool> GetCountryByIpFromES(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
+        {            
             ApiObjects.Country country = null;
             try
             {
@@ -498,12 +497,6 @@ namespace APILogic
                     if (!string.IsNullOrEmpty(ip))
                     {
                         country = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
-                        if (country == null)
-                        {
-                            country = new ApiObjects.Country();
-                        }
-
-                        res = true;
                     }                    
                 }
 
@@ -513,7 +506,7 @@ namespace APILogic
                 log.Error(string.Format("GetCountryByIpFromES failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<ApiObjects.Country, bool>(country, res);
+            return new Tuple<ApiObjects.Country, bool>(country, country != null);
         }
 
         internal static Tuple<ApiObjects.Country, bool> GetCountryByCountryNameFromES(Dictionary<string, object> funcParams)
