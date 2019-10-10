@@ -810,10 +810,10 @@ namespace Core.Api
             RegionsResponse response = null;
             RegionFilter filter = new RegionFilter() { ExternalIds = externalRegionList };
             var regions = GetRegions(groupId, filter);
-            if (regions != null && regions.HasObjects())
+            if (regions != null)
             {
                 response = new RegionsResponse();
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+                response.Status = regions.Status;
                 response.Regions = regions.Objects;
             }
 
@@ -2002,7 +2002,11 @@ namespace Core.Api
 
         public static GenericResponse<SegmentationType> AddSegmentationType(int groupId, SegmentationType segmentationType)
         {
-            GenericResponse<SegmentationType> response = new GenericResponse<SegmentationType>();
+            GenericResponse<SegmentationType> response = segmentationType.ValidateForInsert();
+            if (!response.IsOkStatusCode())
+            {
+                return response;
+            }
 
             try
             {
@@ -2029,7 +2033,11 @@ namespace Core.Api
 
         public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType)
         {
-            GenericResponse<SegmentationType> response = new GenericResponse<SegmentationType>();
+            GenericResponse<SegmentationType> response = segmentationType.ValidateForUpdate();
+            if (!response.IsOkStatusCode())
+            {
+                return response;
+            }
 
             try
             {
