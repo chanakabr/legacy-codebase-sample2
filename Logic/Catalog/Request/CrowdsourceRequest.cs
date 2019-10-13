@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using ApiObjects.CrowdsourceItems.Base;
 using Core.Catalog.Response;
@@ -8,8 +9,10 @@ using Newtonsoft.Json;
 
 namespace Core.Catalog.Request
 {
+    [DataContract]
     public class CrowdsourceRequest : BaseRequest, IRequestImp
     {
+        [DataMember]
         public long LastDate { get; set; }
 
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)

@@ -17,6 +17,7 @@ using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Request
 {
+    [DataContract]
     public class AssetCommentsRequest : BaseRequest, IRequestImp
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
