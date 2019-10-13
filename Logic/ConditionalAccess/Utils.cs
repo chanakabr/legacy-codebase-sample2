@@ -6744,11 +6744,12 @@ namespace Core.ConditionalAccess
             TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
-            if (recordingLifetime.HasValue)
+            if (recordingLifetime.HasValue && status.HasValue && status.Value == RecordingInternalStatus.OK)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
                 recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
             }
+
             return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
         }
 
