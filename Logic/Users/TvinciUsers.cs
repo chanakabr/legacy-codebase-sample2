@@ -1207,19 +1207,19 @@ namespace Core.Users
                 response.Object.m_user = null;
                 return response;
             }
-            
-            if (!user.m_oBasicData.SetPassword(sPass, nGroupID))
-            {
-                response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
-                response.Object.m_user = null;
-                return response;
-            }
-            
+
             var validationResponse = PasswordPolicyManager.Instance.ValidatePassword(sPass, nGroupID, userId, user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
                 response.SetStatus(validationResponse);
                 response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
+                return response;
+            }
+
+            if (!user.m_oBasicData.SetPassword(sPass, nGroupID))
+            {
+                response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
+                response.Object.m_user = null;
                 return response;
             }
 

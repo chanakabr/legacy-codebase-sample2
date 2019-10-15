@@ -10,8 +10,8 @@ namespace Core.Catalog
         public string m_sKey;
         [DataMember]
         public string m_sValue;
-        [DataMember]
-        public ExtensionDataObject ExtensionData;
+        //[DataMember]
+        //public ExtensionDataObject ExtensionData;
 
         public KeyValue()
         {
