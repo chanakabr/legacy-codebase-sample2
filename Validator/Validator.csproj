@@ -23,6 +23,6 @@
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
-    <ProjectReference Include="..\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 </Project>
