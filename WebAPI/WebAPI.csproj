@@ -35,29 +35,29 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
-    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
-    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\Logic\ApiLogic.csproj" />
-    <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
-    <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
-    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
-    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
-    <ProjectReference Include="..\DAL\DAL.csproj" />
-    <ProjectReference Include="..\EventManager\EventManager.csproj" />
-    <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
-    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
-    <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj" />
-    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
-    <ProjectReference Include="..\M1BL\M1BL.csproj" />
-    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
-    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj" />
-    <ProjectReference Include="..\ScheduledTasks\ScheduledTasks.csproj" />
-    <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
-    <ProjectReference Include="..\TvinciCache\TvinciCache.csproj" />
-    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\..\Core\CachingManager\CachingManager.csproj" />
+    <ProjectReference Include="..\..\Core\CachingProvider\CachingProvider.csproj" />
+    <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj" />
+    <ProjectReference Include="..\..\Core\DAL\DAL.csproj" />
+    <ProjectReference Include="..\..\Core\EventManager\EventManager.csproj" />
+    <ProjectReference Include="..\..\Core\GoogleAPI\GoogleAPI.csproj" />
+    <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />
+    <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj" />
+    <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\..\Core\M1BL\M1BL.csproj" />
+    <ProjectReference Include="..\..\Core\ODBCWrapper\ODBCWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\QueueWrapper\QueueWrapper.csproj" />
+    <ProjectReference Include="..\..\Core\ScheduledTasks\ScheduledTasks.csproj" />
+    <ProjectReference Include="..\..\Core\ServiceExtensions\ServiceExtensions.csproj" />
+    <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj" />
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Controllers\DomainsController.cs" />

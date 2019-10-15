@@ -42,7 +42,6 @@ namespace WebAPI.Clients
 
         public List<LanguageObj> GetGroupLanguages(int groupId)
         {
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

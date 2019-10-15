@@ -505,20 +505,16 @@ namespace WebAPI.Utils
             if (responseProfile != null)
             {
                 string profileName = string.Empty;
-                bool isProfileExists = false;
-                if (responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
+                KalturaDetachedResponseProfile profile = (KalturaDetachedResponseProfile)responseProfile; // always KalturaDetachedResponseProfile
+                if (profile != null)
                 {
-                    var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAggregationCountFilter);
-
-                    if (profile != null)
+                    List<KalturaDetachedResponseProfile> profiles = profile.RelatedProfiles;
+                    if (profiles != null && profiles.Count > 0)
                     {
-                        profileName = profile.Name;
-                        isProfileExists = true;
+                        profileName = profiles.Where(x => x.Filter is KalturaAggregationCountFilter).Select(x => x.Name).FirstOrDefault();
                     }
                 }
 
-                if (!isProfileExists) { return; }
-                
                 for (int i = 0; i < tempAssets.Count; i++)
                 {
                     KalturaIntegerValueListResponse res = null;
@@ -780,7 +776,7 @@ namespace WebAPI.Utils
         {
             if (responseProfile != null && assets != null && responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
             {
-                var profile = detachedResponseProfile.RelatedProfiles.FirstOrDefault(x => x.Filter is KalturaAssetImagePerRatioFilter);
+                var profile = detachedResponseProfile.RelatedProfiles?.FirstOrDefault(x => x.Filter is KalturaAssetImagePerRatioFilter);
 
                 if (profile != null)
                 {
