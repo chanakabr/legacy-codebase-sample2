@@ -472,13 +472,27 @@ namespace Core.Notification
 
         private static bool AddMessageAnnouncementToQueue(int groupId, MessageAnnouncement announcement)
         {
+            bool res = true;
+
+            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
+            {
+                GroupId = groupId,
+                MessageAnnouncementId = announcement.MessageAnnouncementId,
+                StartTime = announcement.StartTime,
+                Type = MessageAnnouncementRequestType.MessageAnnoncement,
+                ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
+            };
+
+            eventBus.Publish(serviceEvent);
+
             MessageAnnouncementQueue que = new MessageAnnouncementQueue();
             MessageAnnouncementData messageAnnouncementData = new MessageAnnouncementData(groupId, announcement.StartTime, announcement.MessageAnnouncementId)
             {
                 ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(announcement.StartTime)
             };
 
-            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
+            res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS);
 
             if (res)
                 log.DebugFormat("Successfully inserted a message to announcement queue: {0}", messageAnnouncementData);

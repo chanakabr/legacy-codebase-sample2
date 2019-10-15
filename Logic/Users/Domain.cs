@@ -555,6 +555,24 @@ namespace Core.Users
                     // GDPR TTV
                     UserSegment.Remove(nUserID.ToString());
 
+                    try
+                    {
+                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                        var serviceEvent = new ApiObjects.EventBus.UserTaskRequest()
+                        {
+                            GroupId = m_nGroupID,
+                            DomainId = nDomainID,
+                            Task = UserTaskType.Delete,
+                            UserId = nUserID
+                        };
+
+                        eventBus.Publish(serviceEvent);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Failed publishing service event of user task. domain id = {nDomainID} user id = {nUserID} ex = {ex}");
+                    }
+
                     // send message to update data of the user in the domain (like series recordings, entitlements)
                     var queue = new QueueWrapper.GenericCeleryQueue();
                     ApiObjects.QueueObjects.UserTaskData message = new ApiObjects.QueueObjects.UserTaskData(nGroupID, UserTaskType.Delete, nUserID.ToString(), nDomainID);

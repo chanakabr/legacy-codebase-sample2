@@ -20,5 +20,11 @@
       <_FakeOutputPath Include="$(MSBuildProjectDirectory)\$(PackageOutputPath)\$(AssemblyName).UNK" />
     </ItemGroup>
   </Target>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using ApiObjects.EventBus;
 using ConfigurationManager;
 using EventBus.Abstraction;
 using KLogMonitor;
@@ -24,6 +25,7 @@ namespace EventBus.RabbitMQ
 
         public static EventBusPublisherRabbitMQ GetInstanceUsingTCMConfiguration()
         {
+            // TODO: MakeSingleTone, in phoenix it is used without IOC \ DI so it has to maintaine a singletone on its one and not relay on ServiceCollection :(
             var eventBusConsumer = new EventBusPublisherRabbitMQ(
                 RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration(),
                 ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
@@ -43,9 +45,25 @@ namespace EventBus.RabbitMQ
         {
             Publish(new[] { serviceEvent });
         }
-
+        
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
+            #region please dont look here
+            // This is a workaround until we kill celery totaly and move to event-bus
+            // right now we have to prevent sending event bus messages according to TCM Value 
+            // but if its an ingest V2 event then it should pass regradless of TCM config
+            var isIngestV2Event = serviceEvents is BulkUploadEvent ||
+                serviceEvents is BulkUploadIngestEvent ||
+                serviceEvents is BulkUploadIngestValidationEvent ||
+                serviceEvents is BulkUploadTransformationEvent;
+            #endregion
+
+            if (!isIngestV2Event && !ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+            {
+                _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvents.GetType().FullName}], due to ShouldSupportCeleryMessages=false in TCM");
+                return;
+            }
+
             var publishRetryPolicy = GetRetryPolicyForEventPublishing();
 
             using (var channel = _PersistentConnection.CreateModel())
@@ -53,7 +71,7 @@ namespace EventBus.RabbitMQ
                 channel.ConfirmSelect();
                 channel.BasicAcks += (o, e) =>
                 {
-                    _Logger.Info($"Event delivered with tag:[{e.DeliveryTag}]");
+                    _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
                 };
                 foreach (var serviceEvent in serviceEvents)
                 {

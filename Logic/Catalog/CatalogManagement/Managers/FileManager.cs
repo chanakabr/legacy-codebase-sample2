@@ -266,7 +266,7 @@ namespace Core.Catalog.CatalogManagement
             // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
             if (RabbitHelper.IsFutureIndexUpdate(previousStartDate, startDate))
             {
-                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, ApiObjects.eObjectType.Media, new List<int>() { assetId }, startDate.Value))
+                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, ApiObjects.eObjectType.Media, new List<long>() { assetId }, startDate.Value))
                 {
                     log.ErrorFormat("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", startDate.Value, assetId, groupId);
                 }
@@ -275,7 +275,7 @@ namespace Core.Catalog.CatalogManagement
             // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
             if (RabbitHelper.IsFutureIndexUpdate(previousEndDate, endDate))
             {
-                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, ApiObjects.eObjectType.Media, new List<int>() { assetId }, endDate.Value))
+                if (!RabbitHelper.InsertFreeItemsIndexUpdate(groupId, ApiObjects.eObjectType.Media, new List<long>() { assetId }, endDate.Value))
                 {
                     log.ErrorFormat("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", endDate.Value, assetId, groupId);
                 }

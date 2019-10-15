@@ -1,0 +1,39 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Pin_Validate",
+      "service": "Pin",
+      "action": "Validate",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Pin_Get",
+      "service": "Pin",
+      "action": "Get",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Pin_Update",
+      "service": "Pin",
+      "action": "Update",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}
