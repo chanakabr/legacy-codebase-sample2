@@ -641,24 +641,12 @@ namespace CachingProvider.LayeredCache
             return string.Format("password_policy_roleId_{0}", roleId);
         }
 
-        public static Dictionary<string, string> GetPasswordPolicyKeyMap(List<long> roleIds)
+        public static string GetGeneralPartnerConfig(int groupId)
         {
-            var result = new Dictionary<string, string>();
-            if (roleIds != null && roleIds.Count > 0)
-            {
-                foreach (var id in roleIds)
-                {
-                    var key = GetPasswordPolicyKey(id);
-                    if (!result.ContainsKey(key))
-                    {
-                        result.Add(key, id.ToString());
-                    }
-                }
-            }
-
-            return result;
+            return string.Format("general_partner_config_{0}", groupId);
         }
         
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1153,22 +1141,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_{0}", GetPasswordPolicyKey(roleId));
         }
 
-        public static Dictionary<string, List<string>> GetPasswordPolicyInvalidationKeysMap(List<long> roleIds)
+        public static string GetGeneralPartnerConfigInvalidationKey(int groupId)
         {
-            var result = new Dictionary<string, List<string>>();
-            if (roleIds != null && roleIds.Count > 0)
-            {
-                foreach (long id in roleIds)
-                {
-                    var key = GetPasswordPolicyKey(id);
-                    if (!result.ContainsKey(key))
-                    {
-                        result.Add(key, new List<string>() { GetPasswordPolicyInvalidationKey(id) });
-                    }
-                }
-            }
-
-            return result;
+            return string.Format("invalidationKey_general_partner_config_{0}", groupId);
         }
 
         #endregion

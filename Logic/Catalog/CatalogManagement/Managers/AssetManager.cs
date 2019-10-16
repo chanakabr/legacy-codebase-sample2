@@ -2117,9 +2117,16 @@ namespace Core.Catalog.CatalogManagement
             {
                 result.Set((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                 return result;
-            }           
+            }
 
-            if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId))
+            DeleteMediaPolicy groupDeleteMediaPolicy = DeleteMediaPolicy.Disable;
+            var config = Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
+            if (config.HasObjects() && config.Objects[0].DeleteMediaPolicy.HasValue)
+            {
+                groupDeleteMediaPolicy = config.Objects[0].DeleteMediaPolicy.Value;
+            }
+
+            if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId, groupDeleteMediaPolicy == DeleteMediaPolicy.Delete))
             {
                 result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -2142,12 +2149,11 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0)
                         {
-                            if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                            {
-                                assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
-                                                                  .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
-                                                                  .ToDictionary(x => x.Value.SystemName, y => y.Value);
-                            }
+
+                            assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                              .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                              .ToDictionary(x => x.Value.SystemName, y => y.Value);
+
                         }
 
                         if (assetStruct.SystemName == EXTERNAL_ASSET_STRUCT_NAME)

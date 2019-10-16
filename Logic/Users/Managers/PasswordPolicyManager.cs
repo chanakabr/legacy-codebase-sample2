@@ -216,8 +216,8 @@ namespace ApiLogic.Users.Managers
                 }
 
                 Dictionary<string, List<PasswordPolicy>> passwordPolicies = null;
-                var keyToOriginalValueMap = LayeredCacheKeys.GetPasswordPolicyKeyMap(filter.RoleIdsIn);
-                var invalidationKeysMap = LayeredCacheKeys.GetPasswordPolicyInvalidationKeysMap(filter.RoleIdsIn);
+                var keyToOriginalValueMap = GetPasswordPolicyKeyMap(filter.RoleIdsIn);
+                var invalidationKeysMap = GetPasswordPolicyInvalidationKeysMap(filter.RoleIdsIn);
 
                 if (!LayeredCache.Instance.GetValues(keyToOriginalValueMap,
                                                      ref passwordPolicies,
@@ -583,6 +583,42 @@ namespace ApiLogic.Users.Managers
             response.Object = UpdatePolicyMap(passwordPolicyId, roleIdsToUpdate, originalRoleIds, rolesToPasswordPolicyMap);
             response.SetStatus(eResponseStatus.OK);
             return response;
+        }
+
+        private static Dictionary<string, string> GetPasswordPolicyKeyMap(List<long> roleIds)
+        {
+            var result = new Dictionary<string, string>();
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                foreach (var id in roleIds)
+                {
+                    var key = LayeredCacheKeys.GetPasswordPolicyKey(id);
+                    if (!result.ContainsKey(key))
+                    {
+                        result.Add(key, id.ToString());
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static Dictionary<string, List<string>> GetPasswordPolicyInvalidationKeysMap(List<long> roleIds)
+        {
+            var result = new Dictionary<string, List<string>>();
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                foreach (long id in roleIds)
+                {
+                    var key = LayeredCacheKeys.GetPasswordPolicyKey(id);
+                    if (!result.ContainsKey(key))
+                    {
+                        result.Add(key, new List<string>() { LayeredCacheKeys.GetPasswordPolicyInvalidationKey(id) });
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

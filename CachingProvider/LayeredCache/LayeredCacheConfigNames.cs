@@ -111,6 +111,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME = "TryGetTopicNotifications";
         public const string GET_USER_ROLES_TO_PASSWORD_POLICY = "GetUserRolesToPasswordPolicy";
         public const string GET_GROUP_REGIONS = "GetGroupRegions";
+        public const string GET_GENERAL_PARTNER_CONFIG = "GetGeneralPartnerConfig";
 
         #endregion
 
