@@ -2149,12 +2149,11 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0)
                         {
-                            if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                            {
-                                assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
-                                                                  .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
-                                                                  .ToDictionary(x => x.Value.SystemName, y => y.Value);
-                            }
+
+                            assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
+                                                              .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
+                                                              .ToDictionary(x => x.Value.SystemName, y => y.Value);
+
                         }
 
                         if (assetStruct.SystemName == EXTERNAL_ASSET_STRUCT_NAME)
