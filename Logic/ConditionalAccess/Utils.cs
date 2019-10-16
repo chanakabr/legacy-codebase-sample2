@@ -6747,8 +6747,13 @@ namespace Core.ConditionalAccess
             if (recordingLifetime.HasValue && status.HasValue && status.Value == RecordingInternalStatus.OK)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
-                recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
             }
+            else
+            {
+                viewableUntilDate = new DateTime(1970, 1, 1);
+            }
+
+            recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
 
             return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
         }
