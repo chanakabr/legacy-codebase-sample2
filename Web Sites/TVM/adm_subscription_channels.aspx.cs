@@ -17,7 +17,7 @@ public partial class adm_subscription_channels : System.Web.UI.Page
     {
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
-        if (LoginManager.IsPagePermitted("adm_media.aspx") == false)
+        if (LoginManager.IsPagePermitted("adm_subscriptions.aspx") == false)
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
