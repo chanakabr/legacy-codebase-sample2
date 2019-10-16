@@ -69,6 +69,14 @@ pipeline {
                         ]) 
                     }
                 }
+
+                stage("Build RemoteTasks"){
+                    steps{
+                        build (job: "OTT-BE-Remote-Tasks-Linux", parameters: [
+                            [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        ]) 
+                    }
+                }
             }
         }
     }

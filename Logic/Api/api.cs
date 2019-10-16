@@ -8,6 +8,7 @@ using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Catalog;
 using ApiObjects.CDNAdapter;
+using ApiObjects.EventBus;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Roles;
@@ -116,7 +117,7 @@ namespace Core.Api
 
         private static int ASSET_RULE_ROUND_NEXT_RUN_DATE_IN_MIN = 5;
 
-        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";        
+        private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";
         #endregion
 
         protected api() { }
@@ -5886,7 +5887,7 @@ namespace Core.Api
             Users.Domain domain;
             return ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
         }
-        
+
         private static Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
         {
             var status = new Status();
@@ -8180,6 +8181,17 @@ namespace Core.Api
 
             try
             {
+
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new ExportRequest()
+                {
+                    GroupId = groupId,
+                    TaskId = taskId,
+                    Version = version
+                };
+
+                eventBus.Publish(serviceEvent);
+
                 ExportTaskData data = null;
 
                 // insert new message to tasks queue (for celery)
@@ -8194,12 +8206,12 @@ namespace Core.Api
                 {
                     data = new ExportTaskData(groupId, taskId, version);
                 }
+
                 log.DebugFormat("EnqueueExportTask: inserting data to rabbit mq. data = ", data);
 
                 if (queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_EXPORT, groupId)))
                 {
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
                     log.DebugFormat("EnqueueExportTask: successfully inserted task to rabbit mq. task id = {0}, version = {1}, frequency {2}", taskId, version, taskFrequency);
                 }
                 else
@@ -8403,7 +8415,7 @@ namespace Core.Api
 
                 // Merge permission with type features
                 Dictionary<string, Permission> groupFeatures = GetGroupFeatures(groupId);
-                if(groupFeatures?.Count > 0)
+                if (groupFeatures?.Count > 0)
                 {
                     response.Permissions.AddRange(groupFeatures.Values.ToList());
                 }
@@ -8420,7 +8432,7 @@ namespace Core.Api
             }
 
             return response;
-        }        
+        }
 
         public static ApiObjects.Roles.PermissionsResponse GetUserPermissions(int groupId, string userId)
         {
@@ -8697,7 +8709,7 @@ namespace Core.Api
                     totalAssetsToInitialize += freeItemsToInitialize.Count;
                     foreach (KeyValuePair<int, DateTime> itemToUpdate in freeItemsToInitialize)
                     {
-                        if (RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<int>() { itemToUpdate.Key }, itemToUpdate.Value))
+                        if (RabbitHelper.InsertFreeItemsIndexUpdate(groupId, eObjectType.Media, new List<long>() { itemToUpdate.Key }, itemToUpdate.Value))
                         {
                             totalEnqueuedItems++;
                         }
@@ -9410,9 +9422,7 @@ namespace Core.Api
         public static bool MigrateStatistics(int groupId, DateTime? startDate)
         {
             bool result = false;
-
             var queue = new SetupTasksQueue();
-
             var dynamicData = new Dictionary<string, object>();
 
             if (startDate != null && startDate.HasValue)
@@ -9420,11 +9430,29 @@ namespace Core.Api
                 dynamicData.Add("START_DATE", startDate.Value.ToString("yyyyMMddHHmmss"));
             }
 
+            try
+            {
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new SetupTaskRequest()
+                {
+                    GroupID = groupId,
+                    Mission = eSetupTask.MigrateStatistics,
+                    DynamicData = dynamicData
+                };
+
+                eventBus.Publish(serviceEvent);
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed publishing service event of MigrateStatistics. group id = {groupId}, ex = {ex}");
+            }
+
             var queueObject = new CelerySetupTaskData(groupId, eSetupTask.MigrateStatistics, dynamicData);
 
             try
             {
-                result = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
+                bool enqueueResult = queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
             }
             catch (Exception ex)
             {
@@ -9979,7 +10007,7 @@ namespace Core.Api
         }
 
         public static bool DoActionRules(bool isSingleRun)
-        { 
+        {
             double alcrScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
             int impactedItems = 0;
@@ -10861,8 +10889,19 @@ namespace Core.Api
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
+
+                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                    var serviceEvent = new ActionRuleRequest()
+                    {
+                        ActionType = RuleActionTaskType.Asset,
+                        GroupId = 0,
+                        ETA = nextExecutionDate
+                    };
+
+                    eventBus.Publish(serviceEvent);
+
+                    var queue = new GenericCeleryQueue();
+                    var data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)
                     {
                         ETA = nextExecutionDate
                     };
@@ -11852,7 +11891,7 @@ namespace Core.Api
                 return;
             }
 
-            if(virtualAsset == null)
+            if (virtualAsset == null)
             {
                 log.Warn($"No virtualAsset for ExternalChannel {channel.ID}");
                 return;
@@ -11911,7 +11950,7 @@ namespace Core.Api
             try
             {
                 // Validate permissnio Name (Must be unique per group)
-                if(ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
+                if (ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
                 {
                     response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
                     log.ErrorFormat("AddPermission failed. PermissionNameAlreadyInUse.groupId = {0}, permissionName: {1}", groupId, permission.Name);
@@ -11981,7 +12020,7 @@ namespace Core.Api
             try
             {
                 Permission permission = GetPermission(groupId, id);
-                if(permission == null)
+                if (permission == null)
                 {
                     log.ErrorFormat("Permission wasn't found. groupId:{0}, id:{1}", groupId, id);
                     return new Status((int)eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);

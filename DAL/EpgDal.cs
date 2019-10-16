@@ -171,7 +171,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static DataSet GetEpgProgramDetails(int nGroupID, int nProgramID)
+        public static DataSet GetEpgProgramDetails(int nGroupID, long nProgramID)
         {
             StoredProcedure sp = new StoredProcedure("Get_EpgProgramDetails");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");

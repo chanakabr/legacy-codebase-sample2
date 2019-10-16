@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
+using ApiObjects.EventBus;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ConfigurationManager;
@@ -2346,11 +2347,23 @@ namespace TvinciImporter
                     sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
-                ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new RemoteImageUploadRequest()
+                {
+                    GroupId = parentGroupId,
+                    ImageId = picNewName,
+                    ImageServerUrl = imageServerUrl,
+                    MediaType = mediaType,
+                    RowId = picId,
+                    SourcePath = sourcePath,
+                    Version = version
+                };
 
+                eventBus.Publish(serviceEvent);
+
+                var data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
                 var queue = new ImageUploadQueue();
-
-                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
+                var enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
 
                 if (!enqueueSuccessful)
                 {
@@ -3565,7 +3578,7 @@ namespace TvinciImporter
                     // check if changes in the start date require future index update call, incase fileStartDate is in more than 2 years we don't update the index (per Ira's request)
                     if (RabbitHelper.IsFutureIndexUpdate(prevStartDate, fileStartDate))
                     {
-                        if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<int>() { nMediaID }, fileStartDate.Value))
+                        if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<long>() { nMediaID }, fileStartDate.Value))
                         {
                             log.Error(string.Format("Failed inserting free items index update as part of Ingest for fileStartDate: {0}, mediaID: {1}, groupID: {2}", fileStartDate.Value, nMediaID, nGroupID));
                         }
@@ -3578,7 +3591,7 @@ namespace TvinciImporter
                     // check if changes in the end date require future index update call, incase fileEndDate is in more than 2 years we don't update the index (per Ira's request)
                     if (RabbitHelper.IsFutureIndexUpdate(prevEndDate, fileEndDate))
                     {
-                        if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<int>() { nMediaID }, fileEndDate.Value))
+                        if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<long>() { nMediaID }, fileEndDate.Value))
                         {
                             log.Error(string.Format("Failed inserting free items index update as part of Ingest for fileEndDate: {0}, mediaID: {1}, groupID: {2}", fileEndDate.Value, nMediaID, nGroupID));
                         }
@@ -3671,7 +3684,7 @@ namespace TvinciImporter
                                 // check if changes in the start date require future index update call, incase ppvStartDate is in more than 2 years we don't update the index (per Ira's request)
                                 if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileStartDate, ppvStartDate))
                                 {
-                                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<int>() { nMediaID }, ppvStartDate.Value))
+                                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<long>() { nMediaID }, ppvStartDate.Value))
                                     {
                                         log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", ppvStartDate.Value, nMediaID, nGroupID));
                                     }
@@ -3680,7 +3693,7 @@ namespace TvinciImporter
                                 // check if changes in the end date require future index update call, incase ppvEndDate is in more than 2 years we don't update the index (per Ira's request)
                                 if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileEndDate, ppvStartDate))
                                 {
-                                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<int>() { nMediaID }, ppvEndDate.Value))
+                                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, eObjectType.Media, new List<long>() { nMediaID }, ppvEndDate.Value))
                                     {
                                         log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", ppvEndDate.Value, nMediaID, nGroupID));
                                     }

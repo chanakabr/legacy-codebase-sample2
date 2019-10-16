@@ -1,0 +1,29 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Anonymous",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Bookmark_Add",
+      "service": "Bookmark",
+      "action": "Add",
+      "type": "Action"
+    },
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Bookmark_List",
+      "service": "Bookmark",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

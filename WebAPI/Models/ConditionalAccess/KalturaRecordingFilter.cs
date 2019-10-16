@@ -1,0 +1,108 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.ConditionalAccess
+{
+    /// <summary>
+    /// Filtering recordings
+    /// </summary>
+    [Serializable]
+    public partial class KalturaRecordingFilter : KalturaFilter<KalturaRecordingOrderBy>
+    {
+        /// <summary>
+        /// Recording Statuses
+        /// </summary>
+        [DataMember(Name = "statusIn")]
+        [JsonProperty(PropertyName = "statusIn")]
+        [XmlArray(ElementName = "statusIn", IsNullable = true)]
+        [SchemeProperty(DynamicType = typeof(KalturaRecordingStatus))]
+        public string StatusIn { get; set; }
+
+        /// <summary>
+        /// KSQL expression, deprecated, please use ksql
+        /// </summary>
+        [DataMember(Name = "filterExpression")]
+        [JsonProperty("filterExpression")]
+        [XmlElement(ElementName = "filterExpression", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MaxLength = 4096)]
+        [Deprecated("5.0.0.0")]
+        public string FilterExpression { get; set; }
+
+        /// <summary>
+        /// Comma separated external identifiers
+        /// </summary>
+        [DataMember(Name = "externalRecordingIdIn")]
+        [JsonProperty("externalRecordingIdIn")]
+        [XmlElement(ElementName = "externalRecordingIdIn", IsNullable = true)]        
+        public string ExternalRecordingIdIn { get; set; }
+
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MaxLength = 4096)]
+        public string Ksql { get; set; }
+
+        public override KalturaRecordingOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaRecordingOrderBy.START_DATE_DESC;
+        }
+
+        internal void Validate()
+        {
+            if (!string.IsNullOrEmpty(ExternalRecordingIdIn) && !string.IsNullOrEmpty(StatusIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaRecordingFilter.externalRecordingIdIn", "KalturaRecordingFilter.statusIn");
+            }
+        }
+
+        public List<KalturaRecordingStatus> ConvertStatusIn()
+        {
+            List<KalturaRecordingStatus> recordingStatuses = null;
+            if (!string.IsNullOrEmpty(StatusIn))
+            {
+                string[] recordingStatusInrecordingStatuses = StatusIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                recordingStatuses = new List<KalturaRecordingStatus>();
+                foreach (string sRecordingStatus in recordingStatusInrecordingStatuses)
+                {
+                    KalturaRecordingStatus recordingStatus;
+                    if (Enum.TryParse<KalturaRecordingStatus>(sRecordingStatus.ToUpper(), out recordingStatus))
+                    {
+                        recordingStatuses.Add(recordingStatus);
+                    }
+                }
+            }
+
+            return recordingStatuses;
+
+        }
+
+        public HashSet<string> GetExternalRecordingIds()
+        {
+            HashSet<string> list = new HashSet<string>();
+            if (!string.IsNullOrEmpty(ExternalRecordingIdIn))
+            {
+                string[] stringValues = ExternalRecordingIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string stringValue in stringValues)
+                {
+                    if (!list.Contains(stringValue))
+                    {
+                        list.Add(stringValue);
+                    }
+                }
+            }
+
+            return list;
+        }
+    }
+}

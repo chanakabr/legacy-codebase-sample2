@@ -1,0 +1,38 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_externalId_Insert",
+      "object": "KalturaExternalRecording",
+      "parameter": "externalId",
+      "action": "INSERT",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_externalId_Update",
+      "object": "KalturaExternalRecording",
+      "parameter": "externalId",
+      "action": "UPDATE",
+      "type": "Parameter"
+    },
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "KalturaRecording_metaData_Update",
+      "object": "KalturaExternalRecording",
+      "parameter": "metaData",
+      "action": "UPDATE",
+      "type": "Parameter"
+    }
+  ],
+  "type": "Parameter"
+}

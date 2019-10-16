@@ -19,6 +19,9 @@ namespace ConfigurationManager
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
+        public static BooleanConfigurationValue ShouldSupportCeleryMessages;
+        public static BooleanConfigurationValue ShouldSupportEventBusMessages;
+        public static BooleanConfigurationValue ShouldRecoverSubscriptionRenewalToMessageBus;
 
         #endregion
 
@@ -39,6 +42,12 @@ namespace ConfigurationManager
         public static StringConfigurationValue AppState;
         public static StringConfigurationValue ServerName;
         public static StringConfigurationValue ApplicationName;
+
+        #endregion
+
+        #region TVP Api
+
+        public static TVPApiConfiguration TVPApiConfiguration;
 
         #endregion
 
@@ -610,6 +619,25 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            TVPApiConfiguration = new TVPApiConfiguration("tvpapi_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+            ShouldSupportCeleryMessages = new BooleanConfigurationValue("should_support_celery_messages")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = true
+            };
+            ShouldSupportEventBusMessages = new BooleanConfigurationValue("should_support_event_bus_messages")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false,
+            };
+            ShouldRecoverSubscriptionRenewalToMessageBus = new BooleanConfigurationValue("should_recover_subscription_renewal_to_message_bus")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = false
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -722,7 +750,11 @@ namespace ConfigurationManager
                     MediaMarksListLength,
                     MediaMarksTTL,
                     EpgInitialId,
-                    ShouldAddInvalidationKeysToHeader
+                    ShouldAddInvalidationKeysToHeader,
+                    TVPApiConfiguration,
+                    ShouldSupportCeleryMessages,
+                    ShouldSupportEventBusMessages,
+                    ShouldRecoverSubscriptionRenewalToMessageBus
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

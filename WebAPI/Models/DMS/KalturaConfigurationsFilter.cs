@@ -1,0 +1,30 @@
+﻿using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.DMS
+{
+    public enum KalturaConfigurationsOrderBy
+    {
+        NONE
+    }
+    /// <summary>
+    /// Configuration filter
+    /// </summary>
+    public partial class KalturaConfigurationsFilter : KalturaFilter<KalturaConfigurationsOrderBy>
+    {
+        /// <summary>
+        /// the ID of the configuration group for which to return related configurations
+        /// </summary>
+        [DataMember(Name = "configurationGroupIdEqual")]
+        [JsonProperty("configurationGroupIdEqual")]
+        [XmlElement(ElementName = "configurationGroupIdEqual")]
+        public string ConfigurationGroupIdEqual { get; set; }
+
+        public override KalturaConfigurationsOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaConfigurationsOrderBy.NONE;
+        }
+    }
+}

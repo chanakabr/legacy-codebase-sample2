@@ -1,0 +1,15 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "Partner_ExternalLogin",
+      "service": "Partner",
+      "action": "ExternalLogin",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

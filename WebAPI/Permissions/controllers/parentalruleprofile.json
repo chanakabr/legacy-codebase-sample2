@@ -1,0 +1,17 @@
+{
+  "permission_items": [
+    {
+      "permissions": [
+        "User",
+        "Master",
+        "Operator"
+      ],
+      "excluded_permissions": [],
+      "name": "ParentalRuleProfile_List",
+      "service": "ParentalRuleProfile",
+      "action": "List",
+      "type": "Action"
+    }
+  ],
+  "type": "Action"
+}

@@ -303,7 +303,14 @@ namespace TVinciShared
 
             if (ctx.Items.ContainsKey("ContentRootPath"))
             {
-                result = string.Concat(ctx.Items["ContentRootPath"].ToString(), path);
+                string contentRootPath = ctx.Items["ContentRootPath"].ToString();
+
+                //if (!contentRootPath.EndsWith("\\"))
+                //{
+                //    contentRootPath = string.Concat(contentRootPath, "\\");
+                //}
+
+                result = Path.Combine(contentRootPath, path);
             }
 
             return result;

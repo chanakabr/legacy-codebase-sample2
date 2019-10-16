@@ -542,10 +542,31 @@ namespace Core.Catalog.CatalogManagement
 
         private static bool EnqueueBulkUpload(int groupId, BulkUpload bulkUploadToEnqueue, long userId)
         {
-            GenericCeleryQueue queue = new GenericCeleryQueue();
-            BulkUploadData data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
-            bool enqueueSuccessful = queue.Enqueue(data, data.GetRoutingKey());
-            if (!enqueueSuccessful)
+            bool result = true;
+
+            try
+            {
+                var serviceEvent = new BulkUploadRequest()
+                {
+                    BulkUploadId = bulkUploadToEnqueue.Id,
+                    GroupId = groupId,
+                    UserId = userId
+                };
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                eventBus.Publish(serviceEvent);
+                log.Error($"Successfully enqueued BulkUpload group id = {groupId} bulk upload id = {bulkUploadToEnqueue.Id}");
+
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to enqueue BulkUpload group id = {groupId} bulk upload id = {bulkUploadToEnqueue.Id} ex = {ex}");
+                result = false;
+            }
+
+            var queue = new GenericCeleryQueue();
+            var data = new BulkUploadData(groupId, bulkUploadToEnqueue.Id, userId);
+            result &= queue.Enqueue(data, data.GetRoutingKey());
+            if (!result)
             {
                 log.ErrorFormat("Failed to enqueue BulkUpload. data: {0}", data);
             }
@@ -554,7 +575,7 @@ namespace Core.Catalog.CatalogManagement
                 log.DebugFormat("Success to enqueue BulkUpload. data: {0}", data);
             }
 
-            return enqueueSuccessful;
+            return result;
         }
 
         private static Tuple<Dictionary<string, List<BulkUpload>>, bool> GetBulkUploadsFromCache(Dictionary<string, object> funcParams)

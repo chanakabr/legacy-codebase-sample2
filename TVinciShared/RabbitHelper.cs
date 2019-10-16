@@ -1,4 +1,6 @@
 ﻿using ApiObjects;
+using ApiObjects.EventBus;
+using ConfigurationManager;
 using KLogMonitor;
 using QueueWrapper;
 using System;
@@ -15,7 +17,7 @@ namespace TVinciShared
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
 
-        public static bool InsertFreeItemsIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
+        public static bool InsertFreeItemsIndexUpdate(int groupID, eObjectType type, List<long> assetIDs, DateTime updateIndexDate)
         {
             bool result = false;
             int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
@@ -27,6 +29,18 @@ namespace TVinciShared
                 {
                     return result;
                 }
+
+                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
+                var serviceEvent = new FreeAssetUpdateRequest()
+                {
+                    GroupId = parentGroupId,
+                    asset_ids = assetIDs,
+                    type = type,
+                    ETA = updateIndexDate
+                };
+
+                eventBus.Publish(serviceEvent);
+                log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
 
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
@@ -40,7 +54,6 @@ namespace TVinciShared
                 {
                     log.ErrorFormat("Failed queuing free item index update {0}", data);
                 }
-
             }
             catch (Exception ex)
             {
@@ -52,7 +65,7 @@ namespace TVinciShared
 
         public static bool IsFutureIndexUpdate(DateTime? previousDate, DateTime? currentDate)
         {
-            return currentDate.HasValue 
+            return currentDate.HasValue
                     && (currentDate > DateTime.UtcNow && currentDate.Value <= DateTime.UtcNow.AddYears(2))
                     && (!previousDate.HasValue || currentDate.Value != previousDate.Value);
         }
