@@ -15682,7 +15682,6 @@ namespace WebAPI.Models.API
     {
         public KalturaEventNotificationScope(Dictionary<string, object> parameters = null) : base(parameters)
         {
-
         }
     }
     public partial class KalturaExportFilter
