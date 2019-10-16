@@ -11637,7 +11637,13 @@ namespace Core.Api
                     return response;
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGeneralPartnerConfigInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for generalPartnerConfig with invalidationKey: {0}", invalidationKey);
+                }
+
+                invalidationKey = LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for catalogGroupCache with invalidationKey: {0}", invalidationKey);
@@ -11675,84 +11681,110 @@ namespace Core.Api
         {
             GeneralPartnerConfig generalPartnerConfig = null;
 
-            DataTable dt = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetGeneralPartnerConfig(groupId);
+                List<string> configInvalidationKey = new List<string>() { LayeredCacheKeys.GetGeneralPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get<GeneralPartnerConfig>(key,
+                                                          ref generalPartnerConfig,
+                                                          GetGeneralPartnerConfigDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_GENERAL_PARTNER_CONFIG,
+                                                          configInvalidationKey))
+                {
+                    log.ErrorFormat("Failed getting GetGeneralPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGeneralPartnerConfig for groupId: {0}", groupId), ex);
+            }
+
+            return generalPartnerConfig;
+        }
+
+        private static Tuple<GeneralPartnerConfig, bool> GetGeneralPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            GeneralPartnerConfig generalPartnerConfig = null;
 
             try
             {
-                DataSet ds = ApiDAL.GetGeneralPartnerConfig(groupId);
-                if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
                 {
-
-                    dt = ds.Tables[0];
-                    if (dt.Rows.Count > 0)
+                    DataSet ds = ApiDAL.GetGeneralPartnerConfig(groupId.Value);
+                    if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
                     {
-                        generalPartnerConfig = new GeneralPartnerConfig()
+                        DataTable dt = ds.Tables[0];
+                        if (dt.Rows.Count > 0)
                         {
-                            DateFormat = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "date_email_format"),
-                            HouseholdLimitationModule = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "max_device_limit"),
-                            MailSettings = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_settings"),
-                            MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
-                            PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
-                            MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID")
-                        };
+                            generalPartnerConfig = new GeneralPartnerConfig()
+                            {
+                                DateFormat = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "date_email_format"),
+                                HouseholdLimitationModule = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "max_device_limit"),
+                                MailSettings = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_settings"),
+                                MainCurrency = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "CURRENCY_ID"),
+                                PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
+                                MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID")
+                            };
 
-                        int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
-                        int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
-                        int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
-                        int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
+                            int? deleteMediaPolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DELETE_MEDIA_POLICY");
+                            int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
+                            int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
+                            int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
 
-                        if (deleteMediaPolicy.HasValue)
-                        {
-                            generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
+                            if (deleteMediaPolicy.HasValue)
+                            {
+                                generalPartnerConfig.DeleteMediaPolicy = (DeleteMediaPolicy)deleteMediaPolicy.Value;
+                            }
+
+                            if (downgradePolicy.HasValue)
+                            {
+                                generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                            }
+
+                            if (enableRegionFiltering.HasValue)
+                            {
+                                generalPartnerConfig.EnableRegionFiltering = enableRegionFiltering.Value == 1;
+                            }
+
+                            if (defaultRegion.HasValue && defaultRegion.Value > 0)
+                            {
+                                generalPartnerConfig.DefaultRegion = defaultRegion.Value;
+                            }
                         }
 
-                        if (downgradePolicy.HasValue)
+                        dt = ds.Tables[1];
+                        if (dt.Rows.Count > 0)
                         {
-                            generalPartnerConfig.DowngradePolicy = (DowngradePolicy)downgradePolicy.Value;
+                            generalPartnerConfig.SecondaryLanguages = new List<int>();
+
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                generalPartnerConfig.SecondaryLanguages.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "LANGUAGE_ID"));
+                            }
                         }
 
-                        if (enableRegionFiltering.HasValue)
+                        dt = ds.Tables[2];
+                        if (dt.Rows.Count > 0)
                         {
-                            generalPartnerConfig.EnableRegionFiltering = enableRegionFiltering.Value == 1;
-                        }
+                            generalPartnerConfig.SecondaryCurrencies = new List<int>();
 
-                        if (defaultRegion.HasValue && defaultRegion.Value > 0)
-                        {
-                            generalPartnerConfig.DefaultRegion = defaultRegion.Value;
-                        }
-                    }
-
-
-                    dt = ds.Tables[1];
-                    if (dt.Rows.Count > 0)
-                    {
-                        generalPartnerConfig.SecondaryLanguages = new List<int>();
-
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            generalPartnerConfig.SecondaryLanguages.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "LANGUAGE_ID"));
-                        }
-                    }
-
-
-                    dt = ds.Tables[2];
-                    if (dt.Rows.Count > 0)
-                    {
-                        generalPartnerConfig.SecondaryCurrencies = new List<int>();
-
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
+                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("GetGeneralPartnerConfig failed ex={0}, groupId={1}", ex, groupId);
+                log.Error(string.Format("GetGeneralPartnerConfig failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return generalPartnerConfig;
+            return new Tuple<GeneralPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
         }
 
         public static List<LanguageObj> GetAllLanguages(int groupId)
