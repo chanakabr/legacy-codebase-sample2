@@ -12912,11 +12912,11 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;
 
-            if(CatchUpEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CatchUpEnabled.HasValue)
             {
                 ret.Add("enableCatchUp", "\"enableCatchUp\": " + CatchUpEnabled.ToString().ToLower());
             }
-            if(CdvrEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CdvrEnabled.HasValue)
             {
                 ret.Add("enableCdvr", "\"enableCdvr\": " + CdvrEnabled.ToString().ToLower());
             }
@@ -12940,11 +12940,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("relatedMediaId", "\"relatedMediaId\": " + RelatedMediaId);
             }
-            if(StartOverEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && StartOverEnabled.HasValue)
             {
                 ret.Add("enableStartOver", "\"enableStartOver\": " + StartOverEnabled.ToString().ToLower());
             }
-            if(TrickPlayEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && TrickPlayEnabled.HasValue)
             {
                 ret.Add("enableTrickPlay", "\"enableTrickPlay\": " + TrickPlayEnabled.ToString().ToLower());
             }
@@ -12958,11 +12958,11 @@ namespace WebAPI.Models.Catalog
             string propertyValue;
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContext.REQUEST_TYPE] : null;
 
-            if(CatchUpEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CatchUpEnabled.HasValue)
             {
                 ret.Add("enableCatchUp", "<enableCatchUp>" + CatchUpEnabled.ToString().ToLower() + "</enableCatchUp>");
             }
-            if(CdvrEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CdvrEnabled.HasValue)
             {
                 ret.Add("enableCdvr", "<enableCdvr>" + CdvrEnabled.ToString().ToLower() + "</enableCdvr>");
             }
@@ -12986,11 +12986,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("relatedMediaId", "<relatedMediaId>" + RelatedMediaId + "</relatedMediaId>");
             }
-            if(StartOverEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && StartOverEnabled.HasValue)
             {
                 ret.Add("enableStartOver", "<enableStartOver>" + StartOverEnabled.ToString().ToLower() + "</enableStartOver>");
             }
-            if(TrickPlayEnabled.HasValue)
+            if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && TrickPlayEnabled.HasValue)
             {
                 ret.Add("enableTrickPlay", "<enableTrickPlay>" + TrickPlayEnabled.ToString().ToLower() + "</enableTrickPlay>");
             }

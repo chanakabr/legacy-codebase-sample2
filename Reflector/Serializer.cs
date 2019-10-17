@@ -53,7 +53,7 @@ namespace Reflector
             types.Remove(typeof(KalturaSerializable));
             types.Remove(typeof(KalturaMultilingualString));
         }
-        
+
         protected override void writeHeader()
         {
             file.WriteLine("// NOTICE: This is a generated file, to modify it, edit Program.cs in Reflector project");
@@ -91,14 +91,14 @@ namespace Reflector
             }
             return null;
         }
-        
+
         private static bool doesPropertyRequiresReadPermission(PropertyInfo arg)
         {
             return arg.CustomAttributes.Any(ca =>
                     ca.AttributeType.IsEquivalentTo(typeof(SchemePropertyAttribute))
                     && ca.NamedArguments.Any(na => na.MemberName.Equals("RequiresPermission") && na.TypedValue.Value.Equals(1)));
         }
-        
+
         private void writeUsing()
         {
             HashSet<string> namespaces = new HashSet<string>();
@@ -199,7 +199,14 @@ namespace Reflector
                 OnlyNewStandardAttribute onlyNewStandard = property.GetCustomAttribute<OnlyNewStandardAttribute>(false);
                 if (onlyNewStandard != null)
                 {
-                    conditions.Add("!isOldVersion");
+                    if (onlyNewStandard.SinceVersion == null)
+                    {
+                        conditions.Add("!isOldVersion");
+                    }
+                    else
+                    {
+                        conditions.Add("OnlyNewStandardAttribute.IsNew(\"" + onlyNewStandard.SinceVersion + "\", currentVersion)");
+                    }
                 }
 
                 if (IsObsolete(property))
