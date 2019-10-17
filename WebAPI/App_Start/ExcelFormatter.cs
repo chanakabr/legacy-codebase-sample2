@@ -18,6 +18,7 @@ using ApiObjects.Response;
 using WebAPI.Models.API;
 using ApiObjects.BulkUpload;
 using System.Net;
+using System.Text;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using TVinciShared;
@@ -49,7 +50,7 @@ namespace WebAPI.App_Start
             return true;
         }
 
-        private StatusWrapper CreateStatusWrapper(ApiException ex, object value)
+        private static StatusWrapper CreateStatusWrapper(ApiException ex, object value)
         {
             var subCode = ex.Code;
             var message = ex.Message;
@@ -75,7 +76,7 @@ namespace WebAPI.App_Start
             return statusWrapper;
         }
 
-        private bool TryGetDataFromRequest(out int? groupId, out string fileName)
+        private static bool TryGetDataFromRequest(out int? groupId, out string fileName)
         {
             bool isResponseValid = false;
             groupId = null;
@@ -121,17 +122,17 @@ namespace WebAPI.App_Start
             return isResponseValid;
         }
 
-        private void CreateExcel(Stream writeStream, string fileName, DataTable dt, ExcelStructure excelStructure)
+        private static void CreateExcel(Stream writeStream, string fileName, DataTable dt, ExcelStructure excelStructure)
         {
-            using (ExcelPackage pack = new ExcelPackage(new FileInfo(fileName)))
+            using (var pack = new ExcelPackage(new FileInfo(fileName)))
             {
-                ExcelWorksheet excelWorksheet = pack.Workbook.Worksheets.Add(ExcelFormatterConsts.EXCEL_SHEET_NAME);
+                var excelWorksheet = pack.Workbook.Worksheets.Add(ExcelFormatterConsts.EXCEL_SHEET_NAME);
 
                 int columnNameRowIndex = 1;
                 // Set overview instructions
                 if (excelStructure.OverviewInstructions.Count > 0)
                 {
-                    for (int i = 1; i <= excelStructure.OverviewInstructions.Count; i++)
+                    for (var i = 1; i <= excelStructure.OverviewInstructions.Count; i++)
                     {
                         excelWorksheet.Cells[i, 1].Value = excelStructure.OverviewInstructions[i - 1];
                     }
@@ -140,7 +141,7 @@ namespace WebAPI.App_Start
                 }
 
                 var columns = excelStructure.ExcelColumns.Values.ToList();
-                for (int i = 1; i <= columns.Count; i++)
+                for (var i = 1; i <= columns.Count; i++)
                 {
                     // set the column name
                     excelWorksheet.Cells[columnNameRowIndex, i].Value = columns[i - 1].ToString();
@@ -167,7 +168,7 @@ namespace WebAPI.App_Start
             }
         }
 
-        private DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects, Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns)
+        private static DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects, Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns)
         {
             DataTable dataTable = new DataTable();
             if (columns != null && columns.Count > 0)
@@ -224,14 +225,14 @@ namespace WebAPI.App_Start
             return dataTable;
         }
 
-        public override async Task<string> GetStringResponse(object value)
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, System.Net.TransportContext transportContext)
         {
             if (value != null && value is StatusWrapper)
             {
                 try
                 {
                     // validate expected type was received
-                    StatusWrapper restResultWrapper = value as StatusWrapper;
+                    var restResultWrapper = value as StatusWrapper;
 
                     if (restResultWrapper != null && restResultWrapper.Result != null && !(restResultWrapper.Result is KalturaAPIExceptionWrapper))
                     {
@@ -271,15 +272,12 @@ namespace WebAPI.App_Start
                         HttpContext.Current.Response.ContentType = ExcelFormatterConsts.EXCEL_CONTENT_TYPE;
                         HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
 
-                        using (var writeStream = new MemoryStream())
-                        using (var sr = new StreamReader(writeStream))
+                        CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
+                        using (var streamWriter = new StreamWriter(writeStream))
                         {
-                            CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                            writeStream.Seek(0, SeekOrigin.Begin);
-                            var excelStringresult = await sr.ReadToEndAsync();
-                            return excelStringresult;
+                            streamWriter.Write("");
                         }
-
+                        return Task.FromResult(writeStream);
                     }
                 }
                 catch (ApiException ex)
@@ -298,9 +296,12 @@ namespace WebAPI.App_Start
                 HttpContext.Current.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
 
-            HttpContext.Current.Response.ContentType = "application/json";
-            var exceptionResult = JsonConvert.SerializeObject(value);
-            return exceptionResult;
+            using (var streamWriter = new StreamWriter(writeStream))
+            {
+                HttpContext.Current.Response.ContentType = "application/json";
+                streamWriter.Write(JsonConvert.SerializeObject(value));
+                return Task.FromResult(writeStream);
+            }
         }
     }
 }
