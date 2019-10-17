@@ -33,10 +33,15 @@ namespace WebAPI.App_Start
             }
             return true;
         }
-
-        public override Task<string> GetStringResponse(object response)
+        
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
-            return  Task.FromResult(jsonManager.Serialize(response));
+            using (TextWriter streamWriter = new StreamWriter(writeStream))
+            {
+                string json = jsonManager.Serialize(value);
+                streamWriter.Write(json);
+                return Task.FromResult(writeStream);
+            }
         }
     }
 }

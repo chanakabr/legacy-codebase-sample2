@@ -21,19 +21,23 @@ namespace WebAPI.Utils
             MediaTypeMappings.Add(new QueryStringMapping("responseFormat", "jsonp", "application/json"));
         }
 
-        public override Task<string> GetStringResponse(object response)
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
-            string json = jsonManager.Serialize(response);
-
-            string callback = HttpContext.Current.Request.GetQueryString()["callback"];
-            if (string.IsNullOrEmpty(callback))
+            using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                callback = "callback";
+                string json = jsonManager.Serialize(value);
+
+                string callback = HttpContext.Current.Request.GetQueryString()["callback"];
+                if (string.IsNullOrEmpty(callback))
+                {
+                    callback = "callback";
+                }
+
+                string response = string.Format("{0}({1})", callback, json);
+                streamWriter.Write(response);
+                
+                return Task.FromResult(writeStream);
             }
-
-            string result = string.Format("{0}({1})", callback, json);
-            return Task.FromResult(result);
         }
-
     }
 }

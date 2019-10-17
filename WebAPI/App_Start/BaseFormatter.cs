@@ -31,18 +31,7 @@ namespace WebAPI.App_Start
             AcceptContentTypes = contentTypes;
         }
 
-        public sealed override async Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
-        {
-            var responseString = await GetStringResponse(value);
-            using (var streamWriter = new StreamWriter(writeStream))
-            {
-                streamWriter.Write(responseString);
-            }
-        }
-
         public KalturaResponseType Format { get; }
         public string[] AcceptContentTypes { get; }
-
-        public abstract Task<string> GetStringResponse(object response);
     }
 }

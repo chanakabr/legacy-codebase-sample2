@@ -24,7 +24,7 @@ namespace WebAPI.App_Start
         public AssetXmlFormatter() : base(KalturaResponseType.ASSET_XML, "application/xml")
         {
         }
-
+        
         public override bool CanReadType(Type type)
         {
             if (type == (Type)null)
@@ -671,17 +671,18 @@ namespace WebAPI.App_Start
             return feed;
         }
 
-        public override Task<string> GetStringResponse(object response)
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content,
+            System.Net.TransportContext transportContext)
         {
-            return Task<string>.Factory.StartNew(() =>
+            return Task.Factory.StartNew(() =>
             {
                 try
                 {
                     Feed resultFeed = new Feed();
-                    if (response != null)
+                    if (value != null)
                     {
                         // validate expected type was received
-                        StatusWrapper restResultWrapper = (StatusWrapper)response;
+                        StatusWrapper restResultWrapper = (StatusWrapper)value;
                         if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
                         {
                             resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
@@ -696,20 +697,21 @@ namespace WebAPI.App_Start
                                 doc.RemoveChild(declaration);
 
                             var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                            return doc.OuterXml;
+                            writeStream.Write(buf, 0, buf.Length);
                         }
                         else
                         {
-                            return JsonConvert.SerializeObject(restResultWrapper);
+                            using (TextWriter streamWriter = new StreamWriter(writeStream))
+                            {
+                                streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            }
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     log.Error("Error while formatting asset list to XML ingest", ex);
-
                 }
-                return null;
             });
         }
     }
