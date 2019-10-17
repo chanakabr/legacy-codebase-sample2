@@ -52,6 +52,11 @@ namespace Phoenix.Rest.Middleware
 
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
+            if (parsedActionParams.TryGetValue("format", out var responseFormat))
+            {
+                phoenixCtx.Format = responseFormat.ToString();
+            }
+
             RequestContext.SetContext(parsedActionParams, service, action);
             phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
             phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);            

@@ -61,14 +61,19 @@ namespace Phoenix.Rest.Middleware
             var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), _Response);
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
-
             var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), _PhoenixCtx.Format);
-            var responseJson = await formatter.GetStringResponse(wrappedResponse);
 
             context.Response.ContentType = formatter.AcceptContentTypes[0];
             context.Response.StatusCode = (int)HttpStatusCode.OK;
-
-            await context.Response.WriteAsync(responseJson);
+            try
+            {
+                await formatter.WriteToStreamAsync(typeof(StatusWrapper), wrappedResponse, context.Response.Body, null, null);
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("error while writing response stream", e);
+                throw;
+            }
         }
     }
 }
