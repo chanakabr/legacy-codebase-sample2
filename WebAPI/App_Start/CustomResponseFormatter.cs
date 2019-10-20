@@ -58,15 +58,13 @@ namespace WebAPI.App_Start
             if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is WebAPI.App_Start.KalturaAPIExceptionWrapper)
                 return base.WriteToStreamAsync(type, value, writeStream, content, transportContext);
 
-            return Task.Factory.StartNew(() =>
-            {
-                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is KalturaRenderer)
-                {
-                    KalturaRenderer renderer = (KalturaRenderer)((StatusWrapper)value).Result;
 
-                    renderer.Output(writeStream);
-                }
-            });
+            var renderer = (KalturaRenderer)((StatusWrapper)value).Result;
+
+            renderer.Output(writeStream);
+
+            return Task.FromResult(writeStream);
+
         }
     }
 }

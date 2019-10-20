@@ -61,7 +61,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "enableCdvr")]
         [JsonProperty(PropertyName = "enableCdvr")]
-        [XmlElement(ElementName = "enableCdvr")]        
+        [XmlElement(ElementName = "enableCdvr")]
+        [OnlyNewStandard("5.0.0.0")]
         public bool? CdvrEnabled { get; set; }
 
         /// <summary>
@@ -69,7 +70,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "enableCatchUp")]
         [JsonProperty(PropertyName = "enableCatchUp")]
-        [XmlElement(ElementName = "enableCatchUp")]        
+        [XmlElement(ElementName = "enableCatchUp")]
+        [OnlyNewStandard("5.0.0.0")]
         public bool? CatchUpEnabled { get; set; }
 
         /// <summary>
@@ -77,7 +79,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "enableStartOver")]
         [JsonProperty(PropertyName = "enableStartOver")]
-        [XmlElement(ElementName = "enableStartOver")]        
+        [XmlElement(ElementName = "enableStartOver")]
+        [OnlyNewStandard("5.0.0.0")]
         public bool? StartOverEnabled { get; set; }
 
         /// <summary>
@@ -85,7 +88,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "enableTrickPlay")]
         [JsonProperty(PropertyName = "enableTrickPlay")]
-        [XmlElement(ElementName = "enableTrickPlay")]        
+        [XmlElement(ElementName = "enableTrickPlay")]
+        [OnlyNewStandard("5.0.0.0")]
         public bool? TrickPlayEnabled { get; set; }
 
         internal override void ValidateForInsert()

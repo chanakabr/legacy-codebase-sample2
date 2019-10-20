@@ -273,10 +273,6 @@ namespace WebAPI.App_Start
                         HttpContext.Current.Response.Headers.Add("Content-Disposition", "attachment; filename=" + fileName);
 
                         CreateExcel(writeStream, fileName, fullDataTable, excelStructure);
-                        using (var streamWriter = new StreamWriter(writeStream))
-                        {
-                            streamWriter.Write("");
-                        }
                         return Task.FromResult(writeStream);
                     }
                 }
