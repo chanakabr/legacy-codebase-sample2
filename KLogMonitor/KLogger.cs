@@ -306,15 +306,14 @@ namespace KLogMonitor
             HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, true, null, ex);
         }
 
-        public static string GetRequestId()
-        {
-            return LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
-        }
-
-        public static void SetRequestId(string sessionId)
-        {
-            LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
-        }
+        public static string GetRequestId() => LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+        
+        public static void SetRequestId(string sessionId) => LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
+       
+        public static void SetAction(string action) => LogContextData[Constants.ACTION] = action;
+       
+        public static void SetTopic(string topic) => LogContextData[Constants.TOPIC] = topic;
+        public static void SetGroupId(string groupId) => LogContextData[Constants.GROUP_ID] = groupId;
 
         public void ErrorFormat(string format, params object[] args)
         {
