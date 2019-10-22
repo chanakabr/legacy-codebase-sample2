@@ -371,24 +371,7 @@ namespace CouchbaseManager
                 case Couchbase.IO.ResponseStatus.Busy:
                     break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
-                    {
-                        // remove bucket
-                        lock (locker)
-                        {
-                            // don't do this if we had already done this in last 15 seconds, 
-                            // to avoid problems with resource concurrency (dispose and use at same time)
-                            if ((DateTime.Now - lastInitializationTime).TotalSeconds > 15)
-                            {
-                                log.DebugFormat("CouchBase : ClientFailure detected. " +
-                                    "Due to SDK bug, most likely the ClientFailure will repeat infinitely until restart. Therefore, removing bucket {0} now - : " +
-                                    "it will be reinitialized later.", bucketName);
-                                lastInitializationTime = DateTime.Now;
-                                ClusterHelper.RemoveBucket(bucketName);
-                            }
-                        }
-
-                        break;
-                    }
+                    break;
                 case Couchbase.IO.ResponseStatus.DocumentMutationLost:
                     break;
                 case Couchbase.IO.ResponseStatus.IncrDecrOnNonNumericValue:
