@@ -655,7 +655,7 @@ namespace Core.Catalog.CatalogManagement
                                 //OrderNum
                                 Language = mediaFile.Language,
                                 IsDefaultLanguage = StringUtils.TryConvertTo<bool>(mediaFile.IsDefaultLanguage),
-                                OutputProtecationLevel = mediaFile.OutputProtecationLevel,
+                                OutputProtecationLevel = StringUtils.ConvertTo<int>(mediaFile.OutputProtecationLevel),
                                 StartDate = DateUtils.TryExtractDate(mediaFile.FileStartDate, ASSET_FILE_DATE_FORMAT),
                                 EndDate = DateUtils.TryExtractDate(mediaFile.FileEndDate, ASSET_FILE_DATE_FORMAT),
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),

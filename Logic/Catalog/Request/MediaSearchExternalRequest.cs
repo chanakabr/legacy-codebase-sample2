@@ -87,12 +87,26 @@ namespace Core.Catalog.Request
                     return response;
                 }
 
-                var searchResultsList = CatalogLogic.GetValidateRecommendationsAssets(results, mediaSearchRequest.m_nGroupID);
-                if (searchResultsList != null && searchResultsList.Count > 0)
+                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+                var allRecommendations = results.Select(result =>
+                new RecommendationSearchResult()
                 {
-                    response.m_nTotalItems = searchResultsList.Count;
-                    response.searchResults = searchResultsList;
+                    AssetId = result.id,
+                    AssetType = (eAssetTypes)result.type,
+                    m_dUpdateDate = DateTime.MinValue,
+                    TagsExtraData = result.TagsExtarData,
                 }
+                ).ToList();
+
+                List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+                int tempTotalItems = 0;
+                if (allRecommendations != null && allRecommendations.Count > 0)
+                    searchResultsList = searcher.FillUpdateDates(mediaSearchRequest.m_nGroupID, allRecommendations.Select(x => (UnifiedSearchResult)x).ToList(), ref tempTotalItems,
+                                                                    mediaSearchRequest.m_nPageSize, mediaSearchRequest.m_nPageIndex, true);
+
+                response.m_nTotalItems = totalItems;
+                response.searchResults = searchResultsList;
 
                 return response;
             }

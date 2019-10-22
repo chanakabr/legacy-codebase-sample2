@@ -94,7 +94,7 @@ namespace Core.Catalog
         public bool? IsDefaultLanguage { get; set; }
 
         [JsonProperty("OutputProtecationLevel")]
-        public string OutputProtecationLevel { get; set; }
+        public int OutputProtecationLevel { get; set; }
 
         [ExcelColumn(ExcelColumnType.File, PLAYBACK_START_DATE)]
         [JsonProperty("StartDate")]

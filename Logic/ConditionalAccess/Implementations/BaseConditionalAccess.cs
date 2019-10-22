@@ -9962,11 +9962,8 @@ namespace Core.ConditionalAccess
 
                         if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
-                            //BEO-5551
-                            bool blockSuspendDomain = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldBlockSuspendDomain");
-
                             // check is permitted to login becouse if domain suspended to cancel or force cancel it should be done via phoniex (service_action )
-                            if (blockSuspendDomain || (!isForce && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel")))
+                            if (!isForce && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 result.Code = (int)eResponseStatus.DomainSuspended;
                                 result.Message = "Domain suspended";
