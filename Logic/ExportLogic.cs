@@ -770,9 +770,9 @@ namespace APILogic
                 // dates
                 xml.AppendFormat("<dates><catalog_start>{0}</catalog_start><start>{1}</start><catalog_end>{2}</catalog_end><final_end>{3}</final_end></dates>",
                     TVinciShared.ProtocolsFuncs.XMLEncode((asset.CatalogStartDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss") , true),    // {0} - catalog start date
-                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.StartDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss"), true),            // {1} - start date
-                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.EndDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true),              // {2} - catalog end date
-                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.FinalEndDate.HasValue ? asset.CatalogStartDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true)             // {3} - end date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.StartDate.HasValue ? asset.StartDate.Value : DateTime.MinValue).ToString("dd/MM/yyyy hh:mm:ss"), true),            // {1} - start date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.EndDate.HasValue ? asset.EndDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true),              // {2} - catalog end date
+                    TVinciShared.ProtocolsFuncs.XMLEncode((asset.FinalEndDate.HasValue ? asset.FinalEndDate.Value : DateTime.MaxValue).ToString("dd/MM/yyyy hh:mm:ss"), true)             // {3} - end date
                     );
 
                 xml.Append("</basic>");
@@ -782,7 +782,7 @@ namespace APILogic
 
                 // strings
                 xml.Append("<strings>");
-                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.String.ToString()))
+                foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.String.ToString() || m.m_oTagMeta.m_sType == MetaType.MultilingualString.ToString()))
                 {
                     xml.Append(GetStringMetaSection(meta, mainLang));
                 }
@@ -808,7 +808,7 @@ namespace APILogic
                 xml.Append("<dates>");
                 foreach (var meta in asset.Metas.Where(m => m.m_oTagMeta.m_sType == MetaType.DateTime.ToString()))
                 {
-                    xml.Append(GetDateMetaSection(meta));
+                    xml.Append(GetDateMetaSection(meta, meta.m_sValue));
                 }
                 xml.Append("</dates>");
 
@@ -1012,12 +1012,11 @@ namespace APILogic
                 {
                     foreach (var tag in program.Tags)
                     {
-                        xml.AppendFormat("<tags><TagType>{0}</TagType>",
-                            TVinciShared.ProtocolsFuncs.XMLEncode(tag.m_oTagMeta.m_sName, true)                    // {0} - TagType
-                        );
-
                         foreach (var tagVal in tag.m_lValues)
                         {
+                            xml.AppendFormat("<tags><TagType>{0}</TagType>",
+                                TVinciShared.ProtocolsFuncs.XMLEncode(tag.m_oTagMeta.m_sName, true) // {0} - TagType
+                            );
                             xml.AppendFormat("<TagValues lang=\"{0}\">{1}</TagValues>",
                                 TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),              // {0} - lang
                                 TVinciShared.ProtocolsFuncs.XMLEncode(tagVal, true)                 // {1} - TagValues
@@ -1207,6 +1206,14 @@ namespace APILogic
             return string.Format("<meta name=\"{0}\" ml_handling=\"unique\">{1}</meta>",
                 TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_oTagMeta.m_sName, true),   // {0} - meta name      
                 TVinciShared.ProtocolsFuncs.XMLEncode(!string.IsNullOrEmpty(meta.m_sValue) ? (DateTime.Parse(meta.m_sValue)).ToString("dd/MM/yyyy hh:mm:ss") : string.Empty, true)              // {2} - meta value     
+            );
+        }
+
+        private static string GetDateMetaSection(Metas meta, string value)
+        {
+            return string.Format("<meta name=\"{0}\" ml_handling=\"unique\">{1}</meta>",
+                TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_oTagMeta.m_sName, true),   // {0} - meta name      
+                TVinciShared.ProtocolsFuncs.XMLEncode(value, true)              // {2} - meta value     
             );
         }
 

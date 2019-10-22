@@ -9,6 +9,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using TvinciImporter;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
@@ -242,7 +243,6 @@ namespace Core.Catalog.CatalogManagement
                 IsDefaultLanguage = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_DEFAULT_LANGUAGE"),
                 Language = ODBCWrapper.Utils.GetSafeStr(dr, "LANGUAGE"),
                 OrderNum = ODBCWrapper.Utils.GetNullableInt(dr, "ORDER_NUM"),
-                OutputProtecationLevel = ODBCWrapper.Utils.GetIntSafeVal(dr, "OUTPUT_PROTECTION_LEVEL"),
                 StartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE"),
                 CdnAdapaterProfileId = ODBCWrapper.Utils.GetNullableLong(dr, "STREAMING_SUPLIER_ID"),
                 TypeId = typeId,
@@ -560,12 +560,19 @@ namespace Core.Catalog.CatalogManagement
                     
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
-                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, assetFileToAdd.OutputProtecationLevel, startDate,
+                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate,
                                                         assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
+                    string errorMsg = string.Empty;
+                    ImporterImpl.SetPolicyToFile(assetFileToAdd.OutputProtecationLevel, groupId, assetFileToAdd.ExternalId, ref errorMsg);
+                    if (!string.IsNullOrEmpty(errorMsg))
+                    {
+                        log.ErrorFormat("Failed to SetPolicyToFile for assetId: {0}, groupId: {1} after InsertMediaFile with error message: {2}", assetFileToAdd.AssetId, groupId, errorMsg);
+                    }
+
                     if (!isFromIngest)
                     {
                         // UpdateIndex
@@ -712,7 +719,7 @@ namespace Core.Catalog.CatalogManagement
                                                     assetFileToUpdate.AlternativeCdnAdapaterProfileId, assetFileToUpdate.AssetId, assetFileToUpdate.BillingType, 
                                                     assetFileToUpdate.Duration, assetFileToUpdate.EndDate, assetFileToUpdate.ExternalId, assetFileToUpdate.ExternalStoreId, assetFileToUpdate.FileSize, 
                                                     assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum, 
-                                                    assetFileToUpdate.OutputProtecationLevel, assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
+                                                    assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId, 
                                                     assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate);
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
