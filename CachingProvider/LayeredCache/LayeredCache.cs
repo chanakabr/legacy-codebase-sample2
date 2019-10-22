@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Web;
 using ConfigurationManager;
 using System.Runtime.Caching;
+using CachingProvider.LayeredCache.Helper;
 
 namespace CachingProvider.LayeredCache
 {
@@ -25,6 +26,7 @@ namespace CachingProvider.LayeredCache
         public const string MISSING_KEYS = "NeededKeys";
         public const string IS_READ_ACTION = "IsReadAction";
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
+        public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
 
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
@@ -83,17 +85,14 @@ namespace CachingProvider.LayeredCache
                 {
                     return true;
                 }
-
-                //if (isReadAction && TryGetKeyFromCurrentRequest<T>(key, ref genericParameter))
-                //{
-                //    return true;
-                //}
-
+                
                 Tuple<T, long> tuple = null;
+
                 // save data in cache only if result is true!!!!
                 result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, groupId, inValidationKeys, shouldUseAutoNameTypeHandling);
                 genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
 
+                // if we successfully got data from cache / delegate, insert results to current request items
                 if (result)
                 {
                     Dictionary<string, T> resultsToAdd = new Dictionary<string, T>();
@@ -113,7 +112,10 @@ namespace CachingProvider.LayeredCache
                     InsertResultsToCurrentRequest(resultsToAdd, invalidationKeyToAdd);
                 }
 
-                if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
+                if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null &&
+                    // insert to cache only if no errors during session
+                    !(HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
+                    (bool)HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION]))
                 {
                     // set validation to now
                     Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.GetUtcUnixTimestampNow());
@@ -186,6 +188,7 @@ namespace CachingProvider.LayeredCache
                                                             funcParameters, groupId, inValidationKeysMap, shouldUseAutoNameTypeHandling);
                     results = resultsMapping != null && resultsMapping.Count > 0 ? resultsMapping.ToDictionary(x => x.Key, x => x.Value.Item1) : null;
 
+                    // if we successfully got data from cache / delegate, insert results to current request items
                     if (res)
                     {
                         Dictionary<string, List<string>> invalidationKeysToKeys = new Dictionary<string, List<string>>();
@@ -208,9 +211,13 @@ namespace CachingProvider.LayeredCache
                         InsertResultsToCurrentRequest(results, invalidationKeysToKeys);
                     }
 
-                    if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null)
+                    if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null &&
+                        // insert to cache only if no errors during session
+                        !(HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
+                        (bool)HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION]))
                     {
                         Dictionary<string, string> keyToVersionMappings = GetOriginalKeyToVersionKeyMap(keyToOriginalValueMapAfterCurrentRequest.Keys.ToList(), groupId);
+
                         if (keyToVersionMappings != null && keyToVersionMappings.Count > 0)
                         {
                             foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfigMappings)
@@ -491,7 +498,8 @@ namespace CachingProvider.LayeredCache
             {
                 currentRequestResultMapping = new Dictionary<string, T>();
 
-                if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
+                if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(CURRENT_REQUEST_LAYERED_CACHE) &&
+                    HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
                     HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] is RequestLayeredCache &&
                     keys != null && keys.Count > 0)
                 {
@@ -525,7 +533,8 @@ namespace CachingProvider.LayeredCache
         {
             RequestLayeredCache requestLayeredCache = null;
 
-            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
+            if (HttpContext.Current != null && HttpContext.Current.Items != null && HttpContext.Current.Items.ContainsKey(CURRENT_REQUEST_LAYERED_CACHE) && 
+                HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] != null &&
                 HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] is RequestLayeredCache)
             {
                 requestLayeredCache = HttpContext.Current.Items[CURRENT_REQUEST_LAYERED_CACHE] as RequestLayeredCache;
