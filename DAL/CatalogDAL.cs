@@ -5947,5 +5947,23 @@ namespace Tvinci.Core.DAL
 
             return assetType;
         }
+
+        public static bool SetMediaIsActiveToOff(int mediaId, long userId)
+        {
+            bool res = false;
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", " =", userId);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", mediaId);
+            res = updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            return res;
+        }
     }
 }

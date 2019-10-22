@@ -2118,15 +2118,8 @@ namespace Core.Catalog.CatalogManagement
                 result.Set((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
                 return result;
             }
-
-            DeleteMediaPolicy groupDeleteMediaPolicy = DeleteMediaPolicy.Disable;
-            var config = Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
-            if (config.HasObjects() && config.Objects[0].DeleteMediaPolicy.HasValue)
-            {
-                groupDeleteMediaPolicy = config.Objects[0].DeleteMediaPolicy.Value;
-            }
-
-            if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId, groupDeleteMediaPolicy == DeleteMediaPolicy.Delete))
+            
+            if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId))
             {
                 result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 

@@ -455,9 +455,27 @@ namespace Core.Catalog.CatalogManagement
                 return false;
             }
 
-            log.DebugFormat("Delete Media:{0}", mediaId);
+            Status deleteStatus = new Status(eResponseStatus.OK);
 
-            Status deleteStatus = AssetManager.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
+            var config = Core.Api.Module.GetGeneralPartnerConfiguration(groupId);
+            if (config.HasObjects() && config.Objects[0].DeleteMediaPolicy.HasValue && config.Objects[0].DeleteMediaPolicy.Value == DeleteMediaPolicy.Delete)
+            {
+                deleteStatus = AssetManager.DeleteAsset(groupId, mediaId, eAssetTypes.MEDIA, USER_ID);
+            }
+            else
+            {
+                if (!CatalogDAL.SetMediaIsActiveToOff(mediaId, USER_ID))
+                {
+                    deleteStatus.Set(eResponseStatus.Error);
+                }
+                else
+                {
+                    var assets = new Dictionary<int, bool>();
+                    assets.Add(mediaId, true);
+                    IndexAndInvalidateAssets(groupId, assets);
+                }
+            }
+
             if (deleteStatus.Code != (int)eResponseStatus.OK)
             {
                 ingestResponse.AssetsStatus[mediaIndex].Status = deleteStatus;
