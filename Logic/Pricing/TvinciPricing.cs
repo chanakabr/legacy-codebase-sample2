@@ -1903,20 +1903,27 @@ namespace Core.Pricing
             {
                 response.Objects = new List<DiscountDetails>();
 
-                foreach (DiscountDetails discountDitails in discountDetails)
+                foreach (DiscountDetails dt in discountDetails)
                 {
-                    DiscountDetails dd = new DiscountDetails(discountDitails);
-                    // filter by IDs
-                    if (discountIds != null && discountIds.Count > 0 && !discountIds.Contains(discountDitails.Id))
-                        continue;
-
-                    // filter by currency 
-                    if (!currencyCode.Trim().Equals("*"))
+                    try
                     {
-                        dd.MultiCurrencyDiscounts = discountDitails.MultiCurrencyDiscounts != null ? new List<Discount>(discountDitails.MultiCurrencyDiscounts.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList()) : null;
-                    }
+                        DiscountDetails dd = new DiscountDetails(dt);
+                        // filter by IDs
+                        if (discountIds != null && discountIds.Count > 0 && !discountIds.Contains(dt.Id))
+                            continue;
 
-                    response.Objects.Add(dd);
+                        // filter by currency 
+                        if (!currencyCode.Trim().Equals("*"))
+                        {
+                            dd.MultiCurrencyDiscounts = dt.MultiCurrencyDiscounts != null ? new List<Discount>(dt.MultiCurrencyDiscounts.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList()) : null;
+                        }
+
+                        response.Objects.Add(dd);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Error creating DiscountDetails from id: {dt.Id}", ex);
+                    }
                 }
 
                 response.Objects.OrderBy(pc => pc.Name);
