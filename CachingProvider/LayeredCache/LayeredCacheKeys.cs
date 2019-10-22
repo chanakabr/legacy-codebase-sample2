@@ -273,7 +273,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSubscriptionSetKey(int groupId, long setId)
         {
-            return string.Format("subscriptionSet_groupId_{0}_setId_{1}", groupId, setId);
+            return string.Format("subscriptionSetV2_groupId_{0}_setId_{1}", groupId, setId);
         }
 
         public static Dictionary<string, string> GetSubscriptionSetsKeysMap(int groupId, List<long> setIds)
