@@ -307,7 +307,7 @@ namespace ApiLogic.Users.Managers
             catch (Exception ex)
             {
                 response.Set(eResponseStatus.Error);
-                log.Error($"An Exception was occurred in ValidateNewPassword. groupId:{groupId}, password:{password}, userRoleIds:{string.Join(",", userRoleIds)}. ex:{ex}");
+                log.Error($"An Exception was occurred in ValidateNewPassword. groupId:{groupId}, userRoleIds:{string.Join(",", userRoleIds)}. ex:{ex}");
             }
 
             return response;
