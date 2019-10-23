@@ -2135,6 +2135,7 @@ namespace Core.ConditionalAccess
         {
             subscription = null;
             var response = new GenericResponse<RenewDetails>();
+            
 
             var subscriptionPurchaseRow = ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(groupId, purchaseId, billingGuid);
             if (subscriptionPurchaseRow == null)
@@ -2145,36 +2146,21 @@ namespace Core.ConditionalAccess
                 return response;
             }
 
-            var renewDetailsRow = ConditionalAccessDAL.Get_RenewDetails(groupId, purchaseId, billingGuid);
-            if (renewDetailsRow == null)
-            {
-                // transaction details weren't found
-                log.ErrorFormat("Transaction details weren't found. Data:{0}.", logString);
-                return response;
-            }
-
-            var renewDetails = new RenewDetails()
+            RenewDetails renewDetails = new RenewDetails()
             {
                 ProductId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"), // AKA subscription ID/CODE
                 PurchaseId = purchaseId,
                 BillingGuid = billingGuid,
-                //BillingTransactionId
-                //ExternalTransactionId
+                
                 UserId = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "SITE_USER_GUID"),
                 DomainId = domainId,
                 ShouldSwitchToMasterUser = false,
                 GroupId = groupId,
                 Currency = "n/a",
-                //Price
-                //PaymentMethodId
-                PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER"),
-                NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments"),
-                CustomData = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "CUSTOMDATA"), // AKA subscription ID/CODE
+
+                CustomData = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "CUSTOMDATA"),
                 EndDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE"),
                 StartDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "START_DATE"),
-                //MaxVLCOfSelectedUsageModule
-                //GracePeriodMinutes
-                //SubscriptionStatus
             };
 
             // validate user ID
@@ -2236,6 +2222,11 @@ namespace Core.ConditionalAccess
                 return response;
             }
 
+            if (!TryGetSubscription(groupId, renewDetails.ProductId, out subscription, logString))
+            {
+                return response;
+            }
+
             try
             {
                 if (userValidStatus == ResponseStatus.OK && !string.IsNullOrEmpty(renewDetails.CustomData))
@@ -2262,10 +2253,16 @@ namespace Core.ConditionalAccess
                 return response;
             }
 
-            if (!TryGetSubscription(groupId, renewDetails.ProductId, out subscription, logString))
+            var renewDetailsRow = ConditionalAccessDAL.Get_RenewDetails(groupId, purchaseId, billingGuid);
+            if (renewDetailsRow == null)
             {
+                // transaction details weren't found
+                log.ErrorFormat("Transaction details weren't found. Data:{0}.", logString);
                 return response;
             }
+
+            renewDetails.PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
+            renewDetails.NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
 
             renewDetails.RecurringData = ConditionalAccessDAL.GetRecurringRenewDetails(purchaseId);
             if (renewDetails.RecurringData == null)
