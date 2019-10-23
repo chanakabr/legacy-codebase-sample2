@@ -48,7 +48,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while Login. Username: {0}, PAssword: {1}, exception: {2}", userName, password, ex);
+                log.ErrorFormat("Error while Login. Username: {0}, exception: {1}", userName, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -124,7 +124,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SignUp.  Password: {0}, exception: {1}", password, ex);
+                log.ErrorFormat("Error while SignUp. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
             
@@ -198,7 +198,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ChangeUserPassword. Username: {0}, oldPassword : {1}, newPassword: {2}, exception : {3}", userName, oldPassword, newPassword, ex);
+                log.ErrorFormat("Error while ChangeUserPassword. Username: {0}, exception : {1}", userName, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1125,7 +1125,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, externalID: {2}", groupId, externalID);
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, externalID: {1}", groupId, externalID);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1163,7 +1163,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, userNameFilter: {2}", groupId, userName);
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, userNameFilter: {1}", groupId, userName);
                 ErrorUtils.HandleWSException(ex);
             }
 
