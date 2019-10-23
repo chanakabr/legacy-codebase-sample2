@@ -33,7 +33,7 @@ namespace WebAPI.App_Start
             }
             return true;
         }
-        
+
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
@@ -42,6 +42,14 @@ namespace WebAPI.App_Start
                 streamWriter.Write(json);
                 return Task.FromResult(writeStream);
             }
+        }
+
+        /// <summary>
+        /// This method is used for the .net core version of phoenix and will serialize the object async
+        /// </summary>
+        public override Task<string> GetStringResponse(object obj)
+        {
+            return Task.Run(() => jsonManager.Serialize(obj));
         }
     }
 }

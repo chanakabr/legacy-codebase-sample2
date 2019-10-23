@@ -15,6 +15,26 @@
             <param name="url"></param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.App_Start.AssetXmlFormatter.GetStringResponse(System.Object)">
+            <summary>
+            This method is used for the .net core version of phoenix and will serialize the object async
+            </summary>
+        </member>
+        <member name="M:WebAPI.App_Start.CustomXmlFormatter.GetStringResponse(System.Object)">
+            <summary>
+            This method is used for the .net core version of phoenix and will serialize the object async
+            </summary>
+        </member>
+        <member name="M:WebAPI.App_Start.ExcelFormatter.GetStringResponse(System.Object)">
+            <summary>
+            This method is used for the .net core version of phoenix and will serialize the object async
+            </summary>
+        </member>
+        <member name="M:WebAPI.App_Start.JilFormatter.GetStringResponse(System.Object)">
+            <summary>
+            This method is used for the .net core version of phoenix and will serialize the object async
+            </summary>
+        </member>
         <member name="P:WebAPI.App_Start.KalturaApiExceptionArg.name">
             <summary>
             Argument name

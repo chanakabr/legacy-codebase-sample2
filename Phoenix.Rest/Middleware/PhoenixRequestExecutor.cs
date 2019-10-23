@@ -7,6 +7,7 @@ using Phoenix.Context;
 using Phoenix.Rest.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -38,6 +39,7 @@ namespace Phoenix.Rest.Middleware
         {
             _PhoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             var ctr = new ServiceController();
+            
             if (_PhoenixCtx.IsMultiRequest)
             {
                 _Response = await ctr.Multirequest(_PhoenixCtx.RouteData.Service);
@@ -58,6 +60,10 @@ namespace Phoenix.Rest.Middleware
         {
             var context = ctx as HttpContext;
 
+            // These should never happen at this point, but better be safe than sorry
+            if (context == null) throw new SystemException("HttpContext lost");
+            if (!_PhoenixCtx.SessionId.HasValue) throw new SystemException("Session lost");
+
             var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), _Response);
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
@@ -65,9 +71,11 @@ namespace Phoenix.Rest.Middleware
 
             context.Response.ContentType = formatter.AcceptContentTypes[0];
             context.Response.StatusCode = (int)HttpStatusCode.OK;
+
             try
             {
-                await formatter.WriteToStreamAsync(typeof(StatusWrapper), wrappedResponse, context.Response.Body, null, null);
+                var stringResponse = await formatter.GetStringResponse(wrappedResponse);
+                await context.Response.WriteAsync(stringResponse);
             }
             catch (Exception e)
             {
