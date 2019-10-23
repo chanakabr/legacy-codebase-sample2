@@ -113,7 +113,7 @@ namespace WebAPI.Utils
                 }
                 catch (ClientException ex)
                 {
-                    log.Error("GetHouseholdIDByKS: got ClientException for GetDomainByUser", ex);
+                    log.Error($"GetHouseholdIDByKS: got ClientException for GetDomainByUser. userId = {ks.UserId} ex ={ex}");
                     domain = null;
                 }
             }
