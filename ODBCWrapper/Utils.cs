@@ -551,7 +551,7 @@ namespace ODBCWrapper
                 result = TCMClient.Settings.Instance.GetValue<string>(sKey);
                 if (string.IsNullOrEmpty(result))
                 {
-                    throw new Exception("missing key");
+                    log.Debug($"GetTcmConfigValue - missing key {sKey} or empty result");
                 }
             }
             catch (Exception ex)
