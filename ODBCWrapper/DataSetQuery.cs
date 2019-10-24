@@ -4,6 +4,7 @@ using System.Data;
 using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
+using System.Web;
 
 namespace ODBCWrapper
 {
@@ -155,6 +156,7 @@ namespace ODBCWrapper
                         log.Error(sMes, ex);
                         adapter = null;
                         Finish();
+                        HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;
                         return null;
                     }
                     adapter = null;

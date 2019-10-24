@@ -30,6 +30,7 @@ namespace ODBCWrapper
         private static object locker = new object();        
         [ThreadStatic]
         public static bool UseWritable;
+        public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
 
         public static string GetSafeStr(object o)
         {
