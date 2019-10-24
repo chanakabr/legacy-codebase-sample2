@@ -65,7 +65,6 @@ namespace Phoenix.Rest.Middleware
                         args = null;
                     }
 
-                    KalturaApiExceptionHelpers.HandleError(message, stackTrace);
                     var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
                     errorResponse = new StatusWrapper(code, ctx.SessionId.Value, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
 
