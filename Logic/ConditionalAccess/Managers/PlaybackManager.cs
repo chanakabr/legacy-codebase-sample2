@@ -74,6 +74,10 @@ namespace Core.ConditionalAccess
                 {
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
+                        if (validationStatus.Code == (int)eResponseStatus.UserSuspended)
+                        {
+                            return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
+                        }
                         log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
                         response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                         return response;
@@ -367,15 +371,7 @@ namespace Core.ConditionalAccess
 
                     else if (isSuspended)
                     {
-                        log.Debug($"User is Suspended. groupId = {groupId}, userId = {userId}, domainId = {domainId}, assetId = {assetId}, " +
-                            $"assetType = {assetType}");
-                        response.Status = RolesPermissionsManager.GetSuspentionStatus(groupId, Convert.ToInt32(domainId));
-                        if (response.Status.Args != null && response.Status.Args.Any())
-                        {
-                            response.Status.Message = response.Status.Args.Aggregate
-                                (response.Status.Message, (result, s) => result.Replace('@' + s.key + '@', s.value));
-                        }
-                        return response;
+                        return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
                     }
                     else
                     {
@@ -396,6 +392,19 @@ namespace Core.ConditionalAccess
             {
                 log.Error(string.Format("Failed to GetPlaybackContext for userId = {0}, assetId = {1}, assetType = {2}", userId, assetId, assetType), ex);
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        private static PlaybackContextResponse HandleUserSuspended(int groupId, string userId, string assetId, eAssetTypes assetType, PlaybackContextResponse response, long domainId)
+        {
+            log.Debug($"User is Suspended. groupId = {groupId}, userId = {userId}, domainId = {domainId}, assetId = {assetId}, " +
+                                        $"assetType = {assetType}");
+            response.Status = RolesPermissionsManager.GetSuspentionStatus(groupId, Convert.ToInt32(domainId));
+            if (response.Status.Args != null && response.Status.Args.Any())
+            {
+                response.Status.Message = response.Status.Args.Aggregate
+                    (response.Status.Message, (result, s) => result.Replace('@' + s.key + '@', s.value));
             }
             return response;
         }
