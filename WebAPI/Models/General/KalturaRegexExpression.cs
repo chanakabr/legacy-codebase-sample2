@@ -8,9 +8,9 @@ using WebAPI.Managers.Scheme;
 namespace WebAPI.Models.General
 {
     /// <summary>
-    /// KalturaRegex
+    /// KalturaRegexExpression
     /// </summary>
-    public partial class KalturaRegex : KalturaOTTObject /*: KalturaPasswordPolicyComplexity*/
+    public partial class KalturaRegexExpression : KalturaOTTObject /*: KalturaPasswordPolicyComplexity*/
     {
         /// <summary>
         /// regex expression 
