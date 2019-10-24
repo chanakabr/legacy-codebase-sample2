@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using WebAPI.Models.General;
 using TVinciShared;
 using System.Collections;
+using Newtonsoft.Json;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 
@@ -48,6 +49,8 @@ namespace Phoenix.Context
         public string RequestContentType { get; set; }
         public Version RequestVersion { get; set; }
 
+
+        [JsonIgnore]
         /// <summary>
         /// This property is set by the SessionId middleware only to allow access to the elapes time from anywere in the
         /// Request proccessing pipeline.
