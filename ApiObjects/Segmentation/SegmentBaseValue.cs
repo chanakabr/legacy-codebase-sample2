@@ -119,5 +119,16 @@ namespace ApiObjects.Segmentation
         {
             return base.GetSegmentById(segmentId);
         }
+
+        public override bool UpdateSegmentIds(SegmentBaseValue source, long segmentationTypeId)
+        {
+            if (source is SegmentDummyValue sdv)
+            {
+                this.Id = sdv.Id;
+                return true;
+            }
+
+            return false;
+        }
     }
 }
