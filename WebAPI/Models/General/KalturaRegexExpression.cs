@@ -10,7 +10,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// KalturaRegex
     /// </summary>
-    public partial class KalturaRegex : KalturaOTTObject /*: KalturaPasswordPolicyComplexity*/
+    public partial class KalturaRegexExpression : KalturaOTTObject /*: KalturaPasswordPolicyComplexity*/
     {
         /// <summary>
         /// regex expression 

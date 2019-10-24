@@ -68,7 +68,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "complexities")]
         [JsonProperty("complexities")]
         [XmlElement(ElementName = "complexities", IsNullable = true)]
-        public List<KalturaRegex> Complexities { get; set; }
+        public List<KalturaRegexExpression> Complexities { get; set; }
 
         /// <summary>
         ///  the number of passwords failures before the account is locked.
