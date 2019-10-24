@@ -80,7 +80,11 @@ namespace Phoenix.Rest.Middleware
                     context.Response.ContentType = formatter.AcceptContentTypes[0];
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-                    await formatter.WriteToStreamAsync(typeof(StatusWrapper), errorResponse, context.Response.Body, null, null);
+
+                    var stringResponse = await formatter.GetStringResponse(errorResponse);
+                    _Logger.Error($"Returning Error Response: [{stringResponse}]", ex);
+                    await context.Response.WriteAsync(stringResponse);
+
                 }
                 catch (Exception e)
                 {
