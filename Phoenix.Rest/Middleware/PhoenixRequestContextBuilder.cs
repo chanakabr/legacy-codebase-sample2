@@ -57,6 +57,8 @@ namespace Phoenix.Rest.Middleware
                 phoenixCtx.Format = responseFormat.ToString();
             }
 
+            KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
+
             RequestContext.SetContext(parsedActionParams, service, action);
             phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
             phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);            
