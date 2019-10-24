@@ -43,6 +43,14 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "externalIdIn", IsNullable = true)]
         public string ExternalIdIn { get; set; }
 
+        /// <summary>
+        /// couponGroupIdEqual
+        /// </summary>
+        [DataMember(Name = "couponGroupIdEqual")]
+        [JsonProperty("couponGroupIdEqual")]
+        [XmlElement(ElementName = "couponGroupIdEqual", IsNullable = true)]
+        public int? CouponGroupIdEqual { get; set; }
+
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
             return KalturaSubscriptionOrderBy.START_DATE_ASC;
@@ -65,7 +73,7 @@ namespace WebAPI.Models.Pricing
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
             }
 
-            if (string.IsNullOrEmpty(ExternalIdIn) && (!MediaFileIdEqual.HasValue || MediaFileIdEqual.Value == 0) && string.IsNullOrEmpty(SubscriptionIdIn))
+            if (string.IsNullOrEmpty(ExternalIdIn) && (!MediaFileIdEqual.HasValue || MediaFileIdEqual.Value == 0) && string.IsNullOrEmpty(SubscriptionIdIn) && CouponGroupIdEqual == null)
             {
                 return false;
             }

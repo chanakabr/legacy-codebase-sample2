@@ -25,7 +25,7 @@ namespace WebAPI.Clients
         {
         }
 
-        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy, int pageIndex = 0 , int? pageSize = 30)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy, int pageIndex = 0, int? pageSize = 30, int? couponGroupIdEqual = null)
         {
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
@@ -37,7 +37,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy, pageIndex, pageSize.Value, false);
+                    response = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -59,9 +59,9 @@ namespace WebAPI.Clients
             subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
-        }        
+        }
 
-        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string udid, string language, KalturaSubscriptionOrderBy orderBy, int pageIndex, int? pageSize)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string udid, string language, KalturaSubscriptionOrderBy orderBy, int pageIndex, int? pageSize, int? couponGroupIdEqual = null)
         {
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
@@ -73,7 +73,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, string.Empty, language, udid, wsOrderBy, pageIndex, pageSize.Value, false);
+                    response = Core.Pricing.Module.GetSubscriptions(groupId, string.Empty, language, udid, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -95,7 +95,7 @@ namespace WebAPI.Clients
             subscriptions = AutoMapper.Mapper.Map<List<KalturaSubscription>>(response.Subscriptions);
 
             return subscriptions;
-        }        
+        }
 
         internal List<int> GetSubscriptionIDsContainingMediaFile(int groupId, int mediaFileID)
         {
@@ -128,7 +128,7 @@ namespace WebAPI.Clients
             subscriptions = PricingMappings.ConvertToIntList(response.Ids);
 
             return subscriptions;
-        }        
+        }
 
         internal KalturaCoupon GetCouponStatus(int groupId, string couponCode, long householdId)
         {
@@ -797,7 +797,7 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal List<KalturaCollection> GetCollectionsData(int groupId, string[] collectionIds, string udid, string language, KalturaCollectionOrderBy orderBy, int pageIndex = 0, int? pageSize = 30)
+        internal List<KalturaCollection> GetCollectionsData(int groupId, string[] collectionIds, string udid, string language, KalturaCollectionOrderBy orderBy, int pageIndex = 0, int? pageSize = 30, int? couponGroupIdEqual = null)
         {
             CollectionsResponse response = null;
             List<KalturaCollection> collections = new List<KalturaCollection>();
@@ -808,7 +808,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetCollectionsData(groupId, collectionIds, string.Empty, language, udid, pageIndex, pageSize.Value, false);
+                    response = Core.Pricing.Module.GetCollectionsData(groupId, collectionIds, string.Empty, language, udid, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -832,7 +832,7 @@ namespace WebAPI.Clients
             return collections;
         }
 
-        internal List<KalturaCollection> GetCollectionsData(int groupId, string udid, string language, KalturaCollectionOrderBy orderBy, int pageIndex, int? pageSize)
+        internal List<KalturaCollection> GetCollectionsData(int groupId, string udid, string language, KalturaCollectionOrderBy orderBy, int pageIndex, int? pageSize, int? couponGroupIdEqual = null)
         {
             CollectionsResponse response = null;
             List<KalturaCollection> collections = new List<KalturaCollection>();
@@ -843,7 +843,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetCollectionsData(groupId, string.Empty, language, udid, pageIndex, pageSize.Value, false);
+                    response = Core.Pricing.Module.GetCollectionsData(groupId, string.Empty, language, udid, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -1194,12 +1194,12 @@ namespace WebAPI.Clients
             return discounts;
         }
 
-        internal KalturaPpvListResponse GetPPVModulesData(int groupId, KalturaPpvOrderBy orderBy = KalturaPpvOrderBy.NAME_ASC)
+        internal KalturaPpvListResponse GetPPVModulesData(int groupId, KalturaPpvOrderBy orderBy = KalturaPpvOrderBy.NAME_ASC, int? couponGroupIdEqual = null)
         {
             KalturaPpvListResponse result = new KalturaPpvListResponse();
 
             Func<GenericListResponse<PPVModule>> getPPVModulesDataFunc = () =>
-               Core.Pricing.Module.GetPPVModuleList(groupId);
+                Core.Pricing.Module.GetPPVModuleList(groupId, couponGroupIdEqual);
 
             KalturaGenericListResponse<KalturaPpv> response =
                 ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getPPVModulesDataFunc);
@@ -1223,7 +1223,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaPpvListResponse GetPPVModulesData(int groupId, List<long> list, KalturaPpvOrderBy orderBy = KalturaPpvOrderBy.NAME_ASC)
+        internal KalturaPpvListResponse GetPPVModulesData(int groupId, List<long> list, KalturaPpvOrderBy orderBy = KalturaPpvOrderBy.NAME_ASC, int? CouponGroupIdEqual = null)
         {
             KalturaPpvListResponse result = GetPPVModulesData(groupId, orderBy);
             if (result != null && result.Ppvs != null && result.Ppvs.Count > 0)

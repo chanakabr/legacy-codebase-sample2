@@ -7689,6 +7689,7 @@ namespace Core.ConditionalAccess
             try
             {
                 Pricing.Module.SetCouponUses(m_nGroupID, couponCode, userId, mediaFileId, subscriptionId, collectionId, 0, domainId);
+                Pricing.Handlers.CouponWalletHandler.UpdateLastUsageDate(domainId, couponCode);
             }
             catch (Exception ex)
             {

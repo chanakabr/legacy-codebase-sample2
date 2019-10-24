@@ -157,6 +157,15 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "mediaFileIdEqual", IsNullable = true)]
         public int? MediaFileIdEqual { get; set; }
 
+        /// <summary>
+        /// couponGroupIdEqual
+        /// </summary>
+        [DataMember(Name = "couponGroupIdEqual")]
+        [JsonProperty("couponGroupIdEqual")]
+        [XmlElement(ElementName = "couponGroupIdEqual", IsNullable = true)]
+        [SchemeProperty(MinInteger = 1)]
+        public int? CouponGroupIdEqual { get; set; }
+
         public override KalturaCollectionOrderBy GetDefaultOrderByValue()
         {
             return KalturaCollectionOrderBy.NONE;

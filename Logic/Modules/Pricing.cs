@@ -231,7 +231,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return (new CollectionCacheWrapper(t)).GetCollectionData(sCollectionCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive);
+                return (new CollectionCacheWrapper(t)).GetCollectionData(sCollectionCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive, null);
             }
             else
             {
@@ -682,7 +682,7 @@ namespace Core.Pricing
         }
 
         public static SubscriptionsResponse GetSubscriptions(int nGroupID, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName,
-            SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true)
+            SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
         {
             SubscriptionsResponse response = new SubscriptionsResponse();
             BaseSubscription t = null;
@@ -703,6 +703,33 @@ namespace Core.Pricing
                     }
 
                     response.Subscriptions = (new SubscriptionCacheWrapper(t)).GetSubscriptionsData(oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, orderBy);
+
+                    if (response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
+                    {
+                        var value = couponGroupIdEqual.Value.ToString();
+                        var subscriptions = new List<Subscription>();
+
+                        foreach (var subscription in response.Subscriptions)
+                        {
+                            var couponGroups = subscription.CouponsGroups;
+
+                            if (couponGroups.Count > 0)
+                            {
+                                var exists = couponGroups.Any
+                                    (coupon => coupon?.m_sGroupCode?.ToString() == value
+                                    && (!coupon.startDate.HasValue || coupon.startDate.Value <= DateTime.UtcNow)
+                                    && (!coupon.endDate.HasValue || coupon.endDate.Value >= DateTime.UtcNow));
+
+                                if (exists || subscription.m_oCouponsGroup?.m_sGroupCode == value)
+                                {
+                                    subscriptions.Add(subscription);
+                                }
+                            }
+                        }
+
+                        response.Subscriptions = subscriptions?.ToArray();
+                    }
+
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
                 }
                 catch (Exception)
@@ -717,20 +744,21 @@ namespace Core.Pricing
             return response;
         }
 
-        public static SubscriptionsResponse GetSubscriptions(int groupId, string empty, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging)
+        public static SubscriptionsResponse GetSubscriptions(int groupId, string empty, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null)
         {
             // get group's subscriptionIds
-            List<string> subscriptionIds = DAL.PricingDAL.GetSubscriptions(groupId);
+            List<string> subscriptionIds = PricingCache.GetSubscriptionsIds(groupId);
 
             if (subscriptionIds == null)
             {
                 return null;
             }
 
-            return GetSubscriptions(groupId, subscriptionIds.ToArray(), string.Empty, language, udid, orderBy, pageIndex, pageSize, shouldIgnorePaging);
+            return GetSubscriptions(groupId, subscriptionIds.ToArray(), string.Empty,
+            language, udid, orderBy, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual);
         }
 
-        public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true)
+        public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
         {
             BaseCollection t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -746,7 +774,7 @@ namespace Core.Pricing
                     }
                 }
 
-                return (new CollectionCacheWrapper(t)).GetCollectionsData(oCollCodes, sCountryCd2, sLanguageCode3, sDeviceName);
+                return (new CollectionCacheWrapper(t)).GetCollectionsData(oCollCodes, sCountryCd2, sLanguageCode3, sDeviceName, couponGroupIdEqual);
             }
             else
             {
@@ -754,17 +782,17 @@ namespace Core.Pricing
             }
         }
 
-        public static CollectionsResponse GetCollectionsData(int groupId, string country, string language, string udid, int pageIndex, int pageSize, bool shouldIgnorePaging)
+        public static CollectionsResponse GetCollectionsData(int groupId, string country, string language, string udid, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null)
         {
             // get group's CollectionIds
-            List<string> collCodes = DAL.PricingDAL.GetCollectionIds(groupId);
+            List<string> collCodes = PricingCache.GetCollectionsIds(groupId);
 
             if (collCodes == null)
             {
                 return null;
             }
 
-            return GetCollectionsData(groupId, collCodes.ToArray(), country, language, udid, pageIndex, pageSize, shouldIgnorePaging);
+            return GetCollectionsData(groupId, collCodes.ToArray(), country, language, udid, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual);
         }
 
         public static PPVModule ValidatePPVModuleForMediaFile(int groupID, Int32 mediaFileID, long ppvModuleCode)
@@ -1705,7 +1733,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static GenericListResponse<PPVModule> GetPPVModuleList(int groupId)
+        public static GenericListResponse<PPVModule> GetPPVModuleList(int groupId, int? couponGroupIdEqual = null)
         {
             GenericListResponse<PPVModule> response = new GenericListResponse<PPVModule>();
 
@@ -1718,7 +1746,16 @@ namespace Core.Pricing
                     PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
                     if (ppvModules != null && ppvModules.Length > 0)
                     {
-                        response.Objects.AddRange(ppvModules.ToList());
+                        if (couponGroupIdEqual.HasValue)
+                        {
+                            var value = couponGroupIdEqual.Value.ToString();
+                            ppvModules = ppvModules.Where(ppv => ppv.m_oCouponsGroup.m_sGroupCode
+                            == value).ToArray();
+                        }
+                        if (ppvModules?.Count() > 0)
+                        {
+                            response.Objects.AddRange(ppvModules.ToList());
+                        }
                     }
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }

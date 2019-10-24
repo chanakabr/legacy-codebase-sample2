@@ -28,6 +28,14 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
 
+        /// <summary>
+        /// couponGroupIdEqual
+        /// </summary>
+        [DataMember(Name = "couponGroupIdEqual")]
+        [JsonProperty("couponGroupIdEqual")]
+        [XmlElement(ElementName = "couponGroupIdEqual", IsNullable = true)]
+        public int? CouponGroupIdEqual { get; set; }
+
         public override KalturaPpvOrderBy GetDefaultOrderByValue()
         {
             return KalturaPpvOrderBy.NAME_ASC;

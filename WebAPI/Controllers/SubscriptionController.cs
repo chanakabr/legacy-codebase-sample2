@@ -62,13 +62,13 @@ namespace WebAPI.Controllers
                     // get subscriptions
                     if (subscriptionsIds != null && subscriptionsIds.Count > 0)
                     {
-                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
+                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                     }
                 }
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
                     // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
                 {
@@ -77,7 +77,7 @@ namespace WebAPI.Controllers
                 }
                 else if (isFilterValid)
                 {
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
+                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                 }
 
                 response.TotalCount = response.Subscriptions != null ? response.Subscriptions.Count : 0;

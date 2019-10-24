@@ -113,17 +113,21 @@ namespace WebAPI.Mapping.ObjectsConvertor
             //CouponWallet, KalturaHouseholdCoupon
             cfg.CreateMap<ApiObjects.Pricing.CouponWallet, KalturaHouseholdCoupon>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CouponCode))
+                .ForMember(dest => dest.LastUsageDate, opt => opt.MapFrom(src => src.LastUsageDate))
                 ;
 
             //KalturaHouseholdCoupon, CouponWallet
             cfg.CreateMap<KalturaHouseholdCoupon, ApiObjects.Pricing.CouponWallet>()
                 .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.LastUsageDate, opt => opt.MapFrom(src => src.LastUsageDate))
                 ;
 
             //KalturaHouseholdCoupon, CouponWallet
             cfg.CreateMap<KalturaHouseholdCouponFilter, ApiObjects.Pricing.CouponWalletFilter>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdEqual))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeEqual))
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.CouponCode))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
         }
 

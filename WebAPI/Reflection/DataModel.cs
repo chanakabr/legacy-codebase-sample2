@@ -1415,6 +1415,8 @@ namespace WebAPI.Reflection
                     {
                         case "CollectionIdIn":
                             return "collectionIdIn";
+                        case "CouponGroupIdEqual":
+                            return "couponGroupIdEqual";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
                     }
@@ -2763,6 +2765,8 @@ namespace WebAPI.Reflection
                     {
                         case "Code":
                             return "code";
+                        case "LastUsageDate":
+                            return "lastUsageDate";
                     }
                     break;
                     
@@ -2773,6 +2777,10 @@ namespace WebAPI.Reflection
                             return "businessModuleIdEqual";
                         case "BusinessModuleTypeEqual":
                             return "businessModuleTypeEqual";
+                        case "CouponCode":
+                            return "couponCode";
+                        case "Status":
+                            return "status";
                     }
                     break;
                     
@@ -4535,6 +4543,8 @@ namespace WebAPI.Reflection
                 case "KalturaPpvFilter":
                     switch(property.Name)
                     {
+                        case "CouponGroupIdEqual":
+                            return "couponGroupIdEqual";
                         case "IdIn":
                             return "idIn";
                     }
@@ -5957,6 +5967,8 @@ namespace WebAPI.Reflection
                 case "KalturaSubscriptionFilter":
                     switch(property.Name)
                     {
+                        case "CouponGroupIdEqual":
+                            return "couponGroupIdEqual";
                         case "ExternalIdIn":
                             return "externalIdIn";
                         case "MediaFileIdEqual":

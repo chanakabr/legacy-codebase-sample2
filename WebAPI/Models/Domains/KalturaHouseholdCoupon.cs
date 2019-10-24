@@ -31,6 +31,14 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "code")]
         public string Code { get; set; }
 
+        /// <summary>
+        /// Last Usage Date
+        /// </summary>
+        [DataMember(Name = "lastUsageDate")]
+        [JsonProperty("lastUsageDate")]
+        [XmlElement(ElementName = "lastUsageDate")]
+        public long? LastUsageDate { get; set; }
+
         internal override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
         {
             get

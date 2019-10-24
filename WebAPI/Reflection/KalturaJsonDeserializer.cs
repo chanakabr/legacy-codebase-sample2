@@ -18996,6 +18996,17 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = 1,
         };
+        private static RuntimeSchemePropertyAttribute CouponGroupIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollectionFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 1,
+        };
         public KalturaCollectionFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -19013,6 +19024,14 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("mediaFileIdEqual") && parameters["mediaFileIdEqual"] != null)
                 {
                     MediaFileIdEqual = (Int32) Convert.ChangeType(parameters["mediaFileIdEqual"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("couponGroupIdEqual") && parameters["couponGroupIdEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CouponGroupIdEqualSchemaProperty.Validate("couponGroupIdEqual", parameters["couponGroupIdEqual"]);
+                    }
+                    CouponGroupIdEqual = (Int32) Convert.ChangeType(parameters["couponGroupIdEqual"], typeof(Int32));
                 }
             }
         }
@@ -19737,6 +19756,10 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("couponGroupIdEqual") && parameters["couponGroupIdEqual"] != null)
+                {
+                    CouponGroupIdEqual = (Int32) Convert.ChangeType(parameters["couponGroupIdEqual"], typeof(Int32));
                 }
             }
         }
@@ -21114,6 +21137,10 @@ namespace WebAPI.Models.Pricing
                 if (parameters.ContainsKey("externalIdIn") && parameters["externalIdIn"] != null)
                 {
                     ExternalIdIn = (String) Convert.ChangeType(parameters["externalIdIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("couponGroupIdEqual") && parameters["couponGroupIdEqual"] != null)
+                {
+                    CouponGroupIdEqual = (Int32) Convert.ChangeType(parameters["couponGroupIdEqual"], typeof(Int32));
                 }
             }
         }
@@ -26549,6 +26576,10 @@ namespace WebAPI.Models.Domains
                 {
                     Code = (String) Convert.ChangeType(parameters["code"], typeof(String));
                 }
+                if (parameters.ContainsKey("lastUsageDate") && parameters["lastUsageDate"] != null)
+                {
+                    LastUsageDate = (Int64) Convert.ChangeType(parameters["lastUsageDate"], typeof(Int64));
+                }
             }
         }
     }
@@ -26570,6 +26601,16 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+        };
+        private static RuntimeSchemePropertyAttribute CouponCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCouponFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
         };
         public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -26593,6 +26634,23 @@ namespace WebAPI.Models.Domains
                         BusinessModuleIdEqualSchemaProperty.Validate("businessModuleIdEqual", parameters["businessModuleIdEqual"]);
                     }
                     BusinessModuleIdEqual = (Int64) Convert.ChangeType(parameters["businessModuleIdEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("couponCode") && parameters["couponCode"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CouponCodeSchemaProperty.Validate("couponCode", parameters["couponCode"]);
+                    }
+                    CouponCode = (String) Convert.ChangeType(parameters["couponCode"], typeof(String));
+                }
+                if (parameters.ContainsKey("status") && parameters["status"] != null)
+                {
+                    Status = (KalturaCouponStatus) Enum.Parse(typeof(KalturaCouponStatus), parameters["status"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaCouponStatus), Status))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Status, typeof(KalturaCouponStatus)));
+                    }
                 }
             }
         }

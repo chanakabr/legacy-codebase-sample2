@@ -54,14 +54,14 @@ namespace WebAPI.Controllers
                     filter = new KalturaPpvFilter();
 
                 if( filter.GetIdIn().Count > 0)
-                { 
+                {
                     // call client                
-                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.GetIdIn(), filter.OrderBy);
+                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.GetIdIn(), filter.OrderBy, filter.CouponGroupIdEqual);
                 }
                 else
                 {
                     // call client                
-                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.OrderBy);
+                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.OrderBy, filter.CouponGroupIdEqual);
                 }
             }
             catch (ClientException ex)

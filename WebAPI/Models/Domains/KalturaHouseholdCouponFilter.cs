@@ -11,9 +11,11 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
 
 namespace WebAPI.Models.Domains
 {
@@ -38,6 +40,24 @@ namespace WebAPI.Models.Domains
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         [SchemeProperty(MinInteger = 1)]
         public long BusinessModuleIdEqual { get; set; }
+
+        /// <summary>
+        /// Allow clients to inquiry if a specific coupon is part of an HH’s wallet or not
+        /// </summary>
+        [DataMember(Name = "couponCode")]
+        [JsonProperty("couponCode")]
+        [XmlElement(ElementName = "couponCode", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(MinLength = 1)]
+        public string CouponCode { get; set; }
+        /// <summary>
+        /// Allow clients to filter out coupons which are valid/invalid
+        /// </summary>
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaCouponStatus? Status { get; set; }
 
         public override ICrudHandler<CouponWallet, string, CouponWalletFilter> Handler
         {

@@ -22,7 +22,7 @@ namespace Core.Pricing
         {
         }
 
-        public override Collection GetCollectionData(string sCollectionCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bGetAlsoUnActive)
+        public override Collection GetCollectionData(string sCollectionCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bGetAlsoUnActive, int? couponGroupIdEqual)
         {
             Collection tmpSubscription = new Collection();
             try
@@ -33,7 +33,7 @@ namespace Core.Pricing
                 if (!bGetAlsoUnActive)
                 {
                     // use optimized flow which reduces the num of calls to the db.
-                    CollectionsResponse collectionsResponse = GetCollectionsData(new string[1] { sCollectionCode }, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                    CollectionsResponse collectionsResponse = GetCollectionsData(new string[1] { sCollectionCode }, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, null);
                     if (collectionsResponse != null && collectionsResponse.Status.Code == (int)eResponseStatus.OK && collectionsResponse.Collections != null && collectionsResponse.Collections.Length > 0)
                         return collectionsResponse.Collections[0];
                     return null;
@@ -291,7 +291,7 @@ namespace Core.Pricing
             return retCollection;
         }
 
-        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName)
+        public override CollectionsResponse GetCollectionsData(string[] oCollCodes, string sCountryCd, string sLanguageCode, string sDeviceName, int? couponGroupIdEqual)
         {
             CollectionsResponse response = new CollectionsResponse()
             {

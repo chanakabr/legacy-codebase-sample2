@@ -18795,6 +18795,10 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("collectionIdIn", "\"collectionIdIn\": " + "\"" + EscapeJson(CollectionIdIn) + "\"");
             }
+            if(CouponGroupIdEqual.HasValue)
+            {
+                ret.Add("couponGroupIdEqual", "\"couponGroupIdEqual\": " + CouponGroupIdEqual);
+            }
             if(MediaFileIdEqual.HasValue)
             {
                 ret.Add("mediaFileIdEqual", "\"mediaFileIdEqual\": " + MediaFileIdEqual);
@@ -18811,6 +18815,10 @@ namespace WebAPI.Models.Pricing
             if(CollectionIdIn != null)
             {
                 ret.Add("collectionIdIn", "<collectionIdIn>" + EscapeXml(CollectionIdIn) + "</collectionIdIn>");
+            }
+            if(CouponGroupIdEqual.HasValue)
+            {
+                ret.Add("couponGroupIdEqual", "<couponGroupIdEqual>" + CouponGroupIdEqual + "</couponGroupIdEqual>");
             }
             if(MediaFileIdEqual.HasValue)
             {
@@ -19577,6 +19585,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponGroupIdEqual.HasValue)
+            {
+                ret.Add("couponGroupIdEqual", "\"couponGroupIdEqual\": " + CouponGroupIdEqual);
+            }
             if(IdIn != null)
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -19590,6 +19602,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponGroupIdEqual.HasValue)
+            {
+                ret.Add("couponGroupIdEqual", "<couponGroupIdEqual>" + CouponGroupIdEqual + "</couponGroupIdEqual>");
+            }
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
@@ -21271,6 +21287,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponGroupIdEqual.HasValue)
+            {
+                ret.Add("couponGroupIdEqual", "\"couponGroupIdEqual\": " + CouponGroupIdEqual);
+            }
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
@@ -21292,6 +21312,10 @@ namespace WebAPI.Models.Pricing
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(CouponGroupIdEqual.HasValue)
+            {
+                ret.Add("couponGroupIdEqual", "<couponGroupIdEqual>" + CouponGroupIdEqual + "</couponGroupIdEqual>");
+            }
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
@@ -26219,6 +26243,10 @@ namespace WebAPI.Models.Domains
             {
                 ret.Add("code", "\"code\": " + "\"" + EscapeJson(Code) + "\"");
             }
+            if(LastUsageDate.HasValue)
+            {
+                ret.Add("lastUsageDate", "\"lastUsageDate\": " + LastUsageDate);
+            }
             return ret;
         }
         
@@ -26231,6 +26259,10 @@ namespace WebAPI.Models.Domains
             if(Code != null)
             {
                 ret.Add("code", "<code>" + EscapeXml(Code) + "</code>");
+            }
+            if(LastUsageDate.HasValue)
+            {
+                ret.Add("lastUsageDate", "<lastUsageDate>" + LastUsageDate + "</lastUsageDate>");
             }
             return ret;
         }
@@ -26265,6 +26297,14 @@ namespace WebAPI.Models.Domains
 
             ret.Add("businessModuleIdEqual", "\"businessModuleIdEqual\": " + BusinessModuleIdEqual);
             ret.Add("businessModuleTypeEqual", "\"businessModuleTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "\"");
+            if(CouponCode != null)
+            {
+                ret.Add("couponCode", "\"couponCode\": " + "\"" + EscapeJson(CouponCode) + "\"");
+            }
+            if(Status.HasValue)
+            {
+                ret.Add("status", "\"status\": " + "\"" + Enum.GetName(typeof(KalturaCouponStatus), Status) + "\"");
+            }
             return ret;
         }
         
@@ -26276,6 +26316,14 @@ namespace WebAPI.Models.Domains
 
             ret.Add("businessModuleIdEqual", "<businessModuleIdEqual>" + BusinessModuleIdEqual + "</businessModuleIdEqual>");
             ret.Add("businessModuleTypeEqual", "<businessModuleTypeEqual>" + "" + Enum.GetName(typeof(KalturaTransactionType), BusinessModuleTypeEqual) + "" + "</businessModuleTypeEqual>");
+            if(CouponCode != null)
+            {
+                ret.Add("couponCode", "<couponCode>" + EscapeXml(CouponCode) + "</couponCode>");
+            }
+            if(Status.HasValue)
+            {
+                ret.Add("status", "<status>" + "" + Enum.GetName(typeof(KalturaCouponStatus), Status) + "" + "</status>");
+            }
             return ret;
         }
     }
