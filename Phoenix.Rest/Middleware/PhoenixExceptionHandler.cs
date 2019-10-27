@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using WebAPI;
 using WebAPI.App_Start;
@@ -42,6 +43,9 @@ namespace Phoenix.Rest.Middleware
             {
                 try
                 {
+                    ThreadPool.GetMaxThreads(out var workerThreads, out var completionPortThreads);
+                    
+                    _Logger.Info($"Req: MaxThreads workerThreads:[{workerThreads}], completionPortThreads:[{completionPortThreads}]");
                     var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
 
                     StatusWrapper errorResponse;
