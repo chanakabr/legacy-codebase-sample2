@@ -57,7 +57,7 @@ pipeline {
         }
         stage("Patch Config Files"){
             steps{
-                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\RemoteTasks\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /K /D /H /Y"}
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\RemoteTasks\\*.*  ${WORKSPACE}\\published\\remotetasks\\ /Y"}
             }
         }
         stage("Publish To Preprod"){
