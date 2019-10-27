@@ -114,7 +114,8 @@ namespace CachingProvider.LayeredCache
 
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null &&
                     // insert to cache only if no errors during session
-                    !(HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
+                    !(HttpContext.Current != null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && 
+                    HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
                     (bool)HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION]))
                 {
                     // set validation to now
@@ -213,7 +214,8 @@ namespace CachingProvider.LayeredCache
 
                     if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null &&
                         // insert to cache only if no errors during session
-                        !(HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
+                        !(HttpContext.Current !=  null && HttpContext.Current.Items.ContainsKey(DATABASE_ERROR_DURING_SESSION) && 
+                        HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION] is bool &&
                         (bool)HttpContext.Current.Items[DATABASE_ERROR_DURING_SESSION]))
                     {
                         Dictionary<string, string> keyToVersionMappings = GetOriginalKeyToVersionKeyMap(keyToOriginalValueMapAfterCurrentRequest.Keys.ToList(), groupId);
