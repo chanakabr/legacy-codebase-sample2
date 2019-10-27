@@ -287,12 +287,19 @@ namespace KLogMonitor
         /// </summary>
         public double minThreshold { get; set; }
 
+        public KMonitorThresholdFilter() : base()
+        {
+            minThreshold = -1;
+        }
         public override void ActivateOptions()
         {
             base.ActivateOptions();
 
-            // set default to 500 miliseconds
-            this.minThreshold = 500;
+            if (this.minThreshold < 0)
+            {
+                // set default to 500 miliseconds
+                this.minThreshold = 500;
+            }
         }
 
         public override FilterDecision Decide(LoggingEvent loggingEvent)
