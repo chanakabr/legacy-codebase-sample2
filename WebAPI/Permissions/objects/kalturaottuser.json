@@ -14,7 +14,8 @@
     {
       "permissions": [
         "Manager",
-        "Administrator"
+        "Administrator",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "KalturaOTTUser_RoleIds_Insert",
@@ -26,7 +27,8 @@
     {
       "permissions": [
         "Manager",
-        "Administrator"
+        "Administrator",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "KalturaOTTUser_RoleIds_Update",

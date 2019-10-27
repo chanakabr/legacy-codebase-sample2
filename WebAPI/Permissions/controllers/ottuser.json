@@ -340,7 +340,8 @@
     },
     {
       "permissions": [
-        "ADMIN_MNG"
+        "ADMIN_MNG",
+        "MANAGER_MNG"
       ],
       "excluded_permissions": [],
       "name": "OTTUser_Register",
