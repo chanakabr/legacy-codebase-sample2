@@ -328,6 +328,12 @@ namespace Core.Catalog.CatalogManagement
                         DataSet ds = CatalogDAL.GetChannelsByIds(groupId.Value, channelIds, isAllowedToViewInactiveAssets.Value);
                         channels = GetChannelListFromDs(ds);
 
+                        // to avoid null reference exception... :|
+                        if (channels == null)
+                        {
+                            channels = new List<Channel>();
+                        }
+
                         var channelsWithMetadata = channels.Where(c => c.HasMetadata).ToList();
                         var channelsIdsWithMetadata = channelsWithMetadata.Select(c => c.m_nChannelID).ToList();
 
