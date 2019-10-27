@@ -863,7 +863,7 @@ namespace Core.ConditionalAccess
                             adsData.FileId = price.m_nMediaFileID;
                             adsData.FileType = files.Where(f => f.Id == price.m_nMediaFileID).FirstOrDefault().Type;
 
-                            response.Sources.Add(adsData);
+                            response.Sources.Add(Copy(adsData));
                         }
                     }
                 }
@@ -881,6 +881,17 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        private static AdsControlData Copy(AdsControlData adsData)
+        {
+            return new AdsControlData
+            {
+                FileType = adsData.FileType,
+                FileId = adsData.FileId,
+                AdsPolicy = adsData.AdsPolicy,
+                AdsParam = adsData.AdsParam
+            };
         }
     }
 }
