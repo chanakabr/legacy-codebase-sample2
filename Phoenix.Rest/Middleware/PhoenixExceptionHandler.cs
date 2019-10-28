@@ -20,8 +20,6 @@ namespace Phoenix.Rest.Middleware
     public class PhoenixExceptionHandler
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
         private readonly RequestDelegate _Next;
 
         public IResponseFromatterProvider _FormatterProvider { get; }
@@ -58,7 +56,6 @@ namespace Phoenix.Rest.Middleware
                     }
                     else
                     {
-                        _Logger.Error("Unexpected unknown error: ",ex);
                         code = (int)StatusCode.Error;
                         message = "Unknown error";
                         stackTrace = ex.StackTrace;
@@ -82,7 +79,7 @@ namespace Phoenix.Rest.Middleware
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
                     
-                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}], error response:[{stringResponse}]", ex);
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}], error response:[{stringResponse}], PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }

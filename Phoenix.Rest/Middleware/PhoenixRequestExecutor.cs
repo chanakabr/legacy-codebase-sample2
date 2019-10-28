@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebAPI.App_Start;
 using WebAPI.Controllers;
+using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
@@ -28,6 +29,7 @@ namespace Phoenix.Rest.Middleware
         private object _Response;
         private PhoenixRequestContext _PhoenixCtx;
         private readonly IResponseFromatterProvider _FormatterProvider;
+        private static readonly ServiceController _ServiceController = new ServiceController();
 
         public PhoenixRequestExecutor(RequestDelegate next, IResponseFromatterProvider formatterProvider)
         {
@@ -38,18 +40,18 @@ namespace Phoenix.Rest.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             _PhoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-            var ctr = new ServiceController();
-            
-            if (_PhoenixCtx.IsMultiRequest)
-            {
-                _Response = await ctr.Multirequest(_PhoenixCtx.RouteData.Service);
+            if (_PhoenixCtx == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
-            }
-            else
-            {
-                _Response = await ctr.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
+                if (_PhoenixCtx.IsMultiRequest)
+                {
+                    _Response = await _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service);
 
-            }
+                }
+                else
+                {
+                    _Response = await _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
+
+                }
 
             context.Response.OnStarting(HandleResponse, context);
 
