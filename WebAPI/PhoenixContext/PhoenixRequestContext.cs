@@ -58,7 +58,7 @@ namespace Phoenix.Context
         /// <summary>
         /// This method sets all required HttpContext.Current.Items to suppport backward compatibility
         /// with the exsisting core code.
-        /// If at the point of reading this HttpContext if fully replaced by the Phoenix.Context you can saflly remove this YAY!
+        /// If at the point of reading this HttpContext if fully replaced by the Phoenix.Context you can safely remove this YAY!
         /// </summary>
         public void SetHttpContextForBackwardCompatibility()
         {
