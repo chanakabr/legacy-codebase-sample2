@@ -575,9 +575,22 @@ namespace WebAPI.Managers
                         {
                             userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
 
-                            if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole))
+                            // Get External editor Role Id. ( manager should be able to update it's role)
+                            long? externalEditorRole = GetEERole(ks);
+                            
+                            if (externalEditorRole.HasValue)
                             {
-                                return false;
+                                if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole && x != externalEditorRole.Value))
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole))
+                                {
+                                    return false;
+                                }
                             }
                         }
                     }
