@@ -104,7 +104,7 @@ namespace DAL
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
-                        log.ErrorFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
+                        log.DebugFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
                         break;
                     }
                     else if (getResult == eResultStatus.SUCCESS)
@@ -124,7 +124,7 @@ namespace DAL
                     else
                     {
                         numOfTries++;
-                        log.ErrorFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
+                        log.DebugFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
                                         numOfTries, NUM_OF_TRIES, key);
                         Thread.Sleep(r.Next(50));
                     }
