@@ -27,16 +27,16 @@ namespace KLogMonitor
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
-        public string UniqueID { get; set; }
-        public string PartnerID { get; set; }
+        //public string UniqueID { get; set; }
+        //public string PartnerID { get; set; }
         public string ClassName { get; set; }
-        public string Action { get; set; }
-        public string ClientTag { get; set; }
-        public string UserID { get; set; }
+        //public string Action { get; set; }
+        //public string ClientTag { get; set; }
+        //public string UserID { get; set; }
         private string Server { get; set; }
-        public string IPAddress { get; set; }
-        public string MethodName { get; set; }
-        public string Topic { get; set; }
+        //public string IPAddress { get; set; }
+        //public string MethodName { get; set; }
+        //public string Topic { get; set; }
         public string LoggerName { get; set; }
 
 
@@ -157,20 +157,14 @@ namespace KLogMonitor
                 if (stackFrames != null && stackFrames.Length > 2)
                 {
                     var callingFrame = stackFrames[2];
-                    this.MethodName = callingFrame.GetMethod().Name;
+                    LogContextData[Constants.METHOD_NAME] = callingFrame.GetMethod().Name;
                 }
 
                 if (args != null && ex != null)
                     throw new Exception("Args and Exception cannot co exist");
 
 
-                this.ClientTag = LogContextData[Constants.CLIENT_TAG]?.ToString();
-                this.IPAddress = LogContextData[Constants.HOST_IP]?.ToString();
-                this.UniqueID = LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
-                this.PartnerID = LogContextData[Constants.GROUP_ID]?.ToString();
-                this.Action = LogContextData[Constants.ACTION]?.ToString();
-                this.UserID = LogContextData[Constants.USER_ID]?.ToString();
-                this.Topic = LogContextData[Constants.TOPIC]?.ToString();
+                
 
                 var le = new LogEvent
                 {
@@ -193,6 +187,16 @@ namespace KLogMonitor
 
         private string FormatMessage(string msg, DateTime creationDate)
         {
+
+            var ClientTag = LogContextData[Constants.CLIENT_TAG]?.ToString();
+            var IPAddress = LogContextData[Constants.HOST_IP]?.ToString();
+            var UniqueID = LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
+            var PartnerID = LogContextData[Constants.GROUP_ID]?.ToString();
+            var Action = LogContextData[Constants.ACTION]?.ToString();
+            var UserID = LogContextData[Constants.USER_ID]?.ToString();
+            var Topic = LogContextData[Constants.TOPIC]?.ToString();
+            var MethodName = LogContextData[Constants.METHOD_NAME]?.ToString();
+
             return string.Format("class:{0} topic:{1} method:{2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
                 !string.IsNullOrWhiteSpace(ClassName) ? ClassName : "null",  // 0
                 !string.IsNullOrWhiteSpace(Topic) ? Topic : "null",          // 1
