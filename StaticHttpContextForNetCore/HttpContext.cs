@@ -11,7 +11,7 @@ namespace System.Web
     {
         private static IHttpContextAccessor _contextAccessor;
 
-        public static Microsoft.AspNetCore.Http.HttpContext Current => _contextAccessor?.HttpContext;
+        public static Microsoft.AspNetCore.Http.HttpContext Current => _contextAccessor.HttpContext;
 
         public static void Configure(IHttpContextAccessor contextAccessor)
         {
