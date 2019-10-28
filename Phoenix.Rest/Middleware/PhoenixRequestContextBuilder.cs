@@ -34,6 +34,7 @@ namespace Phoenix.Rest.Middleware
 
 
         private readonly RequestDelegate _Next;
+        private PhoenixRequestContext _PhoenixContext;
 
         public PhoenixRequestContextBuilder(RequestDelegate next)
         {
@@ -43,27 +44,31 @@ namespace Phoenix.Rest.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             KS.ClearOnRequest();
-            var phoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            _PhoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            if (_PhoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
+
             var request = context.Request;
-            phoenixCtx.RouteData = GetRouteData(request);
-            var action = phoenixCtx.RouteData.Action;
-            var service = phoenixCtx.RouteData.Service;
-            var pathData = phoenixCtx.RouteData.PathData;
+            _PhoenixContext.RawRequestUrl = request.GetDisplayUrl();
+            
+            _PhoenixContext.RouteData = GetRouteData(request);
+            var action = _PhoenixContext.RouteData.Action;
+            var service = _PhoenixContext.RouteData.Service;
+            var pathData = _PhoenixContext.RouteData.PathData;
 
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
             if (parsedActionParams.TryGetValue("format", out var responseFormat))
             {
-                phoenixCtx.Format = responseFormat.ToString();
+                _PhoenixContext.Format = responseFormat.ToString();
             }
 
             KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
 
             RequestContext.SetContext(parsedActionParams, service, action);
-            phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
-            phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);            
+            _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
+            _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
 
-            phoenixCtx.SetHttpContextForBackwardCompatibility();
+            _PhoenixContext.SetHttpContextForBackwardCompatibility();
 
             await _Next(context);
         }
@@ -236,6 +241,7 @@ namespace Phoenix.Rest.Middleware
             if (request.Form.TryGetValue("json", out var jsonFromData))
             {
                 var body = JObject.Parse(jsonFromData.First());
+                _PhoenixContext.RawRequestBody = body;
                 return body.ToObject<IDictionary<string, object>>();
             }
             else
@@ -268,13 +274,14 @@ namespace Phoenix.Rest.Middleware
             return uploadedFiles;
         }
 
-        private static async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request)
+        private async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request)
         {
 
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
                 var body = await JObject.LoadAsync(jsonReader);
+                _PhoenixContext.RawRequestBody = body;
                 return body.ToObject<Dictionary<string, object>>();
             }
         }

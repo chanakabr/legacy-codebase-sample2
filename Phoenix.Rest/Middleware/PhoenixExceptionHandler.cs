@@ -82,7 +82,7 @@ namespace Phoenix.Rest.Middleware
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
                     
-                    _Logger.Error($"Returning Error Response: [{stringResponse}], [{JsonConvert.SerializeObject(ctx)}]", ex);
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}], error response:[{stringResponse}]", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }

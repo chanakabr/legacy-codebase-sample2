@@ -48,6 +48,8 @@ namespace Phoenix.Context
         public KalturaOTTObject ResponseProfile { get; set; }
         public string RequestContentType { get; set; }
         public Version RequestVersion { get; set; }
+        public string RawRequestUrl { get; set; }
+        public JObject RawRequestBody { get; set; }
 
 
         [JsonIgnore]
@@ -56,6 +58,8 @@ namespace Phoenix.Context
         /// Request proccessing pipeline.
         /// </summary>
         public KMonitor ApiMonitorLog { get; set; }
+
+
 
         /// <summary>
         /// This method sets all required HttpContext.Current.Items to suppport backward compatibility
