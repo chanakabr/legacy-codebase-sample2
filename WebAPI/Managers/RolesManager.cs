@@ -526,16 +526,16 @@ namespace WebAPI.Managers
         public static bool IsManagerAllowedAction(List<long> roleIds)
         {
             // check role's hierarchy 
-            var ks = KS.GetFromRequest();
-
-            // Get External editor Role Id. ( manager should be able to update it's role)
-            long? externalEditorRole = GetEERole(ks);            
+            var ks = KS.GetFromRequest();                
 
             bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
 
             if (isManager)
             {
-                if(externalEditorRole.HasValue)
+                // Get External editor Role Id. ( manager should be able to update it's role)
+                long? externalEditorRole = GetEERole(ks);
+
+                if (externalEditorRole.HasValue)
                 {
                     if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
                     {
@@ -553,6 +553,7 @@ namespace WebAPI.Managers
 
             return true;
         }
+        
 
         public static bool IsAllowedDeleteAction()
         {
@@ -605,10 +606,26 @@ namespace WebAPI.Managers
                     return false;
                 }
 
-                if (roleIds != null && roleIds.Any(x => x > MANAGER_ROLE_ID))
+                if (roleIds != null)
                 {
-                    return false;
-                }
+                    // Get External editor Role Id. ( manager should be able to update it's role)
+                    long? externalEditorRole = GetEERole(ks);
+
+                    if (externalEditorRole.HasValue)
+                    {
+                        if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (roleIds.Any(x => x > MANAGER_ROLE_ID))
+                        {
+                            return false;
+                        }
+                    }
+                }                  
             }
 
             return true;
