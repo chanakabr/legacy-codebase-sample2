@@ -36,7 +36,12 @@ namespace KLogMonitor
         private string Server { get; set; }
         //public string IPAddress { get; set; }
         //public string MethodName { get; set; }
-        //public string Topic { get; set; }
+        public string Topic
+        {
+            get => LogContextData[Constants.TOPIC]?.ToString();
+            set => LogContextData[Constants.TOPIC] = value;
+
+        }
         public string LoggerName { get; set; }
 
 
