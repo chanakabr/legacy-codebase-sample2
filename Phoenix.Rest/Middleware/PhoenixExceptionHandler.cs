@@ -78,8 +78,11 @@ namespace Phoenix.Rest.Middleware
 
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
-                    
-                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}], httpCtx.REQUEST_ACTION:[{System.Web.HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_ACTION]}].{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
+
+                    var staticHttpContextDump = JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items);
+                    var currentContextDump = JsonConvert.SerializeObject(context.Items);
+
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}]{Environment.NewLine}staticHttpContextDump:[{staticHttpContextDump}]{Environment.NewLine}currentContextDump:[{currentContextDump}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }
@@ -90,5 +93,7 @@ namespace Phoenix.Rest.Middleware
                 }
             }
         }
+
+       
     }
 }
