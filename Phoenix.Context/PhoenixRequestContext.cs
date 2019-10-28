@@ -69,20 +69,20 @@ namespace Phoenix.Context
         public void SetHttpContextForBackwardCompatibility()
         {
             Ks = GetOrSetFromHttpContext(ContextConstants.REQUEST_KS, Ks);
-            GroupId = GetOrSetStuctFromHttpContext(ContextConstants.REQUEST_GROUP_ID, GroupId);
-            UserId = GetOrSetStuctFromHttpContext(ContextConstants.REQUEST_USER_ID, UserId);
+            GroupId = GetOrSetStructFromHttpContext(ContextConstants.REQUEST_GROUP_ID, GroupId);
+            UserId = GetOrSetStructFromHttpContext(ContextConstants.REQUEST_USER_ID, UserId);
             UserIpAdress = GetOrSetFromHttpContext(ContextConstants.USER_IP, UserIpAdress);
             RouteData.Service = GetOrSetFromHttpContext(ContextConstants.REQUEST_SERVICE, RouteData.Service);
             RouteData.Action = GetOrSetFromHttpContext(ContextConstants.REQUEST_ACTION, RouteData.Action);
             RouteData.PathData = GetOrSetFromHttpContext(ContextConstants.REQUEST_PATH_DATA, RouteData.PathData);
             Format = GetOrSetFromHttpContext(ContextConstants.REQUEST_FORMAT, Format);
             Currency = GetOrSetFromHttpContext(ContextConstants.REQUEST_CURRENCY, Currency);
-            AbortOnError = GetOrSetStuctFromHttpContext(ContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, AbortOnError);
+            AbortOnError = GetOrSetStructFromHttpContext(ContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, AbortOnError);
             ActionParams = GetOrSetFromHttpContext(ContextConstants.REQUEST_METHOD_PARAMETERS, ActionParams);
             ResponseProfile = GetOrSetFromHttpContext(ContextConstants.REQUEST_RESPONSE_PROFILE, ResponseProfile);
             RequestContentType = GetOrSetFromHttpContext(ContextConstants.REQUEST_SERVE_CONTENT_TYPE, RequestContentType);
-            RequestDate = GetOrSetStuctFromHttpContext(ContextConstants.REQUEST_TIME, RequestDate);
-            RequestType = GetOrSetStuctFromHttpContext(ContextConstants.REQUEST_TYPE, RequestType);
+            RequestDate = GetOrSetStructFromHttpContext(ContextConstants.REQUEST_TIME, RequestDate);
+            RequestType = GetOrSetStructFromHttpContext(ContextConstants.REQUEST_TYPE, RequestType);
             RequestVersion = GetOrSetFromHttpContext(ContextConstants.REQUEST_VERSION, RequestVersion);
         }
 
@@ -92,7 +92,7 @@ namespace Phoenix.Context
         // we check to see if the value in the object was populated and create the relevant key in http context
 
 
-        private T GetOrSetFromHttpContext<T>(string key, T value) where T : class
+        private static T GetOrSetFromHttpContext<T>(string key, T value) where T : class
         {
             if (!HttpContext.Current.Items.ContainsKey(key) && value != null)
             {
@@ -106,21 +106,7 @@ namespace Phoenix.Context
 
         }
 
-        private string GetOrSetStringFromHttpContext(string key, string value)
-        {
-            if (!HttpContext.Current.Items.ContainsKey(key) && value != null)
-            {
-                HttpContext.Current.Items[key] = value;
-                return (string)HttpContext.Current.Items[key];
-            }
-            else
-            {
-                return value;
-            }
-
-        }
-
-        private Nullable<U> GetOrSetStuctFromHttpContext<U>(string key, Nullable<U> value) where U : struct
+        private static U? GetOrSetStructFromHttpContext<U>(string key, U? value) where U : struct
         {
             if (!HttpContext.Current.Items.ContainsKey(key) && value.HasValue)
             {

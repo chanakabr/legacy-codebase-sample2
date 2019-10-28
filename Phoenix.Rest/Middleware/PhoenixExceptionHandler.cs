@@ -79,7 +79,7 @@ namespace Phoenix.Rest.Middleware
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
                     
-                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}], error response:[{stringResponse}], PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]", ex);
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}], httpCtx.REQUEST_ACTION:[{System.Web.HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_ACTION]}].{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }
