@@ -11,6 +11,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Kaltura event notification scope
     /// </summary>
+    [Serializable]
     public abstract partial class KalturaEventNotificationScope : KalturaOTTObject
     {
 
