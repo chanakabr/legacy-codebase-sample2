@@ -11,7 +11,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Kaltura event notification scope
     /// </summary>
-    [Serializable]
     public abstract partial class KalturaEventNotificationScope : KalturaOTTObject
     {
 
@@ -22,12 +21,12 @@ namespace WebAPI.Models.API
     /// </summary>
     public partial class KalturaEventNotificationObjectScope : KalturaEventNotificationScope
     {
-        /// <summary>
-        /// Event object to fire
-        /// </summary>
-        [DataMember(Name = "eventObject")]
-        [JsonProperty("eventObject")]
-        [XmlElement(ElementName = "eventObject")]
-        public KalturaOTTObject EventObject { get; set; }
+        ///// <summary>
+        ///// Event object to fire
+        ///// </summary>
+        //[DataMember(Name = "eventObject")]
+        //[JsonProperty("eventObject")]
+        //[XmlElement(ElementName = "eventObject")]
+        //public KalturaOTTObject EventObject { get; set; }
     }
 }

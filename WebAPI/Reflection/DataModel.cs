@@ -2360,14 +2360,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaEventNotificationObjectScope":
-                    switch(property.Name)
-                    {
-                        case "EventObject":
-                            return "eventObject";
-                    }
-                    break;
-                    
                 case "KalturaExportTask":
                     switch(property.Name)
                     {

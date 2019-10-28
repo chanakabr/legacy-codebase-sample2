@@ -15662,20 +15662,6 @@ namespace WebAPI.Models.API
     {
         public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("eventObject") && parameters["eventObject"] != null)
-                {
-                    if (parameters["eventObject"] is JObject)
-                    {
-                        EventObject = (KalturaOTTObject) Deserializer.deserialize(typeof(KalturaOTTObject), ((JObject) parameters["eventObject"]).ToObject<Dictionary<string, object>>());
-                    }
-                    else if (parameters["eventObject"] is IDictionary)
-                    {
-                        EventObject = (KalturaOTTObject) Deserializer.deserialize(typeof(KalturaOTTObject), (Dictionary<string, object>) parameters["eventObject"]);
-                    }
-                }
-            }
         }
     }
     public partial class KalturaEventNotificationScope
