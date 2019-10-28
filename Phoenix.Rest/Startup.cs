@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
-using KLogMonitor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,8 +18,6 @@ namespace Phoenix.Rest
 {
     public class Startup
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -38,8 +33,6 @@ namespace Phoenix.Rest
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            ThreadPool.GetMaxThreads(out var workerThreads, out var completionPortThreads);
-            _Logger.Info($"Startup: MaxThreads workerThreads:[{workerThreads}], completionPortThreads:[{completionPortThreads}]");
             // support multiple prefix slashes
             app.MapWhen(context =>
             {
