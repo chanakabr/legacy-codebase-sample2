@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using Jil;
+using Newtonsoft.Json;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
@@ -89,6 +91,9 @@ namespace WebAPI.Controllers
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,
                     string.IsNullOrEmpty(action_name) ? "null" : action_name);
+
+                log.Info($"DataModel.execAction > service_name:{service_name}, action_name:{action_name}");
+                log.Info($"DataModel.execAction > methodParams:{JsonConvert.SerializeObject(methodParams)}");
 
                 response = DataModel.execAction(service_name, action_name, methodParams);
             }
