@@ -605,9 +605,25 @@ namespace WebAPI.Managers
                     return false;
                 }
 
-                if (roleIds != null && roleIds.Any(x => x > MANAGER_ROLE_ID))
+                if (roleIds != null)
                 {
-                    return false;
+                    // Get External editor Role Id. ( manager should be able to update it's role)
+                    long? externalEditorRole = GetEERole(ks);
+
+                    if (externalEditorRole.HasValue)
+                    {
+                        if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (roleIds.Any(x => x > MANAGER_ROLE_ID))
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
 
