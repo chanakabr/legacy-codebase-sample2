@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using log4net;
 using log4net.Core;
 using log4net.Filter;
+using log4net.Layout;
+using log4net.Layout.Pattern;
 using log4net.Util;
 using Microsoft.Win32.SafeHandles;
 
@@ -130,7 +133,7 @@ namespace KLogMonitor
                 // In case this is a start event, we fire it first, and on dispose, we will fire the END 
                 if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
                     // -1 milliseconds to force it down the filter
-                    _Logger.Monitor(this.ToString(), -1);
+                    _Logger.Monitor(this, -1, null);
 
                 // start counter
                 this.Watch.Start();
@@ -233,7 +236,7 @@ namespace KLogMonitor
                 var totalMillseconds = this.Watch.Elapsed.TotalMilliseconds;
                 
                 //var repo = _Logger.Logger.Repository;
-                _Logger.Monitor(this.ToString(), totalMillseconds);
+                _Logger.Monitor(this, totalMillseconds, null);
             }
 
             // Free any unmanaged objects here.
@@ -270,6 +273,35 @@ namespace KLogMonitor
                 exception
                 );
             le.Properties[KMonitor.TOTAL_MILLISECONDS] = totalMilliseconds;
+
+            log.Logger.Log(le);
+        }
+        public static void Monitor(this ILog log, KMonitor monitor, double totalMilliseconds, Exception exception)
+        {
+            var le = new LoggingEvent(MethodBase.GetCurrentMethod().DeclaringType,
+                log.Logger.Repository,
+                log.Logger.Name,
+                log4net.Core.Level.Trace,
+                monitor,
+                exception
+                );
+
+            le.Properties[KMonitor.TOTAL_MILLISECONDS] = totalMilliseconds;
+            le.Properties["m"] = monitor.TimeInTicks;
+            le.Properties["e"] = monitor.Event;
+            le.Properties["s"] = monitor.Server;
+            le.Properties["i"] = monitor.IPAddress;
+            le.Properties["u"] = monitor.UniqueID;
+            le.Properties["p"] = monitor.PartnerID;
+            le.Properties["a"] = monitor.Action;
+            le.Properties["l"] = monitor.ClientTag;
+            le.Properties["r"] = monitor.ErrorCode;
+            le.Properties["t"] = monitor.Table;
+            le.Properties["q"] = monitor.QueryTypeString;
+            le.Properties["x"] = monitor.ExecutionTime;
+            le.Properties["d"] = monitor.Database;
+            le.Properties["w"] = monitor.IsWritable;
+            le.Fix = FixFlags.Properties;
 
             log.Logger.Log(le);
         }
@@ -319,6 +351,44 @@ namespace KLogMonitor
             }
 
             return decision;
+        }
+    }
+
+    public class ReflectionReader : PatternLayoutConverter
+    {
+        public ReflectionReader()
+        {
+            _getValue = GetValueFirstTime;
+        }
+
+        protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
+        {
+            writer.Write(_getValue(loggingEvent.MessageObject));
+        }
+
+        private Func<object, String> _getValue;
+        private string GetValueFirstTime(object source)
+        {
+            _targetProperty = source.GetType().GetProperty(Option);
+            if (_targetProperty == null)
+            {
+                _getValue = x => "null";
+            }
+            else
+            {
+                _getValue = x => String.Format("{0}", _targetProperty.GetValue(x, null));
+            }
+            return _getValue(source);
+        }
+
+        private PropertyInfo _targetProperty;
+    }
+
+    public class ReflectionLayoutPattern : PatternLayout
+    {
+        public ReflectionLayoutPattern()
+        {
+            this.AddConverter("item", typeof(ReflectionReader));
         }
     }
 }
