@@ -50,6 +50,8 @@ namespace Phoenix.Context
         public Version RequestVersion { get; set; }
         public string RawRequestUrl { get; set; }
         public JObject RawRequestBody { get; set; }
+        public List<string> TraceEvents { get; set; }
+
 
 
         [JsonIgnore]
@@ -92,8 +94,9 @@ namespace Phoenix.Context
         // we check to see if the value in the object was populated and create the relevant key in http context
 
 
-        private static T GetOrSetFromHttpContext<T>(string key, T value) where T : class
+        private T GetOrSetFromHttpContext<T>(string key, T value) where T : class
         {
+            this.TraceEvents.Add($"Adding: key[{key}] contains.key?[{HttpContext.Current.Items.ContainsKey(key)}] val:[{value}] to httpContext");
             if (!HttpContext.Current.Items.ContainsKey(key) && value != null)
             {
                 HttpContext.Current.Items[key] = value;
@@ -101,13 +104,15 @@ namespace Phoenix.Context
             }
             else
             {
+                
                 return value;
             }
 
         }
 
-        private static U? GetOrSetStructFromHttpContext<U>(string key, U? value) where U : struct
+        private U? GetOrSetStructFromHttpContext<U>(string key, U? value) where U : struct
         {
+            this.TraceEvents.Add($"Adding: key[{key}] contains.key?[{HttpContext.Current.Items.ContainsKey(key)}] val:[{value}] to httpContext");
             if (!HttpContext.Current.Items.ContainsKey(key) && value.HasValue)
             {
                 HttpContext.Current.Items[key] = value;

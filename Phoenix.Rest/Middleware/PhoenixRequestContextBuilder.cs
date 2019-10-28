@@ -66,6 +66,7 @@ namespace Phoenix.Rest.Middleware
 
             RequestContext.SetContext(parsedActionParams, service, action);
             _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
+            
             _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
 
             _PhoenixContext.SetHttpContextForBackwardCompatibility();
@@ -101,7 +102,9 @@ namespace Phoenix.Rest.Middleware
             else
             {
                 var methodArgs = DataModel.getMethodParams(service, action);
+                
                 actionParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parsedActionParams);
+                _PhoenixContext.TraceEvents.Add($"GetDeserializedActionParams > actionParams.count:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
             }
             return actionParams;
         }
