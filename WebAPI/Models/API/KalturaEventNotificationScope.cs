@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -19,14 +20,15 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Kaltura event notification object scope
     /// </summary>
+    [InternalObject(true)]
     public partial class KalturaEventNotificationObjectScope : KalturaEventNotificationScope
     {
-        ///// <summary>
-        ///// Event object to fire
-        ///// </summary>
-        //[DataMember(Name = "eventObject")]
-        //[JsonProperty("eventObject")]
-        //[XmlElement(ElementName = "eventObject")]
-        //public KalturaOTTObject EventObject { get; set; }
+        /// <summary>
+        /// Event object to fire
+        /// </summary>
+        [DataMember(Name = "eventObject")]
+        [JsonProperty("eventObject")]
+        [XmlElement(ElementName = "eventObject")]
+        public KalturaOTTObject EventObject { get; set; }
     }
 }
