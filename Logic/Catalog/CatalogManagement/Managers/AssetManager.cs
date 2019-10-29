@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
@@ -917,7 +918,7 @@ namespace Core.Catalog.CatalogManagement
                 case MetaType.DateTime:
                     isValidMeta = true;
                     DateTime dateTimeVal;
-                    isValidMetaValue = DateTime.TryParse(meta.m_sValue, out dateTimeVal);
+                    isValidMetaValue = DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out dateTimeVal);
                     break;                
                 default:
                 case MetaType.All:
@@ -947,7 +948,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
                         DateTime catalogStartDate;
-                        if (DateTime.TryParse(meta.m_sValue, out catalogStartDate))
+                        if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out catalogStartDate))
                         {
                             assetCatalogStartDate = catalogStartDate;
                         }
@@ -958,7 +959,7 @@ namespace Core.Catalog.CatalogManagement
                         break;
                     case PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
                         DateTime finalEndDate;
-                        if (DateTime.TryParse(meta.m_sValue, out finalEndDate))
+                        if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out finalEndDate))
                         {
                             assetFinalEndDate = finalEndDate;
                         }
@@ -1782,7 +1783,7 @@ namespace Core.Catalog.CatalogManagement
                             foreach (Metas meta in dateMetas)
                             {
                                 DateTime date;
-                                if (DateTime.TryParse(meta.m_sValue, out date))
+                                if (DateTime.TryParseExact(meta.m_sValue, DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out date))
                                 {
                                     metas.Add(meta.m_oTagMeta.m_sName, date.ToString("yyyyMMddHHmmss"));
                                 }
