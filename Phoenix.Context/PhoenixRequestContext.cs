@@ -61,6 +61,10 @@ namespace Phoenix.Context
         /// </summary>
         public KMonitor ApiMonitorLog { get; set; }
 
+        public PhoenixRequestContext()
+        {
+            TraceEvents = new List<string>();
+        }
 
 
         /// <summary>
