@@ -1616,10 +1616,10 @@ namespace Core.Billing
                 switch (productType)
                 {
                     case eTransactionType.PPV:
-                        ItemName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", contentID, "MAIN_CONNECTION_STRING").ToString();
+                        ItemName = Convert.ToString(ODBCWrapper.Utils.GetTableSingleVal("media", "name", contentID, "MAIN_CONNECTION_STRING"));
                         break;
                     case eTransactionType.Subscription:
-                        ItemName = ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "name", productID, "pricing_connection").ToString();
+                        ItemName = Convert.ToString(ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "name", productID, "pricing_connection"));
 
                         break;
                     default:
