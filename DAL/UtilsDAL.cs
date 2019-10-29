@@ -104,7 +104,7 @@ namespace DAL
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
-                        log.ErrorFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
+                        log.DebugFormat("Error while trying GetObjectFromCB, KeyNotFound. key: {0}", key);
                         break;
                     }
                     else if (getResult == eResultStatus.SUCCESS)
