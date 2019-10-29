@@ -20,11 +20,11 @@ namespace WebAPI
 
         public static List<object> BuildActionArguments(IDictionary<string, MethodParam> methodArgs, IDictionary<string, object> reqParams)
         {
-            List<Object> methodParams = new List<object>();
-            foreach (KeyValuePair<string, MethodParam> methodArgItem in methodArgs)
+            var methodParams = new List<object>();
+            foreach (var methodArgItem in methodArgs)
             {
-                string name = methodArgItem.Key;
-                MethodParam methodArg = methodArgItem.Value;
+                var name = methodArgItem.Key;
+                var methodArg = methodArgItem.Value;
 
                 if (!reqParams.ContainsKey(name) || reqParams[name] == null)
                 {

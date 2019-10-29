@@ -64,7 +64,6 @@ namespace Phoenix.Rest.Middleware
             _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
             _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
 
-
             await _Next(context);
         }
 
