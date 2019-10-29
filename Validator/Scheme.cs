@@ -497,7 +497,11 @@ namespace Validator.Managers.Scheme
             {
                 if (controller.IsAbstract || !SchemeManager.Validate(controller, true, assemblyXml))
                     continue;
-                
+
+                var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if (serviceAttribute != null && serviceAttribute.IsInternal)
+                    continue;
+
                 WriteService(GetControllerDetails(controller));
             }
             writer.WriteEndElement(); // services
