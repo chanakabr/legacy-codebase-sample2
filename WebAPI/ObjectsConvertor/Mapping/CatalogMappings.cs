@@ -1442,7 +1442,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static List<Metas> GetMetaList(SerializableDictionary<string, KalturaValue> metasDictionary)
         {
             List<Metas> metas = new List<Metas>();
-
             if (metasDictionary == null || metasDictionary.Count == 0)
             {
                 return metas;
@@ -1487,7 +1486,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     KalturaLongValue metaValue = meta.Value as KalturaLongValue;
                     metaToAdd.m_oTagMeta.m_sType = ApiObjects.MetaType.DateTime.ToString();
-                    metaToAdd.m_sValue = DateUtils.UtcUnixTimestampSecondsToDateTime(metaValue.value).ToString();
+                    metaToAdd.m_sValue = DateUtils.UtcUnixTimestampSecondsToDateTime(metaValue.value)
+                        .ToString(DateUtils.MAIN_FORMAT, CultureInfo.InvariantCulture);
                 }
                 else if (metaType == typeof(KalturaIntegerValue))
                 {
