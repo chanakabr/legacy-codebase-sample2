@@ -22,6 +22,7 @@ using WebAPI;
 using WebAPI.Controllers;
 using WebAPI.Managers.Models;
 using WebAPI.Filters;
+using RequestType = Phoenix.Context.RequestType;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -55,24 +56,51 @@ namespace Phoenix.Rest.Middleware
             var service = _PhoenixContext.RouteData.Service;
             var pathData = _PhoenixContext.RouteData.PathData;
 
-
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
-            if (parsedActionParams.TryGetValue("format", out var responseFormat))
-            {
-                _PhoenixContext.Format = responseFormat.ToString();
-            }
-            _PhoenixContext.SetHttpContextForBackwardCompatibility();
-
             KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
 
-            RequestContext.SetContext(parsedActionParams, service, action);
+            SetCommonRequestContextItems(context, parsedActionParams, service, action);
+
             _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
-            
             _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
 
-            _PhoenixContext.SetHttpContextForBackwardCompatibility();
 
             await _Next(context);
+        }
+
+        private void SetCommonRequestContextItems(HttpContext context, IDictionary<string, object> parsedActionParams, string service, string action)
+        {
+            RequestContext.SetContext(parsedActionParams, service, action);
+
+            _PhoenixContext.UserIpAdress = context.Items[RequestContext.USER_IP]?.ToString();
+            _PhoenixContext.Format = context.Items[RequestContext.REQUEST_FORMAT]?.ToString();
+            _PhoenixContext.Currency = context.Items[RequestContext.REQUEST_GLOBAL_CURRENCY]?.ToString();
+            _PhoenixContext.Language = context.Items[RequestContext.REQUEST_GLOBAL_LANGUAGE]?.ToString();
+
+            if (context.Items.TryGetValue(RequestContext.REQUEST_RESPONSE_PROFILE, out var responseProfile))
+            {
+                _PhoenixContext.ResponseProfile = responseProfile as KalturaOTTObject;
+            }
+
+            if (context.Items.TryGetValue(RequestContext.REQUEST_TYPE, out var reqType))
+            {
+                _PhoenixContext.RequestType = reqType as RequestType?;
+            }
+
+            if (context.Items.TryGetValue(RequestContext.REQUEST_GLOBAL_USER_ID, out var userId))
+            {
+                _PhoenixContext.UserId = userId as int?;
+            }
+
+            if (context.Items.TryGetValue(RequestContext.REQUEST_GLOBAL_KS, out var ks))
+            {
+                _PhoenixContext.Ks = ks as KS;
+            }
+
+            if (context.Items.TryGetValue(RequestContext.REQUEST_VERSION, out var version))
+            {
+                _PhoenixContext.RequestVersion = version as Version;
+            }
         }
 
         private Version GetRequestVersion(IDictionary<string, object> parsedActionParams)
@@ -104,7 +132,7 @@ namespace Phoenix.Rest.Middleware
             {
                 var methodArgs = DataModel.getMethodParams(service, action);
                 actionParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parsedActionParams);
-                _PhoenixContext.TraceEvents.Add($"GetDeserializedActionParams > actionParams.count:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
+                _PhoenixContext.TraceEvents.Add($"GetDeserializedActionParams > actionParams:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
             }
             return actionParams;
         }
