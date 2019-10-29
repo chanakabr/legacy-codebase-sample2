@@ -85,7 +85,6 @@ namespace KLogMonitor
 
             string server = !string.IsNullOrWhiteSpace(Server) ? Server : "null";
             LogContextData[Constants.SERVER] = server;
-
         }
 
         ~KLogger()
@@ -142,6 +141,11 @@ namespace KLogMonitor
             if (!repository.Configured)
             {
                 log4net.Config.XmlConfigurator.Configure(repository, file);
+            }
+
+            if (SystemInfo.NullText == "(null)")
+            {
+                SystemInfo.NullText = "null";
             }
         }
 
