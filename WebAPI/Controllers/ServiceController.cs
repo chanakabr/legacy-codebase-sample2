@@ -85,11 +85,14 @@ namespace WebAPI.Controllers
 
             try
             {
+                log.Info($"before ServiceController.Action  [{JsonConvert.SerializeObject(methodParams)}]");
+
                 if (methodParams == null)
                 {
                     methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
                 }
 
+                log.Info($"after ServiceController.Action  [{JsonConvert.SerializeObject(methodParams)}]");
                 // add action to log
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,

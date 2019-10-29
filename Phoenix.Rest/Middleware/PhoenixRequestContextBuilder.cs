@@ -55,14 +55,23 @@ namespace Phoenix.Rest.Middleware
             var action = _PhoenixContext.RouteData.Action;
             var service = _PhoenixContext.RouteData.Service;
             var pathData = _PhoenixContext.RouteData.PathData;
+            _Logger.Info($"Got action [{action}], service [{service}]");
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
+            _Logger.Info($"Got parsed action params [{JsonConvert.SerializeObject(parsedActionParams)}]");
+
             KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
 
+            _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
+            _Logger.Info($"after GetRequestVersion  [{_PhoenixContext.RequestVersion}]");
+
             SetCommonRequestContextItems(context, parsedActionParams, service, action);
+            _Logger.Info($"after SetCommonRequestContextItems  [{JsonConvert.SerializeObject(parsedActionParams)}]");
+
 
             _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
-            _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
+            _Logger.Info($"after GetDeserializedActionParams  parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}] ActionParams:[{JsonConvert.SerializeObject(_PhoenixContext.ActionParams)}]");
+
 
             await _Next(context);
         }
@@ -131,7 +140,7 @@ namespace Phoenix.Rest.Middleware
             {
                 var methodArgs = DataModel.getMethodParams(service, action);
                 actionParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parsedActionParams);
-                _PhoenixContext.TraceEvents.Add($"GetDeserializedActionParams > actionParams:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
+                _Logger.Info($"GetDeserializedActionParams > actionParams:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
             }
             return actionParams;
         }

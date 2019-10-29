@@ -42,16 +42,19 @@ namespace Phoenix.Rest.Middleware
             _PhoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             if (_PhoenixCtx == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
-                if (_PhoenixCtx.IsMultiRequest)
-                {
-                    _Response = await _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service, _PhoenixCtx.ActionParams);
 
-                }
-                else
-                {
-                    _Response = await _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action, _PhoenixCtx.ActionParams);
+            _Logger.Info($"PhoenixRequestExecutor  [{JsonConvert.SerializeObject(_PhoenixCtx.ActionParams)}]");
 
-                }
+            if (_PhoenixCtx.IsMultiRequest)
+            {
+                _Response = await _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service, _PhoenixCtx.ActionParams);
+
+            }
+            else
+            {
+                _Response = await _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action, _PhoenixCtx.ActionParams);
+
+            }
 
             context.Response.OnStarting(HandleResponse, context);
 
