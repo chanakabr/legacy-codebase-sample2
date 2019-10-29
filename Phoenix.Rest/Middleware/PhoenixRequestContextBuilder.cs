@@ -61,6 +61,7 @@ namespace Phoenix.Rest.Middleware
             {
                 _PhoenixContext.Format = responseFormat.ToString();
             }
+            _PhoenixContext.SetHttpContextForBackwardCompatibility();
 
             KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
 
@@ -102,7 +103,6 @@ namespace Phoenix.Rest.Middleware
             else
             {
                 var methodArgs = DataModel.getMethodParams(service, action);
-                
                 actionParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parsedActionParams);
                 _PhoenixContext.TraceEvents.Add($"GetDeserializedActionParams > actionParams.count:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
             }
