@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
                     // get collections
                     if (collectionsIds != null && collectionsIds.Count > 0)
                     {
-                        response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize);
+                        response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
                     }
                 }
                 else
