@@ -159,7 +159,11 @@ namespace Validator.Managers.Scheme
                 var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
                 if (apiExplorerSettings != null && apiExplorerSettings.IgnoreApi)
                     continue;
-                
+
+                var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>();
+                if (serviceAttribute != null && serviceAttribute.IsInternal)
+                    continue;
+
                 var methods = controller.GetMethods();
                 foreach (var method in methods)
                 {
