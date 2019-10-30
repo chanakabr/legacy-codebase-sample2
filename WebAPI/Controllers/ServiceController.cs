@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                log.Info($"before ServiceController.Action  [{JsonConvert.SerializeObject(methodParams)}]");
+                log.Info($"ServiceController.Action  {service_name}.{action_name} [{JsonConvert.SerializeObject(methodParams)}]");
                 log.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
 
                 if (methodParams == null)
@@ -93,8 +93,8 @@ namespace WebAPI.Controllers
                     methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
                 }
 
-                log.Info($"after ServiceController.Action  [{JsonConvert.SerializeObject(methodParams)}]");
-                log.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
+                log.Info($"ServiceController.Action {service_name}.{action_name} [{JsonConvert.SerializeObject(methodParams)}]");
+                log.Info($"ServiceController > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
                 // add action to log
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,
