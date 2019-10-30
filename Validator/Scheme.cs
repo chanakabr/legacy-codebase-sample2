@@ -910,6 +910,9 @@ namespace Validator.Managers.Scheme
             if (type == typeof(KalturaOTTFile))
                 return "file";
 
+            if (type == typeof(KalturaOTTObject))
+                return "KalturaObject";
+
             if (typeof(KalturaRenderer).IsAssignableFrom(type))
                 return "file";
 
