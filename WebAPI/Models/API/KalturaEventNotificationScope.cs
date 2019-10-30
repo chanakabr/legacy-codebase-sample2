@@ -20,7 +20,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Kaltura event notification object scope
     /// </summary>
-    [InternalObject(true)]
     public partial class KalturaEventNotificationObjectScope : KalturaEventNotificationScope
     {
         /// <summary>

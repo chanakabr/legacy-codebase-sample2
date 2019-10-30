@@ -12,7 +12,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [Service("eventNotificationAction", true)]
+    [Service("eventNotificationAction")]
     public class EventNotificationActionController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
