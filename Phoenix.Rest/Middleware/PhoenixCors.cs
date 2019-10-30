@@ -44,7 +44,7 @@ namespace Phoenix.Rest.Middleware
             // IF method is not OPTIONS then pass to the next middleware.
             if (context.Request.Method == HttpMethod.Options.Method)
             {
-                _Logger.Debug($"request method is OPTIONS, returing response, stopping piepline");
+                _Logger.Debug($"request method is OPTIONS, returning response, stopping pipeline");
                 context.Response.Headers.Add("Access-Control-Allow-Headers", ALLOWED_HEADERS);
                 context.Response.Headers.Add("Access-Control-Allow-Methods", ALLOWED_METHODS);
                 context.Response.Headers.Add("Access-Control-Expose-Headers", EXPOSE_HEADERS);
