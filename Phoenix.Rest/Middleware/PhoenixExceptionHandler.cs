@@ -42,7 +42,6 @@ namespace Phoenix.Rest.Middleware
                 {
                     var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
 
-                    StatusWrapper errorResponse;
                     int code;
                     string message;
                     string stackTrace;
@@ -63,7 +62,11 @@ namespace Phoenix.Rest.Middleware
                     }
 
                     var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
-                    errorResponse = new StatusWrapper(code, ctx.SessionId.Value, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
+                    var errorResponse = new StatusWrapper
+                    {
+                        ExecutionTime = float.Parse(ctx.ApiMonitorLog.ExecutionTime),
+                        Result = content,
+                    };
 
 
                     // get proper response formatter but make sure errors should be only xml or json ...
@@ -82,7 +85,7 @@ namespace Phoenix.Rest.Middleware
                     var staticHttpContextDump = JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items);
                     var currentContextDump = JsonConvert.SerializeObject(context.Items);
 
-                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}], reqId:[{ctx.SessionId}]{Environment.NewLine}staticHttpContextDump:[{staticHttpContextDump}]{Environment.NewLine}currentContextDump:[{currentContextDump}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}]{Environment.NewLine}reqId:[{ctx.SessionId}]{Environment.NewLine}staticHttpContextDump:[{staticHttpContextDump}]{Environment.NewLine}currentContextDump:[{currentContextDump}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }

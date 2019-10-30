@@ -26,14 +26,15 @@ namespace Phoenix.Rest.Middleware
         {
             using (var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
-                Guid sessionId;
+                
+                string sessionId;
                 if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
                 {
-                    sessionId = new Guid(sessionHeader);
+                    sessionId = sessionHeader;
                 }
                 else
                 {
-                    sessionId = Guid.NewGuid();
+                    sessionId = context.TraceIdentifier;
                 }
                 context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
                 KLogger.SetRequestId(sessionId.ToString());

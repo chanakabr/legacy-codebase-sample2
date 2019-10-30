@@ -69,10 +69,10 @@ namespace Phoenix.Rest.Middleware
             _Logger.Info($"after SetCommonRequestContextItems  [{JsonConvert.SerializeObject(parsedActionParams)}]");
 
 
-            _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
+            var actionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
+            _Logger.Info($"after GetDeserializedActionParams  actionParams:[{JsonConvert.SerializeObject(actionParams)}]");
             context.Items[RequestContext.REQUEST_METHOD_PARAMETERS] = _PhoenixContext.ActionParams;
-            _Logger.Info($"after GetDeserializedActionParams  parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}] ActionParams:[{JsonConvert.SerializeObject(_PhoenixContext.ActionParams)}]");
-
+            _PhoenixContext.ActionParams = actionParams;
 
             await _Next(context);
         }

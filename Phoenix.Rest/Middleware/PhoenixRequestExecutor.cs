@@ -70,9 +70,12 @@ namespace Phoenix.Rest.Middleware
 
             // These should never happen at this point, but better be safe than sorry
             if (context == null) throw new SystemException("HttpContext lost");
-            if (!_PhoenixCtx.SessionId.HasValue) throw new SystemException("Session lost");
 
-            var wrappedResponse = new StatusWrapper((int)StatusCode.OK, _PhoenixCtx.SessionId.Value, float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime), _Response);
+            var wrappedResponse = new StatusWrapper
+            {
+                ExecutionTime = float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime),
+                Result = _Response,
+            };
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
             var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), _PhoenixCtx.Format);

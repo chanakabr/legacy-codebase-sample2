@@ -27,7 +27,7 @@ namespace Phoenix.Context
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public const string PHOENIX_REQUEST_CONTEXT_KEY = "PHOENIX_REQUEST_CONTEXT";
 
-        public Guid? SessionId { get; set; }
+        public string SessionId { get; set; }
         public string ClientTag { get; set; }
         public DateTime? RequestDate { get; set; } = DateTime.UtcNow;
         public int? GroupId { get; set; }
@@ -42,16 +42,14 @@ namespace Phoenix.Context
         public bool? AbortOnError { get; set; }
         public bool? AbortAllOnError { get; set; }
         public bool? SkipCondition { get; set; }
-        public List<object> ActionParams { get; set; } = new List<object>();
+        public List<object> ActionParams { get; set; }
         public bool IsMultiRequest => RouteData?.Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
-        public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; } = new List<PhoenixRequestContext>();
+        public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; }
         public KalturaOTTObject ResponseProfile { get; set; }
         public string RequestContentType { get; set; }
         public Version RequestVersion { get; set; }
         public string RawRequestUrl { get; set; }
         public JObject RawRequestBody { get; set; }
-        public List<string> TraceEvents { get; set; }
-
 
 
         [JsonIgnore]
@@ -63,7 +61,6 @@ namespace Phoenix.Context
 
         public PhoenixRequestContext()
         {
-            TraceEvents = new List<string>();
         }
     }
 }
