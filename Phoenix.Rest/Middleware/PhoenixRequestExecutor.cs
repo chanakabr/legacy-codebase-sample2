@@ -48,28 +48,9 @@ namespace Phoenix.Rest.Middleware
             _Logger.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
 
 
-            if (_PhoenixCtx.IsMultiRequest)
-            {
-                _Response = await _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service);
-
-            }
-            else
-            {
-                _Response = await _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
-
-            }
-
-            context.Response.OnStarting(HandleResponse, context);
-
-            await _Next(context);
-        }
-
-        private async Task HandleResponse(object ctx)
-        {
-            var context = ctx as HttpContext;
-
-            // These should never happen at this point, but better be safe than sorry
-            if (context == null) throw new SystemException("HttpContext lost");
+            _Response = _PhoenixCtx.IsMultiRequest
+                ? _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service).Result
+                : _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action).Result;
 
             var wrappedResponse = new StatusWrapper
             {
@@ -93,6 +74,8 @@ namespace Phoenix.Rest.Middleware
                 _Logger.Error("error while writing response stream", e);
                 throw;
             }
+
+            await _Next(context);
         }
     }
 }
