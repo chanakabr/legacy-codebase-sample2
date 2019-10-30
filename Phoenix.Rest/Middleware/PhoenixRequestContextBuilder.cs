@@ -70,6 +70,7 @@ namespace Phoenix.Rest.Middleware
 
 
             _PhoenixContext.ActionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
+            context.Items[RequestContext.REQUEST_METHOD_PARAMETERS] = _PhoenixContext.ActionParams;
             _Logger.Info($"after GetDeserializedActionParams  parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}] ActionParams:[{JsonConvert.SerializeObject(_PhoenixContext.ActionParams)}]");
 
 

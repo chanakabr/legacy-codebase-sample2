@@ -43,7 +43,10 @@ namespace Phoenix.Rest.Middleware
             if (_PhoenixCtx == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
 
-            _Logger.Info($"PhoenixRequestExecutor  [{JsonConvert.SerializeObject(_PhoenixCtx.ActionParams)}]");
+            _Logger.Info($"PhoenixRequestExecutor >_PhoenixCtx.ActionParams:[{JsonConvert.SerializeObject(_PhoenixCtx.ActionParams)}]");
+            _Logger.Info($"PhoenixRequestExecutor >        HttpContext:[{JsonConvert.SerializeObject(context.Items)}]");
+            _Logger.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
+
 
             if (_PhoenixCtx.IsMultiRequest)
             {
