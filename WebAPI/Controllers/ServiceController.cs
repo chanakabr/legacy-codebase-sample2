@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
         {
             if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
             {
-                return await Action("multirequest", "Do", methodParams);
+                return await Action("multirequest", "Do");
             }
 
             throw new BadRequestException(BadRequestException.ACTION_NOT_SPECIFIED);
@@ -79,19 +79,14 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}/action/{action_name}"), HttpPost]
-        public async Task<object> Action(string service_name, string action_name, List<object> methodParams = null)
+        public async Task<object> Action(string service_name, string action_name)
         {
             object response = null;
 
             try
             {
-                log.Info($"ServiceController.Action  {service_name}.{action_name} [{JsonConvert.SerializeObject(methodParams)}]");
-                log.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
-
-                if (methodParams == null)
-                {
-                    methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
-                }
+                
+                var methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
 
                 log.Info($"ServiceController.Action {service_name}.{action_name} [{JsonConvert.SerializeObject(methodParams)}]");
                 log.Info($"ServiceController > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");

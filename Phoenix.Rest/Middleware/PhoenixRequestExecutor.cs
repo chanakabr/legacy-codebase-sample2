@@ -50,12 +50,12 @@ namespace Phoenix.Rest.Middleware
 
             if (_PhoenixCtx.IsMultiRequest)
             {
-                _Response = await _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service, _PhoenixCtx.ActionParams);
+                _Response = await _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service);
 
             }
             else
             {
-                _Response = await _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action, _PhoenixCtx.ActionParams);
+                _Response = await _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action);
 
             }
 
