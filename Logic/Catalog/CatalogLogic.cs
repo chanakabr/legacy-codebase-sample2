@@ -2110,36 +2110,32 @@ namespace Core.Catalog
         public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
         {
             int regionId = -1;
-            Domain domain = null;
-            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
 
+            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
             if (domainRes != null)
             {
-                domain = domainRes.Domain;
-            }
-
-            // If the domain is not associated to a domain - get default region
-            if (domain.m_nRegion == 0)
-            {
-                if (defaultRegion > -1)
+                // If the domain is not associated to a domain - get default region
+                if (domainRes.Domain.m_nRegion == 0)
                 {
-                    regionId = defaultRegion;
+                    if (defaultRegion > -1)
+                    {
+                        regionId = defaultRegion;
+                    }
+                    else
+                    {
+                        Group group = GroupsCache.Instance().GetGroup(groupId);
+                        if (group != null && group.defaultRegion != 0)
+                        {
+                            regionId = group.defaultRegion;
+                        }
+                    }
                 }
                 else
                 {
-                    Group group = GroupsCache.Instance().GetGroup(groupId);
-
-                    if (group != null && group.defaultRegion != 0)
-                    {
-                        regionId = group.defaultRegion;
-                    }
+                    regionId = domainRes.Domain.m_nRegion;
                 }
             }
-            else
-            {
-                regionId = domain.m_nRegion;
-            }
-
+            
             return regionId;
         }
 

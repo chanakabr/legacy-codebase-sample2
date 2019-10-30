@@ -716,6 +716,9 @@ namespace WebAPI.Reflection
                 case "KalturaEventNotificationScope":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
+                case "KalturaEventObject":
+                    return new KalturaEventObject(parameters);
+                    
                 case "KalturaExportFilter":
                     return new KalturaExportFilter(parameters);
                     
@@ -15662,11 +15665,31 @@ namespace WebAPI.Models.API
     {
         public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("eventObject") && parameters["eventObject"] != null)
+                {
+                    if (parameters["eventObject"] is JObject)
+                    {
+                        EventObject = (KalturaEventObject) Deserializer.deserialize(typeof(KalturaEventObject), ((JObject) parameters["eventObject"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["eventObject"] is IDictionary)
+                    {
+                        EventObject = (KalturaEventObject) Deserializer.deserialize(typeof(KalturaEventObject), (Dictionary<string, object>) parameters["eventObject"]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaEventNotificationScope
     {
         public KalturaEventNotificationScope(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaEventObject
+    {
+        public KalturaEventObject(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }

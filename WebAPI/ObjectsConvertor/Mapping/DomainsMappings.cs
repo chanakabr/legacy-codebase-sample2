@@ -5,6 +5,8 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Domains;
 using AutoMapper.Configuration;
 using TVinciShared;
+using WebAPI.Models.Pricing;
+using ApiObjects.Pricing;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
@@ -129,6 +131,27 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.CouponCode))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 ;
+
+            cfg.CreateMap<KalturaCouponStatus, CouponsStatus>()
+                .ConvertUsing(couponStatus =>
+                {
+                    //KalturaCouponStatus => CouponsStatus
+                    switch (couponStatus)
+                    {
+                        case KalturaCouponStatus.VALID:
+                            return CouponsStatus.Valid;
+                        case KalturaCouponStatus.NOT_EXISTS:
+                            return CouponsStatus.NotExists;
+                        case KalturaCouponStatus.ALREADY_USED:
+                            return CouponsStatus.AllreadyUsed;
+                        case KalturaCouponStatus.EXPIRED:
+                            return CouponsStatus.Expired;
+                        case KalturaCouponStatus.INACTIVE:
+                            return CouponsStatus.NotActive;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown CouponsStatus value : {0}", couponStatus.ToString()));
+                    }
+                });
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)

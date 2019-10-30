@@ -2360,6 +2360,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEventNotificationObjectScope":
+                    switch(property.Name)
+                    {
+                        case "EventObject":
+                            return "eventObject";
+                    }
+                    break;
+                    
                 case "KalturaExportTask":
                     switch(property.Name)
                     {
@@ -12957,14 +12965,14 @@ namespace WebAPI.Reflection
                             });
                             paramName = "productType";
                             newParamName = null;
-                            if(isOldVersion)
-                            {
-                                paramName = "transaction_type";
-                                newParamName = "productType";
-                            }
                             if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
                             {
                                 paramName = "transactionType";
+                                newParamName = "productType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "transaction_type";
                                 newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
@@ -13024,14 +13032,14 @@ namespace WebAPI.Reflection
                             });
                             paramName = "productType";
                             newParamName = null;
-                            if(isOldVersion)
-                            {
-                                paramName = "transaction_type";
-                                newParamName = "productType";
-                            }
                             if(isOldVersion || currentVersion.CompareTo(new Version("4.7.0.0")) < 0)
                             {
                                 paramName = "transactionType";
+                                newParamName = "productType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "transaction_type";
                                 newParamName = "productType";
                             }
                             ret.Add(paramName, new MethodParam(){
@@ -14654,14 +14662,14 @@ namespace WebAPI.Reflection
                         case "get":
                             paramName = "messageType";
                             newParamName = null;
-                            if(isOldVersion)
-                            {
-                                paramName = "asset_Type";
-                                newParamName = "messageType";
-                            }
                             if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
                             {
                                 paramName = "assetType";
+                                newParamName = "messageType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_Type";
                                 newParamName = "messageType";
                             }
                             ret.Add(paramName, new MethodParam(){
@@ -14682,14 +14690,14 @@ namespace WebAPI.Reflection
                         case "update":
                             paramName = "messageType";
                             newParamName = null;
-                            if(isOldVersion)
-                            {
-                                paramName = "asset_Type";
-                                newParamName = "messageType";
-                            }
                             if(isOldVersion || currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0)
                             {
                                 paramName = "assetType";
+                                newParamName = "messageType";
+                            }
+                            if(isOldVersion)
+                            {
+                                paramName = "asset_Type";
                                 newParamName = "messageType";
                             }
                             ret.Add(paramName, new MethodParam(){

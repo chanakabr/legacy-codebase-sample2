@@ -82,7 +82,7 @@ namespace DAL
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
 
             int numOfTries = 0;
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
             T responseT = default(T);
 
             try
@@ -147,7 +147,7 @@ namespace DAL
 
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             int numOfTries = 0;
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
 
             try
             {
@@ -219,7 +219,7 @@ namespace DAL
                     string serializeObject = string.Empty;
                     if (serializeToString)
                     {
-                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+                        JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
                         serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
                     }
 

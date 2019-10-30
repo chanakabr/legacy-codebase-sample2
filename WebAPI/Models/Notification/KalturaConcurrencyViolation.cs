@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Models.API;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public partial class KalturaConcurrencyViolation : KalturaOTTObject
+    public partial class KalturaConcurrencyViolation : KalturaEventObject
     {
         /// <summary>
         /// Timestamp
