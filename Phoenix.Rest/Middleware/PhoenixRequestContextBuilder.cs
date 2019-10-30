@@ -50,14 +50,18 @@ namespace Phoenix.Rest.Middleware
             var service = phoenixCtx.RouteData.Service;
             var pathData = phoenixCtx.RouteData.PathData;
 
-
             var parsedActionParams = await GetActionParams(context.Request.Method, request);
+            if (parsedActionParams.TryGetValue("format", out var responseFormat))
+            {
+                phoenixCtx.Format = responseFormat.ToString();
+            }
+
             RequestContext.SetContext(parsedActionParams, service, action);
             phoenixCtx.ActionParams = GetDeserializedActionParams(parsedActionParams, phoenixCtx.IsMultiRequest, service, action);
             phoenixCtx.RequestVersion = GetRequestVersion(parsedActionParams);            
 
             phoenixCtx.SetHttpContextForBackwardCompatibility();
-
+            
             await _Next(context);
         }
 
@@ -105,10 +109,7 @@ namespace Phoenix.Rest.Middleware
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
         }
-
-
-
-
+        
         private RequestRouteData GetRouteData(HttpRequest request)
         {
             if (TryGetRouteDataFromUrl(request, out var routeDataFromUrl)) { return routeDataFromUrl; }
@@ -189,7 +190,6 @@ namespace Phoenix.Rest.Middleware
 
         private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request)
         {
-
             if (request.HasFormContentType)
             {
                 return await ParseFormDataBody(request);
@@ -211,17 +211,16 @@ namespace Phoenix.Rest.Middleware
         {
             var queryStringDictionary = request.Query.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
             var nestedDictionary = GetNestedDictionary(queryStringDictionary);
-            return nestedDictionary;
 
+            return nestedDictionary;
         }
 
         private async Task<IDictionary<string, object>> ParseFormDataBody(HttpRequest request)
         {
             var uploadedFilesDictionary = await ParseUploadedFiles(request);
-
             var actionParamsDictionary = ParseRequestBodyFromFormData(request);
-            return uploadedFilesDictionary.Concat(actionParamsDictionary).ToDictionary(k => k.Key, v => v.Value);
 
+            return uploadedFilesDictionary.Concat(actionParamsDictionary).ToDictionary(k => k.Key, v => v.Value);
         }
 
         private IDictionary<string, object> ParseRequestBodyFromFormData(HttpRequest request)
@@ -263,11 +262,22 @@ namespace Phoenix.Rest.Middleware
 
         private static async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request)
         {
-
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
                 var body = await JObject.LoadAsync(jsonReader);
+
+                // log raw request
+                var bodyString = body.ToString(Formatting.None);
+                string url = request.GetDisplayUrl();
+
+                bool shouldLogRawRequest = !url.Contains("user") && !bodyString.Contains("password") && !bodyString.Contains("mail");
+
+                if (shouldLogRawRequest)
+                {
+                    _Logger.Debug($"API Request - {url} {bodyString}");
+                }
+
                 return body.ToObject<Dictionary<string, object>>();
             }
         }

@@ -75,14 +75,12 @@ namespace Phoenix.Rest.Middleware
                     var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
                     var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), ctx.Format);
 
-                    var response = await formatter.GetStringResponse(errorResponse);
-
                     context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
                     context.Response.Headers.Add("X-Kaltura", $"error-{code}");
                     context.Response.ContentType = formatter.AcceptContentTypes[0];
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-                    await context.Response.WriteAsync(response);
+                    await formatter.WriteToStreamAsync(typeof(StatusWrapper), errorResponse, context.Response.Body, null, null);
                 }
                 catch (Exception e)
                 {
