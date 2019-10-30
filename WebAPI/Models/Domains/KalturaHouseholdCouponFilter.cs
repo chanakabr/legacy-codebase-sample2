@@ -76,7 +76,7 @@ namespace WebAPI.Models.Domains
                 return relatedObjectFilterType;
             }
         }
-        
+
         public override KalturaHouseholdCouponOrderBy GetDefaultOrderByValue()
         {
             return KalturaHouseholdCouponOrderBy.NONE;
@@ -84,9 +84,10 @@ namespace WebAPI.Models.Domains
 
         public override void Validate()
         {
-            if (BusinessModuleIdEqual == 0)
+            if (BusinessModuleIdEqual == 0 && string.IsNullOrEmpty(CouponCode) && Status == null)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaHouseholdCouponFilter.businessModuleIdEqual");
+                var filterName = "KalturaHouseholdCouponFilter";
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, $"{filterName}.businessModuleIdEqual, {filterName}.couponCode, {filterName}.status");
             }
         }
 

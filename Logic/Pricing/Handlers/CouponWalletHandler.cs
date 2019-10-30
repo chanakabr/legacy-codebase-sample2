@@ -198,7 +198,7 @@ namespace Core.Pricing.Handlers
                     response.Objects = FilterByStatus(filter, response, householdId, groupId);
                 }
 
-                if (shouldFilterByCouponeCode)
+                if (shouldFilterByCouponeCode && response.Objects?.Count > 0)
                 {
                     response.Objects = response.Objects.Where(c => c.CouponCode == filter.CouponCode).ToList();
                 }
