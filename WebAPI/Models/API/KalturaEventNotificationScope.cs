@@ -28,6 +28,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "eventObject")]
         [JsonProperty("eventObject")]
         [XmlElement(ElementName = "eventObject")]
-        public KalturaOTTObject EventObject { get; set; }
+        public KalturaEventObject EventObject { get; set; }
     }
 }
