@@ -9541,43 +9541,7 @@ namespace Core.Catalog
                     // filter excluded asset types
                     if (excludedAssetTypes != null && excludedAssetTypes.Count > 0)
                         unFilteredresult.RemoveAll(x => excludedAssetTypes.Contains(x.AssetTypeId));
-
-                    //// Location is not saved on Media Marks bucket. It is saved in media hits bucket.
-                    //// We will get the location of the relevant media marks from this bucket
-                    //// But we will go only if necessary and only for the unfinished assets
-                    //if (filterStatus != eWatchStatus.Done && unFilteredresult.Count > 0)
-                    //{
-                    //    List<string> keysToGetLocation = new List<string>();
-
-                    //    foreach (var currentResult in unFilteredresult)
-                    //    {
-                    //        if (!currentResult.IsFinishedWatching)
-                    //        {
-                    //            string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
-
-                    //            keysToGetLocation.Add(key);
-                    //        }
-                    //    }
-
-                    //    if (keysToGetLocation.Count > 0)
-                    //    {
-                    //        var mediaHitsDictionary = mediaHitsManager.GetValues<MediaMarkLog>(keysToGetLocation, true, true);
-
-                    //        if (mediaHitsDictionary != null && mediaHitsDictionary.Keys.Count() > 0)
-                    //        {
-                    //            foreach (var currentResult in unFilteredresult)
-                    //            {
-                    //                string key = CatalogDAL.GetWatchHistoryCouchbaseKey(currentResult);
-
-                    //                if (mediaHitsDictionary.ContainsKey(key))
-                    //                {
-                    //                    currentResult.Location = mediaHitsDictionary[key].LastMark.Location;
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
-
+                    
                     // order list
                     switch (orderDir)
                     {
