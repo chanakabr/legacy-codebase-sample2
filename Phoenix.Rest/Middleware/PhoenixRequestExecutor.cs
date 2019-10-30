@@ -55,6 +55,7 @@ namespace Phoenix.Rest.Middleware
             }
             else
             {
+                _Logger.Info($"Execution ServiceController.Action > sending {_PhoenixCtx.RouteData.Service}.{_PhoenixCtx.RouteData.Action}");
                 _Response = _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action).Result;
 
             }

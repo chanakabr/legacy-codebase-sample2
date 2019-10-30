@@ -81,6 +81,7 @@ namespace WebAPI.Controllers
         [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
         {
+            log.Info($"Inside ServiceController.Action {service_name}.{action_name}");
             object response = null;
 
             try
