@@ -40,22 +40,9 @@ namespace Phoenix.Rest.Middleware
             var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
-
-            _Logger.Info($"PhoenixRequestExecutor >_PhoenixCtx.ActionParams:[{JsonConvert.SerializeObject(phoenixContext.ActionParams)}]");
-            _Logger.Info($"PhoenixRequestExecutor >        HttpContext:[{JsonConvert.SerializeObject(context.Items)}]");
-            _Logger.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
-
-            object response;
-            if (phoenixContext.IsMultiRequest)
-            {
-                response = _ServiceController.Multirequest(phoenixContext.RouteData.Service).Result;
-
-            }
-            else
-            {
-                _Logger.Info($"Execution ServiceController.Action > sending {phoenixContext.RouteData.Service}.{phoenixContext.RouteData.Action}");
-                response = _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action).Result;
-            }
+            object response = phoenixContext.IsMultiRequest
+                ? _ServiceController.Multirequest(phoenixContext.RouteData.Service).Result
+                : _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action).Result;
 
             phoenixContext.Response = response;
 
@@ -68,9 +55,8 @@ namespace Phoenix.Rest.Middleware
         {
             var context = ctx as HttpContext;
             var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-            if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
-
             // These should never happen at this point, but better be safe than sorry
+            if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
             if (context == null) throw new SystemException("HttpContext lost");
 
             var wrappedResponse = new StatusWrapper

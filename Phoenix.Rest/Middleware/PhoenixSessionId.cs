@@ -38,6 +38,9 @@ namespace Phoenix.Rest.Middleware
                 }
                 context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
                 KLogger.SetRequestId(sessionId.ToString());
+                KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                context.Items[Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+
 
                 var phoenixCtx = new PhoenixRequestContext();
                 context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixCtx;

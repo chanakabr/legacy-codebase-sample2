@@ -41,7 +41,6 @@ namespace Phoenix.Rest.Middleware
                 try
                 {
                     var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-
                     int code;
                     string message;
                     string stackTrace;
@@ -78,7 +77,6 @@ namespace Phoenix.Rest.Middleware
                     context.Response.Headers.Add("X-Kaltura", $"error-{code}");
                     context.Response.ContentType = formatter.AcceptContentTypes[0];
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
-
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
 

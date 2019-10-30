@@ -32,10 +32,7 @@ namespace Phoenix.Rest.Middleware
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
         private static int _LegacyAccessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
-
-
         private readonly RequestDelegate _Next;
-        private PhoenixRequestContext _PhoenixContext;
 
         public PhoenixRequestContextBuilder(RequestDelegate next)
         {
@@ -45,39 +42,30 @@ namespace Phoenix.Rest.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             KS.ClearOnRequest();
-            _PhoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-            if (_PhoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
+            var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            if (phoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
 
             var request = context.Request;
-            _PhoenixContext.RawRequestUrl = request.GetDisplayUrl();
+            phoenixContext.RawRequestUrl = request.GetDisplayUrl();
             
-            _PhoenixContext.RouteData = GetRouteData(request);
-            var action = _PhoenixContext.RouteData.Action;
-            var service = _PhoenixContext.RouteData.Service;
-            var pathData = _PhoenixContext.RouteData.PathData;
-            _Logger.Info($"Got action [{action}], service [{service}]");
-
-            var parsedActionParams = await GetActionParams(context.Request.Method, request);
-            _Logger.Info($"Got parsed action params [{JsonConvert.SerializeObject(parsedActionParams)}]");
-
+            phoenixContext.RouteData = GetRouteData(request);
+            var action = phoenixContext.RouteData.Action;
+            var service = phoenixContext.RouteData.Service;
+            var pathData = phoenixContext.RouteData.PathData;
             KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
 
-            _PhoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
-            _Logger.Info($"after GetRequestVersion  [{_PhoenixContext.RequestVersion}]");
-
-            SetCommonRequestContextItems(context, parsedActionParams, service, action);
-            _Logger.Info($"after SetCommonRequestContextItems  [{JsonConvert.SerializeObject(parsedActionParams)}]");
-
-
-            var actionParams = GetDeserializedActionParams(parsedActionParams, _PhoenixContext.IsMultiRequest, service, action);
-            _Logger.Info($"after GetDeserializedActionParams  actionParams:[{JsonConvert.SerializeObject(actionParams)}]");
+            var parsedActionParams = await GetActionParams(context.Request.Method, request, phoenixContext);
+            phoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
+            SetCommonRequestContextItems(context, phoenixContext, parsedActionParams, service, action);
+            
+            var actionParams = GetDeserializedActionParams(parsedActionParams, phoenixContext.IsMultiRequest, service, action);
             context.Items[RequestContext.REQUEST_METHOD_PARAMETERS] = actionParams;
-            _PhoenixContext.ActionParams = actionParams;
+            phoenixContext.ActionParams = actionParams;
 
             await _Next(context);
         }
 
-        private void SetCommonRequestContextItems(HttpContext context, IDictionary<string, object> parsedActionParams, string service, string action)
+        private void SetCommonRequestContextItems(HttpContext context, PhoenixRequestContext _PhoenixContext, IDictionary<string, object> parsedActionParams, string service, string action)
         {
             RequestContext.SetContext(parsedActionParams, service, action);
 
@@ -141,17 +129,16 @@ namespace Phoenix.Rest.Middleware
             {
                 var methodArgs = DataModel.getMethodParams(service, action);
                 actionParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parsedActionParams);
-                _Logger.Info($"GetDeserializedActionParams > actionParams:[{JsonConvert.SerializeObject(actionParams)}], parsedActionParams:[{JsonConvert.SerializeObject(parsedActionParams)}],  service:[{service}], action:[{action}]");
             }
             return actionParams;
         }
 
-        private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request)
+        private async Task<IDictionary<string, object>> GetActionParams(string httpMethod, HttpRequest request, PhoenixRequestContext context)
         {
             var parsedActionParams = GetActionParamsFromQueryString(request);
             if (httpMethod == HttpMethods.Post)
             {
-                var bodyParsedActionParams = await GetActionParamsFromPostBody(request);
+                var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
                 parsedActionParams = parsedActionParams.Concat(bodyParsedActionParams).ToDictionary(k => k.Key, v => v.Value);
             }
 
@@ -239,16 +226,16 @@ namespace Phoenix.Rest.Middleware
         }
 
 
-        private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request)
+        private async Task<IDictionary<string, object>> GetActionParamsFromPostBody(HttpRequest request, PhoenixRequestContext context)
         {
 
             if (request.HasFormContentType)
             {
-                return await ParseFormDataBody(request);
+                return await ParseFormDataBody(request, context);
             }
             else if (request.ContentType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
             {
-                return await ParseJsonBody(request);
+                return await ParseJsonBody(request, context);
             }
             else
             {
@@ -267,27 +254,28 @@ namespace Phoenix.Rest.Middleware
 
         }
 
-        private async Task<IDictionary<string, object>> ParseFormDataBody(HttpRequest request)
+        private async Task<IDictionary<string, object>> ParseFormDataBody(HttpRequest request, PhoenixRequestContext context)
         {
             var uploadedFilesDictionary = await ParseUploadedFiles(request);
 
-            var actionParamsDictionary = ParseRequestBodyFromFormData(request);
+            var actionParamsDictionary = ParseRequestBodyFromFormData(request, context);
             return uploadedFilesDictionary.Concat(actionParamsDictionary).ToDictionary(k => k.Key, v => v.Value);
 
         }
 
-        private IDictionary<string, object> ParseRequestBodyFromFormData(HttpRequest request)
+        private IDictionary<string, object> ParseRequestBodyFromFormData(HttpRequest request, PhoenixRequestContext context)
         {
             if (request.Form.TryGetValue("json", out var jsonFromData))
             {
                 var body = JObject.Parse(jsonFromData.First());
-                _PhoenixContext.RawRequestBody = body;
+                context.RawRequestBody = body;
                 return body.ToObject<IDictionary<string, object>>();
             }
             else
             {
                 var queryStringDictionary = request.Form.ToDictionary(k => k.Key, v => v.Value.Count == 1 ? v.Value.First() : v.Value as object);
                 var nestedDictionary = GetNestedDictionary(queryStringDictionary);
+                context.RawRequestBody = JObject.FromObject(nestedDictionary);
                 return nestedDictionary;
             }
         }
@@ -314,14 +302,14 @@ namespace Phoenix.Rest.Middleware
             return uploadedFiles;
         }
 
-        private async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request)
+        private async Task<IDictionary<string, object>> ParseJsonBody(HttpRequest request, PhoenixRequestContext context)
         {
 
             using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
                 var body = await JObject.LoadAsync(jsonReader);
-                _PhoenixContext.RawRequestBody = body;
+                context.RawRequestBody = body;
                 return body.ToObject<Dictionary<string, object>>();
             }
         }

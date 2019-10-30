@@ -81,16 +81,12 @@ namespace WebAPI.Controllers
         [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
         {
-            log.Info($"Inside ServiceController.Action {service_name}.{action_name}");
             object response = null;
 
             try
             {
-                
                 var methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
 
-                log.Info($"ServiceController.Action {service_name}.{action_name} [{JsonConvert.SerializeObject(methodParams)}]");
-                log.Info($"ServiceController > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
                 // add action to log
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,
