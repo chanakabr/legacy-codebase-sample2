@@ -50,6 +50,7 @@ namespace Phoenix.Context
         public Version RequestVersion { get; set; }
         public string RawRequestUrl { get; set; }
         public JObject RawRequestBody { get; set; }
+        public object Response { get; set; }
 
 
         [JsonIgnore]

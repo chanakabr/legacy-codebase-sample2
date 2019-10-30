@@ -26,8 +26,6 @@ namespace Phoenix.Rest.Middleware
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private readonly RequestDelegate _Next;
-        private object _Response;
-        private PhoenixRequestContext _PhoenixCtx;
         private readonly IResponseFromatterProvider _FormatterProvider;
         private static readonly ServiceController _ServiceController = new ServiceController();
 
@@ -39,26 +37,27 @@ namespace Phoenix.Rest.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            _PhoenixCtx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-            if (_PhoenixCtx == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
+            var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
 
-            _Logger.Info($"PhoenixRequestExecutor >_PhoenixCtx.ActionParams:[{JsonConvert.SerializeObject(_PhoenixCtx.ActionParams)}]");
+            _Logger.Info($"PhoenixRequestExecutor >_PhoenixCtx.ActionParams:[{JsonConvert.SerializeObject(phoenixContext.ActionParams)}]");
             _Logger.Info($"PhoenixRequestExecutor >        HttpContext:[{JsonConvert.SerializeObject(context.Items)}]");
             _Logger.Info($"PhoenixRequestExecutor > Static.HttpContext:[{JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items)}]");
 
-
-            if (_PhoenixCtx.IsMultiRequest)
+            object response;
+            if (phoenixContext.IsMultiRequest)
             {
-                _Response = _ServiceController.Multirequest(_PhoenixCtx.RouteData.Service).Result;
+                response = _ServiceController.Multirequest(phoenixContext.RouteData.Service).Result;
 
             }
             else
             {
-                _Logger.Info($"Execution ServiceController.Action > sending {_PhoenixCtx.RouteData.Service}.{_PhoenixCtx.RouteData.Action}");
-                _Response = _ServiceController.Action(_PhoenixCtx.RouteData.Service, _PhoenixCtx.RouteData.Action).Result;
-
+                _Logger.Info($"Execution ServiceController.Action > sending {phoenixContext.RouteData.Service}.{phoenixContext.RouteData.Action}");
+                response = _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action).Result;
             }
+
+            phoenixContext.Response = response;
 
             context.Response.OnStarting(HandleResponse, context);
 
@@ -68,18 +67,20 @@ namespace Phoenix.Rest.Middleware
         private async Task HandleResponse(object ctx)
         {
             var context = ctx as HttpContext;
+            var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
             // These should never happen at this point, but better be safe than sorry
             if (context == null) throw new SystemException("HttpContext lost");
 
             var wrappedResponse = new StatusWrapper
             {
-                ExecutionTime = float.Parse(_PhoenixCtx.ApiMonitorLog.ExecutionTime),
-                Result = _Response,
+                ExecutionTime = float.Parse(phoenixContext.ApiMonitorLog.ExecutionTime),
+                Result = phoenixContext.Response,
             };
 
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
-            var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), _PhoenixCtx.Format);
+            var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), phoenixContext.Format);
 
             context.Response.ContentType = formatter.AcceptContentTypes[0];
             context.Response.StatusCode = (int)HttpStatusCode.OK;
