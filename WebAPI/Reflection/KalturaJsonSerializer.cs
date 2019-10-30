@@ -15109,6 +15109,11 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(EventObject != null)
+            {
+                propertyValue = EventObject.ToJson(currentVersion, omitObsolete);
+                ret.Add("eventObject", "\"eventObject\": " + propertyValue);
+            }
             return ret;
         }
         
@@ -15118,6 +15123,11 @@ namespace WebAPI.Models.API
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(EventObject != null)
+            {
+                propertyValue = EventObject.ToXml(currentVersion, omitObsolete);
+                ret.Add("eventObject", "<eventObject>" + propertyValue + "</eventObject>");
+            }
             return ret;
         }
     }
