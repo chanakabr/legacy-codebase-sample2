@@ -125,10 +125,8 @@ namespace WebAPI.Controllers
             {
                 // switch notification users
                 var payload = KSUtils.ExtractKSPayload();
-                string udid = payload.UDID;
-                ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, udid);
-
-                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, udid, ks.Privileges, payload.RegionId, group);
+                ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, payload.UDID);
+                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, payload, ks.Privileges, group);
                 AuthorizationManager.LogOut(ks);
             }
             catch (ClientException ex)

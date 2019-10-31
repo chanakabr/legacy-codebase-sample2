@@ -16,6 +16,7 @@ using APILogic.Api.Managers;
 using ApiObjects;
 using ConfigurationManager;
 using TVinciShared;
+using Core.Api;
 
 namespace WebAPI.Managers
 {
@@ -108,7 +109,7 @@ namespace WebAPI.Managers
             };
         }
 
-        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, int domainId, string udid = null, Dictionary<string, string> privileges = null)
+        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, int domainId, string udid, List<long> userRoles, Dictionary<string, string> privileges = null)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -121,8 +122,15 @@ namespace WebAPI.Managers
 
             // get group configurations
             var group = GetGroupConfiguration(groupId);
+            var userSegments = new List<long>();
+            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, 0, 0);
+            if (userSegmentsResponse.HasObjects())
+            {
+                userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
+            }
 
-            var token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin, regionId, privileges);
+            var payload = new KS.KSData(udid, 0, regionId, userSegments, userRoles);
+            var token = new ApiToken(userId, groupId, payload, isAdmin, group, isLoginWithPin, privileges);
             return GenerateSessionByApiToken(token, group);
         }
 
@@ -366,10 +374,18 @@ namespace WebAPI.Managers
                 }
             }
 
-            // set udid in payload
+            // set payload data
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
+            var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
+            var userSegments = new List<long>();
+            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, 0, 0);
+            if (userSegmentsResponse.HasObjects())
+            {
+                userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
+            }
+            
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
-            var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId);
+            var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
@@ -535,7 +551,9 @@ namespace WebAPI.Managers
                     KS = ks.ToString(),
                     Udid = payload.UDID,
                     UserId = ks.UserId,
-                    RegionId = payload.RegionId
+                    RegionId = payload.RegionId,
+                    UserSegments = payload.UserSegments,
+                    UserRoles = payload.UserRoles
                 };
 
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
@@ -747,7 +765,7 @@ namespace WebAPI.Managers
             }
         }
 
-        public static KalturaLoginSession SwitchUser(string userId, int groupId, string udid, Dictionary<string, string> privileges, int regionId, Group group)
+        public static KalturaLoginSession SwitchUser(string userId, int groupId, KS.KSData payload, Dictionary<string, string> privileges, Group group)
         {
             KalturaLoginSession loginSession = null;
 
@@ -762,7 +780,7 @@ namespace WebAPI.Managers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            var apiToken = new ApiToken(userId, groupId, udid, false, group, false, regionId, privileges);
+            var apiToken = new ApiToken(userId, groupId, payload, false, group, false, privileges);
             loginSession = AuthorizationManager.GenerateSessionByApiToken(apiToken, group);
 
             return loginSession;

@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         static public KalturaLoginSession AnonymousLogin(int partnerId, string udid = null)
         {
-            return AuthorizationManager.GenerateSession("0", partnerId, false, false, 0, udid);
+            return AuthorizationManager.GenerateSession("0", partnerId, false, false, 0, udid, new List<long>() { RolesManager.ANONYMOUS_ROLE_ID });
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
             
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, priviliges),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds(), priviliges),
                 User = response
             };
         }
@@ -172,7 +172,7 @@ namespace WebAPI.Controllers
             
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, priviliges),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds(), priviliges),
                 User = response
             };
         }
@@ -254,7 +254,7 @@ namespace WebAPI.Controllers
             
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds()),
                 User = response
             };
         }

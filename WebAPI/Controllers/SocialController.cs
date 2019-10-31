@@ -170,7 +170,7 @@ namespace WebAPI.Controllers
             
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds()),
                 User = response
             };
         }

@@ -9,6 +9,7 @@ using KLogMonitor;
 using TVinciShared;
 using ApiObjects.Base;
 using WebAPI.Utils;
+using System.Text.RegularExpressions;
 
 namespace WebAPI.Managers.Models
 {
@@ -38,16 +39,38 @@ namespace WebAPI.Managers.Models
             public string UDID { get; set; }
             public int CreateDate { get; set; }
             public int RegionId { get; set; }
+            public List<long> UserSegments { get; set; }
+            public List<long> UserRoles { get; set; }
 
             public KSData()
             {
             }
 
-            public KSData(string udid, int createDate, int regionId)
+            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles)
             {
                 this.UDID = udid;
                 this.CreateDate = createDate;
                 this.RegionId = regionId;
+                this.UserSegments = userSegments;
+                this.UserRoles = userRoles;
+            }
+
+            public KSData(KSData payload, int createDate)
+            {
+                this.CreateDate = createDate;
+                this.UDID = payload.UDID;
+                this.RegionId = payload.RegionId;
+                this.UserSegments = payload.UserSegments;
+                this.UserRoles = payload.UserRoles;
+            }
+
+            public KSData(ApiToken token, int createDate, string udid)
+            {
+                this.CreateDate = createDate;
+                this.UDID = udid;
+                this.RegionId = token.RegionId;
+                this.UserSegments = token.UserSegments;
+                this.UserRoles = token.UserRoles;
             }
         }
 
@@ -135,7 +158,7 @@ namespace WebAPI.Managers.Models
             Array.Copy(Encoding.ASCII.GetBytes(prefix), 0, output, 0, prefix.Length);
             Array.Copy(encryptedFields, 0, output, prefix.Length, encryptedFields.Length);
 
-            StringBuilder encodedKs = new StringBuilder(System.Convert.ToBase64String(output));
+            StringBuilder encodedKs = new StringBuilder(Convert.ToBase64String(output));
             encodedKs = encodedKs.Replace("+", "-");
             encodedKs = encodedKs.Replace("/", "_");
             encodedKs = encodedKs.Replace("\n", "");
@@ -288,10 +311,15 @@ namespace WebAPI.Managers.Models
             {
                 foreach (var token in payload.Split(new string[] { ";;" }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var t = token.Split('=');
-                    if (!pairs.ContainsKey(t[0]))
+                    var matchPair = Regex.Match(token, @"^([\w\d]+)(\=)([^;]+)", RegexOptions.IgnoreCase);
+                    if (matchPair.Success && matchPair.Groups.Count == 4)
                     {
-                        pairs.Add(t[0], t[1]);
+                        var key = matchPair.Groups[1].Value;
+                        var value = matchPair.Groups[3].Value;
+                        if (!pairs.ContainsKey(key))
+                        {
+                            pairs.Add(key, value);
+                        }
                     }
                 }
             }
@@ -338,7 +366,7 @@ namespace WebAPI.Managers.Models
                 userId = token.UserId,
                 expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(token.AccessTokenExpiration),
                 sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
-                data = KSUtils.PrepareKSPayload(new KS.KSData() { UDID = token.Udid, RegionId = token.RegionId }),
+                data = KSUtils.PrepareKSPayload(new KS.KSData(token, 0, token.Udid)),
                 encryptedValue = tokenVal
             };
 

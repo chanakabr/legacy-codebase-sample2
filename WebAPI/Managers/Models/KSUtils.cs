@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using TVinciShared;
 
 namespace WebAPI.Managers.Models
 {
@@ -7,6 +10,8 @@ namespace WebAPI.Managers.Models
         public const string PAYLOAD_UDID = "UDID";
         public const string PAYLOAD_CREATE_DATE = "CreateDate";
         public const string PAYLOAD_REGION = "Region";
+        public const string PAYLOAD_USER_SEGMENTS = "UserSegments";
+        public const string PAYLOAD_USER_ROLES = "UserRoles";
 
         public static string PrepareKSPayload(KS.KSData pl)
         {
@@ -14,8 +19,19 @@ namespace WebAPI.Managers.Models
             {
                 new KeyValuePair<string, string>(PAYLOAD_UDID, pl.UDID),
                 new KeyValuePair<string, string>(PAYLOAD_CREATE_DATE, pl.CreateDate.ToString()),
-                new KeyValuePair<string, string>(PAYLOAD_REGION, pl.RegionId.ToString())
+                new KeyValuePair<string, string>(PAYLOAD_REGION, pl.RegionId.ToString()),
             };
+
+            if (pl.UserSegments != null)
+            {
+                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_USER_SEGMENTS, string.Join(",", pl.UserSegments.OrderBy(x => x))));
+            }
+
+            if (pl.UserRoles != null)
+            {
+                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_USER_ROLES, string.Join(",", pl.UserRoles.OrderBy(x => x))));
+            }
+
             var payload = KS.preparePayloadData(ksDataList);
             return payload;
         }
@@ -29,7 +45,7 @@ namespace WebAPI.Managers.Models
 
             var pl = KS.ExtractPayloadData(ks.Data);
 
-            string udid = "";
+            string udid = string.Empty;
             if (pl.ContainsKey(PAYLOAD_UDID))
             {
                 udid = pl[PAYLOAD_UDID];
@@ -47,7 +63,19 @@ namespace WebAPI.Managers.Models
                 int.TryParse(pl[PAYLOAD_REGION], out regionId);
             }
 
-            return new KS.KSData(udid, createDate, regionId);
+            List<long> userSegments = new List<long>();
+            if (pl.ContainsKey(PAYLOAD_USER_SEGMENTS))
+            {
+                userSegments.AddRange(pl[PAYLOAD_USER_SEGMENTS].GetItemsIn<List<long>, long>());
+            }
+
+            List<long> userRoles = new List<long>();
+            if (pl.ContainsKey(PAYLOAD_USER_ROLES))
+            {
+                userRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<List<long>, long>());
+            }
+            
+            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles);
         }
 
         internal static KS.KSData ExtractKSPayload()
