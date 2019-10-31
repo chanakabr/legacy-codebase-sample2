@@ -6626,7 +6626,7 @@ namespace Core.ConditionalAccess
                 {
                     epgMatch = epgs.Where(x => x.Tags.Any(y => y.Key.ToLower() == SERIES_ID.ToLower() && y.Value.Contains(seriesRecording.SeriesId))).ToList();                    
                 }
-                else if (isTag)
+                else
                 {
                     epgMatch = epgs.Where(x => x.Metas.Any(y => y.Key.ToLower() == SERIES_ID.ToLower() && y.Value.Contains(seriesRecording.SeriesId))).ToList();
                 }
