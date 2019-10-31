@@ -692,7 +692,7 @@ namespace Core.Pricing
                 try
                 {
 
-                    if (!shouldIgnorePaging)
+                    if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue)
                     {
                         int startIndexOnList = pageIndex * pageSize;
                         int rangeToGetFromList = (startIndexOnList + pageSize) > oSubCodes.Length ? (oSubCodes.Length - startIndexOnList) > 0 ? (oSubCodes.Length - startIndexOnList) : 0 : pageSize;
@@ -706,28 +706,7 @@ namespace Core.Pricing
 
                     if (response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
                     {
-                        var value = couponGroupIdEqual.Value.ToString();
-                        var subscriptions = new List<Subscription>();
-
-                        foreach (var subscription in response.Subscriptions)
-                        {
-                            var couponGroups = subscription.CouponsGroups;
-
-                            if (couponGroups.Count > 0)
-                            {
-                                var exists = couponGroups.Any
-                                    (coupon => coupon?.m_sGroupCode?.ToString() == value
-                                    && (!coupon.startDate.HasValue || coupon.startDate.Value <= DateTime.UtcNow)
-                                    && (!coupon.endDate.HasValue || coupon.endDate.Value >= DateTime.UtcNow));
-
-                                if (exists || subscription.m_oCouponsGroup?.m_sGroupCode == value)
-                                {
-                                    subscriptions.Add(subscription);
-                                }
-                            }
-                        }
-
-                        response.Subscriptions = subscriptions?.ToArray();
+                        FilterSubscriptionsByCoupon(pageIndex, pageSize, couponGroupIdEqual, response);
                     }
 
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
@@ -742,6 +721,42 @@ namespace Core.Pricing
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
             }
             return response;
+        }
+
+        private static void FilterSubscriptionsByCoupon(int pageIndex, int pageSize, int? couponGroupIdEqual, SubscriptionsResponse response)
+        {
+            var value = couponGroupIdEqual.Value.ToString();
+            var subscriptions = new List<Subscription>();
+            var index = 0;
+            var startIndex = pageIndex * pageSize;
+            foreach (var subscription in response.Subscriptions)
+            {
+                var couponGroups = subscription.CouponsGroups;
+
+                if (couponGroups.Count > 0 || subscription.m_oCouponsGroup != null)
+                {
+                    var exists = couponGroups.Any
+                        (coupon => coupon?.m_sGroupCode?.ToString() == value
+                        && (!coupon.startDate.HasValue || coupon.startDate.Value <= DateTime.UtcNow)
+                        && (!coupon.endDate.HasValue || coupon.endDate.Value >= DateTime.UtcNow));
+
+                    if (exists || subscription.m_oCouponsGroup?.m_sGroupCode == value)
+                    {
+                        index++;
+                        if (startIndex < index)
+                        {
+                            subscriptions.Add(subscription);
+
+                            if (index > (pageIndex + 1) * pageSize)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            response.Subscriptions = subscriptions?.ToArray();
         }
 
         public static SubscriptionsResponse GetSubscriptions(int groupId, string empty, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null)
