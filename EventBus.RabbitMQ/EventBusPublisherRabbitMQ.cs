@@ -65,14 +65,14 @@ namespace EventBus.RabbitMQ
                     // right now we have to prevent sending event bus messages according to TCM Value 
                     // but if its an ingest V2 event then it should pass regradless of TCM config
                     var isIngestV2Event = serviceEvent is BulkUploadEvent ||
-                        serviceEvents is BulkUploadIngestEvent ||
-                        serviceEvents is BulkUploadIngestValidationEvent ||
-                        serviceEvents is BulkUploadTransformationEvent;
+                        serviceEvent is BulkUploadIngestEvent ||
+                        serviceEvent is BulkUploadIngestValidationEvent ||
+                        serviceEvent is BulkUploadTransformationEvent;
                     #endregion
 
                     if (!isIngestV2Event && !ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                     {
-                        _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvents.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
+                        _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvent.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
                         continue;
                     }
 
