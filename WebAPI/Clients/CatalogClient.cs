@@ -4004,7 +4004,7 @@ namespace WebAPI.Clients
                     result.Channels.AddRange(manualChannels);
                 }
 
-                result.TotalCount = response.TotalItems;
+                result.TotalCount = result.Channels.Count;
             }
 
             return result;
