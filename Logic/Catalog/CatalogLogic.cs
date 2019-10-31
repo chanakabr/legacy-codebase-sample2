@@ -2063,6 +2063,7 @@ namespace Core.Catalog
             {
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
+                
                 if (group != null && group.isRegionalizationEnabled)
                 {
                     isRegionalizationEnabled = true;
@@ -2110,29 +2111,47 @@ namespace Core.Catalog
         public static int GetRegionIdOfDomain(int groupId, int domainId, string siteGuid, int defaultRegion = -1)
         {
             int regionId = -1;
+            bool isRegionalizationEnabled = false;
 
-            var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
-            if (domainRes != null)
+            if (defaultRegion > 0)
             {
-                // If the domain is not associated to a domain - get default region
-                if (domainRes.Domain.m_nRegion == 0)
+                isRegionalizationEnabled = true;
+            }
+            else
+            {
+                if (CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    if (defaultRegion > -1)
+                    if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                     {
-                        regionId = defaultRegion;
-                    }
-                    else
-                    {
-                        Group group = GroupsCache.Instance().GetGroup(groupId);
-                        if (group != null && group.defaultRegion != 0)
-                        {
-                            regionId = group.defaultRegion;
-                        }
+                        isRegionalizationEnabled = true;
+                        defaultRegion = catalogGroupCache.DefaultRegion;
                     }
                 }
                 else
                 {
-                    regionId = domainRes.Domain.m_nRegion;
+                    var group = GroupsCache.Instance().GetGroup(groupId);
+                    if (group != null && group.defaultRegion > 0 && group.isRegionalizationEnabled)
+                    {
+                        isRegionalizationEnabled = true;
+                        defaultRegion = group.defaultRegion;
+                    }
+                }
+            }
+            
+            if (isRegionalizationEnabled)
+            {
+                var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
+                if (domainRes != null && domainRes.Status.IsOkStatusCode())
+                {
+                    // If the domain is not associated to a domain - get default region
+                    if (domainRes.Domain.m_nRegion > 0)
+                    {
+                        regionId = domainRes.Domain.m_nRegion;
+                    }
+                    else
+                    {
+                        regionId = defaultRegion;
+                    }
                 }
             }
             
