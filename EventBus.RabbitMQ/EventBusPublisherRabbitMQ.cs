@@ -48,22 +48,6 @@ namespace EventBus.RabbitMQ
         
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
-            #region please dont look here
-            // This is a workaround until we kill celery totaly and move to event-bus
-            // right now we have to prevent sending event bus messages according to TCM Value 
-            // but if its an ingest V2 event then it should pass regradless of TCM config
-            var isIngestV2Event = serviceEvents is BulkUploadEvent ||
-                serviceEvents is BulkUploadIngestEvent ||
-                serviceEvents is BulkUploadIngestValidationEvent ||
-                serviceEvents is BulkUploadTransformationEvent;
-            #endregion
-
-            if (!isIngestV2Event && !ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
-            {
-                _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvents.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
-                return;
-            }
-
             var publishRetryPolicy = GetRetryPolicyForEventPublishing();
 
             using (var channel = _PersistentConnection.CreateModel())
@@ -73,8 +57,25 @@ namespace EventBus.RabbitMQ
                 {
                     _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
                 };
+
                 foreach (var serviceEvent in serviceEvents)
                 {
+                    #region please dont look here
+                    // This is a workaround until we kill celery totaly and move to event-bus
+                    // right now we have to prevent sending event bus messages according to TCM Value 
+                    // but if its an ingest V2 event then it should pass regradless of TCM config
+                    var isIngestV2Event = serviceEvent is BulkUploadEvent ||
+                        serviceEvents is BulkUploadIngestEvent ||
+                        serviceEvents is BulkUploadIngestValidationEvent ||
+                        serviceEvents is BulkUploadTransformationEvent;
+                    #endregion
+
+                    if (!isIngestV2Event && !ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    {
+                        _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvents.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
+                        continue;
+                    }
+
                     var eventName = ServiceEvent.GetEventName(serviceEvent);
                     var message = JsonConvert.SerializeObject(serviceEvent);
                     var body = Encoding.UTF8.GetBytes(message);
