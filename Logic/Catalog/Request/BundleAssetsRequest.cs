@@ -113,7 +113,7 @@ namespace Core.Catalog.Request
                         }
 
                         List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, request.m_oOrderObj, parentGroupId, 
-                            doesGroupUsesTemplates, isAllowedToViewInactiveAssets);
+                            doesGroupUsesTemplates, request.isAllowedToViewInactiveAssets);
 
                         if (searchObjectsList != null && searchObjectsList.Count > 0)
                         {
