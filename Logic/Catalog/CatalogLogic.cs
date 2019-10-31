@@ -2113,7 +2113,7 @@ namespace Core.Catalog
             int regionId = -1;
             bool isRegionalizationEnabled = false;
 
-            if (defaultRegion > 0)
+            if (defaultRegion > -1)
             {
                 isRegionalizationEnabled = true;
             }
@@ -2130,7 +2130,7 @@ namespace Core.Catalog
                 else
                 {
                     var group = GroupsCache.Instance().GetGroup(groupId);
-                    if (group != null && group.defaultRegion > 0 && group.isRegionalizationEnabled)
+                    if (group != null && group.isRegionalizationEnabled)
                     {
                         isRegionalizationEnabled = true;
                         defaultRegion = group.defaultRegion;
