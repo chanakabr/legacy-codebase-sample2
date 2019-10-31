@@ -60,7 +60,7 @@ namespace EventBus.RabbitMQ
 
             if (!isIngestV2Event && !ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
             {
-                _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvents.GetType().FullName}], due to ShouldSupportCeleryMessages=false in TCM");
+                _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvents.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
                 return;
             }
 
