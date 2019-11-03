@@ -111,10 +111,25 @@ namespace TVPApi.Common
                     HttpContext.Current.Items[pair.Key] = sValue;
                 }
 
-                // log request body
-                logger.DebugFormat("API Request - \n{0}", sJsonRequest);
-            }
+                // remove api user and password before logging request
+                try
+                {
+                    var initObj = json["initObj"] as JObject;
 
+                    if (initObj != null)
+                    {
+                        (initObj as JObject).Remove("ApiUser");
+                        (initObj as JObject).Remove("ApiPass");
+                    }
+
+                    // log request body
+                    logger.DebugFormat("API Request - \n{0}", initObj.ToString(Formatting.Indented));
+                }
+                catch (Exception ex)
+                {
+                    logger.Error($"Error when trying to remove user/password from request body before logging it. ex = {ex}");
+                }
+            }
 
             // add web service
             MethodFinder queryServices = new MethodFinder(m_MediaService,
