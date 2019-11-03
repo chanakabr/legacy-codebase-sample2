@@ -6855,7 +6855,7 @@ namespace WebAPI.Reflection
                             
                         case "getplaybackcontext":
                             RolesManager.ValidateActionPermitted("asset", "getPlaybackContext", false);
-                            return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2]);
+                            return AssetController.GetPlaybackContext((string) methodParams[0], (KalturaAssetType) methodParams[1], (KalturaPlaybackContextOptions) methodParams[2], (string) methodParams[3]);
                             
                         case "list":
                             if(isOldVersion)
@@ -11273,6 +11273,12 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPlaybackContextOptions),
+                            });
+                            ret.Add("sourceType", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
                             });
                             return ret;
                             

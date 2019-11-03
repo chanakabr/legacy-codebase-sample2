@@ -998,6 +998,7 @@ namespace WebAPI.Controllers
         /// <param name="assetId">Asset identifier</param>
         /// <param name="assetType">Asset type</param>
         /// <param name="contextDataParams">Parameters for the request</param>
+        /// <param name="sourceType">Filter sources by type</param>
         [Action("getPlaybackContext")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -1009,7 +1010,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.UserSuspended)]
-        static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
         {
             KalturaPlaybackContext response = null;
 
@@ -1019,7 +1020,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams, sourceType);
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
