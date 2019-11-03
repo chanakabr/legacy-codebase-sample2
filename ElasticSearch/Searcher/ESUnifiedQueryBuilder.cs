@@ -2748,7 +2748,7 @@ namespace ElasticSearch.Searcher
                 sortArray.Add(idOrder);
             }
 
-            return string.Format("\"sort\" : {0}", sortArray.ToString());
+            return string.Format("\"sort\" : {0}", sortArray.ToString(Newtonsoft.Json.Formatting.None));
         }
 
         public static void GetAggregationsOrder(OrderObj orderObj, 
