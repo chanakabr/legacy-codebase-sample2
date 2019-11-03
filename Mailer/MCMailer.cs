@@ -45,7 +45,7 @@ namespace Mailer
                     mcObj.template_name = mcObj.template_name.Remove(mcObj.template_name.IndexOf('.'));
                 }
                 string json = JsonConvert.SerializeObject(mcObj);
-                log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
+                //log.DebugFormat("SendMailTemplate: mcObj={0} ", json);
                 string mcURL = ApplicationConfiguration.MailerConfiguration.MCURL.Value;
                 string sResp = Utils.SendXMLHttpReq(mcURL, json, null);
                 log.DebugFormat("mailurl={0} response={1} ", mcURL + " key:" + mcObj.key, sResp);
@@ -73,7 +73,7 @@ namespace Mailer
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while sending mail template. request: {0}, ex: {1}", JsonConvert.SerializeObject(request), ex);
+                log.ErrorFormat("Error while sending mail template. template name: {0}, ex: {1}", request.m_sTemplateName, ex);
                 return false;
             }
         }
