@@ -1934,7 +1934,7 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IDictionary<string, IOperationResult<T>> getResult;
 
-                string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
+                string cbDescription = string.Format("bucket: {0}, count: {1} keys: {2}", bucket.Name, keys.Count, string.Join(",", keys.ToArray().Take(20)));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<T>(keys, TimeSpan.FromMilliseconds(SEND_TIMEOUT_DEFAULT_MILLISECONDS));
@@ -2020,7 +2020,7 @@ namespace CouchbaseManager
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IDictionary<string, IOperationResult<string>> getResult;
 
-                string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray()));
+                string cbDescription = string.Format("bucket: {0}, keys: {1}", bucket.Name, string.Join(",", keys.ToArray().Take(20)));
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
                 {
                     getResult = bucket.Get<string>(keys, TimeSpan.FromMilliseconds(SEND_TIMEOUT_DEFAULT_MILLISECONDS));

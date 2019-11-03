@@ -272,10 +272,12 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", keyToOriginalValueMap.Keys),
-                                        string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
-                                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
-                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
+                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}",
+                    // take only 20 first keys - to avoid flood of log
+                    string.Join(",", keyToOriginalValueMap.Keys).Take(20),
+                    string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
+                    fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
+                    funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
             }
 
             return res;
@@ -781,7 +783,9 @@ namespace CachingProvider.LayeredCache
                                 if (!hasMaxInvalidationDates)
                                 {
                                     log.ErrorFormat("Error getting inValidationKeysMaxDateMapping for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}",
-                                                        string.Join(",", keysToGet), layeredCacheConfigName, groupId);
+                                        string.Join(",", keysToGet).Take(20),
+                                        layeredCacheConfigName, 
+                                        groupId);
                                     insertToCacheConfig.Add(cacheConfig, new List<string>(keysToGet));
                                     continue;
                                 }
@@ -831,7 +835,8 @@ namespace CachingProvider.LayeredCache
                 }
                 else
                 {
-                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keysToGet), layeredCacheConfigName, groupId);
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", 
+                        string.Join(",", keysToGet).Take(20), layeredCacheConfigName, groupId);
                 }
 
                 if (!result)
@@ -859,17 +864,20 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key: {0}, with MethodName: {1}, and funcParameters: {2}.",
-                                        string.Join(",", KeyToOriginalValueMap.Keys),
+                        log.DebugFormat("fillObjectsMethod returned false for keys: {0}, with MethodName: {1}, and funcParameters: {2}.",
+                                        // take only 20 first keys - to avoid flood of log
+                                        string.Join(",", KeyToOriginalValueMap.Keys).Take(20),
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys) : "No_Func_Parameters");
                     }
                 }
             }
-
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", string.Join(",", KeyToOriginalValueMap.Keys), GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
+                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}",
+                        // take only 20 first keys - to avoid flood of log
+                        string.Join(",", KeyToOriginalValueMap.Keys).Take(20),
+                        GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
             }
@@ -939,7 +947,10 @@ namespace CachingProvider.LayeredCache
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetValuesFromICachingService with keys {0}, LayeredCacheTypes {1}", string.Join(",", keys), GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
+                log.Error(string.Format("Failed TryGetValuesFromICachingService with keys {0}, LayeredCacheTypes {1}",
+                    // take only 20 first keys - to avoid flood of log
+                    string.Join(",", keys).Take(20), 
+                    GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
             }
 
             return res;
