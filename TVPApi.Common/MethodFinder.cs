@@ -69,10 +69,8 @@ public partial class MethodFinder
                 SerializedReturnValue = executer.PostParametersInit(this, MethodParameters, CallParameters);
 
                 // log response
-                if (!string.IsNullOrEmpty(SerializedReturnValue))
-                    logger.DebugFormat("API Response - \n{0}", SerializedReturnValue);
-                else
-                    logger.DebugFormat("No results found or null object returned");
+                if (string.IsNullOrEmpty(SerializedReturnValue))
+                    logger.WarnFormat("No results found or null object returned");
 
                 result = SerializedReturnValue;
             }
