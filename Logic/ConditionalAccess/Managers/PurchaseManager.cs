@@ -9,6 +9,7 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
 using Core.Pricing;
+using Core.Pricing.Handlers;
 using DAL;
 using KLogMonitor;
 using QueueWrapper;
@@ -942,6 +943,12 @@ namespace Core.ConditionalAccess
 
                 if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                 {
+                    //update coupon usage
+                    if (couponData?.id != null)
+                    {
+                        CouponWalletHandler.UpdateLastUsageDate(household, couponData.id);
+                    }
+
                     string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(household);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
