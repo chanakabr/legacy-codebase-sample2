@@ -66,6 +66,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             string nullValue = string.Empty;
                             eESFieldType metaType;
+                            ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
 
                             if (isEpg)
                             {
@@ -73,8 +74,12 @@ namespace Core.Catalog.CatalogManagement
                             }
                             else
                             {
-                                ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
                                 serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
+                            }
+
+                            if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
+                            {
+                                metasToPad.Add(topics.Key.ToLower());
                             }
 
                             if (!metas.ContainsKey(topics.Key.ToLower()))
