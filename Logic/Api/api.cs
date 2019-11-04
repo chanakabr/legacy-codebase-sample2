@@ -3881,7 +3881,7 @@ namespace Core.Api
 
         public static ApiObjects.Country GetCountryByIp(int groupId, string ip)
         {
-            ApiObjects.Country country = null;
+            Country country = null;
 
             if (string.IsNullOrEmpty(ip))
             {
@@ -3907,20 +3907,16 @@ namespace Core.Api
                 log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
             }
 
-            string debugString = string.Empty;
-
             if (country == null || country.Id <= 0)
             {
                 // make sure country is null when ID is not valid
                 country = null;
-                debugString = string.Format("No country found for ip {0}", ip);
+                log.Debug($"No country found for ip: {ip}");
             }
             else
             {
-                debugString = string.Format("Found country with id = {0} and name = {1} for ip {2}", country.Id, country.Name, ip);
+                log.Debug($"Found country with id = {country.Id} and name = {country.Name} for ip {ip}");
             }
-
-            log.Debug(debugString);
 
             return country;
         }
@@ -10205,7 +10201,7 @@ namespace Core.Api
                 if (!string.IsNullOrEmpty(ip))
                 {
                     Country country = GetCountryByIp(groupId, ip);
-                    if (country == null)
+                    if (country == null || country.Id == 0)
                     {
                         result.Status = new Status((int)eResponseStatus.CountryNotFound, eResponseStatus.CountryNotFound.ToString());
                         return result;
