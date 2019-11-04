@@ -33,7 +33,7 @@ namespace Core.ConditionalAccess
 
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
                                                                  List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
-                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType)
+                                                                 string ip, string udid, out MediaFileItemPricesContainer filePrice, UrlType urlType, string sourceType = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
@@ -182,7 +182,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds, false, sourceType);
                 Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
                 var isSuspended = false;
                 if (files != null && files.Count > 0)
