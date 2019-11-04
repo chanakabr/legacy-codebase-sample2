@@ -27,7 +27,6 @@ namespace IngetsNetCore
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseSoapEndpoint<IService>("/Service.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
-            
 
             app.UseMvc();
         }

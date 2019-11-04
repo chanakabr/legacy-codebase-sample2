@@ -58,9 +58,7 @@ namespace Ingest
                     IngestStatus = new Status() { Code = (int)eResponseStatus.Error, Message = "No username or password" }
                 };
             }
-
-            log.Debug("Start request - input is " + request.Data);
-
+            
             string response = string.Empty;
             try
             {
