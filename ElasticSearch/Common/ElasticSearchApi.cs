@@ -971,13 +971,7 @@ namespace ElasticSearch.Common
             url = builder.ToString();
             int httpStatus = 0;
             result = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, searchQuery, true);
-
-            if (httpStatus != 200)
-            {
-                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", url, searchQuery, result));
-                result = string.Empty;
-            }
-
+            
             return result;
         }
 
@@ -1321,10 +1315,12 @@ namespace ElasticSearch.Common
                             sr.Close();
                     }
                 }
+
+                log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, body length = {3}, response = {4}",
+                    requestGuid, url, parameters, parameters.Length, httpResponse);
             }
             catch (WebException ex)
             {
-                log.Error("Error in SendPostHttpReq WebException", ex);
                 StreamReader errorStream = null;
                 try
                 {
@@ -1335,6 +1331,9 @@ namespace ElasticSearch.Common
                 {
                     if (errorStream != null) errorStream.Close();
                 }
+
+                log.Error($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
+                    $"{parameters}, body length = {parameters.Length}, response = {httpResponse}\nex = {ex}");
             }
             catch (Exception ex)
             {
@@ -1347,9 +1346,6 @@ namespace ElasticSearch.Common
                 string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
                 httpResponse = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
-
-            log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, body length = {3}, response = {4}",
-                requestGuid, url, parameters, parameters.Length, httpResponse);
 
             status = nStatusCode;
             return httpResponse;
