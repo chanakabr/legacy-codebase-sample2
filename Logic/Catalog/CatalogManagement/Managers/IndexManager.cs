@@ -262,9 +262,12 @@ namespace Core.Catalog.CatalogManagement
             }
             
             Dictionary<int, LanguageObj> languagesMap = null;
+            CatalogGroupCache catalogGroupCache = null;            
+            Group group = null;
+            HashSet<string> metasToPad = null;
+
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
-            { 
-                CatalogGroupCache catalogGroupCache;
+            {
                 if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertMedia", groupId);
@@ -272,11 +275,18 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
+
+                var metas = catalogGroupCache.TopicsMapById.Values.Where(x => x.Type == ApiObjects.MetaType.Number).Select(y => y.SystemName).ToList();
+                if (metas?.Count > 0)
+                {
+                    metasToPad = new HashSet<string>(metas);
+                }
+
             }
             else
             {
-                GroupManager groupManager = new GroupManager();                
-                Group group = groupManager.GetGroup(groupId);
+                GroupManager groupManager = new GroupManager();
+                group = groupManager.GetGroup(groupId);
                 if (group == null)
                 {
                     log.ErrorFormat("Could not load group {0} in upsertMedia", groupId);
@@ -310,6 +320,8 @@ namespace Core.Catalog.CatalogManagement
                             Media media = mediaDictionary[(int)assetId][languageId];
                             if (media != null)
                             {
+                                media.PadMetas(metasToPad);
+
                                 string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
                                 string type = GetTanslationType(MEDIA, language);
                                 if (!string.IsNullOrEmpty(serializedMedia))
