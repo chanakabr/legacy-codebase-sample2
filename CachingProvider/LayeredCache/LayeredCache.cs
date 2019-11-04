@@ -194,18 +194,21 @@ namespace CachingProvider.LayeredCache
                     {
                         Dictionary<string, List<string>> invalidationKeysToKeys = new Dictionary<string, List<string>>();
 
-                        foreach (var objectKey in inValidationKeysMap.Keys)
+                        if (inValidationKeysMap != null)
                         {
-                            var invalidationKeysOfSpecificKey = inValidationKeysMap[objectKey];
-
-                            foreach (var invalidationKey in invalidationKeysOfSpecificKey)
+                            foreach (var objectKey in inValidationKeysMap.Keys)
                             {
-                                if (!invalidationKeysToKeys.ContainsKey(invalidationKey))
-                                {
-                                    invalidationKeysToKeys[invalidationKey] = new List<string>();
-                                }
+                                var invalidationKeysOfSpecificKey = inValidationKeysMap[objectKey];
 
-                                invalidationKeysToKeys[invalidationKey].Add(objectKey);
+                                foreach (var invalidationKey in invalidationKeysOfSpecificKey)
+                                {
+                                    if (!invalidationKeysToKeys.ContainsKey(invalidationKey))
+                                    {
+                                        invalidationKeysToKeys[invalidationKey] = new List<string>();
+                                    }
+
+                                    invalidationKeysToKeys[invalidationKey].Add(objectKey);
+                                }
                             }
                         }
 
