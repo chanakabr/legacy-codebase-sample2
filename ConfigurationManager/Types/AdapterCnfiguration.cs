@@ -12,7 +12,7 @@ namespace ConfigurationManager.Types
             ReceiveTimeout = 10,
             SendTimeout = 10,
             CloseTimeout = 60,
-            MaxReceivedMessageSize = 5242880 //5 MB in bytes
+            MaxReceivedMessageSize = 2147483647 // in bytes
         };
 
         public int? SendTimeout { get; set; }
