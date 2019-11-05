@@ -10,6 +10,8 @@ using ApiObjects;
 using Core.Social.Responses;
 using Core.Social;
 using TVPApiModule.Manager;
+using TVPApiModule.Objects;
+using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
 
 namespace TVPApiModule.Services
 {
@@ -108,7 +110,7 @@ namespace TVPApiModule.Services
                     {
                         var response = Core.Social.Module.GetFriendsActions(m_groupID, friendActionRequest);
                         if (response != null && response.SocialActivity != null)
-                            res = response.SocialActivity.ToArray();
+                            res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                     }
                 }
                 else
@@ -126,7 +128,7 @@ namespace TVPApiModule.Services
                     {
                         var response = Core.Social.Module.GetUserActions(m_groupID, userActionRequest);
                         if (response != null && response.SocialActivity != null)
-                            res = response.SocialActivity.ToArray();
+                            res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                     }
                 }
             }
@@ -400,7 +402,7 @@ namespace TVPApiModule.Services
                 {
                     var response = Core.Social.Module.GetUserActions(m_groupID, request);
                     if (response != null && response.SocialActivity != null)
-                        res = response.SocialActivity.ToArray();
+                        res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                 }
             }
             catch (Exception ex)
@@ -438,7 +440,7 @@ namespace TVPApiModule.Services
                 {
                     var response = Core.Social.Module.GetFriendsActions(m_groupID, request);
                     if (response != null && response.SocialActivity != null)
-                        res = response.SocialActivity.ToArray();
+                        res = response.SocialActivity.Select(o => new SocialActivityDoc(o)).ToArray();
                 }
             }
             catch (Exception ex)
@@ -617,7 +619,7 @@ namespace TVPApiModule.Services
 
                     if (res != null)
                     {
-                        response = res.ToArray();
+                        response = res.Select(o => new SocialActivityDoc(o)).ToArray();
                     }
                 }
             }
