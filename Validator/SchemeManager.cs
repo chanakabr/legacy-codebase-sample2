@@ -62,7 +62,7 @@ namespace Validator.Managers.Scheme
             {
                 FileInfo dll = new FileInfo(filename.Substring(prefix.Length));
                 var projectDir = dll.Directory.Parent.Parent.Parent.Parent;
-                return projectDir.FullName;
+                return $"{projectDir.FullName}\\..\\Core\\";
             }
             else
             {
