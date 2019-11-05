@@ -23,6 +23,7 @@ using InitializationObject = TVPApi.InitializationObject;
 using ApiObjects.ConditionalAccess;
 using TVinciShared;
 using Menu = TVPApi.Menu;
+using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
 
 namespace TVPApiServices
 {
