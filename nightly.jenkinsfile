@@ -37,7 +37,6 @@ pipeline {
         stage("Nuget Restore"){
             steps{
                 dir("core"){ bat ("${NUGET} restore") }
-                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
                 dir("remotetasks"){ bat ("${NUGET} restore") }
             }        
         }
