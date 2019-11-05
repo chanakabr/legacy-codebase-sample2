@@ -453,7 +453,11 @@ namespace APILogic
                     string ip = funcParams["ip"].ToString();
                     if (!string.IsNullOrEmpty(ip))
                     {
-                        country = IpToCountry.GetCountryByIp(ip);
+                        country = IpToCountry.GetCountryByIp(ip, out bool success);
+                        if (country == null && success)
+                        {
+                            country = new ApiObjects.Country();
+                        }
                         isCountryFilled = true;
                     }
                 }

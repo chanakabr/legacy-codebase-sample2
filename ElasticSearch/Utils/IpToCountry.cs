@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ElasticSearch;
 using ElasticSearch.Searcher;
 using ElasticSearch.Common;
 using ApiObjects.SearchObjects;
@@ -144,12 +143,15 @@ namespace ElasticSearch.Utilities
         //    return result;
         //}
 
-        public static Country GetCountryByIp(string ip)
+        public static Country GetCountryByIp(string ip, out bool searchSuccess)
         {
+            searchSuccess = false;
             if (string.IsNullOrEmpty(ip)) { return null; }
 
             if (IPAddress.TryParse(ip, out IPAddress address))
             {
+                if (CheckIpIsPrivate(address)) { searchSuccess = true; return null; }
+
                 IpToCountryHandler handler = null;
                 if (address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv4MappedToIPv6)
                 {
@@ -167,14 +169,42 @@ namespace ElasticSearch.Utilities
 
                 // Perform search
                 ElasticSearchApi api = new ElasticSearchApi();
-                string searchResult = api.Search("utils", handler.IndexType, ref searchQuery);
+                var searchResult = api.SearchWithStatus("utils", handler.IndexType, ref searchQuery);
 
+                if (searchResult.Item2 != 200)
+                {
+                    log.Error($"Error - Search query failed. query={searchQuery}; " +
+                        $"explanation={searchResult.Item1}; statusCode: {searchResult.Item2}");
+                    return null;
+                }
+                searchSuccess = true;
                 // parse search reult to json object
-                var country = ParseSearchResultToCountry(searchResult);
+                var country = ParseSearchResultToCountry(searchResult.Item1);
                 return country;
             }
 
             return null;
+        }
+
+        private static bool CheckIpIsPrivate(IPAddress address)
+        {
+            if (address.AddressFamily == AddressFamily.InterNetwork)
+            {
+                //https://stackoverflow.com/questions/8113546/how-to-determine-whether-an-ip-address-in-private
+                byte[] bytes = address.GetAddressBytes();
+                switch (bytes[0])
+                {
+                    case 10:
+                        return true;
+                    case 172:
+                        return bytes[1] < 32 && bytes[1] >= 16;
+                    case 192:
+                        return bytes[1] == 168;
+                    default:
+                        return false;
+                }
+            }
+            return false;
         }
 
         public static Country GetCountryByCountryName(string countryName)
