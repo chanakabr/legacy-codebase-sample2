@@ -175,7 +175,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     result = KalturaHouseholdState.pending;
                     break;
                 default:
-                throw new ClientException((int)StatusCode.Error, "Unknown domain state");
+                throw new ClientException((int)StatusCode.Error, $"Unknown domain state: {type}");
             }
             return result;
         }

@@ -1332,6 +1332,12 @@ namespace Core.Users
                 log.Error($"An Exception was occurred in UpdateUserPreviousLogin. ex: {ex}");
                 return false;
             }
-        }        
+        }
+
+        //backward compatibility - BEO-7137
+        public int Save(Int32 groupId, bool bIsSetUserActive = false)
+        {
+            return SaveForUpdate(groupId, bIsSetUserActive);
+        }
     }
 }

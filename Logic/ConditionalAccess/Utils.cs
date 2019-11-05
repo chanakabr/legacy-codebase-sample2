@@ -6744,7 +6744,7 @@ namespace Core.ConditionalAccess
             TimeShiftedTvPartnerSettings accountSettings = GetTimeShiftedTvPartnerSettings(groupId);
             int? recordingLifetime = accountSettings.RecordingLifetimePeriod;
             DateTime? viewableUntilDate = null;
-            if (recordingLifetime.HasValue && status.HasValue && status.Value == RecordingInternalStatus.OK)
+            if (recordingLifetime.HasValue && recording.RecordingStatus != TstvRecordingStatus.Failed)
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
             }

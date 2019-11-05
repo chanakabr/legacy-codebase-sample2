@@ -66,11 +66,11 @@ namespace ElasticSearch.Common
                 var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus, string.Empty, string.Empty, true);
                 var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
 
-                
+
                 var clonedIndexMappings = new JObject();
                 clonedIndexMappings["settings"] = settingsJobject;
                 clonedIndexMappings["mappings"] = mappingsJobject;
-                
+
                 // Create Dest index with source settings
                 var urlSetSettings = string.Format("{0}/{1}", baseUrl, dest);
                 var createIndexResponse = SendPutHttpRequest(urlSetSettings, clonedIndexMappings.ToString());
@@ -230,7 +230,7 @@ namespace ElasticSearch.Common
 
                 jsonBody["source"] = new JObject();
                 jsonBody["source"]["index"] = source;
-                
+
                 if (!string.IsNullOrEmpty(filterQuery))
                 {
                     var filterQueryObject = JObject.Parse(filterQuery);
@@ -240,9 +240,9 @@ namespace ElasticSearch.Common
 
                 jsonBody["dest"] = new JObject();
                 jsonBody["dest"]["index"] = destination;
-                
 
-               
+
+
 
                 string body = jsonBody.ToString();
                 int status = 0;
@@ -945,7 +945,25 @@ namespace ElasticSearch.Common
             if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(searchQuery))
                 return result;
 
-            string url;
+            Search(index, indexType, searchQuery, routing, preference, out result, out string url, out int httpStatus);
+            
+            return result;
+        }
+
+        public Tuple<string, int> SearchWithStatus(string index, string indexType, ref string searchQuery, List<string> routing = null, string preference = null)
+        {
+            var result = string.Empty;
+
+            if (string.IsNullOrEmpty(index) || string.IsNullOrEmpty(searchQuery))
+                return Tuple.Create(result, 0);
+
+            Search(index, indexType, searchQuery, routing, preference, out result, out string url, out int httpStatus);
+
+            return Tuple.Create(result, httpStatus);
+        }
+
+        private void Search(string index, string indexType, string searchQuery, List<string> routing, string preference, out string result, out string url, out int httpStatus)
+        {
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat("{0}/{1}/{2}/_search", baseUrl, index, indexType);
 
@@ -969,10 +987,8 @@ namespace ElasticSearch.Common
             }
 
             url = builder.ToString();
-            int httpStatus = 0;
+            httpStatus = 0;
             result = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, searchQuery, true);
-            
-            return result;
         }
 
         public string MultiSearch(string sIndex, string sType, List<string> lSearchQueries, List<string> lRouting)
@@ -1316,8 +1332,8 @@ namespace ElasticSearch.Common
                     }
                 }
 
-                log.DebugFormat("ElasticSearch API post request: guid = {0}, url = {1}, parameters = {2}, body length = {3}, response = {4}",
-                    requestGuid, url, parameters, parameters.Length, httpResponse);
+                log.Debug($"ElasticSearch API post request: guid = {requestGuid}, url = {url}, parameters = {parameters}, " +
+                    $"body length = {parameters.Length}, response = {httpResponse}");
             }
             catch (WebException ex)
             {

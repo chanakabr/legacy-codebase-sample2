@@ -444,6 +444,7 @@ namespace APILogic
         internal static Tuple<ApiObjects.Country, bool> GetCountryByIpFromES(Dictionary<string, object> funcParams)
         {
             ApiObjects.Country country = null;
+            bool isCountryFilled = false;
 
             try
             {
@@ -452,7 +453,12 @@ namespace APILogic
                     string ip = funcParams["ip"].ToString();
                     if (!string.IsNullOrEmpty(ip))
                     {
-                        country = IpToCountry.GetCountryByIp(ip);
+                        country = IpToCountry.GetCountryByIp(ip, out bool success);
+                        if (country == null && success)
+                        {
+                            country = new ApiObjects.Country();
+                        }
+                        isCountryFilled = true;
                     }
                 }
             }
@@ -461,9 +467,9 @@ namespace APILogic
                 log.Error(string.Format("GetCountryByIpFromES failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<ApiObjects.Country, bool>(country, country != null);
+            return new Tuple<ApiObjects.Country, bool>(country, isCountryFilled);
         }
-        
+
         internal static Tuple<ApiObjects.Country, bool> GetCountryByCountryNameFromES(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -816,7 +822,7 @@ namespace APILogic
         public static bool ConvertIpToNumber(string ip, out long convertedIp)
         {
             convertedIp = 0;
-            if (string.IsNullOrEmpty(ip) || !IPAddress.TryParse(ip, out IPAddress ipAddress) 
+            if (string.IsNullOrEmpty(ip) || !IPAddress.TryParse(ip, out IPAddress ipAddress)
                 || ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 return false;
@@ -898,8 +904,8 @@ namespace APILogic
                             language = new LanguageObj()
                             {
                                 Code = ODBCWrapper.Utils.GetSafeStr(dr, "CODE3"),
-                                Direction = ODBCWrapper.Utils.GetSafeStr(dr, "DIRECTION"),                                
-                                ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),                                
+                                Direction = ODBCWrapper.Utils.GetSafeStr(dr, "DIRECTION"),
+                                ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME")
                             };
                             languagesResult.Add(language);

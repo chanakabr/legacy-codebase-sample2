@@ -54,6 +54,19 @@ namespace ApiObjects.Segmentation
             var response = new GenericResponse<SegmentationType>();
             response.SetStatus(eResponseStatus.OK);
 
+            if (Actions != null)
+            {
+                foreach (var action in Actions)
+                {
+                    var actionValidation = action.ValidateForInsert();
+                    if (!actionValidation.IsOkStatusCode())
+                    {
+                        response.SetStatus(actionValidation);
+                        break;
+                    }
+                }
+            }
+
             return response;
         }
 
