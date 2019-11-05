@@ -16699,9 +16699,10 @@ namespace Core.ConditionalAccess
 
                             Dictionary<long, bool> validEpgsForRecording = new Dictionary<long, bool>();
                             validEpgsForRecording.Add(recording.EpgId, false);
-
+                            
                             foreach (var userDomain in userDomainlist)
                             {
+                                bool isUserAddToDic = false;
                                 response = new RecordingResponse();
 
                                 // domain not allowd to service
@@ -16710,6 +16711,7 @@ namespace Core.ConditionalAccess
                                     if (!userDomainDictionary.ContainsKey(userDomain.UserId.ToString()))
                                     {
                                         userDomainDictionary.Add(userDomain.UserId.ToString(), userDomain.DomainId);
+                                        isUserAddToDic = true;
                                     }
                                 }
                                 else // validate epgs entitlement and add to response
@@ -16720,10 +16722,17 @@ namespace Core.ConditionalAccess
                                         if (!userDomainDictionary.ContainsKey(userDomain.UserId.ToString()))
                                         {
                                             userDomainDictionary.Add(userDomain.UserId.ToString(), userDomain.DomainId);
+                                            isUserAddToDic = true;
                                         }
                                     }
                                 }
+
+                                if (!isUserAddToDic)
+                                {
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(userDomain.DomainId));
+                                }
                             }
+
                             // get all other recording in status SCHEDULED for the non entitled users
                             if (userDomainDictionary != null && userDomainDictionary.Count > 0) // some domains not entitled to channel
                             {
