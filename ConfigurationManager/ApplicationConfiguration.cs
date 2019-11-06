@@ -148,7 +148,6 @@ namespace ConfigurationManager
         public static NumericConfigurationValue EpgInitialId;
         public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
         public static AdaptersConfiguration AdaptersConfiguration;
-
         #endregion
 
         #region Private Members

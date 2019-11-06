@@ -24,7 +24,6 @@ namespace TVinciShared
             return serviceToConfigure;
         }
 
-
         private static void SetConfiguration<TChannel>(ClientBase<TChannel> serviceToConfigure, AdapterConfiguration adapterConfiguration) where TChannel : class
         {
             var bindingBase = serviceToConfigure.Endpoint.Binding as HttpBindingBase;
@@ -58,7 +57,6 @@ namespace TVinciShared
                 defaultConfiguration.ReceiveTimeout = specificConfiguration.ReceiveTimeout ?? defaultConfiguration.ReceiveTimeout;
                 defaultConfiguration.SendTimeout = specificConfiguration.SendTimeout ?? defaultConfiguration.SendTimeout;
             }
-
             return defaultConfiguration;
         }
     }

@@ -32,7 +32,11 @@ namespace KLogMonitor
         public static string UniqueStaticId { get; set; }
         public string ClassName { get; set; }
         private string Server { get; set; }
-        public string Topic { get; set; }
+        public string Topic
+        {
+            get => LogContextData[Constants.TOPIC]?.ToString();
+            set => LogContextData[Constants.TOPIC] = value;
+        }
         public string LoggerName { get; set; }
 
         #endregion
