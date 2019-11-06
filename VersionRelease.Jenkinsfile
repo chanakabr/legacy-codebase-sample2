@@ -151,7 +151,7 @@ pipeline {
         stage("Generate KalturaClient.xml"){
             steps { 
                 dir("tvpapi_rest/Generator"){
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                    bat ("dotnet build -c Release")
                     dir("bin/Release/netcoreapp2.0"){
                         bat ("dotnet Generator.dll")
                         bat ("xcopy KalturaClient.xml ${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\")
