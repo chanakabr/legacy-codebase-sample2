@@ -38,5 +38,19 @@ namespace WebAPI.App_Start
                 return Task.FromResult(writeStream);
             }
         }
+
+        /// <summary>
+        /// This method is used for the .net core version of phoenix and will serialize the object async
+        /// </summary>
+        public override Task<string> GetStringResponse(object obj)
+        {
+            return Task.Run(() =>
+            {
+                var wrapper = (StatusWrapper)obj;
+                var currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                var xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><xml>" + wrapper.ToXml(currentVersion, true) + "</xml>";
+                return xml;
+            });
+        }
     }
 }

@@ -124,7 +124,7 @@ namespace DAL
                     else
                     {
                         numOfTries++;
-                        log.ErrorFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
+                        log.DebugFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
                                         numOfTries, NUM_OF_TRIES, key);
                         Thread.Sleep(r.Next(50));
                     }

@@ -299,5 +299,14 @@ namespace WebAPI.App_Start
                 return Task.FromResult(writeStream);
             }
         }
+
+        /// <summary>
+        /// This method is used for the .net core version of phoenix and will serialize the object async
+        /// </summary>
+        public override Task<string> GetStringResponse(object obj)
+        {
+            // TODO: find a way to return and serialize 
+            throw new NotImplementedException("Excel Format is not yet supported under .net core");
+        }
     }
 }

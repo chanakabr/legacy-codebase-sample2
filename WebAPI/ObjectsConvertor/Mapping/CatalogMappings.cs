@@ -2,7 +2,6 @@
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
-using ApiObjects.Notification;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using AutoMapper;
@@ -22,7 +21,6 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.Models.Notification;
 using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 
@@ -624,8 +622,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.Ignore())
                 .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId))
                 .ForMember(dest => dest.InheritancePolicy, opt => opt.MapFrom(src => ConvertInheritancePolicy(src.InheritancePolicy)))
-                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.FallBackEpgIdentifier) ? src.FallBackEpgIdentifier : null));
-            ;
+                .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.FallBackEpgIdentifier))
+                ;
 
             //LiveAsset to KalturaLiveAsset
             cfg.CreateMap<LiveAsset, KalturaLiveAsset>()
@@ -703,14 +701,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.count))
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
                 .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs));
-
-            cfg.CreateMap<ConcurrencyViolation, KalturaConcurrencyViolation>()
-                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.HouseholdId))
-                .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
-                .ForMember(dest => dest.UDID, opt => opt.MapFrom(src => src.UDID))
-                .ForMember(dest => dest.ViolationRule, opt => opt.MapFrom(src => src.ViolationRule))
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             #region New Catalog Management
 
@@ -1442,6 +1432,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static List<Metas> GetMetaList(SerializableDictionary<string, KalturaValue> metasDictionary)
         {
             List<Metas> metas = new List<Metas>();
+
             if (metasDictionary == null || metasDictionary.Count == 0)
             {
                 return metas;

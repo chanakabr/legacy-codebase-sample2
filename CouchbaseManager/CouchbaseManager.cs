@@ -1958,7 +1958,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                            log.DebugFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
 
                             // Throw exception if there is one
                             if (item.Value.Exception != null)
@@ -2044,7 +2044,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                            log.DebugFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
                         }
 
                         status = item.Value.Status;
