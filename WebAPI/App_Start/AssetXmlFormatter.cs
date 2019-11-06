@@ -714,5 +714,47 @@ namespace WebAPI.App_Start
                 }
             });
         }
+
+        /// <summary>
+        /// This method is used for the .net core version of phoenix and will serialize the object async
+        /// </summary>
+        public override Task<string> GetStringResponse(object obj)
+        {
+            return Task<string>.Factory.StartNew(() =>
+            {
+                try
+                {
+                    var resultFeed = new Feed();
+                    if (obj == null) return null;
+
+                    // validate expected type was received
+                    var restResultWrapper = (StatusWrapper)obj;
+                    if (restResultWrapper.Result is KalturaAssetListResponse result)
+                    {
+                        var doc = SerializeToXmlDocument(resultFeed);
+                        resultFeed = ConvertResultToIngestObj(result);
+
+                        // remove root attributes
+                        doc.GetElementsByTagName("feed")[0].Attributes?.RemoveAll();
+
+                        // remove declaration 
+                        var declaration = doc.ChildNodes.OfType<XmlNode>().FirstOrDefault(x => x.NodeType == XmlNodeType.XmlDeclaration);
+                        if (declaration != null)
+                            doc.RemoveChild(declaration);
+
+                        return doc.OuterXml;
+                    }
+                    else
+                    {
+                        return JsonConvert.SerializeObject(restResultWrapper);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while formatting asset list to XML ingest", ex);
+                    throw;
+                }
+            });
+        }
     }
 }
