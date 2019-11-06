@@ -156,7 +156,10 @@ namespace ODBCWrapper
                         log.Error(sMes, ex);
                         adapter = null;
                         Finish();
-                        HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;
+                        if (HttpContext.Current != null && HttpContext.Current.Items != null)
+                        {
+                            HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;
+                        }
                         return null;
                     }
                     adapter = null;

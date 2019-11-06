@@ -664,10 +664,10 @@ namespace Core.Catalog
             {
                 DateTime startDate = epgSearch.m_dStartDate;
                 DateTime endDate = epgSearch.m_dEndDate;
-                
+
                 CatalogCache catalogCache = CatalogCache.Instance();
                 int nParentGroupID = catalogCache.GetParentGroup(epgSearch.m_nGroupID);
-                epgSearch.m_bSearchEndDate = ConditionalAccess.Utils.GetIsTimeShiftedTvPartnerSettingsExists(nParentGroupID);                
+                epgSearch.m_bSearchEndDate = ConditionalAccess.Utils.GetIsTimeShiftedTvPartnerSettingsExists(nParentGroupID);
 
                 DateTime searchEndDate = epgSearch.m_dSearchEndDate;
 
@@ -1207,7 +1207,7 @@ namespace Core.Catalog
                     }
 
                     string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-                    
+
                     if (httpStatus == STATUS_OK)
                     {
                         #region Process ElasticSearch result
@@ -1570,7 +1570,7 @@ namespace Core.Catalog
             aggregationResult.Aggregations[distinctGroup.Key].buckets = pagedBuckets.ToList();
         }
 
-        private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, int groupId, ApiObjects.SearchObjects.OrderDir orderDirection, Dictionary<int, string> associationTags, 
+        private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets, int groupId, ApiObjects.SearchObjects.OrderDir orderDirection, Dictionary<int, string> associationTags,
                                                  Dictionary<int, int> mediaTypeParent)
         {
             if (assets == null || assets.Count == 0)
@@ -1909,9 +1909,9 @@ namespace Core.Catalog
             return sortedList;
         }
 
-        private void GetAssetStatsValuesFromElasticSearch(List<long> assetIds, int groupId, OrderBy orderBy, 
-            DateTime? startDate, DateTime? endDate, 
-            ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary, 
+        private void GetAssetStatsValuesFromElasticSearch(List<long> assetIds, int groupId, OrderBy orderBy,
+            DateTime? startDate, DateTime? endDate,
+            ConcurrentDictionary<string, List<StatisticsAggregationResult>> ratingsAggregationsDictionary,
             ConcurrentDictionary<string, ConcurrentDictionary<string, int>> countsAggregationsDictionary)
         {
             #region Define Aggregation Query
@@ -2212,7 +2212,7 @@ namespace Core.Catalog
                 {
                     Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).
                         ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
-                    Dictionary<string, List<string>> invalidationKeys = 
+                    Dictionary<string, List<string>> invalidationKeys =
                         keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsSortInvalidationKey() });
 
                     Dictionary<string, object> funcParams = new Dictionary<string, object>();
@@ -2242,7 +2242,7 @@ namespace Core.Catalog
 
             return result;
         }
-        
+
         /// <summary>
         /// After receiving a result from ES server, process it to create a list of Ids with the given order
         /// </summary>
@@ -2357,7 +2357,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-                
+
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2444,7 +2444,7 @@ namespace Core.Catalog
 
                 // Perform search
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-                
+
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2550,7 +2550,7 @@ namespace Core.Catalog
                 string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
 
                 string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
-                
+
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
@@ -2905,7 +2905,7 @@ namespace Core.Catalog
             {
                 query.AddChild(valueTerm, CutWith.AND);
             }
-            
+
             if (definitions.TagIds != null && definitions.TagIds.Count > 0)
             {
                 ESTerms idsTerm = new ESTerms(true)
@@ -3070,7 +3070,7 @@ namespace Core.Catalog
                     Value = value
                 };
             }
-            
+
 
             return term;
         }
@@ -3192,7 +3192,8 @@ namespace Core.Catalog
                 defaultLanguageId = group.DefaultLanguage.ID;
             }
 
-            tagsToInsert.Add(new TagValue() {
+            tagsToInsert.Add(new TagValue()
+            {
                 createDate = tag.createDate,
                 languageId = defaultLanguageId,
                 tagId = tag.tagId,
@@ -3271,29 +3272,30 @@ namespace Core.Catalog
 
         public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
         {
-            List<int> result = new List<int>();            
+            List<int> result = new List<int>();
 
             #region Build filtered query
 
             BoolQuery query = new BoolQuery();
-            
-            ESTerm valueTerm = null;
+
             ESTerms idsTerm = null;
+            ESMatchQuery matchQuery = null;
 
             if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
             {
-                valueTerm = new ESTerm(false)
+                matchQuery = new ESMatchQuery
                 {
-                    Key = "name.autocomplete",
-                    Value = definitions.AutocompleteSearchValue.ToLower()
+                    Field = "name.autocomplete",
+                    eOperator = CutWith.AND,
+                    Query = definitions.AutocompleteSearchValue.ToLower()
                 };
             }
             else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
             {
-                valueTerm = new ESTerm(false)
+                matchQuery = new ESMatchQuery
                 {
-                    Key = "name",
-                    Value = definitions.ExactSearchValue
+                    Field = "name",
+                    Query = definitions.ExactSearchValue
                 };
             }
             else if (definitions.SpecificChannelIds != null && definitions.SpecificChannelIds.Count > 0)
@@ -3306,9 +3308,9 @@ namespace Core.Catalog
                 idsTerm.Value.AddRange(definitions.SpecificChannelIds.Select(x => x.ToString()));
             }
 
-            if (valueTerm != null)
+            if (matchQuery != null)
             {
-                query.AddChild(valueTerm, CutWith.AND);
+                query.AddChild(matchQuery, CutWith.AND);
             }
             else if (idsTerm != null)
             {
@@ -3530,7 +3532,7 @@ namespace Core.Catalog
                         catch (Exception ex)
                         {
                             log.ErrorFormat(
-                                "Error when performing partial update for group id {0} and asset id = {1} of type {2}. ex = {3}", 
+                                "Error when performing partial update for group id {0} and asset id = {1} of type {2}. ex = {3}",
                                 groupId, assetId, assets.AssetType, ex);
                         }
                     }

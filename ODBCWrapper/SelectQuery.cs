@@ -161,7 +161,12 @@ namespace ODBCWrapper
                 {
                     string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
                     log.Error(sMes, ex);
-                    HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;
+
+                    if (HttpContext.Current != null && HttpContext.Current.Items != null)
+                    {
+                        HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;
+                    }
+
                     bRet = false;
                 }
             }

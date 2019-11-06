@@ -138,7 +138,7 @@ namespace ConfigurationManager
         public static NumericConfigurationValue MediaMarksTTL;
         public static NumericConfigurationValue EpgInitialId;
         public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
-
+        public static AdaptersConfiguration AdaptersConfiguration;
         #endregion
 
         #region Private Members
@@ -593,6 +593,7 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = 300
             };
+            AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
             MediaMarksTTL = new NumericConfigurationValue("media_marks_ttl_days")
             {
                 ShouldAllowEmpty = true,
