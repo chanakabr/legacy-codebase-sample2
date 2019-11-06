@@ -57,6 +57,7 @@ namespace TVinciShared
                 defaultConfiguration.ReceiveTimeout = specificConfiguration.ReceiveTimeout ?? defaultConfiguration.ReceiveTimeout;
                 defaultConfiguration.SendTimeout = specificConfiguration.SendTimeout ?? defaultConfiguration.SendTimeout;
             }
+
             return defaultConfiguration;
         }
     }

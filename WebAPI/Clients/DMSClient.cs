@@ -259,7 +259,7 @@ namespace WebAPI.Clients
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
             request.AutomaticDecompression = DecompressionMethods.GZip;
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
             using (StreamReader reader = new StreamReader(stream))

@@ -31,6 +31,8 @@ namespace WebAPI.App_Start
             AcceptContentTypes = contentTypes;
         }
 
+        public abstract Task<string> GetStringResponse(object obj);
+
         public KalturaResponseType Format { get; }
         public string[] AcceptContentTypes { get; }
     }
