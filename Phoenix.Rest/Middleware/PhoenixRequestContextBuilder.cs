@@ -22,7 +22,6 @@ using WebAPI;
 using WebAPI.Controllers;
 using WebAPI.Managers.Models;
 using WebAPI.Filters;
-using RequestType = Phoenix.Context.RequestType;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -235,7 +234,6 @@ namespace Phoenix.Rest.Middleware
             }
             else
             {
-                // TODO: Arthur, handle error
                 throw new Exception("Unsupported content type");
             }
 
