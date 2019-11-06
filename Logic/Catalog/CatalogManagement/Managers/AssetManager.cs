@@ -2822,11 +2822,25 @@ namespace Core.Catalog.CatalogManagement
                         Asset asset = null;
                         if (!isNpvr)
                         {
-                            asset = mappedAssets[string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId)];
+                            var key = string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId);
+                            if (!mappedAssets.Keys.Contains(key))
+                            {
+                                log.DebugFormat("GetOrderedAssets: Asset {0} with Key {1} not found in mapped assets", baseAsset.AssetId, key);
+                                continue;
+                            }
+
+                            asset = mappedAssets[key];
                         }
                         else if (recordingsMap.ContainsKey(baseAsset.AssetId))
                         {
-                            asset = mappedAssets[string.Format(keyFormat, eAssetTypes.EPG.ToString(), recordingsMap[baseAsset.AssetId].EpgId)];
+                            var key = string.Format(keyFormat, eAssetTypes.EPG.ToString(), recordingsMap[baseAsset.AssetId].EpgId);
+                            if (!mappedAssets.ContainsKey(key))
+                            {
+                                log.DebugFormat("GetOrderedAssets: NPVR asset {0} with Key {1} not found in mapped assets", baseAsset.AssetId, key);
+                                continue;
+                            }
+
+                            asset = mappedAssets[key];
                         }
 
                         if (asset.IndexStatus == AssetIndexStatus.Deleted)
