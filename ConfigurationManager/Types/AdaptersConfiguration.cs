@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager.Types;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace ConfigurationManager.Types
                 _Json = JObject.Parse(objectValue);
                 ConfigurationDictionary = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
             }
-            
+
             if (ConfigurationDictionary.TryGetValue(DefaultConfigurationKey, out var tcmConfiguration))
             {
                 tcmConfiguration.CloseTimeout = tcmConfiguration.CloseTimeout ?? AdapterConfiguration.DefaultConfig.CloseTimeout;
@@ -34,7 +35,6 @@ namespace ConfigurationManager.Types
             }
 
             ShouldAllowEmpty = true;
-            
         }
 
         internal override bool Validate()
@@ -42,7 +42,7 @@ namespace ConfigurationManager.Types
             try
             {
                 base.Validate();
-                var configuration =  JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
+                var configuration = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
                 var res = configuration["default"]; //verify default configuration exists
             }
             catch (Exception ex)
