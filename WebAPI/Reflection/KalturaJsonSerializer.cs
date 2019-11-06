@@ -5877,7 +5877,7 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
-    public partial class KalturaRegex
+    public partial class KalturaRegexExpression
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
         {

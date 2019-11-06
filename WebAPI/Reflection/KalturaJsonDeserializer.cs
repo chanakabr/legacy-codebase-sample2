@@ -1376,8 +1376,8 @@ namespace WebAPI.Reflection
                 case "KalturaRecordingListResponse":
                     return new KalturaRecordingListResponse(parameters);
                     
-                case "KalturaRegex":
-                    return new KalturaRegex(parameters);
+                case "KalturaRegexExpression":
+                    return new KalturaRegexExpression(parameters);
                     
                 case "KalturaRegion":
                     return new KalturaRegion(parameters);
@@ -7266,9 +7266,9 @@ namespace WebAPI.Models.General
             }
         }
     }
-    public partial class KalturaRegex
+    public partial class KalturaRegexExpression
     {
-        public KalturaRegex(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegexExpression(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22450,11 +22450,11 @@ namespace WebAPI.Models.Users
                 {
                     if (parameters["complexities"] is JArray)
                     {
-                        Complexities = buildList<KalturaRegex>(typeof(KalturaRegex), (JArray) parameters["complexities"]);
+                        Complexities = buildList<KalturaRegexExpression>(typeof(KalturaRegexExpression), (JArray) parameters["complexities"]);
                     }
                     else if (parameters["complexities"] is IList)
                     {
-                        Complexities = buildList(typeof(KalturaRegex), parameters["complexities"] as object[]);
+                        Complexities = buildList(typeof(KalturaRegexExpression), parameters["complexities"] as object[]);
                     }
                 }
                 if (parameters.ContainsKey("lockoutFailuresCount") && parameters["lockoutFailuresCount"] != null)

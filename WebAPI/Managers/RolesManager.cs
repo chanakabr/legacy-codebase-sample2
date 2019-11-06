@@ -29,6 +29,7 @@ namespace WebAPI.Managers
         public const long OPERATOR_ROLE_ID = 3;
         public const long MANAGER_ROLE_ID = 4;
         public const long ADMINISTRATOR_ROLE_ID = 5;
+        public const string EXTERNAL_EDITOR_ROLE_NAME = "ExternalEditor"; 
 
         #region Private Methods
 
@@ -525,17 +526,34 @@ namespace WebAPI.Managers
         public static bool IsManagerAllowedAction(List<long> roleIds)
         {
             // check role's hierarchy 
-            var ks = KS.GetFromRequest();
+            var ks = KS.GetFromRequest();                
 
             bool isManager = GetRoleIds(ks).Any(ur => ur == MANAGER_ROLE_ID);
 
-            if (isManager && roleIds.Any(x => x > MANAGER_ROLE_ID))
+            if (isManager)
             {
-                return false;
+                // Get External editor Role Id. ( manager should be able to update it's role)
+                long? externalEditorRole = GetEERole(ks);
+
+                if (externalEditorRole.HasValue)
+                {
+                    if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
+                    {
+                        return false;
+                    }
+                }
+                else 
+                {
+                    if (roleIds.Any(x => x > MANAGER_ROLE_ID))
+                    {
+                        return false;
+                    }
+                }
             }
 
             return true;
         }
+        
 
         public static bool IsAllowedDeleteAction()
         {
@@ -557,9 +575,22 @@ namespace WebAPI.Managers
                         {
                             userRoleIds = ClientsManager.UsersClient().GetUserRoleIds(ks.GroupId, ks.UserId);
 
-                            if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole))
+                            // Get External editor Role Id. ( manager should be able to update it's role)
+                            long? externalEditorRole = GetEERole(ks);
+                            
+                            if (externalEditorRole.HasValue)
                             {
-                                return false;
+                                if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole && x != externalEditorRole.Value))
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                if (userRoleIds?.Count > 0 && userRoleIds.Any(x => x > maxRole))
+                                {
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -588,16 +619,47 @@ namespace WebAPI.Managers
                     return false;
                 }
 
-                if (roleIds != null && roleIds.Any(x => x > MANAGER_ROLE_ID))
+                if (roleIds != null)
                 {
-                    return false;
-                }
+                    // Get External editor Role Id. ( manager should be able to update it's role)
+                    long? externalEditorRole = GetEERole(ks);
+
+                    if (externalEditorRole.HasValue)
+                    {
+                        if (roleIds.Any(x => x > MANAGER_ROLE_ID && x != externalEditorRole.Value))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (roleIds.Any(x => x > MANAGER_ROLE_ID))
+                        {
+                            return false;
+                        }
+                    }
+                }                  
             }
 
             return true;
         }
 
-        #endregion
+        public static long? GetEERole(KS ks)
+        {
+            long? externalEditorRole = null;
 
+            if (ks != null)
+            {
+                List<KalturaUserRole> list = ClientsManager.ApiClient().GetRoles(ks.GroupId);
+                if (list?.Count > 0)
+                {
+                    externalEditorRole = list.FirstOrDefault(x => x.Name == EXTERNAL_EDITOR_ROLE_NAME).Id;
+                }
+            }
+
+            return externalEditorRole;
+        }
+
+        #endregion
     }
 }

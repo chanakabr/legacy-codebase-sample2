@@ -5032,7 +5032,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaRegex":
+                case "KalturaRegexExpression":
                     switch(property.Name)
                     {
                         case "Description":
