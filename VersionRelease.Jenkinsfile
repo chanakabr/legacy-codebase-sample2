@@ -63,7 +63,10 @@ pipeline {
                 dir("core"){ bat ("${NUGET} restore") }
                 dir("remotetasks"){ bat ("${NUGET} restore") }
                 dir("tvmapps"){ bat ("${NUGET} restore") }
-                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
+                dir("tvpapi_rest"){ 
+                    bat ("${NUGET} restore") 
+                    bat ("dotnet restore") 
+                }
                 dir("ws_ingest"){ bat ("${NUGET} restore") }
                 dir("tvpapi"){ bat ("${NUGET} restore") }
             }        
