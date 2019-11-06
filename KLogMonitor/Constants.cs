@@ -12,6 +12,7 @@ namespace KLogMonitor
         public const string REQUEST_ID_KEY = "kmon_req_id";
         public const string GROUP_ID = "kmon_group_id";
         public const string CLIENT_TAG = "kmon_client_tag";
+        public const string METHOD_NAME = "kmon_method_name";
         public const string HOST_IP = "kmon_host_ip";
         public const string USER_ID = "kmon_user_id";
         public const string TOPIC = "kmon_topic";
