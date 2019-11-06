@@ -11,7 +11,7 @@ namespace Phoenix.Rest
         public static async Task Main(string[] args)
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
-            var defaultLogDir = $@"C:\log\phoenix\{apiVersion}";
+            var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
             ConfigurationManager.ApplicationConfiguration.Initialize(shouldLoadDefaults: true, silent: true);
             await CreateWebHostBuilder(args).Build().RunAsync();
@@ -20,7 +20,7 @@ namespace Phoenix.Rest
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
-                .ConfigureKestrel(o => o.AllowSynchronousIO = true)
+                .ConfigureKestrel(o => o.AllowSynchronousIO = false)
                 .UseStartup<Startup>();
     }
 }
