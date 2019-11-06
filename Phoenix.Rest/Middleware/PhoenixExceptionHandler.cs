@@ -79,11 +79,8 @@ namespace Phoenix.Rest.Middleware
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
-
-                    var staticHttpContextDump = JsonConvert.SerializeObject(System.Web.HttpContext.Current.Items);
-                    var currentContextDump = JsonConvert.SerializeObject(context.Items);
-
-                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}]{Environment.NewLine}reqId:[{ctx.SessionId}]{Environment.NewLine}staticHttpContextDump:[{staticHttpContextDump}]{Environment.NewLine}currentContextDump:[{currentContextDump}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
+                    KLogger.SetRequestId(ctx.SessionId);
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}]{Environment.NewLine}reqId:[{ctx.SessionId}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }
