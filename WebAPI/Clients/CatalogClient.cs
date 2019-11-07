@@ -3611,9 +3611,13 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            if (response.Objects != null && response.Objects.Count > 0)
+            if (response.TotalItems > 0)
             {
                 result.TotalCount = response.TotalItems;
+            }
+
+            if (response.Objects != null && response.Objects.Count > 0)
+            {
                 result.Channels = new List<KalturaChannel>();
                 // convert channels
                 foreach (GroupsCacheManager.Channel channel in response.Objects)
