@@ -306,6 +306,21 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                //Save old pictures - if any
+                if (oldEpgAsset.Images?.Count > 0)
+                {
+                    var docId = GetEpgCBKey(groupId, oldEpgAsset.Id);
+                    var program = EpgDal.GetEpgCB(docId);
+
+                    if (program != null && program.pictures?.Count > 0)
+                    {
+                        epgCBToUpdate.PicID = oldEpgAsset.PicId;
+                        epgCBToUpdate.PicUrl = oldEpgAsset.PicUrl;
+
+                        epgCBToUpdate.pictures = program.pictures;
+                    }
+                }
+
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags);
 
