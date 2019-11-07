@@ -307,15 +307,15 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 //Save old pictures - if any
-                if (oldEpgAsset.Images?.Count > 0)
+                if (epgAssetToUpdate.Images?.Count == 0 && oldEpgAsset.Images?.Count > 0)
                 {
                     var docId = GetEpgCBKey(groupId, oldEpgAsset.Id);
                     var program = EpgDal.GetEpgCB(docId);
 
                     if (program != null && program.pictures?.Count > 0)
                     {
-                        epgCBToUpdate.PicID = oldEpgAsset.PicId;
-                        epgCBToUpdate.PicUrl = oldEpgAsset.PicUrl;
+                        epgCBToUpdate.PicID = program.PicID;
+                        epgCBToUpdate.PicUrl = program.PicUrl;
 
                         epgCBToUpdate.pictures = program.pictures;
                     }
