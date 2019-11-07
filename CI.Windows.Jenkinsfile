@@ -63,8 +63,8 @@ pipeline {
             }
             steps{
                 dir("published"){  
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvm-${BRANCH_NAME}.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp tvm-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm-${BRANCH_NAME}.zip")
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvm.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp tvm.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm.zip")
                 }
             }        
         }
