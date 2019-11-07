@@ -63,7 +63,10 @@ pipeline {
                 dir("core"){ bat ("${NUGET} restore") }
                 dir("remotetasks"){ bat ("${NUGET} restore") }
                 dir("tvmapps"){ bat ("${NUGET} restore") }
-                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
+                dir("tvpapi_rest"){ 
+                    bat ("${NUGET} restore") 
+                    bat ("dotnet restore") 
+                }
                 dir("ws_ingest"){ bat ("${NUGET} restore") }
                 dir("tvpapi"){ bat ("${NUGET} restore") }
             }        
@@ -151,7 +154,7 @@ pipeline {
         stage("Generate KalturaClient.xml"){
             steps { 
                 dir("tvpapi_rest/Generator"){
-                    bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4")
+                    bat ("dotnet build -c Release")
                     dir("bin/Release/netcoreapp2.0"){
                         bat ("dotnet Generator.dll")
                         bat ("xcopy KalturaClient.xml ${TEMP_PUBLISH_DIR}\\kaltura_ott_api\\clientlibs\\")

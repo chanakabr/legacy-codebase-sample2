@@ -24,7 +24,6 @@ namespace TVinciShared
             return serviceToConfigure;
         }
 
-
         private static void SetConfiguration<TChannel>(ClientBase<TChannel> serviceToConfigure, AdapterConfiguration adapterConfiguration) where TChannel : class
         {
             var bindingBase = serviceToConfigure.Endpoint.Binding as HttpBindingBase;

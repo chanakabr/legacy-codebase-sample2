@@ -10,6 +10,7 @@ namespace ConfigurationManager.Types
     {
         public Dictionary<string, AdapterConfiguration> ConfigurationDictionary =
             new Dictionary<string, AdapterConfiguration>();
+
         private readonly JObject _Json;
         private const string DefaultConfigurationKey = "default";
         public AdaptersConfiguration(string key) : base(key)
@@ -42,7 +43,7 @@ namespace ConfigurationManager.Types
             try
             {
                 base.Validate();
-                var configuration = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
+                var configuration =  JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
                 var res = configuration["default"]; //verify default configuration exists
             }
             catch (Exception ex)
