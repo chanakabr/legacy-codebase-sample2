@@ -139,8 +139,8 @@ pipeline {
         stage("Zip and Publish"){
             steps{
                 dir("published"){  
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix-windows-${BRANCH_NAME}.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp phoenix-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix-windows-${BRANCH_NAME}.zip")
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
                 }
             }        
         }
