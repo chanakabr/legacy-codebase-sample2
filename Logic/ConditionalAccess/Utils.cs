@@ -1400,7 +1400,7 @@ namespace Core.ConditionalAccess
                     Price discountPrice = null;
                     if (externalDiscount != null)
                     {
-                        discountPrice = GetPriceAfterDiscount(finalPrice, externalDiscount, 1);
+                        discountPrice = GetPriceAfterDiscount(finalPrice, externalDiscount, 0);
                     }
 
                     var originalPrice = CopyPrice(finalPrice);
@@ -1856,7 +1856,7 @@ namespace Core.ConditionalAccess
             Price discountPrice = null;
             if (externalDiscount != null)
             {
-                discountPrice = GetPriceAfterDiscount(price, externalDiscount, 1);
+                discountPrice = GetPriceAfterDiscount(price, externalDiscount, 0);
             }
 
             price = GetLowestPrice(groupId, price, domainID, discountPrice, eTransactionType.Collection, currencyCode, long.Parse(sColCode), countryCode,
