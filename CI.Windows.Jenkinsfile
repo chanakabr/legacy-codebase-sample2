@@ -52,13 +52,8 @@ pipeline {
             steps{
                 
                 dir("tvpapi"){
-                    bat (label:"Run MSBuild" , script:"\"${MSBUILD}\" WS_TVPApi\\website.publishproj -m:4 -nr:False -t:Restore,Build,WebPublish"
-                            + " -p:Configuration=Release"
-                            + " -p:DeployOnBuild=True"
-                            + " -p:WebPublishMethod=FileSystem"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:publishUrl=\"${WORKSPACE}/published"
-                    )
+                    bat ("\"${MSBUILD}\" /property:Configuration=Release;Platform=\"Any CPU\"")
+                    bat("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\aspnet_compiler.exe -v /WS_TVPAPI -p \"ws_tvpapi\" -u -f \"${WORKSPACE}/published/\" ")
                 }
             }        
         }
