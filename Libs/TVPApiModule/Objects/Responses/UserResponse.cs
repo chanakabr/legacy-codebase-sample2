@@ -48,7 +48,7 @@ namespace TVPApiModule.Objects.Responses
 
         public UserResult(UserResponseObject User)
         {
-            this.user = user;
+            this.user = User;
         }
     }
 }
