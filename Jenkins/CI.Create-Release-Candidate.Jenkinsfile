@@ -4,6 +4,7 @@ node{
 
     stage('Check Success Artifacts'){
         configFileProvider([configFile(fileId: '75a8f192-08a4-41a7-80d7-2e85023c07f8', targetLocation: 'RC-GetFailedBuilds.sh')]) {}
+        configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
         def result = sh (script: "./RC-GetFailedBuilds.sh ${BRANCH_NAME} build", returnStdout: true, returnStatus: true)
         if (result == 1){
             def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
