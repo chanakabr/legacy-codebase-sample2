@@ -332,7 +332,7 @@ namespace Core.Users
             }
             else
             {
-                dynamicData = new List<UserDynamicDataContainer[] { };
+                dynamicData = new UserDynamicDataContainer[] { };
             }
 
             ioUser.Id = userData.Id;
