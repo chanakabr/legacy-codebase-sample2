@@ -37,7 +37,7 @@ pipeline {
         }
         stage('Build RemoteTasks Docker'){
             environment{
-                REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/RemoteTaskHandlers"
+                REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/remote-tasks-handlers"
                 ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
                 ECR_CORE_REPOSITORY="${ECR_URL}/${BRANCH_NAME.toLowerCase()}/core"
             }
