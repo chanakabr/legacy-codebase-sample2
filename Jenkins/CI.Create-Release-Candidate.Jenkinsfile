@@ -40,6 +40,9 @@ node{
         sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
     }
     currentBuild.result = 'SUCCESS'
+    // Report Success RC
+    def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS ", returnStdout: true)
+    echo "${report}"
 
     stage('Trigger Wrapper'){
         build job: 'OTT-BE-Test-Wrapper', parameters: [
