@@ -1,11 +1,10 @@
 
 node{
-    deleteDir()
-    checkout scm
+
 
     stage('Check Success Artifacts'){
         configFileProvider([configFile('a2ebd1e5-a7c3-4cc7-a607-8b9fe4edf0a2')]) {
-            sh (script: "GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
+            sh (script: "sh GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
         }
         // def status = sh (script: "./Scripts/GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
         //     echo "${status}"
