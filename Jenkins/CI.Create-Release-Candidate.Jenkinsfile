@@ -33,6 +33,9 @@ node{
         }
         else{
             error("Failed to build missing artifacts")
+            // Report Success RC
+            def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
+            echo "${report}"
         }
     }
     
