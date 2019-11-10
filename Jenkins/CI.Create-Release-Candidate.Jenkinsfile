@@ -8,7 +8,7 @@ node('Linux'){
         configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
         def result = sh (script: "chmod +x RC-GetFailedBuilds.sh && ./RC-GetFailedBuilds.sh ${BRANCH_NAME} build", returnStatus: true)
         if (result == 1){
-            def report = sh (script: "chmod +x RC-GetFailedBuilds.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
+            def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
             echo "${report}"    
         }
     }
