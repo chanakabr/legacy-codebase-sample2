@@ -285,6 +285,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AccedoSendMessage.aspx" />
+    <Content Include="Gateways\DefaultMediaConfiguration.config" />
+    <Content Include="Gateways\DefaultSiteConfiguration.config" />
+    <Content Include="Gateways\DefaultTechnicalConfiguration.config" />
     <None Include="Old_App_WebReferences\il\co\smscenter\www\SendMessage.disco" />
     <Content Include="ClearCache.aspx" />
     <Content Include="Configuration\Klic\staging\ConnectedTV\XMLFile.xml" />
