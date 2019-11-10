@@ -10,10 +10,11 @@ node('Linux'){
         def result = sh (script: "chmod +x RC-GetFailedBuilds.sh && ./RC-GetFailedBuilds.sh ${BRANCH_NAME} build", returnStatus: true)
         if (result == 1){
             def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
-            echo "${report}"    
+            echo "${report}"
+            currentBuild.result = 'FAILURE'    
         }
     }
-        sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc", returnStatus: true)
+        sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc")
 
         def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
         def missingArtifacts = []
