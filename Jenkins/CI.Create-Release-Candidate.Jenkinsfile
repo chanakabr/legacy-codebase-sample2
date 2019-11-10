@@ -40,7 +40,16 @@ node{
         sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
     }
     currentBuild.result = 'SUCCESS'
-        return
+
+    stage('Trigger Wrapper'){
+        build job: 'OTT-BE-Test-Wrapper', parameters: [
+                                                string(name: 'BRANCH', value: "${BRANCH_NAME}"),
+                                                string(name: 'STAGE', value: "sanity"),
+                                                string(name: 'AUTOKILL', value: "true"),
+                                                ], wait: false
+    }
+
+    
 }
 
 
