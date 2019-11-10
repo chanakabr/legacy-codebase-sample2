@@ -3,26 +3,20 @@ node{
 
 
     stage('Check Success Artifacts'){
-        configFileProvider([configFile('a2ebd1e5-a7c3-4cc7-a607-8b9fe4edf0a2')]) {
-            sh (script: "sh GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
+        configFileProvider([configFile(fileId: '75a8f192-08a4-41a7-80d7-2e85023c07f8', targetLocation: 'RC-GetFailedBuilds.sh')]) {}
+        def result = sh (script: "./RC-GetFailedBuilds.sh ${BRANCH_NAME} build", returnStdout: true, returnStatus: true)
+        if (result == 1){
+            def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
+            echo "${report}"    
         }
-        // def status = sh (script: "./Scripts/GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
-        //     echo "${status}"
-        //     for (job in status){
-        //         if (job['buildstatus'] == "FAILURE"){
-        //             currentBuild.result = 'FAILURE'
-        //             // Report Failed RC
-        //             def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
-        //             echo "${report}"
-        //         }
-        //     }
-        //     for (job in status){
-        //         def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH_NAME} rc '${job["buildnumber"]}' '${job["job_name"]}' build SUCCESS ", returnStdout: true)
-        //     }
-
-        // def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
-        // def missingArtifacts = []
     }
+        // for (job in status){
+        //     def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH_NAME} rc '${job["buildnumber"]}' '${job["job_name"]}' build SUCCESS ", returnStdout: true)
+        // }
+
+        def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
+        def missingArtifacts = []
+}
             
             
 

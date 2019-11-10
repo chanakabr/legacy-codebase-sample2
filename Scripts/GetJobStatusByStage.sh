@@ -9,5 +9,4 @@ https://ux3dn9xfy3.execute-api.us-west-2.amazonaws.com/onebox/job/stage/status \
   "branch": "'$branch'",
   "stage": "'$stage'"
 }' 
-#| jq '.[].buildstatus' | tr -d '""'
 
