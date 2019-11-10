@@ -11,8 +11,8 @@ node('Linux'){
         if (result == 1){
             def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
             echo "${report}"
-            currentBuild.result = 'FAILEDE'
-                return    
+            currentBuild.result = 'FAILED'
+            return    
         }
     }
         sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc")
