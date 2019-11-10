@@ -1,5 +1,6 @@
 
-node{
+node('Linux'){
+    
 
 
     stage('Check Success Artifacts'){
