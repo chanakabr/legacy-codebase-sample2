@@ -10,3 +10,4 @@ https://ux3dn9xfy3.execute-api.us-west-2.amazonaws.com/onebox/job/type/status \
   "type": "'$type'"
 }' 
 #| jq '.[].buildstatus' | tr -d '""'
+
