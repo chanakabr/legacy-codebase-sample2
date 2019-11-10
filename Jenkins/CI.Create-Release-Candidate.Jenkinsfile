@@ -1,5 +1,22 @@
 
 node{
+
+    def status = sh (script: "./Scripts/GetJobStatusBy.sh ${BRANCH} build ", returnStdout: true)
+    echo "${status}"
+    for (job in status){
+        if (job['buildstatus'] == "FAILURE"){
+            currentBuild.result = 'FAILURE'
+             // Report Failed RC
+            def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
+            echo "${report}"
+        }
+    }
+    for (job in status){
+        def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc "job['buildnumber']" "job['job_name']" build SUCCESS ", returnStdout: true)
+    }
+    
+
+
     def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
     def missingArtifacts = []
     stage('Identify Missing Artifacts') {
@@ -33,7 +50,7 @@ node{
         }
         else{
             error("Failed to build missing artifacts")
-            // Report Success RC
+            // Report Failed RC
             def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
             echo "${report}"
         }
@@ -43,6 +60,7 @@ node{
         sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
     }
     currentBuild.result = 'SUCCESS'
+    
     // Report Success RC
     def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS ", returnStdout: true)
     echo "${report}"

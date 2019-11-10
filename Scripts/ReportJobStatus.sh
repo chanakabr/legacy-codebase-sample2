@@ -10,8 +10,8 @@ curl --silent -X POST \
   https://ux3dn9xfy3.execute-api.us-west-2.amazonaws.com/onebox/job/report \
   -H 'Content-Type: application/json' \
   -d '{
-    "stage": "'$stage'",
     "branch": "'$branch'",
+    "stage": "'$stage'",
     "buildnumber": "'$buildnum'",
     "buildstatus": "'$status'",
     "job_name": "'$jobname'",
