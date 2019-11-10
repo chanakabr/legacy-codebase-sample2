@@ -3,7 +3,7 @@ node{
 
 
     stage('Check Success Artifacts'){
-        def status = sh (script: "Scripts/GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
+        def status = sh (script: "./Scripts/GetJobStatusByStage.sh ${BRANCH_NAME} build ", returnStdout: true)
             echo "${status}"
             for (job in status){
                 if (job['buildstatus'] == "FAILURE"){
