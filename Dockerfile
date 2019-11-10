@@ -21,9 +21,6 @@ RUN dotnet publish -c Release "./IngestValidtionHandler/IngestValidtionHandler.c
 FROM mcr.microsoft.com/dotnet/core/runtime:2.2
 WORKDIR /
 
-ARG TCM_APP
-
-ENV TCM_APP=${TCM_APP}
 ENV RUN_TASK=no-task-selected
 ENV CONCURRENT_CONSUMERS=1
 ENV API_LOG_DIR=/var/log/remote-tasks/
