@@ -14,7 +14,7 @@ node{
                 }
             }
             for (job in status){
-                def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc 'job["buildnumber"]' 'job["job_name"]' build SUCCESS ", returnStdout: true)
+                def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc '${job["buildnumber"]}' '${job["job_name"]}' build SUCCESS ", returnStdout: true)
             }
 
         def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
@@ -25,59 +25,59 @@ node{
 
 
             
-    stage('Identify Missing Artifacts') {
-        missingArtifacts = FindMissingArtifacts();
-    }
+    // stage('Identify Missing Artifacts') {
+    //     missingArtifacts = FindMissingArtifacts();
+    // }
     
-    // If no missing artifacts, stop the job now and return Success
-    if (missingArtifacts.isEmpty()){
-        stage('Sync S3 Release Candidate Folder'){
-            echo("nothing left to build, copying artifacts to release candidate folder")
-            sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-        }
-        currentBuild.result = 'SUCCESS'
-        return
-    }
+    // // If no missing artifacts, stop the job now and return Success
+    // if (missingArtifacts.isEmpty()){
+    //     stage('Sync S3 Release Candidate Folder'){
+    //         echo("nothing left to build, copying artifacts to release candidate folder")
+    //         sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+    //     }
+    //     currentBuild.result = 'SUCCESS'
+    //     return
+    // }
 
-    stage('Build Missing Artifacts'){
-       def jobsToBuild = [:]
-        for(missingArtifact in missingArtifacts){
-            def jobName = getJobNameFromArtifactName(missingArtifact)
-            jobsToBuild["Build ${missingArtifact}"] = generateStage("Build ${missingArtifact}", jobName)
-        }
+    // stage('Build Missing Artifacts'){
+    //    def jobsToBuild = [:]
+    //     for(missingArtifact in missingArtifacts){
+    //         def jobName = getJobNameFromArtifactName(missingArtifact)
+    //         jobsToBuild["Build ${missingArtifact}"] = generateStage("Build ${missingArtifact}", jobName)
+    //     }
 
-        parallel jobsToBuild
-    }
+    //     parallel jobsToBuild
+    // }
 
-    stage('Validate Artifacts Built'){
-        missingArtifacts = FindMissingArtifacts();
-        if (missingArtifacts.isEmpty()){
-            echo("All missing artifacts were delivered, copying artifacts to release candidate folder")
-        }
-        else{
-            error("Failed to build missing artifacts")
-            // Report Failed RC
-            def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
-            echo "${report}"
-        }
-    }
+    // stage('Validate Artifacts Built'){
+    //     missingArtifacts = FindMissingArtifacts();
+    //     if (missingArtifacts.isEmpty()){
+    //         echo("All missing artifacts were delivered, copying artifacts to release candidate folder")
+    //     }
+    //     else{
+    //         error("Failed to build missing artifacts")
+    //         // Report Failed RC
+    //         def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
+    //         echo "${report}"
+    //     }
+    // }
     
-    stage('Sync S3 Release Candidate Folder'){
-        sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-    }
-    currentBuild.result = 'SUCCESS'
+    // stage('Sync S3 Release Candidate Folder'){
+    //     sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+    // }
+    // currentBuild.result = 'SUCCESS'
     
-    // Report Success RC
-    def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS ", returnStdout: true)
-    echo "${report}"
+    // // Report Success RC
+    // def report = sh (script: "./Scripts/ReportJobStatus.sh ${BRANCH} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS ", returnStdout: true)
+    // echo "${report}"
 
-    stage('Trigger Wrapper'){
-        build job: 'OTT-BE-Test-Wrapper', parameters: [
-                                                string(name: 'BRANCH', value: "${BRANCH_NAME}"),
-                                                string(name: 'STAGE', value: "sanity"),
-                                                string(name: 'AUTOKILL', value: "true"),
-                                                ], wait: false
-    }
+    // stage('Trigger Wrapper'){
+    //     build job: 'OTT-BE-Test-Wrapper', parameters: [
+    //                                             string(name: 'BRANCH', value: "${BRANCH_NAME}"),
+    //                                             string(name: 'STAGE', value: "sanity"),
+    //                                             string(name: 'AUTOKILL', value: "true"),
+    //                                             ], wait: false
+    // }
 
     
 }
