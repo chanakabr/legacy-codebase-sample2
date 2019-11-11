@@ -17,14 +17,12 @@ pipeline {
     stages {
         stage("Checkout SCM"){
             steps{
-                deleteDir()
                 dir('TvmCore'){ git(url: 'git@github.com:kaltura/tvmcore.git', branch: "${params.branch}") }
                 dir('tvpapi_rest'){ git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('Core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
                 dir('CDNTokenizers'){ git(url: 'git@github.com:kaltura/CDNTokenizers.git', branch: "${params.branch}") }
                 dir('tvincicommon'){ git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 dir('remotetasks'){ git(url: 'git@github.com:kaltura/RemoteTasks.git', branch: "${params.branch}") }
-                dir('FtpApiServer'){ git(url: 'git@github.com:kaltura/FtpApiServer.git', branch: "${params.branch}") }
             }
         }
         stage("Version Patch"){
@@ -44,7 +42,6 @@ pipeline {
                 bat "dotnet publish remotetasks/IngestHandler/IngestHandler.csproj -o ${WORKSPACE}/published/ingest-handler" 
                 bat "dotnet publish remotetasks/IngestTransformationHandler/IngestTransformationHandler.csproj -o ${WORKSPACE}/published/ingest-transformation-handler" 
                 bat "dotnet publish remotetasks/IngestValidtionHandler/IngestValidtionHandler.csproj -o ${WORKSPACE}/published/ingest-validation-handler" 
-                bat "dotnet publish FtpApiServer/FtpApiServer/FtpApiServer.csproj -o ${WORKSPACE}/published/ftp-api-server" 
                 
             }        
         }
@@ -60,11 +57,11 @@ pipeline {
             steps { 
                 dir("published"){ 
                     sh "scp -i ${SSH_KEY} remotetasks_${params.version}.zip ${PRE_PROD_SERVER}:/home/ubuntu/remotetasks_${params.version}.zip"
-                    sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"sudo systemctl stop kaltura-ingest-handler.service; sudo systemctl stop kaltura-ingest-transformation-handler.service; sudo systemctl stop kaltura-ingest-validation-handler.service; sudo systemctl stop kaltura-ftp-api-server.service\""
+                    sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"sudo systemctl stop kaltura-ingest-handler.service; sudo systemctl stop kaltura-ingest-transformation-handler.service; sudo systemctl stop kaltura-ingest-validation-handler.service\""
                     sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"sudo rm -rf remote-tasks\""
                     sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"unzip remotetasks_${params.version}.zip -d remote-tasks\""
                     sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"sudo systemctl daemon-reload\""
-                    sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"sudo systemctl start kaltura-ingest-handler.service; sudo systemctl start kaltura-ingest-transformation-handler.service; sudo systemctl start kaltura-ingest-validation-handler.service; sudo systemctl start kaltura-ftp-api-server.service\""
+                    sh "ssh -i ${SSH_KEY} ${PRE_PROD_SERVER} \"sudo systemctl start kaltura-ingest-handler.service; sudo systemctl start kaltura-ingest-transformation-handler.service; sudo systemctl start kaltura-ingest-validation-handler.service\""
                 }
             }
         }
