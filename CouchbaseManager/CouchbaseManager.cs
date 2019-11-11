@@ -169,8 +169,6 @@ namespace CouchbaseManager
             return configToReturn;
         }
 
-
-
         private static ClientConfiguration GetCouchbaseClientConfigurationFromTCM()
         {
             try
