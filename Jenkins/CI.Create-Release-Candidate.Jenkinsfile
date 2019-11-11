@@ -23,23 +23,23 @@ node('Linux'){
       
     stage('Identify Missing Artifacts') {
         missingArtifacts = FindMissingArtifacts();
-    }
     
-    // If no missing artifacts, stop the job now and return Success
-    if (missingArtifacts.isEmpty()){
-        stage('Sync S3 Release Candidate Folder'){
-            echo("nothing left to build, copying artifacts to release candidate folder")
-            sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-        }
-        currentBuild.result = 'SUCCESS'
-        configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-        def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS", returnStdout: true)
-        echo "${report}"
+        // If no missing artifacts, stop the job now and return Success
+        if (missingArtifacts.isEmpty()){
+            stage('Sync S3 Release Candidate Folder'){
+                echo("nothing left to build, copying artifacts to release candidate folder")
+                sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+            }
+            currentBuild.result = 'SUCCESS'
+            configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+            def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS", returnStdout: true)
+            echo "${report}"
 
-        stage('Trigger Wrapper'){
-            TriggerWrapper()
+            stage('Trigger Wrapper'){
+                TriggerWrapper()
+            }
+            sh 'exit 0'
         }
-        return
     }
 
     stage('Build Missing Artifacts'){
@@ -92,12 +92,11 @@ def TriggerWrapper(){
                                                 string(name: 'STAGE', value: "sanity"),
                                                 string(name: 'AUTOKILL', value: "true"),
                                                 ], wait: false
-
 }
 def FindMissingArtifacts(){
     def s3ListCommand = "aws s3 ls s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ | awk '{print \$4}' | grep -oE '(.*)(-)' | sed 's/-\$//g'"
     def foundArtifacts = []
-    def requiredArtifacts = ['celery-tasks','phoenix-windows','remote-tasks-windows','tvm','tvpapi-windows','ws-ingest-windows']
+    def requiredArtifacts = ['celery-tasks.zip','phoenix.zip','remote-tasks.zip','tvm.zip','tvpapi.zip','ws-ingest.zip']
     def missingArtifacts = requiredArtifacts.collect()
 
     foundArtifacts = sh(label:"Get Current Artifacts from S3", script: s3ListCommand, returnStdout: true).split()
