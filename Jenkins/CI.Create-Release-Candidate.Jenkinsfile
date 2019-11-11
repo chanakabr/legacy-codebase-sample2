@@ -18,67 +18,67 @@ node('Linux'){
         sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc")
     }
         
-    def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
-    def missingArtifacts = []
+    // def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
+    // def missingArtifacts = []
       
-    stage('Identify Missing Artifacts') {
-        missingArtifacts = FindMissingArtifacts();
-    }
+    // stage('Identify Missing Artifacts') {
+    //     missingArtifacts = FindMissingArtifacts();
+    // }
     
-    // If no missing artifacts, stop the job now and return Success
-    if (missingArtifacts.isEmpty()){
-        stage('Sync S3 Release Candidate Folder'){
-            echo("nothing left to build, copying artifacts to release candidate folder")
-            sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-        }
-        currentBuild.result = 'SUCCESS'
-        configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-        def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS", returnStdout: true)
-        echo "${report}"
+    // // If no missing artifacts, stop the job now and return Success
+    // if (missingArtifacts.isEmpty()){
+    //     stage('Sync S3 Release Candidate Folder'){
+    //         echo("nothing left to build, copying artifacts to release candidate folder")
+    //         sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+    //     }
+    //     currentBuild.result = 'SUCCESS'
+    //     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    //     def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS", returnStdout: true)
+    //     echo "${report}"
 
-        stage('Trigger Wrapper'){
-            TriggerWrapper()
-        }
-        return
-    }
+    //     stage('Trigger Wrapper'){
+    //         TriggerWrapper()
+    //     }
+    //     return
+    // }
 
-    stage('Build Missing Artifacts'){
-       def jobsToBuild = [:]
-        for(missingArtifact in missingArtifacts){
-            def jobName = getJobNameFromArtifactName(missingArtifact)
-            jobsToBuild["Build ${missingArtifact}"] = generateStage("Build ${missingArtifact}", jobName)
-        }
+    // stage('Build Missing Artifacts'){
+    //    def jobsToBuild = [:]
+    //     for(missingArtifact in missingArtifacts){
+    //         def jobName = getJobNameFromArtifactName(missingArtifact)
+    //         jobsToBuild["Build ${missingArtifact}"] = generateStage("Build ${missingArtifact}", jobName)
+    //     }
 
-        parallel jobsToBuild
-    }
+    //     parallel jobsToBuild
+    // }
 
-    stage('Validate Artifacts Built'){
-        missingArtifacts = FindMissingArtifacts();
-        if (missingArtifacts.isEmpty()){
-            echo("All missing artifacts were delivered, copying artifacts to release candidate folder")
-        }
-        else{
-            error("Failed to build missing artifacts")
-            // Report Failed RC
-            configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-            def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE", returnStdout: true)
-            echo "${report}"
-        }
-    }
+    // stage('Validate Artifacts Built'){
+    //     missingArtifacts = FindMissingArtifacts();
+    //     if (missingArtifacts.isEmpty()){
+    //         echo("All missing artifacts were delivered, copying artifacts to release candidate folder")
+    //     }
+    //     else{
+    //         error("Failed to build missing artifacts")
+    //         // Report Failed RC
+    //         configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    //         def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE", returnStdout: true)
+    //         echo "${report}"
+    //     }
+    // }
     
-    stage('Sync S3 Release Candidate Folder'){
-        sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
-    }
-    currentBuild.result = 'SUCCESS'
+    // stage('Sync S3 Release Candidate Folder'){
+    //     sh(label:"Sync S3 Release Candidate Folder", script: s3CopyBuildToRcCommand, returnStdout: true)
+    // }
+    // currentBuild.result = 'SUCCESS'
     
-    // Report Success RC
-    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS", returnStdout: true)
-    echo "${report}"
+    // // Report Success RC
+    // configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    // def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc SUCCESS", returnStdout: true)
+    // echo "${report}"
 
-    stage('Trigger Wrapper'){
-        TriggerWrapper()
-    }
+    // stage('Trigger Wrapper'){
+    //     TriggerWrapper()
+    // }
 }
     
 
