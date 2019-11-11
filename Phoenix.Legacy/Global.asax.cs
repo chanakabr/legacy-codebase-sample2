@@ -35,7 +35,7 @@ namespace WebAPI
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
-            Utils.LogReloader.Initiate();
+            Utils.LogReloader.GetInstance().Initiate();
         }
 
         private static void InitializeLogging()
