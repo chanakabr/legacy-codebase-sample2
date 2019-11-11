@@ -1,0 +1,8 @@
+Adapters
+RemoteTasks
+tvpapi
+WS_Ingest
+**/[Bb]in
+**/[Oo]bj
+**/.vs
+**/packages

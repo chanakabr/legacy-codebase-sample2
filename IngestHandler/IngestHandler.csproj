@@ -16,6 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="app.config" />
     <None Remove="log4net.config" />
   </ItemGroup>
@@ -39,10 +45,6 @@
     <ProjectReference Include="..\..\Core\ImageManager\ImageManager.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
     <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

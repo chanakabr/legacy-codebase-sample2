@@ -37,7 +37,14 @@ namespace IngestValidtionHandler
 
         private BulkUpload _BulkUploadObject = null;
         private TvinciEpgBL _EpgBL;
-                
+
+        private static readonly Policy _IndexCleanerRetryPolicy = Policy.Handle<Exception>()
+            .WaitAndRetry(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+            {
+                _Logger.Warn("Failed to clean indices of epg", ex);
+                _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next publish retry");
+            });
+
         public BulkUploadIngestValidationHandler()
         {
             _ElasticSearchClient = new ElasticSearchApi();
@@ -82,17 +89,30 @@ namespace IngestValidtionHandler
                     bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
                 }
 
-                // fire ps event
-                if (bulkUploadResultAfterUpdate.Object.IsProcessCompleted)
-                {
-                    _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
-                    _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
-                }
+                EmmitPSEvent(bulkUploadResultAfterUpdate);
+                TriggerElasticIndexCleanerForPartner(eventData);
             }
             catch (Exception ex)
             {
                 _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}].", ex);
                 throw;
+            }
+        }
+
+        
+
+        private static void TriggerElasticIndexCleanerForPartner(BulkUploadIngestValidationEvent eventData)
+        {
+            var cleaner = new ElasticsearchIndexCleaner.IndexCleaner();
+            cleaner.Clean(new[] { eventData.GroupId }, 1);
+        }
+
+        private void EmmitPSEvent(GenericResponse<BulkUpload> bulkUploadResultAfterUpdate)
+        {
+            if (bulkUploadResultAfterUpdate.Object.IsProcessCompleted)
+            {
+                _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
+                _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
             }
         }
 
@@ -201,13 +221,13 @@ namespace IngestValidtionHandler
         }
 
         /// <summary>
-		/// switch aliases - 
-		/// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
-		/// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
-		/// </summary>
-		/// <param name="bulkUploadId"></param>
-		/// <param name="dateOfIngest"></param>
-		private void SwitchAliases()
+        /// switch aliases - 
+        /// delete epg_203_20190422 for epg_203_20190422_old_bulk_upload_id
+        /// add epg_203_20190422 for epg_203_20190422_current_bulk_upload_id
+        /// </summary>
+        /// <param name="bulkUploadId"></param>
+        /// <param name="dateOfIngest"></param>
+        private void SwitchAliases()
         {
             string currentProgramsAlias = BulkUploadMethods.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
             string globalAlias = _EpgBL.GetProgramIndexAlias();

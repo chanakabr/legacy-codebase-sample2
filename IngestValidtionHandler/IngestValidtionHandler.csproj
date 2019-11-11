@@ -29,8 +29,8 @@
     <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
-    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
-    <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\..\tvpapi_rest\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\ElasticsearchIndexCleaner\ElasticsearchIndexCleaner.csproj" />
     <ProjectReference Include="..\IngestHandler.Common\IngestHandler.Common.csproj" />
   </ItemGroup>
 
