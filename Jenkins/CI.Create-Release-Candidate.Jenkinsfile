@@ -5,12 +5,12 @@ node('Linux'){
         configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
         configFileProvider([configFile(fileId: 'd38c6b7b-b2ab-446b-b37f-d6064570d795', targetLocation: 'UpdateBuildStage.sh')]) {}
         def result = sh (script: "chmod +x RC-GetFailedBuilds.sh && ./RC-GetFailedBuilds.sh ${BRANCH_NAME} build", returnStatus: true)
-        if (result == 1){
+        if (result == '1'){
             echo "${result}"
             def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
             echo "${report}"
             currentBuild.result = 'FAILURE'
-            return   
+            sh 'exit 1'   
         }
             
     }
