@@ -13,13 +13,16 @@ node('Linux'){
             def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} rc ${env.BUILD_NUMBER} ${env.JOB_NAME} rc FAILURE ", returnStdout: true)
             echo "${report}"
             currentBuild.result = 'FAILURE'
-            exit 1    
+            return   
         }
     }
+    stage('Update Artifacts to Stage RC'){
         sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc")
 
-        def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
-        def missingArtifacts = []
+    }
+        
+    def s3CopyBuildToRcCommand = "aws s3 sync s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ s3://ott-be-builds/mediahub/${BRANCH_NAME}/rc/"
+    def missingArtifacts = []
     // }
             
 
