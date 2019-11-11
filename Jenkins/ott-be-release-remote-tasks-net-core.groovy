@@ -18,11 +18,8 @@ pipeline {
         stage("Checkout SCM"){
             steps{
                 deleteDir()
-                dir('TvmCore'){ git(url: 'git@github.com:kaltura/tvmcore.git', branch: "${params.branch}") }
                 dir('tvpapi_rest'){ git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('Core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
-                dir('CDNTokenizers'){ git(url: 'git@github.com:kaltura/CDNTokenizers.git', branch: "${params.branch}") }
-                dir('tvincicommon'){ git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 dir('remotetasks'){ git(url: 'git@github.com:kaltura/RemoteTasks.git', branch: "${params.branch}") }
                 dir('FtpApiServer'){ git(url: 'git@github.com:kaltura/FtpApiServer.git', branch: "${params.branch}") }
                 dir('SftpApiServer'){ git(url: 'git@github.com:kaltura/SftpApiServer.git', branch: "${params.branch}") }
@@ -32,8 +29,8 @@ pipeline {
             steps{
                 dir("Core"){
                     bat "sh DllVersioning.Core.sh ." 
-                    bat "sh DllVersioning.Core.sh ../TvmCore" 
                     bat "sh DllVersioning.Core.sh ../remotetasks" 
+                    bat "sh DllVersioning.Core.sh ../tvpapi_rest" 
                 }
             }        
         }
@@ -50,7 +47,8 @@ pipeline {
                 dir("SftpApiServer"){
                     bat "npm install" 
                     bat "npm run build" 
-                    bat "xcopy /y dist\\*.* ${WORKSPACE}\\published\\sftp-api-server\\"
+                    bat "xcopy /y node_modules ${WORKSPACE}\\published\\sftp-api-server\\node_modules\\ /S"
+                    bat "xcopy /y dist\\*.* ${WORKSPACE}\\published\\sftp-api-server\\ /S"
                 }
                 
             }        
