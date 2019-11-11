@@ -45,7 +45,6 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.CatalogClient().GetCountryByIp(groupId, ip);
-                
             }
             catch (ClientException ex)
             {

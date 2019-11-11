@@ -12,6 +12,8 @@ using log4net.Repository;
 using log4net.Util;
 using log4net.Appender;
 using System.Runtime.CompilerServices;
+using System.Xml;
+using System.IO;
 
 namespace KLogMonitor
 {
@@ -23,7 +25,7 @@ namespace KLogMonitor
         private static ConcurrentDictionary<string, ILog> _SeparateLogsMap = null;
         private static ILoggerRepository _LogRepository;
         private readonly List<LogEvent> _Logs;
-
+        private static string configurationFileName;
         public static LogicalThreadContextProperties LogContextData => LogicalThreadContext.Properties;
 
         #region Props
@@ -135,22 +137,27 @@ namespace KLogMonitor
                     a.Threshold = stdOutLogLevelThreshold;
                 });
             }
+
+            configurationFileName = logConfigFile;
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
         {
             AppType = appType;
             var repository = GetLoggerRepository();
+            
             var file = new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile));
             if (!repository.Configured)
             {
                 log4net.Config.XmlConfigurator.Configure(repository, file);
             }
-
+            
             if (SystemInfo.NullText == "(null)")
             {
                 SystemInfo.NullText = "null";
             }
+
+            configurationFileName = logConfigFile;
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType, string uniqueID)
@@ -159,7 +166,7 @@ namespace KLogMonitor
             Configure(logConfigFile, appType);
         }
 
-        public static void Reconfigure(string logConfigFile)
+        public static void ReconfigureFromFile(string logConfigFile)
         {
             try
             {
@@ -175,6 +182,37 @@ namespace KLogMonitor
             }
         }
 
+        public static string GetConfigurationXML()
+        {
+            return File.ReadAllText(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, configurationFileName));
+        }
+
+        public static void Reconfigure(string configurationXML)
+        {
+            try
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.LoadXml(configurationXML);
+                var element = (XmlElement)xmlDocument.SelectSingleNode("//configuration/log4net");
+
+                if (element != null)
+                {
+                    KLogger.Reconfigure(element);
+                    KMonitor.Reconfigure(element);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public static void Reconfigure(XmlElement xml)
+        {
+            var repository = GetLoggerRepository();
+            repository.ResetConfiguration();
+            log4net.Config.XmlConfigurator.Configure(repository, xml);
+        }
+
         #endregion
 
         #region Getters and setters
@@ -186,6 +224,7 @@ namespace KLogMonitor
         public static void SetAction(string action) => LogContextData[Constants.ACTION] = action;
 
         public static void SetTopic(string topic) => LogContextData[Constants.TOPIC] = topic;
+
         public static void SetGroupId(string groupId) => LogContextData[Constants.GROUP_ID] = groupId;
 
         #endregion

@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using System.Xml;
 using log4net;
 using log4net.Core;
 using log4net.Filter;
@@ -184,13 +185,28 @@ namespace KLogMonitor
             Configure(logConfigFile, appType);
         }
 
-        public static void Reconfigure(string logConfigFile)
+        public static void ReconfigureFromFile(string logConfigFile)
         {
             var repository = KLogger.GetLoggerRepository();
             var file = new System.IO.FileInfo(string.Format("{0}{1}", AppDomain.CurrentDomain.BaseDirectory, logConfigFile));
             repository.ResetConfiguration();
 
             log4net.Config.XmlConfigurator.Configure(repository, file);
+        }
+
+        public static void Reconfigure(string configurationXML)
+        {
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(configurationXML);
+
+            Reconfigure(xmlDocument.DocumentElement);
+        }
+
+        public static void Reconfigure(XmlElement xml)
+        {
+            var repository = KLogger.GetLoggerRepository();
+            repository.ResetConfiguration();
+            log4net.Config.XmlConfigurator.Configure(repository, xml);
         }
 
         public override string ToString()

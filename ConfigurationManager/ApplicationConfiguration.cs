@@ -148,6 +148,8 @@ namespace ConfigurationManager
         public static NumericConfigurationValue EpgInitialId;
         public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
         public static AdaptersConfiguration AdaptersConfiguration;
+        public static NumericConfigurationValue LogReloadInterval;
+
         #endregion
 
         #region Private Members
@@ -637,6 +639,12 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
+            LogReloadInterval = new NumericConfigurationValue("log_reload_interval")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = 300000,
+                Description = "Interval of reloading the KLogger configuration from Couchbase, in milliseconds."
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -753,7 +761,8 @@ namespace ConfigurationManager
                     TVPApiConfiguration,
                     ShouldSupportCeleryMessages,
                     ShouldSupportEventBusMessages,
-                    ShouldRecoverSubscriptionRenewalToMessageBus
+                    ShouldRecoverSubscriptionRenewalToMessageBus,
+                    LogReloadInterval
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
