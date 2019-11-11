@@ -15,9 +15,12 @@ node('Linux'){
             currentBuild.result = 'FAILURE'
             return   
         }
+        else {
+            sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc")
+        }
     }
     stage('Update Artifacts to Stage RC'){
-        sh (script: "chmod +x UpdateBuildStage.sh && ./UpdateBuildStage.sh ${BRANCH_NAME} build rc")
+        
 
     }
         
