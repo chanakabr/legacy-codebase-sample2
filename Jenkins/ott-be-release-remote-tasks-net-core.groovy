@@ -17,6 +17,7 @@ pipeline {
     stages {
         stage("Checkout SCM"){
             steps{
+                deleteDir()
                 dir('TvmCore'){ git(url: 'git@github.com:kaltura/tvmcore.git', branch: "${params.branch}") }
                 dir('tvpapi_rest'){ git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('Core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
