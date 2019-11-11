@@ -52,6 +52,7 @@ using EPGUnit = ApiObjects.EPGUnit;
 using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Language = ApiObjects.Language;
+using ConfigurationManager;
 
 namespace TVPApiServices
 {
@@ -1035,7 +1036,7 @@ namespace TVPApiServices
         public List<EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<EPGChannelProgrammeObject> programs = null;
-            int searchOffsetDays = int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]);
+            int searchOffsetDays = ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2969,8 +2970,8 @@ namespace TVPApiServices
                     int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
                     DateTime _startTime, _endTime;
 
-                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _startTime = DateTime.UtcNow.AddDays(-ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
+                    _endTime = DateTime.UtcNow.AddDays(ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
 
                     loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
@@ -3014,8 +3015,8 @@ namespace TVPApiServices
 
                     DateTime _startTime, _endTime;
 
-                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _startTime = DateTime.UtcNow.AddDays(-ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
+                    _endTime = DateTime.UtcNow.AddDays(ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
                     ;
 
                     retVal = new APIEPGAutoCompleteLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
@@ -3113,8 +3114,8 @@ namespace TVPApiServices
                     int language = TextLocalizationManager.Instance.GetTextLocalization(groupID, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
                     DateTime _startTime, _endTime;
 
-                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _startTime = DateTime.UtcNow.AddDays(-ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
+                    _endTime = DateTime.UtcNow.AddDays(ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
 
                     loaderResult = new APIEPGSearchLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, andList, orList, true, _startTime, _endTime)
                     {
