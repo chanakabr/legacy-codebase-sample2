@@ -34,6 +34,8 @@ namespace WebAPI
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
+
+            Utils.LogReloader.Initiate();
         }
 
         private static void InitializeLogging()
