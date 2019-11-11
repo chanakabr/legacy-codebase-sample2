@@ -94,7 +94,7 @@ def TriggerWrapper(){
                                                 ], wait: false
 }
 def FindMissingArtifacts(){
-    def s3ListCommand = "aws s3 ls s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ | awk '{print \$4}' | grep -oE '(.*)(-)' | sed 's/-\$//g'"
+    def s3ListCommand = "aws s3 ls s3://ott-be-builds/mediahub/${BRANCH_NAME}/build/ | awk '{print \$4}' | sed 's/-\$//g'" //| grep -oE '(.*)(-)' 
     def foundArtifacts = []
     def requiredArtifacts = ['celery-tasks.zip','phoenix.zip','remote-tasks.zip','tvm.zip','tvpapi.zip','ws-ingest.zip']
     def missingArtifacts = requiredArtifacts.collect()
