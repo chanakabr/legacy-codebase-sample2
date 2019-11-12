@@ -87,7 +87,7 @@ node('Linux'){
 
 
 def TriggerWrapper(){
-    build job: 'OTT-BE-Test-Wrapper', parameters: [
+    build job: 'OTT-BE-Wrapper', parameters: [
                                                 string(name: 'BRANCH', value: "${BRANCH_NAME}"),
                                                 string(name: 'STAGE', value: "sanity"),
                                                 string(name: 'AUTOKILL', value: "true"),
