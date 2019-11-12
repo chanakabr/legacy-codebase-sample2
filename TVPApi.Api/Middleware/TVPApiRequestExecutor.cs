@@ -31,11 +31,6 @@ namespace TVPApi.Web.Middleware
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
                 {
-                    // get request ID
-                    var reqestId = Guid.NewGuid().ToString();
-                    context.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = reqestId;
-                    KLogger.SetRequestId(reqestId);
-
                     // get action name
                     var queryString = context.Request.GetQueryString();
 

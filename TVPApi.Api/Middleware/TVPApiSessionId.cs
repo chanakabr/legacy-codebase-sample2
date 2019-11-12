@@ -23,23 +23,20 @@ namespace TVPApi.Web.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            using (var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
+            Guid sessionId;
+            if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
             {
-                Guid sessionId;
-                if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
-                {
-                    sessionId = new Guid(sessionHeader);
-                }
-                else
-                {
-                    sessionId = Guid.NewGuid();
-                }
-                context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
-                KLogger.SetRequestId(sessionId.ToString());
-                
-                context.Response.Headers["X-Kaltura-Session"] = sessionId.ToString();
-                await _Next(context);
+                sessionId = new Guid(sessionHeader);
             }
+            else
+            {
+                sessionId = Guid.NewGuid();
+            }
+            context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
+            KLogger.SetRequestId(sessionId.ToString());
+
+            context.Response.Headers["X-Kaltura-Session"] = sessionId.ToString();
+            await _Next(context);
         }
     }
 }
