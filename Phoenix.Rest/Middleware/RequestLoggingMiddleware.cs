@@ -44,8 +44,6 @@ namespace Phoenix.Rest.Middleware
                 builder.Append($"{header.Key}:{header.Value}, ");
             }
             
-            builder.AppendLine();
-
             var buffer = new byte[Convert.ToInt32(request.ContentLength)];
             await request.Body.ReadAsync(buffer, 0, buffer.Length);
             request.Body.Seek(0, SeekOrigin.Begin);

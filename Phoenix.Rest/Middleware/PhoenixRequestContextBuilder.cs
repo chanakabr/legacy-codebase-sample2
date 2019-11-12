@@ -42,7 +42,6 @@ namespace Phoenix.Rest.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             KS.ClearOnRequest();
-            context.Items[RequestContext.REQUEST_TIME] = DateTime.UtcNow;
 
             var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             if (phoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
