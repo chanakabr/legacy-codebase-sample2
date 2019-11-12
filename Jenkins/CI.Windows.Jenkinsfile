@@ -51,6 +51,9 @@ pipeline {
                         ]) 
                     }
                 }
+                stage('Report to CI DynamoDB'){
+                    report()
+                }
             }
         }
     }
