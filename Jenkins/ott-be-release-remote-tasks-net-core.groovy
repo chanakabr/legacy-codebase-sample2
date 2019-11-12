@@ -83,7 +83,6 @@ pipeline {
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME}\nbuild:<a href='${env.BUILD_URL}'>${env.BUILD_NUMBER}</a>\nPath:\\\\34.252.63.117\\version_release\\RemoteTasks\\${params.branch}\\remotetasks_${params.version}.zip \n"
             )
             report()
-
         }
     }
 }
