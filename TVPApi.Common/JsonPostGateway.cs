@@ -115,13 +115,22 @@ namespace TVPApi.Common
                 // remove api user and password before logging request
                 try
                 {
-                    var initObj = json["initObj"] as JObject;
+                    var initObj = json["initObj"];
 
-                    if (initObj != null)
+                    if (initObj != null && initObj is JObject)
                     {
                         (initObj as JObject).Remove("ApiUser");
                         (initObj as JObject).Remove("ApiPass");
                     }
+
+                    // remove known parameters of passwords
+                    json.Remove("sPassword");
+                    json.Remove("sOldPass");
+                    json.Remove("sPass");
+                    json.Remove("sNewPassword");
+                    json.Remove("sEncryptedPassword");
+                    json.Remove("sOldPass");
+                    json.Remove("password");
 
                     // log request body
                     logger.DebugFormat("API Request - \n{0}", initObj.ToString(Formatting.Indented));
