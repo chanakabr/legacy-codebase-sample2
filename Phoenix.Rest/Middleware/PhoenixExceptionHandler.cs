@@ -40,7 +40,10 @@ namespace Phoenix.Rest.Middleware
             {
                 try
                 {
+
                     var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+                    // for some reason klogger looses the reqId at this point
+                    KLogger.SetRequestId(ctx.SessionId);
                     int code;
                     string message;
                     string stackTrace;
@@ -79,14 +82,14 @@ namespace Phoenix.Rest.Middleware
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
 
                     var stringResponse = await formatter.GetStringResponse(errorResponse);
-                    KLogger.SetRequestId(ctx.SessionId);
+                   
                     _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}]{Environment.NewLine}reqId:[{ctx.SessionId}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
                     await context.Response.WriteAsync(stringResponse);
 
                 }
                 catch (Exception e)
                 {
-                    _Logger.Error($"Error while trying to generate an API Error response from APIException:[{JsonConvert.SerializeObject(ex)}]", e);
+                    _Logger.Error($"Error while trying to generate an API Error response from APIException:[{ex.ToString()}]", e);
                     throw e;
                 }
             }
