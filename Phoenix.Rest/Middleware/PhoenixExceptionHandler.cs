@@ -20,8 +20,6 @@ namespace Phoenix.Rest.Middleware
     public class PhoenixExceptionHandler
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
         private readonly RequestDelegate _Next;
 
         public IResponseFromatterProvider _FormatterProvider { get; }
@@ -43,8 +41,6 @@ namespace Phoenix.Rest.Middleware
                 try
                 {
                     var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
-
-                    StatusWrapper errorResponse;
                     int code;
                     string message;
                     string stackTrace;
@@ -58,16 +54,18 @@ namespace Phoenix.Rest.Middleware
                     }
                     else
                     {
-                        _Logger.Error("Unexpected unknown error: ",ex);
                         code = (int)StatusCode.Error;
                         message = "Unknown error";
                         stackTrace = ex.StackTrace;
                         args = null;
                     }
 
-                    KalturaApiExceptionHelpers.HandleError(message, stackTrace);
                     var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
-                    errorResponse = new StatusWrapper(code, ctx.SessionId.Value, float.Parse(ctx.ApiMonitorLog.ExecutionTime), content, message);
+                    var errorResponse = new StatusWrapper
+                    {
+                        ExecutionTime = float.Parse(ctx.ApiMonitorLog.ExecutionTime),
+                        Result = content,
+                    };
 
 
                     // get proper response formatter but make sure errors should be only xml or json ...
@@ -75,14 +73,16 @@ namespace Phoenix.Rest.Middleware
                     var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
                     var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), ctx.Format);
 
-                    var response = await formatter.GetStringResponse(errorResponse);
-
                     context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
                     context.Response.Headers.Add("X-Kaltura", $"error-{code}");
                     context.Response.ContentType = formatter.AcceptContentTypes[0];
                     context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-                    await context.Response.WriteAsync(response);
+                    var stringResponse = await formatter.GetStringResponse(errorResponse);
+                    KLogger.SetRequestId(ctx.SessionId);
+                    _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}]{Environment.NewLine}reqId:[{ctx.SessionId}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
+                    await context.Response.WriteAsync(stringResponse);
+
                 }
                 catch (Exception e)
                 {
@@ -91,5 +91,7 @@ namespace Phoenix.Rest.Middleware
                 }
             }
         }
+
+       
     }
 }

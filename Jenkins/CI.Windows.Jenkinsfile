@@ -140,8 +140,8 @@ pipeline {
             }
             steps{
                 dir("published"){  
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix-windows-${BRANCH_NAME}.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp phoenix-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix-windows-${BRANCH_NAME}.zip")
+                    bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
+                    sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
                 }
                 report()
             }        
@@ -160,6 +160,7 @@ pipeline {
         }
     }
 }
+<<<<<<< HEAD
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
@@ -167,3 +168,5 @@ def report(){
     echo "${report}"
     // return report
 }
+=======
+>>>>>>> f0b9fdb65ec0b2937022b2520a8376ab16c3c630

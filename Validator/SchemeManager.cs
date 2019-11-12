@@ -62,7 +62,7 @@ namespace Validator.Managers.Scheme
             {
                 FileInfo dll = new FileInfo(filename.Substring(prefix.Length));
                 var projectDir = dll.Directory.Parent.Parent.Parent.Parent;
-                return projectDir.FullName;
+                return $"{projectDir.FullName}\\..\\Core\\";
             }
             else
             {
@@ -365,6 +365,12 @@ namespace Validator.Managers.Scheme
                 valid = false;
             }
 
+            var internalObject = type.GetCustomAttribute<InternalObjectAttribute>(true);
+            if (internalObject != null && internalObject.IsInternal)
+            {
+                return true;
+            }
+
             foreach (PropertyInfo property in type.GetProperties().Where(x => x.DeclaringType == type))
             {
                 var obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
@@ -392,8 +398,11 @@ namespace Validator.Managers.Scheme
             string serviceId = getServiceId(controller);
 
             ServiceAttribute serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>();
-            if (serviceAttribute == null) { return !strict; }
-                
+            if (serviceAttribute == null)
+            {
+                return !strict;
+            }
+ 
             var methods = controller.GetMethods().Where(x => x.IsPublic && x.DeclaringType.Namespace == "WebAPI.Controllers").OrderBy(method => method.Name).ToList();
             var hasValidActions = false;
             if (methods.Count == 0)
@@ -454,7 +463,7 @@ namespace Validator.Managers.Scheme
                     valid = false;
                 }
             }
-            else if (attribute.IsClass && attribute != typeof(string) && attribute != typeof(KalturaOTTFile) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)))
+            else if (attribute.IsClass && attribute != typeof(string) && attribute != typeof(KalturaOTTFile) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)) && attribute != typeof(KalturaOTTObject))
             {
                 logError("Error", declaringClass, string.Format("{0} object must inherit from KalturaOTTObject (or something that extends it)", description));
                 valid = false;

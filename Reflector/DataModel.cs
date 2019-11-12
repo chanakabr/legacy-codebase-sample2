@@ -18,7 +18,7 @@ namespace Reflector
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
             var solutionDir = Directory.GetParent(currentLocation).Parent.Parent.Parent.Parent;
-            var filePath = Path.Combine(solutionDir.FullName,@"WebAPI\Reflection\DataModel.cs");
+            var filePath = Path.Combine(solutionDir.FullName, @"..\Core\WebAPI\Reflection\DataModel.cs");
             return filePath;
         }
 
@@ -302,17 +302,20 @@ namespace Reflector
                     
                     foreach (var oldStandardArgumentAttribute in oldStandardAttributesMap[parameter.Name])
                     {
-                        if (string.IsNullOrEmpty(oldStandardArgumentAttribute.Key))
+                        if (!string.IsNullOrEmpty(oldStandardArgumentAttribute.Key))
                         {
-                            file.WriteLine("                            if(isOldVersion)");
+                            file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.Key + "\")) < 0)");
                             file.WriteLine("                            {");
                             file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.Value.oldName + "\";");
                             file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.Value.newName + "\";");
                             file.WriteLine("                            }");
                         }
-                        else
+                    }
+                    foreach (var oldStandardArgumentAttribute in oldStandardAttributesMap[parameter.Name])
+                    {
+                        if (string.IsNullOrEmpty(oldStandardArgumentAttribute.Key))
                         {
-                            file.WriteLine("                            if(isOldVersion || currentVersion.CompareTo(new Version(\"" + oldStandardArgumentAttribute.Key + "\")) < 0)");
+                            file.WriteLine("                            if(isOldVersion)");
                             file.WriteLine("                            {");
                             file.WriteLine("                                paramName = \"" + oldStandardArgumentAttribute.Value.oldName + "\";");
                             file.WriteLine("                                newParamName = \"" + oldStandardArgumentAttribute.Value.newName + "\";");
