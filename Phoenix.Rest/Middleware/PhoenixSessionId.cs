@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using WebAPI;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -26,7 +27,6 @@ namespace Phoenix.Rest.Middleware
         {
             using (var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
-                
                 string sessionId;
                 if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
                 {
@@ -37,10 +37,11 @@ namespace Phoenix.Rest.Middleware
                     sessionId = context.TraceIdentifier;
                 }
                 context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
+                context.Items[RequestContext.REQUEST_TIME] = DateTime.UtcNow;
+                context.Items[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+
                 KLogger.SetRequestId(sessionId.ToString());
                 KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
-                context.Items[Constants.HOST_IP] = context.Connection.RemoteIpAddress;
-
 
                 var phoenixCtx = new PhoenixRequestContext();
                 context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixCtx;
