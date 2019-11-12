@@ -40,6 +40,7 @@ namespace Phoenix.Rest.Middleware
         public static IApplicationBuilder UsePhoenix(this IApplicationBuilder app)
         {
             app.UseMiddleware<PhoenixExceptionHandler>();
+            app.UseMiddleware<RequestLoggingMiddleware>();
             AutoMapperConfig.RegisterMappings();
             app.UseMiddleware<PhoenixSessionId>();
             app.UseMiddleware<PhoenixCors>();
