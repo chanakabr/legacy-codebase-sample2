@@ -61,7 +61,6 @@ pipeline {
                     bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp ws-ingest.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest.zip")
                 }
-                report()
             }        
         }
         stage("Trigger Release Candidate"){
@@ -75,6 +74,11 @@ pipeline {
                     ]
                 )
             }
+        }
+    }
+    post {
+        always {
+            report()
         }
     }
 }
