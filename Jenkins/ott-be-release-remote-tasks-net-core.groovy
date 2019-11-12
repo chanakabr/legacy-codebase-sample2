@@ -17,6 +17,7 @@ pipeline {
     stages {
         stage("Checkout SCM"){
             steps{
+                sh 'exit 1'
                 deleteDir()
                 dir('tvpapi_rest'){ git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('Core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
@@ -76,13 +77,13 @@ pipeline {
     }
     post {
         always {
+            report()
             emailext (
                 subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
                 to: "arthur.vaverko@kaltura.com",
                 mimeType : "text/html",
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME}\nbuild:<a href='${env.BUILD_URL}'>${env.BUILD_NUMBER}</a>\nPath:\\\\34.252.63.117\\version_release\\RemoteTasks\\${params.branch}\\remotetasks_${params.version}.zip \n"
             )
-            report()
         }
     }
 }
