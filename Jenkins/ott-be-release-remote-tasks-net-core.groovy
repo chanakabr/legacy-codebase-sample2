@@ -28,7 +28,6 @@ pipeline {
         }
         stage("Version Patch"){
             steps{
-                sh 'exit 1'
                 dir("Core"){
                     bat "sh DllVersioning.Core.sh ." 
                     bat "sh DllVersioning.Core.sh ../remotetasks" 
@@ -78,7 +77,6 @@ pipeline {
     }
     post {
         always {
-            report()
             emailext (
                 subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}",
                 to: "arthur.vaverko@kaltura.com",
@@ -87,11 +85,4 @@ pipeline {
             )
         }
     }
-}
-
-
-def report(){
-    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${params.branch} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult}", returnStdout: true)
-    echo "${report}"
 }
