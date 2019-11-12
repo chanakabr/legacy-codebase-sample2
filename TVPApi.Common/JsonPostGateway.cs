@@ -103,6 +103,7 @@ namespace TVPApi.Common
                                 {
                                     int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
                                     HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                                    KLogger.SetGroupId(groupId.ToString());
                                 }
                             }
                         }

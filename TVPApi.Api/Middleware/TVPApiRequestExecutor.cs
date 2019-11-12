@@ -31,6 +31,33 @@ namespace TVPApi.Web.Middleware
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
                 {
+                    // get request ID
+                    var reqestId = Guid.NewGuid().ToString();
+                    context.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = reqestId;
+                    KLogger.SetRequestId(reqestId);
+
+                    // get action name
+                    var queryString = context.Request.GetQueryString();
+
+                    if (queryString != null && queryString["m"] != null)
+                    {
+                        var m = queryString["m"];
+                        context.Items[KLogMonitor.Constants.ACTION] = m;
+                        KLogger.SetAction(m);
+                    }
+                    // get user agent
+                    var userAgent = context.Request.GetUserAgentString();
+                    
+                    if (userAgent != null)
+                        context.Items[KLogMonitor.Constants.CLIENT_TAG] = userAgent;
+
+                    // get host IP
+                    if (context.Connection.RemoteIpAddress != null)
+                    {
+                        KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                        context.Items[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                    }
+                    
                     context.Items["ContentRootPath"] = _Host.ContentRootPath;
                     context.Items["WebRootPath"] = _Host.WebRootPath;
 
