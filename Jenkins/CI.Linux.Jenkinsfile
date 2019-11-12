@@ -64,5 +64,19 @@ pipeline {
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
             }
         }
+
+        stage('Deploy to Linux Host'){
+            steps{
+                
+                sh(label: "Run Image", script: "ssh 10.10.11.94 docker run -d -p 10.10.11.94:8080:80 --dns 10.10.11.94 -v /var/log:/var/log --name=phoenix-veon --log-opt max-size=150m -e TCM_URL='https://tcm.service.consul:8443' -e TCM_APP='OTT_API_SV_LINUX' -e TCM_SECTION='PROD_v5_2_2' -e TCM_APP_ID='5bf8cf60' -e TCM_APP_SECRET='5aaa99331c18f6bad4adeef93ab770c2' -e API_STD_OUT_LOG_LEVEL="Off" ${ECR_REPOSITORY}:${GIT_COMMIT}")
+            }
+        }
     }
 }
+
+
+
+
+// - add linux phoenix to chef
+// - create a server with the right tags
+// - make sure consul runs correctly 

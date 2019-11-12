@@ -143,6 +143,7 @@ pipeline {
                     bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix-windows-${BRANCH_NAME}.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp phoenix-windows-${BRANCH_NAME}.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix-windows-${BRANCH_NAME}.zip")
                 }
+                report()
             }        
         }
         stage("Trigger Release Candidate"){
@@ -158,4 +159,11 @@ pipeline {
             }
         }
     }
+}
+
+def report(){
+    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult}", returnStdout: true)
+    echo "${report}"
+    // return report
 }
