@@ -51,10 +51,11 @@ pipeline {
                         ]) 
                     }
                 }
-                stage('Report to CI DynamoDB'){
+                
+            }
+            stage('Report to CI DynamoDB'){
                     report()
                 }
-            }
         }
     }
 }
