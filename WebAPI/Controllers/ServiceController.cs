@@ -6,8 +6,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using Jil;
-using Newtonsoft.Json;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
@@ -21,14 +19,14 @@ using System.Web.Http.Description;
 
 namespace WebAPI.Controllers
 {
-#if NET461
+    #if NET461
     [RoutePrefix("api_v3")]
-#endif
+    #endif
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route(""), HttpGet, HttpOptions]
         public async Task<object> __Action([FromUri]string service, [FromUri]string action)
@@ -50,7 +48,7 @@ namespace WebAPI.Controllers
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}"), HttpPost]
-        public async Task<object> Multirequest(string service_name, List<object> methodParams = null)
+        public async Task<object> Multirequest(string service_name)
         {
             if (service_name.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -80,12 +78,12 @@ namespace WebAPI.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
-        {
+         {
             object response = null;
 
             try
             {
-                var methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
 
                 // add action to log
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
