@@ -17,7 +17,7 @@ pipeline {
     stages {
         stage("Checkout SCM"){
             steps{
-                sh 'exit 1'
+
                 deleteDir()
                 dir('tvpapi_rest'){ git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('Core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
@@ -28,6 +28,7 @@ pipeline {
         }
         stage("Version Patch"){
             steps{
+                sh 'exit 1'
                 dir("Core"){
                     bat "sh DllVersioning.Core.sh ." 
                     bat "sh DllVersioning.Core.sh ../remotetasks" 
