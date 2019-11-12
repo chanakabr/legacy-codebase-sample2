@@ -47,7 +47,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
                .ForMember(dest => dest.CouponGroupType, opt => opt.ResolveUsing(src => ConvertCouponGroupType(src.couponGroupType)))
                .ForMember(dest => dest.MaxHouseholdUses, opt => opt.MapFrom(src => src.maxDomainUses))
-               ;
+               .ForMember(dest => dest.DiscountCode, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_sDiscountCode)))
+               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => StringUtils.TryConvertTo<long>(src.m_sDiscountCode)));
+            ;
 
             // Price
             cfg.CreateMap<Price, KalturaPrice>()
