@@ -15,6 +15,9 @@ namespace Phoenix.Rest
     {
         public static async Task Main(string[] args)
         {
+            System.Net.ServicePointManager.DefaultConnectionLimit = 2048; // Max concurrent outbound requests
+            System.Threading.ThreadPool.GetMaxThreads(out int _, out int completionThreads);
+            System.Threading.ThreadPool.SetMinThreads(2048, completionThreads); // or higher
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
