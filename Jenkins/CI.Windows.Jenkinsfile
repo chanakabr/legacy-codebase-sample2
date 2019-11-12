@@ -57,7 +57,8 @@ pipeline {
                     steps{
                             report()
                     }
-                }
+            }
+            
         }
     }
 }
