@@ -160,7 +160,6 @@ pipeline {
         }
     }
 }
-<<<<<<< HEAD
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
@@ -168,5 +167,3 @@ def report(){
     echo "${report}"
     // return report
 }
-=======
->>>>>>> f0b9fdb65ec0b2937022b2520a8376ab16c3c630
