@@ -55,10 +55,10 @@ pipeline {
             }
          
         }
-        stage('Report to CI DynamoDB'){
-            steps{
-                    report()
-            }
+    }
+    post {
+        always {
+            report()
         }
     }
 }
