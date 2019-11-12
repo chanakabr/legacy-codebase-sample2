@@ -82,7 +82,15 @@ pipeline {
                 mimeType : "text/html",
                 body: "${currentBuild.currentResult}: Job ${env.JOB_NAME}\nbuild:<a href='${env.BUILD_URL}'>${env.BUILD_NUMBER}</a>\nPath:\\\\34.252.63.117\\version_release\\RemoteTasks\\${params.branch}\\remotetasks_${params.version}.zip \n"
             )
+            report()
 
         }
     }
+}
+
+
+def report(){
+    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult}", returnStdout: true)
+    echo "${report}"
 }
