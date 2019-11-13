@@ -3720,29 +3720,28 @@ namespace TvinciImporter
         {
             try
             {
-                int parentGroupID = UtilsDal.GetParentGroupID(groupId);
-
                 if (!string.IsNullOrEmpty(outputProtectionLevel))
                 {
+                    int parentGroupID = UtilsDal.GetParentGroupID(groupId);
+
                     // check if policy to file attachment should be through new CENC or not
-                    string rawStrFromConfig = WS_Utils.GetTcmConfigValue("OLD_DRM_EXC_GROUPS"); //TCM not relevant anymore 
-                    if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';')) // OLD_DRM_EXC_GROUPS not releventAnyMore
+                    string rawStrFromConfig = WS_Utils.GetTcmConfigValue("OLD_DRM_EXC_GROUPS");
+                    if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';'))
                     {
-                        // TODO: Arthur: Find WS_Encryptor and verify we really need to support it ..
+                        // old policy attachment
+                        string sWSURL = ApplicationConfiguration.EncryptorService.Value;
+                        string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
 
+                        if (string.IsNullOrEmpty(sWSURL))
+                            return;
 
-                        //// old policy attachment
-                        //string sWSURL = ApplicationConfiguration.EncryptorService.Value;
-                        //string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
+                        WS_Encryptor.EncryptorSoapClient service = new WS_Encryptor.EncryptorSoapClient(WS_Encryptor.EncryptorSoapClient.EndpointConfiguration.EncryptorSoap, sWSURL);
+                        service.ConfigureServiceClient();
 
-                        //WS_Encryptor.Encryptor service = new WS_Encryptor.Encryptor();
-                        //if (!string.IsNullOrEmpty(sWSURL))
-                        //    service.Url = sWSURL;
+                        var res = service.SetPolicyToFileByCoGuidAsync(parentGroupID, sWSPassword, outputProtectionLevel, coGuid, false).ExecuteAndWait();
 
-                        //bool res = service.SetPolicyToFileByCoGuid(parentGroupID, sWSPassword, outputProtectionLevel, coGuid, false);
-
-                        //if (!res)
-                        //    AddError(ref errorMessage, string.Format("Fail OPL:{0}, co_guid:{1}", outputProtectionLevel, coGuid));
+                        if (res?.Body?.SetPolicyToFileByCoGuidResult != true)
+                            AddError(ref errorMessage, string.Format("Fail OPL:{0}, co_guid:{1}", outputProtectionLevel, coGuid));
                     }
                     else
                     {

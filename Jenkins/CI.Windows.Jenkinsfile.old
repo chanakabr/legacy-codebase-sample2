@@ -55,11 +55,6 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            report()
-        }
-    }
 }
 
 def report(){
