@@ -41,8 +41,8 @@ namespace Phoenix.Rest.Middleware
             if (phoenixContext == null) { throw new Exception("Phoenix Context was lost on the way :/ this should never happen. if you see this message... hopefully..."); }
 
             object response = phoenixContext.IsMultiRequest
-                ? _ServiceController.Multirequest(phoenixContext.RouteData.Service).Result
-                : _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action).Result;
+                ? await _ServiceController.Multirequest(phoenixContext.RouteData.Service)
+                : await _ServiceController.Action(phoenixContext.RouteData.Service, phoenixContext.RouteData.Action);
 
             phoenixContext.Response = response;
 
