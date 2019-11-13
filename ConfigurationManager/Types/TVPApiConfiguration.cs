@@ -17,6 +17,7 @@ namespace ConfigurationManager
         public StringConfigurationValue DefaultTechnicalConfigurationFileLocation;
         public StringConfigurationValue DefaultMediaConfigurationFileLocation;
         public StringConfigurationValue DefaultSiteConfigurationFileLocation;
+        public NumericConfigurationValue EPGSearchOffsetDays;
 
         public TVPApiConfiguration(string key) : base(key)
         {
@@ -77,6 +78,13 @@ namespace ConfigurationManager
                 Description = "Location of XML file that will contain group-platform default values for media configuration.",
                 DefaultValue = "DefaultMediaConfiguration.config"
             };
+            EPGSearchOffsetDays = new NumericConfigurationValue("epg_search_offset_days", this)
+            {
+                ShouldAllowEmpty = true,
+                Description = "On old EPG search requests, how many days back/forward from now should we search. " +
+                "Originally from GlobalAppSettings.config, key EPGSearchOffsetDays.",
+                DefaultValue = 7
+            };
         }
     }
 
@@ -133,6 +141,4 @@ namespace ConfigurationManager
             return isOffline;
         }
     }
-
-    
 }
