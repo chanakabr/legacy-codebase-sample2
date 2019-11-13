@@ -135,11 +135,11 @@ namespace TVPApiServices
 
                     if (usersBasicDataTVM != null)
                     {
-                        response.result = new List<TVPApiModule.Objects.CRM.UserBasicData>();
+                        response.result = new List<UserBasicDataDTO>();
 
                         foreach (var userBasicDataTVM in usersBasicDataTVM)
                         {
-                            TVPApiModule.Objects.CRM.UserBasicData userResponseObject = new TVPApiModule.Objects.CRM.UserBasicData(userBasicDataTVM);
+                            UserBasicDataDTO userResponseObject = UserBasicDataDTO.ConvertToDTO(userBasicDataTVM);
 
                             response.result.Add(userResponseObject);
                         }

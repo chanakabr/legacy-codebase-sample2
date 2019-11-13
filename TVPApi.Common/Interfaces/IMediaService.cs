@@ -22,7 +22,7 @@ using Media = TVPApi.Media;
 using MediaMarkObject = ApiObjects.MediaMarkObject;
 using EPGUnit = ApiObjects.EPGUnit;
 using Core.Catalog;
-using Core.Catalog.Response;
+using TVPApiModule.Objects.CRM;
 
 namespace TVPApiServices
 {
@@ -249,10 +249,10 @@ namespace TVPApiServices
         List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
 
         [OperationContract]
-        List<AssetStatsResult> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime);
+        List<AssetStatsResultDTO> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime);
 
         [OperationContract]
-        List<AssetStatsResult> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType);
+        List<AssetStatsResultDTO> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType);
 
         [OperationContract]
         List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes);

@@ -53,6 +53,7 @@ using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Language = ApiObjects.Language;
 using ConfigurationManager;
+using TVPApiModule.Objects.CRM;
 
 namespace TVPApiServices
 {
@@ -3041,9 +3042,10 @@ namespace TVPApiServices
 
         #endregion
 
-        public List<AssetStatsResult> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+        public List<AssetStatsResultDTO> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime)
         {
-            List<AssetStatsResult> retVal = null;
+            
+            List<AssetStatsResultDTO> response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsStats", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3051,11 +3053,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, startTime, endTime)
+                    List<AssetStatsResult> retVal  = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, startTime, endTime)
                     {
                         Platform = initObj.Platform.ToString(),
                         DeviceId = initObj.UDID
                     }.Execute() as List<AssetStatsResult>;
+
+                    response = AssetStatsResultDTO.ConvertToDTO(retVal);
                 }
                 catch (Exception ex)
                 {
@@ -3067,12 +3071,12 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return retVal;
+            return response;
         }
 
-        public List<AssetStatsResult> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType)
+        public List<AssetStatsResultDTO> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType)
         {
-            List<AssetStatsResult> retVal = null;
+            List<AssetStatsResultDTO> response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsStats", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3080,12 +3084,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, DateTime.MinValue, DateTime.MaxValue)
+                    List<AssetStatsResult> retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, DateTime.MinValue, DateTime.MaxValue)
                     {
                         Platform = initObj.Platform.ToString(),
                         DeviceId = initObj.UDID,
                         SiteGuid = initObj.SiteGuid
                     }.Execute() as List<AssetStatsResult>;
+                    response = AssetStatsResultDTO.ConvertToDTO(retVal);
                 }
                 catch (Exception ex)
                 {
@@ -3097,7 +3102,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return retVal;
+            return response;
         }
 
         public List<EPGChannelProgrammeObject> SearchEPGByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int pageSize, int pageIndex)
