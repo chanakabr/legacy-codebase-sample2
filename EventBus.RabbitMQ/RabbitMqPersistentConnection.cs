@@ -34,18 +34,24 @@ namespace EventBus.RabbitMQ
                 {
                     if (_Instance == null)
                     {
-                        var configuration = ApplicationConfiguration.RabbitConfiguration.EventBus;
-                        var connectionFactory = new ConnectionFactory()
+                        var connectionFactory = new ConnectionFactory();
+                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
                         {
-                            HostName = configuration.HostName.Value,
-                            UserName = configuration.UserName.Value,
-                            Password = configuration.Password.Value,
-                            Port = configuration.Port.IntValue,
-                            DispatchConsumersAsync = true,
-                        };
+                            var configuration = ApplicationConfiguration.RabbitConfiguration.EventBus;
+                            connectionFactory.HostName = configuration.HostName.Value;
+                            connectionFactory.UserName = configuration.UserName.Value;
+                            connectionFactory.Password = configuration.Password.Value;
+                            connectionFactory.Port = configuration.Port.IntValue;
+                            connectionFactory.DispatchConsumersAsync = true;
 
-                        _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.IntValue}]");
-                        _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.QueueFailLimit.IntValue);
+                            _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.IntValue}]");
+                            _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.QueueFailLimit.IntValue);
+                        }
+                        else
+                        {
+                            _Logger.Info($"ShouldSupportEventBusMessages is false, Constructing connection factory with default values");
+                            _Instance = new RabbitMQPersistentConnection(connectionFactory);
+                        }
                     }
                 }
             }
