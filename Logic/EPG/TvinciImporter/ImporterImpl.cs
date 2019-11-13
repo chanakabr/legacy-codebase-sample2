@@ -3722,7 +3722,7 @@ namespace TvinciImporter
                         if (string.IsNullOrEmpty(sWSURL))
                             return;
 
-                        WS_Encryptor.EncryptorSoapClient service = new WS_Encryptor.EncryptorSoapClient(WS_Encryptor.EncryptorSoapClient.EndpointConfiguration.EncryptorSoap12, sWSURL);
+                        WS_Encryptor.EncryptorSoapClient service = new WS_Encryptor.EncryptorSoapClient(WS_Encryptor.EncryptorSoapClient.EndpointConfiguration.EncryptorSoap, sWSURL);
                         service.ConfigureServiceClient();
 
                         var res = service.SetPolicyToFileByCoGuidAsync(parentGroupID, sWSPassword, outputProtectionLevel, coGuid, false).ExecuteAndWait();
