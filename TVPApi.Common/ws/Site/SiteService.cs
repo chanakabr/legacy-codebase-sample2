@@ -303,7 +303,7 @@ namespace TVPApiServices
 
 
         //Get content from specific gallery items
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 

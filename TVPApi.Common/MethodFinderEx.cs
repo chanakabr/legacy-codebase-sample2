@@ -168,40 +168,7 @@ public partial class MethodFinder
             {
                 foreach (PropertyInfo propInfo in product.GetType().GetProperties())//check if object and properties of type objects and create them as well
                 {
-                    if (propInfo.PropertyType.IsClass && propInfo.PropertyType.Name != "String")
-                    {
-                        string key = string.Format("{0}Field", propInfo.Name);
-                        if (dic.ContainsKey(key))
-                        {
-                            propInfo.SetValue(product, CreateObjectInstance(propInfo.PropertyType), null);
-                            Parse(dic[key] as Dictionary<string, object>, propInfo.GetValue(product, null));
-                        }
-                        else
-                        {
-                            key = propInfo.Name;
-                            if (dic.ContainsKey(key))
-                            {
-                                propInfo.SetValue(product, CreateObjectInstance(propInfo.PropertyType), null);
-                                Parse(dic[key] as Dictionary<string, object>, propInfo.GetValue(product, null));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        string key = string.Format("{0}Field", propInfo.Name);
-                        if (dic.ContainsKey(key))
-                        {
-                            propInfo.SetValue(product, dic[key] as object, null);
-                        }
-                        else
-                        {
-                            key = propInfo.Name;
-                            if (dic.ContainsKey(key))
-                            {
-                                propInfo.SetValue(product, dic[key] as object, null);
-                            }
-                        }
-                    }
+                    ParseProperty(dic, product, propInfo);
                 }
             }
 
@@ -221,6 +188,44 @@ public partial class MethodFinder
             //    result = null;
             //}
             //return result;
+        }
+
+        private void ParseProperty(Dictionary<string, object> dic, object product, PropertyInfo propInfo)
+        {
+            if (propInfo.PropertyType.IsClass && propInfo.PropertyType.Name != "String")
+            {
+                string key = string.Format("{0}Field", propInfo.Name);
+                if (dic.ContainsKey(key))
+                {
+                    propInfo.SetValue(product, CreateObjectInstance(propInfo.PropertyType), null);
+                    Parse(dic[key] as Dictionary<string, object>, propInfo.GetValue(product, null));
+                }
+                else
+                {
+                    key = propInfo.Name;
+                    if (dic.ContainsKey(key))
+                    {
+                        propInfo.SetValue(product, CreateObjectInstance(propInfo.PropertyType), null);
+                        Parse(dic[key] as Dictionary<string, object>, propInfo.GetValue(product, null));
+                    }
+                }
+            }
+            else
+            {
+                string key = string.Format("{0}Field", propInfo.Name);
+                if (dic.ContainsKey(key))
+                {
+                    propInfo.SetValue(product, dic[key] as object, null);
+                }
+                else
+                {
+                    key = propInfo.Name;
+                    if (dic.ContainsKey(key))
+                    {
+                        propInfo.SetValue(product, dic[key] as object, null);
+                    }
+                }
+            }
         }
 
         protected T ConvertTotype<T>(object objToConvert)
