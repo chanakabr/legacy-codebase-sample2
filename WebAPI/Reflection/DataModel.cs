@@ -9814,6 +9814,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("system", "getCountry", false);
                             return SystemController.GetCountry((string) methodParams[0]);
                             
+                        case "getloglevel":
+                            RolesManager.ValidateActionPermitted("system", "getLogLevel", false);
+                            return SystemController.GetLogLevel();
+                            
                         case "gettime":
                             return SystemController.GetTime();
                             
@@ -9822,6 +9826,10 @@ namespace WebAPI.Reflection
                             
                         case "ping":
                             return SystemController.Ping();
+                            
+                        case "setloglevel":
+                            RolesManager.ValidateActionPermitted("system", "setLogLevel", false);
+                            return SystemController.SetLogLevel((KalturaLogLevel) methodParams[0]);
                             
                     }
                     break;
@@ -17507,6 +17515,9 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "getloglevel":
+                            return ret;
+                            
                         case "gettime":
                             return ret;
                             
@@ -17514,6 +17525,14 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "ping":
+                            return ret;
+                            
+                        case "setloglevel":
+                            ret.Add("level", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaLogLevel),
+                            });
                             return ret;
                             
                     }

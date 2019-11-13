@@ -11,9 +11,13 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using KLogMonitor;
 using TVinciShared;
+using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Service("system")]
     public class SystemController : IKalturaController
     {
@@ -85,6 +89,43 @@ namespace WebAPI.Controllers
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersionInfo.FileVersion;
+        }
+
+        /// <summary>
+        /// Gets the current level of the KLogger
+        /// </summary>
+        /// <returns></returns>
+        [Action(name:"getLogLevel", isInternal:true)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+
+        [ApiAuthorize]
+        static public string GetLogLevel()
+        {
+            return KLogger.GetLogLevel().ToString();
+        }
+
+        /// <summary>
+        /// Sets the current level of the KLogger
+        /// </summary>
+        /// <param name="level">Possible levels: trace, debug, info, warning, error, all</param>
+        /// <returns></returns>
+        [Action(name: "setLogLevel", isInternal: true)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+
+        [ApiAuthorize]
+        static public bool SetLogLevel(KalturaLogLevel level)
+        {
+            try
+            {
+                var loggerLevel = WebAPI.ObjectsConvertor.Mapping.GeneralMappings.ConvertLogLevel(level);
+                KLogger.SetLogLevel(loggerLevel);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error setting log level. ex = {ex}");
+                return false;
+            }
         }
     }
 }

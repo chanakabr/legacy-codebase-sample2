@@ -213,6 +213,19 @@ namespace KLogMonitor
             log4net.Config.XmlConfigurator.Configure(repository, xml);
         }
 
+        public static void SetLogLevel(log4net.Core.Level level)
+        {
+            var repostitory = GetLoggerRepository();
+            repostitory.Threshold = level;
+            ((log4net.Repository.Hierarchy.Hierarchy)repostitory).RaiseConfigurationChanged(EventArgs.Empty);
+        }
+
+        public static log4net.Core.Level GetLogLevel()
+        {
+            var repostitory = GetLoggerRepository();
+            return repostitory.Threshold;
+        }
+
         #endregion
 
         #region Getters and setters

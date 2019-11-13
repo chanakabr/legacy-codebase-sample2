@@ -1,9 +1,10 @@
 ﻿using WebAPI.Models.General;
 using AutoMapper.Configuration;
+using System;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
-    public class GeneralMeppings
+    public class GeneralMappings
     {
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
@@ -26,6 +27,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaLongValue
             cfg.CreateMap<long, KalturaLongValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
+        }
+
+        public static log4net.Core.Level ConvertLogLevel(KalturaLogLevel src)
+        {
+            switch (src)
+            {
+                case KalturaLogLevel.TRACE:
+                    return log4net.Core.Level.Trace;
+                case KalturaLogLevel.DEBUG:
+                    return log4net.Core.Level.Debug;
+                case KalturaLogLevel.INFO:
+                    return log4net.Core.Level.Info;
+                case KalturaLogLevel.WARN:
+                    return log4net.Core.Level.Warn;
+                case KalturaLogLevel.ERROR:
+                    return log4net.Core.Level.Error;
+                case KalturaLogLevel.ALL:
+                    return log4net.Core.Level.All;
+                default:
+                    return log4net.Core.Level.All;
+            }
         }
     }
 }

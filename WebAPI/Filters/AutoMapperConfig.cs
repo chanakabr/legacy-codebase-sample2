@@ -22,7 +22,7 @@ namespace WebAPI.Filters
         public static void RegisterMappings()
         {
             MapperConfigurationExpression cfg = new MapperConfigurationExpression();
-            GeneralMeppings.RegisterMappings(cfg);
+            GeneralMappings.RegisterMappings(cfg);
             UsersMappings.RegisterMappings(cfg);
             CatalogMappings.RegisterMappings(cfg);
             ApiMappings.RegisterMappings(cfg);
