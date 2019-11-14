@@ -85,14 +85,7 @@ namespace Core.Users
 
         public User Clone()
         {
-            return CloneImpl();
-        }
-
-        protected virtual User CloneImpl()
-        {
-            var copy = (User)MemberwiseClone();
-
-            return copy;
+            return TVinciShared.ObjectCopier.Clone<User>(this);
         }
 
         public override CoreObject CoreClone()
