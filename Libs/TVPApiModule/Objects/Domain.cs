@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Serialization;
 using System.Linq;
 using ApiObjects;
+using TVPApiModule.Objects.CRM;
 
 namespace TVPApiModule.Objects
 {
@@ -237,7 +238,7 @@ namespace TVPApiModule.Objects
     public class DeviceContainer
     {
         [JsonProperty()]
-        public List<Device> DeviceInstances;
+        public List<DeviceDTO> DeviceInstances;
 
         [JsonProperty()]
         public string m_deviceFamilyName;
@@ -253,7 +254,7 @@ namespace TVPApiModule.Objects
 
         public DeviceContainer(Core.Users.DeviceContainer origin)
         {
-            this.DeviceInstances = origin.DeviceInstances;
+            this.DeviceInstances = origin.DeviceInstances.ConvertAll(DeviceDTO.ConvertToDTO);
             this.m_deviceFamilyID = origin.m_deviceFamilyID;
             this.m_deviceFamilyName = origin.m_deviceFamilyName;
             this.m_deviceLimit = origin.m_deviceLimit;

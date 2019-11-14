@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Statistics;
+using Newtonsoft.Json;
 using System;
 
 namespace TVPApiModule.Objects.CRM
@@ -14,5 +15,20 @@ namespace TVPApiModule.Objects.CRM
         [JsonProperty("UpdateDate")]
         [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
         public DateTime UpdateDate;
+
+        public static BuzzWeightedAverScoreDTO ConvertToDTO(BuzzWeightedAverScore weightedAverScore)
+        {
+            if(weightedAverScore == null)
+            {
+                return null;
+            }
+            BuzzWeightedAverScoreDTO res = new BuzzWeightedAverScoreDTO()
+            {
+                NormalizedWeightedAverageScore = weightedAverScore.NormalizedWeightedAverageScore,
+                WeightedAverageScore = weightedAverScore.WeightedAverageScore,
+                UpdateDate = weightedAverScore.UpdateDate
+            };
+            return res;
+        }
     }
 }

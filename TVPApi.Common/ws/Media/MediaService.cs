@@ -3056,7 +3056,7 @@ namespace TVPApiServices
                         DeviceId = initObj.UDID
                     }.Execute() as List<AssetStatsResult>;
 
-                    response = AssetStatsResultDTO.ConvertToDTO(retVal);
+                    response = retVal.ConvertAll(AssetStatsResultDTO.ConvertToDTO);
                 }
                 catch (Exception ex)
                 {
@@ -3087,7 +3087,7 @@ namespace TVPApiServices
                         DeviceId = initObj.UDID,
                         SiteGuid = initObj.SiteGuid
                     }.Execute() as List<AssetStatsResult>;
-                    response = AssetStatsResultDTO.ConvertToDTO(retVal);
+                    response = retVal.ConvertAll(AssetStatsResultDTO.ConvertToDTO);
                 }
                 catch (Exception ex)
                 {

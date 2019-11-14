@@ -59,7 +59,7 @@ namespace TVPApiServices
                         {
                             if (dc.DeviceInstances != null)
                             {
-                                foreach (Device device in dc.DeviceInstances)
+                                foreach (var device in dc.DeviceInstances)
                                 {
                                     DeviceInfo deviceInfo = new DeviceInfo();
                                     deviceInfo.Name = device.m_deviceName;
