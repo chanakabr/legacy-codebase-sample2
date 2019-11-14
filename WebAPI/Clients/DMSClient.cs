@@ -46,11 +46,13 @@ namespace WebAPI.Clients
 #if NETSTANDARD2_0
             httpHandler.MaxConnectionsPerServer = 1000;
 #endif
+            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
+            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
             httpClient = new HttpClient(httpHandler);
         }
 
-#region Configuration Group
-        public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
+    #region Configuration Group
+    public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
         {
             KalturaConfigurationGroup configurationGroup = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
