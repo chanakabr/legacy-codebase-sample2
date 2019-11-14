@@ -34,8 +34,6 @@ namespace WebAPI.Clients
         }
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string MOCK_GET_RESPONSE = "{\"token\":{\"key\":\"816f3dce-a251-4cab-ae22-fc784eaa3319\",\"valid\":637094132093531146},\"status\":\"registered\",\"udid\":\"3ZcDMDTVZa}\",\"version\":{\"id\":null,\"is_default\":false,\"group_configuration_id\":null,\"appname\":\"STB-P2\",\"clientversion\":\"5.0.2\",\"isforceupdate\":false,\"platform\":4,\"partnerid\":478,\"external_push_id\":null,\"type\":\"configuration\"},\"params\":{\"pgaid\":[{\"customer_type_1\":1554,\"customer_type_2\":1554,\"customer_type_3\":1554,\"customer_type_4\":1554,\"customer_type_5\":1554}],\"InitObj\":{\"ApiUser\":\"tvpapi_478\",\"ApiPass\":\"11111\",\"Platform\":\"stb\",\"Locale\":{\"LocaleUserState\":\"Unknown\",\"LocaleCountry\":\"null\",\"LocaleDevice\":\"null\",\"LocaleLanguage\":\"en\"}},\"FilesFormat\":{\"DASH_STB\":\"DASH_STB\"},\"Gateways\":{\"JsonGW\":\"https://api.rnd.ott.kaltura.com/gateways/jsonpostgw.aspx?m=\",\"RestGW\":\"https://api.rnd.ott.kaltura.com/api_v3/service/\"},\"Microservices\":{\"devicedetails\":\"https://api.rnd.ott.kaltura.com/api/p/478/service/devicedetails/action/list\"},\"MediaTypes\":{\"Movie\":\"596\",\"Episode\":\"597\",\"Series\":\"598\",\"Person\":\"599\",\"Linear\":\"600\",\"Collection\":\"601\",\"Package\":\"602\",\"Supporting\":\"603\",\"Trailer\":\"604\"},\"isforceupdate\":true,\"ForcedUpdateURL\":[{\"upgrade_url\":\"http://tveupdate.gcdn.co/00.01.03.1/beeline_geniatech_ota_userdebug_00.01.03.1_testkeys.zip\",\"md5\":\"2d3f6e12640988daa6bb2cec5a2c96db\"}],\"tns_rating\":[{\"tns_live_enabled\":\"True\",\"tns_cu_enabled\":\"True\",\"tns_url\":\"http://www.tns-counter.ru/V13a**\"}],\"EPGUpdatesFreqHours\":\"6\",\"GID'\":\"478\",\"RootCategoryID\":\"3857\",\"MobileRootCategoryID\":\"3773\",\"apiVersion\":\"4.7\",\"intro_video\":\"564556\",\"bg_video\":\"564555\",\"Regions\":\"https://static.beeline.tv/catalog/region_20180724.xml\",\"ott_user_type_default_region\":\"1077\",\"EULA\":\"https://static.beeline.tv/catalog/html_forms/EULA.html\",\"rolling_buffer_hours\":\"72\",\"dictionary_url_rus\":\"http://static.beeline.tv/catalog/translations/201804061050_Rus.xml\",\"Suggested_recalculation_period \":\"7\",\"Suggested_calculation_by_last_x_items \":\"20\",\"last_chance_label_vod_alert\":172800,\"last_chance_label_catchup_alert\":259200}}";
-
 
         #region Configuration Group
         public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
@@ -258,17 +256,16 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
 
-            //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            //request.AutomaticDecompression = DecompressionMethods.GZip;
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
+            request.AutomaticDecompression = DecompressionMethods.GZip;
 
-            //using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
-            //using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            //using (Stream stream = response.GetResponseStream())
-            //using (StreamReader reader = new StreamReader(stream))
-            //{
-            //    result = reader.ReadToEnd();
-            //}
-            result = MOCK_GET_RESPONSE;
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                result = reader.ReadToEnd();
+            }
             return result;
         }
 
