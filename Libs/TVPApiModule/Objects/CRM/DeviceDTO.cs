@@ -39,7 +39,7 @@ namespace TVPApiModule.Objects.CRM
             if (device == null)
             {
                 return null;
-            }
+            } 
             DeviceDTO res = new DeviceDTO();
             res.m_id = device.m_id;
             res.m_deviceUDID = device.m_deviceUDID;
