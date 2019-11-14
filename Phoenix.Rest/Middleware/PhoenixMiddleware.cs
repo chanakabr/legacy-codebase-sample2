@@ -40,13 +40,13 @@ namespace Phoenix.Rest.Middleware
             var maxIOWorkerThreadsToSet = GetEnvironmnetVariableInt("MAX_IO_WORKER_THREADS", defaultVal: minCompletionThreads);
             var connectionLimitToSet = GetEnvironmnetVariableInt("MAX_CONN_LIMIT", defaultVal: ServicePointManager.DefaultConnectionLimit);
 
-            System.Threading.ThreadPool.SetMinThreads(minWorkerThreadsToSet, minIOWorkerThreadsToSet); // or higher
-            System.Threading.ThreadPool.SetMaxThreads(maxWorkerThreadsToSet, maxIOWorkerThreadsToSet); // or higher
+            var setMaxResult = System.Threading.ThreadPool.SetMaxThreads(maxWorkerThreadsToSet, maxIOWorkerThreadsToSet); // or higher
+            var setMinResult = System.Threading.ThreadPool.SetMinThreads(minWorkerThreadsToSet, minIOWorkerThreadsToSet); // or higher
             System.Net.ServicePointManager.DefaultConnectionLimit = connectionLimitToSet; // Max concurrent outbound requests
 
             _Logger.Info($"Current ServicePointManager.DefaultConnectionLimit:{connectionLimitToSet}");
-            _Logger.Info($"Current Max workThreads/IO Threads :{maxWorkerThreadsToSet} / {maxIOWorkerThreadsToSet}");
-            _Logger.Info($"Current Min workThreads/IO Threads :{minWorkerThreadsToSet} / {minIOWorkerThreadsToSet}");
+            _Logger.Info($"Current Max workThreads/IO Threads :{maxWorkerThreadsToSet} / {maxIOWorkerThreadsToSet} result:[{setMaxResult}]");
+            _Logger.Info($"Current Min workThreads/IO Threads :{minWorkerThreadsToSet} / {minIOWorkerThreadsToSet} result:[{setMinResult}]");
 
             services.AddHttpContextAccessor();
             services.AddKalturaApplicationSessionContext();
