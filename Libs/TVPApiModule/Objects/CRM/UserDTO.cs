@@ -15,7 +15,7 @@ namespace TVPApiModule.Objects.CRM
         public UserStateDTO m_eUserState;
         public int m_nSSOOperatorID;
         public int GroupId;
-        public long ID; 
+        public long Id; 
 
 
         public static UserDTO ConvertToDTO(User user)
@@ -34,7 +34,7 @@ namespace TVPApiModule.Objects.CRM
             res.m_nSSOOperatorID = user.m_nSSOOperatorID;
             res.IsActivationGracePeriod = user.IsActivationGracePeriod;
             res.GroupId = user.GroupId;
-            res.ID = user.Id;
+            res.Id = user.Id;
             
             res.m_oDynamicData = UserDynamicDataDTO.ConvertToDTO(user.m_oDynamicData);
             return res;

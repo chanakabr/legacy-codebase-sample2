@@ -1,7 +1,6 @@
 ﻿using Core.Users;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+
 
 namespace TVPApiModule.Objects.CRM
 {
@@ -61,6 +60,7 @@ namespace TVPApiModule.Objects.CRM
             res.m_sZip = userBasicData.m_sZip;
             res.m_Country = CountryDTO.ConvertToDTO(userBasicData.m_Country);
             res.m_State = StateDTO.ConvertToDTO(userBasicData.m_State);
+            res.m_sTwitterToken = userBasicData.m_sTwitterToken;
             return res;
         }
 
