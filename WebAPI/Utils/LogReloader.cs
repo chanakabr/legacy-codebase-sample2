@@ -73,13 +73,6 @@ namespace WebAPI.Utils
                     timeStamp = TVinciShared.DateUtils.GetUtcUnixTimestampNow()
                 };
 
-                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>("log4net.config");
-
-                if (cbConfiguration == null)
-                {
-                    couchbaseManager.Set("log4net.config", configuration);
-                }
-
                 worker = new BackgroundWorker();
                 worker.DoWork += Worker_DoWork;
                 worker.RunWorkerAsync();
@@ -99,7 +92,7 @@ namespace WebAPI.Utils
         {
             try
             {
-                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>("log4net.config");
+                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>("phoenix_log_configuration");
 
                 // if configuration was updated
                 if (cbConfiguration != null && (configuration == null || cbConfiguration.timeStamp > configuration.timeStamp))
