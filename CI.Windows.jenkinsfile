@@ -2,6 +2,7 @@ pipeline {
     agent {
         label 'Windows'
     }
+    
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         skipDefaultCheckout true
