@@ -44,7 +44,7 @@ namespace WebAPI.Clients
         {
             httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
 #if NETSTANDARD2_0
-            httpHandler.MaxConnectionsPerServer = 2;
+            httpHandler.MaxConnectionsPerServer = 1000;
 #endif
             httpClient = new HttpClient(httpHandler);
         }
