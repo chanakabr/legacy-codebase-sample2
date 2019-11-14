@@ -512,7 +512,7 @@ namespace WebAPI.Controllers
                                 RequestContext.SetContext(parameters, request[i].Service, request[i].Action);
                                 Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
                                 List<Object> methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parameters);
-                                response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
+                                response = DataModel.execAction(request[i].Service, request[i].Action, methodParams).ConfigureAwait(false).GetAwaiter().GetResult();
                             }
                         }
                     }

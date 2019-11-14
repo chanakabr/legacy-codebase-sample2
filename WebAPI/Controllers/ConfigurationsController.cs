@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using System.Threading.Tasks;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -29,7 +30,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
-        static public KalturaStringRenderer ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
+        static public async Task<KalturaStringRenderer> ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
         {
             string response = null;
 
@@ -62,7 +63,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client               
-                response = DMSClient.Serve(partnerId, applicationName, clientVersion, platform, udid, tag);
+                response = await DMSClient.Serve(partnerId, applicationName, clientVersion, platform, udid, tag);
             }
             catch (ClientException ex)
             {

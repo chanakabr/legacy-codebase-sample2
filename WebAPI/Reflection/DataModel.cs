@@ -31,6 +31,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
+using System.Threading.Tasks;
 
 namespace WebAPI.Reflection
 {
@@ -6647,7 +6648,7 @@ namespace WebAPI.Reflection
             return property.Name;
         }
         
-        public static object execAction(string service, string action, List<object> methodParams)
+        public static async Task<object> execAction(string service, string action, List<object> methodParams)
         {
             service = service.ToLower();
             action = action.ToLower();
@@ -7360,7 +7361,7 @@ namespace WebAPI.Reflection
                             
                         case "servebydevice":
                             HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
-                            return ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
+                            return await ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("configurations", "update", false);

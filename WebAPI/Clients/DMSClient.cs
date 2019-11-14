@@ -8,6 +8,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -61,7 +62,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                result = CallGetDMSClient(url);
+                result = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -95,7 +96,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                dmsResult = CallGetDMSClient(url);
+                dmsResult = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -260,7 +261,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        private static string CallGetDMSClient(string url, string action = "api")
+        private static async Task<string> CallGetDMSClient(string url, string action = "api")
         {
             string result = string.Empty;
 
@@ -274,8 +275,8 @@ namespace WebAPI.Clients
             var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                HttpResponseMessage response = httpClient.GetAsync(dmsRestUrl).ExecuteAndWait();
-                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                HttpResponseMessage response = await httpClient.GetAsync(dmsRestUrl);
+                result = await response.Content.ReadAsStringAsync();
             }
 
             //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
@@ -339,7 +340,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                result = CallGetDMSClient(url);
+                result = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -374,7 +375,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                dmsResult = CallGetDMSClient(url);
+                dmsResult = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -471,7 +472,7 @@ namespace WebAPI.Clients
 
 #region Configuration
 
-        internal static string Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
+        internal static async Task<string> Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
         {
             string result = string.Empty;
             string url = string.Format("getconfig?appname={0}&cver={1}&platform={2}&udid={3}&partnerId={4}&tag={5}",
@@ -480,7 +481,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                result = CallGetDMSClient(url, "v2");
+                result = await CallGetDMSClient(url, "v2");
             }
             catch (Exception ex)
             {
@@ -513,7 +514,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                result = CallGetDMSClient(url);
+                result = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -548,7 +549,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                dmsResult = CallGetDMSClient(url);
+                dmsResult = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -700,7 +701,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                result = CallGetDMSClient(url);
+                result = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -735,7 +736,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                dmsResult = CallGetDMSClient(url);
+                dmsResult = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -841,7 +842,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                result = CallGetDMSClient(url);
+                result = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {
@@ -876,7 +877,7 @@ namespace WebAPI.Clients
             try
             {
                 // call client
-                dmsResult = CallGetDMSClient(url);
+                dmsResult = CallGetDMSClient(url).ExecuteAndWait();
             }
             catch (Exception ex)
             {

@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,
                     string.IsNullOrEmpty(action_name) ? "null" : action_name);
 
-                response = DataModel.execAction(service_name, action_name, methodParams);
+                response = await DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)
             {
@@ -158,7 +158,7 @@ namespace WebAPI.Controllers
             try
             {
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.RequestContext.REQUEST_METHOD_PARAMETERS];
-                response = DataModel.execAction(service_name, action_name, methodParams);
+                response = await DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)
             {
