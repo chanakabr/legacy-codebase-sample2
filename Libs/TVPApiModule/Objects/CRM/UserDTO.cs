@@ -15,7 +15,7 @@ namespace TVPApiModule.Objects.CRM
         public UserStateDTO m_eUserState;
         public int m_nSSOOperatorID;
         public int GroupId;
-        public long ID;
+        public long ID; 
 
 
         public static UserDTO ConvertToDTO(User user)
