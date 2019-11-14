@@ -91,6 +91,10 @@ namespace Tvinci.Data.DataLoader
         protected LoaderParameters Parameters = new LoaderParameters();
 
         int m_loaderIdentifier;
+
+        public string FlashVarsFileFormat;
+        public string FlashVarsSubFileFormat;
+
         public LoaderAdapter()
         {
             m_loaderIdentifier = UniqueIdentifier.GetHashCode();

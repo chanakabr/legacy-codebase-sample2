@@ -272,7 +272,7 @@ namespace TVPPro.SiteManager.DataLoaders
             }
 
             result.root.flashvars.use_start_date = GetFutureStartDate;
-            result.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = this.FlashVarsFileFormat;
             result.root.flashvars.file_quality = file_quality.high;
 
             result.root.flashvars.device_udid = DeviceUDID;

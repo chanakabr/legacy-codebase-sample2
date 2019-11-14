@@ -149,6 +149,9 @@ namespace Tvinci.Data.Loaders
 
         #endregion
 
+        public string FlashVarsFileFormat { get; set; }
+        public string FlashVarsSubFileFormat { get; set; }
+
         protected abstract void BuildSpecificRequest();
         protected abstract void Log(string message, object obj);
 

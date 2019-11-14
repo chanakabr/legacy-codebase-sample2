@@ -111,6 +111,9 @@ namespace TVPApiModule.DataLoaders
         {
             TvmUser = tvmUser;
             TvmPass = tvmPass;
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(this.GroupID).GetFlashVars(this.Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(this.GroupID).GetFlashVars(this.Platform).SubFileFormat;
         }
 
         public override object BCExecute(eExecuteBehaivor behaivor)
@@ -184,7 +187,7 @@ namespace TVPApiModule.DataLoaders
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
 
-            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
 
 

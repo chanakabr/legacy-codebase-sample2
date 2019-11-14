@@ -10,6 +10,7 @@ using TVPPro.SiteManager.DataEntities;
 using Tvinci.Helpers;
 using System.Configuration;
 using TVPApiServices;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for RSSWriter
@@ -72,7 +73,8 @@ public class RSSWriter
             m_writer.WriteStartElement("item");
             int numOfItems = galleryItem.NumberOfItemsPerPage;
             m_writer.WriteElementString("title", galleryItem.Title);
-            string fileType = ConfigManager.GetInstance().GetConfig(93, PlatformType.STB).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            string fileType = GroupsManager.GetGroup(93).GetFlashVars(PlatformType.STB).FileFormat;
+                //ConfigManager.GetInstance().GetConfig(93, PlatformType.STB).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
             TVMAccountType account = new PageData(93, PlatformType.STB).GetTVMAccountByUser(galleryItem.TVMUser);
             if (galleryItem.BooleanParam)
             {

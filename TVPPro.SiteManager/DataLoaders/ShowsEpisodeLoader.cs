@@ -36,7 +36,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         #region Members
         TVPPro.SiteManager.CatalogLoaders.SearchMediaLoader m_CatalogSearchLoader;
-        
+
         private string m_ShowNameMeta = string.Empty;
         private string m_SeasonNumerMeta = string.Empty;
         private string m_EpisodeNumberMeta = string.Empty;
@@ -298,7 +298,7 @@ namespace TVPPro.SiteManager.DataLoaders
             }
 
             //Set the response info_struct
-            protocol.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = this.FlashVarsFileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
             protocol.root.request.@params.with_info = "true";
             protocol.root.request.@params.info_struct.statistics = true;
