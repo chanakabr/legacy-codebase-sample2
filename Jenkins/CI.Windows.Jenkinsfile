@@ -11,6 +11,7 @@ pipeline {
     }
     stages {
         stage('Run Parallel Builds') {
+            script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
             parallel {
                 stage('Remote Tasks') {
                     steps{ 
