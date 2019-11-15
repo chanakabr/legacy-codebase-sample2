@@ -10,8 +10,13 @@ pipeline {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch Name')
     }
     stages {
-        stage('Run Parallel Builds') {
+        stage("Checkout"){
+        steps{
             script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
+            dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
+            }
+          }
+        stage('Run Parallel Builds') {
             parallel {
                 stage('Remote Tasks') {
                     steps{ 
@@ -68,7 +73,7 @@ pipeline {
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd core && git rev-parse HEAD", returnStdout: true).trim();
     def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
     echo "${report}"
     // return report
