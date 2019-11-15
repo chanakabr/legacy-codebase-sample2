@@ -98,6 +98,7 @@ pipeline {
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${params.branch} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult}", returnStdout: true)
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd remotetasks && git rev-parse HEAD", returnStdout: true).trim();
+    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
     echo "${report}"
 }
