@@ -30,7 +30,7 @@ namespace Phoenix.Rest
             services.ConfigurePhoenix();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // support multiple prefix slashes
             app.MapWhen(context =>
