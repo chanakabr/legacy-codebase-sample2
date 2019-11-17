@@ -1079,6 +1079,12 @@ namespace WebAPI.Reflection
                 case "KalturaNpvrPremiumService":
                     return new KalturaNpvrPremiumService(parameters);
                     
+                case "KalturaObjectVirtualAssetInfo":
+                    return new KalturaObjectVirtualAssetInfo(parameters);
+                    
+                case "KalturaObjectVirtualAssetPartnerConfig":
+                    return new KalturaObjectVirtualAssetPartnerConfig(parameters);
+                    
                 case "KalturaOrCondition":
                     return new KalturaOrCondition(parameters);
                     
@@ -24510,6 +24516,52 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("defaultRegion") && parameters["defaultRegion"] != null)
                 {
                     DefaultRegion = (Int32) Convert.ChangeType(parameters["defaultRegion"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaObjectVirtualAssetInfo
+    {
+        public KalturaObjectVirtualAssetInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("assetStructId") && parameters["assetStructId"] != null)
+                {
+                    AssetStructId = (Int32) Convert.ChangeType(parameters["assetStructId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("metaId") && parameters["metaId"] != null)
+                {
+                    MetaId = (Int32) Convert.ChangeType(parameters["metaId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    Type = (KalturaObjectVirtualAssetInfoType) Enum.Parse(typeof(KalturaObjectVirtualAssetInfoType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaObjectVirtualAssetInfoType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaObjectVirtualAssetInfoType)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaObjectVirtualAssetPartnerConfig
+    {
+        public KalturaObjectVirtualAssetPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objectVirtualAssets") && parameters["objectVirtualAssets"] != null)
+                {
+                    if (parameters["objectVirtualAssets"] is JArray)
+                    {
+                        ObjectVirtualAssets = buildList<KalturaObjectVirtualAssetInfo>(typeof(KalturaObjectVirtualAssetInfo), (JArray) parameters["objectVirtualAssets"]);
+                    }
+                    else if (parameters["objectVirtualAssets"] is IList)
+                    {
+                        ObjectVirtualAssets = buildList(typeof(KalturaObjectVirtualAssetInfo), parameters["objectVirtualAssets"] as object[]);
+                    }
                 }
             }
         }

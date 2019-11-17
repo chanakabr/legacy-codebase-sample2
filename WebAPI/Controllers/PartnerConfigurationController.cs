@@ -107,6 +107,11 @@ namespace WebAPI.Controllers
                     KalturaGeneralPartnerConfig partnerConfig = configuration as KalturaGeneralPartnerConfig;
                     response = ClientsManager.ApiClient().UpdateGeneralPartnerConfiguration(groupId, partnerConfig);
                 }
+                else if (configuration is KalturaObjectVirtualAssetPartnerConfig)
+                {
+                    KalturaObjectVirtualAssetPartnerConfig partnerConfig = configuration as KalturaObjectVirtualAssetPartnerConfig;
+                    response = ClientsManager.ApiClient().UpdateEntityEnhancementPartnerConfiguration(groupId, partnerConfig);
+                }
                 else
                 {
                     throw new InternalServerErrorException();

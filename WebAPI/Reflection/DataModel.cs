@@ -3856,6 +3856,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaObjectVirtualAssetInfo":
+                    switch(property.Name)
+                    {
+                        case "AssetStructId":
+                            return "assetStructId";
+                        case "MetaId":
+                            return "metaId";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaObjectVirtualAssetPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "ObjectVirtualAssets":
+                            return "objectVirtualAssets";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {

@@ -4394,5 +4394,15 @@ namespace WebAPI.Clients
             Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id, userId);
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
         }
+
+        internal bool UpdateEntityEnhancementPartnerConfiguration(int groupId, KalturaObjectVirtualAssetPartnerConfig partnerConfig)
+        {
+            //Func<EntityEnhancementPartnerConfig, Status> UpdateConfigFunc = (EntityEnhancementPartnerConfig partnerConfigToUpdate) =>
+            //Core.Api.Module.UpdateEntityEnhancementPartnerConfiguration(groupId, UpdateConfigFunc);
+
+            //ClientUtils.GetResponseStatusFromWS<KalturaEntityEnhancementPartnerConfig, EntityEnhancementPartnerConfig>(UpdateConfigFunc, partnerConfig);
+
+            return true;
+        }
     }
 }

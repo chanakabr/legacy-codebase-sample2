@@ -24391,6 +24391,74 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaObjectVirtualAssetInfo
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AssetStructId.HasValue)
+            {
+                ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
+            }
+            if(MetaId.HasValue)
+            {
+                ret.Add("metaId", "\"metaId\": " + MetaId);
+            }
+            ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(AssetStructId.HasValue)
+            {
+                ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
+            }
+            if(MetaId.HasValue)
+            {
+                ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
+            }
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "" + "</type>");
+            return ret;
+        }
+    }
+    public partial class KalturaObjectVirtualAssetPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ObjectVirtualAssets != null)
+            {
+                propertyValue = "[" + String.Join(", ", ObjectVirtualAssets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objectVirtualAssets", "\"objectVirtualAssets\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ObjectVirtualAssets != null)
+            {
+                propertyValue = ObjectVirtualAssets.Count > 0 ? "<item>" + String.Join("</item><item>", ObjectVirtualAssets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objectVirtualAssets", "<objectVirtualAssets>" + propertyValue + "</objectVirtualAssets>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPartnerConfiguration
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
