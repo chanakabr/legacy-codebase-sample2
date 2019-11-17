@@ -28,11 +28,12 @@ namespace TVPApiModule.Objects.CRM
         public string m_sStreamType;
 
         public string m_sProfile;
+        public string LicenseData;
         /*public int m_groupID;
         
         public string m_deviceBrand;
 
-        public string LicenseData;*/
+        */
 
         public static DeviceDTO ConvertToDTO(Device device)
         {
@@ -51,9 +52,9 @@ namespace TVPApiModule.Objects.CRM
             res.m_pin = device.m_pin;
             res.m_activationDate = device.m_activationDate;
             res.m_state = device.m_state;
-            res.m_sStreamType = device.m_sStreamType;
-            res.m_sProfile = device.m_sProfile;
-
+            res.m_sStreamType = device.m_sStreamType ?? string.Empty;
+            res.m_sProfile = device.m_sProfile ?? string.Empty; 
+            res.LicenseData = device.LicenseData;
             return res;
         }
     }
