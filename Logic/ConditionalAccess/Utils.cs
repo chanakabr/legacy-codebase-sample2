@@ -7150,10 +7150,10 @@ namespace Core.ConditionalAccess
             return domainIdToRecordingMap;
         }
 
-        internal static List<Recording> GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        internal static List<Recording> GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId, bool isPrivateCopy)
         {
             List<Recording> recordings = new List<Recording>();
-            DataTable dt = RecordingsDAL.GetRecordingsByExternalRecordingId(groupId, externalRecordingId);
+            DataTable dt = RecordingsDAL.GetRecordingsByExternalRecordingId(groupId, externalRecordingId, isPrivateCopy);
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)
