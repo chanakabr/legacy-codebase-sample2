@@ -120,6 +120,11 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
+        public bool ShouldPageGroups
+        {
+            get;
+            set;
+        }
 
         #endregion
 
@@ -332,7 +337,7 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.GetAllDocuments)
+                        if (this.GetAllDocuments && !ShouldPageGroups)
                         {
                             size = -1;
                         }
