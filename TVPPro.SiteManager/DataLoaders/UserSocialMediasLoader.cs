@@ -165,7 +165,7 @@ namespace TVPPro.SiteManager.DataLoaders
                 result.root.flashvars.pic_size1_quality = "HIGH";
             }
 
-            result.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = this.FlashVarsFileFormat;
             result.root.flashvars.file_quality = file_quality.high;
 
             if (WithInfo)

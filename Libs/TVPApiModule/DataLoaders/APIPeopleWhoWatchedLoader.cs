@@ -171,7 +171,9 @@ namespace TVPApi
             result.root.flashvars.player_un = TvmUser;
             result.root.flashvars.player_pass = TvmPass;
 
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.request.@params.with_info = WithInfo.ToString();
             result.root.request.@params.info_struct.statistics = true;
