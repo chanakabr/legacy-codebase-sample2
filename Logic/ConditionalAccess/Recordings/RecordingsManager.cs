@@ -264,7 +264,7 @@ namespace Core.Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId);
+                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId, isPrivateCopy);
                 bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
                 // if last recording then update ES and CB
                 if (isLastRecording || deleteEpgEvent)
