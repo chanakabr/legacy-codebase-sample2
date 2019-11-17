@@ -264,13 +264,14 @@ namespace TVPApiModule.Objects
 
     public class DomainResponseObject
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Domain m_oDomain;
         public DomainResponseStatus m_oDomainResponseStatus;
 
 
         public DomainResponseObject(Core.Users.DomainResponseObject origin)
         {
-            this.m_oDomain = new Domain(origin.m_oDomain);
+            this.m_oDomain = origin.m_oDomain == null ? null : new Domain(origin.m_oDomain);
             this.m_oDomainResponseStatus = origin.m_oDomainResponseStatus;
         }
     }
