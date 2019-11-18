@@ -495,8 +495,10 @@ namespace Core.Recordings
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+
                     // deal with CRIDs and stuff
-                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId);
+                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId, isPrivateCopy);
 
                     // get all the recordings with the same ExternalId, if our recording is the only one -> go to the adapter
                     if (recordingsWithTheSameExternalId.Count == 1)
