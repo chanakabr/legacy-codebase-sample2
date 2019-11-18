@@ -3913,10 +3913,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType, long userId)
         {
             Func<SegmentationType, GenericResponse<SegmentationType>> addSegmentationTypeFunc = (SegmentationType segmentTypeToAdd) =>
-                Core.Api.Module.AddSegmentationType(groupId, segmentTypeToAdd);
+                Core.Api.Module.AddSegmentationType(groupId, segmentTypeToAdd, userId);
 
             KalturaSegmentationType result =
                 ClientUtils.GetResponseFromWS<KalturaSegmentationType, SegmentationType>(kalturaSegmentationType, addSegmentationTypeFunc);
@@ -4395,12 +4395,12 @@ namespace WebAPI.Clients
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
         }
 
-        internal bool UpdateEntityEnhancementPartnerConfiguration(int groupId, KalturaObjectVirtualAssetPartnerConfig partnerConfig)
+        internal bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, KalturaObjectVirtualAssetPartnerConfig partnerConfig)
         {
-            //Func<EntityEnhancementPartnerConfig, Status> UpdateConfigFunc = (EntityEnhancementPartnerConfig partnerConfigToUpdate) =>
-            //Core.Api.Module.UpdateEntityEnhancementPartnerConfiguration(groupId, UpdateConfigFunc);
+            Func<ObjectVirtualAssetPartnerConfig, Status> UpdateConfigFunc = (ObjectVirtualAssetPartnerConfig partnerConfigToUpdate) =>
+            Core.Api.Module.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
 
-            //ClientUtils.GetResponseStatusFromWS<KalturaEntityEnhancementPartnerConfig, EntityEnhancementPartnerConfig>(UpdateConfigFunc, partnerConfig);
+            ClientUtils.GetResponseStatusFromWS<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>(UpdateConfigFunc, partnerConfig);
 
             return true;
         }

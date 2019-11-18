@@ -59,6 +59,59 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                ;
+
+            #region KalturaObjectVirtualAssetPartnerConfig
+            // map ObjectVirtualAssetPartnerConfig to KalturaObjectVirtualAssetPartnerConfig
+            cfg.CreateMap<ObjectVirtualAssetPartnerConfig, KalturaObjectVirtualAssetPartnerConfig>()
+                .ForMember(dest => dest.ObjectVirtualAssets, opt => opt.MapFrom(src => src.ObjectVirtualAssets))
+                ;
+
+            // map KalturaObjectVirtualAssetPartnerConfig to ObjectVirtualAssetPartnerConfig
+            cfg.CreateMap<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>()
+                .ForMember(dest => dest.ObjectVirtualAssets, opt => opt.MapFrom(src => src.ObjectVirtualAssets))
+               ;
+
+            cfg.CreateMap<KalturaObjectVirtualAssetInfo, ObjectVirtualAssetInfo>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
+                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                ;
+
+            cfg.CreateMap<ObjectVirtualAssetInfo, KalturaObjectVirtualAssetInfo>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
+                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                ;
+
+            cfg.CreateMap<KalturaObjectVirtualAssetInfoType, ObjectVirtualAssetInfoType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaObjectVirtualAssetInfoType.Segment:
+                            return ObjectVirtualAssetInfoType.Segment;
+                        case KalturaObjectVirtualAssetInfoType.Subscription:
+                            return ObjectVirtualAssetInfoType.Subscription;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaObjectVirtualAssetInfoType value : {0}", type.ToString()));
+                    }                   
+                });
+
+            cfg.CreateMap<ObjectVirtualAssetInfoType, KalturaObjectVirtualAssetInfoType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case ObjectVirtualAssetInfoType.Segment:
+                            return KalturaObjectVirtualAssetInfoType.Segment;
+                        case ObjectVirtualAssetInfoType.Subscription:
+                            return KalturaObjectVirtualAssetInfoType.Subscription;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ObjectVirtualAssetInfoType value : {0}", type.ToString()));
+                    }
+                });
+
+            #endregion KalturaObjectVirtualAssetPartnerConfig
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)

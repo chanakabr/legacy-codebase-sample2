@@ -24399,14 +24399,8 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(AssetStructId.HasValue)
-            {
-                ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
-            }
-            if(MetaId.HasValue)
-            {
-                ret.Add("metaId", "\"metaId\": " + MetaId);
-            }
+            ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
+            ret.Add("metaId", "\"metaId\": " + MetaId);
             ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "\"");
             return ret;
         }
@@ -24417,14 +24411,8 @@ namespace WebAPI.Models.Partner
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(AssetStructId.HasValue)
-            {
-                ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
-            }
-            if(MetaId.HasValue)
-            {
-                ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
-            }
+            ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
+            ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
             ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "" + "</type>");
             return ret;
         }

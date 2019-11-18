@@ -2000,7 +2000,7 @@ namespace Core.Api
             return CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(key);
         }
 
-        public static GenericResponse<SegmentationType> AddSegmentationType(int groupId, SegmentationType segmentationType)
+        public static GenericResponse<SegmentationType> AddSegmentationType(int groupId, SegmentationType segmentationType, long userId)
         {
             GenericResponse<SegmentationType> response = segmentationType.ValidateForInsert();
             if (!response.IsOkStatusCode())
@@ -2018,6 +2018,17 @@ namespace Core.Api
                 }
                 else
                 {
+                    var virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Segment,
+                        Id = segmentationType.Id,
+                        Name = segmentationType.Name,
+                        Description = segmentationType.Description,
+                        UserId = userId
+                    };
+
+                    api.AddVirtualAsset(groupId, virtualAssetInfo);
+
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -2385,6 +2396,11 @@ namespace Core.Api
         public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
         {
             return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter);
+        }
+
+        public static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
+        {
+            return api.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
         }
     }
 }

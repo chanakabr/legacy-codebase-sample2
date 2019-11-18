@@ -1731,7 +1731,7 @@ namespace Core.Api
             }
 
             return res;
-        }
+        }       
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -1767,7 +1767,7 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRulesByDomainLimitionModule - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
-        }
+        }        
 
         internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
         {
@@ -2300,7 +2300,7 @@ namespace Core.Api
 
             }
             return res;
-        }
+        }      
 
         public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -12097,5 +12097,122 @@ namespace Core.Api
             return response;
         }
 
+        internal static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
+        {
+            try
+            {
+                CatalogGroupCache catalogGroupCache = null;
+
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling UpdateObjectVirtualAssetPartnerConfiguration");
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                // 1. foreach ObjectVirtualAssetInfo check that AssetStructId and MetaUd exists
+                foreach (var objectVirtualAsset in partnerConfigToUpdate.ObjectVirtualAssets)
+                {
+                    if (!catalogGroupCache.AssetStructsMapById.ContainsKey(objectVirtualAsset.AssetStructId))
+                    {
+                        log.Error($"AssetStructDoesNotExist {objectVirtualAsset.AssetStructId}. groupId: {groupId}");
+                        return new Status((int)eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
+                    }
+
+                    if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAsset.MetaId))
+                    {
+                        log.Error($"MetaDoesNotExist {objectVirtualAsset.MetaId}. groupId: {groupId}");
+                        return new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
+                    }
+                }
+
+                // upsert GeneralPartnerConfig            
+                if (!ApiDAL.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate))
+                {
+                    log.Error($"Error while update objectVirtualAsset. groupId: {groupId}");
+                    return new Status((int)eResponseStatus.Error); ;
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetObjectVirtualAssetPartnerConfigInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for ObjectVirtualAssetPartnerConfig with invalidationKey: {0}", invalidationKey);
+                }
+                
+                return new Status(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"UpdateObjectVirtualAssetPartnerConfiguration failed ex={ex}, groupId={groupId}");
+                return new Status(eResponseStatus.Error);
+
+            }
+        }
+        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        {
+            try
+            {
+                var objectVirtualAssetPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId);
+                if (objectVirtualAssetPartnerConfig == null || objectVirtualAssetPartnerConfig.ObjectVirtualAssets?.Count == 0)
+                {
+                    log.Debug($"No objectVirtualAssetPartnerConfigurtion for groupId {groupId}");
+                    return;
+                }
+
+                ObjectVirtualAssetInfo objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.ObjectVirtualAssets.FirstOrDefault(x => x.Type == virtualAssetInfo.Type);
+                if (objectVirtualAssetInfo == null)
+                {
+                    log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {virtualAssetInfo.Type}");
+                    return;
+                }
+
+                CatalogGroupCache catalogGroupCache = null;
+
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.Debug($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                    return;
+                }
+
+                if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
+                {
+                    log.Debug($"MetaDoesNotExist {objectVirtualAssetInfo.MetaId}. groupId: {groupId}");
+                    return;
+                }
+
+                MediaAsset virtualAsset = new MediaAsset()
+                {
+                    AssetType = eAssetTypes.MEDIA,
+                    IsActive = true,
+                    CoGuid = Guid.NewGuid().ToString(),
+                    Name = virtualAssetInfo.Name,
+                    Description = virtualAssetInfo.Description,
+                    CreateDate = DateTime.UtcNow,
+                    MediaType = new MediaType()
+                    {
+                        m_nTypeID = objectVirtualAssetInfo.AssetStructId
+                    }
+                };
+
+                virtualAsset.Metas.Add(new Metas()
+                {
+                    m_oTagMeta = new TagMeta()
+                    {
+                        m_sName = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId].SystemName,
+                        m_sType = ApiObjects.MetaType.Number.ToString()
+                    },
+                    m_sValue = virtualAssetInfo.Id.ToString()
+                });
+
+                var response = AssetManager.AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
+                if (!response.IsOkStatusCode())
+                {
+                    log.Debug($"failed to AddVirtualAsset. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
+                }
+            }
+            catch (Exception exc)
+            {
+                log.Debug($"failed to AddVirtualAsset. groupId {groupId}, exc {exc}");                
+            }
+        }
     }
 }

@@ -1146,6 +1146,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_general_partner_config_{0}", groupId);
         }
 
+        public static string GetObjectVirtualAssetPartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_object_virtual_asset_partner_config_{0}", groupId);
+        }
+
         #endregion
 
         #region Domains

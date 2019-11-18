@@ -29,8 +29,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
-                return ClientsManager.ApiClient().AddSegmentationType(groupId, segmentationType);
+                return ClientsManager.ApiClient().AddSegmentationType(groupId, segmentationType, userId);
             }
 
             catch (ClientException ex)

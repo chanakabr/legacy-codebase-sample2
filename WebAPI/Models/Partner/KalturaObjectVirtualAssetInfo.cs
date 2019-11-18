@@ -13,7 +13,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "assetStructId")]
         [JsonProperty("assetStructId")]
         [XmlElement(ElementName = "assetStructId")]
-        public int? AssetStructId { get; set; }
+        public int AssetStructId { get; set; }
 
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "metaId")]
         [JsonProperty("metaId")]
         [XmlElement(ElementName = "metaId")]
-        public int? MetaId { get; set; }
+        public int MetaId { get; set; }
 
         /// <summary>
         /// Object virtual asset info type

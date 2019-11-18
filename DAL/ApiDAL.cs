@@ -6118,5 +6118,27 @@ namespace DAL
 
             return false;
         }
+
+        public static bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
+        {
+            if (partnerConfigToUpdate?.ObjectVirtualAssets?.Count > 0)
+            {
+                string key = GetObjectVirtualAssetPartnerConfigKey(groupId);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, partnerConfigToUpdate, false, BULK_UPLOAD_CB_TTL);
+            }
+
+            return false;
+        }
+
+        private static string GetObjectVirtualAssetPartnerConfigKey(int groupId)
+        {
+            return $"object_virtual_asset_partner_config_{groupId}";
+        }
+
+        public static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            string key = GetObjectVirtualAssetPartnerConfigKey(groupId);
+            return UtilsDal.GetObjectFromCB<ObjectVirtualAssetPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
     }
 }

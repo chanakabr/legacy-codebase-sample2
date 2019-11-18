@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
                 else if (configuration is KalturaObjectVirtualAssetPartnerConfig)
                 {
                     KalturaObjectVirtualAssetPartnerConfig partnerConfig = configuration as KalturaObjectVirtualAssetPartnerConfig;
-                    response = ClientsManager.ApiClient().UpdateEntityEnhancementPartnerConfiguration(groupId, partnerConfig);
+                    response = ClientsManager.ApiClient().UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfig);
                 }
                 else
                 {
