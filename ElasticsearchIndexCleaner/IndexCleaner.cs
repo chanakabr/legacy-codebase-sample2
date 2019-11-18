@@ -54,7 +54,7 @@ namespace ElasticsearchIndexCleaner
                     {
                         var counter = item.Value.ToDictionary(key => int.Parse(key.Split('_').Last()), value => value);
                         var sorted = new SortedDictionary<int, string>(counter, Comparer<int>.Default);
-                        indicesToDelete.AddRange(sorted.Take(oldIndicesToSaveCount).Select(x => x.Value));
+                        indicesToDelete.AddRange(sorted.Take(sorted.Count - oldIndicesToSaveCount).Select(x => x.Value));
                     }
                 }
 
@@ -65,7 +65,7 @@ namespace ElasticsearchIndexCleaner
                     using (var mon = new KMonitor(Events.eEvent.EVENT_ELASTIC, groupId.ToString(), "delete_old_epg_indices"))
                     {
                         mon.Table = $"indices_to_delete:[{indicesToDeleteStr}]";
-                        esClient.DeleteIndices(indicesWithoutAliases);
+                        esClient.DeleteIndices(indicesToDelete);
                     }
                 }
                 else
