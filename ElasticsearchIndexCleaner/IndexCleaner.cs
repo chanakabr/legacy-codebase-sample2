@@ -58,14 +58,22 @@ namespace ElasticsearchIndexCleaner
                     }
                 }
 
-                var indicesToDeleteStr = string.Join(",", indicesToDelete);
-                _Logger.Debug($"Deleting indices:[{indicesToDeleteStr}] ");
-                using (var mon = new KMonitor(Events.eEvent.EVENT_ELASTIC, groupId.ToString(), "delete_old_epg_indices"))
+                if (indicesToDelete.Any())
                 {
-                    mon.Table = $"indices_to_delete:[{indicesToDeleteStr}]";
-                    esClient.DeleteIndices(indicesWithoutAliases);
+                    var indicesToDeleteStr = string.Join(",", indicesToDelete);
+                    _Logger.Debug($"Deleting indices:[{indicesToDeleteStr}] ");
+                    using (var mon = new KMonitor(Events.eEvent.EVENT_ELASTIC, groupId.ToString(), "delete_old_epg_indices"))
+                    {
+                        mon.Table = $"indices_to_delete:[{indicesToDeleteStr}]";
+                        esClient.DeleteIndices(indicesWithoutAliases);
+                    }
                 }
-                _Logger.Debug($"Completed ElasticsearchIndexCleaner for gropu:[{groupId}], succcess.");
+                else
+                {
+                    _Logger.Debug($"No indices to delete");
+                }
+
+                _Logger.Debug($"Completed ElasticsearchIndexCleaner for group:[{groupId}], succcess.");
             }
 
             return true;

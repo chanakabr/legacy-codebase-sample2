@@ -70,8 +70,9 @@ namespace IngestValidtionHandler
                 {
                     UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
                     SwitchAliases();
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values);
-                    bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Success);
+                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus newStatus);
+
+                    _BulkUploadObject.Status = newStatus;
 
                     // Update edgs if there are any updates to be made dure to overlap
                     if (eventData.EdgeProgramsToUpdate.Any())
@@ -82,16 +83,15 @@ namespace IngestValidtionHandler
                     }
 
                     InvalidateEpgAssets(eventData.EPGs.Concat(eventData.EdgeProgramsToUpdate));
-
-                    TriggerElasticIndexCleanerForPartner(eventData);
                 }
                 else
                 {
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values);
+                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus tmp);
                     bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
                 }
 
-                EmmitPSEvent(bulkUploadResultAfterUpdate);
+                TriggerElasticIndexCleanerForPartner(_BulkUploadObject, eventData);
+                EmmitPSEvent(_BulkUploadObject);
             }
             catch (Exception ex)
             {
@@ -100,17 +100,18 @@ namespace IngestValidtionHandler
             }
         }
 
-        
-
-        private static void TriggerElasticIndexCleanerForPartner(BulkUploadIngestValidationEvent eventData)
+        private static void TriggerElasticIndexCleanerForPartner(BulkUpload bulkUploadResultAfterUpdate, BulkUploadIngestValidationEvent eventData)
         {
-            var cleaner = new ElasticsearchIndexCleaner.IndexCleaner();
-            cleaner.Clean(new[] { eventData.GroupId }, 1);
+            if (bulkUploadResultAfterUpdate.IsProcessCompleted)
+            {
+                var cleaner = new ElasticsearchIndexCleaner.IndexCleaner();
+                cleaner.Clean(new[] { eventData.GroupId }, 1);
+            }
         }
 
-        private void EmmitPSEvent(GenericResponse<BulkUpload> bulkUploadResultAfterUpdate)
+        private void EmmitPSEvent(BulkUpload bulkUploadResultAfterUpdate)
         {
-            if (bulkUploadResultAfterUpdate.Object.IsProcessCompleted)
+            if (bulkUploadResultAfterUpdate.IsProcessCompleted)
             {
                 _Logger.DebugFormat($"Firing PS event: '{0}'", event_name);
                 _BulkUploadObject.Notify(eKalturaEventTime.After, event_name);
@@ -153,7 +154,6 @@ namespace IngestValidtionHandler
                 {
                     isValid = false;
                 }
-
 
                 if (!isValid)
                 {
