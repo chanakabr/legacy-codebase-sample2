@@ -14,6 +14,7 @@ using ConfigurationManager;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
 using ElasticSearch.Searcher;
+using System.Net.Http;
 
 namespace ElasticSearch.Common
 {
@@ -25,24 +26,32 @@ namespace ElasticSearch.Common
         public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
-        public string baseUrl
+        private static readonly HttpClient httpClient;
+        private static readonly HttpClientHandler httpHandler;
+
+        public static string baseUrl
         {
-            get;
-            set;
+            get
+            {
+                return ES_URL;
+            }
         }
 
         #region Ctor
 
-        public ElasticSearchApi(string elaticSearchUrl = null)
+        static ElasticSearchApi()
         {
-            if (string.IsNullOrEmpty(elaticSearchUrl))
-            {
-                baseUrl = ES_URL;
-            }
-            else
-            {
-                baseUrl = elaticSearchUrl;
-            }
+            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+#if NETSTANDARD2_0
+            httpHandler.MaxConnectionsPerServer = 1000;
+#endif
+            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
+            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+            httpClient = new HttpClient(httpHandler);
+        }
+
+        public ElasticSearchApi()
+        {
         }
 
         #endregion
