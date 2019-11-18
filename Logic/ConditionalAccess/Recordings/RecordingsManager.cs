@@ -1022,12 +1022,12 @@ namespace Core.Recordings
 
         #region Private Methods
 
-        private static void UpdateIndex(int groupId, long recordingId, eAction action)
+        public static void UpdateIndex(int groupId, long recordingId, eAction action)
         {
             Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
         }
 
-        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
+        public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
         {
             if (shouldDelete)
             {

@@ -15703,7 +15703,15 @@ namespace Core.ConditionalAccess
                     // bulk delete for all domainIds
                     if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
                     {
-                        RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        if (recording.RecordingStatus == TstvRecordingStatus.Failed)
+                        {
+                            RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
+                            RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
+                        }
+                        else
+                        {
+                            RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        }
                     }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
