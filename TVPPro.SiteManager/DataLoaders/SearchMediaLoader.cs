@@ -411,7 +411,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
             protocol.root.request.search_data.channel.start_index = (PageIndex * PageSize).ToString();
             protocol.root.request.search_data.channel.media_count = PageSize.ToString();
-            protocol.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = this.FlashVarsFileFormat;
             protocol.root.flashvars.file_quality = Tvinci.Data.TVMDataLoader.Protocols.Search.file_quality.high;
             protocol.root.flashvars.use_final_end_date = UseFinalEndDate;
             protocol.root.flashvars.use_start_date = GetFutureStartDate;

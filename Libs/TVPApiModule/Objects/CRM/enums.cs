@@ -17,7 +17,7 @@ namespace TVPApiModule.Objects.CRM
         SerializationError = 1006
     }
 
-    public enum ResponseStatus
+    public enum ResponseStatusDTO
     {
         OK = 0,
         UserExists = 1,
@@ -33,7 +33,7 @@ namespace TVPApiModule.Objects.CRM
         ErrorOnSendingMail = 11
     }
 
-    public enum UserState
+    public enum UserStateDTO
     {
         Unknown = 0,
         Activated = 1,

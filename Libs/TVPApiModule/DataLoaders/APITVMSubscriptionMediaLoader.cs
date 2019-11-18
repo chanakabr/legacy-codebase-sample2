@@ -160,6 +160,9 @@ namespace TVPApiModule.DataLoaders
                 (base.GetProvider() as Tvinci.Data.TVMDataLoader.TVMProvider).TVMAltURL = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.Servers.AlternativeServer.URL;
 
             base.PreExecute();
+
+            this.FlashVarsFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
+            this.FlashVarsSubFileFormat = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).SubFileFormat;
         }
 
         protected override Tvinci.Data.TVMDataLoader.Protocols.IProtocol CreateProtocol()
@@ -176,7 +179,7 @@ namespace TVPApiModule.DataLoaders
             result.root.flashvars.player_pass = TvmPass;
 
             result.root.flashvars.pic_size1 = PicSize;
-            result.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            result.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             result.root.flashvars.file_quality = file_quality.high;
             result.root.request.@params.with_info = WithInfo.ToString();
             result.root.request.@params.info_struct.statistics = true;

@@ -112,17 +112,17 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
-        public string FileFormat
-        {
-            get
-            {
-                return Parameters.GetParameter<string>(eParameterType.Retrieve, "FileFormat", TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat);
-            }
-            set
-            {
-                Parameters.SetParameter<string>(eParameterType.Retrieve, "FileFormat", value);
-            }
-        }
+        //public string FileFormat
+        //{
+        //    get
+        //    {
+        //        return Parameters.GetParameter<string>(eParameterType.Retrieve, "FileFormat", TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat);
+        //    }
+        //    set
+        //    {
+        //        Parameters.SetParameter<string>(eParameterType.Retrieve, "FileFormat", value);
+        //    }
+        //}
 
         public string AdminToken
         {
@@ -269,7 +269,7 @@ namespace TVPPro.SiteManager.DataLoaders
             if (string.IsNullOrEmpty(BrandingFileFormat))
             {
                 result.root.flashvars.file_quality = file_quality.high;
-                result.root.flashvars.file_format = FileFormat;
+                result.root.flashvars.file_format = this.FlashVarsFileFormat;
             }
             else // for brandig media
             {
@@ -287,7 +287,7 @@ namespace TVPPro.SiteManager.DataLoaders
             result.root.flashvars.use_final_end_date = UseFinalEndDate;
             result.root.request.@params.with_info = "true";
             result.root.flashvars.file_quality = file_quality.high;
-            result.root.flashvars.file_format = FileFormat;
+            result.root.flashvars.file_format = this.FlashVarsFileFormat;
             result.root.__flashvars.admin_token = AdminToken;
             result.root.__flashvars.user_ip = SiteManager.Helper.SiteHelper.GetClientIP();
             //result.root.flashvars.pic_size1_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;

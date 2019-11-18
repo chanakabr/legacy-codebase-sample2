@@ -34,11 +34,18 @@ namespace TVPApi.Web
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
-
-            app.Map("/Gateways/JsonPostGW.aspx", apiApp =>
+            app.MapWhen(context =>
+            {
+                var arr = context.Request.Path.ToString().Split('/', StringSplitOptions.RemoveEmptyEntries);
+                return arr != null 
+                    && arr.Length > 1 
+                    && arr[0].Equals("Gateways", StringComparison.OrdinalIgnoreCase) 
+                    && arr[1].Equals("JsonPostGW.aspx", StringComparison.OrdinalIgnoreCase);;
+            }, apiApp =>
             {
                 apiApp.UseTvpApi();
             });
+
             app.Use(async (context, next) =>
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;

@@ -660,6 +660,8 @@ namespace TVPApiModule.Services
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
                     bRet = Core.Users.Module.ChangeUserPassword(m_groupID, sUN, sOldPass, sPass);
+
+
                 }
             }
             catch (Exception ex)

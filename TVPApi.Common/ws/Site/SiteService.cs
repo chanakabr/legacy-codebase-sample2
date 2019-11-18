@@ -24,6 +24,7 @@ using ApiObjects.ConditionalAccess;
 using TVinciShared;
 using Menu = TVPApi.Menu;
 using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
+using TVPApiModule.Objects.CRM;
 
 namespace TVPApiServices
 {
@@ -302,7 +303,7 @@ namespace TVPApiServices
 
 
         //Get content from specific gallery items
-        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+        public List<Media> GetGalleryItemContent(InitializationObject initObj, long ItemID, long GalleryID, long PageID, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<Media> lstMedia = null;
 
@@ -749,7 +750,7 @@ namespace TVPApiServices
             return bRes;
         }
 
-        public UserResponseObject SignUp(InitializationObject initObj, TVPApiModule.Objects.UserBasicData userBasicData,
+        public UserResponseObject SignUp(InitializationObject initObj, UserBasicDataDTO userBasicData,
             UserDynamicData userDynamicData, string sPassword, string sAffiliateCode)
         {
             UserResponseObject response = new UserResponseObject();
@@ -833,7 +834,7 @@ namespace TVPApiServices
         }
 
         [PrivateMethod]
-        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, TVPApiModule.Objects.UserBasicData userBasicData,
+        public UserResponseObject SetUserData(InitializationObject initObj, string sSiteGuid, UserBasicDataDTO userBasicData,
             UserDynamicData userDynamicData)
         {
             UserResponseObject response = new UserResponseObject();
@@ -850,7 +851,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    Core.Users.UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
+                    UserBasicData coreUserBasicData = userBasicData != null ? userBasicData.ToCore() : null;
 
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SetUserData(sSiteGuid, coreUserBasicData, userDynamicData);
                 }
