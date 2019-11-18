@@ -308,7 +308,16 @@ namespace WebAPI.Clients
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                HttpResponseMessage response = httpClient.PostAsync(dmsRestUrl, strContent).ExecuteAndWait();
+                HttpResponseMessage response = null;
+                if (dmsCall == DMSCall.POST)
+                {
+                    response = httpClient.PostAsync(dmsRestUrl, strContent).ExecuteAndWait();
+                }
+                else if (dmsCall == DMSCall.PUT)
+                {
+                    response = httpClient.PutAsync(dmsRestUrl, strContent).ExecuteAndWait();
+                }
+
                 result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
