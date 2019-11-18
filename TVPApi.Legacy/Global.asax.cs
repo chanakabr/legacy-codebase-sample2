@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -84,9 +85,24 @@ namespace WAP_TVPApi
                     app.Response.AppendHeader("Content-Encoding", "deflate");
                 }
             }
+            Guid sessionId;
 
-            // get request ID
-            HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+            var headerRequest = HttpContext.Current.Request.Headers.Get(KLogMonitor.Constants.REQUEST_ID_KEY);
+            if (!string.IsNullOrEmpty(headerRequest))
+            {
+                sessionId = new Guid(headerRequest);
+            }
+            else
+            {
+                sessionId = Guid.NewGuid();
+            }
+
+            //HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Session.ToString();
+
+            HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = sessionId.ToString();
+            KLogger.SetRequestId(sessionId.ToString());
+
+            HttpContext.Current.Response.Headers["X-Kaltura-Session"] = sessionId.ToString();
 
             // get action name
             if (HttpContext.Current.Request.QueryString["m"] != null)
