@@ -20,16 +20,24 @@ namespace ElasticsearchIndexCleaner
 
             foreach (var groupId in groupIds)
             {
-                _Logger.Info($"Starting ElasticsearchIndexCleaner for gropu:[{groupId}]");
+                _Logger.Info($"Starting ElasticsearchIndexCleaner for gropup:[{groupId}], oldIndicesToSaveCount:[{oldIndicesToSaveCount}]");
                 var indices = esClient.ListIndices($"{groupId}_epg_*");
                 var indicesToDelete = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
 
-                if (oldIndicesToSaveCount > 0 && oldIndicesToSaveCount < indicesToDelete.Count)
+                if (oldIndicesToSaveCount < 0)
                 {
-                    var counter = indicesToDelete.ToDictionary(x => int.Parse(x.Split('_').Last()), y => y);
-                    var sorted = new SortedDictionary<int, string>(counter, Comparer<int>.Default);
-                    indicesToDelete = sorted.Take(indicesToDelete.Count - oldIndicesToSaveCount).Select(x => x.Value).ToList();
+                    _Logger.Error($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] shouold be greater to or equal to 0");
+                    return false;
                 }
+                if (oldIndicesToSaveCount >= indicesToDelete.Count)
+                {
+                    _Logger.Info($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{indicesToDelete.Count}]");
+                    return true;
+                }
+
+                var counter = indicesToDelete.ToDictionary(key => int.Parse(key.Split('_').Last()), value => value);
+                var sorted = new SortedDictionary<int, string>(counter, Comparer<int>.Default);
+                indicesToDelete = sorted.Take(indicesToDelete.Count - oldIndicesToSaveCount).Select(x => x.Value).ToList();
 
                 var indicesToDeleteStr = string.Join(",", indicesToDelete);
                 _Logger.Debug($"Deleting indices:[{indicesToDeleteStr}] ");
@@ -38,7 +46,7 @@ namespace ElasticsearchIndexCleaner
                     mon.Table = $"indices_to_delete:[{indicesToDeleteStr}]";
                     esClient.DeleteIndices(indicesToDelete);
                 }
-                _Logger.Debug($"Deleted!");
+                _Logger.Debug($"Completed ElasticsearchIndexCleaner for gropu:[{groupId}], succcess.");
             }
 
             return true;
