@@ -8,6 +8,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -303,27 +304,34 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = dmsCall.ToString();
+            StringContent strContent = new StringContent(data, Encoding.UTF8, "application/json");
 
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                if (string.IsNullOrWhiteSpace(data))
-                {
-                    streamWriter.Write(string.Empty);
-                }
-                else
-                {
-                    streamWriter.Write(data);
-                }
+                HttpResponseMessage response = httpClient.PostAsync(dmsRestUrl, strContent).ExecuteAndWait();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                result = streamReader.ReadToEnd();
-            }
+            //var httpWebRequest = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
+            //httpWebRequest.Method = dmsCall.ToString();
+
+            //using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            //{
+            //    if (string.IsNullOrWhiteSpace(data))
+            //    {
+            //        streamWriter.Write(string.Empty);
+            //    }
+            //    else
+            //    {
+            //        streamWriter.Write(data);
+            //    }
+            //}
+
+            //var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            //using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            //{
+            //    result = streamReader.ReadToEnd();
+            //}
 
             return result;
         }
