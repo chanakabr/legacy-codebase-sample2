@@ -126,12 +126,6 @@ namespace ElasticSearch.Searcher
             set;
         }
 
-        public bool ShouldPageGroups
-        {
-            get;
-            set;
-        }
-
         #endregion
 
         #region Ctor
