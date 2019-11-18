@@ -209,19 +209,7 @@ namespace Core.Social
         {
             bool result = false;
 
-            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
-            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
-            string originalUrl = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
-
-            HashSet<string> urls = new HashSet<string>();
-            urls.Add(urlV1);
-            urls.Add(urlV2);
-            urls.Add(originalUrl);
-
-            if (urls.Count > 0)
-            {
-                result = true;
-            }
+            string url = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
 
             string statisticsIndex = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
             string normalIndex = groupId.ToString();
@@ -255,66 +243,7 @@ namespace Core.Social
 
             string sActionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(oActionStats);
 
-            if (!string.IsNullOrEmpty(urlV1))
-            {
-                result &= DeleteActionFromESV1(urlV1, socialSearch, groupId, statisticsIndex);
-            }
-            // If both are empty it means we have only one URL and that is "ES_URL" (originalURL)
-            else if (string.IsNullOrEmpty(urlV2))
-            {
-                urlV2 = originalUrl;
-            }
-
-            if (!string.IsNullOrEmpty(urlV2))
-            {
-                result &= DeleteActionFromESV2(urlV2, socialSearch, groupId, statisticsIndex);
-            }
-
-            return result;
-        }
-
-        private static bool DeleteActionFromESV1(string url, StatisticsActionSearchObj socialSearch, int groupId, string index)
-        {
-            bool result = false;
-
-            try
-            {
-                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi(url);
-
-                if (oESApi.IndexExists(index))
-                {
-                    ElasticSearch.Searcher.ESStatisticsQueryBuilder queryBuilder = new ElasticSearch.Searcher.ESStatisticsQueryBuilder(groupId, socialSearch);
-                    string sQuery = queryBuilder.BuildQuery();
-
-                    string res = oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sQuery);
-                    string sID = string.Empty;
-                    if (!string.IsNullOrEmpty(res))
-                    {
-                        int totalItems = 1;
-                        List<StatisticsView> lSocialActionView = Utils.DecodeSearchJsonObject(res, ref totalItems);
-
-                        if (lSocialActionView != null && lSocialActionView.Count > 0)
-                        {
-                            sID = lSocialActionView[0].ID;
-                        }
-                    }
-                    ESDeleteResult esRes = oESApi.DeleteDoc(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sID);
-
-                    if (esRes == null || !esRes.Ok)
-                    {
-                        log.Debug("DeleteActionFromESV1 - " + string.Format("Was unable to delete record from ES. index={0};type={1};",
-                            index, ElasticSearch.Common.Utils.ES_STATS_TYPE));
-                    }
-                    else
-                    {
-                        result = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.DebugFormat("DeleteActionFromES Failed ex={0}, index={1};type={2}", ex, index, ElasticSearch.Common.Utils.ES_STATS_TYPE);
-            }
+            result = DeleteActionFromESV2(url, socialSearch, groupId, statisticsIndex);
 
             return result;
         }
@@ -325,7 +254,7 @@ namespace Core.Social
 
             try
             {
-                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi(url);
+                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
 
                 if (oESApi.IndexExists(index))
                 {
