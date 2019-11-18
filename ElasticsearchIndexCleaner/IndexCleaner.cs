@@ -20,23 +20,23 @@ namespace ElasticsearchIndexCleaner
 
             foreach (var groupId in groupIds)
             {
-                _Logger.Info($"Starting ElasticsearchIndexCleaner for gropup:[{groupId}], oldIndicesToSaveCount:[{oldIndicesToSaveCount}]");
+                _Logger.Info($"Starting ElasticsearchIndexCleaner for group:[{groupId}], oldIndicesToSaveCount:[{oldIndicesToSaveCount}]");
                 var indices = esClient.ListIndices($"{groupId}_epg_*");
-                var indicesWithAliases = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
+                var indicesWithoutAliases = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
 
                 if (oldIndicesToSaveCount < 0)
                 {
-                    _Logger.Error($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] shouold be greater to or equal to 0");
+                    _Logger.Error($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] should be greater to or equal to 0");
                     return false;
                 }
-                if (oldIndicesToSaveCount >= indicesWithAliases.Count)
+                if (oldIndicesToSaveCount >= indicesWithoutAliases.Count)
                 {
-                    _Logger.Info($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{indicesWithAliases.Count}]");
+                    _Logger.Info($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] is greater or equal to the amount of exsisting backups, existing without deletion. indicesToDelete.Count:[{indicesWithoutAliases.Count}]");
                     return true;
                 }
 
                 var indicesByDate = new Dictionary<DateTime, List<string>>();
-                foreach (var item in indicesWithAliases)
+                foreach (var item in indicesWithoutAliases)
                 {
                     var date = GetDateTimeFromIndexName(item);
                     if (!indicesByDate.ContainsKey(date))
@@ -63,7 +63,7 @@ namespace ElasticsearchIndexCleaner
                 using (var mon = new KMonitor(Events.eEvent.EVENT_ELASTIC, groupId.ToString(), "delete_old_epg_indices"))
                 {
                     mon.Table = $"indices_to_delete:[{indicesToDeleteStr}]";
-                    esClient.DeleteIndices(indicesWithAliases);
+                    esClient.DeleteIndices(indicesWithoutAliases);
                 }
                 _Logger.Debug($"Completed ElasticsearchIndexCleaner for gropu:[{groupId}], succcess.");
             }

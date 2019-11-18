@@ -82,6 +82,8 @@ namespace IngestValidtionHandler
                     }
 
                     InvalidateEpgAssets(eventData.EPGs.Concat(eventData.EdgeProgramsToUpdate));
+
+                    TriggerElasticIndexCleanerForPartner(eventData);
                 }
                 else
                 {
@@ -90,7 +92,6 @@ namespace IngestValidtionHandler
                 }
 
                 EmmitPSEvent(bulkUploadResultAfterUpdate);
-                TriggerElasticIndexCleanerForPartner(eventData);
             }
             catch (Exception ex)
             {
