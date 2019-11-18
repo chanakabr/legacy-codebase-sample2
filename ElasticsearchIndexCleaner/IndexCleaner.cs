@@ -24,7 +24,7 @@ namespace ElasticsearchIndexCleaner
                 var indices = esClient.ListIndices($"{groupId}_epg_*");
                 var indicesToDelete = indices.Where(i => !i.Aliases.Any()).Select(i => i.Name).ToList();
 
-                if (oldIndicesToSaveCount <= 0)
+                if (oldIndicesToSaveCount < 0)
                 {
                     _Logger.Error($"ElasticsearchIndexCleaner oldIndicesToSaveCount:[{oldIndicesToSaveCount}] shouold be greater to or equal to 0");
                     return false;
