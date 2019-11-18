@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TVPApi.Web.Middleware;
+using Core.Middleware;
 
 namespace TVPApi.Web
 {
@@ -24,6 +25,7 @@ namespace TVPApi.Web
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
 
             var provider = services.BuildServiceProvider();
@@ -43,6 +45,7 @@ namespace TVPApi.Web
                     && arr[1].Equals("JsonPostGW.aspx", StringComparison.OrdinalIgnoreCase);;
             }, apiApp =>
             {
+                apiApp.UseConcurrencyLimiter();
                 apiApp.UseTvpApi();
             });
 
