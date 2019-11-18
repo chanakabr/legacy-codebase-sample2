@@ -642,7 +642,7 @@ namespace ConfigurationManager
             LogReloadInterval = new NumericConfigurationValue("log_reload_interval")
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = 300000,
+                DefaultValue = 0,
                 Description = "Interval of reloading the KLogger configuration from Couchbase, in milliseconds."
             };
 
