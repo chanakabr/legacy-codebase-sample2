@@ -32,10 +32,8 @@ namespace ElasticSearch.Common
 
         public static string baseUrl
         {
-            get
-            {
-                return ES_URL;
-            }
+            get;
+            set;
         }
 
         #region Ctor
@@ -54,6 +52,7 @@ namespace ElasticSearch.Common
 
         public ElasticSearchApi()
         {
+            baseUrl = ES_URL;
         }
 
         #endregion
