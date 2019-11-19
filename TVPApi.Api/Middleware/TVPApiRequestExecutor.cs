@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TVPApi.Common;
 using TVinciShared;
+using System.IO;
 
 namespace TVPApi.Web.Middleware
 {
@@ -61,7 +62,7 @@ namespace TVPApi.Web.Middleware
 
                     context.Response.OnStarting(HandleResponse, context);
 
-                    using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
+                    using (var streamReader = new StreamReader(request.Body, Encoding.UTF8))
                     {
                         var body = await streamReader.ReadToEndAsync();
                         _Response = gateway.ProcessRequest(body);

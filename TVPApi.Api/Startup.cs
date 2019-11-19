@@ -22,7 +22,7 @@ namespace TVPApi.Web
         {
             Configuration = configuration;
         }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCoreConcurrencyLimiter();
@@ -32,18 +32,11 @@ namespace TVPApi.Web
             var httpContextAccessor = provider.GetService<IHttpContextAccessor>();
             System.Web.HttpContext.Configure(httpContextAccessor);
         }
-        
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
-            app.MapWhen(context =>
-            {
-                var arr = context.Request.Path.ToString().Split('/', StringSplitOptions.RemoveEmptyEntries);
-                return arr != null 
-                    && arr.Length > 1 
-                    && arr[0].Equals("Gateways", StringComparison.OrdinalIgnoreCase) 
-                    && arr[1].Equals("JsonPostGW.aspx", StringComparison.OrdinalIgnoreCase);;
-            }, apiApp =>
+            app.MapEndpoint("Gateways/JsonPostGW.aspx", apiApp =>
             {
                 apiApp.UseConcurrencyLimiter();
                 apiApp.UseTvpApi();
