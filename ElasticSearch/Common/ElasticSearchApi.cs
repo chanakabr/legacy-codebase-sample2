@@ -30,7 +30,7 @@ namespace ElasticSearch.Common
         private static readonly HttpClient httpClient;
         private static readonly HttpClientHandler httpHandler;
 
-        public static string baseUrl
+        public string baseUrl
         {
             get;
             set;
