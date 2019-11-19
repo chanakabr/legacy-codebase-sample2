@@ -249,13 +249,10 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            var request = WebRequest.Create(dmsRestUrl);
-            request.Method = "DELETE";
-
-            using (var response = request.GetResponse())
-            using (var reader = new StreamReader(response.GetResponseStream()))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                result = reader.ReadToEnd();
+                HttpResponseMessage response = httpClient.DeleteAsync(dmsRestUrl).ExecuteAndWait();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
             return result;
@@ -279,16 +276,6 @@ namespace WebAPI.Clients
                 result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
-            //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            //request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            //using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
-            //using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            //using (Stream stream = response.GetResponseStream())
-            //using (StreamReader reader = new StreamReader(stream))
-            //{
-            //    result = reader.ReadToEnd();
-            //}
             return result;
         }
 
@@ -320,27 +307,6 @@ namespace WebAPI.Clients
 
                 result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
-
-            //var httpWebRequest = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            //httpWebRequest.Method = dmsCall.ToString();
-
-            //using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-            //{
-            //    if (string.IsNullOrWhiteSpace(data))
-            //    {
-            //        streamWriter.Write(string.Empty);
-            //    }
-            //    else
-            //    {
-            //        streamWriter.Write(data);
-            //    }
-            //}
-
-            //var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            //using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            //{
-            //    result = streamReader.ReadToEnd();
-            //}
 
             return result;
         }
