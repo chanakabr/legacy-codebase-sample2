@@ -149,7 +149,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
         public static AdaptersConfiguration AdaptersConfiguration;
         public static NumericConfigurationValue LogReloadInterval;
-        public static HttpHandlerConfiguration HttpHandlerConfiguration;
+        public static HttpClientConfiguration HttpHandlerConfiguration;
 
         #endregion
 
