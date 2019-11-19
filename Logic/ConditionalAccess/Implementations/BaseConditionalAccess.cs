@@ -15630,7 +15630,7 @@ namespace Core.ConditionalAccess
                     shouldGetDomainRecordings = false;
                 }
 
-                if (shouldGetDomainRecordings)
+                if (shouldGetDomainRecordings || (domainRecordingStatus.HasValue && domainRecordingStatus.Value == DomainRecordingStatus.OK))
                 {
                     int status = 1;
                     // Currently canceled can be only due to IngestRecording which Deletes EPG
@@ -15642,7 +15642,8 @@ namespace Core.ConditionalAccess
 
                     int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                     long maxDomainRecordingId = 0;
-                    DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
+                    DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch == 0 ? -1 : task.ScheduledExpirationEpoch,
+                        status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
@@ -15702,7 +15703,15 @@ namespace Core.ConditionalAccess
                     // bulk delete for all domainIds
                     if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
                     {
-                        RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        if (recording.RecordingStatus == TstvRecordingStatus.Failed)
+                        {
+                            RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
+                            RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
+                        }
+                        else
+                        {
+                            RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        }
                     }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
