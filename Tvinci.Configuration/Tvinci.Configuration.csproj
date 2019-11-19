@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
   </PropertyGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Data.DataSetExtensions" />

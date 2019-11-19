@@ -17,6 +17,7 @@ using Country = Core.Users.Country;
 using InitializationObject = TVPApi.InitializationObject;
 using TVinciShared;
 using TVPApiModule.Objects.CRM;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices
 {

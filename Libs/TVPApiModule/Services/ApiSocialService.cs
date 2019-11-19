@@ -12,6 +12,7 @@ using Core.Social;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects;
 using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiModule.Services
 {

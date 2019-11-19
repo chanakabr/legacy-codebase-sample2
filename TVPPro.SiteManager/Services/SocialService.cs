@@ -10,6 +10,7 @@ using Core.Social.Requests;
 using Core.Social.Responses;
 using KLogMonitor;
 using TVPPro.Configuration.PlatformServices;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPPro.SiteManager.Services
 {

@@ -14,6 +14,7 @@ using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus
 using PinCodeResponse = TVPApiModule.Objects.Responses.PinCodeResponse;
 using Status = TVPApiModule.Objects.Responses.Status;
 using UserResponse = TVPApiModule.Objects.Responses.UserResponse;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiModule.Services
 {

@@ -4,7 +4,7 @@
     <ProjectGuid>{5D400DB4-C756-4B5C-8359-FE55084043F4}</ProjectGuid>
     <RootNamespace>iucon.web.Controls</RootNamespace>
     <AssemblyName>iucon.web.Controls.PartialUpdatePanel</AssemblyName>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <PublishUrl>http://localhost/iucon.web.Controls.PartialUpdatePanel/</PublishUrl>

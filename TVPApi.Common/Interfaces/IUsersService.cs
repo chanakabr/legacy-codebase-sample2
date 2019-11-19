@@ -11,6 +11,7 @@ using InitializationObject = TVPApi.InitializationObject;
 using ApiObjects.Billing;
 using UserType = ApiObjects.UserType;
 using TVPApiModule.Objects.CRM;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices
 {
