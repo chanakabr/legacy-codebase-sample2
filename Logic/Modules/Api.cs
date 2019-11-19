@@ -2042,7 +2042,7 @@ namespace Core.Api
             return response;
         }
 
-        public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType)
+        public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType, long userId)
         {
             GenericResponse<SegmentationType> response = segmentationType.ValidateForUpdate();
             if (!response.IsOkStatusCode())
@@ -2060,6 +2060,17 @@ namespace Core.Api
                 }
                 else
                 {
+                    var virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Segment,
+                        Id = segmentationType.Id,
+                        Name = segmentationType.Name,
+                        Description = segmentationType.Description,
+                        UserId = userId
+                    };
+
+                    api.UpdateVirtualAsset(groupId, virtualAssetInfo);
+
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -2073,7 +2084,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteSegmentationType(int groupId, long id)
+        public static Status DeleteSegmentationType(int groupId, long id, long userId)
         {
             Status result = null;
             bool deleteResult = false;
@@ -2094,6 +2105,18 @@ namespace Core.Api
                 else
                 {
                     result = new Status();
+
+                    // Delete the virtual asset
+                    var virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Segment,
+                        Id = segmentationType.Id,
+                        Name = segmentationType.Name,
+                        Description = segmentationType.Description,
+                        UserId = userId
+                    };
+
+                    api.DeleteVirtualAsset(groupId, virtualAssetInfo);
                 }
             }
             catch (Exception ex)

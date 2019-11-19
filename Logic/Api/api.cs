@@ -45,7 +45,6 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
-using TVinciShared;
 
 namespace Core.Api
 {
@@ -1822,7 +1821,7 @@ namespace Core.Api
                 selectMetaQuery = null;
             }
             return EPG_ResponseMeta;
-        }
+        }        
 
         static private List<EPGDictionary> GetEPGMetasData(int nGroupID, string ProgramID)
         {
@@ -7667,7 +7666,7 @@ namespace Core.Api
                     {
                         //delete virtual asset
                         bool needToCreateVirtualAsset = false;
-                        Asset virtualChannel = GetVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
+                        Asset virtualChannel = GetChannelVirtualAsset(groupId, userId, originalExternalChannel, out needToCreateVirtualAsset);
                         if (virtualChannel != null)
                         {
                             Status status = AssetManager.DeleteAsset(groupId, virtualChannel.Id, eAssetTypes.MEDIA, userId, true);
@@ -7805,7 +7804,7 @@ namespace Core.Api
 
                     if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
-                        UpdateVirtualAsset(groupId, userId, response.ExternalChannel);
+                        UpdateChannelVirtualAsset(groupId, userId, response.ExternalChannel);
                     }
 
                     response.Status = new Status((int)eResponseStatus.OK, "external channel set changes");
@@ -11908,10 +11907,10 @@ namespace Core.Api
             return assetStruct;
         }
 
-        private static void UpdateVirtualAsset(int groupId, long userId, ExternalChannel channel)
+        private static void UpdateChannelVirtualAsset(int groupId, long userId, ExternalChannel channel)
         {
             bool needToCreateVirtualAsset = false;
-            Asset virtualAsset = GetVirtualAsset(groupId, userId, channel, out needToCreateVirtualAsset);
+            Asset virtualAsset = GetChannelVirtualAsset(groupId, userId, channel, out needToCreateVirtualAsset);
 
             if (needToCreateVirtualAsset)
             {
@@ -11937,7 +11936,7 @@ namespace Core.Api
             return;
         }
 
-        internal static Asset GetVirtualAsset(int groupId, long userId, ExternalChannel channel, out bool needToCreateVirtualAsset)
+        internal static Asset GetChannelVirtualAsset(int groupId, long userId, ExternalChannel channel, out bool needToCreateVirtualAsset)
         {
             needToCreateVirtualAsset = false;
             Asset asset = null;
@@ -11945,7 +11944,7 @@ namespace Core.Api
 
             if (assetStruct == null)
             {
-                log.ErrorFormat("Failed UpdateVirtualAsset. AssetStruct is missing. groupId {0}, channelId {1}", groupId, channel.ID);
+                log.ErrorFormat("Failed GetChannelVirtualAsset. AssetStruct is missing. groupId {0}, channelId {1}", groupId, channel.ID);
                 return asset;
             }
 
@@ -11955,7 +11954,7 @@ namespace Core.Api
 
             if (assets == null || assets.Length == 0)
             {
-                log.DebugFormat("UpdateVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.ID);
+                log.DebugFormat("GetChannelVirtualAsset. Asset not found. CreateVirtualChannel. groupId {0}, channelId {1}", groupId, channel.ID);
                 needToCreateVirtualAsset = true;
                 return asset;
             }
@@ -11964,7 +11963,7 @@ namespace Core.Api
 
             if (!assetResponse.HasObject())
             {
-                log.ErrorFormat("Failed UpdateVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.ID);
+                log.ErrorFormat("Failed GetChannelVirtualAsset. virtual asset not found. groupId {0}, channelId {1}", groupId, channel.ID);
                 return asset;
             }
 
@@ -12147,72 +12146,20 @@ namespace Core.Api
 
             }
         }
+
         internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
-            try
-            {
-                var objectVirtualAssetPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId);
-                if (objectVirtualAssetPartnerConfig == null || objectVirtualAssetPartnerConfig.ObjectVirtualAssets?.Count == 0)
-                {
-                    log.Debug($"No objectVirtualAssetPartnerConfigurtion for groupId {groupId}");
-                    return;
-                }
+            AssetManager.AddVirtualAsset(groupId, virtualAssetInfo);
+        }
 
-                ObjectVirtualAssetInfo objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.ObjectVirtualAssets.FirstOrDefault(x => x.Type == virtualAssetInfo.Type);
-                if (objectVirtualAssetInfo == null)
-                {
-                    log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {virtualAssetInfo.Type}");
-                    return;
-                }
+        internal static void DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        {
+            AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
+        }
 
-                CatalogGroupCache catalogGroupCache = null;
-
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.Debug($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
-                    return;
-                }
-
-                if (!catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
-                {
-                    log.Debug($"MetaDoesNotExist {objectVirtualAssetInfo.MetaId}. groupId: {groupId}");
-                    return;
-                }
-
-                MediaAsset virtualAsset = new MediaAsset()
-                {
-                    AssetType = eAssetTypes.MEDIA,
-                    IsActive = true,
-                    CoGuid = Guid.NewGuid().ToString(),
-                    Name = virtualAssetInfo.Name,
-                    Description = virtualAssetInfo.Description,
-                    CreateDate = DateTime.UtcNow,
-                    MediaType = new MediaType()
-                    {
-                        m_nTypeID = objectVirtualAssetInfo.AssetStructId
-                    }
-                };
-
-                virtualAsset.Metas.Add(new Metas()
-                {
-                    m_oTagMeta = new TagMeta()
-                    {
-                        m_sName = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId].SystemName,
-                        m_sType = ApiObjects.MetaType.Number.ToString()
-                    },
-                    m_sValue = virtualAssetInfo.Id.ToString()
-                });
-
-                var response = AssetManager.AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
-                if (!response.IsOkStatusCode())
-                {
-                    log.Debug($"failed to AddVirtualAsset. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
-                }
-            }
-            catch (Exception exc)
-            {
-                log.Debug($"failed to AddVirtualAsset. groupId {groupId}, exc {exc}");                
-            }
+        internal static void UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        {
+            AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
     }
 }

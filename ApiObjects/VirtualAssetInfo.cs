@@ -1,4 +1,6 @@
-﻿namespace ApiObjects
+﻿using System;
+
+namespace ApiObjects
 {
     public class VirtualAssetInfo
     {
@@ -11,6 +13,10 @@
         public ObjectVirtualAssetInfoType Type { get; set; }
 
         public long UserId { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public DateTime? EndDate { get; set; }
 
         public override string ToString()
         {

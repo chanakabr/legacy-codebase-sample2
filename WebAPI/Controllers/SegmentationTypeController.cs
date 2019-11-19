@@ -56,8 +56,9 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 segmentationType.Id = segmentationTypeId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
-                return ClientsManager.ApiClient().UpdateSegmentationType(groupId, segmentationType);
+                return ClientsManager.ApiClient().UpdateSegmentationType(groupId, segmentationType, userId);
             }
             catch (ClientException ex)
             {
@@ -81,9 +82,10 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
                 response = ClientsManager.
-                    ApiClient().DeleteSegmentationType(groupId, id);
+                    ApiClient().DeleteSegmentationType(groupId, id, userId);
             }
 
             catch (ClientException ex)

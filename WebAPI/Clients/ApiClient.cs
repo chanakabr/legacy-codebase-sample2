@@ -3924,10 +3924,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType, long userId)
         {
             Func<SegmentationType, GenericResponse<SegmentationType>> updateSegmentationTypeFunc = (SegmentationType segmentTypeToUpdate) =>
-                Core.Api.Module.UpdateSegmentationType(groupId, segmentTypeToUpdate);
+                Core.Api.Module.UpdateSegmentationType(groupId, segmentTypeToUpdate, userId);
 
             KalturaSegmentationType result =
                 ClientUtils.GetResponseFromWS<KalturaSegmentationType, SegmentationType>(kalturaSegmentationType, updateSegmentationTypeFunc);
@@ -3935,9 +3935,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool DeleteSegmentationType(int groupId, long id)
+        internal bool DeleteSegmentationType(int groupId, long id, long userId)
         {
-            Func<Status> deleteSegmentationTypeFunc = () => Core.Api.Module.DeleteSegmentationType(groupId, id);
+            Func<Status> deleteSegmentationTypeFunc = () => Core.Api.Module.DeleteSegmentationType(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
