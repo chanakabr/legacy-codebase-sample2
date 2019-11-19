@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "z - Libs", "z - Libs", "{83D4A8C8-5B13-4468-9F4C-A8B989A5C9DE}"
 EndProject
@@ -162,6 +162,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPApi.Api", "TVPApi.Api\TVPApi.Api.csproj", "{C46350E3-5F73-459E-BE01-13426446BC39}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TVPApi.Common", "TVPApi.Common\TVPApi.Common.csproj", "{F2A5E10B-E848-4F0B-A730-BFCD76FE5043}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Middleware", "..\Core\Core.Middleware\Core.Middleware.csproj", "{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1070,6 +1072,20 @@ Global
 		{F2A5E10B-E848-4F0B-A730-BFCD76FE5043}.test|Any CPU.Build.0 = Debug|Any CPU
 		{F2A5E10B-E848-4F0B-A730-BFCD76FE5043}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2A5E10B-E848-4F0B-A730-BFCD76FE5043}.Yes|Any CPU.Build.0 = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.AllClients|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.AllClients|Any CPU.Build.0 = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.test|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.test|Any CPU.Build.0 = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3}.Yes|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1146,9 +1162,10 @@ Global
 		{3D5467FE-D416-4008-AD0A-0F664E54DCA5} = {136B28E9-CF4B-4800-843A-00E223EDF7B0}
 		{C46350E3-5F73-459E-BE01-13426446BC39} = {173647D2-B5B7-46DC-80FB-0326B428418A}
 		{F2A5E10B-E848-4F0B-A730-BFCD76FE5043} = {173647D2-B5B7-46DC-80FB-0326B428418A}
+		{1DF83BE0-6095-4F0E-9E91-5F5046DA1AB3} = {80535B55-CED9-4B4A-9040-933D6AC84B2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 	EndGlobalSection
 EndGlobal
