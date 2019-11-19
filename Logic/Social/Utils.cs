@@ -13,18 +13,37 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
-
+using TVinciShared;
 
 namespace Core.Social
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly HttpClient httpClient;
+        private static readonly HttpClientHandler httpHandler;
+
+        static Utils()
+        {
+            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+#if NETSTANDARD2_0
+            httpHandler.MaxConnectionsPerServer = 1000;
+            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
+            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+#endif
+            httpClient = new HttpClient(httpHandler)
+            {
+                Timeout = TimeSpan.FromMilliseconds(1000000)
+            };
+        }
 
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
@@ -297,74 +316,67 @@ namespace Core.Social
 
         public static string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword)
         {
-            HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-            HttpWebResponse oWebResponse = null;
-            Stream receiveStream = null;
-            Int32 nStatusCode = -1;
-            Encoding enc = new UTF8Encoding(false);
+            string result = string.Empty;
+
             try
             {
-                oWebRequest.Credentials = new NetworkCredential(sUserName, sPassword);
-                oWebRequest.Timeout = 1000000;
-                oWebResponse = (HttpWebResponse)oWebRequest.GetResponse();
-                HttpStatusCode sCode = oWebResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                receiveStream = oWebResponse.GetResponseStream();
+                if (!string.IsNullOrEmpty(sUserName) && !string.IsNullOrEmpty(sPassword))
+                {
+                    var byteArray = Encoding.ASCII.GetBytes($"{sUserName}:{sPassword}");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                }
 
-                StreamReader sr = new StreamReader(receiveStream, enc);
-                string resultString = sr.ReadToEnd();
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
+                {
+                    HttpResponseMessage response = httpClient.GetAsync(sUrl).ExecuteAndWait();
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                    nStatus = GetResponseCode(response.StatusCode);
+                }
 
-                sr.Close();
-
-                oWebResponse.Close();
-                oWebRequest = null;
-                oWebResponse = null;
-                nStatus = nStatusCode;
-                return resultString;
+                httpClient.DefaultRequestHeaders.Authorization = null;
             }
             catch (Exception ex)
             {
                 log.Error("ApiLogic - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl, ex);
-                if (oWebResponse != null)
-                    oWebResponse.Close();
-                if (receiveStream != null)
-                    receiveStream.Close();
+
                 nStatus = 404;
-                return ex.Message;
+                result = ex.Message;
             }
+
+            return result;
         }
 
         public static string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
         {
-            Int32 nStatusCode = -1;
+            string result = string.Empty;
+            nStatus = -1;
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "DELETE";
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
-            webRequest.ContentLength = bytes.Length;
-            System.IO.Stream os = webRequest.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length);
-            os.Close();
-
-            string res = string.Empty;
             try
             {
-                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                StreamReader sr = null;
-                try
+                StringContent strContent = new StringContent(sParams, Encoding.UTF8, "application/x-www-form-urlencoded");
+
+                HttpRequestMessage request = new HttpRequestMessage
                 {
-                    sr = new StreamReader(webResponse.GetResponseStream());
-                    res = sr.ReadToEnd();
-                }
-                finally
+                    Content = strContent,
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(sUrl)
+                };
+
+                if (!string.IsNullOrEmpty(sUserName) && !string.IsNullOrEmpty(sPassword))
                 {
-                    if (sr != null)
-                        sr.Close();
+                    var byteArray = Encoding.ASCII.GetBytes($"{sUserName}:{sPassword}");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
+                {
+                    HttpResponseMessage response = httpClient.SendAsync(request).ExecuteAndWait();
+
+                    nStatus = GetResponseCode(response.StatusCode);
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                }
+
+                httpClient.DefaultRequestHeaders.Authorization = null;
             }
             catch (WebException ex)
             {
@@ -372,49 +384,47 @@ namespace Core.Social
                 try
                 {
                     errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    res = errorStream.ReadToEnd();
+                    result = errorStream.ReadToEnd();
                 }
                 finally
                 {
                     if (errorStream != null) errorStream.Close();
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error($"ApiLogic - SendDeleteHttpReq exception: {ex.Message} to: {sUrl}");
 
-            nStatus = nStatusCode;
-            return res;
+                nStatus = 404;
+            }
+
+            return result;
         }
 
         public static string SendPostHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams)
         {
-            Int32 nStatusCode = -1;
+            nStatus = -1;
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "POST";
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
-            webRequest.ContentLength = bytes.Length;
-            System.IO.Stream os = webRequest.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length);
-            os.Close();
-
-            string res = string.Empty;
+            string result = string.Empty;
             try
             {
-                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                StreamReader sr = null;
-                try
+
+                if (!string.IsNullOrEmpty(sUserName) && !string.IsNullOrEmpty(sPassword))
                 {
-                    sr = new StreamReader(webResponse.GetResponseStream());
-                    res = sr.ReadToEnd();
-                }
-                finally
-                {
-                    if (sr != null)
-                        sr.Close();
+                    var byteArray = Encoding.ASCII.GetBytes($"{sUserName}:{sPassword}");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
+                StringContent strContent = new StringContent(sParams, Encoding.UTF8, "application/x-www-form-urlencoded");
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
+                {
+                    HttpResponseMessage response = httpClient.PostAsync(sUrl, strContent).ExecuteAndWait();
+                    nStatus = GetResponseCode(response.StatusCode);
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                }
+
+                httpClient.DefaultRequestHeaders.Authorization = null;
             }
             catch (WebException ex)
             {
@@ -422,73 +432,22 @@ namespace Core.Social
                 try
                 {
                     errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    res = errorStream.ReadToEnd();
-                    log.Error("Error - SendPostHttpReq exception:" + ex.Message + "; error=" + res + " to: " + sUrl, ex);
+                    result = errorStream.ReadToEnd();
                 }
                 finally
                 {
                     if (errorStream != null) errorStream.Close();
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error($"ApiLogic - SendPostHttpReq exception: {ex.Message} to: {sUrl}");
 
-            nStatus = nStatusCode;
-            return res;
+                nStatus = 404;
+            }
+
+            return result;
         }
-
-        public static string SendPostHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, Dictionary<string, string> headers = null)
-        {
-            Int32 nStatusCode = -1;
-
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "POST";
-            if (headers != null)
-            {
-                SetRequestHeaders(webRequest, headers);
-            }
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
-            webRequest.ContentLength = bytes.Length;
-            System.IO.Stream os = webRequest.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length);
-            os.Close();
-
-            string res = string.Empty;
-            try
-            {
-                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                StreamReader sr = null;
-                try
-                {
-                    sr = new StreamReader(webResponse.GetResponseStream());
-                    res = sr.ReadToEnd();
-                }
-                finally
-                {
-                    if (sr != null)
-                        sr.Close();
-                }
-
-            }
-            catch (WebException ex)
-            {
-                StreamReader errorStream = null;
-                try
-                {
-                    errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    res = errorStream.ReadToEnd();
-                }
-                finally
-                {
-                    if (errorStream != null) errorStream.Close();
-                }
-            }
-
-            nStatus = nStatusCode;
-            return res;
-        }
-
 
         public static List<T> GetTopRecords<T>(int nTotalItems, int nStartIndex, List<T> list)
         {
