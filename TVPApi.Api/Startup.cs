@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TVPApi.Web.Middleware;
 using Core.Middleware;
+using System.Reflection;
 
 namespace TVPApi.Web
 {
@@ -26,11 +27,7 @@ namespace TVPApi.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCoreConcurrencyLimiter();
-            services.AddHttpContextAccessor();
-
-            var provider = services.BuildServiceProvider();
-            var httpContextAccessor = provider.GetService<IHttpContextAccessor>();
-            System.Web.HttpContext.Configure(httpContextAccessor);
+            services.AddStaticHttpContextAccessor();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -40,6 +37,19 @@ namespace TVPApi.Web
             {
                 apiApp.UseConcurrencyLimiter();
                 apiApp.UseTvpApi();
+            });
+
+            app.MapEndpoint("GetVersion", versionApp =>
+            {
+                versionApp.Run((ctx) =>
+                {
+                    ctx.Response.StatusCode = 200;
+                    ctx.Response.ContentType = "application/json; charset=utf-8";
+                    ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                    var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    return ctx.Response.WriteAsync("{\"result\":\"" + currentVersion + "\"}");
+                });
+
             });
 
             app.Use(async (context, next) =>
