@@ -26,8 +26,7 @@ namespace TVPApi.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCoreConcurrencyLimiter();
-            services.AddStaticHttpContextAccessor();
+            services.ConfigureTvpapi();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
