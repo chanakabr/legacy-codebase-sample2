@@ -4,6 +4,7 @@ using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.Response;
 using Core.Billing;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.WebServices
 {

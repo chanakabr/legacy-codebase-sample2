@@ -10,9 +10,9 @@ namespace WebAPI.Exceptions
 
         public string ExceptionMessage { get; set; }
 
-        public List<KeyValuePair> Args { get; set; }
+        public List<ApiObjects.KeyValuePair> Args { get; set; }
 
-        public ClientException(int code = 1, string message = null, List<KeyValuePair> args = null)
+        public ClientException(int code = 1, string message = null, List<ApiObjects.KeyValuePair> args = null)
             : base()
         {
             this.Code = code;

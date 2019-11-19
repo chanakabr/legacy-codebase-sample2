@@ -43,7 +43,7 @@ namespace WebAPI.Clients
         static DMSClient()
         {
             httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETSTANDARD2_0
+#if NETCOREAPP3_0
             httpHandler.MaxConnectionsPerServer = 1000;
 #endif
             httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;

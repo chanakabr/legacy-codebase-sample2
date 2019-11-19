@@ -186,8 +186,8 @@ namespace Core.Social
                 };
                 if (response.UserAction.Action == eUserAction.RATES)
                 {
-                    response.UserAction.ExtraParams = new List<KeyValuePair>();
-                    response.UserAction.ExtraParams.Add(new KeyValuePair()
+                    response.UserAction.ExtraParams = new List<ApiObjects.KeyValuePair>();
+                    response.UserAction.ExtraParams.Add(new ApiObjects.KeyValuePair()
                     {
                         key = "rating:value",
                         value = doc.ActivityVerb.RateValue.ToString()

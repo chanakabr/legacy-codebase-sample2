@@ -6,6 +6,7 @@ using Core.Social.Responses;
 using ApiObjects;
 using ApiObjects.Social;
 using Newtonsoft.Json;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Social.Requests
 {

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
 {

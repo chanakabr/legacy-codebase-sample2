@@ -11,7 +11,7 @@ namespace WebAPI.Controllers
 {
     public class BaseCategoryController
     {
-        #if NET461
+        #if NET48
         [NonAction]
         #endif
         [SchemeArgument("id", MinInteger = 1)]

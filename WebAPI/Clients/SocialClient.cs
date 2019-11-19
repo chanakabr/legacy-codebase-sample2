@@ -145,7 +145,7 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal KalturaFacebookSocial FBRegister(int groupId, string token, List<KeyValuePair> extraParameters, string ip)
+        internal KalturaFacebookSocial FBRegister(int groupId, string token, List<ApiObjects.KeyValuePair> extraParameters, string ip)
         {
             {
                 FacebookResponse wsResponse = null;
@@ -187,7 +187,7 @@ namespace WebAPI.Clients
         }
 
         [Obsolete]
-        internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<KeyValuePair> extraParameters, string ip)
+        internal KalturaSocialResponse FBUserRegister(int groupId, string token, List<ApiObjects.KeyValuePair> extraParameters, string ip)
         {
             {
                 FacebookResponse wsResponse = null;

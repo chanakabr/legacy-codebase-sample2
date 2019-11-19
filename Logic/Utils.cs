@@ -573,14 +573,14 @@ namespace APILogic
                     return result;
                 }
 
-                KeyValuePair filterTagType = AssetLifeCycleRuleManager.GetFilterTagTypeById(groupId, filterTagTypeId);
+                ApiObjects.KeyValuePair filterTagType = AssetLifeCycleRuleManager.GetFilterTagTypeById(groupId, filterTagTypeId);
                 if (filterTagType == null)
                 {
                     log.ErrorFormat("GetFilterTagTypeById returned null result, groupId: {0}, id: {1}, name: {2}, filterTagTypeId: {3}", groupId, rule.Id, rule.Name, filterTagTypeId);
                     return result;
                 }
 
-                rule.FilterTagType = new KeyValuePair(filterTagType.key, filterTagType.value);
+                rule.FilterTagType = new ApiObjects.KeyValuePair(filterTagType.key, filterTagType.value);
                 if (rule.TagNamesToAdd != null && rule.TagNamesToAdd.Count > 0)
                 {
                     rule.TagNamesToAdd = rule.TagNamesToAdd.Distinct().ToList();

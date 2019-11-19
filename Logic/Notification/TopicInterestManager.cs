@@ -19,6 +19,7 @@ using EventBus.RabbitMQ;
 using TVinciShared;
 using EventBus.Abstraction;
 using ConfigurationManager;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace APILogic.Notification
 {

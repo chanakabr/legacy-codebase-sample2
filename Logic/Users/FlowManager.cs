@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ApiObjects;
 using ApiObjects.Response;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
 {

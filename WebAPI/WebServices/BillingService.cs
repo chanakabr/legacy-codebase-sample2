@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Web;
 using System.Web.Services;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.WebServices
 {
