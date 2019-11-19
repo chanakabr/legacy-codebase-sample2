@@ -21315,6 +21315,10 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
             }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
             if(MediaFileIdEqual.HasValue)
             {
                 ret.Add("mediaFileIdEqual", "\"mediaFileIdEqual\": " + MediaFileIdEqual);
@@ -21339,6 +21343,10 @@ namespace WebAPI.Models.Pricing
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
+            }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
             if(MediaFileIdEqual.HasValue)
             {
@@ -22191,6 +22199,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
             return ret;
         }
         
@@ -22203,6 +22215,10 @@ namespace WebAPI.Models.Segmentation
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
             return ret;
         }

@@ -21157,6 +21157,10 @@ namespace WebAPI.Models.Pricing
                 {
                     CouponGroupIdEqual = (Int32) Convert.ChangeType(parameters["couponGroupIdEqual"], typeof(Int32));
                 }
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
             }
         }
     }
@@ -22243,6 +22247,10 @@ namespace WebAPI.Models.Segmentation
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
                 }
             }
         }

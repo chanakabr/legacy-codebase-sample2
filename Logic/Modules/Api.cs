@@ -9,6 +9,7 @@ using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
 using Core.Api.Modules;
+using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using KLogMonitor;
@@ -2128,12 +2129,21 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, string kSql)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
+                if(!string.IsNullOrEmpty( kSql))
+                {
+                    var assets = api.SearchAssets(groupId, kSql, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                    if (assets != null && assets.Length > 0)
+                    {
+                        ids = assets.Select(x => long.Parse(x.AssetId)).ToList();
+                    }
+                }
+
                 int totalCount;
                 result.Objects = SegmentationType.List(groupId, ids, pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;

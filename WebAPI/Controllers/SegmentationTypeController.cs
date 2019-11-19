@@ -107,21 +107,33 @@ namespace WebAPI.Controllers
         static public KalturaSegmentationTypeListResponse List(KalturaSegmentationTypeFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSegmentationTypeListResponse response = null;
+            bool isFilterValid = false;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
 
             if (filter == null)
+            {
                 filter = new KalturaSegmentationTypeFilter();
+                isFilterValid = true;
+            }
+            else
+            {
+                isFilterValid = filter.Validate();
+            }
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
 
-                List<long> ids = filter.GetIdIn();
+                List<long> ids = null;
 
-                response = ClientsManager.
-                    ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize());
+                if (string.IsNullOrEmpty(filter.Ksql))
+                {
+                    ids = filter.GetIdIn();
+                }
+
+                response = ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize(), filter.Ksql);                
             }
 
             catch (ClientException ex)

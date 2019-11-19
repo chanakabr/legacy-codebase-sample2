@@ -5445,6 +5445,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -5991,6 +5993,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "Ksql":
+                            return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
                         case "SubscriptionIdIn":
