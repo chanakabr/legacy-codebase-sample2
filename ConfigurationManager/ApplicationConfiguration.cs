@@ -646,7 +646,7 @@ namespace ConfigurationManager
                 DefaultValue = 0,
                 Description = "Interval of reloading the KLogger configuration from Couchbase, in milliseconds."
             };
-            HttpHandlerConfiguration = new HttpHandlerConfiguration("http_handler_configuration")
+            HttpHandlerConfiguration = new HttpClientConfiguration("http_handler_configuration")
             {
                 ShouldAllowEmpty = true
             };
