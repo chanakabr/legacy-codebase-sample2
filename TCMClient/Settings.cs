@@ -15,6 +15,7 @@ namespace TCMClient
     public class Settings
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private static readonly HttpClient httpClient;
         private static readonly HttpClientHandler httpHandler;
 
