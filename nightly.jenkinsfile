@@ -57,7 +57,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest"){
                     dir("Generator"){
-                        bat ("\"${MSBUILD}\" /p:Configuration=Release /m:4 /nr:false")
+                        bat ("dotnet build -c Release")
                         dir("bin/Release/netcoreapp2.0"){
                             bat ("dotnet Generator.dll")
                             bat ("xcopy KalturaClient.xml ${WORKSPACE}\\published\\tvpapi_rest\\clientlibs\\")
