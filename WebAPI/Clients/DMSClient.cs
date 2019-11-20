@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿ï»¿using AutoMapper;
 using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -6,9 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
@@ -36,23 +34,9 @@ namespace WebAPI.Clients
         }
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HttpClient httpClient;
-        private static readonly HttpClientHandler httpHandler;
 
-
-        static DMSClient()
-        {
-            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETSTANDARD2_0
-            httpHandler.MaxConnectionsPerServer = 1000;
-#endif
-            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
-            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
-            httpClient = new HttpClient(httpHandler);
-        }
-
-    #region Configuration Group
-    public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
+        #region Configuration Group
+        public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
         {
             KalturaConfigurationGroup configurationGroup = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
@@ -233,9 +217,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region DMs Calls
+        #region DMs Calls
         private static string CallDeleteDMSClient(string url)
         {
             string result = string.Empty;
@@ -270,24 +254,18 @@ namespace WebAPI.Clients
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
             }
-
             var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
             {
-                HttpResponseMessage response = httpClient.GetAsync(dmsRestUrl).ExecuteAndWait();
-                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                result = reader.ReadToEnd();
             }
-
-            //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            //request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            //using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
-            //using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            //using (Stream stream = response.GetResponseStream())
-            //using (StreamReader reader = new StreamReader(stream))
-            //{
-            //    result = reader.ReadToEnd();
-            //}
             return result;
         }
 
@@ -327,9 +305,9 @@ namespace WebAPI.Clients
 
             return result;
         }
-#endregion
+        #endregion
 
-#region Configuration Group Tag
+        #region Configuration Group Tag
         internal static KalturaConfigurationGroupTag GetConfigurationGroupTag(int partnerId, string tag)
         {
             KalturaConfigurationGroupTag configurationGroupTag = null;
@@ -467,9 +445,9 @@ namespace WebAPI.Clients
 
             return true;
         }
-#endregion
+        #endregion
 
-#region Configuration
+        #region Configuration
 
         internal static string Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
         {
@@ -688,9 +666,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Configuration Group Device
+        #region Configuration Group Device
         internal static KalturaConfigurationGroupDevice GetConfigurationGroupDevice(int partnerId, string udid)
         {
             KalturaConfigurationGroupDevice configurationGroupDevice = null;
@@ -829,9 +807,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Report Device
+        #region Report Device
         internal static KalturaDeviceReport GetDeviceReport(int partnerId, string udid)
         {
             KalturaDeviceReport device = null;
@@ -906,6 +884,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-#endregion
+        #endregion
     }
 }
