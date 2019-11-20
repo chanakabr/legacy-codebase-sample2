@@ -3,7 +3,7 @@ pipeline {
         label 'Windows'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
     }
     environment {
@@ -88,7 +88,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp2.0"){
+                    dir("bin/Release/netcoreapp3.0"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
@@ -114,7 +114,11 @@ pipeline {
         }
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
-            when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ }}
+            when {
+                expression {
+                    return BRANCH_NAME =~ /\d+_\d+_\d+$/ 
+                    }        
+            }
             steps{
                 dir("clients-generator"){
                     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
