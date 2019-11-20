@@ -47,7 +47,7 @@ namespace Phoenix.Rest
                 await context.Response.WriteAsync("");
             });
 
-            WebAPI.Utils.LogReloader.GetInstance().Initiate();
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate();
         }
     }
 }
