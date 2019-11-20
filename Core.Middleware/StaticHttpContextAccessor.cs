@@ -9,7 +9,10 @@ namespace Core.Middleware
 {
     public static class StaticHttpContextAccessor
     {
-
+        /// <summary>
+        /// Setting Static Http Context Accessor to allow compatability with all other services that are still using System.Web HttpContext
+        /// This will no longer be required if we remove usage of static HTTP context and use Dependency Injection of IHttpContextAccessor instead
+        /// </summary>
         public static IServiceCollection AddStaticHttpContextAccessor(this IServiceCollection services)
         {
             services.AddHttpContextAccessor();
