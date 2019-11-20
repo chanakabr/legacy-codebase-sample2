@@ -32,7 +32,7 @@ namespace Phoenix.Rest.Middleware
         {
             services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
-            services.AddKalturaApplicationSessionContext();
+            services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
             services.AddApiExceptionHandler<PhoenixExceptionHandler>();
             return services;
