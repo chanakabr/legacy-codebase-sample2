@@ -47,7 +47,7 @@ namespace WebAPI.Filters
             }
 
             ExtractActionToLog(request.RequestUri);
-            bool isMultirequest = HttpContext.Current.Items[Constants.ACTION] != null 
+            bool isMultirequest = HttpContext.Current.Items[Constants.ACTION] != null
                                   && HttpContext.Current.Items[Constants.ACTION].ToString() == MUTLIREQUEST_ACTION;
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
@@ -62,7 +62,7 @@ namespace WebAPI.Filters
                 }
 
                 return wrappedResponse;
-            }            
+            }
         }
 
         private async static Task<HttpResponseMessage> BuildApiResponse(HttpRequestMessage request, HttpResponseMessage response, float executionTime)
@@ -164,10 +164,10 @@ namespace WebAPI.Filters
                             }
                             else
                             {
-                                HttpContext.Current.Items[Constants.ACTION] = MUTLIREQUEST_ACTION;                                
+                                HttpContext.Current.Items[Constants.ACTION] = MUTLIREQUEST_ACTION;
                                 isActionExtracted = true;
                             }
-                            
+
                             break;
                         }
                     }
@@ -181,7 +181,5 @@ namespace WebAPI.Filters
             if (!isActionExtracted)
                 log.WarnFormat("Could not extract action + service from request query. Original request: {0}", uri.OriginalString);
         }
-
-        
     }
 }

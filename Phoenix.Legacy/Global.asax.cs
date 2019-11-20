@@ -34,6 +34,8 @@ namespace WebAPI
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
+
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate();
         }
 
         private static void InitializeLogging()

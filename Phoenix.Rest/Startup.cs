@@ -46,6 +46,8 @@ namespace Phoenix.Rest
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 await context.Response.WriteAsync("");
             });
+
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate();
         }
     }
 }
