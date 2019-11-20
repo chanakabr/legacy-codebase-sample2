@@ -10,7 +10,7 @@ using System.Threading;
 using System.Reflection;
 using Newtonsoft.Json;
 
-namespace WebAPI.Utils
+namespace KLogMonitor.ConfigurationReloader
 {
     public class LogReloader
     {
