@@ -68,8 +68,14 @@ public partial class adm_billing_transactions : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        //b.BILLING_REASON as 'Reason',
-        theTable += "select b.id as id,b.SITE_GUID as 'User',b.LAST_FOUR_DIGITS as 'CC',b.PRICE as 'Amount',b.PAYMENT_METHOD_ADDITION as 'Addition',b.TOTAL_PRICE as 'Total',b.CURRENCY_CODE as 'Currency',CASE b.BILLING_STATUS when 0 then 'OK' ELSE 'Fail: '+CAST(b.BILLING_STATUS as nvarchar(5)) END as 'Status',CASE b.IS_RECURRING WHEN 1 THEN 'True' ELSE 'False' END as 'Recurring',b.MEDIA_FILE_ID as 'File',b.SUBSCRIPTION_CODE as 'Subscription',b.CELL_PHONE as 'MSISDN',lit.NAME as 'Provider',b.PURCHASE_ID as 'Purchase Ref',b.PAYMENT_NUMBER as 'Payment',CASE b.NUMBER_OF_PAYMENTS WHEN 0 Then 'Infinate' WHEN 1 Then 'One' ELSE CAST(b.PAYMENT_NUMBER as nvarchar(5)) END as '# of Payments',CONVERT(VARCHAR(12),b.CREATE_DATE, 103) as 'Date' from lu_implementation_type lit,billing_transactions b where lit.id=b.BILLING_PROVIDER and ";
+
+        theTable += "SELECT b.id as id, b.SITE_GUID as 'User', b.LAST_FOUR_DIGITS as 'CC', b.PRICE as 'Amount', b.PAYMENT_METHOD_ADDITION as 'Addition', b.TOTAL_PRICE as 'Total', b.CURRENCY_CODE as 'Currency',";
+        theTable += "CASE b.BILLING_STATUS WHEN 0 THEN 'OK' ELSE 'Fail: ' + CAST(b.BILLING_STATUS as nvarchar(5)) END as 'Status', CASE b.IS_RECURRING WHEN 1 THEN 'True' ELSE 'False' END as 'Recurring',";
+        theTable += "b.MEDIA_FILE_ID as 'File', b.SUBSCRIPTION_CODE as 'Subscription', CASE billing_provider WHEN 1000 THEN(SELECT PAYMENT_DETAILS FROM billing..payment_gateway_transactions where id = BILLING_PROVIDER_REFFERENCE) ELSE b.CELL_PHONE END as 'MSISDN',";
+        theTable += "CASE billing_provider WHEN 1000 THEN(SELECT name FROM billing..payment_gateway where id = BILLING_METHOD) else (SELECT name FROM lu_implementation_type where id = billing_provider) END as 'Provider',";
+        theTable += "b.PURCHASE_ID as 'Purchase Ref' , b.PAYMENT_NUMBER as 'Payment' ,CASE b.NUMBER_OF_PAYMENTS WHEN 0 THEN 'Infinate' WHEN 1 THEN 'One' ELSE CAST(b.PAYMENT_NUMBER as nvarchar(5)) END as '# of Payments',";
+        theTable += "CONVERT(VARCHAR(12), b.CREATE_DATE, 103) as 'Date' FROM billing_transactions b";
+        theTable += "WHERE";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("b.group_id", "=", nGroupID);
         if (sOrderBy != "")
         {
@@ -78,7 +84,6 @@ public partial class adm_billing_transactions : System.Web.UI.Page
         }
         else
             theTable += " order by id desc";
-        //theTable.AddHiddenField("ID");
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
