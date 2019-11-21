@@ -387,54 +387,6 @@ namespace WebAPI.EventNotifications
             }
         }
 
-        public void SendGetHttpReq()
-        {
-            HttpWebResponse webResponse = null;
-            Stream receiveStream = null;
-
-            try
-            {
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
-                Int32 statusCode = -1;
-                Encoding encoding = new UTF8Encoding(false);
-
-                webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
-
-                if (this.Timeout > 0)
-                {
-                    webRequest.Timeout = this.Timeout;
-                }
-
-                webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                statusCode = GetResponseCode(sCode);
-                receiveStream = webResponse.GetResponseStream();
-
-                StreamReader sr = new StreamReader(receiveStream, encoding);
-                string resultString = sr.ReadToEnd();
-
-                sr.Close();
-
-                webResponse.Close();
-                webRequest = null;
-                webResponse = null;
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error in SendGettHttpReq WebException:" + ex.Message + " to: " + this.Url);
-
-                if (webResponse != null)
-                {
-                    webResponse.Close();
-                }
-
-                if (receiveStream != null)
-                {
-                    receiveStream.Close();
-                }
-            }
-        }
-
         public Int32 GetResponseCode(HttpStatusCode theCode)
         {
             if (theCode == HttpStatusCode.OK || theCode == HttpStatusCode.Created || theCode == HttpStatusCode.Accepted)
