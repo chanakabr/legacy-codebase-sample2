@@ -85,14 +85,15 @@ namespace KLogMonitor.ConfigurationReloader
             {
                 Reload();
             },
-            null, interval, interval);
+            // start immediately
+            null, 0, interval);
         }
 
         public void Reload()
         {
             try
             {
-                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>("phoenix_log_configuration");
+                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(ApplicationConfiguration.LogConfigurationDocumentKey.Value);
 
                 // if configuration was updated
                 if (cbConfiguration != null && (configuration == null || cbConfiguration.timeStamp > configuration.timeStamp))
