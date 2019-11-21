@@ -40,9 +40,15 @@ namespace Phoenix.Rest.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            KS.ClearOnRequest();
+            using var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START);
 
-            var phoenixContext = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
+            KS.ClearOnRequest();
+            var phoenixContext = new PhoenixRequestContext();
+            context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixContext;
+            context.Items[RequestContext.REQUEST_TIME] = DateTime.UtcNow;
+            phoenixContext.SessionId = KLogger.GetRequestId();
+            phoenixContext.RequestDate = DateTime.UtcNow;
+            phoenixContext.ApiMonitorLog = km;
             if (phoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
 
             var request = context.Request;
