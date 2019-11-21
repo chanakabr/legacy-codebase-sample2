@@ -22,7 +22,13 @@ namespace Core.Middleware
             app.Use(async (context, _next) =>
             {
                 var requestLogStr = await FormatRequestLogStr(context.Request);
-                _Logger.DebugFormat("{0}", requestLogStr);
+                
+                // We should not log any request that containes password or emails...(PII)
+                var shouldLogRawRequest = !requestLogStr.Contains("password", StringComparison.OrdinalIgnoreCase) && !requestLogStr.Contains("mail", StringComparison.OrdinalIgnoreCase);
+                if (shouldLogRawRequest)
+                {
+                    _Logger.DebugFormat("{0}", requestLogStr);
+                }
 
                 await _next.Invoke();
 
