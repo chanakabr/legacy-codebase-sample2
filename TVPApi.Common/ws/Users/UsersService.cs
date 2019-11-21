@@ -17,6 +17,7 @@ using Country = Core.Users.Country;
 using InitializationObject = TVPApi.InitializationObject;
 using TVinciShared;
 using TVPApiModule.Objects.CRM;
+using ConfigurationManager;
 
 namespace TVPApiServices
 {
@@ -222,8 +223,8 @@ namespace TVPApiServices
                 try
                 {
                     SiteService siteSvc = new SiteService();
-                    string privateKey = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-                    string IV = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     string sClearPassword = SecurityHelper.DecryptSiteGuid(privateKey, IV, sEncryptedPassword);
 
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);
