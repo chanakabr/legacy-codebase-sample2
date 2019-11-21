@@ -16,17 +16,21 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace APILogic
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         public static int GetIntSafeVal(DataRow dr, string sField)
         {
@@ -290,45 +294,27 @@ namespace APILogic
             bool result = false;
             statusCode = -1;
 
-            HttpWebResponse webResponse = null;
-            Stream receiveStream = null;
-
             try
             {
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-
-                webResponse = (HttpWebResponse)webRequest.GetResponse();
-
-                response = string.Empty;
-
-                if (webResponse.ContentLength < 10000000 && webResponse.ContentLength > 0)
+                HttpRequestMessage request = new HttpRequestMessage
                 {
-                    receiveStream = webResponse.GetResponseStream();
-                    StreamReader sr = new StreamReader(receiveStream);
-                    response = sr.ReadToEnd();
-                    webResponse.Close();
-                    sr.Close();
-                }
-                else
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(url)
+                };
+
+                HttpResponseMessage httpResponse = httpClient.SendAsync(request).ExecuteAndWait();
+
+                if (httpResponse.Content.Headers.ContentLength < 10000000 && httpResponse.Content.Headers.ContentLength > 0)
                 {
-                    webResponse.Close();
+                    response = httpResponse.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
 
-                statusCode = (int)webResponse.StatusCode;
+                statusCode = (int)httpResponse.StatusCode;
                 result = true;
-
-                webRequest = null;
-                webResponse = null;
-
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("SendGetHttpRequest failed, url = {0}", url), ex);
-                if (webResponse != null)
-                    webResponse.Close();
-                if (receiveStream != null)
-                    receiveStream.Close();
-                statusCode = 500;
                 response = null;
             }
 

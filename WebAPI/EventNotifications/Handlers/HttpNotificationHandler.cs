@@ -280,7 +280,7 @@ namespace WebAPI.EventNotifications
                 if (!string.IsNullOrEmpty(this.Username) && !string.IsNullOrEmpty(this.Password))
                 {
                     var byteArray = Encoding.ASCII.GetBytes($"{this.Username}:{this.Password}");
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
                 CancellationTokenSource cts = null;

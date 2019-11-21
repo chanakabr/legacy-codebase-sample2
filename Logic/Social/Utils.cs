@@ -305,20 +305,24 @@ namespace Core.Social
 
             try
             {
+                HttpRequestMessage request = new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(sUrl)
+                };
+
                 if (!string.IsNullOrEmpty(sUserName) && !string.IsNullOrEmpty(sPassword))
                 {
                     var byteArray = Encoding.ASCII.GetBytes($"{sUserName}:{sPassword}");
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
                 {
-                    HttpResponseMessage response = httpClient.GetAsync(sUrl).ExecuteAndWait();
+                    HttpResponseMessage response = httpClient.SendAsync(request).ExecuteAndWait();
                     result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                     nStatus = GetResponseCode(response.StatusCode);
                 }
-
-                httpClient.DefaultRequestHeaders.Authorization = null;
             }
             catch (Exception ex)
             {
@@ -350,7 +354,7 @@ namespace Core.Social
                 if (!string.IsNullOrEmpty(sUserName) && !string.IsNullOrEmpty(sPassword))
                 {
                     var byteArray = Encoding.ASCII.GetBytes($"{sUserName}:{sPassword}");
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
@@ -360,8 +364,6 @@ namespace Core.Social
                     nStatus = GetResponseCode(response.StatusCode);
                     result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
-
-                httpClient.DefaultRequestHeaders.Authorization = null;
             }
             catch (WebException ex)
             {
@@ -393,23 +395,27 @@ namespace Core.Social
             string result = string.Empty;
             try
             {
+                StringContent strContent = new StringContent(sParams, Encoding.UTF8, "application/x-www-form-urlencoded");
+
+                HttpRequestMessage request = new HttpRequestMessage()
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(sUrl),
+                    Content = strContent
+                };
 
                 if (!string.IsNullOrEmpty(sUserName) && !string.IsNullOrEmpty(sPassword))
                 {
                     var byteArray = Encoding.ASCII.GetBytes($"{sUserName}:{sPassword}");
-                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
-
-                StringContent strContent = new StringContent(sParams, Encoding.UTF8, "application/x-www-form-urlencoded");
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
                 {
-                    HttpResponseMessage response = httpClient.PostAsync(sUrl, strContent).ExecuteAndWait();
+                    HttpResponseMessage response = httpClient.SendAsync(request).ExecuteAndWait();
                     nStatus = GetResponseCode(response.StatusCode);
                     result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
-
-                httpClient.DefaultRequestHeaders.Authorization = null;
             }
             catch (WebException ex)
             {
