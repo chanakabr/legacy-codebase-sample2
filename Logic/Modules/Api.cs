@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -2019,16 +2020,19 @@ namespace Core.Api
                 }
                 else
                 {
-                    var virtualAssetInfo = new VirtualAssetInfo()
+                    if (segmentationType?.Actions?.Count > 0)
                     {
-                        Type = ObjectVirtualAssetInfoType.Segment,
-                        Id = segmentationType.Id,
-                        Name = segmentationType.Name,
-                        Description = segmentationType.Description,
-                        UserId = userId
-                    };
+                        var virtualAssetInfo = new VirtualAssetInfo()
+                        {
+                            Type = ObjectVirtualAssetInfoType.Segment,
+                            Id = segmentationType.Id,
+                            Name = segmentationType.Name,
+                            Description = segmentationType.Description,
+                            UserId = userId
+                        };
 
-                    api.AddVirtualAsset(groupId, virtualAssetInfo);
+                        api.AddVirtualAsset(groupId, virtualAssetInfo);
+                    }
 
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -2129,19 +2133,15 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, string kSql)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
-                if(!string.IsNullOrEmpty( kSql))
+                if(assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
                 {
-                    var assets = api.SearchAssets(groupId, kSql, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-                    if (assets != null && assets.Length > 0)
-                    {
-                        ids = assets.Select(x => long.Parse(x.AssetId)).ToList();
-                    }
+                    ids = api.GetObjectVirtualAssetIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);                    
                 }
 
                 int totalCount;
@@ -2433,7 +2433,12 @@ namespace Core.Api
 
         public static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
-            return api.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
+            return PartnerConfigurationManager.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
+        }
+
+        public static GenericListResponse<ObjectVirtualAssetPartnerConfig> GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            return PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
         }
     }
 }

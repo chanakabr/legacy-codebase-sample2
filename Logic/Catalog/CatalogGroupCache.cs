@@ -201,5 +201,17 @@ namespace Core.Catalog
 
             return realAssetStructId;
         }
+
+        public HashSet<long> GetObjectVirtualAssetIds( )
+        {
+            HashSet<long> ObjectVirtualAssetIds = null;
+            var ids = AssetStructsMapById.Values.Where(x => x.IsObjectVirtualAsset).Select(x => x.Id).ToList();
+            if (ids?.Count > 0)
+            {
+                ObjectVirtualAssetIds = new HashSet<long>(ids);
+            }
+
+            return ObjectVirtualAssetIds;
+        }
     }
 }

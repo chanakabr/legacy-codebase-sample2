@@ -6135,10 +6135,16 @@ namespace DAL
             return $"object_virtual_asset_partner_config_{groupId}";
         }
 
-        public static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        public static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId, out eResultStatus resultStatus)
         {
             string key = GetObjectVirtualAssetPartnerConfigKey(groupId);
-            return UtilsDal.GetObjectFromCB<ObjectVirtualAssetPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+            return UtilsDal.GetObjectFromCB<ObjectVirtualAssetPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, out resultStatus);
+        }
+
+        public static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            eResultStatus resultStatus;
+            return GetObjectVirtualAssetPartnerConfiguration(groupId, out resultStatus);
         }
     }
 }

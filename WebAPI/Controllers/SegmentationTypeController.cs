@@ -1,14 +1,15 @@
-﻿using System;
+﻿using ApiObjects;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using KLogMonitor;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Utils;
 using WebAPI.Models.Segmentation;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -125,15 +126,24 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
                 List<long> ids = null;
+                bool isAllowedToViewInactiveAssets = false;
 
                 if (string.IsNullOrEmpty(filter.Ksql))
                 {
                     ids = filter.GetIdIn();
                 }
+                else
+                {
+                    isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+                }
 
-                response = ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize(), filter.Ksql);                
+                
+
+                response = ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize(), 
+                    new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets });                
             }
 
             catch (ClientException ex)

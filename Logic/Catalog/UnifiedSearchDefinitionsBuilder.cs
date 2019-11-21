@@ -70,6 +70,11 @@ namespace Core.Catalog
                     request.isAllowedToViewInactiveAssets = false;
                 }
 
+                if (doesGroupUsesTemplates)
+                {
+                    definitions.ObjectVirtualAssetIds = catalogGroupCache.GetObjectVirtualAssetIds();
+                }
+
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
                 definitions.isInternalSearch = request.isInternalSearch || request.isAllowedToViewInactiveAssets;

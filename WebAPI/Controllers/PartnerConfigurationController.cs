@@ -56,6 +56,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetGeneralPartnerConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.ObjectVirtualAsset)
+                {
+                    response = ClientsManager.ApiClient().GetObjectVirtualAssetPartnerConfiguration(groupId);
+                }
                 else
                 {
                     throw new InternalServerErrorException();

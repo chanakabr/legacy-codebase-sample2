@@ -125,7 +125,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
+        }        
 
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
@@ -3941,12 +3941,12 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, string kSql)
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 
             Func<GenericListResponse<SegmentationType>> getListSegmentationTypesFunc = () =>
-               Core.Api.Module.ListSegmentationTypes(groupId, ids, pageIndex, pageSize, kSql);
+               Core.Api.Module.ListSegmentationTypes(groupId, ids, pageIndex, pageSize, assetSearchDefinition);
 
             KalturaGenericListResponse<KalturaSegmentationType> response =
                 ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getListSegmentationTypesFunc);
@@ -4403,6 +4403,21 @@ namespace WebAPI.Clients
             ClientUtils.GetResponseStatusFromWS<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>(UpdateConfigFunc, partnerConfig);
 
             return true;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<ObjectVirtualAssetPartnerConfig>> getPartnerConfigFunc = () => Core.Api.Module.GetObjectVirtualAssetPartnerConfiguration(groupId);
+
+            KalturaGenericListResponse<KalturaObjectVirtualAssetPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>(getPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
         }
     }
 }

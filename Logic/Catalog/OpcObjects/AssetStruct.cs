@@ -49,6 +49,8 @@ namespace Core.Catalog
             { ExcelColumnType.Rule, Color.FromArgb(255, 234, 0) } // Yellow
         };
 
+        private const string OBJECT_VIRTUAL_ASSET = "ObjectVirtualAsset";
+
         #region Data Members
 
         public long Id { get; set; }
@@ -83,6 +85,14 @@ namespace Core.Catalog
             get
             {
                 return this.SystemName.ToLower() == "series";
+            }
+        }
+
+        public bool IsObjectVirtualAsset
+        {
+            get
+            {
+                return Features != null && Features.Contains(OBJECT_VIRTUAL_ASSET);
             }
         }
 

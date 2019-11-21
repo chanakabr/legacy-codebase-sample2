@@ -8709,6 +8709,11 @@ namespace Core.Catalog
             definitions.regionIds = regionIds;
             definitions.linearChannelMediaTypes = linearMediaTypes;
 
+            if (doesGroupUsesTemplates)
+            {
+                definitions.ObjectVirtualAssetIds = catalogGroupCache.GetObjectVirtualAssetIds();
+            }
+
             CatalogLogic.GetParentMediaTypesAssociations(request.m_nGroupID,
                 out definitions.parentMediaTypes, out definitions.associationTags);
 

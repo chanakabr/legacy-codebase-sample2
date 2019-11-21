@@ -132,7 +132,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache = null;
-                ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo, out catalogGroupCache);
+                ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type, out catalogGroupCache);
                 if (objectVirtualAssetInfo == null || catalogGroupCache == null)
                 {
                     return;
@@ -2778,7 +2778,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, VirtualAssetInfo virtualAssetInfo, out CatalogGroupCache catalogGroupCache)
+        public static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache)
         {
             catalogGroupCache = null;
             ObjectVirtualAssetInfo objectVirtualAssetInfo = null;
@@ -2790,11 +2790,11 @@ namespace Core.Catalog.CatalogManagement
                 return objectVirtualAssetInfo;
             }
 
-            objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.ObjectVirtualAssets.FirstOrDefault(x => x.Type == virtualAssetInfo.Type);
+            objectVirtualAssetInfo = objectVirtualAssetPartnerConfig.ObjectVirtualAssets.FirstOrDefault(x => x.Type == objectVirtualAssetInfoType);
 
             if (objectVirtualAssetInfo == null)
             {
-                log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {virtualAssetInfo.Type}");
+                log.Debug($"No objectVirtualAssetInfo for groupId {groupId}. virtualAssetInfo.Type {objectVirtualAssetInfoType}");
                 return objectVirtualAssetInfo;
             }
 
@@ -2818,7 +2818,7 @@ namespace Core.Catalog.CatalogManagement
             Asset asset = null;
             needToCreateVirtualAsset = false;
             CatalogGroupCache catalogGroupCache = null;
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo, out catalogGroupCache);
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, virtualAssetInfo.Type, out catalogGroupCache);
             if (objectVirtualAssetInfo == null || catalogGroupCache == null)
             {
                 return asset;
