@@ -1,23 +1,20 @@
-﻿using ApiObjects;
-using ElasticSearch.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GroupsCacheManager;
-using System.Threading.Tasks;
-using EpgBL;
-using KLogMonitor;
-using System.Reflection;
-using ElasticSearch.Searcher;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
-using ApiObjects.Response;
-using System.Data;
-using KlogMonitorHelper;
-using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
 using Core.Catalog;
-using ApiObjects.Catalog;
+using Core.Catalog.CatalogManagement;
+using ElasticSearch.Common;
+using ElasticSearch.Searcher;
+using GroupsCacheManager;
+using KLogMonitor;
+using KlogMonitorHelper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -195,7 +192,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
             {
-                linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
             }
 
             #endregion

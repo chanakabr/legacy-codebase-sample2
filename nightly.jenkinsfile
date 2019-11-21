@@ -8,9 +8,9 @@ pipeline {
     }
     parameters {
         string(name: 'branch', defaultValue: 'master', description: 'Core Branch')
-        string(name: 'version_folder_name', defaultValue: 'v5_2_6', description: 'Pre-Prod Target Version Folder')
-        string(name: 'config_version_folder_name', defaultValue: 'v5_2_6', description: 'Configuration folder name from Configuration Repo')
-        booleanParam(name: 'publish_preprod', defaultValue: false, description: 'Should publish to PreProd?')
+        string(name: 'version_folder_name', defaultValue: 'v5_3_0', description: 'Pre-Prod Target Version Folder')
+        string(name: 'config_version_folder_name', defaultValue: 'v5_3_0', description: 'Configuration folder name from Configuration Repo')
+        booleanParam(name: 'publish_preprod', defaultValue: true, description: 'Should publish to PreProd?')
 
     }
     environment {
@@ -20,9 +20,9 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+				deleteDir()
                 dir('remotetasks') { git(url: 'git@github.com:kaltura/RemoteTasks.git', branch: "${params.branch}") }
                 dir('core'){ git(url: 'git@github.com:kaltura/Core.git', branch: "${params.branch}") }
-                dir('tvpapi_rest') { git(url: 'git@github.com:kaltura/Phoenix.git', branch: "${params.branch}") }
                 dir('configuration'){ git(url: 'git@bitbucket.org:tvinci_dev/configuration.git', branch: "master") }
             }
         }
@@ -37,7 +37,6 @@ pipeline {
         stage("Nuget Restore"){
             steps{
                 dir("core"){ bat ("${NUGET} restore") }
-                dir("tvpapi_rest"){ bat ("${NUGET} restore") }
                 dir("remotetasks"){ bat ("${NUGET} restore") }
             }        
         }
@@ -57,7 +56,7 @@ pipeline {
         }
         stage("Patch Config Files"){
             steps{
-                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\RemoteTasks\\*.*  ${WORKSPACE}\\published\\tvpapi_rest\\ /K /D /H /Y"}
+                dir("configuration") {bat "xcopy PP_${params.config_version_folder_name}\\RemoteTasks\\*.*  ${WORKSPACE}\\published\\remotetasks\\ /Y"}
             }
         }
         stage("Publish To Preprod"){

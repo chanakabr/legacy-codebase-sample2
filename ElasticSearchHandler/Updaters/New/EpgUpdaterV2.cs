@@ -1,19 +1,19 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Catalog;
+using ConfigurationManager;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
 using ElasticSearch.Common;
+using ElasticSearch.Searcher;
 using GroupsCacheManager;
+using KLogMonitor;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using KLogMonitor;
 using System.Reflection;
-using ElasticSearch.Searcher;
-using KlogMonitorHelper;
-using Core.Catalog.CatalogManagement;
-using ConfigurationManager;
-using Core.Catalog;
-using ApiObjects.Catalog;
+using System.Threading.Tasks;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -231,7 +231,7 @@ namespace ElasticSearchHandler.Updaters
                         Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
                         if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
                         {
-                            linearChannelsRegionsMapping = CatalogManager.GetLinearMediaRegions(groupId);
+                            linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
                         }
 
                         // Create dictionary by languages
