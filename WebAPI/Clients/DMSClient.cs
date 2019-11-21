@@ -52,8 +52,8 @@ namespace WebAPI.Clients
             httpClient = new HttpClient(httpHandler);
         }
 
-    #region Configuration Group
-    public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
+        #region Configuration Group
+        public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
         {
             KalturaConfigurationGroup configurationGroup = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
@@ -234,9 +234,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region DMs Calls
+        #region DMs Calls
         private static string CallDeleteDMSClient(string url)
         {
             string result = string.Empty;
@@ -268,8 +268,8 @@ namespace WebAPI.Clients
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
             }
-
             var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
+
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
                 HttpResponseMessage response = httpClient.GetAsync(dmsRestUrl).ExecuteAndWait();
@@ -310,9 +310,9 @@ namespace WebAPI.Clients
 
             return result;
         }
-#endregion
+        #endregion
 
-#region Configuration Group Tag
+        #region Configuration Group Tag
         internal static KalturaConfigurationGroupTag GetConfigurationGroupTag(int partnerId, string tag)
         {
             KalturaConfigurationGroupTag configurationGroupTag = null;
@@ -450,9 +450,9 @@ namespace WebAPI.Clients
 
             return true;
         }
-#endregion
+        #endregion
 
-#region Configuration
+        #region Configuration
 
         internal static string Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
         {
@@ -671,9 +671,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Configuration Group Device
+        #region Configuration Group Device
         internal static KalturaConfigurationGroupDevice GetConfigurationGroupDevice(int partnerId, string udid)
         {
             KalturaConfigurationGroupDevice configurationGroupDevice = null;
@@ -812,9 +812,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Report Device
+        #region Report Device
         internal static KalturaDeviceReport GetDeviceReport(int partnerId, string udid)
         {
             KalturaDeviceReport device = null;
@@ -889,6 +889,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-#endregion
+        #endregion
     }
 }

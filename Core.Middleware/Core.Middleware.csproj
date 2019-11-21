@@ -17,6 +17,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
 
 </Project>

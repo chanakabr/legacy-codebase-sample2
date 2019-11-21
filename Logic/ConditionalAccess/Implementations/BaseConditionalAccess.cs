@@ -6581,6 +6581,7 @@ namespace Core.ConditionalAccess
 
                 int domainID = 0;
                 DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
+                List<int> allUsersInDomain = null;
 
                 // check if user is valid
                 if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
@@ -6604,6 +6605,8 @@ namespace Core.ConditionalAccess
 
                 if (!string.IsNullOrEmpty(userId))
                 {
+                    allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
+
                     // create mapper
                     mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesForPurchase.ToArray());
 
@@ -6769,11 +6772,6 @@ namespace Core.ConditionalAccess
                             DateTime? dtEntitlementEndDate = null;
                             DateTime? dtDiscountEndDate = null;
                             bool bCancellationWindow = false;
-                            List<int> allUsersInDomain = new List<int>();
-                            if (domainEntitlements == null)
-                            {
-                                Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
-                            }
 
                             Price price = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
                                                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid,
