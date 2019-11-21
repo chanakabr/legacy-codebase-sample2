@@ -7,12 +7,32 @@ using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Reflection;
 using KLogMonitor;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace TCMClient
 {
     public class Settings
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly HttpClient httpClient;
+        private static readonly HttpClientHandler httpHandler;
+
+        static Settings()
+        {
+            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+#if NETSTANDARD2_0
+            httpHandler.MaxConnectionsPerServer = 1000;
+            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
+            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+#endif
+
+            httpClient = new HttpClient(httpHandler)
+            {
+                Timeout = TimeSpan.FromMilliseconds(10000)
+            };
+        }
 
         private static readonly object locker = new object();
         private static Settings _Instance;
@@ -206,8 +226,6 @@ namespace TCMClient
         {
             string settings = null;
 
-            HttpWebResponse httpWebResponse = null;
-
             try
             {
                 if (!m_VerifySSL)
@@ -218,18 +236,12 @@ namespace TCMClient
 
                 string tcmRequesturl = $"{m_URL}/{m_Application}/{m_Host}/{m_Environment}?app_id={m_AppID}&app_secret={m_AppSecret}";
                 _Logger.Info($"Issuing TCM (GET) [{tcmRequesturl}]");
-                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(tcmRequesturl);
-                httpWebRequest.Method = "GET";
-                httpWebRequest.ContentType = "application/json";
-                httpWebRequest.Timeout = 10000;
 
-                httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                _Logger.Info($"TCM Response Status: ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
+                var response = Task.Run(() => httpClient.GetAsync(tcmRequesturl)).ConfigureAwait(false).GetAwaiter().GetResult();
 
-                using (StreamReader sr = new StreamReader(httpWebResponse.GetResponseStream()))
-                {
-                    settings = sr.ReadToEnd();
-                }
+                _Logger.Info($"TCM Response Status: ({response.StatusCode})");
+
+                settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
 
                 string pathToLocalFile = getPathToLocalFile();
 
@@ -241,11 +253,6 @@ namespace TCMClient
             catch (Exception e)
             {
                 _Logger.Error($"Error while trying to get TCM data:", e);
-            }
-            finally
-            {
-                if (httpWebResponse != null)
-                    httpWebResponse.Close();
             }
 
             return settings;

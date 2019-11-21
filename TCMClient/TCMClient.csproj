@@ -20,6 +20,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">

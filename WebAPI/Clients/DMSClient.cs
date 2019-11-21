@@ -8,6 +8,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -51,8 +52,8 @@ namespace WebAPI.Clients
             httpClient = new HttpClient(httpHandler);
         }
 
-    #region Configuration Group
-    public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
+        #region Configuration Group
+        public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
         {
             KalturaConfigurationGroup configurationGroup = null;
             string url = string.Format("{0}/{1}/{2}", DMSControllers.GroupConfiguration.ToString(), partnerId, groupId);
@@ -233,9 +234,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region DMs Calls
+        #region DMs Calls
         private static string CallDeleteDMSClient(string url)
         {
             string result = string.Empty;
@@ -248,13 +249,10 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            var request = WebRequest.Create(dmsRestUrl);
-            request.Method = "DELETE";
-
-            using (var response = request.GetResponse())
-            using (var reader = new StreamReader(response.GetResponseStream()))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                result = reader.ReadToEnd();
+                HttpResponseMessage response = httpClient.DeleteAsync(dmsRestUrl).ExecuteAndWait();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
             return result;
@@ -270,24 +268,14 @@ namespace WebAPI.Clients
             {
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "dms_url");
             }
-
             var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
+
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
                 HttpResponseMessage response = httpClient.GetAsync(dmsRestUrl).ExecuteAndWait();
                 result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
-            //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            //request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            //using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
-            //using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            //using (Stream stream = response.GetResponseStream())
-            //using (StreamReader reader = new StreamReader(stream))
-            //{
-            //    result = reader.ReadToEnd();
-            //}
             return result;
         }
 
@@ -303,33 +291,28 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = dmsCall.ToString();
+            StringContent strContent = new StringContent(data, Encoding.UTF8, "application/json");
 
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                if (string.IsNullOrWhiteSpace(data))
+                HttpResponseMessage response = null;
+                if (dmsCall == DMSCall.POST)
                 {
-                    streamWriter.Write(string.Empty);
+                    response = httpClient.PostAsync(dmsRestUrl, strContent).ExecuteAndWait();
                 }
-                else
+                else if (dmsCall == DMSCall.PUT)
                 {
-                    streamWriter.Write(data);
+                    response = httpClient.PutAsync(dmsRestUrl, strContent).ExecuteAndWait();
                 }
-            }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                result = streamReader.ReadToEnd();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
             return result;
         }
-#endregion
+        #endregion
 
-#region Configuration Group Tag
+        #region Configuration Group Tag
         internal static KalturaConfigurationGroupTag GetConfigurationGroupTag(int partnerId, string tag)
         {
             KalturaConfigurationGroupTag configurationGroupTag = null;
@@ -467,9 +450,9 @@ namespace WebAPI.Clients
 
             return true;
         }
-#endregion
+        #endregion
 
-#region Configuration
+        #region Configuration
 
         internal static string Serve(int partnerId, string applicationName, string clientVersion, string platform, string UDID, string tag)
         {
@@ -688,9 +671,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Configuration Group Device
+        #region Configuration Group Device
         internal static KalturaConfigurationGroupDevice GetConfigurationGroupDevice(int partnerId, string udid)
         {
             KalturaConfigurationGroupDevice configurationGroupDevice = null;
@@ -829,9 +812,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-#endregion
+        #endregion
 
-#region Report Device
+        #region Report Device
         internal static KalturaDeviceReport GetDeviceReport(int partnerId, string udid)
         {
             KalturaDeviceReport device = null;
@@ -906,6 +889,6 @@ namespace WebAPI.Clients
             return result;
         }
 
-#endregion
+        #endregion
     }
 }

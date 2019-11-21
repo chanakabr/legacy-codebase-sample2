@@ -24,6 +24,7 @@
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>
   
   <ItemGroup>

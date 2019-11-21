@@ -14,6 +14,8 @@ using ConfigurationManager;
 using System.Collections.Specialized;
 using Newtonsoft.Json;
 using ElasticSearch.Searcher;
+using System.Net.Http;
+using TVinciShared;
 
 namespace ElasticSearch.Common
 {
@@ -25,6 +27,9 @@ namespace ElasticSearch.Common
         public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
+        private static readonly HttpClient httpClient;
+        private static readonly HttpClientHandler httpHandler;
+
         public string baseUrl
         {
             get;
@@ -33,16 +38,21 @@ namespace ElasticSearch.Common
 
         #region Ctor
 
-        public ElasticSearchApi(string elaticSearchUrl = null)
+        static ElasticSearchApi()
         {
-            if (string.IsNullOrEmpty(elaticSearchUrl))
-            {
-                baseUrl = ES_URL;
-            }
-            else
-            {
-                baseUrl = elaticSearchUrl;
-            }
+            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+#if NETSTANDARD2_0
+            httpHandler.MaxConnectionsPerServer = 1000;
+            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
+            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+#endif
+            httpClient = new HttpClient(httpHandler);
+            httpClient.Timeout = TimeSpan.FromMilliseconds(1000000);
+        }
+
+        public ElasticSearchApi()
+        {
+            baseUrl = ES_URL;
         }
 
         #endregion
@@ -58,12 +68,12 @@ namespace ElasticSearch.Common
 
                 // Get source index settings
                 var urlGetSettings = string.Format("{0}/{1}/_settings", baseUrl, source);
-                var settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus, string.Empty, string.Empty, true);
+                var settingsResponse = SendGetHttpReq(urlGetSettings, ref nStatus);
                 var settingsJobject = JObject.Parse(settingsResponse).First.First["settings"];
 
                 // Get source index mappings
                 var urlGetMappings = string.Format("{0}/{1}/_mapping", baseUrl, source);
-                var mappingResponse = SendGetHttpReq(urlGetMappings, ref nStatus, string.Empty, string.Empty, true);
+                var mappingResponse = SendGetHttpReq(urlGetSettings, ref nStatus);
                 var mappingsJobject = JObject.Parse(mappingResponse).First.First["mappings"];
 
 
@@ -197,7 +207,7 @@ namespace ElasticSearch.Common
 
                 string sUrl = string.Format("{0}/{1}/_settings", baseUrl, sIndex);
                 int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus);
 
                 result = nStatus == 200;
             }
@@ -367,7 +377,7 @@ namespace ElasticSearch.Common
             {
                 string sUrl = string.Format("{0}/{1}/_mapping", baseUrl, sIndex);
                 int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus);
 
                 sRes = (nStatus == 200) ? sResponse : sRes;
             }
@@ -405,7 +415,7 @@ namespace ElasticSearch.Common
 
                 string sUrl = string.Format("{0}/{1}/{2}/_mapping", baseUrl, sIndex, sType);
                 int nStatus = 0;
-                string sResponse = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+                string sResponse = SendGetHttpReq(sUrl, ref nStatus);
 
                 bRes = (nStatus == 200) ? true : false;
             }
@@ -491,7 +501,7 @@ namespace ElasticSearch.Common
                 string url = string.Format("{0}/{1}/_aliases", baseUrl, sIndex);
                 int status = 0;
 
-                string httpResponse = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+                string httpResponse = SendGetHttpReq(url, ref status);
 
                 if (status == 200 && !string.IsNullOrEmpty(httpResponse))
                 {
@@ -540,7 +550,7 @@ namespace ElasticSearch.Common
             var url = $"{baseUrl}/_cluster/state?filter_path=metadata.indices.{indexQueryPattern}.aliases";
             var status = 0;
             log.Debug($"Elasticsearch ListIndices > request GET:[{url}]");
-            var ret = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+            var ret = SendGetHttpReq(url, ref status);
             #region example response
             // Example Response (depending on the pathQuery for example pathQuery=metadata.indices.198_epg_*.aliases)
             //{
@@ -1161,7 +1171,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}/{2}/{3}", baseUrl, sIndex, sType, sDocId);
             int nStatus = 0;
 
-            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+            sRes = SendGetHttpReq(sUrl, ref nStatus);
 
             if (nStatus != 200)
             {
@@ -1182,7 +1192,7 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/{1}/{2}/{3}?routing={4}", baseUrl, sIndex, sType, sDocId, routing);
             int nStatus = 0;
 
-            sRes = SendGetHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, true);
+            sRes = SendGetHttpReq(sUrl, ref nStatus);
 
             if (nStatus != 200)
             {
@@ -1281,29 +1291,72 @@ namespace ElasticSearch.Common
 
         public string SendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry, bool isPut = false)
         {
-            Int32 nStatusCode = -1;
+            StringContent strContent = new StringContent(parameters, Encoding.UTF8, "application/json");
+            string result = string.Empty;
+            string requestGuid = Guid.NewGuid().ToString();
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-
-            if (!isPut)
+            try
             {
-                webRequest.Method = "POST";
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                {
+                    Database = url,
+                    Table = requestGuid
+                })
+                {
+                    HttpResponseMessage response = null;
+
+                    {
+                        if (!isPut)
+                        {
+                            response = httpClient.PostAsync(url, strContent).ExecuteAndWait();
+                        }
+                        else
+                        {
+                            response = httpClient.PutAsync(url, strContent).ExecuteAndWait();
+                        }
+                    }
+
+                    status = GetResponseCode(response.StatusCode);
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                }
+
+                log.Debug($"ElasticSearch API post request: guid = {requestGuid}, url = {url}, parameters = {parameters}, " +
+                    $"body length = {parameters.Length}, response = {result}");
             }
-            else
+            catch (WebException ex)
             {
-                webRequest.Method = "PUT";
+                StreamReader errorStream = null;
+                try
+                {
+                    errorStream = new StreamReader(ex.Response.GetResponseStream());
+                    result = errorStream.ReadToEnd();
+                }
+                finally
+                {
+                    if (errorStream != null) errorStream.Close();
+                }
+
+                log.Error($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
+                    $"{parameters}, body length = {parameters.Length}, response = {result}\nex = {ex}");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error in SendPostHttpReq Exception", ex);
             }
 
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(parameters);
-            webRequest.ContentLength = bytes.Length;
-            using (System.IO.Stream os = webRequest.GetRequestStream())
+            //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
+            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
             {
-                os.Write(bytes, 0, bytes.Length);
+                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
+                result = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
 
-            string res = string.Empty;
-            string httpResponse = string.Empty;
+            return result;
+        }
+
+        public string SendGetHttpReq(string url, ref int status, bool isFirstTry = true)
+        {
+            string result = string.Empty;
             string requestGuid = Guid.NewGuid().ToString();
 
             try
@@ -1315,25 +1368,11 @@ namespace ElasticSearch.Common
                     Table = requestGuid
                 })
                 {
-
-                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                    HttpStatusCode sCode = webResponse.StatusCode;
-                    nStatusCode = GetResponseCode(sCode);
-                    StreamReader sr = null;
-                    try
-                    {
-                        sr = new StreamReader(webResponse.GetResponseStream());
-                        httpResponse = sr.ReadToEnd();
-                    }
-                    finally
-                    {
-                        if (sr != null)
-                            sr.Close();
-                    }
+                    var response = httpClient.GetAsync(url).ExecuteAndWait();
+                        
+                    status = GetResponseCode(response.StatusCode);
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
-
-                log.Debug($"ElasticSearch API post request: guid = {requestGuid}, url = {url}, parameters = {parameters}, " +
-                    $"body length = {parameters.Length}, response = {httpResponse}");
             }
             catch (WebException ex)
             {
@@ -1341,15 +1380,12 @@ namespace ElasticSearch.Common
                 try
                 {
                     errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    httpResponse = errorStream.ReadToEnd();
+                    result = errorStream.ReadToEnd();
                 }
                 finally
                 {
                     if (errorStream != null) errorStream.Close();
                 }
-
-                log.Error($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
-                    $"{parameters}, body length = {parameters.Length}, response = {httpResponse}\nex = {ex}");
             }
             catch (Exception ex)
             {
@@ -1357,103 +1393,44 @@ namespace ElasticSearch.Common
             }
 
             //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
+            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
             {
                 string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
-                httpResponse = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
+                result = SendGetHttpReq(sAlternativeURL, ref status, false);
             }
 
-            status = nStatusCode;
-            return httpResponse;
+            return result;
         }
 
-        public string SendGetHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, bool isFirstTry)
+        public string SendDeleteHttpReq(string url, ref Int32 status, string userName, string password, string parameters, bool isFirstTry)
         {
-            HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-            HttpWebResponse oWebResponse = null;
-            Stream receiveStream = null;
-            Int32 nStatusCode = -1;
-            Encoding enc = new UTF8Encoding(false);
+            StringContent strContent = new StringContent(parameters, Encoding.UTF8, "application/json");
+            string result = string.Empty;
+            string requestGuid = Guid.NewGuid().ToString();
+
             try
             {
-                oWebRequest.Credentials = new NetworkCredential(sUserName, sPassword);
-                oWebRequest.Timeout = 1000000;
-                oWebResponse = (HttpWebResponse)oWebRequest.GetResponse();
-                HttpStatusCode sCode = oWebResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                receiveStream = oWebResponse.GetResponseStream();
-
-                StreamReader sr = new StreamReader(receiveStream, enc);
-                string resultString = sr.ReadToEnd();
-
-                sr.Close();
-
-                oWebResponse.Close();
-                oWebRequest = null;
-                oWebResponse = null;
-
-                //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-                if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-                {
-                    string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
-                    resultString = SendGetHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, false);
-                }
-
-                nStatus = nStatusCode;
-                return resultString;
-            }
-            catch (Exception ex)
-            {
-                log.Debug("ElasticSearchApi - SendGetHttpReq exception:" + ex.Message + " to: " + sUrl);
-                if (oWebResponse != null)
-                    oWebResponse.Close();
-                if (receiveStream != null)
-                    receiveStream.Close();
-                nStatus = 404;
-                return ex.Message;
-            }
-        }
-
-        public string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
-        {
-            Int32 nStatusCode = -1;
-
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "DELETE";
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
-            webRequest.ContentLength = bytes.Length;
-            System.IO.Stream os = webRequest.GetRequestStream();
-            os.Write(bytes, 0, bytes.Length);
-            os.Close();
-
-            string res = string.Empty;
-            try
-            {
-                string requestGuid = Guid.NewGuid().ToString();
-
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
                 {
-                    Database = sUrl,
+                    Database = url,
                     Table = requestGuid
                 })
                 {
-                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                    HttpStatusCode sCode = webResponse.StatusCode;
-                    nStatusCode = GetResponseCode(sCode);
-                    StreamReader sr = null;
+                    HttpRequestMessage request = new HttpRequestMessage
+                    {
+                        Content = strContent,
+                        Method = HttpMethod.Delete,
+                        RequestUri = new Uri(url)
+                    };
 
-                    try
-                    {
-                        sr = new StreamReader(webResponse.GetResponseStream());
-                        res = sr.ReadToEnd();
-                    }
-                    finally
-                    {
-                        if (sr != null)
-                            sr.Close();
-                    }
+                    HttpResponseMessage response = httpClient.SendAsync(request).ExecuteAndWait();
+                        
+                    status = GetResponseCode(response.StatusCode);
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
+
+                log.Debug($"ElasticSearch API delete request: guid = {requestGuid}, url = {url}, parameters = {parameters}, " +
+                    $"body length = {parameters.Length}, response = {result}");
             }
             catch (WebException ex)
             {
@@ -1461,25 +1438,29 @@ namespace ElasticSearch.Common
                 try
                 {
                     errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    res = errorStream.ReadToEnd();
+                    result = errorStream.ReadToEnd();
                 }
                 finally
                 {
                     if (errorStream != null) errorStream.Close();
                 }
+
+                log.Error($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
+                    $"{parameters}, body length = {parameters.Length}, response = {result}\nex = {ex}");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error in SendPostHttpReq Exception", ex);
             }
 
             //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-            if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
+            if (isFirstTry && status != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
             {
-                string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
-                res = SendDeleteHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
+                string sAlternativeURL = url.Replace(ES_URL, ALT_ES_URL);
+                result = SendPostHttpReq(sAlternativeURL, ref status, userName, password, parameters, false);
             }
 
-            log.DebugFormat("SendDeleteHttpReq to url = {0} with body = {1} : result = {2}", sUrl, sParams, res);
-
-            nStatus = nStatusCode;
-            return res;
+            return result;
         }
 
         public Int32 GetResponseCode(HttpStatusCode theCode)
@@ -1489,7 +1470,6 @@ namespace ElasticSearch.Common
             if (theCode == HttpStatusCode.NotFound)
                 return (int)HttpStatusCode.NotFound;
             return (int)HttpStatusCode.InternalServerError;
-
         }
 
         #endregion
@@ -1499,7 +1479,7 @@ namespace ElasticSearch.Common
         {
             var url = $"{baseUrl}/{"_cluster/health"}";
             var status = 0;
-            var ret = SendGetHttpReq(url, ref status, string.Empty, string.Empty, true);
+            var ret = SendGetHttpReq(url, ref status);
             log.Info($"Elasticsearch HealthCheck > response:[{ret}]");
             if (status != 200)
             {

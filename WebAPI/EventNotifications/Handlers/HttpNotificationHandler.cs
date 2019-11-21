@@ -14,6 +14,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using WebAPI.Managers;
 using ApiObjects;
+using System.Net.Http.Headers;
+using System.Threading;
+using TVinciShared;
 
 namespace WebAPI.EventNotifications
 {
@@ -22,6 +25,20 @@ namespace WebAPI.EventNotifications
     public class HttpNotificationHandler : NotificationAction
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly HttpClient httpClient;
+        private static readonly HttpClientHandler httpHandler;
+
+        static HttpNotificationHandler()
+        {
+            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+#if NETSTANDARD2_0
+            httpHandler.MaxConnectionsPerServer = 1000;
+            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
+            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+#endif
+            httpClient = new HttpClient(httpHandler);
+        }
 
         #region Override Method
 
@@ -209,22 +226,22 @@ namespace WebAPI.EventNotifications
             {
                 case eHttpMethod.Get:
                 {
-                    this.SendGetHttpReq();
+                    this.SendHttpRequest(phoenixObject, HttpMethod.Get);
                     break;
                 }
                 case eHttpMethod.Post:
                 {
-                    this.SendHttpRequest(phoenixObject, "POST");
+                    this.SendHttpRequest(phoenixObject, HttpMethod.Post);
                     break;
                 }
                 case eHttpMethod.Put:
                 {
-                    this.SendHttpRequest(phoenixObject, "PUT");
+                    this.SendHttpRequest(phoenixObject, HttpMethod.Put);
                     break;
                 }
                 case eHttpMethod.Delete:
                 {
-                    this.SendHttpRequest(phoenixObject, "DELETE");
+                    this.SendHttpRequest(phoenixObject, HttpMethod.Delete);
                     break;
                 }
                 default:
@@ -234,111 +251,80 @@ namespace WebAPI.EventNotifications
 
         #region HTTP requests
 
-        public void SendHttpRequest(object phoenixObject, string method)
+        public void SendHttpRequest(object phoenixObject, HttpMethod method)
         {
             int statusCode = -1;
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
-            webRequest.ContentType = "application/json";
-
-            if (!string.IsNullOrEmpty(this.ContentType))
-            {
-                webRequest.ContentType = this.ContentType;
-            }
-
-            webRequest.Method = method;
-
-            JsonManager jsonManager = JsonManager.GetInstance();
-            string postBody = jsonManager.Serialize(phoenixObject, true);
-
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
-            webRequest.ContentLength = bytes.Length;
-
-            // custom headers
-            if (this.CustomHeaders != null)
-            {
-                foreach (var header in this.CustomHeaders)
-                {
-                    webRequest.Headers.Add(header.key, header.value);
-                }
-            }
-
-            webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
-            webRequest.ClientCertificates.Add(new X509Certificate()); //add cert
-
-            using (System.IO.Stream os = webRequest.GetRequestStream())
-            {
-                os.Write(bytes, 0, bytes.Length);
-            }
-
-            if (this.Timeout > 0)
-            {
-                webRequest.Timeout = this.Timeout;
-            }
-
-            string res = string.Empty;
-
             try
             {
-                string requestGuid = Guid.NewGuid().ToString();
-
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                HttpRequestMessage request = new HttpRequestMessage
                 {
-                    Database = this.Url,
-                    Table = requestGuid
+                    Method = method,
+                    RequestUri = new Uri(this.Url),
+                };
+
+                if (method != HttpMethod.Get)
+                {
+                    // content type
+                    string contentType = "application/json";
+                    if (!string.IsNullOrEmpty(this.ContentType))
+                    {
+                        contentType = this.ContentType;
+                    }
+
+                    // serialize object to JSON
+                    JsonManager jsonManager = JsonManager.GetInstance();
+                    string postBody = jsonManager.Serialize(phoenixObject, true);
+
+                    StringContent strContent = new StringContent(postBody, Encoding.UTF8, contentType);
+                    request.Content = strContent;
+                }
+
+                // custom headers
+                if (this.CustomHeaders != null)
+                {
+                    foreach (var header in this.CustomHeaders)
+                    {
+                        request.Headers.Add(header.key, header.value);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(this.Username) && !string.IsNullOrEmpty(this.Password))
+                {
+                    var byteArray = Encoding.ASCII.GetBytes($"{this.Username}:{this.Password}");
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                }
+
+                CancellationTokenSource cts = null;
+
+                if (this.Timeout > 0)
+                {
+                    cts = new CancellationTokenSource();
+                    cts.CancelAfter(TimeSpan.FromMilliseconds(this.Timeout));
+                }
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null)
+                {
+                    Database = this.Url
                 })
                 {
+                    HttpResponseMessage response = null;
 
-                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                    HttpStatusCode httpStatusCode = webResponse.StatusCode;
-                    statusCode = GetResponseCode(httpStatusCode);
-                    StreamReader sr = null;
-                    try
+                    if (cts == null)
                     {
-                        sr = new StreamReader(webResponse.GetResponseStream());
-                        res = sr.ReadToEnd();
+                        response = httpClient.SendAsync(request).ExecuteAndWait();
+                    }
+                    else
+                    {
+                        response = httpClient.SendAsync(request, cts.Token).ExecuteAndWait();
+                    }
 
-                        log.DebugFormat("Http request URL = {0} body = {1} status code = {2} response = {3}", this.Url, postBody, statusCode, res);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("Error in SendHttpReq Exception", ex);
-                    }
-                    finally
-                    {
-                        if (sr != null)
-                            sr.Close();
-                    }
-                }
-            }
-            catch (HttpException ex)
-            {
-                log.Error("Error in SendHttpRequest HttpException", ex);
-            }
-            catch (WebException ex)
-            {
-                if (ex.Response is HttpWebResponse)
-                {
-                    statusCode = (int)((HttpWebResponse)(ex.Response)).StatusCode;
-                }
-
-                //if (ex.Response
-                log.Error("Error in SendHttpRequest WebException", ex);
-                StreamReader errorStream = null;
-                try
-                {
-                    errorStream = new StreamReader(ex.Response.GetResponseStream());
-                    res = errorStream.ReadToEnd();
-                }
-                finally
-                {
-                    if (errorStream != null)
-                        errorStream.Close();
+                    statusCode = GetResponseCode(response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
-                log.Error("Error in SendPostHttpReq Exception", ex);
+                log.Error($"HttpNotificationHandler error. ex = {ex}, url = {this.Url}");
             }
 
             if (!this.ValidHttpStatuses.Contains(statusCode))
