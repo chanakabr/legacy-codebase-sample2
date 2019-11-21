@@ -30,31 +30,27 @@ namespace Phoenix.Rest.Middleware
         /// </summary>
         public static IServiceCollection ConfigurePhoenix(this IServiceCollection services)
         {
-            
             services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
-            services.AddKalturaApplicationSessionContext();
+            services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
+            services.AddApiExceptionHandler<PhoenixExceptionHandler>();
             return services;
         }
 
         
-
-        
-
-        
-
         /// <summary>
         /// Using custom middleware for Phoenix Api convention
         /// </summary>
         public static IApplicationBuilder UsePhoenix(this IApplicationBuilder app)
         {
-            app.UseCoreConcurrencyLimiter();
-            app.UseMiddleware<PhoenixExceptionHandler>();
             AutoMapperConfig.RegisterMappings();
-            app.UseMiddleware<PhoenixSessionId>();
-            app.UseMiddleware<RequestLoggingMiddleware>();
-            app.UseMiddleware<PhoenixCors>();
+
+            app.UseCoreConcurrencyLimiter();
+            app.UseApiExceptionHandler();
+            app.UseKloggerSessionIdBuilder();
+            app.UseRequestLogger();
+            app.EnablePublicCors();
             app.UseMiddleware<PhoenixRequestContextBuilder>();
             app.UseMiddleware<PhoenixRequestExecutor>();
             return app;
