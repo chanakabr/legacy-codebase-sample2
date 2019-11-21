@@ -18,6 +18,8 @@ namespace ConfigurationManager
         public StringConfigurationValue DefaultMediaConfigurationFileLocation;
         public StringConfigurationValue DefaultSiteConfigurationFileLocation;
         public NumericConfigurationValue EPGSearchOffsetDays;
+        public StringConfigurationValue SecureSiteGuidKey;
+        public StringConfigurationValue SecureSiteGuidIV;
 
         public TVPApiConfiguration(string key) : base(key)
         {
@@ -84,6 +86,18 @@ namespace ConfigurationManager
                 Description = "On old EPG search requests, how many days back/forward from now should we search. " +
                 "Originally from GlobalAppSettings.config, key EPGSearchOffsetDays.",
                 DefaultValue = 7
+            };
+            SecureSiteGuidKey = new StringConfigurationValue("secure_site_guid_key", this)
+            {
+                ShouldAllowEmpty = true,
+                Description = "Originally from GlobalAppSettings.config, key SecureSiteGuidKey",
+                DefaultValue = "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA="
+            };
+            SecureSiteGuidIV = new StringConfigurationValue("secure_site_guid_iv", this)
+            {
+                ShouldAllowEmpty = true,
+                Description = "Originally from GlobalAppSettings.config, key SecureSiteGuidIV",
+                DefaultValue = "Yn5/n0s8B0yLRvGuhSLRrA=="
             };
         }
     }
