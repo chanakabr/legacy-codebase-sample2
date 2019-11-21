@@ -8,6 +8,7 @@ using ApiObjects.TimeShiftedTv;
 
 namespace Core.Catalog
 {
+    // TODO SHIR - SAME LIKE MediaAsset FOR BULK_UPLOAD
     public class LiveAsset: MediaAsset
     {
         public TstvState? EnableCdvrState { get; set; }
@@ -27,6 +28,7 @@ namespace Core.Catalog
         public long SummedTrickPlayBuffer { get; set; }
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public LinearChannelType? ChannelType { get; set; }
+        //epg_identifier
         public long EpgChannelId { get; set; }
 
         public LiveAsset()

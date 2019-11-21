@@ -18,13 +18,15 @@ namespace Core.Catalog
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        // TODO: Arthur, remove disterbutedTask and ruting key from media assets and use the event bus instead.
+        // TODO Arthur - remove disterbutedTask and ruting key from media assets and use the event bus instead.
         public override string DistributedTask { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
         public override string RoutingKey { get { return "disterbuted task not supported for epg ingest, use event bus instead"; } }
 
-        public override IBulkUploadObject CreateObjectInstance()
+        private static readonly Type bulkUploadObjectType = typeof(EpgProgramBulkUploadObject);
+
+        public override Type GetObjectType()
         {
-            throw new NotImplementedException();
+            return bulkUploadObjectType;
         }
 
         public override void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> objects)
@@ -50,21 +52,14 @@ namespace Core.Catalog
             });
 
             publisher.Publish(bulkUploadIngestEvents);
-
-
         }
 
-        public override Dictionary<string, object> GetMandatoryPropertyToValueMap()
+        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
         {
             throw new NotImplementedException();
         }
 
-        public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatus)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IBulkUploadStructure GetStructure()
+        public override IBulkUploadStructureManager GetStructureManager()
         {
             throw new NotImplementedException();
         }

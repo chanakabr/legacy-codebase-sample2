@@ -3198,6 +3198,36 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<List<int>, bool>(result, res);
         }
 
+        public static HashSet<long> GetLinearMediaTypeIds(int groupId)
+        {
+            var linearMediaTypeIds = new HashSet<long>();
+
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            {
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetLinearMediaTypeIds");
+            }
+            else 
+            {
+                long linearMediaTypeId = -1;
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME))
+                {
+                    linearMediaTypeId = catalogGroupCache.AssetStructsMapBySystemName[CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME].Id;
+                    linearMediaTypeIds.Add(linearMediaTypeId);
+                }
+
+                var otherLinearMediaTypes = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.IsLinearAssetStruct && x.Id != linearMediaTypeId).ToList();
+                foreach (var otherLinearMediaType in otherLinearMediaTypes)
+                {
+                    if (!linearMediaTypeIds.Contains(otherLinearMediaType.Id))
+                    {
+                        linearMediaTypeIds.Add(otherLinearMediaType.Id);
+                    }
+                }
+            }
+
+            return linearMediaTypeIds;
+        }
+
         #endregion
     }
 }

@@ -12,7 +12,7 @@ using TVinciShared;
 
 namespace Core.Catalog
 {
-    public class AssetStruct : IExcelStructure
+    public class AssetStruct : IExcelStructureManager
     {
         private static readonly List<string> OVERVIEW_INSTRUCTIONS = new List<string>()
         {
@@ -108,25 +108,27 @@ namespace Core.Catalog
             this.PluralName = string.Empty;
         }
 
-        public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long? parentId,
-            long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName, bool isProgramAssetStruct)
-        {
-            this.Id = id;
-            this.Name = name;
-            this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
-            this.SystemName = systemName;
-            this.MetaIds = new List<long>();
-            this.IsPredefined = isPredefined;
-            this.ParentId = parentId;
-            this.CreateDate = createDate;
-            this.UpdateDate = updateDate;
-            this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
-            this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            this.ConnectingMetaId = connectingMetaId;
-            this.ConnectedParentMetaId = connectedParentMetaId;
-            this.PluralName = pluralName;
-            this.IsProgramAssetStruct = isProgramAssetStruct;
-        }
+        // TODO SHIR - DELETE IF DONT NEED
+        //public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long? parentId,
+        //    long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName, bool isProgramAssetStruct, bool isLinearAssetStruct)
+        //{
+        //    this.Id = id;
+        //    this.Name = name;
+        //    this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
+        //    this.SystemName = systemName;
+        //    this.MetaIds = new List<long>();
+        //    this.IsPredefined = isPredefined;
+        //    this.ParentId = parentId;
+        //    this.CreateDate = createDate;
+        //    this.UpdateDate = updateDate;
+        //    this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
+        //    this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        //    this.ConnectingMetaId = connectingMetaId;
+        //    this.ConnectedParentMetaId = connectedParentMetaId;
+        //    this.PluralName = pluralName;
+        //    this.IsProgramAssetStruct = isProgramAssetStruct;
+        //    this.IsLinearAssetStruct = isLinearAssetStruct;
+        //}
 
         public AssetStruct(AssetStruct assetStructToCopy)
         {
@@ -226,6 +228,7 @@ namespace Core.Catalog
             sb.AppendFormat("ConnectedParentMetaId: {0}, ", ConnectedParentMetaId.HasValue ? ConnectedParentMetaId.Value.ToString() : string.Empty);
             sb.AppendFormat("PluralName: {0},", PluralName);
             sb.AppendFormat("IsProgramAssetStruct: {0},", IsProgramAssetStruct);
+            sb.AppendFormat("IsLinearAssetStruct: {0},", IsLinearAssetStruct);
 
             return sb.ToString();
         }
@@ -248,18 +251,18 @@ namespace Core.Catalog
             this.ConnectedParentMetaId = assetStructToCopy.ConnectedParentMetaId;
             this.PluralName = assetStructToCopy.PluralName;
             this.IsProgramAssetStruct = assetStructToCopy.IsProgramAssetStruct;
+            this.IsLinearAssetStruct = assetStructToCopy.IsLinearAssetStruct;
         }
 
         #region IExcelStructure
 
-        public ExcelStructure GetExcelStructure(int groupId, Dictionary<string, object> data = null)
+        public ExcelStructure GetExcelStructure(int groupId, Type objectType = null)
         {
             ExcelStructure excelStructure = null;
 
             if (this.Id > 0)
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     return excelStructure;
                 }
@@ -278,14 +281,22 @@ namespace Core.Catalog
                                                                                 .ToDictionary(x => x.Value.SystemName, y => y.Value);
                 }
 
-                var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(typeof(MediaAsset));
+                if (objectType == null)
+                {
+                    objectType = GetAssetType();
+                }
+
+                var systemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(objectType);
                 var excelColumns = new Dictionary<string, ExcelColumn>();
+                var mandatoryPropertyAndValueMap = new Dictionary<string, object>();
 
                 // mediaType
                 if (systemNameToExcelAttribute.ContainsKey(MediaAsset.MEDIA_ASSET_TYPE))
                 {
                     var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[MediaAsset.MEDIA_ASSET_TYPE], MediaAsset.MEDIA_ASSET_TYPE);
-                    excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                    var mediaAssetTypeColumnName = excelColumn.ToString();
+                    excelColumns.TryAdd(mediaAssetTypeColumnName, excelColumn);
+                    mandatoryPropertyAndValueMap.Add(mediaAssetTypeColumnName, this.SystemName);
                 }
 
                 // EXTERNAL_ID
@@ -384,10 +395,28 @@ namespace Core.Catalog
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
-                excelStructure = new ExcelStructure(excelColumns, OVERVIEW_INSTRUCTIONS, COLUMNS_COLORS);
+                excelStructure = new ExcelStructure(excelColumns, OVERVIEW_INSTRUCTIONS, COLUMNS_COLORS, mandatoryPropertyAndValueMap);
             }
 
             return excelStructure;
+        }
+
+        private Type GetAssetType()
+        {
+            Type objectType = null;
+            if (this.IsLinearAssetStruct)
+            {
+                objectType = typeof(LiveAsset);
+            }
+            else if (this.IsProgramAssetStruct)
+            {
+                objectType = typeof(EpgAsset);
+            }
+            else
+            {
+                objectType = typeof(MediaAsset);
+            }
+            return objectType;
         }
 
         #endregion

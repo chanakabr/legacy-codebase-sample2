@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Clients
 {
-    // TODO SHIR - DELETE ClientUtils WHEN ALL CNTROLLERS WILL USE CRUD
+    // TODO - DELETE ClientUtils WHEN ALL CNTROLLERS WILL USE CRUD
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

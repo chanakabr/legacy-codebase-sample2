@@ -106,8 +106,9 @@ namespace WebAPI.Models.Upload
     {
     }
 
+    // TODO SHIR - ASK RUBY ABOUT PROPS AND MAPP THEM (DELETE IRELEVANT PROPS)
     [Serializable]
-    public partial class KalturaBulkUploadLiveAssetResult : KalturaBulkUploadResult
+    public partial class KalturaBulkUploadLiveAssetResult : KalturaBulkUploadMediaAssetResult
     {
         /// <summary>
         /// The internal kaltura channel id

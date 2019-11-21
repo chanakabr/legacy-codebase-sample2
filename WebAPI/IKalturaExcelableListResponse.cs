@@ -2,7 +2,7 @@
 
 namespace WebAPI.App_Start
 {
-    public interface IKalturaExcelableListResponse : IKalturaExcelStructure
+    public interface IKalturaExcelableListResponse : IKalturaExcelStructureManager
     {
         List<IKalturaExcelableObject> GetObjects();
     }

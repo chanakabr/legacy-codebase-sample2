@@ -7,6 +7,7 @@ using System.Reflection;
 
 namespace ApiObjects.BulkUpload
 {
+    // TODO SHIR REMOVE COMMENTS
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadObjectData
@@ -19,9 +20,9 @@ namespace ApiObjects.BulkUpload
         public abstract string DistributedTask { get; }
         public abstract string RoutingKey { get; }
 
-        public abstract IBulkUploadStructure GetStructure();
-        public abstract IBulkUploadObject CreateObjectInstance();
-        public abstract Dictionary<string, object> GetMandatoryPropertyToValueMap();
+        public abstract IBulkUploadStructureManager GetStructureManager();
+        public abstract Type GetObjectType();
+        // public abstract IBulkUploadObject CreateObjectInstance()
 
         /// <summary>
         /// This creates a new bulk upload result that will display the details of a single item inside the entire bulk upload process
@@ -32,22 +33,13 @@ namespace ApiObjects.BulkUpload
         /// <param name="index">the index of the item in the list</param>
         /// <param name="errorStatus">in case error in deserialization this will include the error details status </param>
         /// <returns></returns>
-        public abstract BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, Status errorStatusDetails);
+        public abstract BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails);
         public abstract void EnqueueObjects(BulkUpload bulkUpload, List<BulkUploadResult> results);
 
-        public bool Validate(Dictionary<string, object> propertyToValueMap)
+        public IBulkUploadObject CreateObjectInstance()
         {
-            var mandatoryPropertyToValueMap = GetMandatoryPropertyToValueMap();
-            foreach (var mandatoryPropertyToValue in mandatoryPropertyToValueMap)
-            {
-                if (!propertyToValueMap.ContainsKey(mandatoryPropertyToValue.Key) ||
-                    !propertyToValueMap[mandatoryPropertyToValue.Key].Equals(mandatoryPropertyToValue.Value))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            var bulkObject = Activator.CreateInstance(GetObjectType()) as IBulkUploadObject;//as mediaAsset;
+            return bulkObject;
         }
     }
 }

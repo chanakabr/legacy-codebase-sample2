@@ -103,6 +103,23 @@ namespace ApiObjects.BulkUpload
             }
         }
 
+        public void AddErrors(List<Status> errors)
+        {
+            this.Status = BulkUploadResultStatus.Error;
+
+            if (errors != null && errors.Count > 0)
+            {
+                if (this.Errors == null)
+                {
+                    this.Errors = errors.ToArray();
+                }
+                else
+                {
+                    this.Errors = Errors.Concat(errors).ToArray();
+                }
+            }
+        }
+
         public void AddError(eResponseStatus errorCode, string msg = "")
         {
             var errorStatus = new Status((int)errorCode, msg);

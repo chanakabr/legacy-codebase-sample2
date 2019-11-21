@@ -1413,7 +1413,7 @@ namespace WebAPI.Controllers
                 }
 
                 bulkUploadJobData.Validate(fileData);
-                bulkUploadAssetData.Validate();
+                bulkUploadAssetData.Validate(groupId);
 
                 var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
 

@@ -144,6 +144,7 @@ namespace Core.Catalog
 
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
+                    // TODO SHIR - ASK ARTHUR WHY create results are here and not in BulkUploadEpgAssetData.GetNewBulkUploadResult like it should be?
                     var result = new BulkUploadProgramAssetResult();
                     result.BulkUploadId = bulkUploadId;
                     result.Index = programIndex++;
@@ -195,14 +196,13 @@ namespace Core.Catalog
 
                     programResults.Add(result);
                 }
-
-
+                
                 response.AddRange(programResults);
             }
 
-            return response.ToList();
+            return response;
         }
-
+        
         // TODO: Take this from apiLogic after logic is fully converted
         public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<string> channelExternalIds)
         {
@@ -211,8 +211,5 @@ namespace Core.Catalog
             var liveAsstes = CatalogDAL.GetLinearChannelSettings(groupId, kalturaChannelIds);
             return liveAsstes;
         }
-
-
-
     }
 }
