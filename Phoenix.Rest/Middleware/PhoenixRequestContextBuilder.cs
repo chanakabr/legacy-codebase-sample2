@@ -145,7 +145,7 @@ namespace Phoenix.Rest.Middleware
             if (httpMethod == HttpMethods.Post)
             {
                 var bodyParsedActionParams = await GetActionParamsFromPostBody(request, context);
-                parsedActionParams = parsedActionParams.Concat(bodyParsedActionParams).ToDictionary(k => k.Key, v => v.Value);
+                bodyParsedActionParams.ToList().ForEach(bodyParam => parsedActionParams[bodyParam.Key]= bodyParam.Value);
             }
 
             return new Dictionary<string, object>(parsedActionParams, StringComparer.OrdinalIgnoreCase);
