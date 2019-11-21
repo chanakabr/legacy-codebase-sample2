@@ -37,20 +37,7 @@ namespace WebAPI.Clients
         }
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HttpClient httpClient;
-        private static readonly HttpClientHandler httpHandler;
-
-
-        static DMSClient()
-        {
-            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETCOREAPP3_0
-            httpHandler.MaxConnectionsPerServer = 1000;
-#endif
-            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
-            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
-            httpClient = new HttpClient(httpHandler);
-        }
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         #region Configuration Group
         public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)

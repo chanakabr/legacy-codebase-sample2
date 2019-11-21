@@ -26,19 +26,7 @@ namespace WebAPI.EventNotifications
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly HttpClient httpClient;
-        private static readonly HttpClientHandler httpHandler;
-
-        static HttpNotificationHandler()
-        {
-            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETSTANDARD2_0
-            httpHandler.MaxConnectionsPerServer = 1000;
-            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
-            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
-#endif
-            httpClient = new HttpClient(httpHandler);
-        }
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();        
 
         #region Override Method
 
@@ -333,107 +321,107 @@ namespace WebAPI.EventNotifications
             }
         }
 
-        public void Post(object phoenix)
-        {
-            try
-            {
-                // Initialize handler and client
-                using (HttpClientHandler handler = new HttpClientHandler()
-                {
-                    Credentials = new NotificationCredentials(this)
-                })
-                using (HttpClient httpClient = new HttpClient(handler))
-                {
-                    // Set basic parameters
-                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-                    httpClient.BaseAddress = new Uri(this.Url);
-                    httpClient.DefaultRequestHeaders.Accept.Clear();
+        //public void Post(object phoenix)
+        //{
+        //    try
+        //    {
+        //        // Initialize handler and client
+        //        using (HttpClientHandler handler = new HttpClientHandler()
+        //        {
+        //            Credentials = new NotificationCredentials(this)
+        //        })
+        //        using (HttpClient httpClient = new HttpClient(handler))
+        //        {
+        //            // Set basic parameters
+        //            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+        //            httpClient.BaseAddress = new Uri(this.Url);
+        //            httpClient.DefaultRequestHeaders.Accept.Clear();
 
-                    // serialize and code object
-                    string postBody = JsonConvert.SerializeObject(phoenix, Newtonsoft.Json.Formatting.None);
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
-                    HttpContent content = new ByteArrayContent(bytes);
+        //            // serialize and code object
+        //            string postBody = JsonConvert.SerializeObject(phoenix, Newtonsoft.Json.Formatting.None);
+        //            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
+        //            HttpContent content = new ByteArrayContent(bytes);
 
-                    if (this.CustomHeaders != null)
-                    {
-                        // Set headers
-                        foreach (var header in this.CustomHeaders)
-                        {
-                            content.Headers.Add(header.key, header.value);
-                        }
-                    }
+        //            if (this.CustomHeaders != null)
+        //            {
+        //                // Set headers
+        //                foreach (var header in this.CustomHeaders)
+        //                {
+        //                    content.Headers.Add(header.key, header.value);
+        //                }
+        //            }
 
-                    // Send request and wait until it finishes
-                    Task<HttpResponseMessage> task = httpClient.PostAsync(this.Url, content);
-                    task.Wait();
+        //            // Send request and wait until it finishes
+        //            Task<HttpResponseMessage> task = httpClient.PostAsync(this.Url, content);
+        //            task.Wait();
 
-                    // Result is here
-                    var response = task.Result;
+        //            // Result is here
+        //            var response = task.Result;
 
-                    string responseString = response.ToString();
+        //            string responseString = response.ToString();
 
-                    log.DebugFormat("Http POST request response is {0}", responseString);
-                }
-            }
-            catch (HttpRequestException e)
-            {
-            }
-            catch (Exception ex)
-            {
-            }
-            finally
-            {
+        //            log.DebugFormat("Http POST request response is {0}", responseString);
+        //        }
+        //    }
+        //    catch (HttpRequestException e)
+        //    {
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //    }
+        //    finally
+        //    {
 
-            }
-        }
+        //    }
+        //}
 
-        public void SendGetHttpReq()
-        {
-            HttpWebResponse webResponse = null;
-            Stream receiveStream = null;
+        //public void SendGetHttpReq()
+        //{
+        //    HttpWebResponse webResponse = null;
+        //    Stream receiveStream = null;
 
-            try
-            {
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
-                Int32 statusCode = -1;
-                Encoding encoding = new UTF8Encoding(false);
+        //    try
+        //    {
+        //        HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
+        //        Int32 statusCode = -1;
+        //        Encoding encoding = new UTF8Encoding(false);
 
-                webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
+        //        webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
 
-                if (this.Timeout > 0)
-                {
-                    webRequest.Timeout = this.Timeout;
-                }
+        //        if (this.Timeout > 0)
+        //        {
+        //            webRequest.Timeout = this.Timeout;
+        //        }
 
-                webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                statusCode = GetResponseCode(sCode);
-                receiveStream = webResponse.GetResponseStream();
+        //        webResponse = (HttpWebResponse)webRequest.GetResponse();
+        //        HttpStatusCode sCode = webResponse.StatusCode;
+        //        statusCode = GetResponseCode(sCode);
+        //        receiveStream = webResponse.GetResponseStream();
 
-                StreamReader sr = new StreamReader(receiveStream, encoding);
-                string resultString = sr.ReadToEnd();
+        //        StreamReader sr = new StreamReader(receiveStream, encoding);
+        //        string resultString = sr.ReadToEnd();
 
-                sr.Close();
+        //        sr.Close();
 
-                webResponse.Close();
-                webRequest = null;
-                webResponse = null;
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error in SendGettHttpReq WebException:" + ex.Message + " to: " + this.Url);
+        //        webResponse.Close();
+        //        webRequest = null;
+        //        webResponse = null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error("Error in SendGettHttpReq WebException:" + ex.Message + " to: " + this.Url);
 
-                if (webResponse != null)
-                {
-                    webResponse.Close();
-                }
+        //        if (webResponse != null)
+        //        {
+        //            webResponse.Close();
+        //        }
 
-                if (receiveStream != null)
-                {
-                    receiveStream.Close();
-                }
-            }
-        }
+        //        if (receiveStream != null)
+        //        {
+        //            receiveStream.Close();
+        //        }
+        //    }
+        //}
 
         public Int32 GetResponseCode(HttpStatusCode theCode)
         {

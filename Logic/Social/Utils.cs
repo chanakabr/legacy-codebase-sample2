@@ -28,22 +28,7 @@ namespace Core.Social
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly HttpClient httpClient;
-        private static readonly HttpClientHandler httpHandler;
-
-        static Utils()
-        {
-            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETSTANDARD2_0
-            httpHandler.MaxConnectionsPerServer = 1000;
-            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
-            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
-#endif
-            httpClient = new HttpClient(httpHandler)
-            {
-                Timeout = TimeSpan.FromMilliseconds(1000000)
-            };
-        }
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {

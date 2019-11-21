@@ -9,29 +9,49 @@ using System.Reflection;
 using KLogMonitor;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 
 namespace TCMClient
 {
     public class Settings
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());       
         private static readonly HttpClient httpClient;
-        private static readonly HttpClientHandler httpHandler;
 
         static Settings()
         {
-            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETSTANDARD2_0
-            httpHandler.MaxConnectionsPerServer = 1000;
-            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
-            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
-#endif
+            SslProtocols enabledSslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
+            DecompressionMethods enabledDecompressionMethod = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            int maxConnectionsPerServer = 5;
+            bool checkCertificateRevocationList = false;
+            System.TimeSpan timeout = System.TimeSpan.FromMilliseconds(100000);
 
-            httpClient = new HttpClient(httpHandler)
+#if NETCOREAPP3_0
+            SocketsHttpHandler httpHandler = new SocketsHttpHandler() { SslOptions = new System.Net.Security.SslClientAuthenticationOptions() };
+            httpHandler.SslOptions.EnabledSslProtocols = enabledSslProtocols;
+            httpHandler.AutomaticDecompression = enabledDecompressionMethod;
+            httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
+            httpHandler.SslOptions.CertificateRevocationCheckMode = checkCertificateRevocationList ? X509RevocationMode.Online : X509RevocationMode.NoCheck;
+            if (!checkCertificateRevocationList)
             {
-                Timeout = TimeSpan.FromMilliseconds(10000)
-            };
+                httpHandler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
+            }
+
+            httpClient = new HttpClient(httpHandler) { Timeout = timeout };
+#elif NETFRAMEWORK
+            HttpClientHandler httpHandler = new HttpClientHandler() { SslProtocols = new SslProtocols() };
+            httpHandler.SslProtocols = enabledSslProtocols;
+            httpHandler.AutomaticDecompression = enabledDecompressionMethod;
+            httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
+            httpHandler.CheckCertificateRevocationList = checkCertificateRevocationList;
+            if (!checkCertificateRevocationList)
+            {
+                httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+            }
+
+            httpClient = new HttpClient(httpHandler) { Timeout = timeout };
+#endif
         }
 
         private static readonly object locker = new object();

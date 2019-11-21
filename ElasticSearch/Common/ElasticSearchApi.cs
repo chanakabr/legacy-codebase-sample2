@@ -27,8 +27,7 @@ namespace ElasticSearch.Common
         public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
-        private static readonly HttpClient httpClient;
-        private static readonly HttpClientHandler httpHandler;
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();        
 
         public string baseUrl
         {
@@ -37,18 +36,6 @@ namespace ElasticSearch.Common
         }
 
         #region Ctor
-
-        static ElasticSearchApi()
-        {
-            httpHandler = new HttpClientHandler() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
-#if NETSTANDARD2_0
-            httpHandler.MaxConnectionsPerServer = 1000;
-            httpHandler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls11 | System.Security.Authentication.SslProtocols.Tls;
-            httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
-#endif
-            httpClient = new HttpClient(httpHandler);
-            httpClient.Timeout = TimeSpan.FromMilliseconds(1000000);
-        }
 
         public ElasticSearchApi()
         {
