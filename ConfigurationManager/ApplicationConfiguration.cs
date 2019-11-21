@@ -149,6 +149,7 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
         public static AdaptersConfiguration AdaptersConfiguration;
         public static NumericConfigurationValue LogReloadInterval;
+        public static HttpClientConfiguration HttpClientConfiguration;
 
         #endregion
 
@@ -642,8 +643,12 @@ namespace ConfigurationManager
             LogReloadInterval = new NumericConfigurationValue("log_reload_interval")
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = 300000,
+                DefaultValue = 0,
                 Description = "Interval of reloading the KLogger configuration from Couchbase, in milliseconds."
+            };
+            HttpClientConfiguration = new HttpClientConfiguration("http_client_configuration")
+            {
+                ShouldAllowEmpty = true
             };
 
             allConfigurationValues = new List<ConfigurationValue>()
@@ -762,7 +767,8 @@ namespace ConfigurationManager
                     ShouldSupportCeleryMessages,
                     ShouldSupportEventBusMessages,
                     ShouldRecoverSubscriptionRenewalToMessageBus,
-                    LogReloadInterval
+                    LogReloadInterval,
+                    HttpClientConfiguration
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

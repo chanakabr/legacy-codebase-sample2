@@ -6581,6 +6581,7 @@ namespace Core.ConditionalAccess
 
                 int domainID = 0;
                 DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
+                List<int> allUsersInDomain = null;
 
                 // check if user is valid
                 if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
@@ -6604,6 +6605,8 @@ namespace Core.ConditionalAccess
 
                 if (!string.IsNullOrEmpty(userId))
                 {
+                    allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
+
                     // create mapper
                     mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesForPurchase.ToArray());
 
@@ -6769,11 +6772,6 @@ namespace Core.ConditionalAccess
                             DateTime? dtEntitlementEndDate = null;
                             DateTime? dtDiscountEndDate = null;
                             bool bCancellationWindow = false;
-                            List<int> allUsersInDomain = new List<int>();
-                            if (domainEntitlements == null)
-                            {
-                                Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
-                            }
 
                             Price price = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
                                                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid,
@@ -15630,7 +15628,7 @@ namespace Core.ConditionalAccess
                     shouldGetDomainRecordings = false;
                 }
 
-                if (shouldGetDomainRecordings)
+                if (shouldGetDomainRecordings || (domainRecordingStatus.HasValue && domainRecordingStatus.Value == DomainRecordingStatus.OK))
                 {
                     int status = 1;
                     // Currently canceled can be only due to IngestRecording which Deletes EPG
@@ -15642,7 +15640,8 @@ namespace Core.ConditionalAccess
 
                     int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
                     long maxDomainRecordingId = 0;
-                    DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch, status, domainRecordingStatus.Value, maxDomainRecordingId);
+                    DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch == 0 ? -1 : task.ScheduledExpirationEpoch,
+                        status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
                     int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
@@ -15702,7 +15701,15 @@ namespace Core.ConditionalAccess
                     // bulk delete for all domainIds
                     if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
                     {
-                        RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        if (recording.RecordingStatus == TstvRecordingStatus.Failed)
+                        {
+                            RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
+                            RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
+                        }
+                        else
+                        {
+                            RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
+                        }
                     }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);

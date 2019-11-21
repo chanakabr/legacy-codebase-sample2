@@ -264,7 +264,7 @@ namespace Core.Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId);
+                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId, isPrivateCopy);
                 bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
                 // if last recording then update ES and CB
                 if (isLastRecording || deleteEpgEvent)
@@ -495,8 +495,10 @@ namespace Core.Recordings
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+
                     // deal with CRIDs and stuff
-                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId);
+                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId, isPrivateCopy);
 
                     // get all the recordings with the same ExternalId, if our recording is the only one -> go to the adapter
                     if (recordingsWithTheSameExternalId.Count == 1)
@@ -1020,12 +1022,12 @@ namespace Core.Recordings
 
         #region Private Methods
 
-        private static void UpdateIndex(int groupId, long recordingId, eAction action)
+        public static void UpdateIndex(int groupId, long recordingId, eAction action)
         {
             Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
         }
 
-        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
+        public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
         {
             if (shouldDelete)
             {
