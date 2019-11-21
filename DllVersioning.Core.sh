@@ -3,7 +3,7 @@
 # set -o xtrace
 
 startScanPath=$1
-allProjFiles=$( grep --include=\*.csproj -rnwl ${startScanPath} -e "netstandard2.0")
+allProjFiles=$(grep --include=\*.csproj -rnwl -E "(netcoreapp[0-9]+\.[0-9]+)|netstandard[0-9]+\.[0-9]+" ${startScanPath})
 tag=$(git describe --tags --always --dirty --long)
 
 echo "VERSION_TAG: $VERSION_TAG"
