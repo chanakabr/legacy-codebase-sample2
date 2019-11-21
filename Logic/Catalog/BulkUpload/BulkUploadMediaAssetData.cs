@@ -59,7 +59,6 @@ namespace Core.Catalog
                 var mediaAsset = results[i].Object as MediaAsset;
                 if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
                 {
-                    // TODO SHIR - ASK ARTHUR ABOUT THIS AND WHY WE PUBLISH AND Enqueue TO CELERY?
                     var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
                     var serviceEvent = new MediaAssetBulkUploadRequest()
                     {

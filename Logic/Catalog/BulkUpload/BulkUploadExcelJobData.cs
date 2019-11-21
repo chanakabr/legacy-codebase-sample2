@@ -12,7 +12,6 @@ using System.Reflection;
 
 namespace Core.Catalog
 {
-    // TODO SHIR - ASK ARTHUR AND move this wirth Excel manager and the EPPLUS nuget from ApiObjects to ApiLogic .. Objects should be clear of any logic.
     /// <summary>
     /// Instructions for upload data type with Excel
     /// </summary>

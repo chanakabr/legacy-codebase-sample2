@@ -8,7 +8,6 @@ using ApiObjects.TimeShiftedTv;
 
 namespace Core.Catalog
 {
-    // TODO SHIR - SAME LIKE MediaAsset FOR BULK_UPLOAD
     public class LiveAsset: MediaAsset
     {
         public TstvState? EnableCdvrState { get; set; }

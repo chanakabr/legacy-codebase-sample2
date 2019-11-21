@@ -1095,7 +1095,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>()
                .IncludeBase<BulkUploadAssetResult, KalturaBulkUploadAssetResult>();
 
-            // TODO SHIR - ASK RUBY if there are more props TO MAP
             cfg.CreateMap<BulkUploadLiveAssetResult, KalturaBulkUploadLiveAssetResult>()
                .IncludeBase<BulkUploadMediaAssetResult, KalturaBulkUploadMediaAssetResult>();
 

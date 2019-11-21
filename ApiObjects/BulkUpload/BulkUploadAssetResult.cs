@@ -33,6 +33,5 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadLiveAssetResult : BulkUploadMediaAssetResult
     {
-        // TODO SHIR - ASK RUBY if there are more props
     }
 }

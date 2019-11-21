@@ -106,37 +106,9 @@ namespace WebAPI.Models.Upload
     {
     }
 
-    // TODO SHIR - ASK RUBY ABOUT PROPS AND MAPP THEM (DELETE IRELEVANT PROPS)
     [Serializable]
     public partial class KalturaBulkUploadLiveAssetResult : KalturaBulkUploadMediaAssetResult
     {
-        /// <summary>
-        /// The internal kaltura channel id
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty(PropertyName = "id")]
-        [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Indicates the epg asset object id in the bulk file
-        /// </summary>
-        [DataMember(Name = "externalEpgIngestId")]
-        [JsonProperty(PropertyName = "externalEpgIngestId")]
-        [XmlElement(ElementName = "externalEpgIngestId")]
-        [SchemeProperty(ReadOnly = true)]
-        public string ExternalEpgIngestId { get; set; }
-
-        /// <summary>
-        /// List of programs that were ingested to the channel
-        /// </summary>
-        [DataMember(Name = "programs")]
-        [JsonProperty(PropertyName = "programs")]
-        [XmlArray(ElementName = "programs", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        [SchemeProperty(ReadOnly = true)]
-        public List<KalturaBulkUploadProgramAssetResult> Programs { get; set; }
     }
 
     [Serializable]

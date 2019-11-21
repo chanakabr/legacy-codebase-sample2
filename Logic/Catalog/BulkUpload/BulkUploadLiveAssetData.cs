@@ -3,6 +3,8 @@ using ApiObjects.Response;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using QueueWrapper;
+using ApiObjects;
 
 namespace Core.Catalog
 {
@@ -11,9 +13,8 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadLiveAssetData : BulkUploadMediaAssetData
     {
-        // disterbuted task not supported for live asset, use event bus instead
-        public override string DistributedTask { get => throw new NotImplementedException(); }
-        public override string RoutingKey { get => throw new NotImplementedException(); }
+        public override string DistributedTask { get { return "distributed_tasks.process_bulk_upload_live_asset"; } }
+        public override string RoutingKey { get { return "PROCESS_BULK_UPLOAD_LIVE_ASSET\\{0}"; } }
 
         private static readonly Type bulkUploadObjectType = typeof(LiveAsset);
         
@@ -42,7 +43,6 @@ namespace Core.Catalog
                 Type = liveAsset.MediaType != null && liveAsset.MediaType.m_nTypeID > 0 ? liveAsset.MediaType.m_nTypeID : (int?)null,
                 ExternalId = string.IsNullOrEmpty(liveAsset.CoGuid) ? null : liveAsset.CoGuid,
                 Object = bulkUploadObject
-                // TODO SHIR - ASK RUBY if there are more props to add
             };
 
             if (errorStatusDetails != null)
@@ -57,22 +57,20 @@ namespace Core.Catalog
         {
             for (var i = 0; i < results.Count; i++)
             {
-                var mediaAsset = results[i].Object as MediaAsset;
-                if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
+                var liveAsset = results[i].Object as LiveAsset;
+                if (results[i].Status != BulkUploadResultStatus.Error && liveAsset != null)
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    // TODO SHIR - ASK ARTHUR WHAT IS THE RELEVENT EVENT AND TO EXPLAIN HOW ALL IS WORKING ..
-                    var serviceEvent = new MediaAssetBulkUploadRequest()
+                    // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
+                    var queue = new GenericCeleryQueue();
+                    var data = new BulkUploadItemData<LiveAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, liveAsset);
+                    if (queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId)))
                     {
-                        GroupId = bulkUpload.GroupId,
-                        BulkUploadId = bulkUpload.Id,
-                        JobAction = bulkUpload.Action,
-                        ObjectData = mediaAsset,
-                        ResultIndex = i,
-                        UserId = bulkUpload.UpdaterId
-                    };
-
-                    eventBus.Publish(serviceEvent);
+                        log.Debug($"Success enqueue live asset bulkUploadObject. bulkUploadId:{bulkUpload.Id}, resultIndex:{i}");
+                    }
+                    else
+                    {
+                        log.Debug($"Failed enqueue live asset bulkUploadObject. bulkUploadId:{bulkUpload.Id}, resultIndex:{i}");
+                    }
                 }
             }
         }

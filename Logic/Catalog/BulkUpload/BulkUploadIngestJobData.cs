@@ -144,7 +144,7 @@ namespace Core.Catalog
 
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
-                    // TODO SHIR - ASK ARTHUR WHY create results are here and not in BulkUploadEpgAssetData.GetNewBulkUploadResult like it should be?
+                    // TODO ARTHUR - WHY create results are here and not in BulkUploadEpgAssetData.GetNewBulkUploadResult like it should be?
                     var result = new BulkUploadProgramAssetResult();
                     result.BulkUploadId = bulkUploadId;
                     result.Index = programIndex++;
