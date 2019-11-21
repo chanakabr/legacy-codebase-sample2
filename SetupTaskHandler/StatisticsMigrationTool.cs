@@ -30,8 +30,8 @@ namespace SetupTaskHandler
             oldSerializer = new ESSerializerV1();
             newSerializer = new ESSerializerV2();
 
-            oldApi = new ElasticSearchApi(urlV1);
-            newApi = new ElasticSearchApi(urlV2);
+            oldApi = new ElasticSearchApi() { baseUrl = urlV1 };
+            newApi = new ElasticSearchApi() { baseUrl = urlV2 };
         }
 
         internal bool Migrate(int groupId, DateTime? startDate)
