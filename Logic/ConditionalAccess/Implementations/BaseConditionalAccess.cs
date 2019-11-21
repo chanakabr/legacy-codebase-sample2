@@ -15974,18 +15974,23 @@ namespace Core.ConditionalAccess
                     DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
                     DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
                     long recordingId = 0;
-                    if (!accountSettings.IsPrivateCopyEnabled.Value)
-                    {
-                        HashSet<long> failedDomainIds;
-                        Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid, new List<long>() { }, out failedDomainIds);
-                        if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
-                            continue;
-                        }
 
-                        recordingId = globalRecording.Id;
+                    List<long> domainIds = new List<long>() { };
+                    if (accountSettings.IsPrivateCopyEnabled.Value)
+                    {
+                        domainIds.Add(0);
                     }
+
+                    HashSet<long> failedDomainIds;
+                    Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid, domainIds, out failedDomainIds);
+                    if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("RecordingsManager.Instance.Record failed for epgId: {0}, epgChannelId: {1}, epgPaddedStartDate: {2}, epgPaddedEndDate: {3}, crid: {4}", epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid);
+                        continue;
+                    }
+
+                    recordingId = globalRecording.Id;
+
 
                     if (epgPaddedStartDate > DateTime.UtcNow)
                     {
