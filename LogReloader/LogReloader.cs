@@ -70,7 +70,7 @@ namespace KLogMonitor.ConfigurationReloader
                 configuration = new KLoggerConfiguration()
                 {
                     configuration = configurationXml,
-                    timeStamp = TVinciShared.DateUtils.GetUtcUnixTimestampNow()
+                    timeStamp = 0
                 };
 
                 worker = new BackgroundWorker();
@@ -85,19 +85,20 @@ namespace KLogMonitor.ConfigurationReloader
             {
                 Reload();
             },
-            null, interval, interval);
+            // start immediately
+            null, 0, interval);
         }
 
         public void Reload()
         {
             try
             {
-                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>("phoenix_log_configuration");
+                var cbConfiguration = couchbaseManager.Get<KLoggerConfiguration>(ApplicationConfiguration.LogConfigurationDocumentKey.Value);
 
                 // if configuration was updated
                 if (cbConfiguration != null && (configuration == null || cbConfiguration.timeStamp > configuration.timeStamp))
                 {
-                    log.Debug($"Reconfiguring logger with config from Couchbase.");
+                    log.Info($"Reconfiguring logger with config from Couchbase. Configuration = {cbConfiguration.configuration}");
                     KLogger.Reconfigure(cbConfiguration.configuration);
 
                     configuration = cbConfiguration;

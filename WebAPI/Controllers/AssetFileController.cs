@@ -114,13 +114,12 @@ namespace WebAPI.Controllers
                 string userId = ksObject != null ? ksObject.UserId : "0";
                 string udid = ksObject != null ? KSUtils.ExtractKSPayload(ksObject).UDID : string.Empty;
 
-                if (!string.IsNullOrEmpty(tokenizedUrl))
+                bool isTokenizedUrl = !string.IsNullOrEmpty(tokenizedUrl);
+                response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType, isTokenizedUrl);
+
+                if (isTokenizedUrl)
                 {
                     response.Url = Encoding.UTF8.GetString(Convert.FromBase64String(Utils.Utils.ReturnSlashesToBase64Str(tokenizedUrl)));
-                }
-                else
-                {
-                    response.Url = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
                 }
 
                 if (!string.IsNullOrEmpty(response.Url))
