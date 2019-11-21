@@ -264,7 +264,7 @@ namespace TVPApiModule.Objects
 
     public class DomainResponseObject
     {
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        
         public Domain m_oDomain;
         public DomainResponseStatus m_oDomainResponseStatus;
 
