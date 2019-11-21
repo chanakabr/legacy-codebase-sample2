@@ -22,6 +22,13 @@
     <ProjectReference Include="..\TVinciShared\TVinciShared.csproj" />
   </ItemGroup>
   
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Drawing.Common">
+      <Version>4.5.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  
   <!-- 
   This is a workaround (https://github.com/wixtoolset/issues/issues/5705) 
   that will allow TVM website project to build, if you read this an 
