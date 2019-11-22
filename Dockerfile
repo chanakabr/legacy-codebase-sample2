@@ -1,4 +1,4 @@
-﻿ARG CORE_BUILD_TAG=netcore-latest
+ARG CORE_BUILD_TAG=netcore-latest
 ARG CORE_IMAGE=870777418594.dkr.ecr.eu-west-1.amazonaws.com/core
 FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 
@@ -14,7 +14,7 @@ RUN dotnet publish -c Release "./TVPApi.Api/TVPApi.Api.csproj" -o /src/published
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.0
 WORKDIR /opt
 
 ARG API_LOG_DIR=/var/log/tvpapi/
@@ -30,5 +30,3 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT [ "sh", "-c", "dotnet TVPApi.Api.dll ${ARGS}" ]
-
-
