@@ -38,7 +38,7 @@ namespace TVPApi.Web
                 apiApp.UseTvpApi();
             });
 
-            app.MapEndpoint("GetVersion", versionApp =>
+            app.MapEndpoint("Gateways/GetVersion", versionApp =>
             {
                 versionApp.Run((ctx) =>
                 {
