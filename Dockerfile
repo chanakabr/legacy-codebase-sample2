@@ -1,4 +1,4 @@
-﻿ARG CORE_BUILD_TAG=netcore-latest
+ARG CORE_BUILD_TAG=netcore-latest
 ARG CORE_IMAGE=870777418594.dkr.ecr.eu-west-1.amazonaws.com/core
 FROM ${CORE_IMAGE}:${CORE_BUILD_TAG} AS builder
 
@@ -30,5 +30,3 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT [ "sh", "-c", "dotnet TVPApi.Api.dll ${ARGS}" ]
-
-
