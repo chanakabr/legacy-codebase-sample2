@@ -22,8 +22,8 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
     <ProjectReference Include="..\CachingManager\CachingManager.csproj" />
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />

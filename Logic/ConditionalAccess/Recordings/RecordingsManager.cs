@@ -359,8 +359,6 @@ namespace Core.Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
-
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
                             int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
@@ -368,7 +366,6 @@ namespace Core.Recordings
                             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
                             RecordResult adapterResponse = null;
-                            bool shouldRetry = false;
                             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, currentRecording.ChannelId);
 
                             try
@@ -379,22 +376,18 @@ namespace Core.Recordings
                             {
                                 log.ErrorFormat("GetRecordingStatus: KalturaException when using adapter. ID = {0}, ex = {1}, message = {2}, code = {3}",
                                     recordingId, ex, ex.Message, ex.Data["StatusCode"]);
-                                shouldRetry = true;
+                                adapterResponse = null;
                             }
                             catch (Exception ex)
                             {
                                 log.ErrorFormat("GetRecordingStatus: Exception when using adapter. ID = {0}, ex = {1}", recordingId, ex);
-                                shouldRetry = true;
-                            }
-
-                            if (adapterResponse == null)
-                            {
-                                shouldRetry = true;
-                            }
+                                adapterResponse = null;
+                            }                           
 
                             // Adapter failed for some reason - retry
-                            if (shouldRetry)
+                            if (adapterResponse == null)
                             {
+                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
                                 RetryTaskAfterProgramEnded(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
                             else

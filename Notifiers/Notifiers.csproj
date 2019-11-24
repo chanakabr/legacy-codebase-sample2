@@ -20,7 +20,7 @@
   
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />

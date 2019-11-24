@@ -20,7 +20,7 @@
  
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />

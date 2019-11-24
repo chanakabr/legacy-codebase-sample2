@@ -2101,7 +2101,7 @@ namespace WebAPI.Clients
             return kalturaPlaybackContext;
         }
 
-        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaPlaybackContextType contextType)
+        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaPlaybackContextType contextType, bool isTokenizedUrl)
         {
             PlayManifestResponse response = null;
 
@@ -2113,7 +2113,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.ConditionalAccess.Module.GetPlayManifest(groupId, userId, assetId, ApiMappings.ConvertAssetType(assetType),
-                        assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType));
+                        assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType), isTokenizedUrl);
                 }
             }
             catch (Exception ex)

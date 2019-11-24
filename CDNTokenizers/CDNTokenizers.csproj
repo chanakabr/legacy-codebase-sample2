@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\TCMClient\TCMClient.csproj" />
+    <ProjectReference Include="..\TCMClient\TCMClient.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj" />
   </ItemGroup>
