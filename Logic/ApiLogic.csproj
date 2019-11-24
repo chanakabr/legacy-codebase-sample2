@@ -34,7 +34,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="LinqToTwitter" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities " Version="2.2.0" />    
-    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
