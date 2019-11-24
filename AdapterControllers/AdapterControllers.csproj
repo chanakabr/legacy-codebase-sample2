@@ -21,7 +21,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
     <ProjectReference Include="..\CachingHelpers\CachingHelpers.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\ServiceExtensions\ServiceExtensions.csproj" />
@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
   
   <ItemGroup>

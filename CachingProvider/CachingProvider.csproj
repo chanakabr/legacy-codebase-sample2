@@ -19,7 +19,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
+    <ProjectReference Include="..\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
   </ItemGroup>
@@ -29,7 +29,7 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <ProjectReference Include="..\..\Core\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
+    <ProjectReference Include="..\StaticHttpContextForNetCore\StaticHttpContextForNetCore.csproj" />
   </ItemGroup>
   
    <!-- This is a workaround that will allow TVM website project to build, if you read this an 
