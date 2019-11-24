@@ -120,7 +120,6 @@ namespace ElasticSearch.Searcher
             get;
             set;
         }
-
         public bool ShouldPageGroups
         {
             get;

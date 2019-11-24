@@ -264,7 +264,7 @@ namespace Core.Recordings
 
             if (groupId > 0 && slimRecording != null && slimRecording.Id > 0 && slimRecording.EpgId > 0 && !string.IsNullOrEmpty(slimRecording.ExternalRecordingId))
             {
-                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId);
+                List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, slimRecording.ExternalRecordingId, isPrivateCopy);
                 bool isLastRecording = recordingsWithTheSameExternalId.Count == 1;
                 // if last recording then update ES and CB
                 if (isLastRecording || deleteEpgEvent)
@@ -359,8 +359,6 @@ namespace Core.Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
-
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
                             int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
@@ -368,7 +366,6 @@ namespace Core.Recordings
                             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
                             RecordResult adapterResponse = null;
-                            bool shouldRetry = false;
                             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, currentRecording.ChannelId);
 
                             try
@@ -379,22 +376,18 @@ namespace Core.Recordings
                             {
                                 log.ErrorFormat("GetRecordingStatus: KalturaException when using adapter. ID = {0}, ex = {1}, message = {2}, code = {3}",
                                     recordingId, ex, ex.Message, ex.Data["StatusCode"]);
-                                shouldRetry = true;
+                                adapterResponse = null;
                             }
                             catch (Exception ex)
                             {
                                 log.ErrorFormat("GetRecordingStatus: Exception when using adapter. ID = {0}, ex = {1}", recordingId, ex);
-                                shouldRetry = true;
-                            }
-
-                            if (adapterResponse == null)
-                            {
-                                shouldRetry = true;
-                            }
+                                adapterResponse = null;
+                            }                           
 
                             // Adapter failed for some reason - retry
-                            if (shouldRetry)
+                            if (adapterResponse == null)
                             {
+                                ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
                                 RetryTaskAfterProgramEnded(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
                             else
@@ -495,8 +488,10 @@ namespace Core.Recordings
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
+                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+
                     // deal with CRIDs and stuff
-                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId);
+                    List<Recording> recordingsWithTheSameExternalId = ConditionalAccess.Utils.GetRecordingsByExternalRecordingId(groupId, recording.ExternalRecordingId, isPrivateCopy);
 
                     // get all the recordings with the same ExternalId, if our recording is the only one -> go to the adapter
                     if (recordingsWithTheSameExternalId.Count == 1)
@@ -1020,12 +1015,12 @@ namespace Core.Recordings
 
         #region Private Methods
 
-        private static void UpdateIndex(int groupId, long recordingId, eAction action)
+        public static void UpdateIndex(int groupId, long recordingId, eAction action)
         {
             Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
         }
 
-        private static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
+        public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
         {
             if (shouldDelete)
             {

@@ -40,6 +40,7 @@ pipeline {
                 bat "dotnet pack Core/EventManager/EventManager.csproj -o ${WORKSPACE}/nugets/"
 				bat "dotnet pack Core/QueueWrapper/QueueWrapper.csproj -o ${WORKSPACE}/nugets/"
                 bat "dotnet pack Core/RabbitQueueWrapper/RabbitQueueWrapper.csproj -o ${WORKSPACE}/nugets/"
+                bat "dotnet pack Core/LogReloader/LogReloader.csproj -o ${WORKSPACE}/nugets/"
             }        
         }
         stage("Publish Nugets"){
@@ -59,6 +60,7 @@ pipeline {
                     bat "nuget push EventManager*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
 					bat "nuget push QueueWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                     bat "nuget push RabbitQueueWrapper*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
+                    bat "nuget push LogReloader*.nupkg -Source http://172.31.36.255:8090/nuget || exit 0" 
                 }
             }
         }
