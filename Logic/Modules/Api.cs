@@ -10,7 +10,6 @@ using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
 using Core.Api.Modules;
-using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using KLogMonitor;
@@ -2325,18 +2324,18 @@ namespace Core.Api
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
         {
-            return api.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+            return PartnerConfigurationManager.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
         }
 
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
-            return api.GetGeneralPartnerConfiguration(groupId);
+            return PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
         }
 
         public static LanguageResponse GetAllLanguageList(int groupId)
         {
             LanguageResponse result = new LanguageResponse();
-            result.Languages = api.GetAllLanguages(groupId);
+            result.Languages = PartnerConfigurationManager.GetAllLanguages(groupId);
             if (result.Languages == null)
             {
                 result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2352,7 +2351,7 @@ namespace Core.Api
         public static CurrencyResponse GetCurrencyList(int groupId)
         {
             CurrencyResponse result = new CurrencyResponse();
-            result.Currencies = ConditionalAccess.Utils.GetCurrencyList(groupId);
+            result.Currencies = PartnerConfigurationManager.GetCurrencyList(groupId);
             if (result.Currencies == null)
             {
                 result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
