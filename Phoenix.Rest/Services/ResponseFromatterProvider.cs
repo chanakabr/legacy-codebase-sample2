@@ -39,6 +39,15 @@ namespace Phoenix.Rest.Services
             var formatter = _DefaultFormatter;
             var formatterFound = false;
 
+            // Sunny GEN-489 : ServeByDevice is a unique case that requires custom response formatter.
+            // in legacy phoenix, there is a not very lovely bypass that determines the use of this formatter, using a special item in http context.
+            // we are obliged to imitate this behavior here as well, although we really don't want to.
+            // we should think of a proper solution to this case
+            if (HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] != null)
+            {
+                return new CustomResponseFormatter();
+            }
+
             // Try Get by response format if was sent
             if (!string.IsNullOrEmpty(responseFormat))
             {

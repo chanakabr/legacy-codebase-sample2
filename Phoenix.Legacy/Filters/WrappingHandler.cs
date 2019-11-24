@@ -39,7 +39,7 @@ namespace WebAPI.Filters
 
             // log request body
             string encodedBody = Encoding.UTF8.GetString(requestBody);
-            bool shouldLogRawRequest = !request.RequestUri.OriginalString.Contains("user") && !encodedBody.Contains("password") && !encodedBody.Contains("mail");
+            bool shouldLogRawRequest = !(encodedBody.IndexOf("password", StringComparison.OrdinalIgnoreCase) >= 0) && !(encodedBody.IndexOf("mail", StringComparison.OrdinalIgnoreCase) >= 0);
 
             if (shouldLogRawRequest)
             {

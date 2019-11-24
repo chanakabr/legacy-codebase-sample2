@@ -71,7 +71,7 @@ namespace Phoenix.Rest.Middleware
 
             var stringResponse = await formatter.GetStringResponse(errorResponse);
                    
-            _Logger.Error($"Error while calling url:[{ctx.RawRequestUrl}], body:[{ctx.RawRequestBody}]{Environment.NewLine}reqId:[{ctx.SessionId}]{Environment.NewLine}error response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
+            _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{JsonConvert.SerializeObject(ctx)}]{Environment.NewLine}", ex);
             return new ApiExceptionHandlerResponse
             {
                 HttpStatusCode = (int)HttpStatusCode.OK,
