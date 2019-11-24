@@ -70,11 +70,6 @@ namespace Core.Catalog
                     request.isAllowedToViewInactiveAssets = false;
                 }
 
-                if (doesGroupUsesTemplates)
-                {
-                    definitions.ObjectVirtualAssetIds = catalogGroupCache.GetObjectVirtualAssetIds();
-                }
-
                 definitions.shouldUseSearchEndDate = request.GetShouldUseSearchEndDate() && !request.isAllowedToViewInactiveAssets;
                 definitions.shouldDateSearchesApplyToAllTypes = request.shouldDateSearchesApplyToAllTypes || request.isAllowedToViewInactiveAssets;
                 definitions.isInternalSearch = request.isInternalSearch || request.isAllowedToViewInactiveAssets;
@@ -160,6 +155,11 @@ namespace Core.Catalog
                     definitions.shouldSearchEpg = true;
                 }
 
+                if (definitions.ksqlAssetTypes?.Count == 1 && definitions.ksqlAssetTypes.Contains("media"))
+                {
+                    definitions.shouldSearchEpg = false;
+                }
+
                 if (definitions.ksqlAssetTypes.Contains("epg"))
                 {
                     definitions.shouldSearchEpg = true;
@@ -185,6 +185,8 @@ namespace Core.Catalog
                 HashSet<int> mediaTypes = null;
                 if (doesGroupUsesTemplates)
                 {
+                    definitions.ObjectVirtualAssetIds = catalogGroupCache.GetObjectVirtualAssetIds();
+                    
                     mediaTypes = new HashSet<int>(catalogGroupCache.AssetStructsMapById.Keys.Select(x => (int)x));
                 }
                 else

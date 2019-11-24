@@ -1033,8 +1033,10 @@ namespace ElasticSearch.Searcher
 
                 #region ObjectVirtualAsset
 
-                // region term 
-                if (this.SearchDefinitions.mediaTypes?.Count == 0 && SearchDefinitions.ObjectVirtualAssetIds?.Count > 0)
+                // region ObjectVirtualAsset 
+                if ((SearchDefinitions.ksqlAssetTypes?.Count == 0 || SearchDefinitions.ksqlAssetTypes.Contains("media"))
+                    && SearchDefinitions.mediaTypes?.Count == 0 
+                    && SearchDefinitions.ObjectVirtualAssetIds?.Count > 0)
                 {
                     ESTerms objectVirtualAssetIds = new ESTerms(true)
                     {
