@@ -466,17 +466,51 @@ namespace ApiLogic.Api.Managers
 
         private static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfig(int groupId, out eResultStatus resultStatus)
         {
+            resultStatus = eResultStatus.ERROR;
+            ObjectVirtualAssetPartnerConfig partnerConfig = null;
+
             try
             {
-                return ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId, out resultStatus);
+                string key = LayeredCacheKeys.GetObjectVirtualAssetPartnerConfig(groupId);
+                List<string> configInvalidationKey = new List<string>() { LayeredCacheKeys.GetObjectVirtualAssetPartnerConfigInvalidationKey(groupId) };
+                if(!LayeredCache.Instance.Get<ObjectVirtualAssetPartnerConfig>(key,
+                                                          ref partnerConfig,
+                                                          GetObjectVirtualAssetPartnerConfigDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG,
+                                                          configInvalidationKey ))
+                { 
+                    log.ErrorFormat("Failed getting GetObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                log.Error($"Error while getting ObjectVirtualAssetPartnerConfig for group {groupId}");
+                log.Error(string.Format("Failed GetObjectVirtualAssetPartnerConfig for groupId: {0}", groupId), ex);
             }
 
-            resultStatus = eResultStatus.ERROR;
-            return null;
+            return partnerConfig;
+        }
+
+        private static Tuple<ObjectVirtualAssetPartnerConfig, bool> GetObjectVirtualAssetPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            ObjectVirtualAssetPartnerConfig generalPartnerConfig = null;
+            eResultStatus resultStatus = eResultStatus.ERROR;
+
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    generalPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId.Value, out resultStatus);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error($"GetObjectVirtualAssetPartnerConfigDB failed, parameters : {string.Join(";", funcParams.Keys)}, ex : {ex}");
+            }
+            return new Tuple<ObjectVirtualAssetPartnerConfig, bool>(generalPartnerConfig, resultStatus != eResultStatus.ERROR);
         }
 
         private static bool IsValidLanguageId(int groupId, int languageId)
