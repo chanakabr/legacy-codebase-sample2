@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TVPApi.Web.Middleware;
 using Core.Middleware;
+using System.Reflection;
 
 namespace TVPApi.Web
 {
@@ -22,31 +23,32 @@ namespace TVPApi.Web
         {
             Configuration = configuration;
         }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCoreConcurrencyLimiter();
-            services.AddHttpContextAccessor();
-
-            var provider = services.BuildServiceProvider();
-            var httpContextAccessor = provider.GetService<IHttpContextAccessor>();
-            System.Web.HttpContext.Configure(httpContextAccessor);
+            services.ConfigureTvpapi();
         }
-        
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
-            app.MapWhen(context =>
-            {
-                var arr = context.Request.Path.ToString().Split('/', StringSplitOptions.RemoveEmptyEntries);
-                return arr != null 
-                    && arr.Length > 1 
-                    && arr[0].Equals("Gateways", StringComparison.OrdinalIgnoreCase) 
-                    && arr[1].Equals("JsonPostGW.aspx", StringComparison.OrdinalIgnoreCase);;
-            }, apiApp =>
+            app.MapEndpoint("Gateways/JsonPostGW.aspx", apiApp =>
             {
                 apiApp.UseConcurrencyLimiter();
                 apiApp.UseTvpApi();
+            });
+
+            app.MapEndpoint("Gateways/GetVersion", versionApp =>
+            {
+                versionApp.Run((ctx) =>
+                {
+                    ctx.Response.StatusCode = 200;
+                    ctx.Response.ContentType = "application/json; charset=utf-8";
+                    ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                    var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    return ctx.Response.WriteAsync("{\"result\":\"" + currentVersion + "\"}");
+                });
+
             });
 
             app.Use(async (context, next) =>

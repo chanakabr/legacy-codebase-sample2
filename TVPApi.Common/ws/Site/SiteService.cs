@@ -25,6 +25,7 @@ using TVinciShared;
 using Menu = TVPApi.Menu;
 using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
 using TVPApiModule.Objects.CRM;
+using ConfigurationManager;
 
 namespace TVPApiServices
 {
@@ -454,8 +455,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    string privateKey = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-                    string IV = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     sRet = SecurityHelper.EncryptSiteGuid(privateKey, IV, initObj.SiteGuid);
                 }
                 catch (Exception ex)
@@ -611,8 +612,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    string privateKey = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-                    string IV = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     sRet = SecurityHelper.DecryptSiteGuid(privateKey, IV, encSiteGuid);
 
                     // Tokenization: validate siteGuid
