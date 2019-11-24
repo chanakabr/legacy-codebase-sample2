@@ -64,7 +64,15 @@ namespace WebAPI.App_Start
             renderer.Output(writeStream);
 
             return Task.FromResult(writeStream);
+        }
 
+        public override Task<string> GetStringResponse(object value)
+        {
+            if ((value is StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result is WebAPI.App_Start.KalturaAPIExceptionWrapper)
+                return base.GetStringResponse(value);
+
+            var renderer = (KalturaRenderer)((StatusWrapper)value).Result;
+            return Task.Run(() => renderer.GetOutput());
         }
     }
 }
