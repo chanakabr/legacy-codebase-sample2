@@ -32,6 +32,7 @@ namespace TVPApi.Web.Middleware
             app.UseCoreConcurrencyLimiter();
             app.UseKloggerSessionIdBuilder();
             app.UseKlogerMonitor();
+            app.UseRequestLogger();
             app.EnablePublicCors();
             app.UseApiExceptionHandler();
             app.UseMiddleware<TVPApiRequestExecutor>();
