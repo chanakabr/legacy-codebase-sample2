@@ -229,6 +229,18 @@ namespace TCMClient
 
         }
 
+        public JToken GetJsonString(string[] keys)
+        {
+
+            JToken token = m_SettingsOriginalKeys;
+            foreach (var key in keys)
+            {
+                token = token.SelectToken(key);
+            }
+
+            return token;
+        }
+
         /// <summary>
         /// Return the JSON object
         /// </summary>
