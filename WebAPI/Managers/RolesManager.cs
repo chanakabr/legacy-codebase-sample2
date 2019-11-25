@@ -224,6 +224,7 @@ namespace WebAPI.Managers
             Dictionary<long, KeyValuePair<string, bool>> roles = permissionItemsDictionary[objectPropertyKey];
             bool isPermitted = false;
 
+
             foreach (var roleId in roleIds)
             {
                 // if the permission item for the action is part of one of the supplied roles - return true
@@ -247,11 +248,6 @@ namespace WebAPI.Managers
                         usersGroupStringBuilder.AppendFormat(";{0}", roles[roleId]);
                     }
                 }
-            }
-
-            if (!isPermitted)
-            {
-                log.Debug($"service forbidden because user is not Permitted. objectPropertyKey;{objectPropertyKey}, user role ids: {string.Join(",", roleIds)}, permissionItemsRoles: {string.Join(",", roles.Keys)}");
             }
 
             usersGroup = usersGroupStringBuilder.ToString();
