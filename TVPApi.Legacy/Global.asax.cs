@@ -106,15 +106,25 @@ namespace WAP_TVPApi
 
             // get action name
             if (HttpContext.Current.Request.QueryString["m"] != null)
-                HttpContext.Current.Items[KLogMonitor.Constants.ACTION] = HttpContext.Current.Request.QueryString["m"];
+            {
+                var m = HttpContext.Current.Request.QueryString["m"];
+                HttpContext.Current.Items[KLogMonitor.Constants.ACTION] = m;
+                KLogger.SetAction(m);
+            }
 
             // get user agent
             if (HttpContext.Current.Request.UserAgent != null)
+            {
                 HttpContext.Current.Items[KLogMonitor.Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+                KLogger.LogContextData[KLogMonitor.Constants.CLIENT_TAG] = HttpContext.Current.Request.UserAgent;
+            }
 
             // get host IP
             if (HttpContext.Current.Request.UserHostAddress != null)
+            {
                 HttpContext.Current.Items[KLogMonitor.Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+                KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
+            }
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
