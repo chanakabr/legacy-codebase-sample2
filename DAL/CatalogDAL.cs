@@ -166,7 +166,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalLastWatched(int nGroupID, string sSiteGuid)
         {
-            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
 
             DataTable dt = null;
 
@@ -259,7 +259,7 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_PersonalRecommended(int nGroupID, string sSiteGuid, int Top, List<int> lSubGroupTree)
         {
-            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
@@ -321,7 +321,7 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_PWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate, int nDeviceId)
         {
 
-            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
@@ -1087,7 +1087,7 @@ namespace Tvinci.Core.DAL
         public static DataTable Get_IPWWAWProtocol(int nGroupID, int nMediaID, string sSiteGuid, int nCountryID, int nLanguage, string sEndDate,
                                                       int nDeviceId, int nOperatorID)
         {
-            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             DataSet ds = null;
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;

@@ -93,14 +93,14 @@ namespace ConfigurationManager
         public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false, true, null);
         public BaseValue<bool> ShouldGetMediaFileDetailsDirectly = new BaseValue<bool>("ShouldGetMediaFileDetailsDirectly", false, false, "description");
 
-        public static BooleanConfigurationValue ShouldGetCatalogDataFromDB;
-        public static BooleanConfigurationValue DownloadPicWithQueue;
-        public static BooleanConfigurationValue CheckImageUrl;
-        public static BooleanConfigurationValue AllowUnknownCountry;
-        public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
-        public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
-        public static BooleanConfigurationValue TVMSkipLoginIPCheck;
-        public static BooleanConfigurationValue EnableHttpLogin;
+        public BaseValue<bool> ShouldGetCatalogDataFromDB = new BaseValue<bool>("get_catalog_data_from_db",false, true, "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty.");
+        public BaseValue<bool> DownloadPicWithQueue = new BaseValue<bool>("downloadPicWithQueue", false);
+        public BaseValue<bool> CheckImageUrl = new BaseValue<bool>("CheckImageUrl", true);
+        public BaseValue<bool> AllowUnknownCountry = new BaseValue<bool>("allow_unknown_country", false);
+        public BaseValue<bool> ShouldSubscriptionOverlapConsiderDLM = new BaseValue<bool>("should_subscription_overlap_consider_dlm", false);
+        public BaseValue<bool> ShouldAddInvalidationKeysToHeader = new BaseValue<bool>("add_invalidation_keys_to_header", false);
+        public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, true, "TVM key, whether IP check during login should be skipped or not.");
+        public BaseValue<bool> EnableHttpLogin = new BaseValue<bool>("EnableHttpLogin", true);
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
         public FileUploadConfiguration FileUpload = new FileUploadConfiguration();
@@ -266,18 +266,7 @@ namespace ConfigurationManager
                 DefaultValue = false
             };
          
-            TVMSkipLoginIPCheck = new BooleanConfigurationValue("SKIP_LOGIN_IP_CHECK")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false,
-                Description = "TVM key, whether IP check during login should be skipped or not."
-            };
-           
-            EnableHttpLogin = new BooleanConfigurationValue("EnableHttpLogin")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true
-            };
+
           
             #endregion
 
@@ -376,12 +365,7 @@ namespace ConfigurationManager
             //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
             UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
             WebServicesConfiguration = new WebServicesConfiguration("WebServices");
-            ShouldGetCatalogDataFromDB = new BooleanConfigurationValue("get_catalog_data_from_db")
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true,
-                Description = "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty."
-            };
+
             
             PushMessagesConfiguration = new PushMessagesConfiguration("push_messages");
             
@@ -391,38 +375,9 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true
             };
 
-            DownloadPicWithQueue = new BooleanConfigurationValue("downloadPicWithQueue")
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true
-            };
-            CheckImageUrl = new BooleanConfigurationValue("CheckImageUrl")
-            {
-                DefaultValue = true,
-                ShouldAllowEmpty = true
-            };
-    
-
-          
-            AllowUnknownCountry = new BooleanConfigurationValue("allow_unknown_country")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false
-            };
-         //   FileUpload = new FileUploadConfiguration("fileUpload");
-            ShouldSubscriptionOverlapConsiderDLM = new BooleanConfigurationValue("should_subscription_overlap_consider_dlm")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false
-            };
-          
             AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
           
-            ShouldAddInvalidationKeysToHeader = new BooleanConfigurationValue("add_invalidation_keys_to_header")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false
-            };
+
             TVPApiConfiguration = new TVPApiConfiguration("tvpapi_configuration")
             {
                 ShouldAllowEmpty = true
@@ -442,8 +397,7 @@ namespace ConfigurationManager
                     FtpApiServerConfiguration,
                     ElasticSearchHandlerConfiguration,
                     ProfessionalServicesTasksConfiguration,
-                    TVMSkipLoginIPCheck,
-                    EnableHttpLogin,
+
                     MailerConfiguration,
                     GroupsManagerConfiguration,
                     RequestParserConfiguration,
@@ -475,19 +429,14 @@ namespace ConfigurationManager
                     EventConsumersConfiguration,
                     UserPINDigitsConfiguration,
                     WebServicesConfiguration,
-                    ShouldGetCatalogDataFromDB,
                     PushMessagesConfiguration,
                     ImageUtilsConfiguration,
-                    DownloadPicWithQueue,
-                    CheckImageUrl,
                     ODBCWrapperCacheConfiguration,
                     CatalogCacheConfiguration,
                     NotificationCacheConfiguration,
                     GroupsCacheConfiguration,
                     NotificationConfiguration,
-                    AllowUnknownCountry,
-                    ShouldSubscriptionOverlapConsiderDLM,
-                    ShouldAddInvalidationKeysToHeader,
+   
                     TVPApiConfiguration,
                     HttpClientConfiguration
                 };

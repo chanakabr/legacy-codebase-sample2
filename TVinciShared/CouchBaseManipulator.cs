@@ -473,7 +473,7 @@ namespace TVinciShared
                     ImageUtils.GetDateEpgImageDetails(sPicDescription, nGroupID, ref bIsNew, ref sPicName, ref picID, ref baseURL);
                     Dictionary<string, string> ratios = Tvinci.Core.DAL.EpgDal.Get_PicsEpgRatios();
 
-                    bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                    bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                     //use the rabbit Queue
                     if (sUseQueue)
                     {

@@ -710,7 +710,7 @@ namespace TVinciShared
 
                 string sIP = PageUtils.GetCallerIP();
 
-                if (!ApplicationConfiguration.TVMSkipLoginIPCheck.Value)
+                if (!ApplicationConfiguration.Current.TVMSkipLoginIPCheck.Value)
                 {
                     bool bAllowedIP = false;
 

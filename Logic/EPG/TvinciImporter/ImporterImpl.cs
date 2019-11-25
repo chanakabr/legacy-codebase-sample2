@@ -2096,7 +2096,7 @@ namespace TvinciImporter
             // use old/or image queue
             if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
-                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
                 if (sUseQueue)
                 {
@@ -2257,7 +2257,7 @@ namespace TvinciImporter
             int picId = 0;
 
             //check if thumb Url exist            
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(thumb))
                 {
@@ -2721,7 +2721,7 @@ namespace TvinciImporter
             // use old/or image queue
             if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
-                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
                 if (sUseQueue)
                 {
@@ -3056,7 +3056,7 @@ namespace TvinciImporter
             int picRatioId = 0;
 
             //check if pic Url exist
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(pic))
                 {

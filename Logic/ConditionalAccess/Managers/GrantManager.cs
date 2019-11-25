@@ -736,7 +736,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                if (ApplicationConfiguration.ShouldSubscriptionOverlapConsiderDLM.Value && dlmCheck && permittedSubscriptions != null)
+                if (ApplicationConfiguration.Current.ShouldSubscriptionOverlapConsiderDLM.Value && dlmCheck && permittedSubscriptions != null)
                 {
                     if (permittedSubscriptions.Select(x => x.m_nDomainLimitationModule > 0).Count() > 0)
                     {

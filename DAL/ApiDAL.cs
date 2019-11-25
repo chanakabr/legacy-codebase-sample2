@@ -581,7 +581,7 @@ namespace DAL
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string userID, int nGroupID)
         {
-            bool bGetDBData = ApplicationConfiguration.ShouldGetCatalogDataFromDB.Value;
+            bool bGetDBData = ApplicationConfiguration.Current.ShouldGetCatalogDataFromDB.Value;
             
             MediaMarkObject ret = new MediaMarkObject();
             ret.nGroupID = nGroupID;

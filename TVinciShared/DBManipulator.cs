@@ -319,7 +319,7 @@ namespace TVinciShared
                             }
                             if (bValid == true)
                             {
-                                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                                 //use the rabbit Queue
                                 if (sUseQueue)
                                 {
@@ -1652,7 +1652,7 @@ namespace TVinciShared
                             }
                             if (bValid == true)
                             {
-                                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                                 //use the rabbit Queue
                                 if (sUseQueue)
                                 {
