@@ -38,11 +38,8 @@ namespace WebAPI.Managers
             KS ks = KS.GetFromRequest();
 
             if (ks == null)
-            {
-                log.Debug("service forbidden because KS is null");
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
-            }
-                
+
             if (!ks.IsValid && !silent)
                 throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
 
@@ -221,12 +218,12 @@ namespace WebAPI.Managers
             // if the permission for the property is not defined in the schema - return false
             if (!permissionItemsDictionary.ContainsKey(objectPropertyKey))
             {
-                log.Debug($"service forbidden because the permission for the property is not defined in the schema, objectPropertyKey:{objectPropertyKey}");
                 return false;
             }
 
             Dictionary<long, KeyValuePair<string, bool>> roles = permissionItemsDictionary[objectPropertyKey];
             bool isPermitted = false;
+
 
             foreach (var roleId in roleIds)
             {
@@ -235,7 +232,6 @@ namespace WebAPI.Managers
                 {
                     if (roles[roleId].Value)
                     {
-                        log.Debug($"service forbidden because is role is excluded");
                         isPermitted = false; // is excluded ! 
                         break;
                     }
@@ -255,11 +251,6 @@ namespace WebAPI.Managers
             }
 
             usersGroup = usersGroupStringBuilder.ToString();
-            if (!isPermitted)
-            {
-                log.Debug($"service forbidden because user is not Permitted");
-            }
-            
             return isPermitted;
         }
 
@@ -310,20 +301,14 @@ namespace WebAPI.Managers
 
             // no roles found for the user
             if (roleIds == null || roleIds.Count == 0)
-            {
-                log.Debug("service forbidden because no roles found for the user");
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
-            }
-                
+
             string allowedUsersGroup = null;
 
             // user not permitted
             if (!IsActionPermittedForRoles(ks.GroupId, service, action, roleIds, out allowedUsersGroup))
-            {
-                log.Debug("service forbidden because user not permitted");
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
-            }
-                
+
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
             string userId = null;
@@ -451,16 +436,9 @@ namespace WebAPI.Managers
             List<string> groupFeatures = ClientsManager.ApiClient().GetGroupFeatures(groupId);
             if (groupFeatures?.Count > 0)
             {
-                var a = groupFeatures.Count(x => permissionItemsToFeaturesMap[key].Contains(x)) > 0;
-                if (!a)
-                {
-                    log.Debug($"service forbidden because groupFeatures not contain key:{key}");
-                }
-                return a;
-                
+                return groupFeatures.Count(x => permissionItemsToFeaturesMap[key].Contains(x)) > 0;
             }
 
-            log.Debug($"service forbidden because Is not Permitted For Feature");
             return false;
         }
 
