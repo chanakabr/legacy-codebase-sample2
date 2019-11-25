@@ -51,7 +51,7 @@ namespace GroupsCacheManager
         private GroupsCache()
         {
             cacheGroupConfiguration = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
-            version = ApplicationConfiguration.Version.Value;
+            version = ApplicationConfiguration.Current.Version.Value;
 
             switch (cacheGroupConfiguration)
             {

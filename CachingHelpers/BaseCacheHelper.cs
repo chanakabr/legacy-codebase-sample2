@@ -58,7 +58,7 @@ namespace CachingHelpers
                 case "couchbase":
                     {
                         cacheService = CouchBaseCache<T>.GetInstance("CACHE");
-                        version = ApplicationConfiguration.Version.Value;
+                        version = ApplicationConfiguration.Current.Version.Value;
 
                         //set ttl time for document 
                         cacheTime = GetDocTTLSettings();
@@ -75,7 +75,7 @@ namespace CachingHelpers
                         cacheTime = GetDefaultCacheTimeInSeconds();
                         string cacheName = GetCacheName();
                         cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
-                        version = ApplicationConfiguration.Version.Value;
+                        version = ApplicationConfiguration.Current.Version.Value;
 
                         break;
                     }

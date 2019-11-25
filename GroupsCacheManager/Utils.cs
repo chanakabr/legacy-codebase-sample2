@@ -55,7 +55,7 @@ namespace GroupsCacheManager
         public static bool IsGroupIDContainedInConfig(long lGroupID, char cSeperator)
         {
             bool res = false;
-            string rawStrFromConfig = ApplicationConfiguration.GroupIDsWithIPNOFilteringSeperatedBySemiColon.Value;
+            string rawStrFromConfig = ApplicationConfiguration.Current.GroupIDsWithIPNOFilteringSeperatedBySemiColon.Value;
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);

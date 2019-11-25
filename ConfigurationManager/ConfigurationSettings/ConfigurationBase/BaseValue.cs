@@ -5,7 +5,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
     {
         internal string Key { get; }
         internal T DefaultValue { get; }
-        internal bool ShouldAllowEmpty { get; } //seems we don't neet it anymore
+        internal bool MustBeOverwriteInTcm { get; } //seems we don't neet it anymore
 
         internal readonly string description;
 
@@ -18,19 +18,13 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
         }
-        public BaseValue(string key, T defaultValue, bool ShouldAllowEmpty = true, string description = null)
+        public BaseValue(string key, T defaultValue, bool mustBeOverwriteInTcm = true, string description = null)
         {
             this.Key = key;
             this.DefaultValue = defaultValue;
-            this.ShouldAllowEmpty = ShouldAllowEmpty;
+            this.MustBeOverwriteInTcm = mustBeOverwriteInTcm;
             this.description = description;
         }
-
-  /*      public T Get()
-        {
-            return ActualValue == null ?  DefaultValue : ActualValue;
-        }*/
-
 
     }
 }

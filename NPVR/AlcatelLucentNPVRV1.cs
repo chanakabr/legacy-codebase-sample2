@@ -1026,7 +1026,7 @@ namespace NPVR
                                 else
                                 {
                                     // no sizes defined
-                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';') &&
+                                    if (!WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';') &&
                                         epgRatios != null &&
                                         epgRatios.Count > 0)
                                     {
@@ -1137,7 +1137,7 @@ namespace NPVR
                     log.Debug("SetEpgPictures " + string.Format("RatioId= {0} Name= {1}", pic.RatioId, ratioDic[pic.RatioId].Key));
 
                     string url = string.Empty;
-                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     {
                         // use old image server flow
                         StringBuilder urlStr = new StringBuilder();

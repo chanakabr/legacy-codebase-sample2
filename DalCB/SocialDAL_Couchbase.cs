@@ -34,7 +34,7 @@ namespace DalCB
             {
                 ViewStaleState? staleState = null;
 
-                var staleStateConfig = ApplicationConfiguration.FriendsActivityViewStaleState.Value;
+                var staleStateConfig = ApplicationConfiguration.Current.FriendsActivityViewStaleState.Value;
                 if (!string.IsNullOrEmpty(staleStateConfig))
                 {
                     ViewStaleState parsedStaleState = ViewStaleState.None;

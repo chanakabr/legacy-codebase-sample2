@@ -1,42 +1,31 @@
-﻿using System;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigurationManager
 {
-    public class AuthorizationManagerConfiguration : ConfigurationValue
+    public class AuthorizationManagerConfiguration : BaseConfig<AuthorizationManagerConfiguration>
     {
-        public StringConfigurationValue UsersSessionsKeyFormat;
-        public StringConfigurationValue RevokedKSKeyFormat;
-        public NumericConfigurationValue RevokedKSMaxTTLSeconds;
-        public StringConfigurationValue RevokedSessionKeyFormat;
 
-        public AuthorizationManagerConfiguration(string key) : base(key)
+        public override string TcmKey => "authorization_manager_configuration";
+
+        public BaseValue<string> UsersSessionsKeyFormat = new BaseValue<string>("users_sessions_key_format", "sessions_{0}", true, "description");
+        public BaseValue<string> RevokedKSKeyFormat = new BaseValue<string>("revoked_ks_key_format", "r_ks_{0}", true, "description");
+        public BaseValue<int> RevokedKSMaxTTLSeconds = new BaseValue<int>("revoked_ks_max_ttl_seconds", 604800, true, "Revoked KS TTL in seconds. This key is global for all partners. Specific partner data overrides it, if partner has it.");
+        public BaseValue<string> RevokedSessionKeyFormat = new BaseValue<string>("revoked_sessions_key_format", "r_session_{0}", true, "description");
+
+        
+
+        public override void SetActualValues(JToken token)
         {
-            UsersSessionsKeyFormat = new ConfigurationManager.StringConfigurationValue("users_sessions_key_format", this)
+            if (token != null)
             {
-                DefaultValue = "sessions_{0}",
-                OriginalKey = "users_sessions_key_format",
-            };
-            RevokedKSKeyFormat = new ConfigurationManager.StringConfigurationValue("revoked_ks_key_format", this)
-            {
-                DefaultValue = "r_ks_{0}",
-                OriginalKey = "revoked_ks_key_format"
-            };
-            RevokedKSMaxTTLSeconds = new ConfigurationManager.NumericConfigurationValue("revoked_ks_max_ttl_seconds", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 604800,
-                OriginalKey = "revoked_ks_max_ttl_seconds",
-                Description = "Revoked KS TTL in seconds. This key is global for all partners. Specific partner data overrides it, if partner has it."
-            };
-            RevokedSessionKeyFormat = new StringConfigurationValue("revoked_sessions_key_format", this)
-            {
-                DefaultValue = "r_session_{0}",
-                OriginalKey = "revoked_sessions_key_format"
-            };
+                SetActualValue(token, UsersSessionsKeyFormat);
+                SetActualValue(token, RevokedKSKeyFormat);
+                SetActualValue(token, RevokedKSMaxTTLSeconds);
+                SetActualValue(token, RevokedSessionKeyFormat);
+            }
         }
     }
 }

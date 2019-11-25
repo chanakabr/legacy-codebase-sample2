@@ -277,7 +277,7 @@ namespace QueueWrapper
             int failCounterLimit = this.FAIL_COUNT_LIMIT;  // A random value was chosen here. It is only for a case on which we can't read value neither from TCM nor from AppSettings
             try
             {
-                int tcmFailCountLimit = ApplicationConfiguration.QueueFailLimit.IntValue;
+                int tcmFailCountLimit = ApplicationConfiguration.Current.QueueFailLimit.Value;
 
                 bool isParseSucceeded = false;
 

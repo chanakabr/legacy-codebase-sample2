@@ -18,7 +18,7 @@ namespace ConfigurationManager
         /// Describes if the configured property must be defined in TCM or not.
         /// Usually should be true if the property doesn't have a default value
         /// </summary>
-        internal bool ShouldAllowEmpty;
+        internal bool ShouldAllowEmpty; //mustBeOverwriteInTCM
         public object DefaultValue;
         internal ConfigurationValue Parent;
         internal List<ConfigurationValue> Children;

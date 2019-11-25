@@ -34,7 +34,7 @@ namespace Core.Catalog.CatalogManagement
         public static readonly int DAYS = 7;
         private const string PERCOLATOR = ".percolator";
 
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         #region Public Methods
 

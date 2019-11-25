@@ -35,7 +35,7 @@ namespace EventBus.RabbitMQ
                     if (_Instance == null)
                     {
                         var connectionFactory = new ConnectionFactory();
-                        if (ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                        if (ApplicationConfiguration.Current.ShouldSupportEventBusMessages.Value)
                         {
                             var configuration = ApplicationConfiguration.RabbitConfiguration.EventBus;
                             connectionFactory.HostName = configuration.HostName.Value;
@@ -45,7 +45,7 @@ namespace EventBus.RabbitMQ
                             connectionFactory.DispatchConsumersAsync = true;
 
                             _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.IntValue}]");
-                            _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.QueueFailLimit.IntValue);
+                            _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.Current.QueueFailLimit.Value);
                         }
                         else
                         {

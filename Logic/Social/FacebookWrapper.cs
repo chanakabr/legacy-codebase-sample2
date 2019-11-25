@@ -533,7 +533,7 @@ namespace Core.Social
 
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -603,7 +603,7 @@ namespace Core.Social
             string sAppAccessToken = string.Format("{0}|{1}", m_oFBConfig.sFBKey, m_oFBConfig.sFBSecret);
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 

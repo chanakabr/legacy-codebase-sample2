@@ -26,8 +26,8 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
-        private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.EPGDocumentExpiry.IntValue;
-        private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.PlayCycleDocumentExpiryMinutes.IntValue;
+        private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.Current.EPGDocumentExpiry.Value;
+        private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.Current.PlayCycleDocumentExpiryMinutes.Value;
 
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
@@ -2141,9 +2141,9 @@ namespace Tvinci.Core.DAL
 
             // order by create date, only select top [TCM] (let's say 300, it should cater 99% of users)
             var temporaryMediaMarks = mediaMarks.mediaMarks.OrderByDescending(mark => mark.CreatedAt);
-            mediaMarks.mediaMarks = temporaryMediaMarks.Take(ApplicationConfiguration.MediaMarksListLength.IntValue).ToList();
+            mediaMarks.mediaMarks = temporaryMediaMarks.Take(ApplicationConfiguration.Current.MediaMarksListLength.Value).ToList();
 
-            uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
+            uint expiration = (uint)ApplicationConfiguration.Current.MediaMarksTTL.Value * 60 * 60 * 24;
 
             success = couchbaseManager.Set(documentKey, mediaMarks, expiration);
 
@@ -2227,7 +2227,7 @@ namespace Tvinci.Core.DAL
                 LastMark = userMediaMark
             };
 
-            uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
+            uint expiration = (uint)ApplicationConfiguration.Current.MediaMarksTTL.Value * 60 * 60 * 24;
 
             bool result = couchbaseManager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), expiration);
 
@@ -2266,7 +2266,7 @@ namespace Tvinci.Core.DAL
 
                 uint cbEpgDocumentExpiryDays = (uint)CB_EPG_DOCUMENT_EXPIRY_DAYS;
 
-                uint expiration = (uint)ApplicationConfiguration.MediaMarksTTL.IntValue * 60 * 60 * 24;
+                uint expiration = (uint)ApplicationConfiguration.Current.MediaMarksTTL.Value * 60 * 60 * 24;
 
                 bool res = (epgDocExpiry.HasValue) ?
                     manager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), cbEpgDocumentExpiryDays * 24 * 60 * 60)

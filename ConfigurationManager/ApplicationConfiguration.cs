@@ -4,44 +4,123 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using ConfigurationManager.Types;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class ApplicationConfiguration
+    public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>
     {
+        public override string TcmKey => string.Empty;
 
-        #region Remote Tasks Configuration Values
+        public static ApplicationConfiguration Current;
 
+        public ApplicationConfiguration()
+        {
+            Current = this;
+        }
+
+        public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
+        public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
+        public BaseValue<string> UseOldImageServer = new BaseValue<string>("USE_OLD_IMAGE_SERVER", "0", true, "Group Ids, split by ';', that wish to use old image server");
+        public BaseValue<string> DMSAdapterUrl = new BaseValue<string>("DMS_ADAPTER_URL", null);
+        public BaseValue<string> PlayManifestDynamicQueryStringParamsNames = new BaseValue<string>("PlayManifestDynamicQueryStringParamsNames", "clientTag,playSessionId");
+        public BaseValue<string> Version = new BaseValue<string>("Version", null,true, "CouchBase document prefix. Each version has its own cached document to avoid backward compatibilty issues.");
+        public BaseValue<string> PictureUploaderPath = new BaseValue<string>("pic_uploader_path", null, true, "Configuration for DBManipulator/CouchBaseManipulator in TVM.");
+        public BaseValue<string> TVMBaseUrl = new BaseValue<string>("BASE_URL", "/", true, "Base URL for TVM.");
+        public BaseValue<string> ClearCachePath = new BaseValue<string>("CLEAR_CACHE_PATH", null, true, "TVM key, location of clean_cache.aspx page in different servers.");
+        public BaseValue<string> StagingClearCachePath = new BaseValue<string>("STAGING_CLEAR_CACHE_PATH", null, true, "TVM key, location of clean_cache.aspx page in different servers, for staging environment.");
+        public BaseValue<string> BatchUpload = new BaseValue<string>("batch_upload", null);
+        public BaseValue<string> LookupGenericUpload = new BaseValue<string>("lookup_generic_upload", null);
+        public BaseValue<string> AppState = new BaseValue<string>("APP_STATE", "normal");
+        public BaseValue<string> ServerName = new BaseValue<string>("SERVER_NAME", "TVM_EU");
+        public BaseValue<string> ApplicationName = new BaseValue<string>("APPLICATION_NAME", null);
+        public BaseValue<string> GraceNoteXSLTPath = new BaseValue<string>("GraceNote_XSLT_PATH", null, true, "Remote tasks configuration for EPG XDTV Transformation.");
+        public BaseValue<string> GraceNoteALUIdConvertion = new BaseValue<string>("GraceNote_ALU_IDConvertion", null, true, "Remote tasks configuration for EPG XDTV Transformation.");
+        public BaseValue<string> DMSUrl = new BaseValue<string>("DMSUrl", null, false, "Address of DMS server.");
+        public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", null, false, "liat regev");
+        public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "Cache", true, null);
+        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", null, true, null);
+        public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", null, true, null);
+        public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", true, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
+        public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", null, true, "Use in yes epg BL");
+        public BaseValue<string> GroupIDsWithIPNOFilteringSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIPNOFilteringSeperatedBySemiColon", null, true, null);
+        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", null, true, null);
+        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", null, true, null);
+        public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", null, true, null);
+        public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", null, true, null);
+        public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", null, true, null);
+        public BaseValue<string> IngestFtpUser = new BaseValue<string>("IngestFtpUser", null, true, null);
+        public BaseValue<string> AdyenWSUser = new BaseValue<string>("TvinciAdyenWS_User", null, true, null);
+        public BaseValue<string> AdyenWSPass = new BaseValue<string>("TvinciAdyenWS_Pass", null, true, null);
+        public BaseValue<string> AdyenWSMerchAccount = new BaseValue<string>("TvinciAdyenWS_MerchAccount", null, true, null);
+        public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", null, true, null);
+        public BaseValue<string> MetaFeaturesPattern = new BaseValue<string>("meta_features_pattern", @"\W|[^ ]{64}[^ ]", true, null);
+        public BaseValue<string> LogConfigurationDocumentKey = new BaseValue<string>("log_configuration_document_key", "phoenix_log_configuration", true, "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config");
+        public BaseValue<string> SearchIndexType = new BaseValue<string>("search_index_type", "ES", true, "Used in TVM, for transition between Lucene and ElasticSearch. " +
+        "Today we use ES exclusively. Only valid value is 'ES', otherwise Lucene is used");
+
+
+        public BaseValue<int> EpgImagePendingThresholdInMinutes = new BaseValue<int>("epgImagePendingThresholdInMinutes", 120);
+        public BaseValue<int> EpgImageActiveThresholdInMinutes = new BaseValue<int>("epgImageActiveThresholdInMinutes", 43200);
+        public BaseValue<int> PwwawpMaxResultsSize = new BaseValue<int>("PWWAWP_MAX_RESULTS_SIZE", 8);
+        public BaseValue<int> PwlalPMaxResultsSize = new BaseValue<int>("PWLALP_MAX_RESULTS_SIZE", 8);
+        public BaseValue<int> PreviewModuleNumOfCancelOrRefundAttempts = new BaseValue<int>("PreviewModuleNumOfCancelOrRefundAttempts", 120);
+        public BaseValue<int> EPGDocumentExpiry = new BaseValue<int>("epg_doc_expiry", 7);
+        public BaseValue<int> DomainCacheDocTimeout = new BaseValue<int>("DomainCacheDocTimeout", 1440);
+        public BaseValue<int> PlayCycleDocumentExpiryMinutes = new BaseValue<int>("playCycle_doc_expiry_min", 60, true, "TTL for CouchBase documents of play cycle data in minutes.");
+        public BaseValue<int> UserInterestsTTLDays = new BaseValue<int>("ttl_user_interest_days", 30);
+        public BaseValue<int> PersonalizedFeedTTLDays = new BaseValue<int>("PersonalizedFeedTTLDays", 365);
+        public BaseValue<int> RecordingsMaxDegreeOfParallelism = new BaseValue<int>("recordings_max_degree_of_parallelism", 5);
+        public BaseValue<int> QueueFailLimit = new BaseValue<int>("queue_fail_limit", 3, true, "Retry limit for RabbitMQ actions like enqueue.");
+        public BaseValue<int> PendingThresholdDays = new BaseValue<int>("pending_threshold_days", 180);
+        public BaseValue<int> CrowdSourcerFeedNumberOfItems = new BaseValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS", 0);
+        public BaseValue<int> UserSegmentTTL = new BaseValue<int>("user_segment_ttl_hours", 36, true, "How long do we keep information about the users' segments");
+        public BaseValue<int> EPGDeleteBulkSize = new BaseValue<int>("epg_delete_bulk_size", 10);
+        public BaseValue<int> MediaMarksListLength = new BaseValue<int>("media_marks_list_limit", 300);
+        public BaseValue<int> MediaMarksTTL = new BaseValue<int>("media_marks_ttl_days", 90);
+        public BaseValue<int> LogReloadInterval = new BaseValue<int>("log_reload_interval", 0, true, "Interval of reloading the KLogger configuration from Couchbase, in milliseconds.");
+
+        public BaseValue<double> CrowdSourceTimeSpan = new BaseValue<double>("CrowdSourceTimeSpan", 30);
+        public BaseValue<double> BillingCacheTTL = new BaseValue<double>("BillingCacheTTL", 60);
+        public BaseValue<double> SocialCacheDocTimeout = new BaseValue<double>("socialCacheDocTimeout", 1440);
+        
+        public BaseValue<long> ReconciliationFrequencySeconds = new BaseValue<long>("reconciliation_frequency_seconds", 7200);
+        public BaseValue<ulong> EpgInitialId = new BaseValue<ulong>("epg_initial_id", 100000000);
+
+        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("elasticsearch_handler_configuration", true, true, null); public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
+        public BaseValue<bool> ShouldSupportCeleryMessages = new BaseValue<bool>("should_support_celery_messages", true, true, null);
+        public BaseValue<bool> ShouldSupportEventBusMessages = new BaseValue<bool>("should_support_event_bus_messages", false, true, null);
+        public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false, true, null);
+        public BaseValue<bool> ShouldGetMediaFileDetailsDirectly = new BaseValue<bool>("ShouldGetMediaFileDetailsDirectly", false, false, "description");
+
+        public static BooleanConfigurationValue ShouldGetCatalogDataFromDB;
+        public static BooleanConfigurationValue DownloadPicWithQueue;
+        public static BooleanConfigurationValue CheckImageUrl;
+        public static BooleanConfigurationValue AllowUnknownCountry;
+        public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
+        public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
+        public static BooleanConfigurationValue TVMSkipLoginIPCheck;
+        public static BooleanConfigurationValue EnableHttpLogin;
+
+        public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
+        public FileUploadConfiguration FileUpload = new FileUploadConfiguration();
+
+
+
+
+
+
+
+
+        public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static CeleryRoutingConfiguration CeleryRoutingConfiguration;
         public static ImageResizerConfiguration ImageResizerConfiguration;
-        public static StringConfigurationValue GraceNoteXSLTPath;
-        public static StringConfigurationValue GraceNoteALUIdConvertion;
-        public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
-        public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
-        public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
-        public static BooleanConfigurationValue ShouldSupportCeleryMessages;
-        public static BooleanConfigurationValue ShouldSupportEventBusMessages;
-        public static BooleanConfigurationValue ShouldRecoverSubscriptionRenewalToMessageBus;
-
-        #endregion
-
-        #region FTP API Server Configuration Values
+      
         public static FtpApiServerConfiguration FtpApiServerConfiguration;
-        #endregion
 
         #region TVM Configuration Values
 
-        public static StringConfigurationValue PictureUploaderPath;
-        public static StringConfigurationValue TVMBaseUrl;
-        public static BooleanConfigurationValue TVMSkipLoginIPCheck;
-        public static StringConfigurationValue ClearCachePath;
-        public static StringConfigurationValue StagingClearCachePath;
-        public static StringConfigurationValue BatchUpload;
-        public static StringConfigurationValue LookupGenericUpload;
-        public static BooleanConfigurationValue EnableHttpLogin;
-        public static StringConfigurationValue AppState;
-        public static StringConfigurationValue ServerName;
-        public static StringConfigurationValue ApplicationName;
+        
 
         #endregion
 
@@ -53,8 +132,7 @@ namespace ConfigurationManager
 
         #region Configuration values
 
-        public static NumericConfigurationValue CrowdSourceTimeSpan;
-        public static StringConfigurationValue DMSUrl;
+
         public static MailerConfiguration MailerConfiguration;
         public static GroupsManagerConfiguration GroupsManagerConfiguration;
         public static RequestParserConfiguration RequestParserConfiguration;
@@ -68,89 +146,46 @@ namespace ConfigurationManager
         public static NamedCacheConfiguration CatalogCacheConfiguration;
         public static NamedCacheConfiguration NotificationCacheConfiguration;
         public static NamedCacheConfiguration GroupsCacheConfiguration;
-        public static StringConfigurationValue SingleInMemoryCacheName;
+
         public static CouchBaseDesigns CouchBaseDesigns;
-        public static NumericConfigurationValue EPGDocumentExpiry;
+        
         public static EutelsatSettings EutelsatSettings;
         public static ElasticSearchConfiguration ElasticSearchConfiguration;
-        public static StringConfigurationValue SearchIndexType;
-        public static StringConfigurationValue CatalogSignatureKey;
+     
         public static HarmonicProviderConfiguration HarmonicProviderConfiguration;
         public static RabbitConfiguration RabbitConfiguration;
         public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
         public static RoleIdsConfiguration RoleIdsConfiguration;
-        public static StringConfigurationValue ExcludePsDllImplementation;
-        public static NumericConfigurationValue DomainCacheDocTimeout;
-        public static NumericConfigurationValue SocialCacheDocTimeout;
+     
         public static FacebookConfiguration FacebookConfiguration;
-        public static NumericConfigurationValue PlayCycleDocumentExpiryMinutes;
         public static TwitterConfiguration TwitterConfiguration;
         public static SocialFeedConfiguration SocialFeedConfiguration;
-        public static StringConfigurationValue UsersAssemblyLocation;
-        public static StringConfigurationValue FriendsActivityViewStaleState;
         public static LicensedLinksCacheConfiguration LicensedLinksCacheConfiguration;
         public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
         public static ExportConfiguration ExportConfiguration;
-        public static NumericConfigurationValue BillingCacheTTL;
-        public static StringConfigurationValue UDRMUrl;
-        public static StringConfigurationValue UseOldImageServer;
+        public static EngagementsConfiguration EngagementsConfiguration;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
         public static AnnouncementManagerConfiguration AnnouncementManagerConfiguration;
         public static CDVRAdapterConfiguration CDVRAdapterConfiguration;
-        public static StringConfigurationValue DMSAdapterUrl;
-        public static NumericConfigurationValue PersonalizedFeedTTLDays;
-        public static EngagementsConfiguration EngagementsConfiguration;
-        public static NumericConfigurationValue UserInterestsTTLDays;
-        public static StringConfigurationValue PlayManifestDynamicQueryStringParamsNames;
-        public static NumericConfigurationValue RecordingsMaxDegreeOfParallelism;
-        public static NumericConfigurationValue ReconciliationFrequencySeconds;
         public static EventConsumersConfiguration EventConsumersConfiguration;
-        public static AuthorizationManagerConfiguration AuthorizationManagerConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
         public static WebServicesConfiguration WebServicesConfiguration;
-        public static BooleanConfigurationValue ShouldGetCatalogDataFromDB;
-        public static NumericConfigurationValue CrowdSourcerFeedNumberOfItems;
         public static PushMessagesConfiguration PushMessagesConfiguration;
-        public static NumericConfigurationValue QueueFailLimit;
-        public static StringConfigurationValue Version;
-        public static NumericConfigurationValue PendingThresholdDays;
-        public static BooleanConfigurationValue DownloadPicWithQueue;
-        public static BooleanConfigurationValue CheckImageUrl;
-        public static NumericConfigurationValue EpgImagePendingThresholdInMinutes;
-        public static NumericConfigurationValue EpgImageActiveThresholdInMinutes;
         public static ImageUtilsConfiguration ImageUtilsConfiguration;
-        public static StringConfigurationValue EPGUrl;
-        public static StringConfigurationValue GroupIDsWithIPNOFilteringSeperatedBySemiColon;
-        public static StringConfigurationValue EncryptorService;
-        public static StringConfigurationValue EncryptorPassword;
-        public static StringConfigurationValue PicsBasePath;
         public static NotificationConfiguration NotificationConfiguration;
-        public static StringConfigurationValue IngestFtpUrl;
-        public static StringConfigurationValue IngestFtpUser;
-        public static StringConfigurationValue IngestFtpPass;
-        public static StringConfigurationValue AdyenWSUser;
-        public static StringConfigurationValue AdyenWSPass;
-        public static StringConfigurationValue AdyenWSMerchAccount;
-        public static StringConfigurationValue AdyenPSPReferenceRegexOverride;
-        public static NumericConfigurationValue PwwawpMaxResultsSize;
-        public static NumericConfigurationValue PwlalPMaxResultsSize;
-        public static NumericConfigurationValue PreviewModuleNumOfCancelOrRefundAttempts;
-        public static StringConfigurationValue MetaFeaturesPattern;
-        public static StringConfigurationValue ExcludeTemplatesImplementation;
-        public static NumericConfigurationValue UserSegmentTTL;
-        public static NumericConfigurationValue EPGDeleteBulkSize;
-        public static BooleanConfigurationValue AllowUnknownCountry;
-        public static FileUploadConfiguration FileUpload;
-        public static BooleanConfigurationValue ShouldSubscriptionOverlapConsiderDLM;
-        public static NumericConfigurationValue MediaMarksListLength;
-        public static NumericConfigurationValue MediaMarksTTL;
-        public static NumericConfigurationValue EpgInitialId;
-        public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
+
+
+        
         public static AdaptersConfiguration AdaptersConfiguration;
-        public static NumericConfigurationValue LogReloadInterval;
-        public static StringConfigurationValue LogConfigurationDocumentKey;
         public static HttpClientConfiguration HttpClientConfiguration;
+
+
+        public override void SetActualValues(JToken token)
+        {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
 
@@ -161,6 +196,8 @@ namespace ConfigurationManager
         private static StringBuilder logBuilder;
         private static List<ConfigurationValue> configurationValuesWithOriginalKeys;
         private static bool isSilent = false;
+
+        
 
         #endregion
 
@@ -212,25 +249,12 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Configuration for image resizer handler in remote tasks."
             };
-            GraceNoteXSLTPath = new StringConfigurationValue("GraceNote_XSLT_PATH")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Remote tasks configuration for EPG XDTV Transformation."
-            };
-            GraceNoteALUIdConvertion = new StringConfigurationValue("GraceNote_ALU_IDConvertion")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Remote tasks configuration for EPG XDTV Transformation."
-            };
+
             ElasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration("elasticsearch_handler_configuration")
             {
                 ShouldAllowEmpty = true
             };
-            ShouldDistributeRecordingSynchronously = new BooleanConfigurationValue("ShouldDistributeRecordingSynchronously")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true
-            };
+
             ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration("professional_services_tasks")
             {
                 ShouldAllowEmpty = true,
@@ -241,71 +265,23 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
-            PictureUploaderPath = new StringConfigurationValue("pic_uploader_path")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Configuration for DBManipulator/CouchBaseManipulator in TVM."
-            };
-            TVMBaseUrl = new StringConfigurationValue("BASE_URL")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "/",
-                Description = "Base URL for TVM."
-            };
+         
             TVMSkipLoginIPCheck = new BooleanConfigurationValue("SKIP_LOGIN_IP_CHECK")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = false,
                 Description = "TVM key, whether IP check during login should be skipped or not."
             };
-            ClearCachePath = new StringConfigurationValue("CLEAR_CACHE_PATH")
-            {
-                ShouldAllowEmpty = true,
-                Description = "TVM key, location of clean_cache.aspx page in different servers."
-            };
-            StagingClearCachePath = new StringConfigurationValue("STAGING_CLEAR_CACHE_PATH")
-            {
-                ShouldAllowEmpty = true,
-                Description = "TVM key, location of clean_cache.aspx page in different servers, for staging environment."
-            };
-            BatchUpload = new StringConfigurationValue("batch_upload")
-            {
-                ShouldAllowEmpty = true
-            };
-            LookupGenericUpload = new StringConfigurationValue("lookup_generic_upload")
-            {
-                ShouldAllowEmpty = true
-            };
+           
             EnableHttpLogin = new BooleanConfigurationValue("EnableHttpLogin")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = true
             };
-            AppState = new StringConfigurationValue("APP_STATE")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "normal"
-            };
-            ServerName = new StringConfigurationValue("SERVER_NAME")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "TVM_EU"
-            };
-            ApplicationName = new StringConfigurationValue("APPLICATION_NAME")
-            {
-                ShouldAllowEmpty = true
-            };
+          
             #endregion
 
-            CrowdSourceTimeSpan = new NumericConfigurationValue("CrowdSourceTimeSpan")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 30
-            };
-            DMSUrl = new StringConfigurationValue("dms_url")
-            {
-                Description = "Address of DMS server."
-            };
+
             MailerConfiguration = new MailerConfiguration("MC");
             GroupsManagerConfiguration = new GroupsManagerConfiguration("groups_manager");
             RequestParserConfiguration = new RequestParserConfiguration("request_parser");
@@ -326,12 +302,7 @@ namespace ConfigurationManager
             WSCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
             WSCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
 
-            SingleInMemoryCacheName = new StringConfigurationValue("single_in_memory_cache_name")
-            {
-                DefaultValue = "Cache",
-                ShouldAllowEmpty = true,
-                OriginalKey = "CACHE_NAME"
-            };
+
 
             ODBCWrapperCacheConfiguration = new NamedCacheConfiguration("odbc_wrapper_cache_configuration");
             ODBCWrapperCacheConfiguration.TTLSeconds.DefaultValue = 7200;
@@ -364,114 +335,45 @@ namespace ConfigurationManager
             GroupsCacheConfiguration.TTLSeconds.OriginalKey = "GroupsCacheDocTimeout";
 
             CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
-            EPGDocumentExpiry = new NumericConfigurationValue("epg_doc_expiry")
-            {
-                DefaultValue = 7
-            };
+
             EutelsatSettings = new EutelsatSettings("eutelsat_settings")
             {
                 ShouldAllowEmpty = true
             };
             ElasticSearchConfiguration = new ElasticSearchConfiguration("elasticsearch_settings");
-            SearchIndexType = new StringConfigurationValue("search_index_type")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "ES",
-                Description = "Used in TVM, for transition between Lucene and ElasticSearch. " +
-                "Today we use ES exclusively. Only valid value is 'ES', otherwise Lucene is used"
-            };
-            CatalogSignatureKey = new StringConfigurationValue("CatalogSignatureKey")
-            {
-                DefaultValue = "liat regev"
-            };
+ 
+
             HarmonicProviderConfiguration = new HarmonicProviderConfiguration("harmonic_provider_configuration");
             RabbitConfiguration = new RabbitConfiguration("rabbit_configuration");
             CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
             RoleIdsConfiguration = new RoleIdsConfiguration("role_ids");
-            ExcludePsDllImplementation = new StringConfigurationValue("EXCLUDE_PS_DLL_IMPLEMENTATION")
-            {
-                ShouldAllowEmpty = true
-            };
-            DomainCacheDocTimeout = new NumericConfigurationValue("DomainCacheDocTimeout")
-            {
-                DefaultValue = 1440
-            };
-            SocialCacheDocTimeout = new NumericConfigurationValue("socialCacheDocTimeout")
-            {
-                DefaultValue = 1440,
-                ShouldAllowEmpty = true
-            };
+
+   
             FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
-            PlayCycleDocumentExpiryMinutes = new NumericConfigurationValue("playCycle_doc_expiry_min")
-            {
-                DefaultValue = 60,
-                Description = "TTL for CouchBase documents of play cycle data in minutes."
-            };
+
             TwitterConfiguration = new TwitterConfiguration("twitter_configuration")
             {
             };
             SocialFeedConfiguration = new SocialFeedConfiguration("social_feed_configuration");
-            UsersAssemblyLocation = new StringConfigurationValue("USERS_ASSEMBLY_LOCATION")
-            {
-                ShouldAllowEmpty = true
-            };
-            FriendsActivityViewStaleState = new StringConfigurationValue("FRIENDS_ACTIVITY_VIEW_STALE_STATE")
-            {
-                DefaultValue = "None",
-                ShouldAllowEmpty = true,
-                Description = "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter"
-            };
+
             LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration("licensed_links_cache_configuration");
             SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
             ExportConfiguration = new ExportConfiguration("export");
-            UDRMUrl = new StringConfigurationValue("UDRM_URL")
-            {
-                DefaultValue = "https://ny-udrm-stg.kaltura.com"
-            };
-            BillingCacheTTL = new ConfigurationManager.NumericConfigurationValue("BillingCacheTTL")
-            {
-                DefaultValue = 60
-            };
-            UseOldImageServer = new StringConfigurationValue("USE_OLD_IMAGE_SERVER")
-            {
-                DefaultValue = "0",
-                Description = "Group Ids, split by ';', that wish to use old image server"
-            };
+           
+ 
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
             AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration("announcement_manager_configuration");
             CDVRAdapterConfiguration = new CDVRAdapterConfiguration("cdvr_adapter_configuration")
             {
                 ShouldAllowEmpty = true
             };
-            DMSAdapterUrl = new StringConfigurationValue("DMS_ADAPTER_URL")
-            {
-
-            };
-            PersonalizedFeedTTLDays = new NumericConfigurationValue("PersonalizedFeedTTLDays")
-            {
-                DefaultValue = 365
-            };
+          
+  
             EngagementsConfiguration = new EngagementsConfiguration("engagements_configuration");
-            UserInterestsTTLDays = new NumericConfigurationValue("ttl_user_interest_days")
-            {
-                DefaultValue = 30
-            };
-            PlayManifestDynamicQueryStringParamsNames = new StringConfigurationValue("PlayManifestDynamicQueryStringParamsNames")
-            {
-                DefaultValue = "clientTag,playSessionId"
-            };
-            RecordingsMaxDegreeOfParallelism = new NumericConfigurationValue("recordings_max_degree_of_parallelism")
-            {
-                OriginalKey = "MaxDegreeOfParallelism",
-                DefaultValue = 5
-            };
-            ReconciliationFrequencySeconds = new NumericConfigurationValue("reconciliation_frequency_seconds")
-            {
-                DefaultValue = 7200
-            };
+            
             EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
-            AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
+            //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
             UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
             WebServicesConfiguration = new WebServicesConfiguration("WebServices");
             ShouldGetCatalogDataFromDB = new BooleanConfigurationValue("get_catalog_data_from_db")
@@ -480,27 +382,10 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty."
             };
-            CrowdSourcerFeedNumberOfItems = new NumericConfigurationValue("crowdsourcer.FEED_NUM_OF_ITEMS")
-            {
-                DefaultValue = 0,
-                ShouldAllowEmpty = true
-            };
+            
             PushMessagesConfiguration = new PushMessagesConfiguration("push_messages");
-            QueueFailLimit = new NumericConfigurationValue("queue_fail_limit")
-            {
-                DefaultValue = 3,
-                ShouldAllowEmpty = true,
-                Description = "Retry limit for RabbitMQ actions like enqueue."
-            };
-            Version = new StringConfigurationValue("Version")
-            {
-                Description = "CouchBase document prefix. Each version has its own cached document to avoid backward compatibilty issues."
-            };
-            PendingThresholdDays = new NumericConfigurationValue("pending_threshold_days")
-            {
-                DefaultValue = 180,
-                ShouldAllowEmpty = true
-            };
+            
+          
             ImageUtilsConfiguration = new ImageUtilsConfiguration("image_utils_configuration")
             {
                 ShouldAllowEmpty = true
@@ -516,107 +401,23 @@ namespace ConfigurationManager
                 DefaultValue = true,
                 ShouldAllowEmpty = true
             };
-            EpgImagePendingThresholdInMinutes = new NumericConfigurationValue("epgImagePendingThresholdInMinutes")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 120
-            };
+    
 
-            EpgImageActiveThresholdInMinutes = new NumericConfigurationValue("epgImageActiveThresholdInMinutes")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 43200
-            };
-            EPGUrl = new StringConfigurationValue("EPGUrl")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Use in yes epg BL"
-            };
-            GroupIDsWithIPNOFilteringSeperatedBySemiColon = new StringConfigurationValue("GroupIDsWithIPNOFilteringSeperatedBySemiColon")
-            {
-                ShouldAllowEmpty = true
-            };
-
-            EncryptorService = new StringConfigurationValue("EncryptorService") { ShouldAllowEmpty = true };
-            EncryptorPassword = new StringConfigurationValue("EncryptorPassword") { ShouldAllowEmpty = true };
-            PicsBasePath = new StringConfigurationValue("pics_base_path") { ShouldAllowEmpty = true };
-            NotificationConfiguration = new NotificationConfiguration("notification_configuration");
-            IngestFtpPass = new StringConfigurationValue("IngestFtpPass") { ShouldAllowEmpty = true };
-            IngestFtpUrl = new StringConfigurationValue("IngestFtpUrl") { ShouldAllowEmpty = true };
-            IngestFtpUser = new StringConfigurationValue("IngestFtpUser") { ShouldAllowEmpty = true };
-            AdyenWSUser = new StringConfigurationValue("TvinciAdyenWS_User") { ShouldAllowEmpty = true };
-            AdyenWSPass = new StringConfigurationValue("TvinciAdyenWS_Pass") { ShouldAllowEmpty = true };
-            AdyenWSMerchAccount = new StringConfigurationValue("TvinciAdyenWS_MerchAccount") { ShouldAllowEmpty = true };
-            AdyenPSPReferenceRegexOverride = new StringConfigurationValue("AdyenPSPReferenceRegexOverride") { ShouldAllowEmpty = true };
-            PwwawpMaxResultsSize = new NumericConfigurationValue("PWWAWP_MAX_RESULTS_SIZE")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 8
-            };
-            PwlalPMaxResultsSize = new NumericConfigurationValue("PWLALP_MAX_RESULTS_SIZE")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 8
-            };
-            PreviewModuleNumOfCancelOrRefundAttempts = new NumericConfigurationValue("PreviewModuleNumOfCancelOrRefundAttempts")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 4
-            };
-            MetaFeaturesPattern = new ConfigurationManager.StringConfigurationValue("meta_features_pattern")
-            {
-                DefaultValue = @"\W|[^ ]{64}[^ ]",
-                ShouldAllowEmpty = true
-            };
-            ExcludeTemplatesImplementation = new ConfigurationManager.StringConfigurationValue("EXCLUDE_TEMPLATES_IMPLEMENTATION")
-            {
-                DefaultValue = "203",
-                ShouldAllowEmpty = true
-            };
-
-            UserSegmentTTL = new NumericConfigurationValue("user_segment_ttl_hours")
-            {
-                DefaultValue = 36,
-                ShouldAllowEmpty = true,
-                Description = "How long do we keep information about the users' segments"
-            };
-            EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 10
-            };
-            EPGDeleteBulkSize = new NumericConfigurationValue("epg_delete_bulk_size")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 10
-            };
+          
             AllowUnknownCountry = new BooleanConfigurationValue("allow_unknown_country")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
-            FileUpload = new FileUploadConfiguration("fileUpload");
+         //   FileUpload = new FileUploadConfiguration("fileUpload");
             ShouldSubscriptionOverlapConsiderDLM = new BooleanConfigurationValue("should_subscription_overlap_consider_dlm")
             {
                 ShouldAllowEmpty = true,
                 DefaultValue = false
             };
-            MediaMarksListLength = new NumericConfigurationValue("media_marks_list_limit")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 300
-            };
+          
             AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
-            MediaMarksTTL = new NumericConfigurationValue("media_marks_ttl_days")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 90
-            };
-            EpgInitialId = new NumericConfigurationValue("epg_initial_id")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 100000000
-            };
+          
             ShouldAddInvalidationKeysToHeader = new BooleanConfigurationValue("add_invalidation_keys_to_header")
             {
                 ShouldAllowEmpty = true,
@@ -626,33 +427,9 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
-            ShouldSupportCeleryMessages = new BooleanConfigurationValue("should_support_celery_messages")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true
-            };
-            ShouldSupportEventBusMessages = new BooleanConfigurationValue("should_support_event_bus_messages")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false,
-            };
-            ShouldRecoverSubscriptionRenewalToMessageBus = new BooleanConfigurationValue("should_recover_subscription_renewal_to_message_bus")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false
-            };
-            LogReloadInterval = new NumericConfigurationValue("log_reload_interval")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 0,
-                Description = "Interval of reloading the KLogger configuration from Couchbase, in milliseconds."
-            };
-            LogConfigurationDocumentKey = new StringConfigurationValue("log_configuration_document_key")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = "phoenix_log_configuration",
-                Description = "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config"
-            };
+
+          
+
             HttpClientConfiguration = new HttpClientConfiguration("http_client_configuration")
             {
                 ShouldAllowEmpty = true
@@ -662,24 +439,11 @@ namespace ConfigurationManager
                 {
                     CeleryRoutingConfiguration,
                     ImageResizerConfiguration,
-                    GraceNoteALUIdConvertion,
                     FtpApiServerConfiguration,
-                    GraceNoteXSLTPath,
                     ElasticSearchHandlerConfiguration,
-                    ShouldDistributeRecordingSynchronously,
                     ProfessionalServicesTasksConfiguration,
-                    PictureUploaderPath,
-                    TVMBaseUrl,
                     TVMSkipLoginIPCheck,
-                    ClearCachePath,
-                    StagingClearCachePath,
-                    BatchUpload,
-                    LookupGenericUpload,
                     EnableHttpLogin,
-                    AppState,
-                    ServerName,
-                    ApplicationName,
-                    DMSUrl,
                     MailerConfiguration,
                     GroupsManagerConfiguration,
                     RequestParserConfiguration,
@@ -690,91 +454,41 @@ namespace ConfigurationManager
                     DatabaseConfiguration,
                     WSCacheConfiguration,
                     CouchBaseDesigns,
-                    EPGDocumentExpiry,
                     EutelsatSettings,
                     ElasticSearchConfiguration,
-                    SearchIndexType,
-                    CatalogSignatureKey,
                     HarmonicProviderConfiguration,
                     RabbitConfiguration,
                     CouchbaseClientConfiguration,
                     RoleIdsConfiguration,
-                    ExcludePsDllImplementation,
-                    DomainCacheDocTimeout,
-                    SocialCacheDocTimeout,
                     FacebookConfiguration,
-                    PlayCycleDocumentExpiryMinutes,
                     TwitterConfiguration,
                     SocialFeedConfiguration,
-                    UsersAssemblyLocation,
-                    FriendsActivityViewStaleState,
+               
                     LicensedLinksCacheConfiguration,
                     SocialFeedQueueConfiguration,
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,
-                    UDRMUrl,
-                    BillingCacheTTL,
-                    UseOldImageServer,
                     CatalogLogicConfiguration,
                     AnnouncementManagerConfiguration,
                     CDVRAdapterConfiguration,
-                    PersonalizedFeedTTLDays,
                     EngagementsConfiguration,
-                    UserInterestsTTLDays,
-                    PlayManifestDynamicQueryStringParamsNames,
-                    RecordingsMaxDegreeOfParallelism,
-                    ReconciliationFrequencySeconds,
                     EventConsumersConfiguration,
-                    AuthorizationManagerConfiguration,
                     UserPINDigitsConfiguration,
                     WebServicesConfiguration,
                     ShouldGetCatalogDataFromDB,
-                    CrowdSourcerFeedNumberOfItems,
                     PushMessagesConfiguration,
-                    QueueFailLimit,
-                    Version,
-                    PendingThresholdDays,
                     ImageUtilsConfiguration,
                     DownloadPicWithQueue,
                     CheckImageUrl,
-                    EpgImagePendingThresholdInMinutes,
-                    EpgImageActiveThresholdInMinutes,
-                    EPGUrl,
-                    SingleInMemoryCacheName,
                     ODBCWrapperCacheConfiguration,
                     CatalogCacheConfiguration,
                     NotificationCacheConfiguration,
                     GroupsCacheConfiguration,
-                    GroupIDsWithIPNOFilteringSeperatedBySemiColon,
-                    EncryptorService,
-                    EncryptorPassword,
-                    PicsBasePath,
                     NotificationConfiguration,
-                    IngestFtpPass,
-                    IngestFtpUrl,
-                    IngestFtpUser,
-                    AdyenWSUser,
-                    AdyenWSPass,
-                    AdyenWSMerchAccount,
-                    AdyenPSPReferenceRegexOverride,
-                    PwwawpMaxResultsSize,
-                    PwlalPMaxResultsSize,
-                    PreviewModuleNumOfCancelOrRefundAttempts,
-                    MetaFeaturesPattern,
-                    ExcludeTemplatesImplementation,
-                    UserSegmentTTL,
-                    EPGDeleteBulkSize,
                     AllowUnknownCountry,
                     ShouldSubscriptionOverlapConsiderDLM,
-                    MediaMarksListLength,
-                    MediaMarksTTL,
-                    EpgInitialId,
                     ShouldAddInvalidationKeysToHeader,
                     TVPApiConfiguration,
-                    ShouldSupportCeleryMessages,
-                    ShouldSupportEventBusMessages,
-                    ShouldRecoverSubscriptionRenewalToMessageBus,
-                    LogReloadInterval,
                     HttpClientConfiguration
                 };
 
@@ -941,6 +655,8 @@ namespace ConfigurationManager
         {
             configurationValuesWithOriginalKeys.Add(configurationValue);
         }
+
+
 
         #endregion
     }

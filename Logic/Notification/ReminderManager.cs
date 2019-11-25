@@ -39,7 +39,7 @@ namespace Core.Notification
         private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
 
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
+        private static string CatalogSignatureKey = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
         public const double REMINDER_CLEANUP_INTERVAL_SEC = 21600; // 6 hours 
         private const string ROUTING_KEY_REMINDERS_MESSAGES = "PROCESS_MESSAGE_REMINDERS";

@@ -48,7 +48,7 @@ namespace CachingProvider
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.SingleInMemoryCacheName.Value;
+            string res = ApplicationConfiguration.Current.SingleInMemoryCacheName.Value;
 
             if (res.Length > 0)
                 return res;

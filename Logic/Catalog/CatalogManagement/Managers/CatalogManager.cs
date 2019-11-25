@@ -1016,7 +1016,7 @@ namespace Core.Catalog.CatalogManagement
         internal static bool IsGroupIdExcludedFromTemplatesImplementation(long groupId)
         {
             bool res = false;
-            string rawStrFromConfig = ConfigurationManager.ApplicationConfiguration.ExcludeTemplatesImplementation.Value;
+            string rawStrFromConfig = ApplicationConfiguration.Current.ExcludeTemplatesImplementation.Value;
             if (rawStrFromConfig.Length > 0)
             {
                 string[] strArrOfIDs = rawStrFromConfig.Split(';');

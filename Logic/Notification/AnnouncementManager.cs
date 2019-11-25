@@ -33,7 +33,7 @@ namespace Core.Notification
         private const int MAX_MSG_LENGTH = 250 * 1024;
         private const int MIN_TIME_FOR_START_TIME_SECONDS = 30;
         private static string CatalogSignString = Guid.NewGuid().ToString();
-        private static string CatalogSignatureKey = ApplicationConfiguration.CatalogSignatureKey.Value;
+        private static string CatalogSignatureKey = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
         private const string ANNOUNCEMENT_NOT_FOUND = "Announcement Not Found";
         private const string ANNOUNCEMENT_QUEUE_NAME_FORMAT = @"Announcement_{0}_{1}"; // Announcement_{GID}_{AnnID}
         private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;

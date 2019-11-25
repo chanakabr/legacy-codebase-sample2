@@ -1,58 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager.Types
 {
-    public class S3Configuration : ConfigurationValue
+    public class S3Configuration : BaseConfig<S3Configuration>
     {
-        public StringConfigurationValue Region;
-        public StringConfigurationValue AccessKey;
-        public StringConfigurationValue SecretKey;
-        public StringConfigurationValue BucketName;
-        public StringConfigurationValue Path;
-        public NumericConfigurationValue NumberOfRetries;
+        public override string TcmKey => "S3";
 
-        public S3Configuration(string key) 
-            : base(key)
-        {
-            Initialize();
-        }
+        public BaseValue<string> Region = new BaseValue<string>("region", "region", false, "region");
+        public BaseValue<string> AccessKey = new BaseValue<string>("accessKey", "accessKey", false, "accessKey");
+        public BaseValue<string> SecretKey = new BaseValue<string>("secretKey", "secretKey", false, "secretKey");
+        public BaseValue<string> BucketName = new BaseValue<string>("bucketName", "bucketName", false, "bucketName");
+        public BaseValue<string> Path = new BaseValue<string>("path", "path", false, "path");
+        public BaseValue<int> NumberOfRetries = new BaseValue<int>("numberOfRetries", 90, false, "NumberOfRetries");
 
-        public S3Configuration(string key, ConfigurationValue parent) 
-            : base(key, parent)
+        public override void SetActualValues(JToken token)
         {
-            Initialize();
-        }
-
-        protected void Initialize()
-        {
-            Region = new StringConfigurationValue("region", this)
+            if (token != null)
             {
-                ShouldAllowEmpty = false
-            };
-            AccessKey = new StringConfigurationValue("accessKey", this)
-            {
-                ShouldAllowEmpty = false
-            };
-            SecretKey = new StringConfigurationValue("secretKey", this)
-            {
-                ShouldAllowEmpty = false
-            };
-            BucketName = new StringConfigurationValue("bucketName", this)
-            {
-                ShouldAllowEmpty = false
-            };
-            Path = new StringConfigurationValue("path", this)
-            {
-                ShouldAllowEmpty = false
-            };
-            NumberOfRetries = new NumericConfigurationValue("numberOfRetries", this)
-            {
-                DefaultValue = 1,
-            };
+                SetActualValue(token, Region);
+                SetActualValue(token, AccessKey);
+                SetActualValue(token, SecretKey);
+                SetActualValue(token, NumberOfRetries);
+                SetActualValue(token, Path);
+            }
         }
     }
 }

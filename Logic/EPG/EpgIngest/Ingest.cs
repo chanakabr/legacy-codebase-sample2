@@ -1286,7 +1286,7 @@ namespace EpgIngest
             try
             {
                 epgIds = EpgDal.GetEPGsToDelete(channelId, groupId, publishDate, deletedDays);
-                int bulkSize = ApplicationConfiguration.EPGDeleteBulkSize.IntValue;
+                int bulkSize = ApplicationConfiguration.Current.EPGDeleteBulkSize.Value;
 
                 if (bulkSize <= 0)
                 {

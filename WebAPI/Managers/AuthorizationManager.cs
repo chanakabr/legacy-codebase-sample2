@@ -579,7 +579,7 @@ namespace WebAPI.Managers
             string revokedKsKeyFormat = group.RevokedKsKeyFormat;
             if (string.IsNullOrEmpty(revokedKsKeyFormat))
             {
-                revokedKsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
+                revokedKsKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.RevokedKSKeyFormat.Value;
             }
 
             return revokedKsKeyFormat;
@@ -590,7 +590,7 @@ namespace WebAPI.Managers
             string revokedSessionKeyFormat = group.RevokedSessionKeyFormat;
             if (string.IsNullOrEmpty(revokedSessionKeyFormat))
             {
-                revokedSessionKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
+                revokedSessionKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.RevokedSessionKeyFormat.Value;
 
                 if (string.IsNullOrEmpty(revokedSessionKeyFormat))
                 {
@@ -603,7 +603,7 @@ namespace WebAPI.Managers
 
         private static int GetRevokedKsMaxTtlSeconds(Group group)
         {
-            return group.RevokedKsMaxTtlSeconds == 0 ? ApplicationConfiguration.AuthorizationManagerConfiguration.RevokedKSMaxTTLSeconds.IntValue : group.RevokedKsMaxTtlSeconds;
+            return group.RevokedKsMaxTtlSeconds == 0 ? ApplicationConfiguration.Current.AuthorizationManagerConfiguration.RevokedKSMaxTTLSeconds.Value : group.RevokedKsMaxTtlSeconds;
         }
 
         internal static bool RevokeSessions(int groupId, string userId)
@@ -687,7 +687,7 @@ namespace WebAPI.Managers
             string userSessionsKeyFormat = group.UserSessionsKeyFormat;
             if (string.IsNullOrEmpty(userSessionsKeyFormat))
             {
-                userSessionsKeyFormat = ApplicationConfiguration.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
+                userSessionsKeyFormat = ApplicationConfiguration.Current.AuthorizationManagerConfiguration.UsersSessionsKeyFormat.Value;
 
                 if (string.IsNullOrEmpty(userSessionsKeyFormat))
                 {

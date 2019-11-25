@@ -296,9 +296,9 @@ namespace TVinciShared
         public static void LogoutFromSite(string sFileToTransferTo)
         {
             string sBaseURL = "http://admin.tvinci.com";
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.TVMBaseUrl.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.TVMBaseUrl.Value))
             {
-                sBaseURL = ApplicationConfiguration.TVMBaseUrl.Value;
+                sBaseURL = ApplicationConfiguration.Current.TVMBaseUrl.Value;
             }
 
             try

@@ -474,7 +474,7 @@ namespace Core.Api.Managers
             // Initialize unified search request:
             // SignString/Signature (basic catalog parameters)
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             // page size should be max_results so it will return everything

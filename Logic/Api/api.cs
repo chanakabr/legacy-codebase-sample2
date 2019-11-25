@@ -511,7 +511,7 @@ namespace Core.Api
             autoCompleteRequest.m_lTags = request.m_InfoStruct.m_Tags;
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             autoCompleteRequest.m_sSignature = sSignature;
@@ -881,7 +881,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 for (int i = 0; i < nChannels.Length; i++)
@@ -1059,7 +1059,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -1088,7 +1088,7 @@ namespace Core.Api
                 ccm.m_nMediaID = nMediaID;
                 ccm.m_lChannles = nChannels.ToList();
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
                 ccm.m_sSignString = sSignString;
                 ccm.m_sSignature = sSignature;
@@ -4023,7 +4023,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4078,7 +4078,7 @@ namespace Core.Api
         {
             List<string> medias = new List<string>();
             string signString = Guid.NewGuid().ToString();
-            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.CatalogSignatureKey.Value);
+            string signature = TVinciShared.WS_Utils.GetCatalogSignature(signString, ApplicationConfiguration.Current.CatalogSignatureKey.Value);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -4106,7 +4106,7 @@ namespace Core.Api
         public static bool DoesMediaBelongToBundle(int nBundleCode, int[] nFileTypeIDs, int nMediaID, string sDevice, int nGroupID, Btype bType)
         {
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4163,7 +4163,7 @@ namespace Core.Api
             List<int> nMedias = new List<int>();
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4286,7 +4286,7 @@ namespace Core.Api
                 oFilter.m_sPlatform = "";
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
 
@@ -4318,7 +4318,7 @@ namespace Core.Api
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4349,7 +4349,7 @@ namespace Core.Api
         {
             //call catalog service for details 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
@@ -4557,7 +4557,7 @@ namespace Core.Api
                 request.m_oFilter.m_bOnlyActiveMedia = true;
 
                 string sSignString = Guid.NewGuid().ToString();
-                string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
                 string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
                 request.m_sSignature = sSignature;
@@ -6966,7 +6966,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine deleted");
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7064,7 +7064,7 @@ namespace Core.Api
                         }
                     }
 
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]{
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngine.ID)
                     };
@@ -7305,7 +7305,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine set changes");
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7369,7 +7369,7 @@ namespace Core.Api
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "recommendation engine configs delete");
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_recommendation_engine_{1}", version, recommendationEngineId)
@@ -7685,7 +7685,7 @@ namespace Core.Api
                     response = new Status((int)eResponseStatus.ExternalChannelNotExist, EXTERNAL_CHANNEL_NOT_EXIST);
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                 {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannelId)
@@ -7815,7 +7815,7 @@ namespace Core.Api
                     response.Status = new Status((int)eResponseStatus.Error, "external channel failed set changes");
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                 {
                     string.Format("{0}_external_channel_{1}_{2}", version, groupId, externalChannel.ID)
@@ -8529,7 +8529,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 
@@ -8876,7 +8876,7 @@ namespace Core.Api
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
@@ -8954,7 +8954,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapter.ID)
@@ -9011,7 +9011,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version,adapterId)
@@ -9110,7 +9110,7 @@ namespace Core.Api
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdn_adapter_{1}", version, adapterId)
@@ -9513,7 +9513,7 @@ namespace Core.Api
             try
             {
                 string catalogSignString = Guid.NewGuid().ToString();
-                string catalogSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+                string catalogSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
 

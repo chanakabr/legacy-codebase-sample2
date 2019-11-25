@@ -996,7 +996,7 @@ namespace Core.Social
         {
             MediaObj oMedia = null;
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             Filter filter = new Filter();
@@ -1044,7 +1044,7 @@ namespace Core.Social
             ProgramObj oRes = null;
 
             string sSignString = Guid.NewGuid().ToString();
-            string sSignatureString = ApplicationConfiguration.CatalogSignatureKey.Value;
+            string sSignatureString = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             Filter filter = new Filter();

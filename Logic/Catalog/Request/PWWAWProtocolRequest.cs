@@ -40,7 +40,7 @@ namespace Core.Catalog.Request
         protected override int GetProtocolMaxResultsSize()
         {
             int res = 0;
-            int resultsSize = ApplicationConfiguration.PwwawpMaxResultsSize.IntValue;
+            int resultsSize = ApplicationConfiguration.Current.PwwawpMaxResultsSize.Value;
             if (resultsSize > 0)
                 return resultsSize;
             return CatalogLogic.DEFAULT_PWWAWP_MAX_RESULTS_SIZE;

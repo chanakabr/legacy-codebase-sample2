@@ -262,7 +262,7 @@ namespace TVinciShared
                     {
                         string sPicBaseName = "";
                         string sBasePath = HttpContext.Current.ServerMapPath("");
-                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+                        string sPicUploaderPath = ApplicationConfiguration.Current.PictureUploaderPath.Value;
 
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
@@ -1606,7 +1606,7 @@ namespace TVinciShared
 
                         string sPicBaseName = "";
                         string sBasePath = HttpContext.Current.ServerMapPath("");
-                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+                        string sPicUploaderPath = ApplicationConfiguration.Current.PictureUploaderPath.Value;
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
                             sBasePath = sPicUploaderPath;

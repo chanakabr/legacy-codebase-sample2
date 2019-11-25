@@ -809,7 +809,7 @@ namespace Core.Catalog
             {
                 // use old/new image server
 
-                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                 {
                     if (dtPic != null && dtPic.Rows != null)
                     {

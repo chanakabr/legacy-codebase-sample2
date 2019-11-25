@@ -13353,7 +13353,7 @@ namespace Core.ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
-                string version = ApplicationConfiguration.Version.Value;
+                string version = ApplicationConfiguration.Current.Version.Value;
                 string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
@@ -13423,7 +13423,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -13480,7 +13480,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
@@ -14462,7 +14462,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // remove adapter from cache
-                    string version = ApplicationConfiguration.Version.Value;
+                    string version = ApplicationConfiguration.Current.Version.Value;
                     string[] keys = new string[1]
                     {
                         string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
@@ -15119,7 +15119,7 @@ namespace Core.ConditionalAccess
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
 
                     if (maxDegreeOfParallelism == 0)
                     {
@@ -15644,7 +15644,7 @@ namespace Core.ConditionalAccess
                         status, domainRecordingStatus.Value, maxDomainRecordingId);
 
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15762,7 +15762,7 @@ namespace Core.ConditionalAccess
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     // set max amount of concurrent tasks
-                    int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
@@ -15879,7 +15879,7 @@ namespace Core.ConditionalAccess
                         {
                             //cancel all of those + the record with the epgid we got before 
                             // set max amount of concurrent tasks
-                            int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                            int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                             if (maxDegreeOfParallelism == 0)
                             {
                                 maxDegreeOfParallelism = 5;
@@ -16123,7 +16123,7 @@ namespace Core.ConditionalAccess
                         List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -16426,7 +16426,7 @@ namespace Core.ConditionalAccess
                     if (domainFutureSingleRecordings != null)
                     {
                         // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                         if (maxDegreeOfParallelism == 0)
                         {
                             maxDegreeOfParallelism = 5;
@@ -16605,7 +16605,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                 if (maxDegreeOfParallelism == 0)
                 {
                     maxDegreeOfParallelism = 5;
@@ -16717,7 +16717,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = ApplicationConfiguration.RecordingsMaxDegreeOfParallelism.IntValue;
+                int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                 if (maxDegreeOfParallelism == 0)
                 {
                     maxDegreeOfParallelism = 5;
@@ -17227,7 +17227,7 @@ namespace Core.ConditionalAccess
 
                         try
                         {
-                            if (ApplicationConfiguration.ShouldRecoverSubscriptionRenewalToMessageBus.Value)
+                            if (ApplicationConfiguration.Current.ShouldRecoverSubscriptionRenewalToMessageBus.Value)
                             {
                                 eventBus.Publish(serviceEvent);
                             }

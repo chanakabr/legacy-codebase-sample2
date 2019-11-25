@@ -31,9 +31,9 @@ namespace TVinciShared
             string sURLs = "";
             object oCachecleanURL = null;
             log.Debug("Clear Cache String - Start Staging Clear Cache");
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.StagingClearCachePath.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.StagingClearCachePath.Value))
             {
-                sURLs = ApplicationConfiguration.StagingClearCachePath.Value;
+                sURLs = ApplicationConfiguration.Current.StagingClearCachePath.Value;
             }
             else
             {
@@ -69,7 +69,7 @@ namespace TVinciShared
             
 
 
-            string sTvinciServersCache = ApplicationConfiguration.ClearCachePath.Value;
+            string sTvinciServersCache = ApplicationConfiguration.Current.ClearCachePath.Value;
 
             if (!string.IsNullOrEmpty(sTvinciServersCache))
             {

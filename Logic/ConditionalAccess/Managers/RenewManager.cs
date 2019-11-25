@@ -1215,7 +1215,7 @@ namespace Core.ConditionalAccess
                         case eTransactionState.Failed:
                             {
                                 // get configuration value 
-                                int PendingThresholdDays = ApplicationConfiguration.PendingThresholdDays.IntValue;
+                                int PendingThresholdDays = ApplicationConfiguration.Current.PendingThresholdDays.Value;
 
                                 if (PendingThresholdDays == 0)
                                 {

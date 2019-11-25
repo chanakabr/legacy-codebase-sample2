@@ -714,7 +714,7 @@ namespace Core.ConditionalAccess
         internal static void FillCatalogSignature(BaseRequest request)
         {
             request.m_sSignString = Guid.NewGuid().ToString();
-            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.CatalogSignatureKey.Value);
+            request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value);
         }
 
         private static BundlesContainingMediaRequest InitializeCatalogRequest(int nGroupID, int nMediaID,
@@ -7363,12 +7363,12 @@ namespace Core.ConditionalAccess
 
         internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
-            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
+            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(ApplicationConfiguration.Current.Version.Value, domainId, mediaFileId, cachedEntitlementResults);
         }
 
         internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
         {
-            return ConditionalAccessDAL.GetCachedEntitlementResults(ApplicationConfiguration.Version.Value, domainId, mediaFileId);
+            return ConditionalAccessDAL.GetCachedEntitlementResults(ApplicationConfiguration.Current.Version.Value, domainId, mediaFileId);
         }
 
         internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)

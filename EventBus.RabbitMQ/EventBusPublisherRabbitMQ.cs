@@ -29,7 +29,7 @@ namespace EventBus.RabbitMQ
             var eventBusConsumer = new EventBusPublisherRabbitMQ(
                 RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration(),
                 ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
-                ApplicationConfiguration.QueueFailLimit.IntValue);
+                ApplicationConfiguration.Current.QueueFailLimit.Value);
 
             return eventBusConsumer;
         }
@@ -48,7 +48,7 @@ namespace EventBus.RabbitMQ
         
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
-            bool shouldSupportEventBusMessages = ApplicationConfiguration.ShouldSupportEventBusMessages.Value;
+            bool shouldSupportEventBusMessages = ApplicationConfiguration.Current.ShouldSupportEventBusMessages.Value;
             if (shouldSupportEventBusMessages || ContainsIngestV2Event(serviceEvents))
             {
                 var publishRetryPolicy = GetRetryPolicyForEventPublishing();

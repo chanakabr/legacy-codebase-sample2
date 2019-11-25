@@ -599,7 +599,7 @@ namespace TvinciImporter
             int picRatioId = 0;
 
             // use new image server
-            if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
                 log.DebugFormat("Delete images for media id:{0}", nMediaID);
                 DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(nMediaID, eAssetImageType.Media);
@@ -2094,7 +2094,7 @@ namespace TvinciImporter
             }
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
                 bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
@@ -2117,7 +2117,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
                 else
                     log.DebugFormat("Successfully processed image - channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
@@ -2273,8 +2273,8 @@ namespace TvinciImporter
             }
 
             //check for epg_image default threshold value
-            int pendingThresholdInMinutes = ApplicationConfiguration.EpgImagePendingThresholdInMinutes.IntValue;
-            int activeThresholdInMinutes = ApplicationConfiguration.EpgImageActiveThresholdInMinutes.IntValue;
+            int pendingThresholdInMinutes = ApplicationConfiguration.Current.EpgImagePendingThresholdInMinutes.Value;
+            int activeThresholdInMinutes = ApplicationConfiguration.Current.EpgImageActiveThresholdInMinutes.Value;
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
@@ -2719,7 +2719,7 @@ namespace TvinciImporter
             int picId = 0;
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
                 bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
@@ -2759,7 +2759,7 @@ namespace TvinciImporter
                 log.ErrorFormat("Failed download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
                 else
                     log.DebugFormat("Successfully processed image - mediaId:{0}, ratioId{1}, url:{2}", nMediaID, ratioID, sPic);
@@ -3257,9 +3257,9 @@ namespace TvinciImporter
             {
                 return WS_Utils.GetTcmConfigValue(key);
             }
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.PicsBasePath.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.PicsBasePath.Value))
             {
-                return ApplicationConfiguration.PicsBasePath.Value;
+                return ApplicationConfiguration.Current.PicsBasePath.Value;
             }
 
             string sBasePath = string.Empty;
@@ -3729,8 +3729,8 @@ namespace TvinciImporter
                     if (WS_Utils.IsGroupIDContainedInConfig(parentGroupID, rawStrFromConfig, ';'))
                     {
                         // old policy attachment
-                        string sWSURL = ApplicationConfiguration.EncryptorService.Value;
-                        string sWSPassword = ApplicationConfiguration.EncryptorPassword.Value;
+                        string sWSURL = ApplicationConfiguration.Current.EncryptorService.Value;
+                        string sWSPassword = ApplicationConfiguration.Current.EncryptorPassword.Value;
 
                         if (string.IsNullOrEmpty(sWSURL))
                             return;
@@ -5665,7 +5665,7 @@ namespace TvinciImporter
         {
             bool isUpdateChannelIndexSucceeded = false;
 
-            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value; // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES"))
             {
                 try
@@ -5785,7 +5785,7 @@ namespace TvinciImporter
 
             int parentGroupID = UtilsDal.GetParentGroupID(groupId);
 
-            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value;  // Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value;  // Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {
                 try
@@ -5832,7 +5832,7 @@ namespace TvinciImporter
         {
             bool isUpdateIndexSucceeded = false;
 
-            string sUseElasticSearch = ApplicationConfiguration.SearchIndexType.Value; // Indexer - ES / Lucene
+            string sUseElasticSearch = ApplicationConfiguration.Current.SearchIndexType.Value; // Indexer - ES / Lucene
 
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
             {

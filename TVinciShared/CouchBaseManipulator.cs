@@ -555,7 +555,7 @@ namespace TVinciShared
                     else
                     {
                         sBasePath = HttpContext.Current.ServerMapPath("");
-                        string sPicUploaderPath = ApplicationConfiguration.PictureUploaderPath.Value;
+                        string sPicUploaderPath = ApplicationConfiguration.Current.PictureUploaderPath.Value;
 
                         if (!string.IsNullOrEmpty(sPicUploaderPath))
                         {
