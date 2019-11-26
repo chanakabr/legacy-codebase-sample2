@@ -6970,6 +6970,16 @@ namespace Core.Catalog
                 return response;
             }
 
+            if (totalItems == 0)
+            {
+                response.searchResults = searchResults;
+                response.m_nTotalItems = totalItems;
+                response.aggregationResults = aggregationsResult;
+                response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+
+                return response;
+            }
+
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
 
             #region Sliding Window
@@ -7007,6 +7017,32 @@ namespace Core.Catalog
             if (channel.m_nChannelTypeID == (int)ChannelType.Manual)
             {
                 ChannelRequest.OrderMediasByOrderNum(ref assetIDs, channel, unifiedSearchDefinitions.order);
+
+                if (channel.SupportSegmentBasedOrdering && searchResults[0].Score > 0)
+                {
+                    Dictionary<int, int> IdsToManualOrder = new Dictionary<int, int>();
+                    int index = 0;
+                    foreach(int aid in assetIDs)
+                    {
+                        IdsToManualOrder.Add(aid, index);
+                        index++;
+                    }
+
+                    List<AssetScoreOrder> aso = new List<AssetScoreOrder>();
+
+                    foreach (var searchResult in searchResults)
+                    {
+                        int assetId = int.Parse(searchResult.AssetId);
+                        aso.Add(new AssetScoreOrder()
+                        {
+                            AssetId = assetId,
+                            Score = searchResult.Score,
+                            ChannelOrder = IdsToManualOrder[assetId]
+                        });
+                    }
+
+                    assetIDs = aso.OrderByDescending(x => x.Score).ThenBy(y => y.ChannelOrder).Select(z => z.AssetId).ToList();
+                }
 
                 int validNumberOfMediasRange = pageSize;
 

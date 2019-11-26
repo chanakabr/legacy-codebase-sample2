@@ -2125,7 +2125,7 @@ namespace Core.ConditionalAccess
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
-                                          ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
+                                          ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, countryCode, sLANGUAGE_CODE, sDEVICE_NAME, ip,
                                           mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID,
                                           ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0,
                                           DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases, blockEntitlement);
@@ -2281,6 +2281,11 @@ namespace Core.ConditionalAccess
                 int nWaiver = 0;
                 DateTime dPurchaseDate = DateTime.MinValue;
                 int ppvID = StringUtils.ConvertTo<int>(ppvModule.m_sObjectCode);
+
+                if (allUserIDsInDomain?.Count == 0)
+                {
+                    allUserIDsInDomain = GetAllUsersDomainBySiteGUID(sSiteGUID, groupID, ref domainID);
+                }
 
                 if (blockEntitlement != BlockEntitlementType.BLOCK_PPV)
                 {
@@ -2678,8 +2683,8 @@ namespace Core.ConditionalAccess
         internal static List<int> GetAllUsersDomainBySiteGUID(string sSiteGUID, Int32 nGroupID, ref int domainID)
         {
             List<int> lDomainsUsers = new List<int>();
-
-            if (string.IsNullOrEmpty(sSiteGUID) || sSiteGUID.Equals("0"))
+            int userId = 0;
+            if (string.IsNullOrEmpty(sSiteGUID) || !int.TryParse(sSiteGUID, out userId) || userId < 1)
             {
                 return lDomainsUsers;
             }
@@ -7150,10 +7155,10 @@ namespace Core.ConditionalAccess
             return domainIdToRecordingMap;
         }
 
-        internal static List<Recording> GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId)
+        internal static List<Recording> GetRecordingsByExternalRecordingId(int groupId, string externalRecordingId, bool isPrivateCopy)
         {
             List<Recording> recordings = new List<Recording>();
-            DataTable dt = RecordingsDAL.GetRecordingsByExternalRecordingId(groupId, externalRecordingId);
+            DataTable dt = RecordingsDAL.GetRecordingsByExternalRecordingId(groupId, externalRecordingId, isPrivateCopy);
             if (dt != null && dt.Rows != null)
             {
                 foreach (DataRow dr in dt.Rows)

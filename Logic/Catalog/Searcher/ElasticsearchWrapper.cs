@@ -1153,6 +1153,18 @@ namespace Core.Catalog
                 {
                     unifiedSearchDefinitions.topHitsCount = 1;
                 }
+
+                if (unifiedSearchDefinitions.topHitsCount > 0)
+                {
+                    // BEO-7134: I already lost track of the logic in this class and in query builder.
+                    // When asking all documents, paging of top hits buckets is not working because:
+                    // if (this.GetAllDocuments)
+                    // {
+                    //     size = -1;
+                    // }
+                    // 
+                    queryParser.ShouldPageGroups = true;
+                }
             }
             else
             {
@@ -1415,7 +1427,8 @@ namespace Core.Catalog
                     m_dUpdateDate = doc.update_date,
                     AssetType = assetType,
                     EndDate = doc.end_date,
-                    StartDate = doc.start_date
+                    StartDate = doc.start_date,
+                    Score = doc.score
                 };
 
                 if (doc.extraReturnFields != null)
@@ -1441,7 +1454,8 @@ namespace Core.Catalog
                     {
                         result = new RecordingSearchResult
                         {
-                            AssetType = eAssetTypes.NPVR
+                            AssetType = eAssetTypes.NPVR,
+                            Score = doc.score
                         };
                         if (definitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
                         {
@@ -1470,7 +1484,8 @@ namespace Core.Catalog
                             AssetId = assetId,
                             m_dUpdateDate = doc.update_date,
                             AssetType = assetType,
-                            EpgId = epgId
+                            EpgId = epgId,
+                            Score = doc.score
                         };
                     }
                 }
@@ -1480,7 +1495,8 @@ namespace Core.Catalog
                     {
                         AssetId = assetId,
                         m_dUpdateDate = doc.update_date,
-                        AssetType = assetType
+                        AssetType = assetType,
+                        Score = doc.score
                     };
                 }
             }

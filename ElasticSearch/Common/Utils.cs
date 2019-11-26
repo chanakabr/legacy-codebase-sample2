@@ -376,6 +376,8 @@ namespace ElasticSearch.Common
 
             string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
             string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
+            double score = ((tempToken = item.SelectToken("_score")) == null ? 0 : Convert.ToDouble(tempToken.Value<double?>()));
+            
             int assetId = 0;
             int groupId = 0;
             string name = string.Empty;
@@ -430,6 +432,7 @@ namespace ElasticSearch.Common
                 end_date = endDate,
                 media_type_id = mediaTypeId,
                 epg_identifier = epgIdentifier,
+                score = score
             };
 
             if (extraReturnFields != null)

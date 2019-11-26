@@ -515,19 +515,22 @@ namespace WebAPI.Utils
                     }
                 }
 
-                for (int i = 0; i < tempAssets.Count; i++)
+                if (tempAssets != null)
                 {
-                    KalturaIntegerValueListResponse res = null;
-
-                    res = new KalturaIntegerValueListResponse()
+                    for (int i = 0; i < tempAssets.Count; i++)
                     {
-                        Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = aggregationResults[i].count } },
-                        TotalCount = aggregationResults[i].count
-                    };
+                        KalturaIntegerValueListResponse res = null;
 
-                    if (res != null)
-                    {
-                        tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                        res = new KalturaIntegerValueListResponse()
+                        {
+                            Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = aggregationResults[i].count } },
+                            TotalCount = aggregationResults[i].count
+                        };
+
+                        if (res != null)
+                        {
+                            tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                        }
                     }
                 }
             }

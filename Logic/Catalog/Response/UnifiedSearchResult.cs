@@ -11,7 +11,12 @@ namespace Core.Catalog.Response
     [KnownType(typeof(RecordingSearchResult))]
     public class UnifiedSearchResult : BaseObject
     {
-
+        [DataMember]
+        public double Score
+        {
+            get;
+            set;
+        }
     }
 
     [DataContract]
