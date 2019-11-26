@@ -10,6 +10,7 @@ using Core.Social;
 using InitializationObject = TVPApi.InitializationObject;
 using Core.Social.Responses;
 using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices
 {

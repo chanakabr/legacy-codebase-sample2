@@ -106,7 +106,7 @@ public class Service : System.Web.Services.WebService
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
-        return m_siteService.GetGalleryItemContent(initObj, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex, OrderBy.None);
+        return m_siteService.GetGalleryItemContent(initObj, ItemID, GalleryID, PageID, picSize, pageSize, pageIndex, TVPApi.OrderBy.None);
     }
 
     #endregion
@@ -178,7 +178,7 @@ public class Service : System.Web.Services.WebService
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
-        return m_mediaService.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, OrderBy.None);
+        return m_mediaService.GetChannelMediaList(initObj, ChannelID, picSize, pageSize, pageIndex, TVPApi.OrderBy.None);
     }
 
     //Get Channel media
@@ -236,7 +236,8 @@ public class Service : System.Web.Services.WebService
 
     //Serach media by tag
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
-    public List<Media> SearchMediaByTag(InitializationObject initObj, string ws_User, string ws_Pass, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+    public List<Media> SearchMediaByTag(InitializationObject initObj, string ws_User, string ws_Pass, string tagName, string value, 
+        int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
@@ -245,7 +246,8 @@ public class Service : System.Web.Services.WebService
 
     //Serach media by meta
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
-    public List<Media> SearchMediaByMeta(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+    public List<Media> SearchMediaByMeta(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, 
+        int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
@@ -254,7 +256,8 @@ public class Service : System.Web.Services.WebService
 
     //Serach media by meta
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
-    public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, string value, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
+    public List<Media> SearchMediaByMetaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string metaName, 
+        string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy, ref long mediaCount)
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
@@ -272,7 +275,8 @@ public class Service : System.Web.Services.WebService
 
     //Serach media by free text
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
-    public List<Media> SearchMedia(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy)
+    public List<Media> SearchMedia(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, 
+        int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;
@@ -281,7 +285,8 @@ public class Service : System.Web.Services.WebService
 
     //Serach media by free text
     [WebMethod(EnableSession = true, Description = "Deprecated! Use 'ws/Media/Service.asmx' instead.")]
-    public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, int pageSize, int pageIndex, OrderBy orderBy, ref long mediaCount)
+    public List<Media> SearchMediaWithMediaCount(InitializationObject initObj, string ws_User, string ws_Pass, string text, int mediaType, string picSize, 
+        int pageSize, int pageIndex, TVPApi.OrderBy orderBy, ref long mediaCount)
     {
         initObj.ApiUser = ws_User;
         initObj.ApiPass = ws_Pass;

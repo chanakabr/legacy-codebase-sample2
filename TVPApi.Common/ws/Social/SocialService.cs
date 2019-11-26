@@ -27,6 +27,7 @@ using eSocialPlatform = ApiObjects.Social.eSocialPlatform;
 using Newtonsoft;
 using Newtonsoft.Json;
 using SocialActivityDoc = TVPApiModule.Objects.SocialActivityDoc;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices
 {

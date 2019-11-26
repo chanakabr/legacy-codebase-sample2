@@ -22,7 +22,7 @@ using Media = TVPApi.Media;
 using MediaMarkObject = ApiObjects.MediaMarkObject;
 using EPGUnit = ApiObjects.EPGUnit;
 using Core.Catalog;
-using Core.Catalog.Response;
+using TVPApiModule.Objects.CRM;
 
 namespace TVPApiServices
 {
@@ -240,7 +240,8 @@ namespace TVPApiServices
         string AddEPGComment(InitializationObject initObj, int epgProgramID, string contentText, string header, string subHeader, string writer, bool autoActive);
 
         [OperationContract]
-        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<Core.Catalog.KeyValue> orList, List<Core.Catalog.KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string orderMeta);
+        List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<Core.Catalog.KeyValue> orList, List<Core.Catalog.KeyValue> andList, 
+            int mediaType, int pageSize, int pageIndex, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir, string orderMeta);
 
         [OperationContract]
         List<string> GetEPGAutoComplete(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
@@ -249,10 +250,10 @@ namespace TVPApiServices
         List<EPGChannelProgrammeObject> SearchEPGPrograms(InitializationObject initObj, string searchText, int pageSize, int pageIndex);
 
         [OperationContract]
-        List<AssetStatsResult> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime);
+        List<AssetStatsResultDTO> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime);
 
         [OperationContract]
-        List<AssetStatsResult> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType);
+        List<AssetStatsResultDTO> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType);
 
         [OperationContract]
         List<Media> GetRecommendedMediasByTypes(InitializationObject initObj, string picSize, int pageSize, int pageIndex, int[] reqMediaTypes);
@@ -265,7 +266,7 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId,
-            ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
+            ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
 
         [OperationContract]
         bool DoesBundleContainMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, int mediaId, string mediaType);
@@ -314,7 +315,7 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleAssets(InitializationObject initObj, eBundleType bundleType, int bundleId,
-            ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
+            ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir, string mediaType, int pageIndex, int pageSize);
 
         [OperationContract]
         string AssetBookmark(InitializationObject initObj, string assetID, string assetType, long fileID, PlayerAssetData PlayerAssetData, long programId,

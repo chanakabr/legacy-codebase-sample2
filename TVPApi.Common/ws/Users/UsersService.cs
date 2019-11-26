@@ -16,6 +16,9 @@ using ClientResponseStatus = TVPApiModule.Objects.Responses.ClientResponseStatus
 using Country = Core.Users.Country;
 using InitializationObject = TVPApi.InitializationObject;
 using TVinciShared;
+using TVPApiModule.Objects.CRM;
+using ConfigurationManager;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices
 {
@@ -27,9 +30,9 @@ namespace TVPApiServices
         #region public methods
 
         [PrivateMethod]
-        public UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass)
+        public UserResponseObjectDTO ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass)
         {
-            UserResponseObject response = new UserResponseObject();
+            UserResponseObjectDTO response = new UserResponseObjectDTO();
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "ChangeUserPassword", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -37,7 +40,8 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ChangeUserPassword(sUN, sOldPass, sPass);
+                    var res = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ChangeUserPassword(sUN, sOldPass, sPass);
+                    response = UserResponseObjectDTO.ConvertToDTO(res);
                 }
                 catch (Exception ex)
                 {
@@ -220,8 +224,8 @@ namespace TVPApiServices
                 try
                 {
                     SiteService siteSvc = new SiteService();
-                    string privateKey = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidKey"];
-                    string IV = System.Configuration.ConfigurationManager.AppSettings["SecureSiteGuidIV"];
+                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     string sClearPassword = SecurityHelper.DecryptSiteGuid(privateKey, IV, sEncryptedPassword);
 
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);

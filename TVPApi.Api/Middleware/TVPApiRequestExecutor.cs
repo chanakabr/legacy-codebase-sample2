@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TVPApi.Common;
 using TVinciShared;
+using System.IO;
+using System.Net;
 
 namespace TVPApi.Web.Middleware
 {
@@ -16,10 +18,9 @@ namespace TVPApi.Web.Middleware
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private readonly RequestDelegate _Next;
-        private string _Response;
-        private readonly IHostingEnvironment _Host;
+        private readonly IWebHostEnvironment _Host;
 
-        public TVPApiRequestExecutor(RequestDelegate next, IHostingEnvironment host)
+        public TVPApiRequestExecutor(RequestDelegate next, IWebHostEnvironment host)
         {
             _Next = next;
             _Host = host;
@@ -29,21 +30,41 @@ namespace TVPApi.Web.Middleware
         {
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
+                // get action name
+                var queryString = context.Request.GetQueryString();
+
+                if (queryString != null && queryString["m"] != null)
                 {
-                    context.Items["ContentRootPath"] = _Host.ContentRootPath;
-                    context.Items["WebRootPath"] = _Host.WebRootPath;
+                    var m = queryString["m"];
+                    context.Items[KLogMonitor.Constants.ACTION] = m;
+                    KLogger.SetAction(m);
+                }
+                // get user agent
+                var userAgent = context.Request.GetUserAgentString();
 
-                    var gateway = new JsonPostGateway();
-                    var request = context.Request;
+                if (userAgent != null)
+                    context.Items[KLogMonitor.Constants.CLIENT_TAG] = userAgent;
 
-                    context.Response.OnStarting(HandleResponse, context);
+                // get host IP
+                if (context.Connection.RemoteIpAddress != null)
+                {
+                    KLogger.LogContextData[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                    context.Items[KLogMonitor.Constants.HOST_IP] = context.Connection.RemoteIpAddress;
+                }
 
-                    using (var streamReader = new HttpRequestStreamReader(request.Body, Encoding.UTF8))
-                    {
-                        var body = await streamReader.ReadToEndAsync();
-                        _Response = gateway.ProcessRequest(body);
-                    }
+                context.Items["ContentRootPath"] = _Host.ContentRootPath;
+                context.Items["WebRootPath"] = _Host.WebRootPath;
+
+                var gateway = new JsonPostGateway();
+                var request = context.Request;
+
+                context.Response.OnStarting(HandleResponse, context);
+
+                using (var streamReader = new StreamReader(request.Body, Encoding.UTF8))
+                {
+                    var body = await streamReader.ReadToEndAsync();
+                    var response = gateway.ProcessRequest(body);
+                    context.Items["TVPApi_Response"] = response;
                 }
 
                 await _Next(context);
@@ -51,7 +72,7 @@ namespace TVPApi.Web.Middleware
             catch (Exception ex)
             {
                 log.ErrorFormat("Error when processing request. error = {0}", ex);
-                _Response = "Error";
+                context.Items["TVPApi_Response"] = "Error";
             }
         }
 
@@ -59,8 +80,10 @@ namespace TVPApi.Web.Middleware
         {
             var context = ctx as HttpContext;
             var contentType = context.Response.ContentType;
+            var response = context.Items["TVPApi_Response"]?.ToString();
+
             // always mark response as 200, that's how it worked on old tvpapi
-            context.Response.StatusCode = 200;
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
             context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
 
@@ -87,15 +110,15 @@ namespace TVPApi.Web.Middleware
                 // Return an error message to client
                 if (contentType != null && contentType.Contains("xml"))
                 {
-                    string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' " + 
-                        "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error='{0}'/>" + 
+                    string xml = string.Format("<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' " +
+                        "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema'><soap:Body><Error error='{0}'/>" +
                         "</soap:Body></soap:Envelope>", sError);
-                    _Response = xml;
+                    response = xml;
                 }
                 else
                 {
                     string json = Newtonsoft.Json.JsonConvert.SerializeObject(new { Error = sError });
-                    _Response = json;
+                    response = json;
                 }
             }
 
@@ -104,20 +127,14 @@ namespace TVPApi.Web.Middleware
             {
                 context.Response.Clear();
                 context.Response.StatusCode = (int)context.Items["StatusCode"];
-
-                //if (context.Items.ContainsKey("StatusDescription"))
-                //{
-                //    context.respo.StatusDescription = context.Items["StatusDescription"].ToString();
-                //}
-                //context.Response.TrySkipIisCustomErrors = true;
             }
 
-            if (_Response == null)
+            if (response == null)
             {
-                _Response = string.Empty;
+                response = string.Empty;
             }
 
-            await context.Response.WriteAsync(_Response);
+            await context.Response.WriteAsync(response);
         }
     }
 }

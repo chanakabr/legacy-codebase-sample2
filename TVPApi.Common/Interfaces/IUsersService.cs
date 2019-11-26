@@ -10,6 +10,8 @@ using ApiObjects;
 using InitializationObject = TVPApi.InitializationObject;
 using ApiObjects.Billing;
 using UserType = ApiObjects.UserType;
+using TVPApiModule.Objects.CRM;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace TVPApiServices
 {
@@ -17,7 +19,7 @@ namespace TVPApiServices
     public interface IUsersService
     {
         [OperationContract]
-        UserResponseObject ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
+        UserResponseObjectDTO ChangeUserPassword(InitializationObject initObj, string sUN, string sOldPass, string sPass);
 
         [OperationContract]
         UserResponseObject GetUserByFacebookID(InitializationObject initObj, string facebookId);

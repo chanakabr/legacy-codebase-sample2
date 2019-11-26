@@ -8,34 +8,26 @@ using System.Text;
 using System.Threading.Tasks;
 using TVPApi.Common;
 using TVinciShared;
+using Core.Middleware;
+using System.Net;
 
 namespace TVPApi.Web.Middleware
 {
-    public class TVPApiExceptionHandler
+    public class TVPApiExceptionHandler : IApiExceptionHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private readonly RequestDelegate _Next;
-        private string _Response;
-        private readonly IHostingEnvironment _Host;
-
-        public TVPApiExceptionHandler(RequestDelegate next, IHostingEnvironment host)
+        public Task<ApiExceptionHandlerResponse> FormatErrorResponse(HttpContext context, Exception ex)
         {
-            _Next = next;
-            _Host = host;
-        }
+            log.Error("Error when processing request.", ex);
+            var response = new ApiExceptionHandlerResponse
+            {
+                ContentType = "application/json",
+                HttpStatusCode = (int)HttpStatusCode.OK,
+                Reponse = "Error",
+            };
+            return Task.FromResult(response);
 
-        public async Task InvokeAsync(HttpContext context)
-        {
-            try
-            {
-                await _Next(context);
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error when processing request.", ex);
-                _Response = "Error";
-            }
         }
     }
 }

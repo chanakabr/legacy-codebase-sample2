@@ -52,6 +52,8 @@ using EPGUnit = ApiObjects.EPGUnit;
 using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using Language = ApiObjects.Language;
+using ConfigurationManager;
+using TVPApiModule.Objects.CRM;
 
 namespace TVPApiServices
 {
@@ -179,12 +181,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    var catalogOrderObj = new ApiObjects.SearchObjects.OrderObj()
-                    {
-                        m_eOrderBy = orderObj.m_eOrderBy,
-                        m_eOrderDir = orderObj.m_eOrderDir,
-                        m_sOrderValue = orderObj.m_sOrderValue
-                    };
+                    var catalogOrderObj = orderObj?.ToCore();
                     lstMedia = MediaHelper.GetOrderedChannelMultiFilter(initObj, ChannelID, picSize, pageSize, pageIndex, groupID, catalogOrderObj, tagsMetas, cutWith);
                 }
                 catch (Exception ex)
@@ -851,8 +848,10 @@ namespace TVPApiServices
             return lstMedia;
         }
 
-        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int mediaType, int pageSize, int pageIndex, bool exact, ApiObjects.SearchObjects.OrderBy orderBy, 
-            OrderDir orderDir, string orderMeta)
+        public List<Media> SearchMediaByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, 
+            int mediaType, int pageSize, int pageIndex, bool exact, 
+            ApiObjects.SearchObjects.OrderBy orderBy,
+            ApiObjects.SearchObjects.OrderDir orderDir, string orderMeta)
         {
             List<Media> lstMedia = null;
 
@@ -1035,7 +1034,7 @@ namespace TVPApiServices
         public List<EPGChannelProgrammeObject> SearchEPG(InitializationObject initObj, string text, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy)
         {
             List<EPGChannelProgrammeObject> programs = null;
-            int searchOffsetDays = int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]);
+            int searchOffsetDays = ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SearchEPG", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -2969,8 +2968,8 @@ namespace TVPApiServices
                     int language = TextLocalizationManager.Instance.GetTextLocalization(groupId, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
                     DateTime _startTime, _endTime;
 
-                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _startTime = DateTime.UtcNow.AddDays(-ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
+                    _endTime = DateTime.UtcNow.AddDays(ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
 
                     loaderResult = new APIEPGSearchLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
                     {
@@ -3014,8 +3013,8 @@ namespace TVPApiServices
 
                     DateTime _startTime, _endTime;
 
-                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _startTime = DateTime.UtcNow.AddDays(-ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
+                    _endTime = DateTime.UtcNow.AddDays(ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
                     ;
 
                     retVal = new APIEPGAutoCompleteLoader(groupId, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, searchText, _startTime, _endTime)
@@ -3040,9 +3039,10 @@ namespace TVPApiServices
 
         #endregion
 
-        public List<AssetStatsResult> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime)
+        public List<AssetStatsResultDTO> GetAssetsStatsForTimePeriod(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType, DateTime startTime, DateTime endTime)
         {
-            List<AssetStatsResult> retVal = null;
+            
+            List<AssetStatsResultDTO> response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsStats", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3050,11 +3050,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, startTime, endTime)
+                    List<AssetStatsResult> retVal  = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, startTime, endTime)
                     {
                         Platform = initObj.Platform.ToString(),
                         DeviceId = initObj.UDID
                     }.Execute() as List<AssetStatsResult>;
+
+                    response = retVal.ConvertAll(AssetStatsResultDTO.ConvertToDTO);
                 }
                 catch (Exception ex)
                 {
@@ -3066,12 +3068,12 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return retVal;
+            return response;
         }
 
-        public List<AssetStatsResult> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType)
+        public List<AssetStatsResultDTO> GetAssetsStats(InitializationObject initObj, int pageSize, int pageIndex, List<int> assetsIDs, StatsType assetType)
         {
-            List<AssetStatsResult> retVal = null;
+            List<AssetStatsResultDTO> response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsStats", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3079,12 +3081,13 @@ namespace TVPApiServices
             {
                 try
                 {
-                    retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, DateTime.MinValue, DateTime.MaxValue)
+                    List<AssetStatsResult> retVal = new AssetStatsLoader(groupId, SiteHelper.GetClientIP(), pageSize, pageIndex, assetsIDs, assetType, DateTime.MinValue, DateTime.MaxValue)
                     {
                         Platform = initObj.Platform.ToString(),
                         DeviceId = initObj.UDID,
                         SiteGuid = initObj.SiteGuid
                     }.Execute() as List<AssetStatsResult>;
+                    response = retVal.ConvertAll(AssetStatsResultDTO.ConvertToDTO);
                 }
                 catch (Exception ex)
                 {
@@ -3096,7 +3099,7 @@ namespace TVPApiServices
                 HttpContext.Current.Items["Error"] = "Unknown group";
             }
 
-            return retVal;
+            return response;
         }
 
         public List<EPGChannelProgrammeObject> SearchEPGByAndOrList(InitializationObject initObj, List<KeyValue> orList, List<KeyValue> andList, int pageSize, int pageIndex)
@@ -3113,8 +3116,8 @@ namespace TVPApiServices
                     int language = TextLocalizationManager.Instance.GetTextLocalization(groupID, initObj.Platform).GetLanguageDBID(initObj.Locale.LocaleLanguage);
                     DateTime _startTime, _endTime;
 
-                    _startTime = DateTime.UtcNow.AddDays(-int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
-                    _endTime = DateTime.UtcNow.AddDays(int.Parse(System.Configuration.ConfigurationManager.AppSettings["EPGSearchOffsetDays"]));
+                    _startTime = DateTime.UtcNow.AddDays(-ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
+                    _endTime = DateTime.UtcNow.AddDays(ApplicationConfiguration.TVPApiConfiguration.EPGSearchOffsetDays.IntValue);
 
                     loaderResult = new APIEPGSearchLoader(groupID, initObj.Platform.ToString(), SiteHelper.GetClientIP(), pageSize, pageIndex, andList, orList, true, _startTime, _endTime)
                     {
@@ -3175,7 +3178,9 @@ namespace TVPApiServices
 
         #region Collections
 
-        public List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
+        public List<Media> GetBundleMedia(InitializationObject initObj, eBundleType bundleType, int bundleId,
+            ApiObjects.SearchObjects.OrderBy orderBy,
+            ApiObjects.SearchObjects.OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
         {
             List<Media> lstMedia = null;
 
@@ -3187,7 +3192,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    OrderObj orderObj = new OrderObj()
+                    var orderObj = new ApiObjects.SearchObjects.OrderObj()
                     {
                         m_eOrderDir = orderDir,
                         m_eOrderBy = orderBy
@@ -3290,7 +3295,7 @@ namespace TVPApiServices
 
 
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetBundleAssets(InitializationObject initObj, eBundleType bundleType, int bundleId,
-            ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
+            ApiObjects.SearchObjects.OrderBy orderBy, ApiObjects.SearchObjects.OrderDir orderDir, string mediaType, int pageIndex, int pageSize)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 
@@ -3302,7 +3307,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    OrderObj orderObj = new OrderObj()
+                    ApiObjects.SearchObjects.OrderObj orderObj = new ApiObjects.SearchObjects.OrderObj()
                     {
                         m_eOrderDir = orderDir,
                         m_eOrderBy = orderBy
@@ -3563,14 +3568,14 @@ namespace TVPApiServices
                         return response;
                     }
 
-                    OrderObj order = null;
+                    ApiObjects.SearchObjects.OrderObj order = null;
 
                     if (string.IsNullOrEmpty(order_by))
                     {
-                        order = new OrderObj()
+                        order = new ApiObjects.SearchObjects.OrderObj()
                         {
                             m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RELATED,
-                            m_eOrderDir = OrderDir.DESC
+                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                         };
                     }
                     else
@@ -3663,49 +3668,49 @@ namespace TVPApiServices
         /// </summary>
         /// <param name="order_by"></param>
         /// <returns></returns>
-        private static OrderObj CreateOrderObject(string order_by)
+        private static ApiObjects.SearchObjects.OrderObj CreateOrderObject(string order_by)
         {
             string orderBy = order_by.ToLower();
 
-            OrderObj order = new OrderObj();
+            ApiObjects.SearchObjects.OrderObj order = new ApiObjects.SearchObjects.OrderObj();
 
             switch (orderBy)
             {
                 case "a_to_z":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NAME;
-                    order.m_eOrderDir = OrderDir.ASC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 case "z_to_a":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NAME;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "views":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.VIEWS;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "ratings":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RATING;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "votes":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.VOTES_COUNT;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "newest":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "relevancy":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RELATED;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "likes":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER;
-                    order.m_eOrderDir = OrderDir.DESC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
                 case "oldest_first":
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE;
-                    order.m_eOrderDir = OrderDir.ASC;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
                     break;
                 default:
                     order = null;
@@ -3733,14 +3738,14 @@ namespace TVPApiServices
                     }
 
                     // Translate order by string to order object
-                    OrderObj order = null;
+                    ApiObjects.SearchObjects.OrderObj order = null;
 
                     if (string.IsNullOrEmpty(order_by))
                     {
-                        order = new OrderObj()
+                        order = new ApiObjects.SearchObjects.OrderObj()
                         {
                             m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
-                            m_eOrderDir = OrderDir.DESC
+                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                         };
                     }
                     else
@@ -3885,7 +3890,7 @@ namespace TVPApiServices
 
                     // fire request
                     response = new APIWatchHistoryLoader(groupId, initObj.Platform, initObj.DomainID, SiteHelper.GetClientIP(), page_size, (int)page_index,
-                        filter_types, filter_status, with, (int)days, OrderDir.DESC)
+                        filter_types, filter_status, with, (int)days, ApiObjects.SearchObjects.OrderDir.DESC)
                     {
                         SiteGuid = initObj.SiteGuid,
                         DomainId = initObj.DomainID
@@ -3968,14 +3973,14 @@ namespace TVPApiServices
 
                     #region Order
 
-                    OrderObj order = null;
+                    ApiObjects.SearchObjects.OrderObj order = null;
 
                     if (string.IsNullOrEmpty(order_by))
                     {
-                        order = new OrderObj()
+                        order = new ApiObjects.SearchObjects.OrderObj()
                         {
                             m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE,
-                            m_eOrderDir = OrderDir.DESC
+                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                         };
                     }
                     else

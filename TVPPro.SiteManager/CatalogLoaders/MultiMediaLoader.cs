@@ -13,6 +13,7 @@ using TVPPro.Configuration.PlatformServices;
 using Core.Catalog.Response;
 using ApiObjects.SearchObjects;
 using Core.Catalog;
+//using TVPApiModule.Manager;
 
 namespace TVPPro.SiteManager.CatalogLoaders
 {
@@ -122,8 +123,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
             }
             else
             {
-                string fileFormat = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
-                string subFileFormat = (TechnicalConfiguration.Instance.Data.TVM.FlashVars.SubFileFormat.Split(';')).FirstOrDefault();
+                string fileFormat = this.FlashVarsFileFormat;
+                string subFileFormat = this.FlashVarsSubFileFormat.Split(';').FirstOrDefault();
                 retVal = CatalogHelper.MediaObjToDsItemInfo(medias, PicSize, fileFormat, subFileFormat);
 
                 // If Channel - Add Channel data

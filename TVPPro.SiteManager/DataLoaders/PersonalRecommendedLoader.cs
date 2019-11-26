@@ -143,7 +143,7 @@ namespace TVPPro.SiteManager.DataLoaders
             protocol.root.flashvars.player_un = m_tvmUser;
             protocol.root.flashvars.player_pass = m_tvmPass;
             
-            protocol.root.flashvars.file_format = TechnicalConfiguration.Instance.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = this.FlashVarsFileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
             protocol.root.flashvars.zip = "0";
 

@@ -199,7 +199,7 @@ namespace TVPApi
             protocol.root.request.@params.with_info = "true";
             protocol.root.flashvars.player_un = TvmUser;
             protocol.root.flashvars.player_pass = TvmPass;
-            protocol.root.flashvars.file_format = ConfigManager.GetInstance().GetConfig(GroupID, Platform).TechnichalConfiguration.Data.TVM.FlashVars.FileFormat;
+            protocol.root.flashvars.file_format = GroupsManager.GetGroup(GroupID).GetFlashVars(Platform).FileFormat;
             protocol.root.flashvars.file_quality = file_quality.high;
             protocol.root.request.@params.info_struct.type.MakeSchemaCompliant();
             protocol.root.request.@params.info_struct.description.MakeSchemaCompliant();
