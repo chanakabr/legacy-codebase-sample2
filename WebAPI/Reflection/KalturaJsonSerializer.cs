@@ -13163,6 +13163,26 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaRegionChildrenCountFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
     public partial class KalturaRelatedEntity
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -17427,6 +17447,7 @@ namespace WebAPI.Models.API
             }
             ret.Add("liveAssetIdEqual", "\"liveAssetIdEqual\": " + LiveAssetIdEqual);
             ret.Add("parentIdEqual", "\"parentIdEqual\": " + ParentIdEqual);
+            ret.Add("parentOnly", "\"parentOnly\": " + ParentOnly.ToString().ToLower());
             return ret;
         }
         
@@ -17446,6 +17467,7 @@ namespace WebAPI.Models.API
             }
             ret.Add("liveAssetIdEqual", "<liveAssetIdEqual>" + LiveAssetIdEqual + "</liveAssetIdEqual>");
             ret.Add("parentIdEqual", "<parentIdEqual>" + ParentIdEqual + "</parentIdEqual>");
+            ret.Add("parentOnly", "<parentOnly>" + ParentOnly.ToString().ToLower() + "</parentOnly>");
             return ret;
         }
     }

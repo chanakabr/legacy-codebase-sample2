@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -43,9 +44,19 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "liveAssetIdEqual")]
         public int LiveAssetIdEqual { get; set; }
 
+        /// <summary>
+        /// Parent region to filter by
+        /// </summary>
+        [DataMember(Name = "parentOnly")]
+        [JsonProperty("parentOnly")]
+        [XmlElement(ElementName = "parentOnly")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public bool ParentOnly { get; set; }
+
 
         public void Validate()
         {
+
             if ((!string.IsNullOrEmpty(ExternalIdIn) && (!string.IsNullOrEmpty(IdIn) || ParentIdEqual > 0)) ||
                 (!string.IsNullOrEmpty(IdIn) && (!string.IsNullOrEmpty(ExternalIdIn) || ParentIdEqual > 0)) ||
                 (ParentIdEqual > 0 && (!string.IsNullOrEmpty(IdIn) || !string.IsNullOrEmpty(ExternalIdIn))))

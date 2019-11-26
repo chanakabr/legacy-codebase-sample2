@@ -5127,6 +5127,8 @@ namespace WebAPI.Reflection
                             return "liveAssetIdEqual";
                         case "ParentIdEqual":
                             return "parentIdEqual";
+                        case "ParentOnly":
+                            return "parentOnly";
                     }
                     break;
                     

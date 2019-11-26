@@ -1403,6 +1403,9 @@ namespace WebAPI.Reflection
                 case "KalturaRegionalChannel":
                     return new KalturaRegionalChannel(parameters);
                     
+                case "KalturaRegionChildrenCountFilter":
+                    return new KalturaRegionChildrenCountFilter(parameters);
+                    
                 case "KalturaRegionFilter":
                     return new KalturaRegionFilter(parameters);
                     
@@ -14062,6 +14065,12 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaRegionChildrenCountFilter
+    {
+        public KalturaRegionChildrenCountFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaRelatedEntity
     {
         public KalturaRelatedEntity(Dictionary<string, object> parameters = null) : base(parameters)
@@ -17705,6 +17714,10 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("liveAssetIdEqual") && parameters["liveAssetIdEqual"] != null)
                 {
                     LiveAssetIdEqual = (Int32) Convert.ChangeType(parameters["liveAssetIdEqual"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("parentOnly") && parameters["parentOnly"] != null)
+                {
+                    ParentOnly = (Boolean) Convert.ChangeType(parameters["parentOnly"], typeof(Boolean));
                 }
             }
         }

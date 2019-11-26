@@ -462,6 +462,11 @@ namespace ApiLogic.Api.Managers
                             result.TotalItems = result.Objects.Count;
                         }
                     }
+                    else if (filter.ParentOnly)
+                    {
+                        result.Objects = regionsCache.Regions.Where( x => x.Value.parentId == 0).Select(x => x.Value).ToList();
+                        result.TotalItems = result.Objects.Count;
+                    }
 
                     if (result.Status.Code == (int)eResponseStatus.OK && result.Objects?.Count > 0)
                     {
@@ -593,6 +598,7 @@ namespace ApiLogic.Api.Managers
                             foreach (var key in regionsCache.ParentIdsToRegionIdsMapping.Keys)
                             {
                                 Region parent = regionsCache.Regions[key];
+                                parent.childrenCount = regionsCache.ParentIdsToRegionIdsMapping[key].Count;
                                 foreach (var item in regionsCache.ParentIdsToRegionIdsMapping[key])
                                 {
                                     regionsCache.Regions[item].linearChannels = parent.linearChannels;

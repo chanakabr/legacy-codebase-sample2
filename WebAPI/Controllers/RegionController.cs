@@ -5,6 +5,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -25,10 +26,11 @@ namespace WebAPI.Controllers
             KalturaRegionListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
 
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter);
+                response = ClientsManager.ApiClient().GetRegions(groupId, filter, responseProfile);
             }
             catch (ClientException ex)
             {
