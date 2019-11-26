@@ -119,7 +119,9 @@ pipeline {
         }
     }
     post {
-        report()
+        always {
+            report()
+        }
     }
 
    
