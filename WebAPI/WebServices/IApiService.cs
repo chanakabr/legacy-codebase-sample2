@@ -234,6 +234,8 @@ namespace WebAPI.WebServices
         [OperationContract]
         bool IncrementLayeredCacheGroupConfigVersion(string sWSUserName, string sWSPassword);
         [OperationContract]
+        Status ClearLocalServerCache(string sWSUserName, string sWSPassword, string action, string key);
+        [OperationContract]
         bool InitializeFreeItemsUpdate(string userName, string password);
         [OperationContract]
         CDNAdapterResponse InsertCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter);
