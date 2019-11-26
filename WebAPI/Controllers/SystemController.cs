@@ -133,6 +133,7 @@ namespace WebAPI.Controllers
         /// <param name="key">key to get in case you send action getKey</param>
         /// <returns></returns>
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Action(name: "clearLocalServerCache", isInternal: true)]
         static public bool ClearLocalServerCache(string action = null, string key = null)
         {
@@ -158,6 +159,7 @@ namespace WebAPI.Controllers
         /// <param name="groupId">groupId</param>
         /// <returns></returns>
         [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Action(name: "incrementLayeredCacheGroupConfigVersion", isInternal: true)]
         static public bool IncrementLayeredCacheGroupConfigVersion(int groupId = 0)
         {
