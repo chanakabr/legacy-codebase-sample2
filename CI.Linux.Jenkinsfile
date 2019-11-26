@@ -64,5 +64,19 @@ pipeline {
                 sh(label: "Push Image", script: "docker push ${ECR_REPOSITORY}:${GIT_COMMIT}")
             }
         }
+
+        stage('Trigger Release Candidate'){
+            build job: 'OTT-BE-Create-Release-Candidate', parameters: [
+                                                string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"),
+                                                ], wait: false
+
+        }
+    }
+    post {
+        stage('Report To Dynamo'){
+            configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+            def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ", returnStdout: true)
+            echo "${report}"
+        }
     }
 }
