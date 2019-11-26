@@ -1,6 +1,5 @@
 ﻿using KLogMonitor;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -13,6 +12,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using WebAPI.App_Start;
 using WebAPI.Filters;
+using Microsoft.AspNetCore.ConcurrencyLimiter;
+using Core.Middleware;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -20,6 +21,8 @@ namespace Phoenix.Rest.Middleware
 
     public static class PhoenixMiddleware
     {
+        
+
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
@@ -27,26 +30,32 @@ namespace Phoenix.Rest.Middleware
         /// </summary>
         public static IServiceCollection ConfigurePhoenix(this IServiceCollection services)
         {
+            services.AddCoreConcurrencyLimiter();
             services.AddHttpContextAccessor();
-            services.AddKalturaApplicationSessionContext();
+            services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
-
+            services.AddApiExceptionHandler<PhoenixExceptionHandler>();
             return services;
         }
 
+        
         /// <summary>
         /// Using custom middleware for Phoenix Api convention
         /// </summary>
         public static IApplicationBuilder UsePhoenix(this IApplicationBuilder app)
         {
-            app.UseMiddleware<PhoenixExceptionHandler>();
             AutoMapperConfig.RegisterMappings();
-            app.UseMiddleware<PhoenixSessionId>();
-            app.UseMiddleware<PhoenixCors>();
+
+            app.UseCoreConcurrencyLimiter();
+            app.UseApiExceptionHandler();
+            app.UseKloggerSessionIdBuilder();
+            app.UseRequestLogger();
+            app.EnablePublicCors();
             app.UseMiddleware<PhoenixRequestContextBuilder>();
             app.UseMiddleware<PhoenixRequestExecutor>();
             return app;
         }
+
     }
 }
 

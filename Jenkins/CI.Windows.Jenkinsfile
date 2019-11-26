@@ -3,7 +3,7 @@ pipeline {
         label 'Windows'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
     }
     environment {
@@ -88,7 +88,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp2.0"){
+                    dir("bin/Release/netcoreapp3.0"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
@@ -114,7 +114,11 @@ pipeline {
         }
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
-            when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ }}
+            when {
+                expression {
+                    return BRANCH_NAME =~ /\d+_\d+_\d+$/ 
+                    }        
+            }
             steps{
                 dir("clients-generator"){
                     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
@@ -167,7 +171,8 @@ pipeline {
 
 def report(){
     configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult}", returnStdout: true)
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "cd tvpapi_rest && git rev-parse HEAD", returnStdout: true).trim();
+    def report = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
     echo "${report}"
     // return report
 }
