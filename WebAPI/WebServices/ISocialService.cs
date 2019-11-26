@@ -40,7 +40,7 @@ namespace WebAPI.WebServices
         [OperationContract]
         FacebookResponse FBUserMergeByUserId(string sWSUserName, string sWSPassword, string userId, string token);
         [OperationContract]
-        FacebookResponse FBUserRegister(string sWSUserName, string sWSPassword, string token, List<KeyValuePair> extra, string sUserIP);
+        FacebookResponse FBUserRegister(string sWSUserName, string sWSPassword, string token, List<ApiObjects.KeyValuePair> extra, string sUserIP);
         [OperationContract]
         FBSignin FBUserSignin(string sWSUserName, string sWSPassword, string token, string sIP, string deviceID, bool bPreventDoubleLogins);
         [OperationContract]

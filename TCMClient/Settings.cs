@@ -7,12 +7,52 @@ using Newtonsoft.Json.Linq;
 using System.Configuration;
 using System.Reflection;
 using KLogMonitor;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 
 namespace TCMClient
 {
     public class Settings
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());       
+        private static readonly HttpClient httpClient;
+
+        static Settings()
+        {
+            SslProtocols enabledSslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
+            DecompressionMethods enabledDecompressionMethod = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            int maxConnectionsPerServer = 5;
+            bool checkCertificateRevocationList = false;
+            System.TimeSpan timeout = System.TimeSpan.FromMilliseconds(100000);
+
+#if NETCOREAPP3_0
+            SocketsHttpHandler httpHandler = new SocketsHttpHandler() { SslOptions = new System.Net.Security.SslClientAuthenticationOptions() };
+            httpHandler.SslOptions.EnabledSslProtocols = enabledSslProtocols;
+            httpHandler.AutomaticDecompression = enabledDecompressionMethod;
+            httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
+            httpHandler.SslOptions.CertificateRevocationCheckMode = checkCertificateRevocationList ? X509RevocationMode.Online : X509RevocationMode.NoCheck;
+            if (!checkCertificateRevocationList)
+            {
+                httpHandler.SslOptions.RemoteCertificateValidationCallback = delegate { return true; };
+            }
+
+            httpClient = new HttpClient(httpHandler) { Timeout = timeout };
+#elif NETFRAMEWORK
+            HttpClientHandler httpHandler = new HttpClientHandler() { SslProtocols = new SslProtocols() };
+            httpHandler.SslProtocols = enabledSslProtocols;
+            httpHandler.AutomaticDecompression = enabledDecompressionMethod;
+            httpHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
+            httpHandler.CheckCertificateRevocationList = checkCertificateRevocationList;
+            if (!checkCertificateRevocationList)
+            {
+                httpHandler.ServerCertificateCustomValidationCallback = delegate { return true; };
+            }
+
+            httpClient = new HttpClient(httpHandler) { Timeout = timeout };
+#endif
+        }
 
         private static readonly object locker = new object();
         private static Settings _Instance;
@@ -206,8 +246,6 @@ namespace TCMClient
         {
             string settings = null;
 
-            HttpWebResponse httpWebResponse = null;
-
             try
             {
                 if (!m_VerifySSL)
@@ -218,18 +256,12 @@ namespace TCMClient
 
                 string tcmRequesturl = $"{m_URL}/{m_Application}/{m_Host}/{m_Environment}?app_id={m_AppID}&app_secret={m_AppSecret}";
                 _Logger.Info($"Issuing TCM (GET) [{tcmRequesturl}]");
-                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(tcmRequesturl);
-                httpWebRequest.Method = "GET";
-                httpWebRequest.ContentType = "application/json";
-                httpWebRequest.Timeout = 10000;
 
-                httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                _Logger.Info($"TCM Response Status: ({httpWebResponse.StatusCode}) [{httpWebResponse.StatusDescription}]");
+                var response = Task.Run(() => httpClient.GetAsync(tcmRequesturl)).ConfigureAwait(false).GetAwaiter().GetResult();
 
-                using (StreamReader sr = new StreamReader(httpWebResponse.GetResponseStream()))
-                {
-                    settings = sr.ReadToEnd();
-                }
+                _Logger.Info($"TCM Response Status: ({response.StatusCode})");
+
+                settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
 
                 string pathToLocalFile = getPathToLocalFile();
 
@@ -241,11 +273,6 @@ namespace TCMClient
             catch (Exception e)
             {
                 _Logger.Error($"Error while trying to get TCM data:", e);
-            }
-            finally
-            {
-                if (httpWebResponse != null)
-                    httpWebResponse.Close();
             }
 
             return settings;

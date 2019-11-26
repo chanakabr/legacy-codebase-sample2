@@ -13,6 +13,7 @@ using ApiObjects.SSOAdapter;
 using APILogic.Users;
 using DAL;
 using APILogic.Api.Managers;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
 {

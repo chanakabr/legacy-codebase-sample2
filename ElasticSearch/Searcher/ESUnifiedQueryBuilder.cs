@@ -16,7 +16,7 @@ namespace ElasticSearch.Searcher
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) { 
+        protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) {
                 "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
 
         public static readonly string AND_CONDITION = "AND";
@@ -56,7 +56,7 @@ namespace ElasticSearch.Searcher
         #region Data Members
 
         protected static int MAX_RESULTS;
-        
+
         public UnifiedSearchDefinitions SearchDefinitions
         {
             get;
@@ -116,6 +116,11 @@ namespace ElasticSearch.Searcher
         }
 
         public bool GetAllDocuments
+        {
+            get;
+            set;
+        }
+        public bool ShouldPageGroups
         {
             get;
             set;
@@ -332,7 +337,7 @@ namespace ElasticSearch.Searcher
                     {
                         int size = 0;
 
-                        if (this.GetAllDocuments)
+                        if (this.GetAllDocuments && !ShouldPageGroups)
                         {
                             size = -1;
                         }

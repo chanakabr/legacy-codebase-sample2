@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Web;
 using APILogic.ConditionalAccess.Modules;
 using ApiObjects.ConditionalAccess;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Billing
 {

@@ -48,42 +48,42 @@ namespace EventBus.RabbitMQ
         
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
-            var publishRetryPolicy = GetRetryPolicyForEventPublishing();
-
-            using (var channel = _PersistentConnection.CreateModel())
+            bool shouldSupportEventBusMessages = ApplicationConfiguration.ShouldSupportEventBusMessages.Value;
+            if (shouldSupportEventBusMessages || ContainsIngestV2Event(serviceEvents))
             {
-                channel.ConfirmSelect();
-                channel.BasicAcks += (o, e) =>
+                var publishRetryPolicy = GetRetryPolicyForEventPublishing();
+                using (var channel = _PersistentConnection.CreateModel())
                 {
-                    _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
-                };
-
-                foreach (var serviceEvent in serviceEvents)
-                {
-                    #region please dont look here
-                    // This is a workaround until we kill celery totaly and move to event-bus
-                    // right now we have to prevent sending event bus messages according to TCM Value 
-                    // but if its an ingest V2 event then it should pass regradless of TCM config
-                    var isIngestV2Event = serviceEvent is BulkUploadEvent ||
-                        serviceEvent is BulkUploadIngestEvent ||
-                        serviceEvent is BulkUploadIngestValidationEvent ||
-                        serviceEvent is BulkUploadTransformationEvent;
-                    #endregion
-
-                    if (!isIngestV2Event && !ApplicationConfiguration.ShouldSupportEventBusMessages.Value)
+                    channel.ConfirmSelect();
+                    channel.BasicAcks += (o, e) =>
                     {
-                        _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvent.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
-                        continue;
+                        _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
+                    };
+
+                    foreach (var serviceEvent in serviceEvents)
+                    {
+                        #region please dont look here
+                        // This is a workaround until we kill celery totaly and move to event-bus
+                        // right now we have to prevent sending event bus messages according to TCM Value 
+                        // but if its an ingest V2 event then it should pass regradless of TCM config
+                        bool isIngestV2Event = IsIngestV2Event(serviceEvent);
+                        #endregion
+
+                        if (!shouldSupportEventBusMessages && !isIngestV2Event)
+                        {
+                            _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvent.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
+                            continue;
+                        }
+
+                        var eventName = ServiceEvent.GetEventName(serviceEvent);
+                        var message = JsonConvert.SerializeObject(serviceEvent);
+                        var body = Encoding.UTF8.GetBytes(message);
+
+                        publishRetryPolicy.Execute(() =>
+                        {
+                            PublishEvent(channel, eventName, body, message);
+                        });
                     }
-
-                    var eventName = ServiceEvent.GetEventName(serviceEvent);
-                    var message = JsonConvert.SerializeObject(serviceEvent);
-                    var body = Encoding.UTF8.GetBytes(message);
-
-                    publishRetryPolicy.Execute(() =>
-                    {
-                        PublishEvent(channel, eventName, body, message);
-                    });
                 }
             }
         }
@@ -108,6 +108,29 @@ namespace EventBus.RabbitMQ
                     _Logger.Warn(ex.ToString());
                     _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next publish retry");
                 });
+        }
+
+        private bool ContainsIngestV2Event(IEnumerable<ServiceEvent> serviceEvents)
+        {
+            bool result = false;
+            foreach (ServiceEvent serviceEvent in serviceEvents)
+            {
+                result = IsIngestV2Event(serviceEvent);
+                if (result)
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        private bool IsIngestV2Event(ServiceEvent serviceEvent)
+        {
+            return serviceEvent is BulkUploadEvent ||
+                    serviceEvent is BulkUploadIngestEvent ||
+                    serviceEvent is BulkUploadIngestValidationEvent ||
+                    serviceEvent is BulkUploadTransformationEvent;
         }
     }
 }

@@ -1153,6 +1153,18 @@ namespace Core.Catalog
                 {
                     unifiedSearchDefinitions.topHitsCount = 1;
                 }
+
+                if (unifiedSearchDefinitions.topHitsCount > 0)
+                {
+                    // BEO-7134: I already lost track of the logic in this class and in query builder.
+                    // When asking all documents, paging of top hits buckets is not working because:
+                    // if (this.GetAllDocuments)
+                    // {
+                    //     size = -1;
+                    // }
+                    // 
+                    queryParser.ShouldPageGroups = true;
+                }
             }
             else
             {
@@ -1420,11 +1432,11 @@ namespace Core.Catalog
 
                 if (doc.extraReturnFields != null)
                 {
-                    (result as ExtendedSearchResult).ExtraFields = new List<KeyValuePair>();
+                    (result as ExtendedSearchResult).ExtraFields = new List<ApiObjects.KeyValuePair>();
 
                     foreach (var field in doc.extraReturnFields)
                     {
-                        (result as ExtendedSearchResult).ExtraFields.Add(new KeyValuePair()
+                        (result as ExtendedSearchResult).ExtraFields.Add(new ApiObjects.KeyValuePair()
                         {
                             key = field.Key,
                             value = field.Value

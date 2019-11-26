@@ -438,7 +438,7 @@ namespace WebAPI.Clients
             bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
             // check if aggregation result have values 
             if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0 &&
-                searchResponse.aggregationResults[0].results != null && searchResponse.aggregationResults[0].results.Count > 0 && responseProfile != null)
+                searchResponse.aggregationResults[0].results != null && responseProfile != null)
             {
                 if (doesGroupUsesTemplates)
                 {

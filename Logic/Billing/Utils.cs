@@ -19,7 +19,7 @@ using Core.Users;
 using ConfigurationManager;
 using TVinciShared;
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_0
 using Microsoft.AspNetCore.Http;
 #endif
 

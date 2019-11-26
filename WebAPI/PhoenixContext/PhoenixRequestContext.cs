@@ -20,6 +20,11 @@ namespace Phoenix.Context
         public string Service { get; set; }
         public string Action { get; set; }
         public string PathData { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Service}.{Action}";
+        }
     }
 
 
@@ -33,6 +38,9 @@ namespace Phoenix.Context
         public DateTime? RequestDate { get; set; } = DateTime.UtcNow;
         public int? GroupId { get; set; }
         public int? UserId { get; set; }
+        
+        // Cant log out ip address
+        [JsonIgnore]
         public string UserIpAdress { get; set; }
         public KS Ks { get; set; }
         public RequestRouteData RouteData { get; set; }
@@ -43,6 +51,9 @@ namespace Phoenix.Context
         public bool? AbortOnError { get; set; }
         public bool? AbortAllOnError { get; set; }
         public bool? SkipCondition { get; set; }
+        
+        // Might have PII cant log it
+        [JsonIgnore]
         public List<object> ActionParams { get; set; } = new List<object>();
         public bool IsMultiRequest => RouteData?.Service?.Equals("Multirequest", StringComparison.OrdinalIgnoreCase) == true;
         public IEnumerable<PhoenixRequestContext> MultiRequetContexts { get; set; } = new List<PhoenixRequestContext>();

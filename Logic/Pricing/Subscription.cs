@@ -8,6 +8,7 @@ using DAL;
 using ApiObjects.Pricing;
 using KLogMonitor;
 using System.Reflection;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Pricing
 {
@@ -42,7 +43,7 @@ namespace Core.Pricing
         public ServiceObject[] m_lServices;
         public int m_GracePeriodMinutes;
         public bool BlockCancellation;
-        public DateTime? PreSaleDate;
+        public DateTime? PreSaleDate;        
 
         public List<KeyValuePair> SubscriptionSetIdsToPriority; // N/A or AddOn  ==> contains set ids that this subscription belongs to <set_id, priority>
                                                                 // Base ==> as above with only one set_id

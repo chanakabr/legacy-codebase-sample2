@@ -17,7 +17,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.Clients
 {

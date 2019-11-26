@@ -11,9 +11,13 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using KLogMonitor;
 using TVinciShared;
+using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [Service("system")]
     public class SystemController : IKalturaController
     {
@@ -85,6 +89,95 @@ namespace WebAPI.Controllers
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersionInfo.FileVersion;
+        }
+
+        /// <summary>
+        /// Gets the current level of the KLogger
+        /// </summary>
+        /// <returns></returns>
+        [Action(name:"getLogLevel", isInternal:true)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        static public string GetLogLevel()
+        {
+            return KLogger.GetLogLevel().ToString();
+        }
+
+        /// <summary>
+        /// Sets the current level of the KLogger
+        /// </summary>
+        /// <param name="level">Possible levels: trace, debug, info, warning, error, all</param>
+        /// <returns></returns>
+        [Action(name: "setLogLevel", isInternal: true)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        static public bool SetLogLevel(KalturaLogLevel level)
+        {
+            try
+            {
+                var loggerLevel = WebAPI.ObjectsConvertor.Mapping.GeneralMappings.ConvertLogLevel(level);
+                KLogger.SetLogLevel(loggerLevel);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error setting log level. ex = {ex}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Clear local server cache
+        /// </summary>
+        /// <param name="action">action to perform, possible values: clear_all / keys / getKey</param>
+        /// <param name="key">key to get in case you send action getKey</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Action(name: "clearLocalServerCache", isInternal: true)]
+        static public bool ClearLocalServerCache(string action = null, string key = null)
+        {
+            try
+            {
+                if (action == null)
+                {
+                    action = "clear_all";
+                }
+
+                return ClientsManager.ApiClient().ClearLocalServerCache(action, key);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error ClearLocalServerCache. ex = {ex}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if version has been incremented successfully or false otherwise. You need to send groupId only if you wish to increment for a specific groupId and not the one the KS belongs to.
+        /// </summary>
+        /// <param name="groupId">groupId</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Action(name: "incrementLayeredCacheGroupConfigVersion", isInternal: true)]
+        static public bool IncrementLayeredCacheGroupConfigVersion(int groupId = 0)
+        {
+            try
+            {                
+                int groupIdToIncrement = KS.GetFromRequest().GroupId;
+                if (groupId > 0)
+                {
+                    groupIdToIncrement = groupId;
+                }
+
+                return ClientsManager.ApiClient().IncrementLayeredCacheGroupConfigVersion(groupIdToIncrement);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error IncrementLayeredCacheGroupConfigVersion. ex = {ex}");
+                return false;
+            }
         }
     }
 }

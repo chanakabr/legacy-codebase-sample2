@@ -17,6 +17,7 @@ using SSOAdapterUserType = APILogic.SSOAdapaterService.UserType;
 using System.Web;
 using APILogic.Users;
 using TVinciShared;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
 {
@@ -324,7 +325,16 @@ namespace Core.Users
         private static void ExtendUserWithSSOUser(SSOAdapaterUser userData, ref User ioUser)
         {
             ioUser = ioUser ?? new User();
-            var dynamicData = userData.DynamicData.Select(kv => new UserDynamicDataContainer { m_sDataType = kv.Key, m_sValue = kv.Value }).ToArray();
+
+            UserDynamicDataContainer[] dynamicData = null;
+            if (userData.DynamicData != null)
+            {
+                dynamicData = userData.DynamicData?.Select(kv => new UserDynamicDataContainer { m_sDataType = kv.Key, m_sValue = kv.Value }).ToArray();
+            }
+            else
+            {
+                dynamicData = new UserDynamicDataContainer[] { };
+            }
 
             ioUser.Id = userData.Id;
             ioUser.m_oBasicData = new UserBasicData

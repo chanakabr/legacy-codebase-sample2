@@ -149,6 +149,8 @@ namespace ConfigurationManager
         public static BooleanConfigurationValue ShouldAddInvalidationKeysToHeader;
         public static AdaptersConfiguration AdaptersConfiguration;
         public static NumericConfigurationValue LogReloadInterval;
+        public static StringConfigurationValue LogConfigurationDocumentKey;
+        public static HttpClientConfiguration HttpClientConfiguration;
 
         #endregion
 
@@ -642,8 +644,18 @@ namespace ConfigurationManager
             LogReloadInterval = new NumericConfigurationValue("log_reload_interval")
             {
                 ShouldAllowEmpty = true,
-                DefaultValue = 300000,
+                DefaultValue = 0,
                 Description = "Interval of reloading the KLogger configuration from Couchbase, in milliseconds."
+            };
+            LogConfigurationDocumentKey = new StringConfigurationValue("log_configuration_document_key")
+            {
+                ShouldAllowEmpty = true,
+                DefaultValue = "phoenix_log_configuration",
+                Description = "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config"
+            };
+            HttpClientConfiguration = new HttpClientConfiguration("http_client_configuration")
+            {
+                ShouldAllowEmpty = true
             };
 
             allConfigurationValues = new List<ConfigurationValue>()
@@ -762,7 +774,8 @@ namespace ConfigurationManager
                     ShouldSupportCeleryMessages,
                     ShouldSupportEventBusMessages,
                     ShouldRecoverSubscriptionRenewalToMessageBus,
-                    LogReloadInterval
+                    LogReloadInterval,
+                    HttpClientConfiguration
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

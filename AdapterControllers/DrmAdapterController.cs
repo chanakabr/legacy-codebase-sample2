@@ -80,7 +80,7 @@ namespace AdapterControllers
 
         public ServiceClient GetDRMAdapterServiceClient(string adapterUrl)
         {
-            log.Debug($"Constructing GetCDNAdapterServiceClient Client with url:[{adapterUrl}]");
+            log.Debug($"Constructing GetDRMAdapterServiceClient Client with url:[{adapterUrl}]");
             var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
             adapterClient.ConfigureServiceClient();
