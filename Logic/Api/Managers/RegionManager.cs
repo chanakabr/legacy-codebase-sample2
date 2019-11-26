@@ -413,7 +413,7 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
+        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0 )
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
 
@@ -478,6 +478,8 @@ namespace ApiLogic.Api.Managers
                         {
                             result.Objects = result.Objects.OrderByDescending(r => r.createDate).ToList();
                         }
+
+                        result.Objects = pageSize > 0 ? result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList() : result.Objects;
                     }
                 }
             }

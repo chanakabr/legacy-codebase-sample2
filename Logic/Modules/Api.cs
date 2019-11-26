@@ -805,11 +805,11 @@ namespace Core.Api
             return Core.Api.api.GetMediaConcurrencyRules(nMediaID, groupId, bmID, eType);
         }
 
-        public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy)
+        public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy, int pageIndex = 0, int pageSize = 0)
         {
             RegionsResponse response = null;
             RegionFilter filter = new RegionFilter() { ExternalIds = externalRegionList };
-            var regions = GetRegions(groupId, filter);
+            var regions = GetRegions(groupId, filter, pageIndex, pageSize);
             if (regions != null)
             {
                 response = new RegionsResponse();
@@ -2382,9 +2382,9 @@ namespace Core.Api
             return ApiLogic.Api.Managers.RegionManager.DeleteRegion(groupId, id, userId);
         }
 
-        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
+        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex, int pageSize)
         {
-            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter);
+            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter, pageIndex, pageSize);
         }
     }
 }

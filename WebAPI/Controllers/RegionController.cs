@@ -29,9 +29,13 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
 
+            // parameters validation
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter, responseProfile);
+                response = ClientsManager.ApiClient().GetRegions(groupId, filter, pager.getPageIndex(), pager.getPageSize(), responseProfile);
             }
             catch (ClientException ex)
             {

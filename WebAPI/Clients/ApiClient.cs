@@ -3074,7 +3074,7 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter, KalturaBaseResponseProfile responseProfile = null)
+        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter, int pageIndex, int pageSize, KalturaBaseResponseProfile responseProfile = null)
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
             GenericListResponse<Region> response = null;
@@ -3084,7 +3084,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetRegions(groupId, wsFilter);                    
+                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);                    
                 }
             }
             catch (Exception ex)
@@ -3105,8 +3105,8 @@ namespace WebAPI.Clients
 
             regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
 
-            SetRegionChildrenCount(response , ref regions, responseProfile);
-
+            SetRegionChildrenCount(response , ref regions, responseProfile);         
+            
             return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
         }       
 
