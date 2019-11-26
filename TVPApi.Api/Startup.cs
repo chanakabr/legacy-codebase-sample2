@@ -34,7 +34,6 @@ namespace TVPApi.Web
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.WebServicesConfiguration.Catalog.SignatureKey.Value;
             app.MapEndpoint("Gateways/JsonPostGW.aspx", apiApp =>
             {
-                apiApp.UseConcurrencyLimiter();
                 apiApp.UseTvpApi();
             });
 
