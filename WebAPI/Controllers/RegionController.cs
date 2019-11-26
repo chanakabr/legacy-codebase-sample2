@@ -17,11 +17,12 @@ namespace WebAPI.Controllers
         /// Returns all regions for the partner
         /// </summary>
         /// <param name="filter">Regions filter</param>
+        /// <param name="pager">Paging the request</param>
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RegionNotFound)]
-        static public KalturaRegionListResponse List(KalturaRegionFilter filter)
+        static public KalturaRegionListResponse List(KalturaRegionFilter filter, KalturaFilterPager pager = null)
         {
             KalturaRegionListResponse response = null;
 
