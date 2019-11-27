@@ -235,52 +235,40 @@ namespace TVinciShared
 
         public static bool TrySendHttpGetRequest(string url, Encoding encoding, ref int responseStatus, ref string result, ref string errorMsg, Dictionary<string, string> headersToAdd = null)
         {
-            HttpWebResponse webResponse = null;
-            Stream receiveStream = null;
-            StreamReader sr = null;
-            bool res = false;
+            bool success = false;
+
             try
             {
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+
                 if (headersToAdd != null)
                 {
                     foreach (KeyValuePair<string, string> pair in headersToAdd)
                     {
                         if (!string.IsNullOrEmpty(pair.Key) && !string.IsNullOrEmpty(pair.Value))
                         {
-                            webRequest.Headers.Add(pair.Key, pair.Value);
+                            request.Headers.Add(pair.Key, pair.Value);
                         }
                     }
                 }
-                webResponse = (HttpWebResponse)webRequest.GetResponse();
-                responseStatus = (int)webResponse.StatusCode;
-                receiveStream = webResponse.GetResponseStream();
-                sr = new StreamReader(receiveStream, encoding);
-                result = sr.ReadToEnd();
-                res = true;
+
+                using (var response = httpClient.SendAsync(request).ExecuteAndWait())
+                {
+                    result = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                    responseStatus = (int)response.StatusCode;
+
+                    response.EnsureSuccessStatusCode();
+
+                    success = true;
+                }
             }
             catch (Exception ex)
             {
                 errorMsg = String.Concat(errorMsg, " || Ex Msg: ", ex.Message, " || Ex Type: ", ex.GetType().Name, " || ST: ", ex.StackTrace, " || ");
-                res = false;
-            }
-            finally
-            {
-                if (sr != null)
-                {
-                    sr.Close();
-                }
-                if (receiveStream != null)
-                {
-                    receiveStream.Close();
-                }
-                if (webResponse != null)
-                {
-                    webResponse.Close();
-                }
+                success = false;
             }
 
-            return res;
+            return success;
         }
 
         public static bool TrySendHttpPostRequest(string sUrl, string sToSend, string sContentType,
