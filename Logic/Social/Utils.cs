@@ -20,6 +20,7 @@ using System.Security.Cryptography;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
+using System.Threading;
 using TVinciShared;
 
 namespace Core.Social
@@ -29,6 +30,11 @@ namespace Core.Social
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
+
+        static Utils()
+        {
+            httpClient.Timeout = System.Threading.Timeout.InfiniteTimeSpan;
+        }
 
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
@@ -317,9 +323,12 @@ namespace Core.Social
                     request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 }
 
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromSeconds(100000));
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = sUrl })
                 {
-                    HttpResponseMessage response = httpClient.SendAsync(request).ExecuteAndWait();
+                    HttpResponseMessage response = httpClient.SendAsync(request, cts.Token).ExecuteAndWait();
                     result = response.Content.ReadAsStringAsync().ExecuteAndWait();
                     nStatus = GetResponseCode(response.StatusCode);
                 }
