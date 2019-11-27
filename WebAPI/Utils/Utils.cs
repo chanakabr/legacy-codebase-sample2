@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -145,12 +146,29 @@ namespace WebAPI.Utils
         internal static List<Language> GetGroupLanguages()
         {
             int? groupId = GetGroupIdFromRequest();
+
             if (!groupId.HasValue)
             {
                 return null;
             }
-                        
-            return GroupsManager.GetGroup(groupId.Value).Languages;
+
+            if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value))
+            {
+                Core.Catalog.CatalogGroupCache groupCache;
+
+                if (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
+                {
+                    return Mapper.Map<List<Language>>(groupCache.LanguageMapById.Values.ToList());
+                }
+            }
+            else
+            {
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                
+                return Mapper.Map<List<Language>>(groupManager.GetGroup(groupId.Value).GetLangauges());
+            }
+
+            return null;
         }
 
         internal static string GetCurrencyFromRequest()

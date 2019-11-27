@@ -79,5 +79,31 @@ pipeline {
                 }
             }
         }
+        stage("Trigger Release Candidate"){
+            when { expression { params.TRIGGER_RC == true } }
+            steps{
+                build (
+                    job: "OTT-BE-Create-Release-Candidate", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                    ]
+                )
+            }
+        }
     }
+    post {
+        always {
+            report()
+        }
+    }
+
+   
+}
+
+def report(){
+    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
+    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
+    echo "${reportout}"
 }
