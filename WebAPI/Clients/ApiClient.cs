@@ -3074,7 +3074,7 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter, int pageIndex, int pageSize, KalturaBaseResponseProfile responseProfile = null)
+        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter, int pageIndex, int pageSize)
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
             GenericListResponse<Region> response = null;
@@ -3104,8 +3104,6 @@ namespace WebAPI.Clients
             }
 
             regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
-
-            SetRegionChildrenCount(response , ref regions, responseProfile);         
             
             return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
         }       
@@ -4395,35 +4393,6 @@ namespace WebAPI.Clients
         {
             Func<Status> deleteRegionFunc = () => Core.Api.Module.DeleteRegion(groupId, id, userId);
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
-        }
-
-        private void SetRegionChildrenCount(GenericListResponse<Region> response, ref List<KalturaRegion> regions, KalturaBaseResponseProfile responseProfile = null)
-        {
-            string profileName = string.Empty;
-            if (responseProfile != null && responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
-            {
-                var profile = detachedResponseProfile.RelatedProfiles?.FirstOrDefault(x => x.Filter is KalturaRegionChildrenCountFilter);
-
-                if (profile != null)
-                {
-                    profileName = profile.Name;
-
-                    KalturaIntegerValueListResponse res = null;
-                    int childrenCount = 0;
-                    foreach (var region in regions)
-                    {
-                        childrenCount = response.Objects.FirstOrDefault(x => x.id == region.Id).childrenCount;
-
-                        res = new KalturaIntegerValueListResponse()
-                        {
-                            Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = childrenCount } },
-                            TotalCount = childrenCount
-                        };
-
-                        region.relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
-                    }
-                }
-            }
         }
 
         internal  bool IncrementLayeredCacheGroupConfigVersion(int groupId)

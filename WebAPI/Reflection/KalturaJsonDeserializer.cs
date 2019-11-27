@@ -1403,9 +1403,6 @@ namespace WebAPI.Reflection
                 case "KalturaRegionalChannel":
                     return new KalturaRegionalChannel(parameters);
                     
-                case "KalturaRegionChildrenCountFilter":
-                    return new KalturaRegionChildrenCountFilter(parameters);
-                    
                 case "KalturaRegionFilter":
                     return new KalturaRegionFilter(parameters);
                     
@@ -14063,12 +14060,6 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }
-        }
-    }
-    public partial class KalturaRegionChildrenCountFilter
-    {
-        public KalturaRegionChildrenCountFilter(Dictionary<string, object> parameters = null) : base(parameters)
-        {
         }
     }
     public partial class KalturaRelatedEntity

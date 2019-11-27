@@ -27,7 +27,6 @@ namespace WebAPI.Controllers
             KalturaRegionListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            KalturaBaseResponseProfile responseProfile = Utils.Utils.GetResponseProfileFromRequest();
 
             // parameters validation
             if (pager == null)
@@ -35,7 +34,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter, pager.getPageIndex(), pager.getPageSize(), responseProfile);
+                response = ClientsManager.ApiClient().GetRegions(groupId, filter, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {
