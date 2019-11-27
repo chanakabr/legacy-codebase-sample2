@@ -116,15 +116,8 @@ namespace ImageUploadHandler
                 using (var postData = new StringContent(parameters, Encoding.UTF8, contentType))
                 using (var response = httpClient.PostAsync(uri, postData).ExecuteAndWait())
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
-                    }
-                    else
-                    {
-                        throw new Exception($"Error issuing POST:{uri}, contentType:{contentType} data:{parameters}");
-                    }
-
+                    response.EnsureSuccessStatusCode();
+                    responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
             }
             catch (Exception ex)
