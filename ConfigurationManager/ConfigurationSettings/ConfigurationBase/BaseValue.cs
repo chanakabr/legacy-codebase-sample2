@@ -1,7 +1,7 @@
 ﻿
 namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 {
-    public class BaseValue<T>
+    public class BaseValue<T> : IBaseValue<T>
     {
         internal string Key { get; }
         internal T DefaultValue { get; }

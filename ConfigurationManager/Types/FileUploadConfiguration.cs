@@ -5,8 +5,10 @@ namespace ConfigurationManager.Types
 {
     public class FileUploadConfiguration : BaseConfig<FileUploadConfiguration>
     {
-        public override string TcmKey => Key;
-        public const string Key = "FileUpload";
+        public override string TcmKey => TcmObjectKeys.FileUpload;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
 
         public S3Configuration S3 = new S3Configuration();
         public FileSystemConfiguration FileSystem = new FileSystemConfiguration();
@@ -16,14 +18,7 @@ namespace ConfigurationManager.Types
 
 
 
-        public override void SetActualValues(JToken token)
-        {
-            if (token != null)
-            {
-                SetActualValue(token, Type);
-                SetActualValue(token, ShouldDeleteSourceFile);
-            }
-        }
+
 
 
     }

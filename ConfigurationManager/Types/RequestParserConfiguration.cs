@@ -1,33 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class RequestParserConfiguration : ConfigurationValue
+    public class RequestParserConfiguration : BaseConfig<RequestParserConfiguration>
     {
-        public StringConfigurationValue AccessTokenKeyFormat;
-        public NumericConfigurationValue AccessTokenLength;
-        public StringConfigurationValue TempUploadFolder;
+        public override string TcmKey => TcmObjectKeys.RequestParserConfiguration;
 
-        public RequestParserConfiguration(string key) : base(key)
-        {
-            AccessTokenKeyFormat = new StringConfigurationValue("access_token_key_format", this)
-            {
-                DefaultValue = "access_{0}",
-                OriginalKey = "access_token_key_format"
-            };
-            AccessTokenLength = new NumericConfigurationValue("access_token_length", this)
-            {
-                DefaultValue = 32,
-                OriginalKey = "access_token_length"
-            };
-            TempUploadFolder = new StringConfigurationValue("tempUploadFolder", this)
-            {
-                DefaultValue = "c:\\tmp\\src",
-                ShouldAllowEmpty = false
-            };
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        public BaseValue<string> AccessTokenKeyFormat = new BaseValue<string>("access_token_key_format", "access_{0}");
+        public BaseValue<string> TempUploadFolder = new BaseValue<string>("tempUploadFolder", "c:\\tmp\\src", false);
+        public BaseValue<int> AccessTokenLength = new BaseValue<int>("access_token_length", 32);
+
+    
     }
 }

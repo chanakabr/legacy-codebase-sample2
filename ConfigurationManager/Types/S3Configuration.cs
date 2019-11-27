@@ -5,7 +5,8 @@ namespace ConfigurationManager.Types
 {
     public class S3Configuration : BaseConfig<S3Configuration>
     {
-        public override string TcmKey => "S3";
+        public override string TcmKey => TcmObjectKeys.S3;
+        public override string[] TcmPath => new string[] { TcmObjectKeys.FileUpload, TcmKey };
 
         public BaseValue<string> Region = new BaseValue<string>("region", "region", false, "region");
         public BaseValue<string> AccessKey = new BaseValue<string>("accessKey", "accessKey", false, "accessKey");
@@ -14,16 +15,6 @@ namespace ConfigurationManager.Types
         public BaseValue<string> Path = new BaseValue<string>("path", "path", false, "path");
         public BaseValue<int> NumberOfRetries = new BaseValue<int>("numberOfRetries", 90, false, "NumberOfRetries");
 
-        public override void SetActualValues(JToken token)
-        {
-            if (token != null)
-            {
-                SetActualValue(token, Region);
-                SetActualValue(token, AccessKey);
-                SetActualValue(token, SecretKey);
-                SetActualValue(token, NumberOfRetries);
-                SetActualValue(token, Path);
-            }
-        }
+
     }
 }

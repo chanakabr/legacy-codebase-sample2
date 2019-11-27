@@ -1,4 +1,5 @@
 ﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -193,7 +194,7 @@ namespace WebAPI.Managers
                 if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>>(key, ref result, BuildGroupPermissionItemsDictionary,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID,
-                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);
@@ -452,7 +453,7 @@ namespace WebAPI.Managers
                 if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, List<string>>>(key, ref result, BuildPermissionItemsToFeaturesDictionary,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_PERMISSION_ITEMS_TO_FEATURES,
-                                                                                                                ConfigurationManager.ApplicationConfiguration.GroupsManagerConfiguration.CacheTTLSeconds.DoubleValue,
+                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);

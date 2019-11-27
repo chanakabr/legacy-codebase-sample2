@@ -1,31 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class AnnouncementManagerConfiguration : ConfigurationValue
+    public class AnnouncementManagerConfiguration : BaseConfig<AnnouncementManagerConfiguration>
     {
-        public StringConfigurationValue PushDomainName;
-        public StringConfigurationValue PushServerKey;
-        public StringConfigurationValue PushServerIV;
+        public override string TcmKey => TcmObjectKeys.AnnouncementManagerConfiguration;
+        public override string[] TcmPath => new string[] { TcmKey };
 
-        public AnnouncementManagerConfiguration(string key) : base(key)
-        {
-            PushDomainName = new StringConfigurationValue("PushDomainName", this)
-            {
-                OriginalKey = "PushDomainName"
-            };
-            PushServerKey = new StringConfigurationValue("PushServerKey", this)
-            {
-                OriginalKey = "PushServerKey"
-            };
-            PushServerIV = new StringConfigurationValue("PushServerIV", this)
-            {
-                OriginalKey = "PushServerIV"
-            };
-        }
+        public BaseValue<string> PushDomainName = new BaseValue<string>("PushDomainName", null);
+        public BaseValue<string> PushServerKey = new BaseValue<string>("PushServerKey", null);
+        public BaseValue<string> PushServerIV = new BaseValue<string>("PushServerIV", null);
+
+
     }
 }

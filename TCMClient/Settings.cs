@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Linq;
 
 namespace TCMClient
 {
@@ -233,11 +234,17 @@ namespace TCMClient
         {
 
             JToken token = m_SettingsOriginalKeys;
-            foreach (var key in keys)
+            if (keys != null && keys.Any())
             {
-                token = token.SelectToken(key);
+                foreach (var key in keys)
+                {
+                    token = token.SelectToken(key);
+                    if(token == null)
+                    {
+                        return null;
+                    }
+                }
             }
-
             return token;
         }
 

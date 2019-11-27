@@ -896,7 +896,7 @@ namespace Core.Catalog.CatalogManagement
                                         ttl = ttl
                                     });
 
-                                    int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+                                    int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
                                     if (bulkRequests.Count > sizeOfBulk)
                                     {
                                         // send request to ES API

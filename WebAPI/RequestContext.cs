@@ -47,8 +47,8 @@ namespace WebAPI
 
 
         private const string CB_SECTION_NAME = "tokens";
-        private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
-        private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
+        private static int accessTokenLength = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenLength.Value;
+        private static string accessTokenKeyFormat = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenKeyFormat.Value;
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 

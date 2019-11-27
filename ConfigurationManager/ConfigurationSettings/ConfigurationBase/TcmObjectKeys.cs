@@ -1,0 +1,24 @@
+﻿namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
+{
+    public class TcmObjectKeys
+    {
+        public const string FileUpload = "FileUpload";
+        public const string S3 = "S3";
+        public const string FileSystem = "FileSystem";
+        public const string AuthorizationManagerConfiguration = "authorization_manager_configuration";
+        public const string BucketConfigs = "BucketConfigs";
+        public const string CouchbaseClientConfig = "couchbase_client_config";
+        public const string ElasticsearchHandlerConfiguration = "elasticsearch_handler_configuration";
+        public const string AnnouncementManagerConfiguration = "announcement_manager_configuration";
+        public const string MailerConfiguration = "MC";
+        public const string GroupsManagerConfiguration = "groups_manager";
+        public const string RequestParserConfiguration = "request_parser";
+        public const string OTTUserControllerConfiguration = "ott_user_controller";
+        public const string CouchbaseSectionMapping = "CouchbaseSectionMapping";
+        public const string UsersCacheConfiguration = "users_cache_configuration";
+        public const string CeleryRoutingConfiguration = "CELERY_ROUTING";
+        public const string DistributedTasks = "distributed_tasks";
+        public const string ImageResizerConfiguration = "image_resizer_configuration";
+    }
+}
+

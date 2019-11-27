@@ -34,9 +34,9 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string REMINDER_QUEUE_NAME_FORMAT = @"Reminder_{0}_{1}"; // Reminder_GID_ReminderID
-        private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
-        private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
-        private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
+        private static string outerPushServerSecret = ApplicationConfiguration.Current.AnnouncementManagerConfiguration.PushServerKey.Value;
+        private static string outerPushServerIV = ApplicationConfiguration.Current.AnnouncementManagerConfiguration.PushServerIV.Value;
+        private static string outerPushDomainName = ApplicationConfiguration.Current.AnnouncementManagerConfiguration.PushDomainName.Value;
 
         private static string CatalogSignString = Guid.NewGuid().ToString();
         private static string CatalogSignatureKey = ApplicationConfiguration.Current.CatalogSignatureKey.Value;

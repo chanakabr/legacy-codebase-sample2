@@ -36,9 +36,9 @@ namespace Core.Notification
         private static string CatalogSignatureKey = ApplicationConfiguration.Current.CatalogSignatureKey.Value;
         private const string ANNOUNCEMENT_NOT_FOUND = "Announcement Not Found";
         private const string ANNOUNCEMENT_QUEUE_NAME_FORMAT = @"Announcement_{0}_{1}"; // Announcement_{GID}_{AnnID}
-        private static string outerPushDomainName = ApplicationConfiguration.AnnouncementManagerConfiguration.PushDomainName.Value;
-        private static string outerPushServerSecret = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerKey.Value;
-        private static string outerPushServerIV = ApplicationConfiguration.AnnouncementManagerConfiguration.PushServerIV.Value;
+        private static string outerPushDomainName = ApplicationConfiguration.Current.AnnouncementManagerConfiguration.PushDomainName.Value;
+        private static string outerPushServerSecret = ApplicationConfiguration.Current.AnnouncementManagerConfiguration.PushServerKey.Value;
+        private static string outerPushServerIV = ApplicationConfiguration.Current.AnnouncementManagerConfiguration.PushServerIV.Value;
 
         public const string ROUTING_KEY_PROCESS_MESSAGE_ANNOUNCEMENTS = "PROCESS_MESSAGE_ANNOUNCEMENTS";
         public const double NOTIFICATION_CLEANUP_INTERVAL_SEC = 86400; // 24 hours

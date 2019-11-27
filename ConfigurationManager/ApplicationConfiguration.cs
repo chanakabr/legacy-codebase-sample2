@@ -10,14 +10,19 @@ namespace ConfigurationManager
 {
     public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>
     {
-        public override string TcmKey => string.Empty;
+        public override string TcmKey => null;
+        public override string[] TcmPath => null;
 
-        public static ApplicationConfiguration Current;
 
-        public ApplicationConfiguration()
+        static ApplicationConfiguration()
         {
-            Current = this;
         }
+
+        private ApplicationConfiguration()
+        {
+        }
+
+        public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
         public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
@@ -87,12 +92,11 @@ namespace ConfigurationManager
         public BaseValue<long> ReconciliationFrequencySeconds = new BaseValue<long>("reconciliation_frequency_seconds", 7200);
         public BaseValue<ulong> EpgInitialId = new BaseValue<ulong>("epg_initial_id", 100000000);
 
-        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("elasticsearch_handler_configuration", true, true, null); public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
+        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("elasticsearch_handler_configuration", true, true, null);
         public BaseValue<bool> ShouldSupportCeleryMessages = new BaseValue<bool>("should_support_celery_messages", true, true, null);
         public BaseValue<bool> ShouldSupportEventBusMessages = new BaseValue<bool>("should_support_event_bus_messages", false, true, null);
         public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false, true, null);
         public BaseValue<bool> ShouldGetMediaFileDetailsDirectly = new BaseValue<bool>("ShouldGetMediaFileDetailsDirectly", false, false, "description");
-
         public BaseValue<bool> ShouldGetCatalogDataFromDB = new BaseValue<bool>("get_catalog_data_from_db",false, true, "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty.");
         public BaseValue<bool> DownloadPicWithQueue = new BaseValue<bool>("downloadPicWithQueue", false);
         public BaseValue<bool> CheckImageUrl = new BaseValue<bool>("CheckImageUrl", true);
@@ -104,18 +108,21 @@ namespace ConfigurationManager
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
         public FileUploadConfiguration FileUpload = new FileUploadConfiguration();
+        public ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration();
+        public AnnouncementManagerConfiguration AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration();
+        public MailerConfiguration MailerConfiguration = new MailerConfiguration();
+        public GroupsManagerConfiguration GroupsManagerConfiguration = new GroupsManagerConfiguration();
+        public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
+        public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
+        public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
+        public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
+        public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
 
 
 
 
 
-
-
-
-        public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
-        public static CeleryRoutingConfiguration CeleryRoutingConfiguration;
-        public static ImageResizerConfiguration ImageResizerConfiguration;
-      
+        public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
         public static FtpApiServerConfiguration FtpApiServerConfiguration;
 
         #region TVM Configuration Values
@@ -133,12 +140,11 @@ namespace ConfigurationManager
         #region Configuration values
 
 
-        public static MailerConfiguration MailerConfiguration;
-        public static GroupsManagerConfiguration GroupsManagerConfiguration;
-        public static RequestParserConfiguration RequestParserConfiguration;
-        public static OTTUserControllerConfiguration OTTUserControllerConfiguration;
+
+        
+        
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
-        public static UsersCacheConfiguration UsersCacheConfiguration;
+        
         public static BaseCacheConfiguration BaseCacheConfiguration;
         public static DatabaseConfiguration DatabaseConfiguration;
         public static NamedCacheConfiguration WSCacheConfiguration;
@@ -166,7 +172,7 @@ namespace ConfigurationManager
         public static ExportConfiguration ExportConfiguration;
         public static EngagementsConfiguration EngagementsConfiguration;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
-        public static AnnouncementManagerConfiguration AnnouncementManagerConfiguration;
+        
         public static CDVRAdapterConfiguration CDVRAdapterConfiguration;
         public static EventConsumersConfiguration EventConsumersConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
@@ -181,10 +187,7 @@ namespace ConfigurationManager
         public static HttpClientConfiguration HttpClientConfiguration;
 
 
-        public override void SetActualValues(JToken token)
-        {
-            throw new NotImplementedException();
-        }
+ 
 
 
         #endregion
@@ -239,21 +242,18 @@ namespace ConfigurationManager
             
             #region Remote tasks configuration values
 
-            CeleryRoutingConfiguration = new CeleryRoutingConfiguration("CELERY_ROUTING")
+  /*          CeleryRoutingConfiguration = new CeleryRoutingConfiguration("CELERY_ROUTING")
             {
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks celery routing. Not used in phoenix."
-            };
-            ImageResizerConfiguration = new ImageResizerConfiguration("image_resizer_configuration")
+            };*/
+ /*           ImageResizerConfiguration = new ImageResizerConfiguration("image_resizer_configuration")
             {
                 ShouldAllowEmpty = true,
                 Description = "Configuration for image resizer handler in remote tasks."
-            };
+            };*/
 
-            ElasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration("elasticsearch_handler_configuration")
-            {
-                ShouldAllowEmpty = true
-            };
+
 
             ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration("professional_services_tasks")
             {
@@ -271,12 +271,12 @@ namespace ConfigurationManager
             #endregion
 
 
-            MailerConfiguration = new MailerConfiguration("MC");
-            GroupsManagerConfiguration = new GroupsManagerConfiguration("groups_manager");
-            RequestParserConfiguration = new RequestParserConfiguration("request_parser");
-            OTTUserControllerConfiguration = new OTTUserControllerConfiguration("ott_user_controller");
+            
+            
+            
+            
             CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
-            UsersCacheConfiguration = new UsersCacheConfiguration("users_cache_configuration");
+            
             BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
             BaseCacheConfiguration.TTLSeconds.OriginalKey = "Groups_Cache_TTL";
             BaseCacheConfiguration.Type = null;
@@ -352,7 +352,7 @@ namespace ConfigurationManager
            
  
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
-            AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration("announcement_manager_configuration");
+            
             CDVRAdapterConfiguration = new CDVRAdapterConfiguration("cdvr_adapter_configuration")
             {
                 ShouldAllowEmpty = true
@@ -392,18 +392,9 @@ namespace ConfigurationManager
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    CeleryRoutingConfiguration,
-                    ImageResizerConfiguration,
                     FtpApiServerConfiguration,
-                    ElasticSearchHandlerConfiguration,
                     ProfessionalServicesTasksConfiguration,
-
-                    MailerConfiguration,
-                    GroupsManagerConfiguration,
-                    RequestParserConfiguration,
-                    OTTUserControllerConfiguration,
                     CouchbaseSectionMapping,
-                    UsersCacheConfiguration,
                     BaseCacheConfiguration,
                     DatabaseConfiguration,
                     WSCacheConfiguration,
@@ -423,7 +414,6 @@ namespace ConfigurationManager
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,
                     CatalogLogicConfiguration,
-                    AnnouncementManagerConfiguration,
                     CDVRAdapterConfiguration,
                     EngagementsConfiguration,
                     EventConsumersConfiguration,
@@ -443,13 +433,13 @@ namespace ConfigurationManager
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
 
-            if (shouldLoadDefaults)
+/*            if (shouldLoadDefaults)
             {
                 foreach (var configurationValue in allConfigurationValues)
                 {
                     configurationValue.LoadDefault();
                 }
-            }
+            }*/
         }
 
         public static bool Validate(string application = "", string host = "", string environment = "", string logFilePath = "")

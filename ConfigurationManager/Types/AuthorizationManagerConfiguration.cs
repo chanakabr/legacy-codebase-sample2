@@ -1,14 +1,16 @@
 ﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 
-namespace ConfigurationManager
+
+namespace ConfigurationManager.Types
 {
     public class AuthorizationManagerConfiguration : BaseConfig<AuthorizationManagerConfiguration>
     {
 
-        public override string TcmKey => "authorization_manager_configuration";
+        public override string TcmKey => TcmObjectKeys.AuthorizationManagerConfiguration;
+
+        public override string[] TcmPath => new string[] {  TcmKey };
 
         public BaseValue<string> UsersSessionsKeyFormat = new BaseValue<string>("users_sessions_key_format", "sessions_{0}", true, "description");
         public BaseValue<string> RevokedKSKeyFormat = new BaseValue<string>("revoked_ks_key_format", "r_ks_{0}", true, "description");
@@ -17,15 +19,5 @@ namespace ConfigurationManager
 
         
 
-        public override void SetActualValues(JToken token)
-        {
-            if (token != null)
-            {
-                SetActualValue(token, UsersSessionsKeyFormat);
-                SetActualValue(token, RevokedKSKeyFormat);
-                SetActualValue(token, RevokedKSMaxTTLSeconds);
-                SetActualValue(token, RevokedSessionKeyFormat);
-            }
-        }
     }
 }

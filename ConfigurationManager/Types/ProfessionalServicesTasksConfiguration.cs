@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace ConfigurationManager
     public class ProfessionalServicesTasksConfiguration : StringConfigurationValue
     {
         private JObject json;
-
+        
         public ProfessionalServicesTasksConfiguration(string key) : base(key)
         {
             if (!string.IsNullOrEmpty(this.Value))
