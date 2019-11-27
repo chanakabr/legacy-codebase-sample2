@@ -209,17 +209,11 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in AddBulkUpload. groupId:{0}, filePath:{1}, userId:{2}, action:{3}, objectType:{4}.",
-                                        groupId, filePath, userId, action, objectTypeName), ex);
+                log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filePath:{filePath}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
             return response;
-        }
-
-        public static void AddBulkUpload(int groupID, string tempFileName, int v, string tempFilePath, Type type, BulkUploadJobAction upsert, BulkUploadIngestJobData jobData, object objectData)
-        {
-            throw new NotImplementedException();
         }
 
         private static GenericResponse<BulkUpload> SendTransformationEventToServiceEventBus(int groupId, long userId, GenericResponse<BulkUpload> response)
