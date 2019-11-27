@@ -2043,6 +2043,8 @@ namespace Core.Catalog
         /// <returns></returns>
         internal static void SetSearchRegions(int groupId, bool isOPC, int domainId, string siteGuid, out List<int> regionIds, out List<string> linearMediaTypes)
         {
+            log.DebugFormat("new code for BEO-7430 isOPC:{0}", isOPC);
+
             regionIds = null;
             linearMediaTypes = new List<string>();
             bool isRegionalizationEnabled = false;
@@ -6957,6 +6959,8 @@ namespace Core.Catalog
             if (channel.m_nChannelTypeID == (int)ChannelType.Manual)
             {
                 ChannelRequest.OrderMediasByOrderNum(ref assetIDs, channel, unifiedSearchDefinitions.order);
+
+                log.DebugFormat("new code for BEO-7428 seg:{0}", channel.SupportSegmentBasedOrdering);
 
                 if (channel.SupportSegmentBasedOrdering && searchResults[0].Score > 0)
                 {
