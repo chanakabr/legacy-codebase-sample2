@@ -162,7 +162,7 @@ namespace Ingest
 
         private static BulkUpload IngestEpgUsingBulkUpoad(int groupID, IngestRequest request)
         {
-            var tempDirPath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
+            var tempDirPath = ApplicationConfiguration.Current.RequestParserConfiguration.TempUploadFolder.Value;
             var tempFileName = "Upload_From_WS_ingest.xml";
             var tempFilePath = Path.Combine(tempDirPath, tempFileName);
             Path.GetTempPath();
