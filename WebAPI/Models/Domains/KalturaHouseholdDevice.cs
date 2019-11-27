@@ -104,6 +104,15 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(ReadOnly = true)]
         public KalturaCustomDrmPlaybackPluginData Drm { get; set; }
 
+        /// <summary>
+        /// external Id
+        /// </summary>
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public string ExternalId { get; set; }
+
         internal int getBrandId()
         {
             return BrandId.HasValue ? (int)BrandId : 0;

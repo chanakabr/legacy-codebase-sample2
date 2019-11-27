@@ -289,7 +289,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                response = Core.Domains.Module.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID);
+                response = Core.Domains.Module.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID, string.Empty);
             }
             else
             {
@@ -1112,7 +1112,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.SetDevice(nGroupID, sDeviceUDID, sDeviceName);
+                return Core.Domains.Module.SetDevice(nGroupID, sDeviceUDID, sDeviceName, string.Empty);
             }
             else
             {
@@ -1230,7 +1230,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                response = Core.Domains.Module.SubmitAddDeviceToDomain(nGroupID, domainID, userID, deviceUdid, deviceName, brandID);
+                response = Core.Domains.Module.SubmitAddDeviceToDomain(nGroupID, domainID, userID, deviceUdid, deviceName, brandID, string.Empty);
             }
             else
             {

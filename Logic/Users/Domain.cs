@@ -688,7 +688,8 @@ namespace Core.Users
                             Udid = sUDID,
                             ActivatedOn = DateTime.UtcNow,
                             GroupId = m_nGroupID,
-                            DeviceFamilyId = device.m_deviceFamilyID
+                            DeviceFamilyId = device.m_deviceFamilyID,
+                            ExternalId = device.ExternalId
                         };
 
                         bool updated = domainDevice.Update();
@@ -698,7 +699,7 @@ namespace Core.Users
                             bRemove = true;
                             device.m_domainID = nDomainID;
                             device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, tempDeviceID);
+                            int deviceID = device.Save(1, 1, tempDeviceID, device.ExternalId);
                             GetDeviceList();
 
                             return eRetVal;
@@ -731,7 +732,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1);
+                int deviceID = device.Save(1, 1, null, device.ExternalId);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -743,7 +744,8 @@ namespace Core.Users
                     Udid = sUDID,
                     GroupId = m_nGroupID,
                     Name = deviceName,
-                    DeviceFamilyId = device.m_deviceFamilyID
+                    DeviceFamilyId = device.m_deviceFamilyID,
+                    ExternalId = device.ExternalId
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -2223,7 +2225,8 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            deviceID = device.Save(0, 3);
+            //TODO MATAN - check
+            deviceID = device.Save(0, 3, null, device.ExternalId);
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();

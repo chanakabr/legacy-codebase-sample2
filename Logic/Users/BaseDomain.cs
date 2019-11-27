@@ -328,13 +328,19 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId)
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // validate UDID is not empty
             if (string.IsNullOrEmpty(udid))
+                return response;
+
+            var deviceId = Device.GetDeviceIDByExternalId(groupId, externalId);
+
+            //device with same external Id already exists
+            if (!string.IsNullOrEmpty(deviceId))
                 return response;
 
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.OK;
@@ -352,6 +358,11 @@ namespace Core.Users
                 // create new device
                 Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
                 device.Initialize(udid, deviceName);
+
+                if (!string.IsNullOrEmpty(externalId))
+                {
+                    device.ExternalId = externalId;
+                }
 
                 // add device to domain
                 domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
@@ -1900,7 +1911,7 @@ namespace Core.Users
             return response;
         }
 
-        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, int brandID)
+        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, int brandID, string externalId)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -1919,13 +1930,36 @@ namespace Core.Users
 
             Device device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
 
+            var deviceId = Device.GetDeviceIDByExternalId(m_nGroupID, externalId);
+
+            //already exists
+            if (!string.IsNullOrEmpty(deviceUdid))
+            {
+                var ret = new DeviceResponseObject();
+                ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
+                if (device != null)
+                {
+                    ret.m_oDevice = device;
+                    if (device.m_state == DeviceState.Error)
+                    {
+                        ret.m_oDeviceResponseStatus = DeviceResponseStatus.ExternalIdAlreadyExists;
+                        return new DeviceResponse
+                        { Device = ret, Status = new ApiObjects.Response.Status(eResponseStatus.Error, DeviceResponseStatus.ExternalIdAlreadyExists.ToString()) };
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(externalId))
+            {
+                device.ExternalId = externalId;
+            }
+
             DomainResponseStatus domainResponseStatus;
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
                 return response;
             }
-
 
             // If domain is restricted and action user is the master, just add the device
             if ((domain.m_DomainRestriction == DomainRestriction.Unrestricted) ||

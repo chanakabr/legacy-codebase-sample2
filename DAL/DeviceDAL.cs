@@ -194,6 +194,35 @@ namespace DAL
             return null;
         }
 
+        public static DataTable Get_DeviceInfoByExternalId(int nGroupID, string externalId)
+        {
+            //TODO MATAN - Create such Sp
+            /*
+             	SELECT id,
+			    device_id,
+			    device_brand_id,
+			    [Name],
+			    group_id,
+			    is_active,
+			    device_family_id,
+			    pin
+				FROM dbo.devices WITH (nolock)
+				WHERE status != 2
+				AND group_id = @GroupID
+				AND external_id = @ExternalID
+             */
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DeviceInfoByExternalId");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@ExternalID", externalId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables.Count > 0)
+                return ds.Tables[0];
+            return null;
+        }
+
         public static int GetDeviceID(string sDeviceUDID, int nGroupID, int? nDeviceBrandID = null, int? nDeviceFamilyID = null, int? nStatus = null)
         {
             int retVal = 0;
@@ -247,8 +276,9 @@ namespace DAL
             return retVal;
         }
 
-        public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID, string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin)
+        public static int InsertNewDevice(string sDeviceUDID, int nDeviceBrandID, int nDeviceFamilyID, string sDeviceName, int nGroupID, int nIsActive, int nStatus, string sPin, string externalId)
         {
+            //TODO MATAN add to sp
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@DeviceUDID", sDeviceUDID);
@@ -260,6 +290,7 @@ namespace DAL
             sp.AddParameter("@Status", nStatus);
             sp.AddParameter("@Pin", sPin);
             sp.AddParameter("@CreateDate", DateTime.UtcNow);
+            sp.AddParameter("@ExternalID", externalId);
 
             return sp.ExecuteReturnValue<int>();
         }
