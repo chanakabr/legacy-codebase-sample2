@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
 using System.Net;
 using System.IO;
 using System.Data;
@@ -11,14 +12,12 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects;
 using Newtonsoft.Json;
-using System.Net.Http;
 
 namespace TVinciShared
 {
     public static class OAuthUtil
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         private static byte[] data;
         // Get OAuth provider details
@@ -210,37 +209,37 @@ namespace TVinciShared
         // Creates a web request, initializes the content and returns the response as a string
         private static string GetResponse(ProviderObject prov, string sToken, eRequestType type)
         {
-            string uri = string.Empty;
+            HttpWebRequest req = null;
+
             switch (type)
             {
                 case eRequestType.Credentials:
-                    uri = prov.URL_Creds + "?client_id=" + prov.ClientId;
+                    req = (HttpWebRequest)WebRequest.Create(prov.URL_Creds + "?client_id=" + prov.ClientId);
                     log.Debug("oAuth - " + prov.URL_Creds + "?client_id=" + prov.ClientId);
                     break;
                 case eRequestType.AccessToken:
-                    uri = prov.URL_Code;
+                    req = (HttpWebRequest)WebRequest.Create(prov.URL_Code);
                     log.Debug("oAuth - " + prov.URL_Code);
                     break;
                 case eRequestType.Refresh:
-                    uri = prov.URL_Refesh;
+                    req = (HttpWebRequest)WebRequest.Create(prov.URL_Refesh);
                     break;
 
                 default:
                     break;
             }
-
-            if (!string.IsNullOrEmpty(uri))
+            if (req != null)
             {
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri);
-
-                InitHttpRequest(prov, sToken, request, type);
-
+                InitWebRequest(prov, sToken, ref req, type);
                 try
                 {
-                    using (var response = httpClient.SendAsync(request).ExecuteAndWait())
+                    using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse())
                     {
-                        response.EnsureSuccessStatusCode();
-                        return response.Content.ReadAsStringAsync().ExecuteAndWait();
+                        using (StreamReader reader = new StreamReader(resp.GetResponseStream()))
+                        {
+                            string s = reader.ReadToEnd();
+                            return s;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -254,50 +253,47 @@ namespace TVinciShared
             return string.Empty;
         }
 
-        /// <summary>
-        /// Initializes the http request with data/headers whatever needed
-        /// </summary>
-        /// <param name="provider"></param>
-        /// <param name="sToken"></param>
-        /// <param name="request"></param>
-        /// <param name="type"></param>
-        private static void InitHttpRequest(ProviderObject provider, string sToken, HttpRequestMessage request, eRequestType type)
+        //Initializes the WebRequest with data/headers whatever needed
+        private static void InitWebRequest(ProviderObject prov, string sToken, ref HttpWebRequest req, eRequestType type)
         {
-            string contentString = string.Empty;
+            req.ContentType = "application/x-www-form-urlencoded";
+            req.Method = "POST";
 
             switch (type)
             {
                 case eRequestType.AccessToken:
-                    contentString = GetRequestContentString(provider, sToken, eRequestType.AccessToken);
-                    //GetRequestStream(ref req);
+                    setDataObjForRequest(prov, sToken, eRequestType.AccessToken);
+                    GetRequestStream(ref req);
                     break;
                 case eRequestType.Credentials:
-                    request.Headers.Add("Authorization", "Bearer " + sToken);
-                    request.Headers.Add("grant_type", "credentials");
+                    req.ContentLength = 0;
+                    req.Headers.Add("Authorization", "Bearer " + sToken);
+                    req.Headers.Add("grant_type", "credentials");
+                    data = new byte[0];
                     break;
                 case eRequestType.Refresh:
-                    contentString = GetRequestContentString(provider, sToken, eRequestType.Refresh);
-                    //GetRequestStream(ref req);
+                    setDataObjForRequest(prov, sToken, eRequestType.Refresh);
+                    GetRequestStream(ref req);
                     break;
                 default:
                     break;
             }
 
-            if (!string.IsNullOrEmpty(contentString))
-            {
-                request.Content = new StringContent(contentString, Encoding.UTF8, "application/x-www-form-urlencoded");
-            }
-
         }
-        
-        /// <summary>
-        /// returns the request content string for the http request
-        /// </summary>
-        /// <param name="prov"></param>
-        /// <param name="token"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private static string GetRequestContentString(ProviderObject prov, string token, eRequestType type)
+
+        // Writes the request Data-Stream
+        private static void GetRequestStream(ref HttpWebRequest req)
+        {
+            req.ContentLength = data.Length;
+            using (Stream dataStream = req.GetRequestStream())
+            {
+                dataStream.Write(data, 0, data.Length);
+                dataStream.Close();
+            }
+        }
+
+        // Sets the data object for the request content
+        private static void setDataObjForRequest(ProviderObject prov, string token, eRequestType type)
         {
             string sTokenVarName = string.Empty;
             string sGrantType = string.Empty;
@@ -323,15 +319,17 @@ namespace TVinciShared
 
             }
 
-            return string.Format(
-                                "client_id={0}&client_secret={1}&redirect_uri={2}&{3}={4}&grant_type={5}",
-                                prov.ClientId,
-                                prov.ClientSecret,
-                                prov.RedirectURL,
-                                sTokenVarName,
-                                token,
-                                sGrantType
-                                );
+            data = Encoding.UTF8.GetBytes(
+                                          string.Format(
+                                                        "client_id={0}&client_secret={1}&redirect_uri={2}&{3}={4}&grant_type={5}",
+                                                        prov.ClientId,
+                                                        prov.ClientSecret,
+                                                        prov.RedirectURL,
+                                                        sTokenVarName,
+                                                        token,
+                                                        sGrantType
+                                                        )
+                                          );
         }
     }
 
