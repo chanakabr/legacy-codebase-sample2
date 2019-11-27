@@ -126,33 +126,11 @@ namespace TVinciShared
         public static string SendXMLHttpReq(string url, string requestBody, string sSoapHeader, string contentType = "text/xml; charset=utf-8",
                                             string sUsernameField = "", string sUsername = "", string sPasswordField = "", string sPassword = "", string sMethod = "post")
         {
-            HttpMethod method = HttpMethod.Post;
-
-            if (!string.IsNullOrEmpty(sMethod))
-            {
-                string loweredMethod = sMethod.ToLower();
-
-                if (loweredMethod == "post")
-                {
-                    method = HttpMethod.Delete;
-                }
-                else if (loweredMethod == "get")
-                {
-                    method = HttpMethod.Get;
-                }
-                else if (loweredMethod == "put")
-                {
-                    method = HttpMethod.Put;
-                }
-                else if (loweredMethod == "delete")
-                {
-                    method = HttpMethod.Delete;
-                }
-            }
+            HttpMethod method = GetHttpMethod(sMethod);
 
             HttpRequestMessage request = new HttpRequestMessage(method, url)
             {
-                Content = new StringContent(requestBody, Encoding.UTF8, 
+                Content = new StringContent(requestBody, Encoding.UTF8,
                 (string.IsNullOrEmpty(contentType) ? "text/xml; charset=utf-8" : contentType))
             };
 
@@ -183,71 +161,76 @@ namespace TVinciShared
             return string.Empty;
         }
 
-        public static string SendXMLHttpReqWithHeaders(string sUrl, string sToSend, Dictionary<string, string> postHeaders, string contentType = "text/xml; charset=utf-8",
+        private static HttpMethod GetHttpMethod(string sMethod)
+        {
+            HttpMethod method = HttpMethod.Post;
+
+            if (!string.IsNullOrEmpty(sMethod))
+            {
+                string loweredMethod = sMethod.ToLower();
+
+                if (loweredMethod == "post")
+                {
+                    method = HttpMethod.Delete;
+                }
+                else if (loweredMethod == "get")
+                {
+                    method = HttpMethod.Get;
+                }
+                else if (loweredMethod == "put")
+                {
+                    method = HttpMethod.Put;
+                }
+                else if (loweredMethod == "delete")
+                {
+                    method = HttpMethod.Delete;
+                }
+            }
+
+            return method;
+        }
+
+        public static string SendXMLHttpReqWithHeaders(string url, string requestBody, Dictionary<string, string> postHeaders, string contentType = "text/xml; charset=utf-8",
                                             string sUsernameField = "", string sUsername = "", string sPasswordField = "", string sPassword = "", string sMethod = "post")
         {
+            HttpMethod method = GetHttpMethod(sMethod);
 
-            //Create the HTTP POST request and the authentication headers
-            HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(new Uri(sUrl));
-            oWebRequest.Method = (string.IsNullOrEmpty(sMethod) ? "post" : sMethod);
-            oWebRequest.ContentType = (string.IsNullOrEmpty(contentType) ? "text/xml; charset=utf-8" : contentType);
-
-            foreach (string header in postHeaders.Keys)
+            HttpRequestMessage request = new HttpRequestMessage(method, url)
             {
-                oWebRequest.Headers[header] = postHeaders[header];
-            }
+                Content = new StringContent(requestBody, Encoding.UTF8,
+                (string.IsNullOrEmpty(contentType) ? "text/xml; charset=utf-8" : contentType))
+            };
 
             if (!string.IsNullOrEmpty(sUsernameField) || !string.IsNullOrEmpty(sPasswordField) || !string.IsNullOrEmpty(sUsername) || !string.IsNullOrEmpty(sPassword))
             {
-                oWebRequest.Headers[sUsernameField] = sUsername;
-                oWebRequest.Headers[sPasswordField] = sPassword;
+                request.Headers.Add(sUsernameField, sUsername);
+                request.Headers.Add(sPasswordField, sPassword);
             }
 
-            byte[] encodedBytes = Encoding.UTF8.GetBytes(sToSend);
-
-            //Send the request
-            if (string.Compare(oWebRequest.Method, "post", true) == 0)
+            foreach (string header in postHeaders.Keys)
             {
-                using (Stream requestStream = oWebRequest.GetRequestStream())
-                {
-                    requestStream.Write(encodedBytes, 0, encodedBytes.Length);
-                    requestStream.Close();
-                }
+                request.Headers.Add(header, postHeaders[header]);
             }
 
             try
             {
-                HttpWebResponse oWebResponse = (HttpWebResponse)oWebRequest.GetResponse();
-                HttpStatusCode sCode = oWebResponse.StatusCode;
-                Stream receiveStream = oWebResponse.GetResponseStream();
-
-                using (StreamReader sr = new StreamReader(receiveStream))
+                using (var response = httpClient.SendAsync(request).ExecuteAndWait())
                 {
-                    string resultString = sr.ReadToEnd();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        log.Error($"XML Http request not successful. url = {url}, status = {response.StatusCode}");
+                    }
 
-                    sr.Close();
-
-                    oWebRequest = null;
-                    oWebResponse = null;
-
-                    return resultString;
+                    response.EnsureSuccessStatusCode();
+                    return response.Content.ReadAsStringAsync().ExecuteAndWait();
                 }
             }
-            catch (WebException ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                WebResponse errRsp = ex.Response;
-
-                if (errRsp == null)
-                {
-                    return string.Empty;
-                }
-
-                using (StreamReader rdr = new StreamReader(errRsp.GetResponseStream()))
-                {
-                    return rdr.ReadToEnd();
-                }
+                log.Error($"Error when sending XML http request. url = {url} ex={ex}");
             }
+
+            return string.Empty;
         }
 
         public static bool TrySendHttpGetRequest(string url, Encoding encoding, ref int responseStatus, ref string result, ref string errorMsg, Dictionary<string, string> headersToAdd = null)
