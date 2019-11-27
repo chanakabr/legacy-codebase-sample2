@@ -7,13 +7,15 @@ using System.Configuration;
 using System.IO;
 using KLogMonitor;
 using System.Reflection;
-
+using System.Net.Http;
+using TVinciShared;
 
 namespace Core.Billing
 {
     public class SMSHelper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         public static bool SendBulkSMS(Int32 nGroupID, string sCellNum, string sText, string sCurrencyCode)
         {
@@ -76,11 +78,6 @@ namespace Core.Billing
             string sXMLFormat = "";
             GetSMSBaseDetails(nGroupID, ref sUN, ref sPass, ref sURL, ref sXMLFormat);
 
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sURL);
-            webRequest.KeepAlive = false;
-            webRequest.Method = "POST";
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-
             //Daniel - what is the "123_456", sTypeID, nServiceID , nCostID
             string reqContent = string.Concat("User=", sUN,
                 "&Password=", sPass,
@@ -88,25 +85,16 @@ namespace Core.Billing
                 "&RequestID=", "123_456",
                 "&WIN_XML=", System.Web.HttpUtility.UrlEncode(string.Format(sXMLFormat, sCellNum, sText, sTypeID, nServiceID, nCostID)));
 
-            using (StreamWriter sw = new StreamWriter(webRequest.GetRequestStream(), new UTF8Encoding(false)))
+            var request = new HttpRequestMessage(HttpMethod.Post, sURL)
             {
-                sw.Write(reqContent);
-                sw.Close();
-            }
+                Content = new StringContent(reqContent, Encoding.UTF8, "application/x-www-form-urlencoded")
+            };
 
             try
             {
-                using (HttpWebResponse res = (HttpWebResponse)webRequest.GetResponse())
+                using (var response = httpClient.SendAsync(request).ExecuteAndWait())
                 {
-                    Stream receiveStream = res.GetResponseStream();
-
-                    string ret;
-                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
-                    {
-                        ret = readStream.ReadToEnd();
-                        readStream.Close();
-                    }
-                    res.Close();
+                    string ret = response.Content.ReadAsStringAsync().ExecuteAndWait();
 
                     if (ret.IndexOf("R0") == -1)
                     {
@@ -114,7 +102,10 @@ namespace Core.Billing
                         return false;
                     }
                     else
-                        log.Debug("SMS Helper - " + string.Format("SMS sent successfully, mobile: {0}, text:{1}, service id:{2}, cost id:{3}, WinPLC returned:{4}", sCellNum, sText, nServiceID, nCostID, ret));
+                    {
+                        log.Debug("SMS Helper - " + string.Format("SMS sent successfully, mobile: {0}, text:{1}, service id:{2}, cost id:{3}, WinPLC returned:{4}", 
+                            sCellNum, sText, nServiceID, nCostID, ret));
+                    }
                 }
             }
             catch (Exception ex)
