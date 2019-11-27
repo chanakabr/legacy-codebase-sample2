@@ -3,19 +3,18 @@ using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
 using System.IO;
-using System.Net;
 using System.Reflection;
 using System.Text;
 using TVinciShared;
 using ApiObjects;
-using System.Web;
-using System.ServiceModel;
+using System.Net.Http;
 
 namespace ImageUploadHandler
 {
     public class TaskHandler : ITaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         private const string RECOVERY_MESSAGE_BUCKET = "scheduled_tasks";
 
@@ -113,32 +112,19 @@ namespace ImageUploadHandler
             string responseFromServer = null;
             try
             {
-                WebRequest request = WebRequest.Create(uri);
-
-                request.Method = "POST";
-                string postData = parameters;
-                byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-
-                if (contentType == null)
-                    request.ContentType = "application/x-www-form-urlencoded";
-                else
-                    request.ContentType = contentType;
-
-                request.ContentLength = byteArray.Length;
-
-                using (Stream dataStream = request.GetRequestStream())
+                contentType = contentType ?? "application/x-www-form-urlencoded";
+                using (var postData = new StringContent(parameters, Encoding.UTF8, contentType))
+                using (var response = httpClient.PostAsync(uri, postData).ExecuteAndWait())
                 {
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    using (WebResponse response = request.GetResponse())
+                    if (response.IsSuccessStatusCode)
                     {
-                        using (Stream responseStream = response.GetResponseStream())
-                        {
-                            using (StreamReader reader = new StreamReader(responseStream))
-                            {
-                                responseFromServer = reader.ReadToEnd();
-                            }
-                        }
+                        responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
                     }
+                    else
+                    {
+                        throw new Exception($"Error issuing POST:{uri}, contentType:{contentType} data:{parameters}");
+                    }
+
                 }
             }
             catch (Exception ex)
