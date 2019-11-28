@@ -8,7 +8,7 @@ namespace ConfigurationManager.Types
         public BaseValue<int?> ReceiveTimeout = new BaseValue<int?>("receiveTimeout", 10);
         public BaseValue<int?> SendTimeout = new BaseValue<int?>("sendTimeout", 10);
         public BaseValue<int?> CloseTimeout = new BaseValue<int?>("closeTimeout", 60);
-        public BaseValue<int?> MaxReceivedMessageSize = new BaseValue<int?>("maxReceivedMessageSize", 2147483647);
+        public BaseValue<long?> MaxReceivedMessageSize = new BaseValue<long?>("maxReceivedMessageSize", 2147483647);
 
         public AdapterConfiguration DeepCopy()
         {
