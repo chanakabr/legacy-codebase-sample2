@@ -22,6 +22,7 @@
         public const string AdaptersConfiguration = "adapters_client_configuration";
         public const string DefaultAdapterConfigurationKey = "default";
         public const string FtpApiServerConfiguration = "ftp_api_server";
+        public const string HttpClientConfiguration ="http_client_configuration";
     }
 }
 

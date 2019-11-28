@@ -30,6 +30,16 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             defaultData.ActualValue = token[defaultData.Key] == null ?
                 defaultData.DefaultValue : token[defaultData.Key].ToObject<TV>();
+
+            if (!Validate())
+            {
+                _Logger.Error($"TCM Configuration Validation Error. key:[{TcmKey}], actual value:[{defaultData.ActualValue}]");
+            }
+        }
+
+        protected virtual bool Validate()
+        {
+            return true;
         }
 
         public void Init()

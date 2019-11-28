@@ -1,57 +1,23 @@
-﻿using System;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace ConfigurationManager.Types
 {
-    public class HttpClientConfiguration : ConfigurationValue
+    public class HttpClientConfiguration : BaseConfig<HttpClientConfiguration>
     {
+        public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server",5,true,"The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
+        public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation",false,true,"Indicates whether the certificate is checked against the certificate authority revocation list");
+        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols","Tls,Tls11,Tls12",true,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
+        public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,Gzip",true,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
+        public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout",100000,true,"The timeout in milliseconds for the HttpClient");
 
-        public NumericConfigurationValue MaxConnectionsPerServer;
-        public BooleanConfigurationValue CheckCertificateRevocationList;
-        public StringConfigurationValue EnabledSslProtocols;
-        public StringConfigurationValue EnabledDecompressionMethods;
-        public NumericConfigurationValue TimeOutInMiliSeconds;
+        public override string TcmKey => TcmObjectKeys.HttpClientConfiguration;
 
-        public HttpClientConfiguration(string key) : base(key)
-        {
-            MaxConnectionsPerServer = new NumericConfigurationValue("max_connections_per_server", this)
-            {
-                DefaultValue = 5,
-                ShouldAllowEmpty = true,
-                Description = "The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint"
-            };
+        public override string[] TcmPath => new string [] {TcmKey};
 
-            CheckCertificateRevocationList = new BooleanConfigurationValue("check_certificate_revocation", this)
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true,
-                Description = "Indicates whether the certificate is checked against the certificate authority revocation list"
-            };
-
-            EnabledSslProtocols = new StringConfigurationValue("enabled_ssl_protocols", this)
-            {
-                DefaultValue = "Tls,Tls11,Tls12",
-                ShouldAllowEmpty = true,
-                Description = "the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None"
-            };
-
-            EnabledDecompressionMethods = new StringConfigurationValue("enabled_decompression_methods", this)
-            {                
-                DefaultValue = "Deflate,Gzip",
-                ShouldAllowEmpty = true,
-                Description = "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All"
-            };
-
-            TimeOutInMiliSeconds = new NumericConfigurationValue("timeout", this)
-            {
-                DefaultValue = 100000,
-                ShouldAllowEmpty = true,
-                Description = "The timeout in milliseconds for the HttpClient"
-            };
-        }
-
-        internal override bool Validate()
+        protected override bool Validate()
         {
             bool isValid = base.Validate();
             if (isValid)
@@ -211,6 +177,5 @@ namespace ConfigurationManager.Types
 
             return DecompressionMethods;
         }
-
     }
 }

@@ -10,11 +10,11 @@ namespace TVinciShared
     public static class HttpClientUtil
     {
 
-        static readonly List<SslProtocols> enabledSslProtocols = ApplicationConfiguration.HttpClientConfiguration.GetSslProtocols();
-        static readonly List<DecompressionMethods> enabledDecompressionMethod = ApplicationConfiguration.HttpClientConfiguration.GetDecompressionMethods();
-        static readonly int maxConnectionsPerServer = ApplicationConfiguration.HttpClientConfiguration.MaxConnectionsPerServer.IntValue;
-        static readonly bool checkCertificateRevocationList = ApplicationConfiguration.HttpClientConfiguration.CheckCertificateRevocationList.Value;
-        static readonly System.TimeSpan timeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.HttpClientConfiguration.TimeOutInMiliSeconds.DoubleValue);
+        static readonly List<SslProtocols> enabledSslProtocols = ApplicationConfiguration.Current.HttpClientConfiguration.GetSslProtocols();
+        static readonly List<DecompressionMethods> enabledDecompressionMethod = ApplicationConfiguration.Current.HttpClientConfiguration.GetDecompressionMethods();
+        static readonly int maxConnectionsPerServer = ApplicationConfiguration.Current.HttpClientConfiguration.MaxConnectionsPerServer.Value;
+        static readonly bool checkCertificateRevocationList = ApplicationConfiguration.Current.HttpClientConfiguration.CheckCertificateRevocationList.Value;
+        static readonly System.TimeSpan timeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.Current.HttpClientConfiguration.TimeOutInMiliSeconds.Value);
 
         public static HttpClient GetHttpClient()
         {

@@ -185,7 +185,7 @@ namespace ConfigurationManager
 
         
         
-        public static HttpClientConfiguration HttpClientConfiguration;
+        public HttpClientConfiguration HttpClientConfiguration;
 
 
  
@@ -382,11 +382,6 @@ namespace ConfigurationManager
 
           
 
-            HttpClientConfiguration = new HttpClientConfiguration("http_client_configuration")
-            {
-                ShouldAllowEmpty = true
-            };
-
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     ProfessionalServicesTasksConfiguration,
@@ -423,9 +418,8 @@ namespace ConfigurationManager
                     GroupsCacheConfiguration,
                     NotificationConfiguration,
    
-                    TVPApiConfiguration,
-                    HttpClientConfiguration
-                };
+                    TVPApiConfiguration
+            };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
 
