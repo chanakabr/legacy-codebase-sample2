@@ -40,6 +40,12 @@
 
 
         public const string CouchBaseDesigns = "couchbase_designs";
+        public const string BaseCacheConfiguration = "base_cache_configuration";
+        public const string WSCacheConfiguration = "ws_cache_configuration";
+        public const string NotificationCacheConfiguration = "notification_cache_configuration";
+        public const string CatalogCacheConfiguration = "catalog_cache_configuration";
+        public const string ODBCWrapperCacheConfiguration = "odbc_wrapper_cache_configuration";
+        public const string GroupsCacheConfiguration = "groups_cache_configuration";
     }
 }
 

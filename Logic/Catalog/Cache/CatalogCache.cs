@@ -37,7 +37,7 @@ namespace Core.Catalog.Cache
 
         private string GetCacheName()
         {
-            string res = ApplicationConfiguration.CatalogCacheConfiguration.Name.Value;
+            string res = ApplicationConfiguration.Current.CatalogCacheConfiguration.Name.Value;
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
@@ -45,7 +45,7 @@ namespace Core.Catalog.Cache
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = (uint)ApplicationConfiguration.CatalogCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.CatalogCacheConfiguration.TTLSeconds.Value;
 
             if (result <= 0)
             {

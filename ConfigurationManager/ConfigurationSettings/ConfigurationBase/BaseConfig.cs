@@ -17,7 +17,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 
         public abstract string [] TcmPath { get; }
 
-
+        public const string BaseClassName = "BaseConfig";
         public JToken GetTcmToken()
         {
             JToken token;

@@ -17,7 +17,7 @@ namespace ConfigurationManager
 
         public override string TcmKey => null;
         public override string[] TcmPath => null;
-
+        
 
         static ApplicationConfiguration()
         {
@@ -28,6 +28,13 @@ namespace ConfigurationManager
         }
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
+
+        public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();
+        public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
+        public ODBCWrapperCacheConfiguration ODBCWrapperCacheConfiguration = new ODBCWrapperCacheConfiguration();
+        public CatalogCacheConfiguration CatalogCacheConfiguration = new CatalogCacheConfiguration();
+        public NotificationCacheConfiguration NotificationCacheConfiguration = new NotificationCacheConfiguration();
+        public GroupsCacheConfiguration GroupsCacheConfiguration = new GroupsCacheConfiguration();
 
 
         public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
@@ -157,19 +164,11 @@ namespace ConfigurationManager
 
 
 
-        
-        
-        
-        
-        public static BaseCacheConfiguration BaseCacheConfiguration;
-        
-        public static NamedCacheConfiguration WSCacheConfiguration;
-        public static NamedCacheConfiguration ODBCWrapperCacheConfiguration;
-        public static NamedCacheConfiguration CatalogCacheConfiguration;
-        public static NamedCacheConfiguration NotificationCacheConfiguration;
-        public static NamedCacheConfiguration GroupsCacheConfiguration;
 
-        
+
+
+
+
         
         public static EutelsatSettings EutelsatSettings;
         public static ElasticSearchConfiguration ElasticSearchConfiguration;
@@ -238,7 +237,7 @@ namespace ConfigurationManager
                 {
                     //throw new Exception("In test means the filed is not initiate");
                 }
-                
+
                 if (field.FieldType.Name.StartsWith("BaseValue"))
                 {
                     if (token == null)
@@ -254,7 +253,7 @@ namespace ConfigurationManager
                     }
 
                 }
-                else if(field.FieldType == typeof(Dictionary<string, AdapterConfiguration>))
+                else if (field.FieldType == typeof(Dictionary<string, AdapterConfiguration>))
                 {
                     Type argu = field.FieldType.GetGenericArguments()[0];
                     MethodInfo methodInfo = type.GetMethod("SetValues");
@@ -265,7 +264,8 @@ namespace ConfigurationManager
                 {
                     continue;
                 }
-                else if (field.FieldType.BaseType.Name.StartsWith("BaseConfig") && field.FieldType.GetInterface("IBaseConfig") != null)
+                else if (IsBaseStartWithName(field.FieldType, BaseClassName) &&
+                    field.FieldType.GetInterface("IBaseConfig") != null)
                 {
                     Init(field.FieldType, baseValueData as IBaseConfig);
                 }
@@ -274,6 +274,19 @@ namespace ConfigurationManager
                     throw new Exception("Do somthing - ToDo");
                 }
             }
+        }
+
+        private static bool IsBaseStartWithName(Type fieldType, string typeName)
+        {
+            while(fieldType != typeof(object))
+            {
+                if (fieldType.Name.StartsWith(typeName))
+                {
+                    return true;
+                }
+                fieldType = fieldType.BaseType;
+            }
+            return false;
         }
 
         public static void Initialize(bool shouldLoadDefaults = false, bool silent = false, string application = "", string host = "", string environment = "")
@@ -342,53 +355,11 @@ namespace ConfigurationManager
             
             
             
-            
-            BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
-            BaseCacheConfiguration.TTLSeconds.OriginalKey = "Groups_Cache_TTL";
-            BaseCacheConfiguration.Type = null;
+          
 
             
 
-            // ws cache configuration - reset defaults
-            WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
-            WSCacheConfiguration.TTLSeconds.DefaultValue = 7200;
-            WSCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
-            WSCacheConfiguration.Name.DefaultValue = "Cache";
-            WSCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
-            WSCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
-
-
-
-            ODBCWrapperCacheConfiguration = new NamedCacheConfiguration("odbc_wrapper_cache_configuration");
-            ODBCWrapperCacheConfiguration.TTLSeconds.DefaultValue = 7200;
-            ODBCWrapperCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
-            ODBCWrapperCacheConfiguration.Name.DefaultValue = "Cache";
-            ODBCWrapperCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
-            ODBCWrapperCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
-
-            CatalogCacheConfiguration = new NamedCacheConfiguration("catalog_cache_configuration");
-            CatalogCacheConfiguration.TTLSeconds.DefaultValue = 3600;
-            CatalogCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
-            CatalogCacheConfiguration.Name.DefaultValue = "CatalogCache";
-            CatalogCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
-            CatalogCacheConfiguration.Type.OriginalKey = "CACHE_TYPE";
-
-            NotificationCacheConfiguration = new NamedCacheConfiguration("notification_cache_configuration");
-            NotificationCacheConfiguration.TTLSeconds.DefaultValue = 3600;
-            NotificationCacheConfiguration.Name.DefaultValue = "NotificationCache";
-            NotificationCacheConfiguration.TTLSeconds.OriginalKey = "CACHE_TIME_IN_MINUTES";
-            NotificationCacheConfiguration.Name.OriginalKey = "CACHE_NAME";
-            // type is always inner cache in this case
-            NotificationCacheConfiguration.Type = null;
-
-            GroupsCacheConfiguration = new NamedCacheConfiguration("groups_cache_configuration");
-            GroupsCacheConfiguration.TTLSeconds.DefaultValue = 86400;
-            GroupsCacheConfiguration.Name.DefaultValue = "GroupsCache";
-            GroupsCacheConfiguration.Name.OriginalKey = "GROUPS_CACHE_NAME";
-            GroupsCacheConfiguration.Type.DefaultValue = "CouchBase";
-            GroupsCacheConfiguration.Type.OriginalKey = "GroupsCacheConfiguration";
-            GroupsCacheConfiguration.TTLSeconds.OriginalKey = "GroupsCacheDocTimeout";
-
+   
             
 
             EutelsatSettings = new EutelsatSettings("eutelsat_settings")
@@ -432,20 +403,12 @@ namespace ConfigurationManager
             UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
 
 
-            //AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
-          
-
-
 
           
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     ProfessionalServicesTasksConfiguration,
-                    
-                    BaseCacheConfiguration,
-                    WSCacheConfiguration,
-                    
                     EutelsatSettings,
                     ElasticSearchConfiguration,
                     HarmonicProviderConfiguration,
@@ -465,10 +428,7 @@ namespace ConfigurationManager
                     EngagementsConfiguration,
                     EventConsumersConfiguration,
                     UserPINDigitsConfiguration,
-                    ODBCWrapperCacheConfiguration,
-                    CatalogCacheConfiguration,
-                    NotificationCacheConfiguration,
-                    GroupsCacheConfiguration,
+ 
    
             };
 

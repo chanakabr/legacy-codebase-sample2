@@ -50,7 +50,7 @@ namespace CachingHelpers
         {
             if (string.IsNullOrEmpty(cacheType))
             {
-                cacheType = ApplicationConfiguration.GroupsCacheConfiguration.Type.Value;
+                cacheType = ApplicationConfiguration.Current.GroupsCacheConfiguration.Type.Value; ;
             }
 
             switch (cacheType.ToLower())
@@ -91,7 +91,7 @@ namespace CachingHelpers
         {
             string result = DEFAULT_CACHE_NAME;
 
-            string name = ApplicationConfiguration.GroupsCacheConfiguration.Name.Value;
+            string name = ApplicationConfiguration.Current.GroupsCacheConfiguration.Name.Value;
 
             if (name.Length > 0)
             {
@@ -103,7 +103,7 @@ namespace CachingHelpers
 
         private uint GetDefaultCacheTimeInSeconds()
         {
-            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.GroupsCacheConfiguration.TTLSeconds.Value;
 
             if (result <= 0)
             {
@@ -115,7 +115,7 @@ namespace CachingHelpers
 
         private uint GetDocTTLSettings()
         {
-            uint result = (uint)ApplicationConfiguration.GroupsCacheConfiguration.TTLSeconds.IntValue;
+            uint result = (uint)ApplicationConfiguration.Current.GroupsCacheConfiguration.TTLSeconds.Value; ;
 
             if (result <= 0)
             {
