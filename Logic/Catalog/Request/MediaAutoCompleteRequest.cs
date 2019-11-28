@@ -101,8 +101,9 @@ namespace Core.Catalog.Request
 
                     List<int> regionIds;
                     List<string> linearMediaTypes;
+                    bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
 
-                    CatalogLogic.SetSearchRegions(this.m_nGroupID, false, this.domainId, this.m_sSiteGuid, out regionIds, out linearMediaTypes);
+                    CatalogLogic.SetSearchRegions(this.m_nGroupID, doesGroupUsesTemplates, this.domainId, this.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
                     searchObj.regionIds = regionIds;
                     searchObj.linearChannelMediaTypes = linearMediaTypes;
