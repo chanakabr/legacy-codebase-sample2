@@ -46,6 +46,7 @@
         public const string CatalogCacheConfiguration = "catalog_cache_configuration";
         public const string ODBCWrapperCacheConfiguration = "odbc_wrapper_cache_configuration";
         public const string GroupsCacheConfiguration = "groups_cache_configuration";
+        public const string LicensedLinksCacheConfiguration = "licensed_links_cache_configuration";
     }
 }
 

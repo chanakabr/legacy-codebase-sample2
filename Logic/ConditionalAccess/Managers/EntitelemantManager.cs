@@ -123,7 +123,7 @@ namespace Core.ConditionalAccess
                     {
                         List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainId);
 
-                        if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value && !isRecording)
+                        if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && !isRecording)
                         {
                             CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
                             if (cachedEntitlementResults != null)

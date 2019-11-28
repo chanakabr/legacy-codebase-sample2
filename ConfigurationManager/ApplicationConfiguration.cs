@@ -13,7 +13,6 @@ namespace ConfigurationManager
 {
     public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public override string TcmKey => null;
         public override string[] TcmPath => null;
@@ -37,6 +36,7 @@ namespace ConfigurationManager
         public CatalogCacheConfiguration CatalogCacheConfiguration = new CatalogCacheConfiguration();
         public NotificationCacheConfiguration NotificationCacheConfiguration = new NotificationCacheConfiguration();
         public GroupsCacheConfiguration GroupsCacheConfiguration = new GroupsCacheConfiguration();
+        public LicensedLinksCacheConfiguration LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration();
 
 
         public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
@@ -183,7 +183,6 @@ namespace ConfigurationManager
         public static FacebookConfiguration FacebookConfiguration;
         public static TwitterConfiguration TwitterConfiguration;
         public static SocialFeedConfiguration SocialFeedConfiguration;
-        public static LicensedLinksCacheConfiguration LicensedLinksCacheConfiguration;
         public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
         public static ExportConfiguration ExportConfiguration;
@@ -384,7 +383,6 @@ namespace ConfigurationManager
             };
             SocialFeedConfiguration = new SocialFeedConfiguration("social_feed_configuration");
 
-            LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration("licensed_links_cache_configuration");
             SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
             ExportConfiguration = new ExportConfiguration("export");
@@ -421,7 +419,6 @@ namespace ConfigurationManager
                     TwitterConfiguration,
                     SocialFeedConfiguration,
                
-                    LicensedLinksCacheConfiguration,
                     SocialFeedQueueConfiguration,
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,

@@ -10829,7 +10829,7 @@ namespace Core.ConditionalAccess
                                                        concurrencyResponse.Data.DomainId, m_nGroupID);
                     }
                     // item must be free otherwise we wouldn't get this far
-                    else if (ApplicationConfiguration.LicensedLinksCacheConfiguration.ShouldUseCache.Value &&
+                    else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value &&
                              !Utils.InsertOrSetCachedEntitlementResults(concurrencyResponse.Data.DomainId, mediaFileId,
                                 new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
                     // transaction type doesn't matter when item is free so just pass PPV
