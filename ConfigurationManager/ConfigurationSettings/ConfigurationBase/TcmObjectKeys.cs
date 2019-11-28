@@ -25,6 +25,21 @@
         public const string HttpClientConfiguration ="http_client_configuration";
         public const string TVPApiConfiguration = "tvpapi_configuration";
         public const string DatabaseConfiguration = "database_configuration";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public const string CouchBaseDesigns = "couchbase_designs";
     }
 }
 

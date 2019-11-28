@@ -25,7 +25,7 @@ namespace Tvinci.Core.DAL
     public class CatalogDAL : BaseDal
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
         private static readonly int CB_EPG_DOCUMENT_EXPIRY_DAYS = ApplicationConfiguration.Current.EPGDocumentExpiry.Value;
         private static readonly int CB_PLAYCYCLE_DOC_EXPIRY_MIN = ApplicationConfiguration.Current.PlayCycleDocumentExpiryMinutes.Value;
 

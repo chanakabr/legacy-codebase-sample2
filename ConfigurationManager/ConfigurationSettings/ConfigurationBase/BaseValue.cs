@@ -18,7 +18,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
         }
-        public BaseValue(string key, T defaultValue, bool mustBeOverwriteInTcm = true, string description = null)
+        public BaseValue(string key, T defaultValue, bool mustBeOverwriteInTcm = false, string description = null)
         {
             this.Key = key;
             this.DefaultValue = defaultValue;

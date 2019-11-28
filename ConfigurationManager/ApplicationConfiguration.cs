@@ -30,6 +30,8 @@ namespace ConfigurationManager
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
 
+        public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
+
         public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
         public BaseValue<string> UseOldImageServer = new BaseValue<string>("USE_OLD_IMAGE_SERVER", "0", true, "Group Ids, split by ';', that wish to use old image server");
@@ -166,7 +168,7 @@ namespace ConfigurationManager
         public static NamedCacheConfiguration NotificationCacheConfiguration;
         public static NamedCacheConfiguration GroupsCacheConfiguration;
 
-        public static CouchBaseDesigns CouchBaseDesigns;
+        
         
         public static EutelsatSettings EutelsatSettings;
         public static ElasticSearchConfiguration ElasticSearchConfiguration;
@@ -386,7 +388,7 @@ namespace ConfigurationManager
             GroupsCacheConfiguration.Type.OriginalKey = "GroupsCacheConfiguration";
             GroupsCacheConfiguration.TTLSeconds.OriginalKey = "GroupsCacheDocTimeout";
 
-            CouchBaseDesigns = new CouchBaseDesigns("couchbase_designs");
+            
 
             EutelsatSettings = new EutelsatSettings("eutelsat_settings")
             {
@@ -442,7 +444,7 @@ namespace ConfigurationManager
                     CouchbaseSectionMapping,
                     BaseCacheConfiguration,
                     WSCacheConfiguration,
-                    CouchBaseDesigns,
+                    
                     EutelsatSettings,
                     ElasticSearchConfiguration,
                     HarmonicProviderConfiguration,

@@ -99,7 +99,7 @@ namespace Core.Catalog
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
         protected static readonly string META_DATE_PREFIX = "date";
 
-        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
 
         private const string NO_META_TO_UPDATE = "No meta update";
         private const string NAME_REQUIRED = "Name must have a value";

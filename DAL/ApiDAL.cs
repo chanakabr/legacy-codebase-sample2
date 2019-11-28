@@ -22,8 +22,8 @@ namespace DAL
     public class ApiDAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.CouchBaseDesigns.MediaMarkDesign.Value;
-        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.CouchBaseDesigns.QueueMessagesDesign.Value;
+        private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
+        private static readonly string CB_MESSAGE_QUEUE_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.QueueMessagesDesign.Value;
         private const eCouchbaseBucket EVENT_NOTIFICATION_ACTION_BUCKET = eCouchbaseBucket.SOCIAL;
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;

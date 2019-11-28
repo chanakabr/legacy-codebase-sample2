@@ -16,7 +16,7 @@ namespace DalCB
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly string CB_FEED_DESGIN = ApplicationConfiguration.CouchBaseDesigns.SocialFeedDesign.Value;
+        private static readonly string CB_FEED_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.SocialFeedDesign.Value;
 
         CouchbaseManager.CouchbaseManager cbManager;
         private int m_nGroupID;
