@@ -119,12 +119,12 @@ namespace ConfigurationManager
         public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
+        public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
 
 
 
 
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
-        public static FtpApiServerConfiguration FtpApiServerConfiguration;
 
         #region TVM Configuration Values
 
@@ -261,11 +261,7 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true,
                 Description = "Remote tasks configuratin for professional services handler."
             };
-            FtpApiServerConfiguration = new FtpApiServerConfiguration("ftp_api_server")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false
-            };
+ 
          
 
           
@@ -393,7 +389,6 @@ namespace ConfigurationManager
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    FtpApiServerConfiguration,
                     ProfessionalServicesTasksConfiguration,
                     CouchbaseSectionMapping,
                     BaseCacheConfiguration,

@@ -21,6 +21,7 @@
         public const string ImageResizerConfiguration = "image_resizer_configuration";
         public const string AdaptersConfiguration = "adapters_client_configuration";
         public const string DefaultAdapterConfigurationKey = "default";
+        public const string FtpApiServerConfiguration = "ftp_api_server";
     }
 }
 
