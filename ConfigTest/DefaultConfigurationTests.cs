@@ -4,42 +4,87 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ConfigurationManager;
+using Newtonsoft.Json.Linq;
 
 namespace Tests.ConfigTest
 {
     [TestClass]
     public class DefaultConfigurationTests
     {
-        [TestMethod]
-        public void Test_AllConfigurationSettingsHaveDefultValue()
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+
         {
-            var type = typeof(IBaseConfig);
- 
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => type.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract).ToList();
-            foreach (Type tt in types)
+        //    TCMClient.Settings.Instance.Init();
+        }
+
+
+
+        [TestMethod]
+        public void Test_AllConfigurationSettingsMustHaveDefultValue()
+        {
+            ApplicationConfiguration configuration = ApplicationConfiguration.Current;
+            Type type = typeof(ApplicationConfiguration);
+            TestIfConainNullDefaultValue(type, configuration);
+
+
+        }
+
+        private void TestIfConainNullDefaultValue(Type type, IBaseConfig baseConfig)
+        {
+            List<FieldInfo> fields = type.GetFields().ToList();
+  
+            foreach (var field in fields)
             {
-                var baseConfig = Activator.CreateInstance(tt);
-                List<FieldInfo> fields = baseConfig.GetType().GetFields().ToList();
-                foreach (var field in fields)
+                object baseValueData = field.GetValue(baseConfig);
+                if (baseValueData == null)
                 {
-                    object value = field.GetValue(baseConfig);
-                    if(field.FieldType == typeof(BaseValue<string>))
-                    {
+                    Assert.Fail($"{baseConfig.ToString()} contains null object");
+                }
+                if (field.FieldType.Name.StartsWith("BaseValue"))
+                {
+                    var value = baseValueData.GetType().GetProperty("Value").GetValue(baseValueData);
 
-                    }
-                    if (value != null && !string.IsNullOrEmpty(value.ToString()))
+                    if (value == null || string.IsNullOrEmpty(value.ToString()) )
                     {
-
+                        Assert.Fail($"{baseConfig.ToString()} contains key with null default value");
                     }
-                    else
+                    if (int.TryParse(value.ToString(), out var res))
                     {
-                        Assert.Fail($"field {field.Name} is null under path {tt.FullName}. fields couldn't be null");
+                        if (res == -1)
+                        {
+                            Assert.Fail($"{baseConfig.ToString()} contains key with null default value");
+                        }
                     }
                 }
-
+                else if (field.FieldType == type && field.Name == "Current")
+                {
+                    continue;
+                }
+                else if (field.FieldType.BaseType.Name.StartsWith("BaseConfig") && field.FieldType.GetInterface("IBaseConfig") != null)
+                {
+                    TestIfConainNullDefaultValue(field.FieldType, baseValueData as IBaseConfig);
+                }
+                else
+                {
+                    Assert.Fail($"{baseConfig.ToString()} contains unkown param");
+                }
             }
+        }
+
+
+  
+
+
+        [TestMethod]
+        public void InitConfigurationUsingReflection()
+        {
+
+            var type = typeof(ApplicationConfiguration);
+            var baseConfig = Activator.CreateInstance(type);
+
+            var k = ApplicationConfiguration.Current.MetaFeaturesPattern.Value;
         }
     }
 }
