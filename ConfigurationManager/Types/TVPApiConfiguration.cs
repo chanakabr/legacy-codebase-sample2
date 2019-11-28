@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager
 {
@@ -9,8 +10,14 @@ namespace ConfigurationManager
 
         public override string[] TcmPath => new string[] { TcmKey };
 
-        public CommaSeparatedConfigurationValue AuthorizationUnsupportedGroupsPlatforms;
-        public OfflineFavoriteSyncGroupsConfiguration OfflineFavoriteSyncGroups;
+        private static readonly HashSet<string> baseSet = new HashSet<string>();
+        private static readonly HashSet<int> offlineFavoriteSyncGroupsSet = new HashSet<int>();
+        private const string AuthrizationUnsupportedGroupPlatforsmKey = "authorization_unsupported_groups_platforms";
+        private const string Offline_favorite_sync_groupsKey = "offline_favorite_sync_groups";
+
+        public BaseValue<HashSet<string>> AuthorizationUnsupportedGroupsPlatforms = new BaseValue<HashSet<string>>(AuthrizationUnsupportedGroupPlatforsmKey, baseSet);
+
+        public BaseValue<HashSet<int>> OfflineFavoriteSyncGroups = new BaseValue<HashSet<int>>(Offline_favorite_sync_groupsKey, offlineFavoriteSyncGroupsSet);
 
 
         public BaseValue<bool> ShouldUseNewCache = new BaseValue<bool>("should_use_new_cache", true, true, "Originally in web.config: ShouldUseNewCache");
@@ -26,50 +33,30 @@ namespace ConfigurationManager
         public BaseValue<string> SecureSiteGuidKey = new BaseValue<string>("secure_site_guid_key", "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA=", true, "Originally from GlobalAppSettings.config, key SecureSiteGuidKey");
         public BaseValue<string> SecureSiteGuidIV = new BaseValue<string>("secure_site_guid_iv", "Yn5/n0s8B0yLRvGuhSLRrA==", true, "Originally from GlobalAppSettings.config, key SecureSiteGuidIV");
 
-        /*public TVPApiConfiguration(string key) 
+
+        public override void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)
         {
-          
-            OfflineFavoriteSyncGroups = new OfflineFavoriteSyncGroupsConfiguration("offline_favorite_sync_groups")
+            if (defaultData.Key == AuthrizationUnsupportedGroupPlatforsmKey)
             {
-                ShouldAllowEmpty = true,
-                Description = "Originally in web.config: {group_id}_OfflineFavoriteSync. " +
-                "Now it is a comma separted list of groups that should use offline favorite sync"
-            };
-         
-            AuthorizationUnsupportedGroupsPlatforms = new CommaSeparatedConfigurationValue("authorization_unsupported_groups_platforms")
+                PopulateList(token.ToString(), defaultData as BaseValue<HashSet<string>>);
+            }
+            else if(defaultData.Key == Offline_favorite_sync_groupsKey)
             {
-                ShouldAllowEmpty = true,
-                Description = "Originally in web.config: Authorization.UnsupportedGroupsPlatforms. " +
-                "Comma separated list of {group_id}_{platform}"
-            };
-           
-        }*/
-
-     
-    }
-
-    public class OfflineFavoriteSyncGroupsConfiguration : StringConfigurationValue
-    {
-        HashSet<int> groupIds = null;
-
-        public OfflineFavoriteSyncGroupsConfiguration(string key) : base(key)
-        {
-
+                PopulateList(token.ToString(), defaultData as BaseValue<HashSet<int>>);
+            }
+            else
+            {
+                base.SetActualValue(token, defaultData);
+            }
         }
 
-        public OfflineFavoriteSyncGroupsConfiguration(string key, ConfigurationValue parent) : base(key, parent)
+        private void PopulateList(string token, BaseValue<HashSet<int>> defaultData)
         {
-
-        }
-
-        internal override bool Validate()
-        {
-            bool isValid = base.Validate();
-
-            if (!string.IsNullOrEmpty(this.Value))
+            HashSet<int> res = null;
+            if (!string.IsNullOrEmpty(token))
             {
-                string[] values = this.Value.Split(',');
-                groupIds = new HashSet<int>();
+                string[] values = token.Split(',');
+                res = new HashSet<int>();
 
                 foreach (var value in values)
                 {
@@ -77,28 +64,32 @@ namespace ConfigurationManager
 
                     if (!int.TryParse(value, out groupId))
                     {
-                        isValid = false;
-                        LogError($"Group Ids should be comma separated list of numbers. Found invalid value {value}", ConfigurationValidationErrorLevel.Failure);
+                        _Logger.Error($"Group Ids should be comma separated list of numbers. Found invalid value {value}");
                     }
                     else
                     {
-                        groupIds.Add(groupId);
+                        res.Add(groupId);
                     }
                 }
             }
-
-            return isValid;
+            defaultData.ActualValue = res;
         }
-        public bool IsOfflineSync(int groupId)
+
+        private void PopulateList(string token, BaseValue<HashSet<string>> defaultData) 
         {
-            bool isOffline = false;
+            var res  = new HashSet<string>();
 
-            if (groupIds != null)
+            if (!string.IsNullOrEmpty(token))
             {
-                isOffline = groupIds.Contains(groupId);
-            }
+                string[] splitted = token.Split(',');
 
-            return isOffline;
+                foreach (var value in splitted)
+                {
+                    res.Add(value);
+                }
+            }
+            defaultData.ActualValue = res;
         }
     }
+
 }

@@ -29,6 +29,8 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
+
+        public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
         public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
         public ODBCWrapperCacheConfiguration ODBCWrapperCacheConfiguration = new ODBCWrapperCacheConfiguration();
@@ -156,7 +158,7 @@ namespace ConfigurationManager
 
         #region TVP Api
 
-        public static TVPApiConfiguration TVPApiConfiguration;
+        
 
         #endregion
 

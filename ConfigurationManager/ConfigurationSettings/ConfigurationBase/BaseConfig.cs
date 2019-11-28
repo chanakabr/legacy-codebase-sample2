@@ -11,7 +11,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 {
     public abstract class BaseConfig<T> : IBaseConfig
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        protected static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public abstract string TcmKey { get;  }
 
