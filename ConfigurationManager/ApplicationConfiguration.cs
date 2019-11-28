@@ -31,6 +31,7 @@ namespace ConfigurationManager
 
 
         public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
+        public CouchbaseSectionMapping CouchbaseSectionMapping = new CouchbaseSectionMapping();
 
         public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
@@ -158,7 +159,7 @@ namespace ConfigurationManager
 
         
         
-        public static CouchbaseSectionMapping CouchbaseSectionMapping;
+        
         
         public static BaseCacheConfiguration BaseCacheConfiguration;
         
@@ -340,7 +341,7 @@ namespace ConfigurationManager
             
             
             
-            CouchbaseSectionMapping = new CouchbaseSectionMapping("CouchbaseSectionMapping");
+            
             
             BaseCacheConfiguration = new BaseCacheConfiguration("base_cache_configuration");
             BaseCacheConfiguration.TTLSeconds.OriginalKey = "Groups_Cache_TTL";
@@ -441,7 +442,7 @@ namespace ConfigurationManager
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     ProfessionalServicesTasksConfiguration,
-                    CouchbaseSectionMapping,
+                    
                     BaseCacheConfiguration,
                     WSCacheConfiguration,
                     
