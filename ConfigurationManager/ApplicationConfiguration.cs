@@ -5,11 +5,16 @@ using System.IO;
 using System.Text;
 using ConfigurationManager.Types;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using System.Reflection;
+using System.Linq;
+using KLogMonitor;
 
 namespace ConfigurationManager
 {
     public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>
     {
+        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public override string TcmKey => null;
         public override string[] TcmPath => null;
 
@@ -206,6 +211,65 @@ namespace ConfigurationManager
         #endregion
 
         #region Public Static Methods
+
+        public static void Init()
+        {
+            Type type = typeof(ApplicationConfiguration);
+            Init(type, Current);
+        }
+
+
+        private static void Init(Type type, IBaseConfig baseConfig)
+        {
+            List<FieldInfo> fields = type.GetFields().ToList();
+            MethodInfo TcmMethod = type.GetMethod("GetTcmToken");
+
+            JToken token = (JToken)TcmMethod.Invoke(baseConfig, null);
+
+            foreach (var field in fields)
+            {
+                object baseValueData = field.GetValue(baseConfig);
+                if (baseValueData == null)
+                {
+                    //throw new Exception("In test means the filed is not initiate");
+                }
+                
+                if (field.FieldType.Name.StartsWith("BaseValue"))
+                {
+                    if (token == null)
+                    {
+                        _Logger.Info($"No data exist in TCM for {baseConfig.ToString()} configuration");
+                    }
+                    else
+                    {
+                        Type argu = field.FieldType.GetGenericArguments()[0];
+                        MethodInfo methodInfo = type.GetMethod("SetActualValue");
+                        var genericMethod = methodInfo.MakeGenericMethod(argu);
+                        genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
+                    }
+
+                }
+                else if(field.FieldType == typeof(Dictionary<string, AdapterConfiguration>))
+                {
+                    Type argu = field.FieldType.GetGenericArguments()[0];
+                    MethodInfo methodInfo = type.GetMethod("SetValues");
+                    methodInfo.Invoke(baseConfig, new object[] { token, baseValueData });
+
+                }
+                else if (field.FieldType == type && field.Name == "Current")
+                {
+                    continue;
+                }
+                else if (field.FieldType.BaseType.Name.StartsWith("BaseConfig") && field.FieldType.GetInterface("IBaseConfig") != null)
+                {
+                    Init(field.FieldType, baseValueData as IBaseConfig);
+                }
+                else
+                {
+                    throw new Exception("Do somthing - ToDo");
+                }
+            }
+        }
 
         public static void Initialize(bool shouldLoadDefaults = false, bool silent = false, string application = "", string host = "", string environment = "")
         {
