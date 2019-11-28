@@ -2217,9 +2217,9 @@ namespace DAL
         public static int Purge()
         {
             int sqlCommandTimeoutSec = SQL_COMMAND_TIMEOUT_SEC;
-            if (ApplicationConfiguration.DatabaseConfiguration.DbCommandExecuteTimeoutSec.IntValue > 0)
+            if (ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value > 0)
             {
-                sqlCommandTimeoutSec =  ApplicationConfiguration.DatabaseConfiguration.DbCommandExecuteTimeoutSec.IntValue;
+                sqlCommandTimeoutSec =  ApplicationConfiguration.Current.DatabaseConfiguration.DbCommandExecuteTimeoutSec.Value;
             }           
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Purge");

@@ -126,7 +126,7 @@ namespace ConfigurationManager
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
-
+        public DatabaseConfiguration DatabaseConfiguration = new DatabaseConfiguration();
 
 
 
@@ -153,7 +153,7 @@ namespace ConfigurationManager
         public static CouchbaseSectionMapping CouchbaseSectionMapping;
         
         public static BaseCacheConfiguration BaseCacheConfiguration;
-        public static DatabaseConfiguration DatabaseConfiguration;
+        
         public static NamedCacheConfiguration WSCacheConfiguration;
         public static NamedCacheConfiguration ODBCWrapperCacheConfiguration;
         public static NamedCacheConfiguration CatalogCacheConfiguration;
@@ -342,7 +342,7 @@ namespace ConfigurationManager
             BaseCacheConfiguration.TTLSeconds.OriginalKey = "Groups_Cache_TTL";
             BaseCacheConfiguration.Type = null;
 
-            DatabaseConfiguration = new DatabaseConfiguration("database_configuration");
+            
 
             // ws cache configuration - reset defaults
             WSCacheConfiguration = new NamedCacheConfiguration("ws_cache_configuration");
@@ -451,7 +451,6 @@ namespace ConfigurationManager
                     ProfessionalServicesTasksConfiguration,
                     CouchbaseSectionMapping,
                     BaseCacheConfiguration,
-                    DatabaseConfiguration,
                     WSCacheConfiguration,
                     CouchBaseDesigns,
                     EutelsatSettings,
