@@ -28,7 +28,7 @@ namespace WebAPI
         {
             InitializeLogging();
             // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
-            RedirectAssembly("System.Private.CoreLib", "mscorlib");
+            TVinciShared.AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
             // Configuration
             ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
@@ -215,38 +215,6 @@ namespace WebAPI
                     HttpContext.Current.Items[Constants.HOST_IP] = HttpContext.Current.Request.UserHostAddress;
 
             }
-        }
-
-        public static void RedirectAssembly(string fromAssemblyShotName, string replacmentAssemblyShortName)
-        {
-            log.Info($"Adding custom resolver redirect rule form:{fromAssemblyShotName}, to:{replacmentAssemblyShortName}");
-            ResolveEventHandler handler = null;
-            handler = (sender, args) =>
-            {
-                // Use latest strong name & version when trying to load SDK assemblies
-                var requestedAssembly = new AssemblyName(args.Name);
-                log.Debug($"RedirectAssembly >  requesting:{requestedAssembly}; replacment from:{fromAssemblyShotName}, to:{replacmentAssemblyShortName}");
-                if (requestedAssembly.Name == fromAssemblyShotName)
-                {
-                    try
-                    {
-                        log.Debug($"Redirecting Assembly {fromAssemblyShotName} to: {replacmentAssemblyShortName}");
-                        var replacmentAssembly = Assembly.Load(replacmentAssemblyShortName);
-                        return replacmentAssembly;
-                    }
-                    catch (Exception e)
-                    {
-                        log.Error($"ERROR while trying to provide replacement Assembly {fromAssemblyShotName} to: {replacmentAssemblyShortName}", e);
-                        return null;
-                    }
-                }
-
-                log.Debug($"Framework faild to find {requestedAssembly}, trying to provide replacment from:{fromAssemblyShotName}, to:{replacmentAssemblyShortName}");
-
-                return null;
-            };
-
-            AppDomain.CurrentDomain.AssemblyResolve += handler;
         }
     }
 }
