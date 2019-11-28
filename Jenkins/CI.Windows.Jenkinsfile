@@ -16,6 +16,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+                "${publish}"
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
@@ -103,7 +104,7 @@ pipeline {
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
             when {
-                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' }        
+                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || "${publish}" == 'true' }        
             }
             steps{
                 dir("clients-generator"){
