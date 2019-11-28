@@ -126,6 +126,10 @@ namespace ConfigurationManager
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
+        public NotificationConfiguration NotificationConfiguration = new NotificationConfiguration();
+        public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();
+        public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
+        public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration();
 
 
 
@@ -183,10 +187,6 @@ namespace ConfigurationManager
         public static CDVRAdapterConfiguration CDVRAdapterConfiguration;
         public static EventConsumersConfiguration EventConsumersConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
-        public static WebServicesConfiguration WebServicesConfiguration;
-        public static PushMessagesConfiguration PushMessagesConfiguration;
-        public static ImageUtilsConfiguration ImageUtilsConfiguration;
-        public static NotificationConfiguration NotificationConfiguration;
 
 
         
@@ -425,16 +425,7 @@ namespace ConfigurationManager
             EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
             //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
             UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
-            WebServicesConfiguration = new WebServicesConfiguration("WebServices");
 
-            
-            PushMessagesConfiguration = new PushMessagesConfiguration("push_messages");
-            
-          
-            ImageUtilsConfiguration = new ImageUtilsConfiguration("image_utils_configuration")
-            {
-                ShouldAllowEmpty = true
-            };
 
             //AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
           
@@ -473,14 +464,10 @@ namespace ConfigurationManager
                     EngagementsConfiguration,
                     EventConsumersConfiguration,
                     UserPINDigitsConfiguration,
-                    WebServicesConfiguration,
-                    PushMessagesConfiguration,
-                    ImageUtilsConfiguration,
                     ODBCWrapperCacheConfiguration,
                     CatalogCacheConfiguration,
                     NotificationCacheConfiguration,
                     GroupsCacheConfiguration,
-                    NotificationConfiguration,
    
                     TVPApiConfiguration
             };
