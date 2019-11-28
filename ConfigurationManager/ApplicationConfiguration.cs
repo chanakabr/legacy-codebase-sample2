@@ -125,6 +125,7 @@ namespace ConfigurationManager
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
+        public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
 
 
 
@@ -190,7 +191,6 @@ namespace ConfigurationManager
 
         
         
-        public HttpClientConfiguration HttpClientConfiguration;
 
 
  
