@@ -209,6 +209,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
+                log.Debug($"An Exception was occurred in AddBulkUpload. details:{ex.ToString()}.");
                 log.Error($"An Exception was occurred in AddBulkUpload. groupId:{groupId}, filePath:{filePath}, userId:{userId}, action:{action}, objectType:{objectTypeName}.", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
