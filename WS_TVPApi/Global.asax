@@ -2,6 +2,7 @@
 <%@ Import Namespace="TVPApiModule.Helper" %>
 <%@ Import Namespace="System.Diagnostics" %>
 <%@ Import Namespace="System.Net" %>
+<%@ Import Namespace="System.Reflection" %>
 
 
 <script RunAt="server">
@@ -33,6 +34,9 @@
         // set monitor and log configuration files
         KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
         KLogMonitor.KLogger.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
+
+        // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
+        RedirectAssembly("System.Private.CoreLib", "mscorlib");
     }
 
     protected void Application_BeginRequest(Object sender, EventArgs e)
@@ -203,6 +207,38 @@
 
         // Append to IIS log the full Url
         Response.AppendToLog(string.Format("|{0}", requestUrl));
+    }
+
+    public static void RedirectAssembly(string fromAssemblyShotName, string replacmentAssemblyShortName)
+    {
+        logger.InfoFormat("Adding custom resolver redirect rule form:{0}, to:{1}", fromAssemblyShotName, replacmentAssemblyShortName);
+        ResolveEventHandler handler = null;
+        handler = (sender, args) =>
+        {
+            // Use latest strong name & version when trying to load SDK assemblies
+            var requestedAssembly = new AssemblyName(args.Name);
+            logger.DebugFormat("RedirectAssembly >  requesting:{0}; replacment from:{1}, to:{2}", requestedAssembly, fromAssemblyShotName, replacmentAssemblyShortName);
+            if (requestedAssembly.Name == fromAssemblyShotName)
+            {
+                try
+                {
+                    logger.DebugFormat("Redirecting Assembly {0} to: {1}", fromAssemblyShotName, replacmentAssemblyShortName);
+                    var replacmentAssembly = Assembly.Load(replacmentAssemblyShortName);
+                    return replacmentAssembly;
+                }
+                catch (Exception e)
+                {
+                    logger.ErrorFormat("ERROR while trying to provide replacement Assembly {0} to: {1}, ex:{2}", fromAssemblyShotName, replacmentAssemblyShortName, e);
+                    return null;
+                }
+            }
+
+            logger.DebugFormat("Framework faild to find {0}, trying to provide replacment from:{1}, to:{2}", requestedAssembly, fromAssemblyShotName, replacmentAssemblyShortName);
+
+            return null;
+        };
+
+        AppDomain.CurrentDomain.AssemblyResolve += handler;
     }
 
 </script>
