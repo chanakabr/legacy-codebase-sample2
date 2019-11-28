@@ -1,20 +1,26 @@
-﻿namespace ConfigurationManager.Types
-{
-    public class AdapterConfiguration
-    {
-        internal static AdapterConfiguration DefaultConfig = new AdapterConfiguration()
-        {
-            OpenTimeout = 10,
-            ReceiveTimeout = 10,
-            SendTimeout = 10,
-            CloseTimeout = 60,
-            MaxReceivedMessageSize = 2147483647 // in bytes
-        };
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
-        public int? SendTimeout { get; set; }
-        public int? OpenTimeout { get; set; }
-        public int? CloseTimeout { get; set; }
-        public int? ReceiveTimeout { get; set; }
-        public int? MaxReceivedMessageSize { get; set; }
+namespace ConfigurationManager.Types
+{
+    public class AdapterConfiguration 
+    {
+        public BaseValue<int?> OpenTimeout = new BaseValue<int?>("openTimeout", 10);
+        public BaseValue<int?> ReceiveTimeout = new BaseValue<int?>("receiveTimeout", 10);
+        public BaseValue<int?> SendTimeout = new BaseValue<int?>("sendTimeout", 10);
+        public BaseValue<int?> CloseTimeout = new BaseValue<int?>("closeTimeout", 60);
+        public BaseValue<int?> MaxReceivedMessageSize = new BaseValue<int?>("maxReceivedMessageSize", 2147483647);
+
+        public AdapterConfiguration DeepCopy()
+        {
+            AdapterConfiguration res = new AdapterConfiguration()
+            {
+                CloseTimeout = CloseTimeout.DeepCopy(),
+                MaxReceivedMessageSize = MaxReceivedMessageSize.DeepCopy(),
+                OpenTimeout = OpenTimeout.DeepCopy(),
+                ReceiveTimeout = ReceiveTimeout.DeepCopy(),
+                SendTimeout = SendTimeout.DeepCopy()
+            };
+            return res;
+        }
     }
 }

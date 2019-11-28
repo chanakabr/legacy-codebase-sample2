@@ -1,58 +1,55 @@
-﻿using ConfigurationManager.Types;
-using Newtonsoft.Json;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 
 namespace ConfigurationManager.Types
 {
-    public class AdaptersConfiguration : ConfigurationValue
+    public class AdaptersConfiguration : BaseConfig<AdaptersConfiguration>
     {
-        public Dictionary<string, AdapterConfiguration> ConfigurationDictionary =
-            new Dictionary<string, AdapterConfiguration>();
+        private  static readonly AdapterConfiguration defaultAdapterConfig = new AdapterConfiguration();
+        
 
-        private readonly JObject _Json;
-        private const string DefaultConfigurationKey = "default";
-        public AdaptersConfiguration(string key) : base(key)
+        public override string TcmKey => TcmObjectKeys.AdaptersConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+
+        public Dictionary<string, AdapterConfiguration> ConfigurationDictionary
+            = new Dictionary<string, AdapterConfiguration>()
+            {
+                {TcmObjectKeys.DefaultAdapterConfigurationKey, defaultAdapterConfig }
+            };
+
+        
+
+        public void SetValues(JToken token, Dictionary<string, AdapterConfiguration> defaultData)
         {
-            string objectValue = Convert.ToString(ObjectValue);
-            if (!string.IsNullOrEmpty(objectValue))
+            AdapterConfiguration defaultConfig = defaultData[TcmObjectKeys.DefaultAdapterConfigurationKey];
+            JObject tokenConfiguration = JObject.Parse(token.ToString());
+            foreach (KeyValuePair<string, JToken> pair in tokenConfiguration)
             {
-                _Json = JObject.Parse(objectValue);
-                ConfigurationDictionary = JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
+                if (ConfigurationDictionary.TryGetValue(pair.Key,  out var currentConfig))
+                {
+                    UpdateAdapterConfigurationAccordingToTcm(pair.Value, currentConfig);
+                }
+                else
+                {
+                    AdapterConfiguration newConfig = defaultConfig.DeepCopy();
+                    UpdateAdapterConfigurationAccordingToTcm(pair.Value, newConfig);
+                    ConfigurationDictionary.Add(pair.Key, newConfig);
+                }
             }
-
-            if (ConfigurationDictionary.TryGetValue(DefaultConfigurationKey, out var tcmConfiguration))
-            {
-                tcmConfiguration.CloseTimeout = tcmConfiguration.CloseTimeout ?? AdapterConfiguration.DefaultConfig.CloseTimeout;
-                tcmConfiguration.MaxReceivedMessageSize = tcmConfiguration.MaxReceivedMessageSize ?? AdapterConfiguration.DefaultConfig.MaxReceivedMessageSize;
-                tcmConfiguration.OpenTimeout = tcmConfiguration.OpenTimeout ?? AdapterConfiguration.DefaultConfig.OpenTimeout;
-                tcmConfiguration.ReceiveTimeout = tcmConfiguration.ReceiveTimeout ?? AdapterConfiguration.DefaultConfig.ReceiveTimeout;
-                tcmConfiguration.SendTimeout = tcmConfiguration.SendTimeout ?? AdapterConfiguration.DefaultConfig.SendTimeout;
-            }
-            else
-            {
-                ConfigurationDictionary[DefaultConfigurationKey] = AdapterConfiguration.DefaultConfig;
-            }
-
-            ShouldAllowEmpty = true;
         }
 
-        internal override bool Validate()
-        {
-            try
-            {
-                base.Validate();
-                var configuration =  JsonConvert.DeserializeObject<Dictionary<string, AdapterConfiguration>>(_Json.ToString());
-                var res = configuration["default"]; //verify default configuration exists
-            }
-            catch (Exception ex)
-            {
-                LogError($"failed to deserialized adapter configuration: {ex.Message}", ConfigurationValidationErrorLevel.Failure);
 
-                return false;
-            }
-            return true;
+        private void UpdateAdapterConfigurationAccordingToTcm(JToken token, AdapterConfiguration config)
+        {
+            base.SetActualValue(token, config.CloseTimeout);
+            base.SetActualValue(token, config.MaxReceivedMessageSize);
+            base.SetActualValue(token, config.OpenTimeout);
+            base.SetActualValue(token, config.ReceiveTimeout);
+            base.SetActualValue(token, config.SendTimeout);
         }
+        
     }
 }

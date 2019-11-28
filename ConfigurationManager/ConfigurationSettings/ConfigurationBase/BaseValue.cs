@@ -26,5 +26,12 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             this.description = description;
         }
 
+        public BaseValue<T> DeepCopy()
+        {
+            BaseValue<T> res = new BaseValue<T>(Key, Value, MustBeOverwriteInTcm, description);
+            
+            return res;
+        }
+
     }
 }

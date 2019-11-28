@@ -19,6 +19,8 @@
         public const string CeleryRoutingConfiguration = "CELERY_ROUTING";
         public const string DistributedTasks = "distributed_tasks";
         public const string ImageResizerConfiguration = "image_resizer_configuration";
+        public const string AdaptersConfiguration = "adapters_client_configuration";
+        public const string DefaultAdapterConfigurationKey = "default";
     }
 }
 

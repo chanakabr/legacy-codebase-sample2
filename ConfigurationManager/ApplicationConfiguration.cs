@@ -24,6 +24,7 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
+
         public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
         public BaseValue<string> UseOldImageServer = new BaseValue<string>("USE_OLD_IMAGE_SERVER", "0", true, "Group Ids, split by ';', that wish to use old image server");
@@ -117,7 +118,7 @@ namespace ConfigurationManager
         public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
         public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
-
+        public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
 
 
 
@@ -183,7 +184,7 @@ namespace ConfigurationManager
 
 
         
-        public static AdaptersConfiguration AdaptersConfiguration;
+        
         public static HttpClientConfiguration HttpClientConfiguration;
 
 
@@ -375,7 +376,7 @@ namespace ConfigurationManager
                 ShouldAllowEmpty = true
             };
 
-            AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
+            //AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
           
 
             TVPApiConfiguration = new TVPApiConfiguration("tvpapi_configuration")

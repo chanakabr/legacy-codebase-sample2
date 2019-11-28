@@ -13,7 +13,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public abstract string TcmKey { get; }
+        public abstract string TcmKey { get;  }
 
         public abstract string [] TcmPath { get; }
 
@@ -67,6 +67,13 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                         var genericMethod = methodInfo.MakeGenericMethod(argu);
                         genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
                     }
+
+                }
+                else if(field.FieldType == typeof(Dictionary<string, AdapterConfiguration>))
+                {
+                    Type argu = field.FieldType.GetGenericArguments()[0];
+                    MethodInfo methodInfo = type.GetMethod("SetValues");
+                    methodInfo.Invoke(baseConfig, new object[] { token, baseValueData });
 
                 }
                 else if (field.FieldType == type && field.Name == "Current")
