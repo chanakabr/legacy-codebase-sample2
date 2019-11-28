@@ -2055,7 +2055,7 @@ namespace Core.Catalog
                 CatalogGroupCache catalogGroupCache;
                 if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    isRegionalizationEnabled = true;
+                    isRegionalizationEnabled = catalogGroupCache.IsRegionalizationEnabled;
                     defaultRegion = catalogGroupCache.DefaultRegion;
 
                     linearMediaTypes.AddRange(catalogGroupCache.AssetStructsMapById.Values.Where(v => v.IsLinearAssetStruct).Select(a => a.Id.ToString()));
