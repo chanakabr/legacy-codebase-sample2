@@ -17,6 +17,7 @@ using WebAPI.Managers.Models;
 using System.Runtime.Serialization;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
+using ConfigurationManager;
 
 namespace WebAPI.Filters
 {
@@ -120,7 +121,7 @@ namespace WebAPI.Filters
             }
 
             // BEO-7013 - add all invalidation keys to header
-            if (ConfigurationManager.ApplicationConfiguration.ShouldAddInvalidationKeysToHeader.Value)
+            if (ApplicationConfiguration.Current.ShouldAddInvalidationKeysToHeader.Value)
             {
                 if (HttpContext.Current?.Items != null && HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.CURRENT_REQUEST_LAYERED_CACHE] != null &&
                     HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.CURRENT_REQUEST_LAYERED_CACHE] is CachingProvider.LayeredCache.RequestLayeredCache)

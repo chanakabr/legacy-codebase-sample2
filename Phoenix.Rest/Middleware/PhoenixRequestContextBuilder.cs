@@ -29,8 +29,8 @@ namespace Phoenix.Rest.Middleware
     public class PhoenixRequestContextBuilder
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
-        private static int _LegacyAccessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
+        private static readonly string _FileSystemUploaderSourcePath = ApplicationConfiguration.Current.RequestParserConfiguration.TempUploadFolder.Value;
+        private static int _LegacyAccessTokenLength = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenLength.Value;
         private readonly RequestDelegate _Next;
 
         public PhoenixRequestContextBuilder(RequestDelegate next)

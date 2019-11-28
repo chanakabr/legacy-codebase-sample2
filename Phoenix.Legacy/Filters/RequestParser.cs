@@ -46,7 +46,7 @@ namespace WebAPI.Filters
         private const char PARAMS_PREFIX = ':';
         private const char PARAMS_NESTED_PREFIX = '.';
 
-        private static readonly string fileSystemUploaderSourcePath = ApplicationConfiguration.RequestParserConfiguration.TempUploadFolder.Value;
+        private static readonly string fileSystemUploaderSourcePath = ApplicationConfiguration.Current.RequestParserConfiguration.TempUploadFolder.Value;
 
         private static Dictionary<string, Type> types = null;
         private static object locker = new object();
