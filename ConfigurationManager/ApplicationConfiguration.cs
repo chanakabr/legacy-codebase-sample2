@@ -439,10 +439,7 @@ namespace ConfigurationManager
             //AdaptersConfiguration = new AdaptersConfiguration("adapters_client_configuration");
           
 
-            TVPApiConfiguration = new TVPApiConfiguration("tvpapi_configuration")
-            {
-                ShouldAllowEmpty = true
-            };
+
 
           
 
@@ -481,7 +478,6 @@ namespace ConfigurationManager
                     GroupsCacheConfiguration,
                     NotificationConfiguration,
    
-                    TVPApiConfiguration
             };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

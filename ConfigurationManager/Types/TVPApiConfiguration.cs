@@ -1,105 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+﻿using System.Collections.Generic;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class TVPApiConfiguration : ConfigurationValue
+    public class TVPApiConfiguration : BaseConfig<TVPApiConfiguration>
     {
-        public NumericConfigurationValue CacheLiteDurationInMinutes;
-        public BooleanConfigurationValue ShouldUseNewCache;
-        public OfflineFavoriteSyncGroupsConfiguration OfflineFavoriteSyncGroups;
-        public NumericConfigurationValue OdbcCacheSeconds;
-        public NumericConfigurationValue AuthorizationGroupConfigsTtlSeconds;
-        public CommaSeparatedConfigurationValue AuthorizationUnsupportedGroupsPlatforms;
-        public StringConfigurationValue MainConnectionString;
-        public StringConfigurationValue DefaultTechnicalConfigurationFileLocation;
-        public StringConfigurationValue DefaultMediaConfigurationFileLocation;
-        public StringConfigurationValue DefaultSiteConfigurationFileLocation;
-        public NumericConfigurationValue EPGSearchOffsetDays;
-        public StringConfigurationValue SecureSiteGuidKey;
-        public StringConfigurationValue SecureSiteGuidIV;
+        public override string TcmKey => TcmObjectKeys.TVPApiConfiguration;
 
-        public TVPApiConfiguration(string key) : base(key)
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        public CommaSeparatedConfigurationValue AuthorizationUnsupportedGroupsPlatforms;
+        public OfflineFavoriteSyncGroupsConfiguration OfflineFavoriteSyncGroups;
+
+
+        public BaseValue<bool> ShouldUseNewCache = new BaseValue<bool>("should_use_new_cache", true, true, "Originally in web.config: ShouldUseNewCache");
+        public BaseValue<int> CacheLiteDurationInMinutes = new BaseValue<int>("cache_lite_duration_in_minutes", 1440, true, "Originally in web.config: Tvinci.DataLoader.CacheLite.DurationInMinutes");
+        public BaseValue<int> OdbcCacheSeconds = new BaseValue<int>("odbc_cache_seconds", 60);
+        public BaseValue<int> AuthorizationGroupConfigsTtlSeconds = new BaseValue<int>("authorization_group_configs_ttl_seconds", 86400);
+        public BaseValue<int> EPGSearchOffsetDays = new BaseValue<int>("epg_search_offset_days", 7, true, "On old EPG search requests, how many days back/forward from now should we search. " +
+                "Originally from GlobalAppSettings.config, key EPGSearchOffsetDays.");
+        public BaseValue<string> MainConnectionString = new BaseValue<string>("main_connection_string", null, true, "Originally in web.config: TVinciDBConfig section, but now it is put together.");
+        public BaseValue<string> DefaultTechnicalConfigurationFileLocation = new BaseValue<string>("default_technical_configuration_file_location", "DefaultTechnicalConfiguration.config", true, "Location of XML file that will contain all group-platform default values for technical configuration.");
+        public BaseValue<string> DefaultMediaConfigurationFileLocation = new BaseValue<string>("default_media_configuration_file_location", "DefaultMediaConfiguration.config", true, "Location of XML file that will contain group-platform default values for media configuration.");
+        public BaseValue<string> DefaultSiteConfigurationFileLocation = new BaseValue<string>("default_site_configuration_file_location", "DefaultSiteConfiguration.config", true, "Location of XML file that will contain group-platform default values for site configuration.");
+        public BaseValue<string> SecureSiteGuidKey = new BaseValue<string>("secure_site_guid_key", "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA=", true, "Originally from GlobalAppSettings.config, key SecureSiteGuidKey");
+        public BaseValue<string> SecureSiteGuidIV = new BaseValue<string>("secure_site_guid_iv", "Yn5/n0s8B0yLRvGuhSLRrA==", true, "Originally from GlobalAppSettings.config, key SecureSiteGuidIV");
+
+        /*public TVPApiConfiguration(string key) 
         {
-            CacheLiteDurationInMinutes = new NumericConfigurationValue("cache_lite_duration_in_minutes", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 1440,
-                Description = "Originally in web.config: Tvinci.DataLoader.CacheLite.DurationInMinutes"
-            };
-            ShouldUseNewCache = new BooleanConfigurationValue("should_use_new_cache", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true,
-                Description = "Originally in web.config: ShouldUseNewCache"
-            };
-            OfflineFavoriteSyncGroups = new OfflineFavoriteSyncGroupsConfiguration("offline_favorite_sync_groups", this)
+          
+            OfflineFavoriteSyncGroups = new OfflineFavoriteSyncGroupsConfiguration("offline_favorite_sync_groups")
             {
                 ShouldAllowEmpty = true,
                 Description = "Originally in web.config: {group_id}_OfflineFavoriteSync. " +
                 "Now it is a comma separted list of groups that should use offline favorite sync"
             };
-            OdbcCacheSeconds = new NumericConfigurationValue("odbc_cache_seconds", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 60
-            };
-            AuthorizationGroupConfigsTtlSeconds = new NumericConfigurationValue("authorization_group_configs_ttl_seconds", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 86400
-            };
-            AuthorizationUnsupportedGroupsPlatforms = new CommaSeparatedConfigurationValue("authorization_unsupported_groups_platforms", this)
+         
+            AuthorizationUnsupportedGroupsPlatforms = new CommaSeparatedConfigurationValue("authorization_unsupported_groups_platforms")
             {
                 ShouldAllowEmpty = true,
                 Description = "Originally in web.config: Authorization.UnsupportedGroupsPlatforms. " +
                 "Comma separated list of {group_id}_{platform}"
             };
-            MainConnectionString = new StringConfigurationValue("main_connection_string", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "Originally in web.config: TVinciDBConfig section, but now it is put together."
-            };
-            DefaultTechnicalConfigurationFileLocation = new StringConfigurationValue("default_technical_configuration_file_location", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "Location of XML file that will contain all group-platform default values for technical configuration.",
-                DefaultValue = "DefaultTechnicalConfiguration.config"
-            };
-            DefaultSiteConfigurationFileLocation = new StringConfigurationValue("default_site_configuration_file_location", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "Location of XML file that will contain group-platform default values for site configuration.",
-                DefaultValue = "DefaultSiteConfiguration.config"
-            };
-            DefaultMediaConfigurationFileLocation = new StringConfigurationValue("default_media_configuration_file_location", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "Location of XML file that will contain group-platform default values for media configuration.",
-                DefaultValue = "DefaultMediaConfiguration.config"
-            };
-            EPGSearchOffsetDays = new NumericConfigurationValue("epg_search_offset_days", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "On old EPG search requests, how many days back/forward from now should we search. " +
-                "Originally from GlobalAppSettings.config, key EPGSearchOffsetDays.",
-                DefaultValue = 7
-            };
-            SecureSiteGuidKey = new StringConfigurationValue("secure_site_guid_key", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "Originally from GlobalAppSettings.config, key SecureSiteGuidKey",
-                DefaultValue = "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA="
-            };
-            SecureSiteGuidIV = new StringConfigurationValue("secure_site_guid_iv", this)
-            {
-                ShouldAllowEmpty = true,
-                Description = "Originally from GlobalAppSettings.config, key SecureSiteGuidIV",
-                DefaultValue = "Yn5/n0s8B0yLRvGuhSLRrA=="
-            };
-        }
+           
+        }*/
+
+     
     }
 
     public class OfflineFavoriteSyncGroupsConfiguration : StringConfigurationValue
