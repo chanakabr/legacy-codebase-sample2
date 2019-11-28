@@ -1137,7 +1137,7 @@ namespace Core.Notification
             Status result = new Status() { Code = (int)eResponseStatus.Error };
 
             // get maximum allowed push 
-            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
+            int allowedPushMsg = ApplicationConfiguration.Current.PushMessagesConfiguration.NumberOfMessagesPerSecond.Value;
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
@@ -1452,7 +1452,7 @@ namespace Core.Notification
             }
 
             // get maximum allowed push 
-            int allowedPushMsg = ApplicationConfiguration.PushMessagesConfiguration.NumberOfMessagesPerSecond.IntValue;
+            int allowedPushMsg = ApplicationConfiguration.Current.PushMessagesConfiguration.NumberOfMessagesPerSecond.Value;
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 

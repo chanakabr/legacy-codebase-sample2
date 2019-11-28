@@ -164,9 +164,9 @@ namespace Core.Notification
             get
             {
                 int ret = 10;
-                if (ApplicationConfiguration.NotificationConfiguration.BroadcastTasksNum.IntValue > 0)
+                if (ApplicationConfiguration.Current.NotificationConfiguration.BroadcastTasksNum.Value > 0)
                 {
-                    return ApplicationConfiguration.NotificationConfiguration.BroadcastTasksNum.IntValue;
+                    return ApplicationConfiguration.Current.NotificationConfiguration.BroadcastTasksNum.Value;
                 }
                 return ret;
             }
@@ -181,9 +181,9 @@ namespace Core.Notification
             get
             {
                 int ret = 100;
-                if (ApplicationConfiguration.NotificationConfiguration.BroadcastMinMessagesNumForTasks.IntValue > 0)
+                if (ApplicationConfiguration.Current.NotificationConfiguration.BroadcastMinMessagesNumForTasks.Value > 0)
                 {
-                    return ApplicationConfiguration.NotificationConfiguration.BroadcastMinMessagesNumForTasks.IntValue;
+                    return ApplicationConfiguration.Current.NotificationConfiguration.BroadcastMinMessagesNumForTasks.Value;
                 }
                 return ret;
             }
@@ -197,9 +197,9 @@ namespace Core.Notification
             get
             {
                 int ret = 50;
-                if (ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleep.IntValue > 0)
+                if (ApplicationConfiguration.Current.NotificationConfiguration.BroadcastThreadSleep.Value > 0)
                 {
-                    return ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleep.IntValue;
+                    return ApplicationConfiguration.Current.NotificationConfiguration.BroadcastThreadSleep.Value;
                 }
                 return ret;
             }
@@ -213,9 +213,9 @@ namespace Core.Notification
             get
             {
                 int ret = 100;
-                if (ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleepIndicator.IntValue > 0)
+                if (ApplicationConfiguration.Current.NotificationConfiguration.BroadcastThreadSleepIndicator.Value > 0)
                 {
-                    return ApplicationConfiguration.NotificationConfiguration.BroadcastThreadSleepIndicator.IntValue;
+                    return ApplicationConfiguration.Current.NotificationConfiguration.BroadcastThreadSleepIndicator.Value;
                 }
                 return ret;
             }

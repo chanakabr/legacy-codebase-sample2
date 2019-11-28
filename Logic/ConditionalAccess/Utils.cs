@@ -6457,7 +6457,7 @@ namespace Core.ConditionalAccess
                     ShouldUseSearchEndDate = true
                 };
                 FillCatalogSignature(request);
-                string catalogUrl = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+                string catalogUrl = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
                 if (string.IsNullOrEmpty(catalogUrl))
                 {
                     log.Error("Catalog Url is null or empty");

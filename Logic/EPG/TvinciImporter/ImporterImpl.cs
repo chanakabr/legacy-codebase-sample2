@@ -5358,7 +5358,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrl(int nGroupID)
         {
-            string sCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+            string sCatalogURL = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
             try
             {
                 DataTable dt = ImporterImpDAL.Get_CatalogUrl(nGroupID);
@@ -5385,7 +5385,7 @@ namespace TvinciImporter
         /// <returns>Concatenated urls from DB</returns>
         private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
         {
-            string tcmCatalogURL = ApplicationConfiguration.WebServicesConfiguration.Catalog.URL.Value;
+            string tcmCatalogURL = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.URL.Value;
             string catalogURL = tcmCatalogURL;
 
             try
