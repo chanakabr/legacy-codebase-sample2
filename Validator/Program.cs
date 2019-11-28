@@ -16,8 +16,6 @@ namespace Validator
         {
             bool valid = SchemeManager.Validate();
 
-            valid &= ApplicationConfiguration.Validate();
-
             Console.Read();
 
             if (valid)
