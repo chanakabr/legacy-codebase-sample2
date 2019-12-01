@@ -33,9 +33,12 @@ namespace ApiLogic.Api.Managers
                     return response;
                 }
                 if (partnerConfig != null)
-                {
-                    response.Objects.Add(partnerConfig);
+                {                    
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    if(partnerConfig.ObjectVirtualAssets?.Count > 0)
+                    {
+                        response.Objects.Add(partnerConfig);
+                    }
                 }
             }
             catch (Exception exc)
