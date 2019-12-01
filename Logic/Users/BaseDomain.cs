@@ -1930,7 +1930,11 @@ namespace Core.Users
 
             Device device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
 
-            var deviceId = Device.GetDeviceIDByExternalId(m_nGroupID, externalId);
+            //Already exists
+            if (!string.IsNullOrEmpty(Device.GetDeviceIDByExternalId(m_nGroupID, externalId)))
+            {
+                return response;
+            }
 
             //already exists
             if (!string.IsNullOrEmpty(deviceUdid))
