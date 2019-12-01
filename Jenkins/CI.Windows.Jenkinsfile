@@ -49,7 +49,7 @@ pipeline {
         stage("Clean"){
             steps{
                 sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
-                sh(label:"clean published folder", script:"rm -rf ./published")
+                // sh(label:"clean published folder", script:"rm -rf ./published")
             }
         }
         stage("Build"){
