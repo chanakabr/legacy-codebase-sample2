@@ -67,11 +67,7 @@ namespace WS_API
 
                         string jsonRequestBody = json.ToString();
 
-                        string esURL = WS_Utils.GetTcmConfigValue("ES_URL_V2");
-                        if (string.IsNullOrEmpty(esURL))
-                        {
-                            esURL = WS_Utils.GetTcmConfigValue("ES_URL");
-                        }
+                        string esURL = WS_Utils.GetTcmConfigValue("ES_URL");
 
                         string documentId = string.Format("{0}_{1}_{2}", objectType, action, idString);
 
@@ -80,7 +76,7 @@ namespace WS_API
                         string postErrorMsg = string.Empty;
                         int httpStatus = 0;
 
-                        ElasticSearch.Common.ElasticSearchApi api = new ElasticSearch.Common.ElasticSearchApi(esURL);
+                        ElasticSearch.Common.ElasticSearchApi api = new ElasticSearch.Common.ElasticSearchApi();
                         var postRequestResult = api.SendPostHttpReq(postURL, ref httpStatus, string.Empty, string.Empty, requestBody, true);
                         log.DebugFormat("Finished successfully - elastic response: {0}", postRequestResult);
                     }

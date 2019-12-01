@@ -3,7 +3,7 @@ pipeline {
         label 'Windows'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
     }
     environment {
@@ -16,6 +16,7 @@ pipeline {
     stages {
         stage("Checkout"){
             steps{
+                "${publish}"
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvpapi_rest') { git(url: 'https://github.com/kaltura/Phoenix.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
@@ -66,18 +67,6 @@ pipeline {
                             + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
                     )
 
-                    bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
-                            + " -p:Configuration=Release"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
-                    )
-
-                    bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
-                            + " -p:Configuration=Release"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
-                    )
-
                     dir("${WORKSPACE}/published/permissions"){
                         bat("PermissionsDeployment.exe e=permissions.xml")
                     }
@@ -88,7 +77,7 @@ pipeline {
             steps { 
                 dir("tvpapi_rest/Generator"){
                     bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp2.0"){
+                    dir("bin/Release/netcoreapp3.0"){
                         bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
                         bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\")
                     }
@@ -114,7 +103,9 @@ pipeline {
         }
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
-            when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || "${publish}" == 'true' }}
+            when {
+                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || "${publish}" == 'true' }        
+            }
             steps{
                 dir("clients-generator"){
                     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {

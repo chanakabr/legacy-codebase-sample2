@@ -73,8 +73,15 @@ namespace Phoenix.Rest.Middleware
 
             try
             {
-                var stringResponse = await formatter.GetStringResponse(wrappedResponse);
-                await context.Response.WriteAsync(stringResponse);
+                if (formatter is ExcelFormatter)
+                {
+                    await formatter.WriteToStreamAsync(wrappedResponse.GetType(), wrappedResponse, context.Response.Body, null, null);
+                }
+                else
+                {
+                    var stringResponse = await formatter.GetStringResponse(wrappedResponse);
+                    await context.Response.WriteAsync(stringResponse);
+                }
             }
             catch (Exception e)
             {
