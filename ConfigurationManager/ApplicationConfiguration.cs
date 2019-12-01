@@ -146,6 +146,7 @@ namespace ConfigurationManager
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
         public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
+        public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
 
         #region Configuration values
 
@@ -157,7 +158,6 @@ namespace ConfigurationManager
         public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
      
         public static FacebookConfiguration FacebookConfiguration;
-        public static TwitterConfiguration TwitterConfiguration;
         public static SocialFeedConfiguration SocialFeedConfiguration;
         public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
@@ -234,9 +234,7 @@ namespace ConfigurationManager
    
             FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
 
-            TwitterConfiguration = new TwitterConfiguration("twitter_configuration")
-            {
-            };
+
             SocialFeedConfiguration = new SocialFeedConfiguration("social_feed_configuration");
 
             SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
@@ -263,7 +261,6 @@ namespace ConfigurationManager
                     
                     CouchbaseClientConfiguration,
                     FacebookConfiguration,
-                    TwitterConfiguration,
                     SocialFeedConfiguration,
                
                     SocialFeedQueueConfiguration,

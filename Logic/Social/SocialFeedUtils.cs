@@ -111,8 +111,8 @@ namespace Core.Social
 
         public static class Twitter
         {
-            public static readonly string TWITTER_CONSUMER_KEY = ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value;
-            public static readonly string TWITTER_CONSUMER_SECRET = ApplicationConfiguration.TwitterConfiguration.ConsumerSecret.Value;
+            public static readonly string TWITTER_CONSUMER_KEY = ApplicationConfiguration.Current.TwitterConfiguration.ConsumerKey.Value;
+            public static readonly string TWITTER_CONSUMER_SECRET = ApplicationConfiguration.Current.TwitterConfiguration.ConsumerSecret.Value;
             static Dictionary<int, ApplicationOnlyAuthorizer> _accessTokenDictionary = new Dictionary<int, ApplicationOnlyAuthorizer>();
             static object _locker = new object();
 
@@ -480,7 +480,7 @@ namespace Core.Social
                             {
                                 try
                                 {
-                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value,
+                                    socialPlatformFeed = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(mediaTag.Value, ApplicationConfiguration.Current.TwitterConfiguration.ConsumerKey.Value,
                                         Twitter.TWITTER_CONSUMER_SECRET, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue);
                                 }
                                 catch (Exception)

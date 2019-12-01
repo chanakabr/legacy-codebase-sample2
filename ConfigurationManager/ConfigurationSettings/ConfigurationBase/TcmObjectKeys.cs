@@ -49,6 +49,7 @@
         public const string SocialFeedRabbitConfiguration = "social_feed";
         public const string ProfessionalServicesRabbitConfiguration = "professional_services";
         public const string RoleIdsConfiguration = "role_ids";
+        public const string TwitterConfiguration = "twitter_configuration";
     }
 }
 
