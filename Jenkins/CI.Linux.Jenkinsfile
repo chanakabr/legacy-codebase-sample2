@@ -17,9 +17,11 @@ pipeline {
     }
     stages {
         stage('Display Warning'){
-            echo 'Branch 5_2_6 cant compile .net core... canceling!'
-            exit 0
-            currentBuild.result = 'SUCCESS'
+            steps {
+                echo 'Branch 5_2_6 cant compile .net core... canceling!'
+                exit 0
+                currentBuild.result = 'SUCCESS'
+            }
         }
         stage('Checkout'){
             steps{
