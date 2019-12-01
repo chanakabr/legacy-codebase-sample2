@@ -28,6 +28,7 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
+        public EutelsatSettings EutelsatSettings = new EutelsatSettings();
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration= new ProfessionalServicesTasksConfiguration();
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
 
@@ -144,13 +145,13 @@ namespace ConfigurationManager
         public NotificationConfiguration NotificationConfiguration = new NotificationConfiguration();
         public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
-        public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration();
 
- 
+        public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
+
         #region Configuration values
 
-        
-        public static EutelsatSettings EutelsatSettings;
+
+
         public static ElasticSearchConfiguration ElasticSearchConfiguration;
      
         public static HarmonicProviderConfiguration HarmonicProviderConfiguration;
@@ -237,11 +238,6 @@ namespace ConfigurationManager
           
             #endregion
 
-
-            EutelsatSettings = new EutelsatSettings("eutelsat_settings")
-            {
-                ShouldAllowEmpty = true
-            };
             ElasticSearchConfiguration = new ElasticSearchConfiguration("elasticsearch_settings");
  
 
@@ -279,7 +275,6 @@ namespace ConfigurationManager
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    EutelsatSettings,
                     ElasticSearchConfiguration,
                     HarmonicProviderConfiguration,
                     RabbitConfiguration,

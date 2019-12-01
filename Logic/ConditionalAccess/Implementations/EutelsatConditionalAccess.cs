@@ -215,7 +215,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // Check user's entitlement via 3SS interface
-                bool skip3SSCheck = ApplicationConfiguration.EutelsatSettings.Skip3SSCheck.Value;
+                bool skip3SSCheck = ApplicationConfiguration.Current.EutelsatSettings.Skip3SSCheck.Value;
 
                 if (!skip3SSCheck)
                 {
@@ -291,7 +291,7 @@ namespace Core.ConditionalAccess
 
                     // If device is portal (3SS), do NOT notify!
                     //
-                    string transDeviceFilter = ApplicationConfiguration.EutelsatSettings.Transaction_Device_Filter.Value;
+                    string transDeviceFilter = ApplicationConfiguration.Current.EutelsatSettings.Transaction_Device_Filter.Value;
 
                     if (!string.IsNullOrEmpty(sDeviceUDID) && (!sDeviceUDID.Contains(transDeviceFilter)))
                     {
@@ -368,9 +368,9 @@ namespace Core.ConditionalAccess
             EutelsatTransactionResponse res = new EutelsatTransactionResponse();
             res.Success = false;
 
-            string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_CheckTvod_ws.Value;
-            string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
-            string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
+            string sWSURL = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_CheckTvod_ws.Value;
+            string sWSUsername = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+            string sWSPassword = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sHouseholdUID))
             {
@@ -412,9 +412,9 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_Transaction_ws.Value;
-                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
-                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
+                string sWSURL = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_Transaction_ws.Value;
+                string sWSUsername = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sHouseholdUID) || string.IsNullOrEmpty(sWSURL))
                 {
@@ -491,9 +491,9 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_Subscription_ws.Value;
-                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
-                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
+                string sWSURL = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_Subscription_ws.Value;
+                string sWSUsername = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sHouseholdUID) || string.IsNullOrEmpty(sWSURL))
                 {
@@ -788,7 +788,7 @@ namespace Core.ConditionalAccess
 
                 // If device is portal (3SS), do NOT notify!
                 //
-                string transDeviceFilter = ApplicationConfiguration.EutelsatSettings.Transaction_Device_Filter.Value;
+                string transDeviceFilter = ApplicationConfiguration.Current.EutelsatSettings.Transaction_Device_Filter.Value;
 
                 if (!string.IsNullOrEmpty(sDEVICE_NAME) && (!sDEVICE_NAME.Contains(transDeviceFilter)))
                 {
@@ -871,12 +871,12 @@ namespace Core.ConditionalAccess
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
 
-                int nRightMargin = ApplicationConfiguration.EutelsatSettings.RightMargin.IntValue;
-                int nLeftMargin = ApplicationConfiguration.EutelsatSettings.LeftMargin.IntValue;
+                int nRightMargin = ApplicationConfiguration.Current.EutelsatSettings.RightMargin.Value;
+                int nLeftMargin = ApplicationConfiguration.Current.EutelsatSettings.LeftMargin.Value;
 
                 // Time Factor for aligment with Harmonic server (e.g. convert millisec -> 10Xmicrosec)
                 
-                int timeMultFactor = ApplicationConfiguration.EutelsatSettings.TimeMultFactor.IntValue;
+                int timeMultFactor = ApplicationConfiguration.Current.EutelsatSettings.TimeMultFactor.Value;
 
                 //call api service to get the epg_url_link 
                 //get channel name 

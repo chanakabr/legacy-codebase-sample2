@@ -52,7 +52,7 @@ namespace Notifiers
             ProductNotificationResponse res = new ProductNotificationResponse();
             res.success = false;
 
-            string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_ProductBase.Value; //+(update ? "/update" : "/create");
+            string sWSURL = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_ProductBase.Value; //+(update ? "/update" : "/create");
 
             switch (create0update1assign2)
             {
@@ -68,8 +68,8 @@ namespace Notifiers
                     break;
             }
 
-            string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
-            string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
+            string sWSUsername = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+            string sWSPassword = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
             if (string.IsNullOrEmpty(sSubscriptionID) || string.IsNullOrEmpty(sWSURL))
             {

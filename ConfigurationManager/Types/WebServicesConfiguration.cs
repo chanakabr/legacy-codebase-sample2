@@ -21,7 +21,7 @@ namespace ConfigurationManager
 
         public WebServicesConfiguration()
         {
-            Users = new ConfigurationManager.WebServiceConfiguration("Users", "http://webservices/users/module.asmx");
+            Users = new WebServiceConfiguration("Users", "http://webservices/users/module.asmx");
             ConditionalAccess = new ConfigurationManager.WebServiceConfiguration("ConditionalAccess", "http://webservices/cas/module.asmx");
             Api = new ConfigurationManager.WebServiceConfiguration("Api", "http://webservices/api/api.asmx");
             Pricing = new ConfigurationManager.WebServiceConfiguration("Pricing", "http://webservices/pricing/module.asmx");

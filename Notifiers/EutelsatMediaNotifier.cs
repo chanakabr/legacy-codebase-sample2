@@ -51,9 +51,9 @@ namespace Notifiers
 
             try
             {
-                string sWSURL = ApplicationConfiguration.EutelsatSettings.Eutelsat_ProductBase + "/assign";
-                string sWSUsername = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
-                string sWSPassword = ApplicationConfiguration.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
+                string sWSURL = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_ProductBase + "/assign";
+                string sWSUsername = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Username.Value;
+                string sWSPassword = ApplicationConfiguration.Current.EutelsatSettings.Eutelsat_3SS_WS_Password.Value;
 
                 if (string.IsNullOrEmpty(sMediaID) || string.IsNullOrEmpty(sWSURL))
                 {

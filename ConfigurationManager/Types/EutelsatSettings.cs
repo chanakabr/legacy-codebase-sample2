@@ -1,73 +1,24 @@
-﻿namespace ConfigurationManager
-{
-    public class EutelsatSettings : ConfigurationValue
-    {
-        public StringConfigurationValue Eutelsat_CheckTvod_ws;
-        public StringConfigurationValue Eutelsat_Transaction_ws;
-        public StringConfigurationValue Eutelsat_Subscription_ws;
-        public StringConfigurationValue Eutelsat_3SS_WS_Username;
-        public StringConfigurationValue Eutelsat_3SS_WS_Password;
-        public StringConfigurationValue Eutelsat_ProductBase;
-        public NumericConfigurationValue RightMargin;
-        public NumericConfigurationValue LeftMargin;
-        public NumericConfigurationValue TimeMultFactor;
-        public BooleanConfigurationValue Skip3SSCheck;
-        public StringConfigurationValue Transaction_Device_Filter;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
-        public EutelsatSettings(string key) : base(key)
-        {
-            Eutelsat_CheckTvod_ws = new StringConfigurationValue("Eutelsat_CheckTvod_ws", this)
-            {
-                OriginalKey = "Eutelsat_CheckTvod_ws"
-            };
-            Eutelsat_Transaction_ws = new StringConfigurationValue("Eutelsat_Transaction_ws", this)
-            {
-                OriginalKey = "Eutelsat_Transaction_ws"
-            };
-            Eutelsat_Subscription_ws = new StringConfigurationValue("Eutelsat_Subscription_ws", this)
-            {
-                OriginalKey = "Eutelsat_Subscription_ws"
-            };
-            Eutelsat_3SS_WS_Username = new StringConfigurationValue("Eutelsat_3SS_WS_Username", this)
-            {
-                OriginalKey = "Eutelsat_3SS_WS_Username"
-            };
-            Eutelsat_3SS_WS_Password = new StringConfigurationValue("Eutelsat_3SS_WS_Password", this)
-            {
-                OriginalKey = "Eutelsat_3SS_WS_Password"
-            };
-            Eutelsat_ProductBase = new StringConfigurationValue("Eutelsat_ProductBase", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "Eutelsat_ProductBase"
-            };
-            Skip3SSCheck = new BooleanConfigurationValue("SKIP_3SS_CHECK", this)
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true,
-                OriginalKey = "SKIP_3SS_CHECK"
-            };
-            RightMargin = new NumericConfigurationValue("right_margin", this)
-            {
-                DefaultValue = 8,
-                OriginalKey = "right_margin"
-            };
-            LeftMargin = new NumericConfigurationValue("left_margin", this)
-            {
-                DefaultValue = 3,
-                OriginalKey = "left_margin"
-            };
-            TimeMultFactor = new NumericConfigurationValue("time_mult_factor", this)
-            {
-                DefaultValue = 10000,
-                OriginalKey = "time_mult_factor"
-            };
-            Transaction_Device_Filter = new StringConfigurationValue("Transaction_Device_Filter", this)
-            {
-                DefaultValue = string.Empty,
-                ShouldAllowEmpty = true,
-                OriginalKey = "Transaction_Device_Filter"
-            };
-        }
+namespace ConfigurationManager
+{
+    public class EutelsatSettings : BaseConfig<EutelsatSettings>
+    {
+        public BaseValue<string> Eutelsat_CheckTvod_ws = new BaseValue<string>("Eutelsat_CheckTvod_ws", null);
+        public override string TcmKey => TcmObjectKeys.EutelsatSettings;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        public BaseValue<string> Eutelsat_Transaction_ws = new BaseValue<string>("Eutelsat_Transaction_ws", null);
+        public BaseValue<string> Eutelsat_Subscription_ws = new BaseValue<string>("Eutelsat_Subscription_ws", null);
+        public BaseValue<string> Eutelsat_3SS_WS_Username = new BaseValue<string>("Eutelsat_3SS_WS_Username", null);
+        public BaseValue<string> Eutelsat_3SS_WS_Password = new BaseValue<string>("Eutelsat_3SS_WS_Password", null);
+        public BaseValue<string> Eutelsat_ProductBase = new BaseValue<string>("Eutelsat_ProductBase", null);
+        public BaseValue<int> RightMargin = new BaseValue<int>("right_margin", 8);
+        public BaseValue<int> LeftMargin = new BaseValue<int>("left_margin", 3);
+        public BaseValue<int> TimeMultFactor = new BaseValue<int>("time_mult_factor", 10000);
+        public BaseValue<bool> Skip3SSCheck = new BaseValue<bool>("SKIP_3SS_CHECK", false);
+        public BaseValue<string> Transaction_Device_Filter = new BaseValue<string>("Transaction_Device_Filter", string.Empty);
+
     }
 }

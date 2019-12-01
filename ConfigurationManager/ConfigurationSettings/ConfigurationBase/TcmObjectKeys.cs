@@ -35,6 +35,7 @@
         public const string LicensedLinksCacheConfiguration = "licensed_links_cache_configuration";
         public const string ProfessionalServicesActionConfiguration = "alu_sync";
         public const string ProfessionalServicesTasksConfiguration = "professional_services_tasks";
+        public const string EutelsatSettings = "eutelsat_settings";
     }
 }
 
