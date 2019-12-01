@@ -317,11 +317,11 @@ namespace Core.Users
 
             if (DAL.UsersDal.IsUserDomainMaster(GroupId, userId))
             {
-                roleId = ApplicationConfiguration.RoleIdsConfiguration.MasterRoleId.LongValue;
+                roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.MasterRoleId.Value;
             }
             else
             {
-                roleId = ApplicationConfiguration.RoleIdsConfiguration.UserRoleId.LongValue;
+                roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.UserRoleId.Value;
             }
 
             if (roleId > 0 && !userResponse.m_user.m_oBasicData.RoleIds.Contains(roleId))

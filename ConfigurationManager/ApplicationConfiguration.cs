@@ -1,19 +1,13 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using ConfigurationManager.Types;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
-using System.Reflection;
-using System.Linq;
-using KLogMonitor;
 
 namespace ConfigurationManager
 {
     public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>
     {
-
         public override string TcmKey => null;
         public override string[] TcmPath => null;
         
@@ -151,6 +145,7 @@ namespace ConfigurationManager
 
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
         public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
+        public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
 
         #region Configuration values
 
@@ -160,7 +155,6 @@ namespace ConfigurationManager
 
         
         public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
-        public static RoleIdsConfiguration RoleIdsConfiguration;
      
         public static FacebookConfiguration FacebookConfiguration;
         public static TwitterConfiguration TwitterConfiguration;
@@ -235,7 +229,7 @@ namespace ConfigurationManager
             }
 
             CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
-            RoleIdsConfiguration = new RoleIdsConfiguration("role_ids");
+            
 
    
             FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
@@ -268,7 +262,6 @@ namespace ConfigurationManager
                 {
                     
                     CouchbaseClientConfiguration,
-                    RoleIdsConfiguration,
                     FacebookConfiguration,
                     TwitterConfiguration,
                     SocialFeedConfiguration,

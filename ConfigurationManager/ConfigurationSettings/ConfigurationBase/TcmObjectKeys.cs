@@ -48,6 +48,7 @@
         public const string PictureRabbitConfiguration = "picture";
         public const string SocialFeedRabbitConfiguration = "social_feed";
         public const string ProfessionalServicesRabbitConfiguration = "professional_services";
+        public const string RoleIdsConfiguration = "role_ids";
     }
 }
 
