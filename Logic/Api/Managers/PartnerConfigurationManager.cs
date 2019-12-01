@@ -473,15 +473,19 @@ namespace ApiLogic.Api.Managers
             {
                 string key = LayeredCacheKeys.GetObjectVirtualAssetPartnerConfig(groupId);
                 List<string> configInvalidationKey = new List<string>() { LayeredCacheKeys.GetObjectVirtualAssetPartnerConfigInvalidationKey(groupId) };
-                if(!LayeredCache.Instance.Get<ObjectVirtualAssetPartnerConfig>(key,
+                if (!LayeredCache.Instance.Get<ObjectVirtualAssetPartnerConfig>(key,
                                                           ref partnerConfig,
                                                           GetObjectVirtualAssetPartnerConfigDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
                                                           groupId,
                                                           LayeredCacheConfigNames.GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG,
-                                                          configInvalidationKey ))
-                { 
+                                                          configInvalidationKey))
+                {
                     log.ErrorFormat("Failed getting GetObjectVirtualAssetPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+                else
+                {
+                    resultStatus = eResultStatus.KEY_NOT_EXIST;
                 }
             }
             catch (Exception ex)
