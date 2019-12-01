@@ -23,8 +23,8 @@ namespace ElasticSearch.Common
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static readonly string ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
-        public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
+        public static readonly string ES_URL = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
+        public static readonly string ALT_ES_URL = ApplicationConfiguration.Current.ElasticSearchConfiguration.AlternativeUrl.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
         private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();        

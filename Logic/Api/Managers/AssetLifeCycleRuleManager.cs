@@ -137,7 +137,7 @@ namespace Core.Api.Managers
                                     string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
                                     // page size should be max_results so it will return everything
-                                    int pageSize = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+                                    int pageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
                                     UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
                                     {

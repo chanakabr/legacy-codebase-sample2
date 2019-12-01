@@ -478,7 +478,7 @@ namespace Core.Api.Managers
             string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
 
             // page size should be max_results so it will return everything
-            int pageSize = MAX_ASSETS_TO_UPDATE; //ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            int pageSize = MAX_ASSETS_TO_UPDATE; //ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.IntValue;
 
 
             bool shouldIgnoreEndDate = ksql.ToLower().Contains("end_date");

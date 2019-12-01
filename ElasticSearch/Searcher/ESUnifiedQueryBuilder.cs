@@ -135,7 +135,7 @@ namespace ElasticSearch.Searcher
         /// </summary>
         static ESUnifiedQueryBuilder()
         {
-            MAX_RESULTS = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            MAX_RESULTS = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
             if (MAX_RESULTS == 0)
             {
@@ -258,7 +258,7 @@ namespace ElasticSearch.Searcher
                 fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
             }
 
-            if (fromIndex + pageSize > ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue)
+            if (fromIndex + pageSize > ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value)
             {
                 log.WarnFormat("changing page size and index to 0 because size*index + size > max results configured, sent size: {0}, sent index: {1}", PageSize, PageIndex);
                 fromIndex = 0;

@@ -148,12 +148,14 @@ namespace ConfigurationManager
 
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
 
+        public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
+
         #region Configuration values
 
 
 
-        public static ElasticSearchConfiguration ElasticSearchConfiguration;
-     
+
+
         public static HarmonicProviderConfiguration HarmonicProviderConfiguration;
         public static RabbitConfiguration RabbitConfiguration;
         public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
@@ -238,10 +240,7 @@ namespace ConfigurationManager
           
             #endregion
 
-            ElasticSearchConfiguration = new ElasticSearchConfiguration("elasticsearch_settings");
- 
-
-            HarmonicProviderConfiguration = new HarmonicProviderConfiguration("harmonic_provider_configuration");
+                        HarmonicProviderConfiguration = new HarmonicProviderConfiguration("harmonic_provider_configuration");
             RabbitConfiguration = new RabbitConfiguration("rabbit_configuration");
             CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
             RoleIdsConfiguration = new RoleIdsConfiguration("role_ids");
@@ -275,7 +274,7 @@ namespace ConfigurationManager
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    ElasticSearchConfiguration,
+                    
                     HarmonicProviderConfiguration,
                     RabbitConfiguration,
                     CouchbaseClientConfiguration,

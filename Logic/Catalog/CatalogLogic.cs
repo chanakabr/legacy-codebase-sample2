@@ -4747,7 +4747,7 @@ namespace Core.Catalog
 
         private static int GetSearcherMaxResultsSize()
         {
-            int res = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            int res = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
             if (res > 0)
                 return res;
@@ -7765,7 +7765,7 @@ namespace Core.Catalog
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
-                maxNGram = ApplicationConfiguration.ElasticSearchConfiguration.MaxNGram.IntValue;
+                maxNGram = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxNGram.Value;
             }
 
             List<int> geoBlockRules = null;
