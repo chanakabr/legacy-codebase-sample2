@@ -105,7 +105,15 @@ node('Linux'){
         script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
         echo "Can't build linux in 5_2_6!! CANCELING...."
         echo 'Branch 5_2_6 is not compatible with .net core... canceling!'
+        report()
         currentBuild.result = 'SUCCESS'
         return
     }
+}
+
+def report(){
+    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
+    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA", returnStdout: true)
+    echo "${reportout}"
 }
