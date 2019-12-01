@@ -229,12 +229,10 @@ namespace ElasticSearchHandler.Updaters
                         bool temporaryResult = true;
 
                         Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-                        log.Debug(string.Format("UpdateEpg -> Should get GetLinearMediaRegions, doesGroupUsesTemplates: {0}, catalogGroupCache.IsRegionalizationEnabled: {1}, group.isRegionalizationEnabled: {2}", doesGroupUsesTemplates, catalogGroupCache?.IsRegionalizationEnabled, group?.isRegionalizationEnabled));
 
                         if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
                         {
                             linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
-                            log.Debug(string.Format("UpdateEpg -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping?.Count));
                         }
 
                         // Create dictionary by languages
@@ -265,12 +263,8 @@ namespace ElasticSearchHandler.Updaters
                                         epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
                                     }
 
-                                    log.Debug(string.Format("UpdateEpg -> Determining if to set epg regions, epg.LinearMediaId > 0 :{0}, linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId): {1}", epg.LinearMediaId > 0, linearChannelsRegionsMapping?.ContainsKey(epg.LinearMediaId)));
-
                                     if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
                                     {
-                                        log.Debug(string.Format("UpdateEpg -> Setting regions of LinearMediaId: {0}, with regions: {1}", epg.LinearMediaId, String.Join(", ", linearChannelsRegionsMapping[epg.LinearMediaId])));
-
                                         epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
                                     }
 

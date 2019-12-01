@@ -190,12 +190,9 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region Get Linear Channels Regions
 
-            log.Debug(string.Format("BuildIndex -> Should get GetLinearMediaRegions, doesGroupUsesTemplates: {0}, catalogGroupCache.IsRegionalizationEnabled: {1}, group.isRegionalizationEnabled: {2}", doesGroupUsesTemplates, catalogGroupCache?.IsRegionalizationEnabled, group?.isRegionalizationEnabled));
-
             if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
             {
                 linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
-                log.Debug(string.Format("BuildIndex -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping?.Count));
             }
 
             #endregion
@@ -511,12 +508,8 @@ namespace ElasticSearchHandler.IndexBuilders
                             epg.LinearMediaId = linearChannelSettings[epg.ChannelID.ToString()].LinearMediaId;
                         }
 
-                        log.Debug(string.Format("AddEPGsToIndex -> Determining if to set epg regions, epg.LinearMediaId > 0 :{0}, linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId): {1}", epg.LinearMediaId > 0, linearChannelsRegionsMapping?.ContainsKey(epg.LinearMediaId)));
-
                         if (epg.LinearMediaId > 0 && linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId))
                         {
-                            log.Debug(string.Format("AddEPGsToIndex -> Setting regions of LinearMediaId: {0}, with regions: {1}", epg.LinearMediaId, String.Join(", ", linearChannelsRegionsMapping[epg.LinearMediaId])));
-
                             epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
                         }
 
