@@ -25,20 +25,6 @@
         public const string HttpClientConfiguration ="http_client_configuration";
         public const string TVPApiConfiguration = "tvpapi_configuration";
         public const string DatabaseConfiguration = "database_configuration";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         public const string CouchBaseDesigns = "couchbase_designs";
         public const string BaseCacheConfiguration = "base_cache_configuration";
         public const string WSCacheConfiguration = "ws_cache_configuration";
@@ -47,6 +33,8 @@
         public const string ODBCWrapperCacheConfiguration = "odbc_wrapper_cache_configuration";
         public const string GroupsCacheConfiguration = "groups_cache_configuration";
         public const string LicensedLinksCacheConfiguration = "licensed_links_cache_configuration";
+        public const string ProfessionalServicesActionConfiguration = "alu_sync";
+        public const string ProfessionalServicesTasksConfiguration = "professional_services_tasks";
     }
 }
 

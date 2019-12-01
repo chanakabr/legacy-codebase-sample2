@@ -28,10 +28,11 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
+        public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration= new ProfessionalServicesTasksConfiguration();
+        public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
 
         public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
         public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();
-        public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
         public ODBCWrapperCacheConfiguration ODBCWrapperCacheConfiguration = new ODBCWrapperCacheConfiguration();
         public CatalogCacheConfiguration CatalogCacheConfiguration = new CatalogCacheConfiguration();
         public NotificationCacheConfiguration NotificationCacheConfiguration = new NotificationCacheConfiguration();
@@ -145,31 +146,8 @@ namespace ConfigurationManager
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration();
 
-
-
-
-        public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
-
-        #region TVM Configuration Values
-
-        
-
-        #endregion
-
-        #region TVP Api
-
-        
-
-        #endregion
-
+ 
         #region Configuration values
-
-
-
-
-
-
-
 
         
         public static EutelsatSettings EutelsatSettings;
@@ -192,13 +170,6 @@ namespace ConfigurationManager
         public static CDVRAdapterConfiguration CDVRAdapterConfiguration;
         public static EventConsumersConfiguration EventConsumersConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
-
-
-        
-        
-
-
- 
 
 
         #endregion
@@ -224,71 +195,6 @@ namespace ConfigurationManager
         }
 
 
-        private static void Init(Type type, IBaseConfig baseConfig)
-        {
-            List<FieldInfo> fields = type.GetFields().ToList();
-            MethodInfo TcmMethod = type.GetMethod("GetTcmToken");
-
-            JToken token = (JToken)TcmMethod.Invoke(baseConfig, null);
-
-            foreach (var field in fields)
-            {
-                object baseValueData = field.GetValue(baseConfig);
-                if (baseValueData == null)
-                {
-                    //throw new Exception("In test means the filed is not initiate");
-                }
-
-                if (field.FieldType.Name.StartsWith("BaseValue"))
-                {
-                    if (token == null)
-                    {
-                        _Logger.Info($"No data exist in TCM for {baseConfig.ToString()} configuration");
-                    }
-                    else
-                    {
-                        Type argu = field.FieldType.GetGenericArguments()[0];
-                        MethodInfo methodInfo = type.GetMethod("SetActualValue");
-                        var genericMethod = methodInfo.MakeGenericMethod(argu);
-                        genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
-                    }
-
-                }
-                else if (field.FieldType == typeof(Dictionary<string, AdapterConfiguration>))
-                {
-                    Type argu = field.FieldType.GetGenericArguments()[0];
-                    MethodInfo methodInfo = type.GetMethod("SetValues");
-                    methodInfo.Invoke(baseConfig, new object[] { token, baseValueData });
-
-                }
-                else if (field.FieldType == type && field.Name == "Current")
-                {
-                    continue;
-                }
-                else if (IsBaseStartWithName(field.FieldType, BaseClassName) &&
-                    field.FieldType.GetInterface("IBaseConfig") != null)
-                {
-                    Init(field.FieldType, baseValueData as IBaseConfig);
-                }
-                else
-                {
-                    throw new Exception("Do somthing - ToDo");
-                }
-            }
-        }
-
-        private static bool IsBaseStartWithName(Type fieldType, string typeName)
-        {
-            while(fieldType != typeof(object))
-            {
-                if (fieldType.Name.StartsWith(typeName))
-                {
-                    return true;
-                }
-                fieldType = fieldType.BaseType;
-            }
-            return false;
-        }
 
         public static void Initialize(bool shouldLoadDefaults = false, bool silent = false, string application = "", string host = "", string environment = "")
         {
@@ -323,45 +229,14 @@ namespace ConfigurationManager
             {
                 TCMClient.Settings.Instance.Init();
             }
-            
+
             #region Remote tasks configuration values
 
-  /*          CeleryRoutingConfiguration = new CeleryRoutingConfiguration("CELERY_ROUTING")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Remote tasks celery routing. Not used in phoenix."
-            };*/
- /*           ImageResizerConfiguration = new ImageResizerConfiguration("image_resizer_configuration")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Configuration for image resizer handler in remote tasks."
-            };*/
 
-
-
-            ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration("professional_services_tasks")
-            {
-                ShouldAllowEmpty = true,
-                Description = "Remote tasks configuratin for professional services handler."
-            };
- 
-         
 
           
             #endregion
 
-
-            
-            
-            
-            
-            
-          
-
-            
-
-   
-            
 
             EutelsatSettings = new EutelsatSettings("eutelsat_settings")
             {
@@ -402,13 +277,8 @@ namespace ConfigurationManager
             //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
             UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
 
-
-
-          
-
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    ProfessionalServicesTasksConfiguration,
                     EutelsatSettings,
                     ElasticSearchConfiguration,
                     HarmonicProviderConfiguration,
@@ -433,13 +303,6 @@ namespace ConfigurationManager
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
 
-/*            if (shouldLoadDefaults)
-            {
-                foreach (var configurationValue in allConfigurationValues)
-                {
-                    configurationValue.LoadDefault();
-                }
-            }*/
         }
 
         

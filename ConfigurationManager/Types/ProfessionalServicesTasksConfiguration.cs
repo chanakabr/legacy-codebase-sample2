@@ -1,79 +1,27 @@
 ﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigurationManager
 {
-    public class ProfessionalServicesTasksConfiguration : StringConfigurationValue
+    public class ProfessionalServicesTasksConfiguration : BaseConfig<ProfessionalServicesTasksConfiguration>
     {
-        private JObject json;
-        
-        public ProfessionalServicesTasksConfiguration(string key) : base(key)
-        {
-            if (!string.IsNullOrEmpty(this.Value))
-            {
-                json = JObject.Parse(this.Value);
-            }
-        }
+        public override string TcmKey => TcmObjectKeys.ProfessionalServicesTasksConfiguration;
 
-        internal override bool Validate()
-        {
-            bool result = base.Validate();
+        public override string[] TcmPath => new string[] { TcmKey };
 
-            if (json != null)
-            {
-                foreach (var token in json.Children())
-                {
-                    try
-                    {
-                        ProfessionalServicesActionConfiguration action = (token as JProperty).Value.ToObject<ProfessionalServicesActionConfiguration>();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError(string.Format("Could not load action. ex = {0}", ex), ConfigurationValidationErrorLevel.Failure);
-                        result = false;
-                    }
-                }
-            }
+        public ProfessionalServicesActionConfiguration ProfessionalServicesActionConfiguration = new ProfessionalServicesActionConfiguration();
 
-            return result;
-        }
-
-        public JToken GetActionHandler(string action)
-        {
-            JToken result = null;
-
-            if (this.json != null)
-            {
-                result = this.json.SelectToken(action);
-            }
-
-            return result;
-        }
-
-        [Serializable]
-        [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-        public class ProfessionalServicesActionConfiguration
-        {
-            [JsonProperty("DllLocation")]
-            public string DllLocation
-            {
-                get;
-                set;
-            }
-
-            [JsonProperty("Type")]
-            public string Type
-            {
-                get;
-                set;
-            }
-
-        }
     }
+
+
+        public class ProfessionalServicesActionConfiguration : BaseConfig<ProfessionalServicesActionConfiguration>
+        {
+
+            public BaseValue<string> DllLocation = new BaseValue<string>("DllLocation", null);
+            public BaseValue<string> Type = new BaseValue<string>("Type", null);
+
+            public override string TcmKey => TcmObjectKeys.ProfessionalServicesActionConfiguration;
+
+            public override string[] TcmPath => new string[] { TcmObjectKeys.ProfessionalServicesTasksConfiguration, TcmKey };
+        }
+    
 }
