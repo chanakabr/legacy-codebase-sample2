@@ -12,6 +12,7 @@ pipeline {
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
+        booleanParam(name: 'publish', defaultValue: false, description: 'Publush api client libs ?')
     }
     stages {
         stage("Checkout"){
