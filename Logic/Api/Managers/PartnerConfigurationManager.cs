@@ -485,7 +485,10 @@ namespace ApiLogic.Api.Managers
                 }
                 else
                 {
-                    resultStatus = eResultStatus.KEY_NOT_EXIST;
+                    if (partnerConfig == null)
+                    {
+                        resultStatus = eResultStatus.KEY_NOT_EXIST;
+                    }
                 }
             }
             catch (Exception ex)
