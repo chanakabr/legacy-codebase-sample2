@@ -66,10 +66,6 @@ pipeline {
                             + " -p:DeleteExistingFiles=True"
                             + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
                     )
-
-                    dir("${WORKSPACE}/published/permissions"){
-                        bat("PermissionsDeployment.exe e=permissions.xml")
-                    }
                 }
             }        
         }
