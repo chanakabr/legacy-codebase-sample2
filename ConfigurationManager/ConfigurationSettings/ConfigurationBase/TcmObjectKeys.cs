@@ -22,7 +22,7 @@
         public const string AdaptersConfiguration = "adapters_client_configuration";
         public const string DefaultAdapterConfigurationKey = "default";
         public const string FtpApiServerConfiguration = "ftp_api_server";
-        public const string HttpClientConfiguration ="http_client_configuration";
+        public const string HttpClientConfiguration = "http_client_configuration";
         public const string TVPApiConfiguration = "tvpapi_configuration";
         public const string DatabaseConfiguration = "database_configuration";
         public const string CouchBaseDesigns = "couchbase_designs";
@@ -38,6 +38,16 @@
         public const string EutelsatSettings = "eutelsat_settings";
         public const string ElasticSearchConfiguration = "elasticsearch_settings";
         public const string HarmonicProviderConfiguration = "harmonic_provider_configuration";
+        public const string MainRabbitConfiguration = "rabbit_configuration";
+        public const string IndexingRabbitConfiguration = "indexing";
+        public const string EventBusRabbitConfiguration = "event_bus";
+        public const string PushNotificationRabbitConfiguration = "push_notification";
+        public const string EPGRabbitConfiguration = "epg";
+        public const string ImageUploadRabbitConfiguration = "image_upload";
+        public const string DefaultRabbitConfiguration = "default";
+        public const string PictureRabbitConfiguration = "picture";
+        public const string SocialFeedRabbitConfiguration = "social_feed";
+        public const string ProfessionalServicesRabbitConfiguration = "professional_services";
     }
 }
 

@@ -1,43 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
     public class ProfessionalServicesRabbitConfiguration : BaseRabbitConfiguration
     {
-        public StringConfigurationValue Task;
 
-        public ProfessionalServicesRabbitConfiguration(string key) : base(key)
-        {
-            this.Initialize();
-        }
+        public override string TcmKey => TcmObjectKeys.ProfessionalServicesRabbitConfiguration;
 
-        public ProfessionalServicesRabbitConfiguration(string key, ConfigurationValue parent) : base(key, parent)
-        {
-            this.Initialize();
-        }
+        public override string[] TcmPath => new string[] { TcmObjectKeys.MainRabbitConfiguration, TcmKey };
 
-        protected override void Initialize()
-        {
-            base.Initialize();
+        public new BaseValue<string> RoutingKey = new BaseValue<string>("routingKey", "CDR_NOTIFICATION");
+        public BaseValue<string> Task = new BaseValue<string>("task", "distributed_tasks.cdr_notification");
 
-            Task = new ConfigurationManager.StringConfigurationValue("task", this)
-            {
-                DefaultValue = "distributed_tasks.cdr_notification",
-                OriginalKey = "ProfessionalServices.task"
-            };
-        }
-
-        internal override bool Validate()
-        {
-            bool result = base.Validate();
-
-            result &= this.Task.Validate();
-
-            return result;
-        }
     }
 }

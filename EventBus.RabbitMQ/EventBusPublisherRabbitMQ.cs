@@ -28,7 +28,7 @@ namespace EventBus.RabbitMQ
             // TODO: MakeSingleTone, in phoenix it is used without IOC \ DI so it has to maintaine a singletone on its one and not relay on ServiceCollection :(
             var eventBusConsumer = new EventBusPublisherRabbitMQ(
                 RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration(),
-                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
+                ApplicationConfiguration.Current.RabbitConfiguration.EventBus.Exchange.Value, 
                 ApplicationConfiguration.Current.QueueFailLimit.Value);
 
             return eventBusConsumer;

@@ -28,6 +28,7 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
+        public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
         public EutelsatSettings EutelsatSettings = new EutelsatSettings();
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration= new ProfessionalServicesTasksConfiguration();
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
@@ -157,7 +158,7 @@ namespace ConfigurationManager
 
 
 
-        public static RabbitConfiguration RabbitConfiguration;
+        
         public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
         public static RoleIdsConfiguration RoleIdsConfiguration;
      
@@ -233,7 +234,6 @@ namespace ConfigurationManager
                 TCMClient.Settings.Instance.Init();
             }
 
-            RabbitConfiguration = new RabbitConfiguration("rabbit_configuration");
             CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
             RoleIdsConfiguration = new RoleIdsConfiguration("role_ids");
 
@@ -267,7 +267,6 @@ namespace ConfigurationManager
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     
-                    RabbitConfiguration,
                     CouchbaseClientConfiguration,
                     RoleIdsConfiguration,
                     FacebookConfiguration,

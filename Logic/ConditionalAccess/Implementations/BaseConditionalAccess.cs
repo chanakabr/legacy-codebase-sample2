@@ -10434,13 +10434,13 @@ namespace Core.ConditionalAccess
 
             try
             {
-                string task = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.Task.Value;
+                string task = ApplicationConfiguration.Current.RabbitConfiguration.ProfessionalServices.Task.Value;
 
                 PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, dataDictionary, action);
 
                 PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
 
-                string routingKey = ApplicationConfiguration.RabbitConfiguration.ProfessionalServices.RoutingKey.Value;
+                string routingKey = ApplicationConfiguration.Current.RabbitConfiguration.ProfessionalServices.RoutingKey.Value;
 
                 if (string.IsNullOrEmpty(routingKey))
                 {
