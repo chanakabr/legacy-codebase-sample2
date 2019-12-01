@@ -1589,12 +1589,12 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-                log.Debug(string.Format("CreateGroupMediaMapFromDataSet -> Should get GetLinearMediaRegions, catalogGroupCache.IsRegionalizationEnabled: {0}", catalogGroupCache.IsRegionalizationEnabled));
+                log.Debug(string.Format("CreateGroupMediaMapFromDataSet -> Should get GetLinearMediaRegions, catalogGroupCache.IsRegionalizationEnabled: {0}", catalogGroupCache?.IsRegionalizationEnabled));
 
                 if (catalogGroupCache.IsRegionalizationEnabled)
                 {
                     linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
-                    log.Debug(string.Format("CreateGroupMediaMapFromDataSet -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping.Count));
+                    log.Debug(string.Format("CreateGroupMediaMapFromDataSet -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping?.Count));
                 }
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
@@ -1848,7 +1848,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    log.Debug(string.Format("CreateMediasFromMediaAssetAndLanguages -> Determining if to set media regions, linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId): {0}", linearChannelsRegionsMapping.ContainsKey(media.m_nMediaID)));
+                    log.Debug(string.Format("CreateMediasFromMediaAssetAndLanguages -> Determining if to set media regions, linearChannelsRegionsMapping.ContainsKey(epg.LinearMediaId): {0}", linearChannelsRegionsMapping?.ContainsKey(media.m_nMediaID)));
 
                     if (linearChannelsRegionsMapping != null && linearChannelsRegionsMapping.ContainsKey(media.m_nMediaID))
                     {
@@ -2916,12 +2916,12 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-                    log.Debug(string.Format("GetMediaForElasticSearchIndex -> Should get GetLinearMediaRegions, catalogGroupCache.IsRegionalizationEnabled: {0}", catalogGroupCache.IsRegionalizationEnabled));
+                    log.Debug(string.Format("GetMediaForElasticSearchIndex -> Should get GetLinearMediaRegions, catalogGroupCache.IsRegionalizationEnabled: {0}", catalogGroupCache?.IsRegionalizationEnabled));
 
                     if (catalogGroupCache.IsRegionalizationEnabled)
                     {
                         linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
-                        log.Debug(string.Format("GetMediaForElasticSearchIndex -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping.Count));
+                        log.Debug(string.Format("GetMediaForElasticSearchIndex -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping?.Count));
                     }
 
                     Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache, linearChannelsRegionsMapping);
