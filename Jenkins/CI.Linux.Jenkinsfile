@@ -16,11 +16,11 @@ pipeline {
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
     }
     stages {
+        echo 'Branch 5_2_6 cant compile .net core... canceling!'
+        currentBuild.result = 'SUCCESS'
         stage('Display Warning'){
             steps {
-                echo 'Branch 5_2_6 cant compile .net core... canceling!'
-                exit 0
-                // currentBuild.result = 'SUCCESS'
+                
             }
         }
         stage('Checkout'){
