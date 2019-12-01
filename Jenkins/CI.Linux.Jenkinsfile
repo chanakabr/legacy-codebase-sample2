@@ -102,6 +102,7 @@
 
 node('Linux'){
     stage('Display Compatibility Warning'){
+        script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
         echo "Can't build linux in 5_2_6!! CANCELING...."
         echo 'Branch 5_2_6 is not compatible with .net core... canceling!'
         currentBuild.result = 'SUCCESS'
