@@ -118,13 +118,13 @@ namespace StreamingProvider
                         switch (streamType)
                         {
                             case eStreamType.HLS:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.HLSCatchup.Value;                                
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.HLSCatchup.Value;                                
                                 break;
                             case eStreamType.SS:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.SmoothCatchup.Value; 
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.SmoothCatchup.Value; 
                                 break;
                             case eStreamType.DASH:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.DashCatchup.Value; 
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.DashCatchup.Value; 
                                 break;
                             default:
                                 break;
@@ -137,13 +137,13 @@ namespace StreamingProvider
                         switch (streamType)
                         {
                             case eStreamType.HLS:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.HLSStartOver.Value; 
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.HLSStartOver.Value; 
                                 break;
                             case eStreamType.SS:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.SmoothStartOver.Value;
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.SmoothStartOver.Value;
                                 break;
                             case eStreamType.DASH:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.DashStartOver.Value; 
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.DashStartOver.Value; 
                                 break;
                             default:
                                 break;
@@ -156,13 +156,13 @@ namespace StreamingProvider
                         switch (streamType)
                         {
                             case eStreamType.HLS:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.HLSStartOver.Value; 
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.HLSStartOver.Value; 
                                 break;
                             case eStreamType.SS:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.SmoothStartOver.Value; 
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.SmoothStartOver.Value; 
                                 break;
                             case eStreamType.DASH:
-                                url = ApplicationConfiguration.HarmonicProviderConfiguration.DashStartOver.Value;
+                                url = ApplicationConfiguration.Current.HarmonicProviderConfiguration.DashStartOver.Value;
                                 break;
                             default:
                                 break;

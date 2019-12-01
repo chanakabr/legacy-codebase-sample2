@@ -37,6 +37,7 @@
         public const string ProfessionalServicesTasksConfiguration = "professional_services_tasks";
         public const string EutelsatSettings = "eutelsat_settings";
         public const string ElasticSearchConfiguration = "elasticsearch_settings";
+        public const string HarmonicProviderConfiguration = "harmonic_provider_configuration";
     }
 }
 

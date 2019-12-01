@@ -149,6 +149,7 @@ namespace ConfigurationManager
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
 
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
+        public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
 
         #region Configuration values
 
@@ -156,7 +157,6 @@ namespace ConfigurationManager
 
 
 
-        public static HarmonicProviderConfiguration HarmonicProviderConfiguration;
         public static RabbitConfiguration RabbitConfiguration;
         public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
         public static RoleIdsConfiguration RoleIdsConfiguration;
@@ -233,14 +233,6 @@ namespace ConfigurationManager
                 TCMClient.Settings.Instance.Init();
             }
 
-            #region Remote tasks configuration values
-
-
-
-          
-            #endregion
-
-                        HarmonicProviderConfiguration = new HarmonicProviderConfiguration("harmonic_provider_configuration");
             RabbitConfiguration = new RabbitConfiguration("rabbit_configuration");
             CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
             RoleIdsConfiguration = new RoleIdsConfiguration("role_ids");
@@ -275,7 +267,6 @@ namespace ConfigurationManager
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     
-                    HarmonicProviderConfiguration,
                     RabbitConfiguration,
                     CouchbaseClientConfiguration,
                     RoleIdsConfiguration,
