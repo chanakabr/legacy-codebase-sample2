@@ -13,6 +13,7 @@ using System.Xml;
 using TVinciShared;
 using ApiObjects.ConditionalAccess;
 using ConfigurationManager;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Billing
 {

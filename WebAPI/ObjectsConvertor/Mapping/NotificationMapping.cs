@@ -10,6 +10,7 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using AutoMapper.Configuration;
 using TVinciShared;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

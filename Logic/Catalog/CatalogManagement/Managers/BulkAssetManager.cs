@@ -245,7 +245,7 @@ namespace Core.Catalog.CatalogManagement
                                     string errMsg = string.Format("Failed DeleteMediaFile befor InsertMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.",
                                                                   assetId, fileTypeName);
                                     log.Error(errMsg);
-                                    warnings.Add(new Status((int)eResponseStatus.Error, errMsg, new List<KeyValuePair>() { new KeyValuePair("assetFileToDelete.typeName", fileTypeName) }));
+                                    warnings.Add(new Status((int)eResponseStatus.Error, errMsg, new List<ApiObjects.KeyValuePair>() { new ApiObjects.KeyValuePair("assetFileToDelete.typeName", fileTypeName) }));
                                 }
                                 else
                                 {
@@ -285,7 +285,7 @@ namespace Core.Catalog.CatalogManagement
                             var fileTypeName = assetFile.GetTypeName();
                             string errMsg = string.Format("Failed DeleteMediaFile (required to erase) for assetId {0}, assetFile.typeName {1}.", assetId, fileTypeName);
                             log.Error(errMsg);
-                            warnings.Add(new Status((int)eResponseStatus.Error, errMsg, new List<KeyValuePair>() { new KeyValuePair("assetFileToDelete.typeName", fileTypeName) }));
+                            warnings.Add(new Status((int)eResponseStatus.Error, errMsg, new List<ApiObjects.KeyValuePair>() { new ApiObjects.KeyValuePair("assetFileToDelete.typeName", fileTypeName) }));
                         }
                     }
                 }

@@ -171,7 +171,7 @@ namespace WebAPI.WebServices
         [OperationContract]
         Recording GetRecordingStatus(string sWSUserName, string sWSPassword, long recordingId);
         [OperationContract]
-        KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(string sWSUserName, string sWSPassword, long epgId);
+        ApiObjects.KeyValuePair GetSeriesIdAndSeasonNumberByEpgId(string sWSUserName, string sWSPassword, long epgId);
         [OperationContract]
         SubscriptionsPricesContainer[] GetSubscriptionsPrices(string sWSUserName, string sWSPassword, string[] sSubscriptions, string sUserGUID, string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP);
         [OperationContract]

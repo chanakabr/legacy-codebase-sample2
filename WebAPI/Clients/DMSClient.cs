@@ -6,7 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
+using System.Text;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.DMS;
@@ -34,6 +37,7 @@ namespace WebAPI.Clients
         }
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         #region Configuration Group
         public static KalturaConfigurationGroup GetConfigurationGroup(int partnerId, string groupId)
@@ -232,13 +236,10 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            var request = WebRequest.Create(dmsRestUrl);
-            request.Method = "DELETE";
-
-            using (var response = request.GetResponse())
-            using (var reader = new StreamReader(response.GetResponseStream()))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                result = reader.ReadToEnd();
+                HttpResponseMessage response = httpClient.DeleteAsync(dmsRestUrl).ExecuteAndWait();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
             return result;
@@ -256,16 +257,12 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/{1}/{2}", dmsServer, action, url);
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS){ Database = dmsRestUrl})
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                result = reader.ReadToEnd();
+                HttpResponseMessage response = httpClient.GetAsync(dmsRestUrl).ExecuteAndWait();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
+
             return result;
         }
 
@@ -281,26 +278,21 @@ namespace WebAPI.Clients
             }
             var dmsRestUrl = string.Format("{0}/api/{1}", dmsServer, url);
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(dmsRestUrl);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = dmsCall.ToString();
+            StringContent strContent = new StringContent(data, Encoding.UTF8, "application/json");
 
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS) { Database = dmsRestUrl })
             {
-                if (string.IsNullOrWhiteSpace(data))
+                HttpResponseMessage response = null;
+                if (dmsCall == DMSCall.POST)
                 {
-                    streamWriter.Write(string.Empty);
+                    response = httpClient.PostAsync(dmsRestUrl, strContent).ExecuteAndWait();
                 }
-                else
+                else if (dmsCall == DMSCall.PUT)
                 {
-                    streamWriter.Write(data);
+                    response = httpClient.PutAsync(dmsRestUrl, strContent).ExecuteAndWait();
                 }
-            }
 
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                result = streamReader.ReadToEnd();
+                result = response.Content.ReadAsStringAsync().ExecuteAndWait();
             }
 
             return result;

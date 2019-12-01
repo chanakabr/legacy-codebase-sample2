@@ -4419,5 +4419,16 @@ namespace WebAPI.Clients
 
             return result;
         }
+        internal  bool IncrementLayeredCacheGroupConfigVersion(int groupId)
+        {
+            Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);            
+            return ClientUtils.GetBoolResponseFromWS(incrementLayeredCacheGroupConfigVersion);
+        }
+
+        internal bool ClearLocalServerCache(string action, string key)
+        {
+            Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
+            return ClientUtils.GetResponseStatusFromWS(clearCache);
+        }
     }
 }

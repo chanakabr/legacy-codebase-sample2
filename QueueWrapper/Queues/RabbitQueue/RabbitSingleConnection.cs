@@ -229,13 +229,13 @@ namespace QueueWrapper
             {
                 bool createdNew = false;
 
-                #if !NETSTANDARD2_0
+                #if !NETCOREAPP3_0
                 var mutexSecurity = Utils.CreateMutex();
                 #endif
 
                 using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew))
                 {
-                    #if !NETSTANDARD2_0
+                    #if !NETCOREAPP3_0
                     mutex.SetAccessControl(mutexSecurity);
                     #endif
                     try

@@ -10,6 +10,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Social;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.Controllers
 {

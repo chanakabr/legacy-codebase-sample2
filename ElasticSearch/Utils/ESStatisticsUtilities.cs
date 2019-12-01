@@ -106,129 +106,51 @@ namespace ElasticSearch.Utilities
         {
             bool result = false;
 
-            string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
-            string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
-            string originalUrl = ApplicationConfiguration.ElasticSearchConfiguration.URL.Value;
-
-            HashSet<string> urls = new HashSet<string>();
-            urls.Add(urlV1);
-            urls.Add(urlV2);
-            urls.Add(originalUrl);
-
-            if (urls.Count > 0)
-            {
-                result = true;
-            }
-
             Guid guid = Guid.NewGuid();
             string statisticsIndex = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
             string normalIndex = groupId.ToString();
 
-            foreach (var url in urls)
+            try
             {
-                try
+                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+
+                if (esApi.IndexExists(statisticsIndex))
                 {
-                    ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi(url);
-
-                    if (esApi.IndexExists(statisticsIndex))
+                    if (date == default(DateTime))
                     {
-                        if (date == default(DateTime))
-                        {
-                            date = DateTime.UtcNow;
-                        }
+                        date = DateTime.UtcNow;
+                    }
 
-                        SocialActionStatistics actionStats = new SocialActionStatistics()
-                        {
-                            Action = action.ToString().ToLower(),
-                            Date = date,
-                            GroupID = groupId,
-                            MediaID = assetId,
-                            MediaType = mediaType.ToString(),
-                            RateValue = rateValue
-                        };
+                    SocialActionStatistics actionStats = new SocialActionStatistics()
+                    {
+                        Action = action.ToString().ToLower(),
+                        Date = date,
+                        GroupID = groupId,
+                        MediaID = assetId,
+                        MediaType = mediaType.ToString(),
+                        RateValue = rateValue
+                    };
 
-                        string actionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(actionStats);
+                    string actionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(actionStats);
 
-                        bool currentSuccess = esApi.InsertRecord(statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), actionStatsJson);
+                    result = esApi.InsertRecord(statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), actionStatsJson);
 
-                        if (!currentSuccess)
-                        {
-                            result = false;
-                            log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}",
-                                statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, actionStatsJson));
-                        }
-
-                        //string fieldToUpdate = string.Empty;
-                        //bool shouldIncrement = true;
-
-                        //switch (action)
-                        //{
-                        //    case eUserAction.LIKE:
-                        //    {
-                        //        fieldToUpdate = "likes";
-                        //        break;
-                        //    }
-                        //    case eUserAction.UNLIKE:
-                        //    {
-                        //        fieldToUpdate = "likes";
-                        //        shouldIncrement = false;
-                        //        break;
-                        //    }
-                        //    case eUserAction.SHARE:
-                        //    {
-                        //        fieldToUpdate = "shares";
-                        //        break;
-                        //    }
-                        //    case eUserAction.RATES:
-                        //    {
-                        //        fieldToUpdate = "votes";
-                        //        break;
-                        //    }
-                        //    case eUserAction.UNKNOWN:
-                        //    case eUserAction.POST:
-                        //    case eUserAction.WATCHES:
-                        //    case eUserAction.WANTS_TO_WATCH:
-                        //    case eUserAction.FOLLOWS:
-                        //    case eUserAction.UNFOLLOW:
-                        //    default:
-                        //    {
-                        //        break;
-                        //    }
-                        //}
-
-                        //// Recalculate rating of document
-                        //if (action == eUserAction.RATES)
-                        //{
-                        //    string partialUpdate = string.Concat(
-                        //        "{ \"script\": \"ctx._source.rating=(((ctx._source.rating * ctx._source.votes) + ", rateValue, ") / (ctx._source.votes + 1))\" }");
-                        //    esApi.PartialUpdate(statisticsIndex, "media", assetId.ToString(), partialUpdate);
-                        //}
-
-                        // Sunny: this currently doesn't work well and causes many errors. I comment these lines for now, 
-                        // but I believe we should have a total number of likes/views/whatever on the document itself
-                        //if (!string.IsNullOrEmpty(fieldToUpdate))
-                        //{
-                        //    if (shouldIncrement)
-                        //    {
-                        //        esApi.IncrementField(normalIndex, "media", assetId.ToString(), fieldToUpdate);
-                        //    }
-                        //    else
-                        //    {
-                        //        esApi.DecrementField(normalIndex, "media", assetId.ToString(), fieldToUpdate);
-                        //    }
-                        //}
+                    if (!result)
+                    {
+                        log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}",
+                            statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, actionStatsJson));
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error("InsertStatisticsToES - " +
-                        string.Format("Failed ex={0}, group={1};type={2}", ex.Message, groupId, ElasticSearch.Common.Utils.ES_STATS_TYPE), ex);
-                    result = false;
-                }
             }
+            catch (Exception ex)
+            {
+                log.Error("InsertStatisticsToES - " +
+                    string.Format("Failed ex={0}, group={1};type={2}", ex.Message, groupId, ElasticSearch.Common.Utils.ES_STATS_TYPE), ex);
+                result = false;
+            }
+
 
             return result;
         }
-
     }
 }

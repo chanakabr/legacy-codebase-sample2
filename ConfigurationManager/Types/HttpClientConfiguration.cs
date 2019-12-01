@@ -11,6 +11,7 @@ namespace ConfigurationManager.Types
         public BooleanConfigurationValue CheckCertificateRevocationList;
         public StringConfigurationValue EnabledSslProtocols;
         public StringConfigurationValue EnabledDecompressionMethods;
+        public NumericConfigurationValue TimeOutInMiliSeconds;
 
         public HttpClientConfiguration(string key) : base(key)
         {
@@ -37,9 +38,16 @@ namespace ConfigurationManager.Types
 
             EnabledDecompressionMethods = new StringConfigurationValue("enabled_decompression_methods", this)
             {                
-                DefaultValue = "Deflat,Gzip",
+                DefaultValue = "Deflate,Gzip",
                 ShouldAllowEmpty = true,
                 Description = "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All"
+            };
+
+            TimeOutInMiliSeconds = new NumericConfigurationValue("timeout", this)
+            {
+                DefaultValue = 100000,
+                ShouldAllowEmpty = true,
+                Description = "The timeout in milliseconds for the HttpClient"
             };
         }
 

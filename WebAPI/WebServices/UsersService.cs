@@ -10,6 +10,7 @@ using KLogMonitor;
 using Core.Users;
 using ApiObjects.Response;
 using ApiObjects.Billing;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.WebServices
 {

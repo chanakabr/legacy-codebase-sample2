@@ -9834,6 +9834,10 @@ namespace WebAPI.Reflection
                 case "system":
                     switch(action)
                     {
+                        case "clearlocalservercache":
+                            RolesManager.ValidateActionPermitted("system", "clearLocalServerCache", false);
+                            return SystemController.ClearLocalServerCache((string) methodParams[0], (string) methodParams[1]);
+                            
                         case "getcountry":
                             RolesManager.ValidateActionPermitted("system", "getCountry", false);
                             return SystemController.GetCountry((string) methodParams[0]);
@@ -9847,6 +9851,10 @@ namespace WebAPI.Reflection
                             
                         case "getversion":
                             return SystemController.GetVersion();
+                            
+                        case "incrementlayeredcachegroupconfigversion":
+                            RolesManager.ValidateActionPermitted("system", "incrementLayeredCacheGroupConfigVersion", false);
+                            return SystemController.IncrementLayeredCacheGroupConfigVersion((int) methodParams[0]);
                             
                         case "ping":
                             return SystemController.Ping();
@@ -17530,6 +17538,21 @@ namespace WebAPI.Reflection
                 case "system":
                     switch(action)
                     {
+                        case "clearlocalservercache":
+                            ret.Add("action", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
                         case "getcountry":
                             ret.Add("ip", new MethodParam(){
                                 NewName = newParamName,
@@ -17546,6 +17569,15 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "getversion":
+                            return ret;
+                            
+                        case "incrementlayeredcachegroupconfigversion":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
                             return ret;
                             
                         case "ping":

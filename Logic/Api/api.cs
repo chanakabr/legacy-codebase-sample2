@@ -10001,6 +10001,97 @@ namespace Core.Api
             return result;
         }
 
+        public static Status ClearLocalServerCache(string action, string key)
+        {
+            Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                string actionToPerform = string.IsNullOrEmpty(action) ? string.Empty : action.ToLower().Trim();
+                string sentKey = string.IsNullOrEmpty(key) ? string.Empty : key.Trim();
+                if (!string.IsNullOrEmpty(action))
+                {                    
+                    if (actionToPerform == "clear_all")
+                    {
+                        try
+                        {
+                            CachingManager.CachingManager.RemoveFromCache("");
+                            TvinciCache.WSCache.ClearAll();
+                            Catalog.Cache.CatalogCache.ClearAll();
+                            status.Code = (int)eResponseStatus.OK;
+                            status.Message = "Cache cleared";
+                        }
+                        catch (Exception ex)
+                        {
+                            status.Message = string.Format("Error : {0}", ex.Message);
+                            status.Code = 404;
+                        }                      
+                    }
+                    if (actionToPerform == "keys")
+                    {
+                        System.Collections.Generic.List<string> keys = CachingManager.CachingManager.GetCachedKeys();
+                        TvinciCache.WSCache cache = TvinciCache.WSCache.Instance;
+                        if (cache != null)
+                        {
+                            keys.AddRange(cache.GetKeys());
+                        }
+
+                        status.Code = (int)eResponseStatus.OK;
+                        status.Message = string.Join(",", keys);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(sentKey))
+                {
+                    try
+                    {
+                        object o = CachingManager.CachingManager.GetCacheObject(sentKey);
+                        if (o != null)
+                        {
+                            status.Message = string.Format("{0} value is: {1}", sentKey, o.ToString());
+                        }
+                        else
+                        {
+                            TvinciCache.WSCache cache = TvinciCache.WSCache.Instance;
+                            if (cache != null)
+                            {
+                                object value;
+                                bool isExists = cache.TryGet<object>(sentKey, out value);
+                                if (isExists)
+                                {
+                                    status.Message = (string.Format("{0} value is: {1}", sentKey, value));
+                                }
+                                else
+                                {
+                                    status.Message = (string.Format("Key {0} not found", sentKey));
+                                }
+                            }
+                            else
+                            {
+                                status.Message = (string.Format("Key {0} not found", sentKey));
+                            }
+
+                            status.Code = (int)eResponseStatus.OK;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        status.Message = string.Format("Error : {0}", ex.Message);
+                        status.Code = 404;
+                    }
+                }
+                else
+                {
+                    status.Code = 404;
+                }
+            }            
+            catch (Exception ex)
+            {
+                log.Error("Failed ClearLocalServerCache", ex);
+            }
+
+            return status;
+        }
+
         public static bool DoActionRules(bool isSingleRun)
         {
             double alcrScheduledTaskIntervalSec = 0;

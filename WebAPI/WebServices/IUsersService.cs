@@ -3,6 +3,7 @@ using System.ServiceModel;
 using ApiObjects;
 using ApiObjects.Response;
 using Core.Users;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.WebServices
 {

@@ -1719,6 +1719,11 @@ namespace Core.Api
             return Core.Api.api.IncrementLayeredCacheGroupConfigVersion(groupId);
         }
 
+        public static Status ClearLocalServerCache(string action, string key)
+        {
+            return Core.Api.api.ClearLocalServerCache(action, key);
+        }
+
         public static bool DoActionRules(bool isSingleRun = false)
         {
             bool result = false;
