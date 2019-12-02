@@ -4,7 +4,7 @@ pipeline {
         label 'Linux'
     }
     options {
-        buildDiscarder(logRotator(numToKeepStr:'10'))
+        buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
     }
     parameters{
