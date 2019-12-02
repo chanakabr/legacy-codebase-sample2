@@ -151,12 +151,12 @@ namespace ConfigurationManager
         public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();
         public SocialFeedConfiguration SocialFeedConfiguration = new SocialFeedConfiguration();
         public SocialFeedQueueConfiguration SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration();
+        public ExportConfiguration ExportConfiguration = new ExportConfiguration();
 
         #region Configuration values
 
 
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
-        public static ExportConfiguration ExportConfiguration;
         public static EngagementsConfiguration EngagementsConfiguration;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
         
@@ -226,7 +226,7 @@ namespace ConfigurationManager
 
             
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
-            ExportConfiguration = new ExportConfiguration("export");
+            
            
  
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
@@ -247,7 +247,7 @@ namespace ConfigurationManager
                 {
                     
                     LayeredCacheConfigurationValidation,
-                    ExportConfiguration,
+                    
                     CatalogLogicConfiguration,
                     CDVRAdapterConfiguration,
                     EngagementsConfiguration,

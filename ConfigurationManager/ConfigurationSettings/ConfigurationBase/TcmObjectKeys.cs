@@ -55,6 +55,8 @@
         public const string FacebookConfiguration ="facebook_configuration";
         public const string SocialFeedConfiguration = "social_feed_configuration";
         public const string SocialFeedQueueConfiguration = "social_feed_queue_configuration";
+        public const string ExportConfiguration = "export";
+
     }
 }
 

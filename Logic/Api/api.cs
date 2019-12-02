@@ -7940,7 +7940,7 @@ namespace Core.Api
                 return response;
             }
 
-            int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+            int frequencyMinValue = ApplicationConfiguration.Current.ExportConfiguration.FrequencyMinimumValue.IntValue;
 
             if (frequency < frequencyMinValue)
             {
@@ -8005,7 +8005,7 @@ namespace Core.Api
                     return response;
                 }
 
-                int frequencyMinValue = ApplicationConfiguration.ExportConfiguration.FrequencyMinimumValue.IntValue;
+                int frequencyMinValue = ApplicationConfiguration.Current.ExportConfiguration.FrequencyMinimumValue.IntValue;
 
                 if (frequency < frequencyMinValue)
                 {
