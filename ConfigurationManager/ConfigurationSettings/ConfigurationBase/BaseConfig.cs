@@ -28,11 +28,12 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 
         public virtual void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData) 
         {
+            var path = TcmPath == null ? defaultData.Key : string.Join(":", TcmPath) + $":{defaultData.Key}";
             try
             {
-                if(token == null || token[defaultData.Key] == null)
+                if (token == null || token[defaultData.Key] == null)
                 {
-                    _Logger.Info($"Empty data in TCM for key [{defaultData.Key}] under object [{GetType().Name}] with key: [{TcmKey}], setting default value as actual value");
+                    _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{path}], setting default value as actual value");
                     defaultData.ActualValue = defaultData.DefaultValue;
                 }
                 else
@@ -41,12 +42,12 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 }
                 if (!Validate())
                 {
-                    _Logger.Error($"TCM Configuration Validation Error. key:[{TcmKey}], setting default value as actual value");
+                    _Logger.Error($"TCM Configuration Validation Error under object:  [{GetType().Name}]  for key [{path}], setting default value as actual value");
                 }
             }
             catch(Exception ex)
             {
-                _Logger.Error($"Invalid data structure for key: {defaultData.Key}. Setting default value as actual value", ex);
+                _Logger.Error($"Invalid data structure for key: {path} under object [{GetType().Name}]. Setting default value as actual value", ex);
                 defaultData.ActualValue = defaultData.DefaultValue;
             }
         }
