@@ -144,17 +144,16 @@ namespace ConfigurationManager
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
 
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
-
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
         public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
         public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();
+        public SocialFeedConfiguration SocialFeedConfiguration = new SocialFeedConfiguration();
 
         #region Configuration values
 
 
-        public static SocialFeedConfiguration SocialFeedConfiguration;
         public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
         public static ExportConfiguration ExportConfiguration;
@@ -223,7 +222,7 @@ namespace ConfigurationManager
                 TCMClient.Settings.Instance.Init();
             }
 
-            SocialFeedConfiguration = new SocialFeedConfiguration("social_feed_configuration");
+            
 
             SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
@@ -247,7 +246,6 @@ namespace ConfigurationManager
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     
-                    SocialFeedConfiguration,
                     SocialFeedQueueConfiguration,
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,
