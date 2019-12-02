@@ -42,26 +42,26 @@ namespace WS_Social.SocialFeed
                                 {
                                     try
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue, Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.FacebookConfiguration.TokenKey.Value));
+                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.Current.SocialFeedConfiguration.FacebookItemCount.Value, Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.Current.FacebookConfiguration.TokenKey.Value));
                                     }
                                     catch (Exception)
                                     {
                                         //Fallback to app token in case user token is invalid 
                                         FacebookWrapper facebookWrapper = new FacebookWrapper(groupId);
-                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue, SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
+                                        socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.Current.SocialFeedConfiguration.FacebookItemCount.Value, SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                                     }
                                 }
                                 // User wasn't found or has no facebook access_token
                                 else
                                 {
-                                    socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue, SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
+                                    socialPlatformResp = SocialFeedUtils.Facebook.GetFacebookSocialFeed(queryParam, ApplicationConfiguration.Current.SocialFeedConfiguration.FacebookItemCount.Value, SocialFeedUtils.Facebook.GetFacebookAppAccessToken(groupId));
                                 }
                                 break;
 
                             case eSocialPlatform.InApp:
                                 int mediaId;
                                 if (int.TryParse(queryParam, out mediaId))
-                                    socialPlatformResp = SocialFeedUtils.InApp.GetInAppSocialFeed(mediaId, groupId, ApplicationConfiguration.SocialFeedConfiguration.InAppItemCount.IntValue);
+                                    socialPlatformResp = SocialFeedUtils.InApp.GetInAppSocialFeed(mediaId, groupId, ApplicationConfiguration.Current.SocialFeedConfiguration.InAppItemCount.Value);
                                 break;
 
                             case eSocialPlatform.Twitter:
@@ -69,22 +69,22 @@ namespace WS_Social.SocialFeed
                                 {
                                     try
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(queryParam, ApplicationConfiguration.TwitterConfiguration.ConsumerKey.Value, ApplicationConfiguration.TwitterConfiguration.ConsumerSecret.Value, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue);
+                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterUserSocialFeed(queryParam, ApplicationConfiguration.Current.TwitterConfiguration.ConsumerKey.Value, ApplicationConfiguration.Current.TwitterConfiguration.ConsumerSecret.Value, userData.m_user.m_oBasicData.m_sTwitterToken, userData.m_user.m_oBasicData.m_sTwitterTokenSecret, ApplicationConfiguration.Current.SocialFeedConfiguration.TwitterItemCount.Value);
                                     }
                                     catch (Exception)
                                     {
-                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
+                                        socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.Current.SocialFeedConfiguration.TwitterItemCount.Value, groupId);
                                     }
                                 }
                                 else
                                     // User wasn't found or has no twitter access_token
-                                    socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.SocialFeedConfiguration.TwitterItemCount.IntValue, groupId);
+                                    socialPlatformResp = SocialFeedUtils.Twitter.GetTwitterAppSocialFeed(queryParam, ApplicationConfiguration.Current.SocialFeedConfiguration.TwitterItemCount.Value, groupId);
                                 break;
                         }
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         Response.Write(serializer.Serialize(socialPlatformResp));
 
-                        Response.Cache.SetMaxAge(TimeSpan.FromMinutes((ApplicationConfiguration.SocialFeedConfiguration.GetTTLByPlatform(platform.ToString()).DoubleValue)));
+                        Response.Cache.SetMaxAge(TimeSpan.FromMinutes((ApplicationConfiguration.Current.SocialFeedConfiguration.GetTTLByPlatform(platform.ToString()).Value)));
                     }
                     catch (Exception ex)
                     {
