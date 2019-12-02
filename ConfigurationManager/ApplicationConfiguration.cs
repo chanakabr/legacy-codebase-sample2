@@ -22,6 +22,9 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
 
+        public  AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
+        public  CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
+
         public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
         public EutelsatSettings EutelsatSettings = new EutelsatSettings();
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration= new ProfessionalServicesTasksConfiguration();
@@ -132,7 +135,6 @@ namespace ConfigurationManager
         public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
         public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
-        public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
 
@@ -150,12 +152,6 @@ namespace ConfigurationManager
 
         #region Configuration values
 
-
-
-
-
-        
-        public static CouchbaseClientConfiguration CouchbaseClientConfiguration;
      
         public static FacebookConfiguration FacebookConfiguration;
         public static SocialFeedConfiguration SocialFeedConfiguration;
@@ -188,8 +184,7 @@ namespace ConfigurationManager
 
         public static void Init()
         {
-            Type type = typeof(ApplicationConfiguration);
-            Init(type, Current);
+            Init(Current);
         }
 
 
@@ -228,12 +223,7 @@ namespace ConfigurationManager
                 TCMClient.Settings.Instance.Init();
             }
 
-            CouchbaseClientConfiguration = new CouchbaseClientConfiguration("couchbase_client_config");
-            
-
-   
             FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
-
 
             SocialFeedConfiguration = new SocialFeedConfiguration("social_feed_configuration");
 
@@ -258,11 +248,8 @@ namespace ConfigurationManager
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    
-                    CouchbaseClientConfiguration,
                     FacebookConfiguration,
                     SocialFeedConfiguration,
-               
                     SocialFeedQueueConfiguration,
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,
@@ -271,8 +258,6 @@ namespace ConfigurationManager
                     EngagementsConfiguration,
                     EventConsumersConfiguration,
                     UserPINDigitsConfiguration,
- 
-   
             };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

@@ -48,7 +48,7 @@ namespace TVinciShared
         private static AdapterConfiguration GetCurrentConfiguration(string adapterNamespace)
         {
             adapterNamespace = adapterNamespace.Replace('.','_').ToLower();
-            AdapterConfiguration defaultConfiguration = ApplicationConfiguration.Current.AdaptersConfiguration.ConfigurationDictionary[TcmObjectKeys.DefaultAdapterConfigurationKey];
+            AdapterConfiguration defaultConfiguration = ApplicationConfiguration.Current.AdaptersConfiguration.ConfigurationDictionary[TcmObjectKeys.DefaultConfigurationKey];
             if (ApplicationConfiguration.Current.AdaptersConfiguration.ConfigurationDictionary.TryGetValue(adapterNamespace, out var specificConfiguration))
             {
                 _Logger.Debug($"set specific configuration for Adapter:  {adapterNamespace}");

@@ -2,7 +2,7 @@
 
 namespace ConfigurationManager.Types
 {
-    public class AdapterConfiguration 
+    public class AdapterConfiguration : IDeepCopyConverter<AdapterConfiguration>
     {
         public BaseValue<int?> OpenTimeout = new BaseValue<int?>("openTimeout", 10);
         public BaseValue<int?> ReceiveTimeout = new BaseValue<int?>("receiveTimeout", 10);
@@ -22,5 +22,10 @@ namespace ConfigurationManager.Types
             };
             return res;
         }
+    }
+
+    public interface IDeepCopyConverter<T>
+    {
+        T DeepCopy();
     }
 }

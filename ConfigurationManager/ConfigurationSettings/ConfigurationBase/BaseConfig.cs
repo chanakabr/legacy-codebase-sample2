@@ -30,7 +30,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             try
             {
-                if(token[defaultData.Key] == null)
+                if(token == null || token[defaultData.Key] == null)
                 {
                     _Logger.Info($"Empty data in TCM for key [{defaultData.Key}] under object [{GetType().Name}] with key: [{TcmKey}], setting default value as actual value");
                     defaultData.ActualValue = defaultData.DefaultValue;
@@ -51,13 +51,18 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             }
         }
 
-        protected static void Init(Type type, IBaseConfig baseConfig)
+        protected static void Init(IBaseConfig baseConfig)
         {
-            List<FieldInfo> fields = type.GetFields().ToList();
+            Type type = baseConfig.GetType();
             MethodInfo TcmMethod = type.GetMethod("GetTcmToken");
-
             JToken token = (JToken)TcmMethod.Invoke(baseConfig, null);
+            IterateOverClassFields(baseConfig,  token);
+        }
 
+        protected static void IterateOverClassFields(IBaseConfig baseConfig,  JToken token)
+        {
+            Type type = baseConfig.GetType();
+            List<FieldInfo> fields = type.GetFields().ToList();
             foreach (var field in fields)
             {
                 object baseValueData = field.GetValue(baseConfig);
@@ -66,28 +71,22 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     _Logger.Error($"Null objcet configuration under {baseConfig.GetType().Name}, please init object during compile time ");
                     throw new Exception("In test means the filed is not initiate");
                 }
-
                 if (field.FieldType.Name.StartsWith("BaseValue"))
                 {
                     if (token == null)
                     {
-                        _Logger.Info($"No data exist in TCM for {baseConfig.ToString()} configuration");
+                        _Logger.Info($"No data exist in TCM for {baseConfig.ToString()} configuration, will use the default configuration");
                     }
-                    else
-                    {
-                        Type argu = field.FieldType.GetGenericArguments()[0];
-                        MethodInfo methodInfo = type.GetMethod("SetActualValue");
-                        var genericMethod = methodInfo.MakeGenericMethod(argu);
-                        genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
-                    }
-
-                }
-                else if (field.FieldType == typeof(Dictionary<string, AdapterConfiguration>))
-                {
                     Type argu = field.FieldType.GetGenericArguments()[0];
+                    MethodInfo methodInfo = type.GetMethod("SetActualValue");
+                    var genericMethod = methodInfo.MakeGenericMethod(argu);
+                    genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
+                }
+                else if (field.FieldType == typeof(Dictionary<string, AdapterConfiguration>) ||
+                    field.FieldType == typeof(Dictionary<string, CouchbaseBucketConfig> ))
+                {
                     MethodInfo methodInfo = type.GetMethod("SetValues");
                     methodInfo.Invoke(baseConfig, new object[] { token, baseValueData });
-
                 }
                 else if (field.FieldType == type && field.Name == "Current")
                 {
@@ -96,7 +95,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 else if (IsBaseStartWithName(field.FieldType, BaseClassName) &&
                     field.FieldType.GetInterface("IBaseConfig") != null)
                 {
-                    Init(field.FieldType, baseValueData as IBaseConfig);
+                    Init(baseValueData as IBaseConfig);
                 }
                 else
                 {
@@ -122,8 +121,6 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             return true;
         }
-
-        
 
     }
 }

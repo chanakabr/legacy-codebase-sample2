@@ -17,18 +17,25 @@ namespace ConfigurationManager.Types
         public Dictionary<string, AdapterConfiguration> ConfigurationDictionary
             = new Dictionary<string, AdapterConfiguration>()
             {
-                {TcmObjectKeys.DefaultAdapterConfigurationKey, defaultAdapterConfig }
+                {TcmObjectKeys.DefaultConfigurationKey, defaultAdapterConfig }
             };
 
         
 
         public void SetValues(JToken token, Dictionary<string, AdapterConfiguration> defaultData)
         {
-            AdapterConfiguration defaultConfig = defaultData[TcmObjectKeys.DefaultAdapterConfigurationKey];
+            AdapterConfiguration defaultConfig = defaultData[TcmObjectKeys.DefaultConfigurationKey];
             JObject tokenConfiguration = JObject.Parse(token.ToString());
+            var defaultTokenData = tokenConfiguration[TcmObjectKeys.DefaultConfigurationKey];
+            UpdateAdapterConfigurationAccordingToTcm(defaultTokenData, defaultConfig);
             foreach (KeyValuePair<string, JToken> pair in tokenConfiguration)
             {
-                if (ConfigurationDictionary.TryGetValue(pair.Key,  out var currentConfig))
+                if (pair.Key == TcmObjectKeys.DefaultConfigurationKey)
+                {
+                    continue;//already init at the top 
+                }
+
+                if (defaultData.TryGetValue(pair.Key,  out var currentConfig))
                 {
                     UpdateAdapterConfigurationAccordingToTcm(pair.Value, currentConfig);
                 }
@@ -36,7 +43,7 @@ namespace ConfigurationManager.Types
                 {
                     AdapterConfiguration newConfig = defaultConfig.DeepCopy();
                     UpdateAdapterConfigurationAccordingToTcm(pair.Value, newConfig);
-                    ConfigurationDictionary.Add(pair.Key, newConfig);
+                    defaultData.Add(pair.Key, newConfig);
                 }
             }
         }

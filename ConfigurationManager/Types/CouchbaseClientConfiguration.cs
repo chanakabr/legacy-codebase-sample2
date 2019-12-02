@@ -1,71 +1,131 @@
-﻿using Newtonsoft.Json;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Reflection;
 
-namespace ConfigurationManager
+namespace ConfigurationManager.Types
 {
-    public class CouchbaseClientConfiguration : ConfigurationValue
+    public class CouchbaseClientConfiguration : BaseConfig<CouchbaseClientConfiguration>
     {
-        private static readonly JsonSerializerSettings COUCHBASE_JSON_SERIALIZER_SETTINGS = new JsonSerializerSettings()
+        public override string TcmKey => TcmObjectKeys.CouchbaseClientConfiguration;
+        public override string[] TcmPath => new string[] { TcmKey };
+
+        private static readonly List<string> defaultBucketServerList = new List<string>()
         {
-            TypeNameHandling = TypeNameHandling.None
+            "http://couchbase6_1:8091/pools",
+            "http://couchbase6_2:8091/pools",
+            "http://couchbase6_3:8091/pools"
+        };
+        public BaseValue<bool> UseSsl = new BaseValue<bool>("UseSsl", false);
+        public BaseValue<int> MaxDegreeOfParallelism = new BaseValue<int>("max_degree_of_parallelism", 4);
+        public BaseValue<List<string>> Servers = new BaseValue<List<string>>("Servers", defaultBucketServerList);
+        public BucketsConfig BucketsConfig= new BucketsConfig();
+
+    }
+
+
+    public class BucketsConfig : BaseConfig<BucketsConfig>
+    {
+        public override string TcmKey => TcmObjectKeys.CouchbaseBucketConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmObjectKeys.CouchbaseClientConfiguration, TcmKey };
+
+        private static readonly CouchbaseBucketConfig defaultCouchbaseBucketConfiguration = new CouchbaseBucketConfig();
+        public Dictionary<string, CouchbaseBucketConfig> BucketConfigs = new Dictionary<string, CouchbaseBucketConfig>()
+        {
+            {TcmObjectKeys.DefaultConfigurationKey, defaultCouchbaseBucketConfiguration }
         };
 
-        public bool UseSsl;
-        
-        [JsonProperty("max_degree_of_parallelism")]
-        public int MaxDegreeOfParallelism;
-        
-        public List<string> Servers;
-        
-        public Dictionary<string, CouchbaseBucketConfiguration> BucketConfigs;
-
-        public CouchbaseClientConfiguration(string key) : base(key){ }
-
-        internal override bool Validate()
+        public void SetValues(JToken token, Dictionary<string, CouchbaseBucketConfig> bucketsConfiguration)
         {
-            var result = base.Validate();
+            CouchbaseBucketConfig defaultConfig = bucketsConfiguration[TcmObjectKeys.DefaultConfigurationKey];
+            JObject tokenConfiguration = JObject.Parse(token.ToString());
+            var defaultTokenData = tokenConfiguration[TcmObjectKeys.DefaultConfigurationKey];
+            InitDefaultBucketConfig(defaultTokenData, defaultConfig);
 
-            try
+            foreach (KeyValuePair<string, JToken> pair in tokenConfiguration)
             {
-                CouchbaseClientConfiguration couchbaseClientConfig = null;
-                var configJsonStr = this.ObjectValue?.ToString();
-                if (string.IsNullOrEmpty(configJsonStr))
+                if(pair.Key == TcmObjectKeys.DefaultConfigurationKey)
                 {
-                    LogError($"Could not find config in key couchbase_client_config", ConfigurationValidationErrorLevel.Failure);
-                    return false;
+                    continue;//already init at the top 
+                }
+                CouchbaseBucketConfig newConfig = defaultConfig.DeepCopy();
+                if (!bucketsConfiguration.TryGetValue(pair.Key, out var currentConfig))
+                {
+                    bucketsConfiguration.Add(pair.Key, newConfig);
                 }
 
-                couchbaseClientConfig = JsonConvert.DeserializeObject<CouchbaseClientConfiguration>(this.ObjectValue.ToString(), COUCHBASE_JSON_SERIALIZER_SETTINGS);
+                List<FieldInfo> fields = newConfig.GetType().GetFields().ToList();
+                newConfig.PoolConfiguration.AddPath(pair.Key);
+                IterateOverClassFields(newConfig, tokenConfiguration[pair.Key]);
+                bucketsConfiguration[pair.Key] = newConfig;
             }
-            catch (Exception ex)
-            {
-                LogError($"Could not parse couchbase_client_config. Error = {ex}", ConfigurationValidationErrorLevel.Failure);
-                return false;
-            }
+        }
 
-            return result;
+        private void InitDefaultBucketConfig(JToken defaultTokenData, CouchbaseBucketConfig defaultBucketConfig)
+        {
+            defaultBucketConfig.PoolConfiguration.AddPath(TcmObjectKeys.DefaultConfigurationKey);
+            IterateOverClassFields(defaultBucketConfig, defaultTokenData);
         }
     }
 
-    public class CouchbaseBucketConfiguration
+    public class CouchbaseBucketConfig : BaseConfig<CouchbaseBucketConfig>, IDeepCopyConverter<CouchbaseBucketConfig>
     {
-        public string BucketName { get; set; }
-        public bool UseSsl { get; set; }
-        public string Password { get; set; }
-        public long OperationLifespan { get; set; }
+        public BaseValue<string> BucketName = new BaseValue<string>("bucketName", "Default");
+        public BaseValue<bool> UseSsl = new BaseValue<bool>("useSsl", false);
+        public BaseValue<string> Password = new BaseValue<string>("password", null);
+        public BaseValue<long> OperationLifespan = new BaseValue<long>("operationLifespan", 20000);
+        public CouchbasePoolConfiguration PoolConfiguration = new CouchbasePoolConfiguration();
+        
 
-        public CouchbasePoolConfiguration PoolConfiguration { get; set; }
+        public override string TcmKey => TcmObjectKeys.DefaultConfigurationKey;
 
+        public override string[] TcmPath => new string[] { TcmObjectKeys.CouchbaseClientConfiguration,  TcmKey };
+
+
+        public CouchbaseBucketConfig DeepCopy()
+        {
+            CouchbaseBucketConfig res = new CouchbaseBucketConfig()
+            {
+                BucketName = BucketName.DeepCopy(),
+                OperationLifespan = OperationLifespan.DeepCopy(),
+                Password = Password.DeepCopy(),
+                UseSsl = UseSsl.DeepCopy(),
+                PoolConfiguration = PoolConfiguration.DeepCopy(),
+            };
+            return res;
+        }
     }
 
-    public class CouchbasePoolConfiguration
+    public class CouchbasePoolConfiguration : BaseConfig<CouchbaseBucketConfig>, IDeepCopyConverter<CouchbasePoolConfiguration>
     {
-        public string Name { get; set; }
-        public long MaxSize { get; set; }
-        public long MinSize { get; set; }
-        public long SendTimeout { get; set; }
+        public BaseValue<string> Name = new BaseValue<string>("name", "custom");
+        public BaseValue<long> MaxSize = new BaseValue<long>("maxSize", 25);
+        public BaseValue<long> MinSize = new BaseValue<long>("minSize", 5);
+        public BaseValue<long> SendTimeout = new BaseValue<long>("sendTimeout", 12000);
+
+        public override string TcmKey => TcmObjectKeys.CouchbasePoolConfiguration;
+
+        public override string[] TcmPath => path;
+
+        private string[] path;
+        public void AddPath(string bucketName)
+        {
+            path = new string[] { TcmObjectKeys.CouchbaseClientConfiguration, TcmObjectKeys.CouchbaseBucketConfiguration, bucketName, TcmKey };
+
+        }
+        public CouchbasePoolConfiguration DeepCopy()
+        {
+            var res = new CouchbasePoolConfiguration()
+            {
+                MaxSize = MaxSize.DeepCopy(),
+                MinSize = MinSize.DeepCopy(),
+                Name = Name.DeepCopy(),
+                SendTimeout = SendTimeout.DeepCopy()
+            };
+            return res;
+        }
     }
 }

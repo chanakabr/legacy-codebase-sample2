@@ -10,13 +10,12 @@ namespace ConfigurationManager
 
         public override string[] TcmPath => new string[] { TcmKey };
 
-        private static readonly HashSet<string> baseSet = new HashSet<string>();
+        private static readonly HashSet<string> authorizationUnsupportedGroupsPlatformsSet = new HashSet<string>();
         private static readonly HashSet<int> offlineFavoriteSyncGroupsSet = new HashSet<int>();
         private const string AuthrizationUnsupportedGroupPlatforsmKey = "authorization_unsupported_groups_platforms";
         private const string Offline_favorite_sync_groupsKey = "offline_favorite_sync_groups";
 
-        public BaseValue<HashSet<string>> AuthorizationUnsupportedGroupsPlatforms = new BaseValue<HashSet<string>>(AuthrizationUnsupportedGroupPlatforsmKey, baseSet);
-
+        public BaseValue<HashSet<string>> AuthorizationUnsupportedGroupsPlatforms = new BaseValue<HashSet<string>>(AuthrizationUnsupportedGroupPlatforsmKey, authorizationUnsupportedGroupsPlatformsSet);
         public BaseValue<HashSet<int>> OfflineFavoriteSyncGroups = new BaseValue<HashSet<int>>(Offline_favorite_sync_groupsKey, offlineFavoriteSyncGroupsSet);
 
 
@@ -38,11 +37,11 @@ namespace ConfigurationManager
         {
             if (defaultData.Key == AuthrizationUnsupportedGroupPlatforsmKey)
             {
-                PopulateList(token.ToString(), defaultData as BaseValue<HashSet<string>>);
+                PopulateList(token, defaultData as BaseValue<HashSet<string>>);
             }
             else if(defaultData.Key == Offline_favorite_sync_groupsKey)
             {
-                PopulateList(token.ToString(), defaultData as BaseValue<HashSet<int>>);
+                PopulateList(token, defaultData as BaseValue<HashSet<int>>);
             }
             else
             {
@@ -50,14 +49,13 @@ namespace ConfigurationManager
             }
         }
 
-        private void PopulateList(string token, BaseValue<HashSet<int>> defaultData)
+        private void PopulateList(JToken token, BaseValue<HashSet<int>> defaultData)
         {
             HashSet<int> res = null;
-            if (!string.IsNullOrEmpty(token))
+            if (token != null)
             {
-                string[] values = token.Split(',');
+                string[] values = token.ToString().Split(',');
                 res = new HashSet<int>();
-
                 foreach (var value in values)
                 {
                     int groupId = 0;
@@ -75,13 +73,13 @@ namespace ConfigurationManager
             defaultData.ActualValue = res;
         }
 
-        private void PopulateList(string token, BaseValue<HashSet<string>> defaultData) 
+        private void PopulateList(JToken token, BaseValue<HashSet<string>> defaultData) 
         {
             var res  = new HashSet<string>();
 
-            if (!string.IsNullOrEmpty(token))
+            if (token != null)
             {
-                string[] splitted = token.Split(',');
+                string[] splitted = token.ToString().Split(',');
 
                 foreach (var value in splitted)
                 {
