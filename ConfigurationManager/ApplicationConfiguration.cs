@@ -152,6 +152,7 @@ namespace ConfigurationManager
         public SocialFeedConfiguration SocialFeedConfiguration = new SocialFeedConfiguration();
         public SocialFeedQueueConfiguration SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration();
         public ExportConfiguration ExportConfiguration = new ExportConfiguration();
+        public CDVRAdapterConfiguration CDVRAdapterConfiguration = new CDVRAdapterConfiguration();
 
         #region Configuration values
 
@@ -159,8 +160,7 @@ namespace ConfigurationManager
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
         public static EngagementsConfiguration EngagementsConfiguration;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
-        
-        public static CDVRAdapterConfiguration CDVRAdapterConfiguration;
+
         public static EventConsumersConfiguration EventConsumersConfiguration;
         public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
 
@@ -222,20 +222,10 @@ namespace ConfigurationManager
                 TCMClient.Settings.Instance.Init();
             }
 
-            
-
-            
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
-            
-           
- 
+
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
-            
-            CDVRAdapterConfiguration = new CDVRAdapterConfiguration("cdvr_adapter_configuration")
-            {
-                ShouldAllowEmpty = true
-            };
-          
+
   
             EngagementsConfiguration = new EngagementsConfiguration("engagements_configuration");
             
@@ -249,7 +239,6 @@ namespace ConfigurationManager
                     LayeredCacheConfigurationValidation,
                     
                     CatalogLogicConfiguration,
-                    CDVRAdapterConfiguration,
                     EngagementsConfiguration,
                     EventConsumersConfiguration,
                     UserPINDigitsConfiguration,

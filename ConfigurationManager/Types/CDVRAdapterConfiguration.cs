@@ -1,31 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using ConfigurationManager.Types;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class CDVRAdapterConfiguration : ConfigurationValue
+    public class CDVRAdapterConfiguration : BaseConfig<CDVRAdapterConfiguration>
     {
-        public NumericConfigurationValue RetryInterval;
-        public NumericConfigurationValue MaximumRetriesAllowed;
+        public BaseValue<int> RetryInterval = new BaseValue<int>("retry_interval", 5);
+        public BaseValue<int> MaximumRetriesAllowed = new BaseValue<int>("maximum_retries_allowed", 6);
 
-        public CDVRAdapterConfiguration(string key) : base(key)
-        {
-            RetryInterval = new ConfigurationManager.NumericConfigurationValue("retry_interval", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 5,
-                OriginalKey = "CDVRAdapterRetryInterval"
-            };
+        public override string TcmKey => TcmObjectKeys.CDVRAdapterConfiguration;
 
-            MaximumRetriesAllowed = new NumericConfigurationValue("maximum_retries_allowed", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 6,
-                OriginalKey = "CDVRAdapterMaximumRetriesAllowed"
-            };
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

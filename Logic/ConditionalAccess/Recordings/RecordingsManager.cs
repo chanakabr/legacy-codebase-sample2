@@ -79,8 +79,8 @@ namespace Core.Recordings
 
         static RecordingsManager()
         {
-            int retryInterval = ApplicationConfiguration.CDVRAdapterConfiguration.RetryInterval.IntValue;
-            int maximumRetries = ApplicationConfiguration.CDVRAdapterConfiguration.MaximumRetriesAllowed.IntValue;
+            int retryInterval = ApplicationConfiguration.Current.CDVRAdapterConfiguration.RetryInterval.Value;
+            int maximumRetries = ApplicationConfiguration.Current.CDVRAdapterConfiguration.MaximumRetriesAllowed.Value;
 
             if (retryInterval != 0)
             {
