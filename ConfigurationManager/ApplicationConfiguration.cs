@@ -153,6 +153,7 @@ namespace ConfigurationManager
         public SocialFeedQueueConfiguration SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration();
         public ExportConfiguration ExportConfiguration = new ExportConfiguration();
         public CDVRAdapterConfiguration CDVRAdapterConfiguration = new CDVRAdapterConfiguration();
+        public UserPINDigitsConfiguration UserPINDigitsConfiguration = new UserPINDigitsConfiguration();
 
         #region Configuration values
 
@@ -162,7 +163,6 @@ namespace ConfigurationManager
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
 
         public static EventConsumersConfiguration EventConsumersConfiguration;
-        public static UserPINDigitsConfiguration UserPINDigitsConfiguration;
 
 
         #endregion
@@ -231,7 +231,7 @@ namespace ConfigurationManager
             
             EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
             //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
-            UserPINDigitsConfiguration = new UserPINDigitsConfiguration("user_pin_digits_configuration");
+            
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -241,7 +241,7 @@ namespace ConfigurationManager
                     CatalogLogicConfiguration,
                     EngagementsConfiguration,
                     EventConsumersConfiguration,
-                    UserPINDigitsConfiguration,
+                    
             };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
