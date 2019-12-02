@@ -168,7 +168,7 @@ namespace Core.Catalog.Request
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    if (Utils.IsGroupIDContainedInConfig(nGroupId, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
+                    if (Utils.IsGroupIDContainedInConfig(nGroupId, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                     {
                         result = new List<int>();
                         Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(windowTime, DateTime.UtcNow, nGroupId, media);

@@ -59,7 +59,7 @@
         public const string CDVRAdapterConfiguration = "cdvr_adapter_configuration";
         public const string UserPINDigitsConfiguration = "user_pin_digits_configuration";
         public const string EngagementsConfiguration = "engagements_configuration";
-
+        public const string CatalogLogicConfiguration = "catalog_logic_configuration";
 
     }
 }

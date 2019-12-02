@@ -17,7 +17,7 @@ namespace Core.Catalog.Request
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+        protected static readonly int CURRENT_REQUEST_DAYS_OFFSET = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
 
         [DataMember]
         public List<int> m_nChannelIDs;

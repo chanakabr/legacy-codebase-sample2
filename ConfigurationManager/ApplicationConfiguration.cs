@@ -155,12 +155,12 @@ namespace ConfigurationManager
         public CDVRAdapterConfiguration CDVRAdapterConfiguration = new CDVRAdapterConfiguration();
         public UserPINDigitsConfiguration UserPINDigitsConfiguration = new UserPINDigitsConfiguration();
         public EngagementsConfiguration EngagementsConfiguration = new EngagementsConfiguration();
+        public CatalogLogicConfiguration CatalogLogicConfiguration = new CatalogLogicConfiguration();
 
         #region Configuration values
 
 
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
-        public static CatalogLogicConfiguration CatalogLogicConfiguration;
 
         public static EventConsumersConfiguration EventConsumersConfiguration;
 
@@ -223,20 +223,15 @@ namespace ConfigurationManager
             }
 
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
-
-            CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
-
-            
+                                   
             EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
-            //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
-            
+ 
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     
                     LayeredCacheConfigurationValidation,
                     
-                    CatalogLogicConfiguration,
                     EventConsumersConfiguration,
                     
             };

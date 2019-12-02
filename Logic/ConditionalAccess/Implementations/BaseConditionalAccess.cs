@@ -10970,7 +10970,7 @@ namespace Core.ConditionalAccess
             }
 
             /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
-            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
+            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
             {
                 int ruleID = 0;
                 // take the first rule (probably will be just one rule)

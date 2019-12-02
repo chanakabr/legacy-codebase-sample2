@@ -1,91 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
 {
-    public class CatalogLogicConfiguration : ConfigurationValue
+    public class CatalogLogicConfiguration : BaseConfig<CatalogLogicConfiguration>
     {
-        public StringConfigurationValue WatchHistoryStaleMode;
-        public NumericConfigurationValue HitCacheTimeInMinutes;
-        public BooleanConfigurationValue ShouldUseHitCache;
-        public BooleanConfigurationValue ShouldAddUserIPToStats;
-        public BooleanConfigurationValue ShouldUseSearchCache;
-        public NumericConfigurationValue CurrentRequestDaysOffset;
-        public NumericConfigurationValue UpdateEPGPackage;
-        public NumericConfigurationValue PersonalRecommendedMaxResultsSize;
-        public StringConfigurationValue GroupsUsingDBForAssetsStats;
-        public StringConfigurationValue GroupsWithIUserTypeSeperatedBySemiColon;
-        public StringConfigurationValue GroupsWithIPNOFilteringShowAllCatalogAnonymousUser;
-        public StringConfigurationValue GroupIDsWithIFPNPC;
+        public BaseValue<bool> ShouldUseHitCache = new BaseValue<bool>("should_use_hit_cache",true);
+        public BaseValue<bool> ShouldAddUserIPToStats = new BaseValue<bool>("should_add_user_ip_to_stats", false);
+        public BaseValue<bool> ShouldUseSearchCache = new BaseValue<bool>("should_use_search_cache", false);
+        public BaseValue<double> HitCacheTimeInMinutes = new BaseValue<double>("hit_cache_time_in_minutes", 120);
+        public BaseValue<int> CurrentRequestDaysOffset = new BaseValue<int>("CURRENT_REQUEST_DAYS_OFFSET", 7);
+        public BaseValue<int> UpdateEPGPackage = new BaseValue<int>("update_epg_package", 200);
+        public BaseValue<int> PersonalRecommendedMaxResultsSize = new BaseValue<int>("personal_recommended_max_results_size", 20);
+        public BaseValue<string> WatchHistoryStaleMode = new BaseValue<string>("watch_history_stale_mode", "false", false, "ViewStaleState enum. Possible values are: None, False, Ok, UpdateAfter");
+        public BaseValue<string> GroupsUsingDBForAssetsStats = new BaseValue<string>("groups_using_db_for_assets_stats", null);
+        public BaseValue<string> GroupsWithIUserTypeSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIUserTypeSeperatedBySemiColon", null);
+        public BaseValue<string> GroupsWithIPNOFilteringShowAllCatalogAnonymousUser = new BaseValue<string>("GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser", null);
+        public BaseValue<string> GroupIDsWithIFPNPC = new BaseValue<string>("GroupIDsWithIFPNPC", null);
 
-        public CatalogLogicConfiguration(string key) : base(key)
-        {
-            WatchHistoryStaleMode = new StringConfigurationValue("watch_history_stale_mode", this)
-            {
-                DefaultValue = "False",
-                Description = "ViewStaleState enum. Possible values are: None, False, Ok, UpdateAfter",
-                OriginalKey = "WatchHistory_StaleMode"
-            };
-            HitCacheTimeInMinutes = new NumericConfigurationValue("hit_cache_time_in_minutes", this)
-            {
-                DefaultValue = 120,
-                OriginalKey = "CATALOG_HIT_CACHE_TIME_IN_MINUTES",
-            };
-            ShouldUseHitCache = new BooleanConfigurationValue("should_use_hit_cache", this)
-            {
-                DefaultValue = true,
-                OriginalKey = "CATALOG_HIT_CACHE"
-            };
-            ShouldUseSearchCache = new BooleanConfigurationValue("should_use_search_cache", this)
-            {
-                DefaultValue = false,
-                ShouldAllowEmpty = true,
-                OriginalKey = "Use_Search_Cache"
-            };
-            ShouldAddUserIPToStats = new BooleanConfigurationValue("should_add_user_ip_to_stats", this)
-            {
-                DefaultValue = false,
-                OriginalKey = "should_add_user_ip_to_stats"
-            };
-            CurrentRequestDaysOffset = new NumericConfigurationValue("CURRENT_REQUEST_DAYS_OFFSET", this)
-            {
-                DefaultValue = 7,
-                OriginalKey = "CURRENT_REQUEST_DAYS_OFFSET"
-            };
-            UpdateEPGPackage = new ConfigurationManager.NumericConfigurationValue("update_epg_package", this)
-            {
-                DefaultValue = 200,
-                OriginalKey = "update_epg_package"
-            };
-            PersonalRecommendedMaxResultsSize = new NumericConfigurationValue("personal_recommended_max_results_size", this)
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = 20,
-                OriginalKey = "PWLALP_MAX_RESULTS_SIZE"
-            };
-            GroupsUsingDBForAssetsStats = new StringConfigurationValue("groups_using_db_for_assets_stats", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "GROUPS_USING_DB_FOR_ASSETS_STATS"
-            };
-            GroupsWithIUserTypeSeperatedBySemiColon = new StringConfigurationValue("GroupIDsWithIUserTypeSeperatedBySemiColon", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "GroupIDsWithIPNOFilteringSeperatedBySemiColon"
-            };
-            GroupsWithIPNOFilteringShowAllCatalogAnonymousUser = new StringConfigurationValue("GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "GroupIDsWithIPNOFilteringShowAllCatalogAnonymousUser"
-            };
-            GroupIDsWithIFPNPC = new StringConfigurationValue("GroupIDsWithIFPNPC", this)
-            {
-                ShouldAllowEmpty = true,
-                OriginalKey = "GroupIDsWithIFPNPC"
-            };
-        }
+        public override string TcmKey => TcmObjectKeys.CatalogLogicConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

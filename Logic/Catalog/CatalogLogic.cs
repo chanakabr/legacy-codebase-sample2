@@ -1301,7 +1301,7 @@ namespace Core.Catalog
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
-            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
+            if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 if (request.m_oFilter == null)
                 {
@@ -1847,7 +1847,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';');
+                return Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';');
             }
             catch (Exception ex)
             {
@@ -1860,7 +1860,7 @@ namespace Core.Catalog
         {
             try
             {
-                return Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupIDsWithIFPNPC.Value, ';');
+                return Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupIDsWithIFPNPC.Value, ';');
             }
             catch (Exception ex)
             {
@@ -4220,7 +4220,7 @@ namespace Core.Catalog
                          *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
                          */
 
-                        if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
+                        if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                         {
                             #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -4392,7 +4392,7 @@ namespace Core.Catalog
                         else
                         {
                             // we bring data from ES statistics index only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
                             {
                                 #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
@@ -4619,7 +4619,7 @@ namespace Core.Catalog
 
             bool res = false;
             long lSiteGuid = 0;
-            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
+            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
             {
                 /*
                  * 1. We need to filter results by IPNO.
@@ -4633,7 +4633,7 @@ namespace Core.Catalog
                 if (!Int64.TryParse(oMediaRequest.m_sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
                 {
                     // anonymous user
-                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIPNOFilteringShowAllCatalogAnonymousUser.Value, ';'))
+                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIPNOFilteringShowAllCatalogAnonymousUser.Value, ';'))
                     {
                         //user is able to watch the entire catalog
                         res = false;
@@ -5150,7 +5150,7 @@ namespace Core.Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, int groupId)
         {
-            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
+            if (!ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 countryID = Utils.GetIP2CountryId(groupId, userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
@@ -5158,7 +5158,7 @@ namespace Core.Catalog
 
             #region  try get values from catalog cache
 
-            double cacheTime = ApplicationConfiguration.CatalogLogicConfiguration.HitCacheTimeInMinutes.DoubleValue;
+            double cacheTime = ApplicationConfiguration.Current.CatalogLogicConfiguration.HitCacheTimeInMinutes.Value;
 
             if (cacheTime == 0)
             {
@@ -5316,7 +5316,7 @@ namespace Core.Catalog
             CatalogCache catalogCache = CatalogCache.Instance();
             string key = string.Format("Recording_{0}", domainRecordingId);
 
-            if (!ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseHitCache.Value)
+            if (!ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseHitCache.Value)
             {
                 shouldGoToCas = true;
             }
@@ -6301,7 +6301,7 @@ namespace Core.Catalog
 
                 // Group have user types per media  +  siteGuid != empty
                 if (!string.IsNullOrEmpty(request.m_sSiteGuid) &&
-                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
+                    Utils.IsGroupIDContainedInConfig(request.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
                 {
                     if (request.m_oFilter == null)
                     {
@@ -7760,7 +7760,7 @@ namespace Core.Catalog
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
             Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
         {
-            bool shouldUseCache = ApplicationConfiguration.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
+            bool shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
 
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
@@ -8697,7 +8697,7 @@ namespace Core.Catalog
             #endregion
 
             // Get days offset for EPG search from TCM
-            definitions.epgDaysOffest = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+            definitions.epgDaysOffest = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
 
             #region Regions and associations
 
@@ -9060,7 +9060,7 @@ namespace Core.Catalog
 
                 // insert all above  
                 int nCount = 0;
-                int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+                int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
                 if (nCountPackage == 0)
                     nCountPackage = 200;
                 List<long> epgIds = new List<long>();
@@ -9338,7 +9338,7 @@ namespace Core.Catalog
             {
                 CouchbaseManager.ViewStaleState staleState = CouchbaseManager.ViewStaleState.Ok;
 
-                string staleStateConfiguration = ApplicationConfiguration.CatalogLogicConfiguration.WatchHistoryStaleMode.Value;
+                string staleStateConfiguration = ApplicationConfiguration.Current.CatalogLogicConfiguration.WatchHistoryStaleMode.Value;
 
                 if (!string.IsNullOrEmpty(staleStateConfiguration))
                 {
@@ -9603,7 +9603,7 @@ namespace Core.Catalog
                 object[] obj = null;
 
                 // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
-                if (ApplicationConfiguration.CatalogLogicConfiguration.ShouldAddUserIPToStats.Value)
+                if (ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldAddUserIPToStats.Value)
                 {
                     obj = new object[] { " ", nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, nMediaID, nMediaFileID, nGroupID, nCDNID,
                                                                         nActionID, nCountryID, nPlayerID, nLoc, nBrowser, nPlatform, sSiteGUID, sUDID, userIP };

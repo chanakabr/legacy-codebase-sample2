@@ -1460,7 +1460,7 @@ namespace Core.Catalog.CatalogManagement
         {
             try
             {
-                int days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+                int days = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
 
                 if (days == 0)
                 {
