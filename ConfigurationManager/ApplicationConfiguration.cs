@@ -150,11 +150,11 @@ namespace ConfigurationManager
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
         public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();
         public SocialFeedConfiguration SocialFeedConfiguration = new SocialFeedConfiguration();
+        public SocialFeedQueueConfiguration SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration();
 
         #region Configuration values
 
 
-        public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
         public static ExportConfiguration ExportConfiguration;
         public static EngagementsConfiguration EngagementsConfiguration;
@@ -224,7 +224,7 @@ namespace ConfigurationManager
 
             
 
-            SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
+            
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
             ExportConfiguration = new ExportConfiguration("export");
            
@@ -246,7 +246,6 @@ namespace ConfigurationManager
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     
-                    SocialFeedQueueConfiguration,
                     LayeredCacheConfigurationValidation,
                     ExportConfiguration,
                     CatalogLogicConfiguration,

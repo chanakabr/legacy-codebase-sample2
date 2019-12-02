@@ -1580,8 +1580,8 @@ namespace Core.Social
         private void WriteMergeToQueue(string sSiteGuid, string sAction)
         {
             QueueWrapper.BaseQueue queue = new QueueWrapper.Queues.QueueObjects.SocialQueue();
-            string task = ApplicationConfiguration.SocialFeedQueueConfiguration.TaskSocialMerge.Value;
-            string routingKey = ApplicationConfiguration.SocialFeedQueueConfiguration.RoutingKeyMerge.Value;
+            string task = ApplicationConfiguration.Current.SocialFeedQueueConfiguration.TaskSocialMerge.Value;
+            string routingKey = ApplicationConfiguration.Current.SocialFeedQueueConfiguration.RoutingKeyMerge.Value;
             Guid guid = Guid.NewGuid();
 
 

@@ -97,6 +97,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     field.FieldType.GetInterface("IBaseConfig") != null)
                 {
                     Init(baseValueData as IBaseConfig);
+
                 }
                 else
                 {
