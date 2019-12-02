@@ -26,7 +26,7 @@ namespace ConfigurationManager
         public  CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
 
         public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
-        public EutelsatSettings EutelsatSettings = new EutelsatSettings();
+        public EutelsatSettings EutelsatSettings = new EutelsatSettings(); 
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration= new ProfessionalServicesTasksConfiguration();
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
 
