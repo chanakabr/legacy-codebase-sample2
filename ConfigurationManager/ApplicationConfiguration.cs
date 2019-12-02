@@ -775,7 +775,8 @@ namespace ConfigurationManager
                     ShouldSupportEventBusMessages,
                     ShouldRecoverSubscriptionRenewalToMessageBus,
                     LogReloadInterval,
-                    HttpClientConfiguration
+                    HttpClientConfiguration,
+                    FileUpload
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
