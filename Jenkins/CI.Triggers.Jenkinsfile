@@ -12,13 +12,24 @@ node {
     }
     stage('Trigger Relevant Job'){
         for(JOB_TO_RUN in JOBS_TO_RUN){
-            build (
-                job: "${JOB_TO_RUN}", 
-                wait: false,
-                parameters: [
-                    [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                ]
-            )
+            if (JOB_TO_RUN == "OTT-BE-Phoenix-Windows"){
+                build (
+                    job: "${JOB_TO_RUN}", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        [$class: 'StringParameterValue', name: 'publish', value: false],
+                    ]
+                )
+            } else {
+                build (
+                    job: "${JOB_TO_RUN}", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                    ]
+                )
+            }
         }
     }
 }
