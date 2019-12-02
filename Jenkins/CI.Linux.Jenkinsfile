@@ -91,6 +91,18 @@ pipeline {
                 )
             }
         }
+        stage("Trigger Release Candidate"){
+            when { expression { params.TRIGGER_RC == true } }
+            steps{
+                build (
+                    job: "OTT-BE-Create-Release-Candidate", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                    ]
+                )
+            }
+        }
     }
     post {
         always {
