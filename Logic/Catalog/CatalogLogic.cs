@@ -9060,7 +9060,7 @@ namespace Core.Catalog
 
                 // insert all above  
                 int nCount = 0;
-                int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+                int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.Value;
                 if (nCountPackage == 0)
                     nCountPackage = 200;
                 List<long> epgIds = new List<long>();
