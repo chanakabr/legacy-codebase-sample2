@@ -19,7 +19,7 @@ namespace WS_Social
             if (!int.TryParse(Request.QueryString["mediaID"], out mediaID)) return;
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             Response.Write(serializer.Serialize(SocialFeedUtils.GetSocialFeedTags(mediaID)));
-            Response.Cache.SetMaxAge(TimeSpan.FromMinutes(ApplicationConfiguration.Current.SocialFeedConfiguration.TagsTTL.DoubleValue));
+            Response.Cache.SetMaxAge(TimeSpan.FromMinutes(ApplicationConfiguration.Current.SocialFeedConfiguration.TagsTTL.Value));
         }
     }
 }

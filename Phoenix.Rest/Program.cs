@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using ConfigurationManager;
 using KLogMonitor;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -13,7 +14,8 @@ namespace Phoenix.Rest
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/phoenix/{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
-            ConfigurationManager.ApplicationConfiguration.Initialize(shouldLoadDefaults: true, silent: true);
+            
+            ApplicationConfiguration.Init();
             await CreateWebHostBuilder(args).Build().RunAsync();
         }
 
