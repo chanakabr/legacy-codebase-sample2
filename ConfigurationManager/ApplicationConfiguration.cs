@@ -21,8 +21,10 @@ namespace ConfigurationManager
         }
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
+        
+        public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
 
-        public  AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
+        public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public  CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
 
         public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
@@ -162,7 +164,6 @@ namespace ConfigurationManager
 
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
 
-        public static EventConsumersConfiguration EventConsumersConfiguration;
 
 
         #endregion
@@ -224,15 +225,12 @@ namespace ConfigurationManager
 
             LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
                                    
-            EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
  
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
                     
                     LayeredCacheConfigurationValidation,
-                    
-                    EventConsumersConfiguration,
                     
             };
 

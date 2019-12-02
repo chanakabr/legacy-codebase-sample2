@@ -32,7 +32,7 @@ namespace WebAPI.Filters
 
             try
             {
-                string consumerSettingsJson = ApplicationConfiguration.EventConsumersConfiguration.Value;
+                string consumerSettingsJson = JsonConvert.SerializeObject(ApplicationConfiguration.Current.EventConsumersConfiguration.ConsumerSettings);
 
                 if (consumerSettingsJson != null)
                 {

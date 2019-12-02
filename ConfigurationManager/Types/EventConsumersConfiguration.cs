@@ -1,45 +1,44 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ConfigurationManager
 {
-    public class EventConsumersConfiguration : StringConfigurationValue
+    public class EventConsumersConfiguration : BaseConfig<EventConsumersConfiguration>
     {
-        private static JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.None
-        };
+        public override string TcmKey => TcmObjectKeys.EventConsumersConfiguration;
 
-        public EventConsumersConfiguration(string key) : base(key)
-        {
-        }
+        public override string[] TcmPath => new string[] { TcmKey };
 
-        internal override bool Validate()
+        public ConsumerSettings ConsumerSettings = new ConsumerSettings();
+
+
+        public void SetValues(JToken token, ConsumerSettings defaultSettings)
         {
-            bool result = base.Validate();
 
             try
             {
-                ConsumerSettings consumerSettings = null;
 
-                if (this.ObjectValue != null)
+                var res = JsonConvert.DeserializeObject<ConsumerSettings>(token.ToString());
+                if(res != null)
                 {
-                    consumerSettings = Newtonsoft.Json.JsonConvert.DeserializeObject<ConsumerSettings>(this.ObjectValue.ToString(), serializerSettings);
+                    ConsumerSettings = res;
                 }
+
             }
             catch (Exception ex)
             {
-                LogError(string.Format("Could not parse event consumers configuration. Error = {0}", ex), ConfigurationValidationErrorLevel.Failure);
-                result = false;
+                _Logger.Error(string.Format("Could not parse event consumers configuration. Error = {0}", ex));
             }
-
-            return result;
         }
     }
+
+
+}
+
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
@@ -54,22 +53,22 @@ namespace ConfigurationManager
 
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ConsumerDefinition
+[Serializable]
+[JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+public class ConsumerDefinition
+{
+    [JsonProperty("DllLocation")]
+    public string DllLocation
     {
-        [JsonProperty("DllLocation")]
-        public string DllLocation
-        {
-            get;
-            set;
-        }
+        get;
+        set;
+    }
 
-        [JsonProperty("Type")]
-        public string Type
-        {
-            get;
-            set;
-        }
+    [JsonProperty("Type")]
+    public string Type
+    {
+        get;
+        set;
     }
 }
+

@@ -84,6 +84,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
                 }
                 else if (field.FieldType == typeof(Dictionary<string, AdapterConfiguration>) ||
+                    field.FieldType == typeof(ConsumerSettings) ||
                     field.FieldType == typeof(Dictionary<string, CouchbaseBucketConfig> ))
                 {
                     MethodInfo methodInfo = type.GetMethod("SetValues");
