@@ -52,6 +52,7 @@
         public const string CouchbaseClientConfiguration = "couchbase_client_config";
         public const string CouchbaseBucketConfiguration = "BucketConfigs";
         public const string CouchbasePoolConfiguration = "poolConfiguration";
+        public const string FacebookConfiguration ="facebook_configuration";
     }
 }
 

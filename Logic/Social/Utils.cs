@@ -602,8 +602,8 @@ namespace Core.Social
                 using (AesManaged aes = new AesManaged())
                 {
 
-                    string Key = ApplicationConfiguration.FacebookConfiguration.SecureSiteGuidKey.Value;
-                    string IV = ApplicationConfiguration.FacebookConfiguration.SecureSiteGuidIV.Value;
+                    string Key = ApplicationConfiguration.Current.FacebookConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.Current.FacebookConfiguration.SecureSiteGuidIV.Value;
 
                     aes.Key = Convert.FromBase64String(Key);
                     aes.IV = Convert.FromBase64String(IV);

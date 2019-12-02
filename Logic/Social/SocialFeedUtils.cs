@@ -40,7 +40,7 @@ namespace Core.Social
             private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
             static readonly string FB_GRAPH_SOCIALFEED_FIELDS = "posts?fields=from,message,link,picture,created_time,likes.limit(1).summary(true),comments.limit(25).fields(message,from,like_count,created_time)";
-            static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.FacebookConfiguration.GraphURI.Value;
+            static readonly string FB_GRAPH_URI_PREFIX = ApplicationConfiguration.Current.FacebookConfiguration.GraphURI.Value;
             static Dictionary<int, string> _accessTokenDict = new Dictionary<int, string>();
             static object _locker = new object();
 
@@ -454,7 +454,7 @@ namespace Core.Social
                                 try
                                 {
                                     socialPlatformFeed = SocialFeedUtils.Facebook.GetFacebookSocialFeed(mediaTag.Value, ApplicationConfiguration.SocialFeedConfiguration.FacebookItemCount.IntValue,
-                                        Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.FacebookConfiguration.TokenKey.Value));
+                                        Core.Social.Utils.Decrypt(userData.m_user.m_oBasicData.m_sFacebookToken, ApplicationConfiguration.Current.FacebookConfiguration.TokenKey.Value));
                                 }
                                 catch (Exception)
                                 {

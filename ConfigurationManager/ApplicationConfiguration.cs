@@ -149,11 +149,11 @@ namespace ConfigurationManager
         public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
+        public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();
 
         #region Configuration values
 
-     
-        public static FacebookConfiguration FacebookConfiguration;
+
         public static SocialFeedConfiguration SocialFeedConfiguration;
         public static SocialFeedQueueConfiguration SocialFeedQueueConfiguration;
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
@@ -223,8 +223,6 @@ namespace ConfigurationManager
                 TCMClient.Settings.Instance.Init();
             }
 
-            FacebookConfiguration = new FacebookConfiguration("facebook_configuration");
-
             SocialFeedConfiguration = new SocialFeedConfiguration("social_feed_configuration");
 
             SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration("social_feed_queue_configuration");
@@ -248,7 +246,7 @@ namespace ConfigurationManager
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
-                    FacebookConfiguration,
+                    
                     SocialFeedConfiguration,
                     SocialFeedQueueConfiguration,
                     LayeredCacheConfigurationValidation,
