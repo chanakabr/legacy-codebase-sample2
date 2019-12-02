@@ -154,12 +154,12 @@ namespace ConfigurationManager
         public ExportConfiguration ExportConfiguration = new ExportConfiguration();
         public CDVRAdapterConfiguration CDVRAdapterConfiguration = new CDVRAdapterConfiguration();
         public UserPINDigitsConfiguration UserPINDigitsConfiguration = new UserPINDigitsConfiguration();
+        public EngagementsConfiguration EngagementsConfiguration = new EngagementsConfiguration();
 
         #region Configuration values
 
 
         public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
-        public static EngagementsConfiguration EngagementsConfiguration;
         public static CatalogLogicConfiguration CatalogLogicConfiguration;
 
         public static EventConsumersConfiguration EventConsumersConfiguration;
@@ -226,8 +226,6 @@ namespace ConfigurationManager
 
             CatalogLogicConfiguration = new CatalogLogicConfiguration("catalog_logic_configuration");
 
-  
-            EngagementsConfiguration = new EngagementsConfiguration("engagements_configuration");
             
             EventConsumersConfiguration = new EventConsumersConfiguration("ConsumerSettings");
             //AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration("authorization_manager_configuration");
@@ -239,7 +237,6 @@ namespace ConfigurationManager
                     LayeredCacheConfigurationValidation,
                     
                     CatalogLogicConfiguration,
-                    EngagementsConfiguration,
                     EventConsumersConfiguration,
                     
             };
