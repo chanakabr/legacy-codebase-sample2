@@ -284,7 +284,6 @@ namespace Core.Users
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
                     }
 
-                    //TODO MATAN match case after adding to column DB
                     if (!string.IsNullOrEmpty(externalId))
                     {
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("external_Id", "=", externalId);

@@ -2225,7 +2225,6 @@ namespace Core.Users
 
             // Get row id from devices table (not udid)
             device.m_domainID = this.m_nDomainID;
-            //TODO MATAN - check
             deviceID = device.Save(0, 3, null, device.ExternalId);
             bRemoveDomain = true;
 

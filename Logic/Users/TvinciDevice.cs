@@ -74,7 +74,7 @@ namespace Core.Users
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
 
-            //TODO MATAN, Check if external id already exists
+            //Check if external id already exists
             var deviceId = Device.GetDeviceIDByExternalId(nGroupID, externalId);
 
             //already exists
