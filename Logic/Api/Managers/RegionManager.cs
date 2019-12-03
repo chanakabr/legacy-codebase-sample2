@@ -318,7 +318,7 @@ namespace ApiLogic.Api.Managers
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
-                        var regions = GetRegions(groupId.Value, new RegionFilter() { ParentOnly = true });
+                        var regions = GetRegions(groupId.Value, new RegionFilter());
                         if (regions != null && regions.HasObjects())
                         {
                             foreach (var region in regions.Objects)
@@ -339,8 +339,7 @@ namespace ApiLogic.Api.Managers
                                         }
                                     }
                                 }
-                            }
-                                
+                            }                                
                         }
                     }
                 }
