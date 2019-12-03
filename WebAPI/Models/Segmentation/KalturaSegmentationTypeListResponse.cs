@@ -84,7 +84,7 @@ namespace WebAPI.Models.Segmentation
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSegmentationTypeFilter.IdIn", "KalturaSegmentationTypeFilter.Ksql");
             }
 
-            if (!string.IsNullOrEmpty(IdIn) || !string.IsNullOrEmpty(Ksql))
+            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(Ksql))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSegmentationTypeFilter.IdIn", "KalturaSegmentationTypeFilter.Ksql");
             }
