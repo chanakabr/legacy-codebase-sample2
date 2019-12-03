@@ -23,45 +23,45 @@ namespace Core.Catalog
         
         public override GenericListResponse<BulkUploadResult> Deserialize(int groupId, long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)
         {
-            var response = new GenericListResponse<BulkUploadResult>();
+            var deserializeResponse = new GenericListResponse<BulkUploadResult>();
 
             var structureManager = objectData.GetStructureManager() as IExcelStructureManager;
             if (structureManager == null)
             {
-                response.SetStatus(eResponseStatus.InvalidBulkUploadStructure);
-                return response;
+                deserializeResponse.SetStatus(eResponseStatus.InvalidBulkUploadStructure);
+                return deserializeResponse;
             }
 
             var excelStructure = structureManager.GetExcelStructure(objectData.GroupId, objectData.GetObjectType());
             if (excelStructure == null)
             {
-                response.SetStatus(eResponseStatus.InvalidBulkUploadStructure);
-                return response;
+                deserializeResponse.SetStatus(eResponseStatus.InvalidBulkUploadStructure);
+                return deserializeResponse;
             }
 
-            var propertyNameAndValueResponse = MapToObjectsPropertyNameAndValue(fileUrl, excelStructure);
-            if (!propertyNameAndValueResponse.IsOkStatusCode())
+            var mappedObjectsResponse = DeserializeExcelFileToMapObjects(fileUrl, excelStructure);
+            if (!mappedObjectsResponse.IsOkStatusCode())
             {
-                response.SetStatus(propertyNameAndValueResponse.Status);
-                return response;
+                deserializeResponse.SetStatus(mappedObjectsResponse.Status);
+                return deserializeResponse;
             }
 
             var mandatoryColumns = excelStructure.ExcelColumns.Where(x => x.Value.IsMandatory).ToList();
-            for (int i = 0; i < propertyNameAndValueResponse.Object.Count; i++)
+            for (int i = 0; i < mappedObjectsResponse.Object.Count; i++)
             {
-                var propertyNameToValue = propertyNameAndValueResponse.Object[i];
+                var propertyNameToValue = mappedObjectsResponse.Object[i];
                 var bulkUploadObjectResponse = MappedObjectToBulkObject(structureManager, excelStructure, propertyNameToValue, objectData, mandatoryColumns);
                 var bulkUploadResult = objectData.GetNewBulkUploadResult(bulkUploadId, bulkUploadObjectResponse.Item1, i, bulkUploadObjectResponse.Item2);
-                response.Objects.Add(bulkUploadResult);
+                deserializeResponse.Objects.Add(bulkUploadResult);
             }
 
-            response.SetStatus(eResponseStatus.OK);
-            return response;
+            deserializeResponse.SetStatus(eResponseStatus.OK);
+            return deserializeResponse;
         }
         
-        private GenericResponse<List<Dictionary<string, object>>> MapToObjectsPropertyNameAndValue(string fileUrl, ExcelStructure excelStructure)
+        private GenericResponse<List<Dictionary<string, object>>> DeserializeExcelFileToMapObjects(string fileUrl, ExcelStructure excelStructure)
         {
-            var deserializeResponse = new GenericResponse<List<Dictionary<string, object>>>();
+            var mappedObjectsResponse = new GenericResponse<List<Dictionary<string, object>>>();
             try
             {
                 int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
@@ -70,14 +70,15 @@ namespace Core.Catalog
                     byte[] fileBytes = webClient.DownloadData(fileUrl);
                     if (fileBytes == null || fileBytes.Length == 0)
                     {
-                        deserializeResponse.SetStatus(eResponseStatus.FileDoesNotExists, string.Format("Could not find file:{0}", fileUrl));
-                        return deserializeResponse;
+                        mappedObjectsResponse.SetStatus(eResponseStatus.FileDoesNotExists, $"Could not find file:{fileUrl}");
+                        return mappedObjectsResponse;
                     }
                     
                     using (var fileStream = new MemoryStream(fileBytes))
                     {
                         using (ExcelPackage excelPackage = new ExcelPackage(fileStream))
                         {
+                            var mappedObjects = new List<Dictionary<string, object>>();
                             foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
                             {
                                 for (int row = columnNameRowIndex + 1; row <= worksheet.Dimension.End.Row; row++)
@@ -88,30 +89,33 @@ namespace Core.Catalog
                                         var column = worksheet.Cells[columnNameRowIndex, col].Value;
                                         if (column == null) { continue; }
                                         var columnName = column.ToString();
+                                        var propertyValue = worksheet.Cells[row, col].Value;
 
-                                        if (!string.IsNullOrEmpty(columnName) && !columnNamesToValues.ContainsKey(columnName) && worksheet.Cells[row, col].Value != null && excelStructure.ExcelColumns.ContainsKey(columnName))
+                                        if (!string.IsNullOrEmpty(columnName) && !columnNamesToValues.ContainsKey(columnName) && propertyValue != null && excelStructure.ExcelColumns.ContainsKey(columnName))
                                         {
                                             //add the cell data to the List
-                                            columnNamesToValues.Add(columnName, worksheet.Cells[row, col].Value);
+                                            columnNamesToValues.Add(columnName, propertyValue);
                                         }
                                     }
 
-                                    deserializeResponse.Object.Add(columnNamesToValues);
+                                    mappedObjects.Add(columnNamesToValues);
                                 }
                             }
+
+                            mappedObjectsResponse.Object = mappedObjects;
                         }
                     }
 
-                    deserializeResponse.SetStatus(eResponseStatus.OK);
+                    mappedObjectsResponse.SetStatus(eResponseStatus.OK);
                 }
             }
             catch (Exception ex)
             {
-                deserializeResponse.SetStatus(eResponseStatus.IllegalExcelFile);
-                log.Error($"An Exception was occurred in Deserialize Excel File. fileUrl:{fileUrl}.", ex);
+                mappedObjectsResponse.SetStatus(eResponseStatus.IllegalExcelFile);
+                log.Error($"An Exception was occurred in DeserializeExcelFileToMapObjects. fileUrl:{fileUrl}.", ex);
             }
 
-            return deserializeResponse;
+            return mappedObjectsResponse;
         }
         
         private Tuple<IExcelObject, List<Status>> MappedObjectToBulkObject(IExcelStructureManager structureManager, ExcelStructure excelStructure, Dictionary<string, object> propertyNameToValue, BulkUploadObjectData objectData, List<KeyValuePair<string, ApiObjects.BulkUpload.ExcelColumn>> mandatoryColumns)
@@ -186,7 +190,7 @@ namespace Core.Catalog
             catch (Exception ex)
             {
                 errors.Add(new Status(eResponseStatus.IllegalExcelFile));
-                log.Error($"An Exception was occurred in Deserialize Excel File. groupId:{objectData.GroupId}.", ex);
+                log.Error($"An Exception was occurred in MappedObjectToBulkObject.", ex);
             }
 
             return new Tuple<IExcelObject, List<Status>>(excelObject, errors);
