@@ -344,40 +344,43 @@ namespace Core.Billing
 
         protected string MakeJsonRequest(Uri requestUri, string bearerToken, string clientID, string jsonContent = "")
         {
-            try
-            {
-                Dictionary<string, string> dHeaders = new Dictionary<string, string>() 
-                {
-                    {"Authorization", "Bearer " + bearerToken },
-                    {"Client_id", clientID }
-                };
+            throw new NotImplementedException();
 
-                DateTime dNow = DateTime.UtcNow;
+            //try
+            //{
+            //    Dictionary<string, string> dHeaders = new Dictionary<string, string>() 
+            //    {
+            //        {"Authorization", "Bearer " + bearerToken },
+            //        {"Client_id", clientID }
+            //    };
 
-                // handle trusting the ssl certificate
-                ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, policyErrors) => true;
+            //    DateTime dNow = DateTime.UtcNow;
 
-                string profJson = WS_Utils.SendXMLHttpReqWithHeaders(requestUri.OriginalString, jsonContent, dHeaders, "application/x-www-form-urlencoded");    //, "application/json", "", "", "", "", "post");
-                double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
+            //    // handle trusting the ssl certificate
+            //    ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, policyErrors) => true;
 
-                log.Debug("MakeJsonRequest - " + string.Format("Response: {0}", profJson));
 
-                return profJson;
-            }
-            catch (Exception ex)
-            {
-                #region Logging
-                StringBuilder sb = new StringBuilder("Exception at MakeJsonRequest. ");
-                sb.Append(String.Concat(" Msg: ", ex.Message));
-                sb.Append(String.Concat(" Req URI: ", requestUri != null ? requestUri.OriginalString : "null"));
-                sb.Append(String.Concat(" JSON: ", jsonContent));
-                sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+            //    string profJson = WS_Utils.SendXMLHttpReqWithHeaders(requestUri.OriginalString, jsonContent, dHeaders, "application/x-www-form-urlencoded");    //, "application/json", "", "", "", "", "post");
+            //    double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
 
-                log.Error("MakeJsonRequest - " + sb.ToString());
-                #endregion
-            }
+            //    log.Debug("MakeJsonRequest - " + string.Format("Response: {0}", profJson));
 
-            return string.Empty;
+            //    return profJson;
+            //}
+            //catch (Exception ex)
+            //{
+            //    #region Logging
+            //    StringBuilder sb = new StringBuilder("Exception at MakeJsonRequest. ");
+            //    sb.Append(String.Concat(" Msg: ", ex.Message));
+            //    sb.Append(String.Concat(" Req URI: ", requestUri != null ? requestUri.OriginalString : "null"));
+            //    sb.Append(String.Concat(" JSON: ", jsonContent));
+            //    sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+
+            //    log.Error("MakeJsonRequest - " + sb.ToString());
+            //    #endregion
+            //}
+
+            //return string.Empty;
         }
 
         protected static string GetAssetID(Dictionary<string, string> oCustomDataDict, ref string assetName, ref ItemType type)

@@ -2,66 +2,42 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Net;
+using System.Net.Http;
 using System.IO;
 using KLogMonitor;
 using System.Reflection;
+using TVinciShared;
 
 namespace Mailer
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
         private static object lck = new object();
+
         public static string SendXMLHttpReq(string sUrl, string sToSend, string sSoapHeader)
         {
-            //Create the HTTP POST request and the authentication headers
-            HttpWebRequest oWebRequest = (HttpWebRequest)WebRequest.Create(new Uri(sUrl));
-            oWebRequest.Method = "post";
-            oWebRequest.ContentType = "text/xml; charset=utf-8";
-            //oWebRequest.Headers["SOAPAction"] = sSoapHeader;
 
-            byte[] encodedBytes = Encoding.UTF8.GetBytes(sToSend);
-            //oWebRequest.ContentLength = encodedBytes.Length;
-            //oWebRequest.AllowWriteStreamBuffering = true;
-
-            //Send the request.
-            Stream requestStream = oWebRequest.GetRequestStream();
-            requestStream.Write(encodedBytes, 0, encodedBytes.Length);
-            requestStream.Close();
-
+            string responseFromServer = null;
             try
             {
-                HttpWebResponse oWebResponse = (HttpWebResponse)oWebRequest.GetResponse();
-                HttpStatusCode sCode = oWebResponse.StatusCode;
-                Stream receiveStream = oWebResponse.GetResponseStream();
-
-                StreamReader sr = new StreamReader(receiveStream);
-                string resultString = sr.ReadToEnd();
-
-                sr.Close();
-                oWebRequest = null;
-                oWebResponse = null;
-                return resultString;
+                var contentType = "text/xml; charset=utf-8";
+                using (var postData = new StringContent(sToSend, Encoding.UTF8, contentType))
+                using (var response = httpClient.PostAsync(sUrl, postData).ExecuteAndWait())
+                {
+                    response.EnsureSuccessStatusCode();
+                    responseFromServer = response.Content.ReadAsStringAsync().ExecuteAndWait();
+                }
             }
-            catch (WebException ex)
+            catch (Exception ex)
             {
-                log.Error(string.Empty, ex);
-                WebResponse errRsp = ex.Response;
-
-                if (errRsp == null)
-                {
-                    return string.Empty;
-                }
-
-                using (StreamReader rdr = new StreamReader(errRsp.GetResponseStream()))
-                {
-                    return rdr.ReadToEnd();
-                }
-
+                log.Error($"SendXMLHttpReq > Error issuing POST:{sUrl}, data:{sToSend}", ex);
             }
+
+            return responseFromServer;
         }
-        
+
         public static string GetGroupMcKey(int groupId)
         {
             string mcKey = string.Empty;
