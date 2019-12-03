@@ -57,9 +57,9 @@ namespace WebAPI.Models.API
         public void Validate()
         {
 
-            if ((!string.IsNullOrEmpty(ExternalIdIn) && (!string.IsNullOrEmpty(IdIn) || ParentIdEqual > 0)) ||
-                (!string.IsNullOrEmpty(IdIn) && (!string.IsNullOrEmpty(ExternalIdIn) || ParentIdEqual > 0)) ||
-                (ParentIdEqual > 0 && (!string.IsNullOrEmpty(IdIn) || !string.IsNullOrEmpty(ExternalIdIn))))
+            if ((!string.IsNullOrEmpty(ExternalIdIn) && (!string.IsNullOrEmpty(IdIn) || ParentIdEqual > 0 || ParentOnly == true)) ||
+                (!string.IsNullOrEmpty(IdIn) && (!string.IsNullOrEmpty(ExternalIdIn) || ParentIdEqual > 0 || ParentOnly == true)) ||
+                (ParentIdEqual > 0 && (!string.IsNullOrEmpty(IdIn) || !string.IsNullOrEmpty(ExternalIdIn) || ParentOnly == true)))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaRegionFilter.externalIdIn, KalturaRegionFilter.idIn", "KalturaRegionFilter.parentIdEqual");
             }

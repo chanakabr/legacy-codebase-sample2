@@ -32,6 +32,8 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager();
 
+            filter.Validate();
+
             try
             {
                 response = ClientsManager.ApiClient().GetRegions(groupId, filter, pager.getPageIndex(), pager.getPageSize());
