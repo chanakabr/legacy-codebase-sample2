@@ -12,6 +12,7 @@ pipeline {
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
+        booleanParam(name: 'publish', defaultValue: false, description: 'Publush api client libs ?')
     }
     stages {
         stage("Checkout"){
@@ -65,22 +66,6 @@ pipeline {
                             + " -p:DeleteExistingFiles=True"
                             + " -p:publishUrl=\"${WORKSPACE}/published/kaltura_ott_api/"
                     )
-
-                    bat (label:"Run MSBuild Config Validator" ,script:"\"${MSBUILD}\" ConfigurationValidator\\ConfigurationValidator.csproj -m:4 -nr:False -t:Restore,Build"
-                            + " -p:Configuration=Release"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:OutDir=\"${WORKSPACE}/published/configuration_validator/"
-                    )
-
-                    bat (label:"Run MSBuild Permission Deployer", script:"\"${MSBUILD}\" PermissionsExport\\PermissionsDeployment.csproj -m:4 -nr:False -t:Restore,Build"
-                            + " -p:Configuration=Release"
-                            + " -p:DeleteExistingFiles=True"
-                            + " -p:OutDir=\"${WORKSPACE}/published/permissions/"
-                    )
-
-                    dir("${WORKSPACE}/published/permissions"){
-                        bat("PermissionsDeployment.exe e=permissions.xml")
-                    }
                 }
             }        
         }
