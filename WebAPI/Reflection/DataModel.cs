@@ -2829,8 +2829,8 @@ namespace WebAPI.Reflection
                     {
                         case "DeviceFamilyIdIn":
                             return "deviceFamilyIdIn";
-                        case "ExternalId":
-                            return "externalId";
+                        case "ExternalIdEqual":
+                            return "externalIdEqual";
                         case "HouseholdIdEqual":
                             return "householdIdEqual";
                     }

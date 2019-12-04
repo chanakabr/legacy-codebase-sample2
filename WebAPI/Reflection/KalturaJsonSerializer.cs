@@ -26562,7 +26562,7 @@ namespace WebAPI.Models.Domains
             }
             if(ExternalIdEqual != null)
             {
-                ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
+                ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
             }
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {
@@ -26584,7 +26584,7 @@ namespace WebAPI.Models.Domains
             }
             if(ExternalIdEqual != null)
             {
-                ret.Add("externalId", "<externalId>" + EscapeXml(ExternalIdEqual) + "</externalId>");
+                ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
             }
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdDeviceFilter", "HouseholdIdEqual", requestType.Value)))
             {

@@ -26738,8 +26738,8 @@ namespace WebAPI.Models.Domains
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 6,
-            IsNullable = false,
-            MaxLength = -1,
+            IsNullable = true,
+            MaxLength = 255,
             MinLength = -1,
         };
         public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
@@ -26837,6 +26837,10 @@ namespace WebAPI.Models.Domains
                         Drm = (KalturaCustomDrmPlaybackPluginData) Deserializer.deserialize(typeof(KalturaCustomDrmPlaybackPluginData), (Dictionary<string, object>) parameters["drm"]);
                     }
                 }
+                if (parameters.ContainsKey("externalId__null") && parameters["externalId__null"] != null)
+                {
+                    AddNullableProperty("externalId");
+                }
                 if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
                 {
                     if(!isOldVersion)
@@ -26909,9 +26913,9 @@ namespace WebAPI.Models.Domains
                 {
                     DeviceFamilyIdIn = (String) Convert.ChangeType(parameters["deviceFamilyIdIn"], typeof(String));
                 }
-                if (parameters.ContainsKey("externalId") && parameters["externalId"] != null)
+                if (parameters.ContainsKey("externalIdEqual") && parameters["externalIdEqual"] != null)
                 {
-                    ExternalIdEqual = (String) Convert.ChangeType(parameters["externalId"], typeof(String));
+                    ExternalIdEqual = (String) Convert.ChangeType(parameters["externalIdEqual"], typeof(String));
                 }
             }
         }

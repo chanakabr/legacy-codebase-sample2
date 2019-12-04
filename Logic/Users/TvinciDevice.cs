@@ -68,7 +68,7 @@ namespace Core.Users
             return status;
         }
 
-        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId)
+        public override DeviceResponseObject SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId, bool allowNullExternalId)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
@@ -92,7 +92,7 @@ namespace Core.Users
                 }
             }
 
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, externalId);
+            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, externalId, allowNullExternalId);
 
             // in case set device Succeeded
             // domain should be remove from the cache 

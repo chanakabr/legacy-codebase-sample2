@@ -588,7 +588,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid, string externalId)
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, string deviceName, string udid, string externalId, bool allowNullExternalId = false)
         {
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
@@ -597,7 +597,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SetDevice(groupId, udid, deviceName, externalId);
+                    response = Core.Domains.Module.SetDevice(groupId, udid, deviceName, externalId, allowNullExternalId);
                 }
             }
             catch (Exception ex)

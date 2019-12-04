@@ -195,7 +195,7 @@ namespace WebAPI.Controllers
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {
                 udid = KSUtils.ExtractKSPayload().UDID;
-                householdId = (int) HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
+                householdId = (int)HouseholdUtils.GetHouseholdIDByKS(ks.GroupId);
             }
 
             if (string.IsNullOrEmpty(udid))
@@ -306,8 +306,11 @@ namespace WebAPI.Controllers
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
+                var allowNullExternalId = false;
+                allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalId");
+
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.ExternalId);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.ExternalId, allowNullExternalId);
             }
             catch (ClientException ex)
             {
@@ -480,7 +483,7 @@ namespace WebAPI.Controllers
         static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
         {
             KalturaOTTUser response = null;
-            
+
             try
             {
                 // call client
@@ -490,7 +493,7 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            
+
             return new KalturaLoginResponse()
             {
                 LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds()),

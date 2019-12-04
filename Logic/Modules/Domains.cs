@@ -833,13 +833,13 @@ namespace Core.Domains
             return response;
         }
 
-        public static DeviceResponse SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId)
+        public static DeviceResponse SetDevice(int nGroupID, string sDeviceUDID, string sDeviceName, string externalId = "", bool allowNullExternalId = false)
         {
             Core.Users.BaseDevice t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DeviceResponseObject responseObject = t.SetDevice(nGroupID, sDeviceUDID, sDeviceName, externalId);
+                DeviceResponseObject responseObject = t.SetDevice(nGroupID, sDeviceUDID, sDeviceName, externalId, allowNullExternalId);
 
                 DeviceResponse response = new DeviceResponse()
                 {

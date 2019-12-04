@@ -12,7 +12,7 @@ namespace WebAPI.Models.Domains
     /// Device details
     /// </summary>
     [XmlInclude(typeof(KalturaDevice))]
-    public partial class KalturaHouseholdDevice : KalturaOTTObject
+    public partial class KalturaHouseholdDevice : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// Household identifier
@@ -91,7 +91,7 @@ namespace WebAPI.Models.Domains
         /// </summary>
         [DataMember(Name = "deviceFamilyId")]
         [JsonProperty("deviceFamilyId")]
-        [XmlElement(ElementName = "deviceFamilyId", IsNullable = true)]        
+        [XmlElement(ElementName = "deviceFamilyId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? DeviceFamilyId { get; set; }
 
@@ -110,8 +110,10 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, IsNullable = true, MaxLength = 255)]
         public string ExternalId { get; set; }
+
+        internal bool ExternalId_null;
 
         internal int getBrandId()
         {

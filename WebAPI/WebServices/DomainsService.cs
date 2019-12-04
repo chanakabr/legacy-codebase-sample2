@@ -1112,7 +1112,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.SetDevice(nGroupID, sDeviceUDID, sDeviceName, string.Empty);
+                return Core.Domains.Module.SetDevice(nGroupID, sDeviceUDID, sDeviceName);
             }
             else
             {

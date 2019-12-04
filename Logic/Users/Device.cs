@@ -247,7 +247,7 @@ namespace Core.Users
             return DeviceDal.Get_DeviceFamilyIDAndName(deviceBrand, ref familyID);
         }
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string externalId = "")
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string externalId = "", bool allowNullExternalId = false)
         {
             int retVal = 0;
 
@@ -284,7 +284,7 @@ namespace Core.Users
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
                     }
 
-                    if (!string.IsNullOrEmpty(externalId))
+                    if (!string.IsNullOrEmpty(externalId) || allowNullExternalId)
                     {
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("external_Id", "=", externalId);
                     }
@@ -400,14 +400,14 @@ namespace Core.Users
             return sNewPIN;
         }
 
-        public bool SetDeviceInfo(string sDeviceName, string externalId)
+        public bool SetDeviceInfo(string sDeviceName, string externalId, bool allowNullExternalId = false)
         {
             bool res = false;
             m_deviceName = sDeviceName;
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, null, externalId); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, null, externalId, allowNullExternalId); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;
