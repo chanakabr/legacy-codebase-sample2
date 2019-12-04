@@ -1,4 +1,5 @@
 ﻿using ConfigurationManager;
+using ConfigurationManager.Types;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -9,15 +10,23 @@ namespace TVinciShared
 {
     public static class HttpClientUtil
     {
+        static readonly List<SslProtocols> defaultEnabledSslProtocols = ApplicationConfiguration.HttpClientConfiguration.GetSslProtocols();
+        static readonly List<DecompressionMethods> defaultEnabledDecompressionMethod = ApplicationConfiguration.HttpClientConfiguration.GetDecompressionMethods();
+        static readonly int defaultMaxConnectionsPerServer = ApplicationConfiguration.HttpClientConfiguration.MaxConnectionsPerServer.IntValue;
+        static readonly bool defaultCheckCertificateRevocationList = ApplicationConfiguration.HttpClientConfiguration.CheckCertificateRevocationList.Value;
+        static readonly System.TimeSpan defaultTimeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.HttpClientConfiguration.TimeOutInMiliSeconds.DoubleValue);
 
-        static readonly List<SslProtocols> enabledSslProtocols = ApplicationConfiguration.HttpClientConfiguration.GetSslProtocols();
-        static readonly List<DecompressionMethods> enabledDecompressionMethod = ApplicationConfiguration.HttpClientConfiguration.GetDecompressionMethods();
-        static readonly int maxConnectionsPerServer = ApplicationConfiguration.HttpClientConfiguration.MaxConnectionsPerServer.IntValue;
-        static readonly bool checkCertificateRevocationList = ApplicationConfiguration.HttpClientConfiguration.CheckCertificateRevocationList.Value;
-        static readonly System.TimeSpan timeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.HttpClientConfiguration.TimeOutInMiliSeconds.DoubleValue);
-
-        public static HttpClient GetHttpClient()
+        public static HttpClient GetHttpClient(HttpClientConfiguration specificConfiguration = null)
         {
+            List<SslProtocols> enabledSslProtocols;
+            List<DecompressionMethods> enabledDecompressionMethod;
+            int maxConnectionsPerServer;
+            bool checkCertificateRevocationList;
+            System.TimeSpan timeout;
+
+            GetConfigurationValues(specificConfiguration, 
+                out enabledSslProtocols, out enabledDecompressionMethod, out maxConnectionsPerServer, out checkCertificateRevocationList, out timeout);
+
 #if NETCOREAPP3_0
             SocketsHttpHandler httpHandler = new SocketsHttpHandler() { SslOptions = new System.Net.Security.SslClientAuthenticationOptions() };
             foreach (SslProtocols sslProtocols in enabledSslProtocols)
@@ -63,5 +72,29 @@ namespace TVinciShared
 #endif
         }
 
+        private static void GetConfigurationValues(HttpClientConfiguration specificConfiguration, out List<SslProtocols> enabledSslProtocols, out List<DecompressionMethods> enabledDecompressionMethod, out int maxConnectionsPerServer, out bool checkCertificateRevocationList, out System.TimeSpan timeout)
+        {
+            bool shouldTakeSpecificConfiguration = specificConfiguration != null && !specificConfiguration.IsEmpty;
+
+            // enabled ssl protocols
+            enabledSslProtocols = shouldTakeSpecificConfiguration ?
+                specificConfiguration.GetSslProtocols() : defaultEnabledSslProtocols;
+
+            // enabled decompression method
+            enabledDecompressionMethod = shouldTakeSpecificConfiguration ?
+                specificConfiguration.GetDecompressionMethods() : defaultEnabledDecompressionMethod;
+
+            // max connections per server
+            maxConnectionsPerServer = shouldTakeSpecificConfiguration ?
+                specificConfiguration.MaxConnectionsPerServer.IntValue : defaultMaxConnectionsPerServer;
+
+            // check certificate revocation list
+            checkCertificateRevocationList = shouldTakeSpecificConfiguration ?
+                specificConfiguration.CheckCertificateRevocationList.Value : defaultCheckCertificateRevocationList;
+
+            // timeout
+            timeout = shouldTakeSpecificConfiguration ?
+                System.TimeSpan.FromMilliseconds(specificConfiguration.TimeOutInMiliSeconds.DoubleValue) : defaultTimeout;
+        }
     }
 }
