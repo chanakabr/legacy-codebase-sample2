@@ -2125,7 +2125,7 @@ namespace Core.ConditionalAccess
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
-                                          ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
+                                          ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, countryCode, sLANGUAGE_CODE, sDEVICE_NAME, ip,
                                           mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID,
                                           ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID, currencyCode, null, 0,
                                           DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases, blockEntitlement);
