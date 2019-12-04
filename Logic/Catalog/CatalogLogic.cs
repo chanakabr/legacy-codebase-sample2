@@ -2008,8 +2008,9 @@ namespace Core.Catalog
 
                 List<int> regionIds;
                 List<string> linearMediaTypes;
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
 
-                CatalogLogic.SetSearchRegions(request.m_nGroupID, false, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+                CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
                 searchObj.regionIds = regionIds;
                 searchObj.linearChannelMediaTypes = linearMediaTypes;
@@ -2053,7 +2054,7 @@ namespace Core.Catalog
                 CatalogGroupCache catalogGroupCache;
                 if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    isRegionalizationEnabled = true;
+                    isRegionalizationEnabled = catalogGroupCache.IsRegionalizationEnabled;
                     defaultRegion = catalogGroupCache.DefaultRegion;
 
                     linearMediaTypes.AddRange(catalogGroupCache.AssetStructsMapById.Values.Where(v => v.IsLinearAssetStruct).Select(a => a.Id.ToString()));
@@ -2911,8 +2912,9 @@ namespace Core.Catalog
 
             List<int> regionIds;
             List<string> linearMediaTypes;
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
 
-            CatalogLogic.SetSearchRegions(request.m_nGroupID, false, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+            CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             searchObject.regionIds = regionIds;
             searchObject.linearChannelMediaTypes = linearMediaTypes;
@@ -4734,8 +4736,9 @@ namespace Core.Catalog
 
             List<int> regionIds;
             List<string> linearMediaTypes;
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(nGroupID);
 
-            CatalogLogic.SetSearchRegions(nGroupID, false, domainId, siteGuid, out regionIds, out linearMediaTypes);
+            CatalogLogic.SetSearchRegions(nGroupID, doesGroupUsesTemplates, domainId, siteGuid, out regionIds, out linearMediaTypes);
 
             res.regionIds = regionIds;
             res.linearChannelMediaTypes = linearMediaTypes;
@@ -6066,9 +6069,10 @@ namespace Core.Catalog
             List<long> channelIds = null;
             List<int> regionIds;
             List<string> linearMediaTypes;
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(epgSearchRequest.m_nGroupID);
 
             // Get region/regions for search
-            CatalogLogic.SetSearchRegions(epgSearchRequest.m_nGroupID, false, epgSearchRequest.domainId,
+            CatalogLogic.SetSearchRegions(epgSearchRequest.m_nGroupID, doesGroupUsesTemplates, epgSearchRequest.domainId,
                 epgSearchRequest.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             // Ask Stored procedure for EPG Identifier of linear channel in current region(s), by joining media and media_regions
@@ -8740,7 +8744,7 @@ namespace Core.Catalog
             List<int> regionIds;
             List<string> linearMediaTypes;
 
-            CatalogLogic.SetSearchRegions(request.m_nGroupID, false, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
+            CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
             definitions.regionIds = regionIds;
             definitions.linearChannelMediaTypes = linearMediaTypes;
