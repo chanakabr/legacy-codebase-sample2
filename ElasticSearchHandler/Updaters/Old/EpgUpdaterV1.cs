@@ -107,7 +107,7 @@ namespace ElasticSearchHandler.Updaters
                         // Only then we update normally
                         result &= UpdateEpg(IDs);
                         break;
-                    }                    break;              
+                    }
                 default:
                     result = true;
                     break;
