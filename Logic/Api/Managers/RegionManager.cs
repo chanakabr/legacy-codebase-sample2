@@ -442,6 +442,12 @@ namespace ApiLogic.Api.Managers
                     {
                         result.Objects = regionsCache.Regions.Where(r => filter.RegionIds.Contains(r.Key)).Select(r => r.Value).ToList();
                         result.TotalItems = result.Objects.Count;
+
+                        if (filter.ParentOnly)
+                        {
+                            result.Objects = result.Objects.Where(x => x.parentId == 0).ToList();
+                            result.TotalItems = result.Objects.Count;
+                        }
                     }
                     else if (filter.ExternalIds?.Count > 0)
                     {
