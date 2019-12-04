@@ -68,7 +68,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Configuration, opt => opt.MapFrom(src => src.Configuration.Select(x => new KalturaKeyValue(null) { key = x.key, value = x.value }).ToList()));
 
             //from local object to WS object            
-            cfg.CreateMap<KalturaKeyValue, KeyValuePair>()
+            cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()
                 .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
 

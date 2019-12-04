@@ -21,6 +21,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Segmentation;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -1692,7 +1693,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     Key = s.Key,
                     Value = s.Value == null ? "" : s.Value.value,
                 }) : null))
-                .ForMember(dest => dest.OverlapChannels, opt => opt.MapFrom(src => src.OverlapChannels.Split(',').ToList()))
+                .ForMember(dest => dest.OverlapChannels, opt => opt.MapFrom(src => src.GetOverlapChannels()))
                 .ForMember(dest => dest.DefaultAutoFillPolicy, opt => opt.MapFrom(src => (int)src.DefaultAutoFillPolicy))
                 .ForMember(dest => dest.DefaultOverlapPolicy, opt => opt.MapFrom(src => (int)src.DefaultOverlapPolicy));
 

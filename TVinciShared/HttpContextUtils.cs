@@ -11,7 +11,7 @@ using System.Web;
 using System.Web.SessionState;
 #endif
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_0
 using Microsoft.AspNetCore.Http;
 #endif
 
@@ -153,7 +153,7 @@ namespace TVinciShared
         }
 #endif
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_0
         public static object Get(this ISession session, string key)
         {
             session.TryGetValue(key, out var value);

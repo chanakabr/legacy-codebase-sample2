@@ -2,15 +2,15 @@
   
   <PropertyGroup>
     <Version>5.2.5.0</Version>
-    <Description>2019-07-17 17:27:32 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-4-130-g70b92f31-dirty</Description>
+    <AssemblyTitle>2019-07-17 17:27:32 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-4-130-g70b92f31-dirty</AssemblyTitle>
     <AssemblyName />
   </PropertyGroup>
   
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>bin\WebAPI.xml</DocumentationFile>
@@ -23,14 +23,14 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Web" />
     <PackageReference Include="Microsoft.AspNet.WebApi" Version="5.2.3" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.3" />
     <Reference Include="System.configuration" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ApiExplorer" Version="2.2.0" />

@@ -1133,7 +1133,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
               .ForMember(dest => dest.Args, opt => opt.MapFrom(src => src.Args));
 
-            cfg.CreateMap<KeyValuePair, KeyValuePair<string, KalturaStringValue>>()
+            cfg.CreateMap<ApiObjects.KeyValuePair, KeyValuePair<string, KalturaStringValue>>()
              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 

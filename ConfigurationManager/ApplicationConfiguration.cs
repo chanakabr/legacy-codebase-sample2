@@ -151,6 +151,8 @@ namespace ConfigurationManager
         public static NumericConfigurationValue LogReloadInterval;
         public static StringConfigurationValue LogConfigurationDocumentKey;
         public static HttpClientConfiguration HttpClientConfiguration;
+        public static HttpClientConfiguration NPVRHttpClientConfiguration;
+        public static HttpClientConfiguration ElasticSearchHttpClientConfiguration;
 
         #endregion
 
@@ -657,6 +659,14 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
+            ElasticSearchHttpClientConfiguration = new HttpClientConfiguration("elastic_search_http_client_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
+            NPVRHttpClientConfiguration = new HttpClientConfiguration("npvr_http_client_configuration")
+            {
+                ShouldAllowEmpty = true
+            };
 
             allConfigurationValues = new List<ConfigurationValue>()
                 {
@@ -776,7 +786,9 @@ namespace ConfigurationManager
                     ShouldRecoverSubscriptionRenewalToMessageBus,
                     LogReloadInterval,
                     HttpClientConfiguration,
-                    FileUpload
+                    FileUpload,
+                    ElasticSearchHttpClientConfiguration,
+                    NPVRHttpClientConfiguration
                 };
 
             configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();

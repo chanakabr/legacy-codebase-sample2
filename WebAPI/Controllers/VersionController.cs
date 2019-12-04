@@ -2,10 +2,10 @@
 using System.Reflection;
 using WebAPI.Managers.Scheme;
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_0
 using Microsoft.AspNetCore.Mvc;
 #endif
-#if NET461
+#if NET48
 using System.Web.Http.Description;
 #endif
 

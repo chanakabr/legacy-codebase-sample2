@@ -107,11 +107,6 @@ namespace WebAPI.ClientManagers
                     log.Warn("failed to get group cache on createNewInstance method");
                     throw new Exception();
                 }
-
-                // get group languages
-                var languages = ClientsManager.ApiClient().GetGroupLanguages(groupId);
-                if (languages != null)
-                    group.Languages = Mapper.Map<List<Language>>(languages);
             }
             else
             {

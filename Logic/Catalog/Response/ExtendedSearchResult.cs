@@ -17,6 +17,6 @@ namespace Core.Catalog.Response
         public DateTime EndDate { get; set; }
 
         [DataMember]
-        public List<KeyValuePair> ExtraFields { get; set; }
+        public List<ApiObjects.KeyValuePair> ExtraFields { get; set; }
     }
 }

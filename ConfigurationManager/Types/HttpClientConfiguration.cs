@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,11 +8,12 @@ namespace ConfigurationManager.Types
 {
     public class HttpClientConfiguration : ConfigurationValue
     {
-
+        public bool IsEmpty = false;
         public NumericConfigurationValue MaxConnectionsPerServer;
         public BooleanConfigurationValue CheckCertificateRevocationList;
         public StringConfigurationValue EnabledSslProtocols;
         public StringConfigurationValue EnabledDecompressionMethods;
+        public NumericConfigurationValue TimeOutInMiliSeconds;
 
         public HttpClientConfiguration(string key) : base(key)
         {
@@ -37,10 +40,27 @@ namespace ConfigurationManager.Types
 
             EnabledDecompressionMethods = new StringConfigurationValue("enabled_decompression_methods", this)
             {                
-                DefaultValue = "Deflat,Gzip",
+                DefaultValue = "Deflate,Gzip",
                 ShouldAllowEmpty = true,
                 Description = "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All"
             };
+
+            TimeOutInMiliSeconds = new NumericConfigurationValue("timeout", this)
+            {
+                DefaultValue = 100000,
+                ShouldAllowEmpty = true,
+                Description = "The timeout in milliseconds for the HttpClient"
+            };
+        }
+
+        public override void LoadDefault()
+        {
+            if (this.ObjectValue == null)
+            {
+                this.IsEmpty = true;
+            }
+
+            base.LoadDefault();
         }
 
         internal override bool Validate()

@@ -1432,11 +1432,11 @@ namespace Core.Catalog
 
                 if (doc.extraReturnFields != null)
                 {
-                    (result as ExtendedSearchResult).ExtraFields = new List<KeyValuePair>();
+                    (result as ExtendedSearchResult).ExtraFields = new List<ApiObjects.KeyValuePair>();
 
                     foreach (var field in doc.extraReturnFields)
                     {
-                        (result as ExtendedSearchResult).ExtraFields.Add(new KeyValuePair()
+                        (result as ExtendedSearchResult).ExtraFields.Add(new ApiObjects.KeyValuePair()
                         {
                             key = field.Key,
                             value = field.Value

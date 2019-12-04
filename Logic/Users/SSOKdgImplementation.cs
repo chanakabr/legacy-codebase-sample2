@@ -105,7 +105,7 @@ namespace Core.Users
                         {
                             if (user.m_user.m_oDynamicData.GetValByKey("ext_status") != ((int)kdgLoginResp.Status).ToString())
                             {
-                                bool updateUserSuccess = usersImplementation.SetUserDynamicData(user.m_user.m_sSiteGUID, new List<KeyValuePair>() { new KeyValuePair("ext_status", ((int)kdgLoginResp.Status).ToString()) }, user);
+                                bool updateUserSuccess = usersImplementation.SetUserDynamicData(user.m_user.m_sSiteGUID, new List<ApiObjects.KeyValuePair>() { new ApiObjects.KeyValuePair("ext_status", ((int)kdgLoginResp.Status).ToString()) }, user);
                                 if (!updateUserSuccess)
                                 {
                                     log.Error("Error updating user dynamic data - " + string.Format("UN:{0} Pass:{1}", username, pass));
