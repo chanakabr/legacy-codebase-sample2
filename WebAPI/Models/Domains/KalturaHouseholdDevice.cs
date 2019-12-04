@@ -113,8 +113,6 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, IsNullable = true, MaxLength = 255)]
         public string ExternalId { get; set; }
 
-        internal bool ExternalId_null;
-
         internal int getBrandId()
         {
             return BrandId.HasValue ? (int)BrandId : 0;
