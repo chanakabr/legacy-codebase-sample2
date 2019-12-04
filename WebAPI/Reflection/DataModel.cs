@@ -896,6 +896,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBlockPlaybackSegmentAction":
+                    switch(property.Name)
+                    {
+                        case "KSQL":
+                            return "ksql";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
                 case "KalturaBookmark":
                     switch(property.Name)
                     {

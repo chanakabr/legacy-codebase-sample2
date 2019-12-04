@@ -7,6 +7,7 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
@@ -219,6 +220,17 @@ namespace Core.ConditionalAccess
                                         if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
                                         {
                                             continue;
+                                        }
+
+                                        // TODO:
+                                        // 1. get subscriptionId from price.m_relevantSub 
+                                        // 2. get user block playback segments
+                                        // 3. if subscription is blocked return suspend error
+
+                                        var subId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
+                                        if (!string.IsNullOrEmpty(subId))
+                                        {
+                                            var segmentation = UserSegment.List(groupId, userId, 0, 1000, out int totalCount);
                                         }
                                     }
 

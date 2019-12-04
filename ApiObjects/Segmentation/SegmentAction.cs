@@ -76,4 +76,54 @@ namespace ApiObjects.Segmentation
             return status;
         }
     }
+
+    public class SegmentBlockPlaybackAction : SegmentAction
+    {
+        [JsonProperty()]
+        public string KSQL { get; set; }
+
+        [JsonProperty()]
+        public BlockPlaybackType Type { get; set; }
+
+        public enum BlockPlaybackType
+        {
+            /// <summary>
+            /// subscription
+            /// </summary>
+            subscription,
+            /// <summary>
+            /// ppv
+            /// </summary>
+            ppv,
+            /// <summary>
+            /// boxet
+            /// </summary>
+            boxet
+        }
+
+        public override Status ValidateForInsert()
+        {
+            var status = new Status(eResponseStatus.OK);
+
+            if (string.IsNullOrEmpty(KSQL))
+            {
+                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
+            }
+
+            return status;
+        }
+
+        public override Status ValidateForUpdate()
+        {
+            var status = new Status(eResponseStatus.OK);
+
+            if (string.IsNullOrEmpty(KSQL))
+            {
+                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
+            }
+
+            return status;
+        }
+    }
 }
+

@@ -36,4 +36,45 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "values")]
         public List<KalturaStringValue> Values { get; set; }
     }
+
+    /// <summary>
+    /// Block playback action
+    /// </summary>
+    public partial class KalturaBlockPlaybackSegmentAction : KalturaBaseSegmentAction
+    {
+        /// <summary>
+        /// KSQL
+        /// </summary>
+        [DataMember(Name = "ksql")]
+        [JsonProperty(PropertyName = "ksql")]
+        [XmlElement(ElementName = "ksql")]
+        public string KSQL { get; set; }
+
+        /// <summary>
+        /// Block playback type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        public KalturaBlockPlaybackType Type { get; set; }
+
+        /// <summary>
+        /// Block playback type
+        /// </summary>
+        public enum KalturaBlockPlaybackType
+        {
+            /// <summary>
+            /// subscription
+            /// </summary>
+            subscription,
+            /// <summary>
+            /// ppv
+            /// </summary>
+            ppv,
+            /// <summary>
+            /// boxet
+            /// </summary>
+            boxet
+        }
+    }
 }

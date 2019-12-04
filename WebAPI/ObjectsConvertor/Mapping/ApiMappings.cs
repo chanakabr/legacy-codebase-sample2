@@ -21,6 +21,8 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Segmentation;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
+using static ApiObjects.Segmentation.SegmentBlockPlaybackAction;
+using static WebAPI.Models.Segmentation.KalturaBlockPlaybackSegmentAction;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace WebAPI.ObjectsConvertor.Mapping
@@ -1426,10 +1428,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segmentation action
             cfg.CreateMap<KalturaBaseSegmentAction, SegmentAction>()
                 .Include<KalturaAssetOrderSegmentAction, SegmentAssetOrderAction>()
+                .Include<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackAction>()
                 ;
 
             cfg.CreateMap<SegmentAction, KalturaBaseSegmentAction>()
                 .Include<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
+                .Include<SegmentBlockPlaybackAction, KalturaBlockPlaybackSegmentAction>()
                 ;
 
             // segment order action
@@ -1441,6 +1445,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                ;
+
+            // segment playback block action
+            cfg.CreateMap<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackAction>()
+                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.KSQL))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertFromSegmentBlockPlaybackActionType(src.Type)))
+                ;
+
+            cfg.CreateMap<SegmentBlockPlaybackAction, KalturaBlockPlaybackSegmentAction>()
+                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.KSQL))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToSegmentBlockPlaybackActionType(src.Type)))
                 ;
 
             // segmentation condition
@@ -3607,6 +3622,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             var kalturaActionRules = new List<KalturaRuleAction>(actions.Select(x => new KalturaAccessControlBlockAction() { Description = x.Description }));
             return kalturaActionRules;
+        }
+
+        private static BlockPlaybackType ConvertFromSegmentBlockPlaybackActionType(KalturaBlockPlaybackType type)
+        {
+            BlockPlaybackType res = default;
+
+            switch (type)
+            {
+                case KalturaBlockPlaybackType.subscription:
+                    res = BlockPlaybackType.subscription;
+                    break;
+                case KalturaBlockPlaybackType.ppv:
+                    res = BlockPlaybackType.ppv;
+                    break;
+                case KalturaBlockPlaybackType.boxet:
+                    res = BlockPlaybackType.boxet;
+                    break;
+            }
+
+            return res;
+        }
+
+        private static KalturaBlockPlaybackType ConvertToSegmentBlockPlaybackActionType(BlockPlaybackType type)
+        {
+            KalturaBlockPlaybackType res = default;
+
+            switch (type)
+            {
+                case BlockPlaybackType.subscription:
+                    res = KalturaBlockPlaybackType.subscription;
+                    break;
+                case BlockPlaybackType.ppv:
+                    res = KalturaBlockPlaybackType.ppv;
+                    break;
+                case BlockPlaybackType.boxet:
+                    res = KalturaBlockPlaybackType.boxet;
+                    break;
+            }
+
+            return res;
         }
 
         #endregion

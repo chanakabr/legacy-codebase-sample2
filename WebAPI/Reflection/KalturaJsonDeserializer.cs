@@ -308,6 +308,9 @@ namespace WebAPI.Reflection
                 case "KalturaBlockPlaybackAction":
                     return new KalturaBlockPlaybackAction(parameters);
                     
+                case "KalturaBlockPlaybackSegmentAction":
+                    return new KalturaBlockPlaybackSegmentAction(parameters);
+                    
                 case "KalturaBookmark":
                     return new KalturaBookmark(parameters);
                     
@@ -21632,6 +21635,28 @@ namespace WebAPI.Models.Segmentation
     {
         public KalturaBaseSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaBlockPlaybackSegmentAction
+    {
+        public KalturaBlockPlaybackSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
+                {
+                    KSQL = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    Type = (KalturaBlockPlaybackType) Enum.Parse(typeof(KalturaBlockPlaybackType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaBlockPlaybackType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaBlockPlaybackType)));
+                    }
+                }
+            }
         }
     }
     public partial class KalturaContentActionCondition

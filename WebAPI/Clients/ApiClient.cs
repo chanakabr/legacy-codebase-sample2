@@ -3957,7 +3957,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        public KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
         {
             KalturaUserSegmentListResponse result = new KalturaUserSegmentListResponse();
 
