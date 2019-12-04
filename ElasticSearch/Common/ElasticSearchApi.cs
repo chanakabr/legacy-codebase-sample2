@@ -27,7 +27,7 @@ namespace ElasticSearch.Common
         public static readonly string ALT_ES_URL = ApplicationConfiguration.ElasticSearchConfiguration.AlternativeUrl.Value;
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();        
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.ElasticSearchHttpClientConfiguration);        
 
         public string baseUrl
         {
