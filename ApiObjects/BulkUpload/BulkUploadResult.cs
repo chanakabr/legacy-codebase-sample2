@@ -87,10 +87,9 @@ namespace ApiObjects.BulkUpload
         /// <param name="errorStatus"></param>
         public void AddError(Status errorStatus)
         {
-            this.Status = BulkUploadResultStatus.Error;
-
             if (errorStatus != null)
             {
+                this.Status = BulkUploadResultStatus.Error;
                 _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{errorStatus.Message}]");
                 if (Errors == null)
                 {
@@ -105,10 +104,10 @@ namespace ApiObjects.BulkUpload
 
         public void AddErrors(List<Status> errors)
         {
-            this.Status = BulkUploadResultStatus.Error;
-
             if (errors != null && errors.Count > 0)
             {
+                this.Status = BulkUploadResultStatus.Error;
+                _Logger.Error($"Adding Error to resultIndex:[{Index}], errorStatuses:[{string.Join(";", errors)}]");
                 if (this.Errors == null)
                 {
                     this.Errors = errors.ToArray();
@@ -122,28 +121,22 @@ namespace ApiObjects.BulkUpload
 
         public void AddError(eResponseStatus errorCode, string msg = "")
         {
-            var errorStatus = new Status((int)errorCode, msg);
-
+            var errorStatus = new Status(errorCode, msg);
             AddError(errorStatus);
         }
 
-        public void AddWarning(int warnningCode, string msg = "")
+        public void AddWarning(eResponseStatus warnningCode, string msg = "")
         {
             var warnningStatus = new Status(warnningCode, msg);
-
             this.Status = BulkUploadResultStatus.Error;
-
-            if (warnningStatus != null)
+            _Logger.Error($"Adding Error to resultIndex:[{Index}], warnningStatus:[{warnningStatus.ToString()}]");
+            if (Warnings == null)
             {
-                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{warnningStatus.Message}]");
-                if (Warnings == null)
-                {
-                    Warnings = new[] { warnningStatus };
-                }
-                else
-                {
-                    Warnings = Warnings.Concat(new[] { warnningStatus }).ToArray();
-                }
+                Warnings = new[] { warnningStatus };
+            }
+            else
+            {
+                Warnings = Warnings.Concat(new[] { warnningStatus }).ToArray();
             }
         }
     }
