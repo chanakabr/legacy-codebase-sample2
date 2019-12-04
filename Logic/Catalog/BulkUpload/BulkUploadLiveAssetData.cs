@@ -8,7 +8,6 @@ using ApiObjects;
 
 namespace Core.Catalog
 {
-    // TODO SHIR REMOVE COMMENTS
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadLiveAssetData : BulkUploadMediaAssetData
@@ -22,12 +21,6 @@ namespace Core.Catalog
         {
             return bulkUploadObjectType;
         }
-
-        //public override IBulkUploadObject CreateObjectInstance()
-        //{
-        //    var bulkObject = Activator.CreateInstance(typeof(LiveAsset)) as LiveAsset;
-        //    return bulkObject;
-        //}
 
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
         {

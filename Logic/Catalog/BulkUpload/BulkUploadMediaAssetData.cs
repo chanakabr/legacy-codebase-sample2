@@ -8,7 +8,6 @@ using System.Collections.Generic;
 
 namespace Core.Catalog
 {
-    // TODO SHIR REMOVE COMMENTS
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadMediaAssetData : BulkUploadAssetData
@@ -22,12 +21,6 @@ namespace Core.Catalog
         {
             return bulkUploadObjectType;
         }
-
-        //public override IBulkUploadObject CreateObjectInstance()
-        //{
-        //    var bulkObject = Activator.CreateInstance(typeof(MediaAsset)) as MediaAsset;
-        //    return bulkObject;
-        //}
 
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
         {

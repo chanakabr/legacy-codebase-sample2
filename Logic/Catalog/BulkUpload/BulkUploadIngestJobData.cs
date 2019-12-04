@@ -145,12 +145,14 @@ namespace Core.Catalog
                 foreach (var innerChannel in channelsToIngestProgramInto)
                 {
                     // TODO ARTHUR - WHY create results are here and not in BulkUploadEpgAssetData.GetNewBulkUploadResult like it should be?
-                    var result = new BulkUploadProgramAssetResult();
-                    result.BulkUploadId = bulkUploadId;
-                    result.Index = programIndex++;
-                    result.ProgramExternalId = prog.external_id;
-                    result.Status = BulkUploadResultStatus.InProgress;
-                    result.LiveAssetId = innerChannel.LinearMediaId;
+                    var result = new BulkUploadProgramAssetResult
+                    {
+                        BulkUploadId = bulkUploadId,
+                        Index = programIndex++,
+                        ProgramExternalId = prog.external_id,
+                        Status = BulkUploadResultStatus.InProgress,
+                        LiveAssetId = innerChannel.LinearMediaId
+                    };
                     var progrStartDate = prog.ParseStartDate(result);
                     var progrEnDate = prog.ParseEndDate(result);
 
@@ -172,12 +174,14 @@ namespace Core.Catalog
                 // If there are no inner channels found the previous loop did not fill any results, than we add error results;
                 if (!channelsToIngestProgramInto.Any())
                 {
-                    var result = new BulkUploadProgramAssetResult();
-                    result.BulkUploadId = bulkUploadId;
-                    result.Index = programIndex++;
-                    result.ProgramExternalId = prog.external_id;
-                    result.Status = BulkUploadResultStatus.Error;
-                    result.LiveAssetId = -1;
+                    var result = new BulkUploadProgramAssetResult
+                    {
+                        BulkUploadId = bulkUploadId,
+                        Index = programIndex++,
+                        ProgramExternalId = prog.external_id,
+                        Status = BulkUploadResultStatus.Error,
+                        LiveAssetId = -1
+                    };
                     var progrStartDate = prog.ParseStartDate(result);
                     var progrEnDate = prog.ParseEndDate(result);
 

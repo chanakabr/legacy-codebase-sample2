@@ -406,7 +406,6 @@ namespace Core.Catalog.CatalogManagement
                     bulkUploadResponse.Object.Results[resultIndex].Warnings = warnings.ToArray();
                 }
 
-
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadResultCB(bulkUploadResponse.Object, resultIndex, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {

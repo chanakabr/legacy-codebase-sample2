@@ -20,7 +20,7 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadResult
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        protected static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         // can be assetId, userId etc
         [JsonProperty("ObjectId")]
         public long? ObjectId { get; set; }
@@ -90,7 +90,7 @@ namespace ApiObjects.BulkUpload
             if (errorStatus != null)
             {
                 this.Status = BulkUploadResultStatus.Error;
-                _Logger.Error($"Adding Error to resultIndex:[{Index}], msg:[{errorStatus.Message}]");
+                _Logger.Debug($"Adding Error to BulkUploadResult. Index:[{Index}], error:[{errorStatus.Message}]");
                 if (Errors == null)
                 {
                     Errors = new[] { errorStatus };
@@ -107,7 +107,7 @@ namespace ApiObjects.BulkUpload
             if (errors != null && errors.Count > 0)
             {
                 this.Status = BulkUploadResultStatus.Error;
-                _Logger.Error($"Adding Error to resultIndex:[{Index}], errorStatuses:[{string.Join(";", errors)}]");
+                _Logger.Debug($"Adding Error to BulkUploadResult. Index:[{Index}], errors:[{string.Join(";", errors)}]");
                 if (this.Errors == null)
                 {
                     this.Errors = errors.ToArray();
@@ -129,7 +129,7 @@ namespace ApiObjects.BulkUpload
         {
             var warnningStatus = new Status(warnningCode, msg);
             this.Status = BulkUploadResultStatus.Error;
-            _Logger.Error($"Adding Error to resultIndex:[{Index}], warnningStatus:[{warnningStatus.ToString()}]");
+            _Logger.Debug($"Adding warning to BulkUploadResult. Index:[{Index}], warning:[{warnningStatus.ToString()}]");
             if (Warnings == null)
             {
                 Warnings = new[] { warnningStatus };

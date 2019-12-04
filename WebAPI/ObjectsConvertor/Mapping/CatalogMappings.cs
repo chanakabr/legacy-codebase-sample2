@@ -1104,7 +1104,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ProgramExternalId, opt => opt.MapFrom(src => src.ProgramExternalId))
               .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
 
-
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
