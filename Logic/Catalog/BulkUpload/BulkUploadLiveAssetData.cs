@@ -53,16 +53,15 @@ namespace Core.Catalog
                 var liveAsset = results[i].Object as LiveAsset;
                 if (results[i].Status != BulkUploadResultStatus.Error && liveAsset != null)
                 {
-                    // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
                     var queue = new GenericCeleryQueue();
-                    var data = new BulkUploadItemData<LiveAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, liveAsset);
+                    var data = new BulkUploadItemData<LiveAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, results[i].Index, liveAsset);
                     if (queue.Enqueue(data, string.Format(this.RoutingKey, bulkUpload.GroupId)))
                     {
-                        log.Debug($"Success enqueue live asset bulkUploadObject. bulkUploadId:{bulkUpload.Id}, resultIndex:{i}");
+                        log.Debug($"Success enqueue live asset bulkUploadObject. bulkUploadId:{bulkUpload.Id}, resultIndex:{results[i].Index}");
                     }
                     else
                     {
-                        log.Debug($"Failed enqueue live asset bulkUploadObject. bulkUploadId:{bulkUpload.Id}, resultIndex:{i}");
+                        log.Debug($"Failed enqueue live asset bulkUploadObject. bulkUploadId:{bulkUpload.Id}, resultIndex:{results[i].Index}");
                     }
                 }
             }

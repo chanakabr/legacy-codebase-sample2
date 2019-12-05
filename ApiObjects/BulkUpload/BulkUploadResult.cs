@@ -21,6 +21,7 @@ namespace ApiObjects.BulkUpload
     public abstract class BulkUploadResult
     {
         protected static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
         // can be assetId, userId etc
         [JsonProperty("ObjectId")]
         public long? ObjectId { get; set; }
