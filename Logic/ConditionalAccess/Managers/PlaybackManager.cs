@@ -12,6 +12,7 @@ using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
+using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -234,18 +235,24 @@ namespace Core.ConditionalAccess
 
                                                 if (segmentationsWithBlockActions.Any())
                                                 {
-                                                    // should get topic_system_name from ANAT
-                                                    string topicSystemName = "subscriptionId";
+                                                    var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache);
 
-                                                    foreach (var swba in segmentationsWithBlockActions)
+                                                    if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
                                                     {
-                                                        foreach (var item in swba.Actions.OfType<SegmentBlockPlaybackAction>())
+                                                        var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+                                                        var topicSystemName = topic.SystemName;
+
+                                                        foreach (var segment in segmentationsWithBlockActions)
                                                         {
-                                                            string ksql = string.Format("(and {0} {1} = '{2}')", item.KSQL, topicSystemName, subId); // (or operator = 'sky' media_id = '2' media_id = '3')
-                                                            var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, (int)domain.Id, 0, false, false);
-                                                            if (assetResult != null && assetResult.Any())
+                                                            foreach (var blockAction in segment.Actions.OfType<SegmentBlockPlaybackAction>())
                                                             {
-                                                                // talk to shay which error to return
+                                                                string ksql = string.Format("(and {0} {1} = '{2}')", blockAction.KSQL, topicSystemName, subId); // (or operator = 'sky' media_id = '2' media_id = '3')
+                                                                var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, (int)domain.Id, 0, false, false);
+                                                                if (assetResult != null && assetResult.Any())
+                                                                {
+                                                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ActionBlocked, string.Format("Blocked by segment id {0}", segment.Id));
+                                                                    return response;
+                                                                }
                                                             }
                                                         }
                                                     }
