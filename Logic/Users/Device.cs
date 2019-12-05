@@ -570,7 +570,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
                 {
-                    string.Format("invalidationKey_domain_{0}_device_{1}", this.m_domainID, this.m_id)
+                    string.Format("invalidationKey_domain_V1_{0}_device_{1}", this.m_domainID, this.m_id)
                 };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
