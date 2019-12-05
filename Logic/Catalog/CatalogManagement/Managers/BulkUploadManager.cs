@@ -306,7 +306,7 @@ namespace Core.Catalog.CatalogManagement
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Processing);
                     bulkUploadResponse.Object.ObjectData.EnqueueObjects(bulkUploadResponse.Object, objectsListResponse.Objects);
                     bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Processed);
-                    log.Debug($"ProcessBulkUpload finish to Enqueue all BulkUpload Objects. groupId:{groupId}, bulkUploadId:{1}.");
+                    log.Debug($"ProcessBulkUpload finish to Enqueue all BulkUpload Objects. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                 }
 
                 log.Debug($"finish to ProcessBulkUpload. groupId:{groupId}, bulkUploadId:{1}.");
