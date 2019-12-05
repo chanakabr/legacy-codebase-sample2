@@ -27,7 +27,8 @@ namespace WebAPI
         protected void Application_Start()
         {
             InitializeLogging();
-
+            // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
+            TVinciShared.AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
             // Configuration
             ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
 
@@ -35,7 +36,7 @@ namespace WebAPI
             AutoMapperConfig.RegisterMappings();
             EventNotificationsConfig.SubscribeConsumers();
 
-            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate();
+            KLogMonitor.ConfigurationReloader.LogReloader.GetInstance().Initiate(); 
         }
 
         private static void InitializeLogging()
