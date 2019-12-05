@@ -9505,7 +9505,7 @@ namespace Core.Api
         }
 
         public static UnifiedSearchResult[] SearchAssets(int groupID, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
-            string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false)
+            string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule, bool isAllowedToViewInactiveAssets = false, List<string> extraReturnFields = null)
         {
             UnifiedSearchResult[] assets = null;
 
@@ -9518,7 +9518,7 @@ namespace Core.Api
 
                 try
                 {
-                    UnifiedSearchRequest assetRequest = new UnifiedSearchRequest()
+                    ExtendedSearchRequest assetRequest = new ExtendedSearchRequest()
                     {
                         m_nGroupID = groupID,
                         m_oFilter = new Filter()
@@ -9543,7 +9543,8 @@ namespace Core.Api
                         },
                         m_sSiteGuid = SiteGuid,
                         domainId = DomainId,
-                        isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
+                        isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                        ExtraReturnFields = extraReturnFields
                     };
 
                     BaseResponse response = assetRequest.GetResponse(assetRequest);
@@ -11910,16 +11911,34 @@ namespace Core.Api
 
         internal static List<long> GetObjectVirtualAssetIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
         {
-            List<long> ids = null;
+            List<long> assetIds = null;
+            List<long> ids = new List<long>();
             CatalogGroupCache catalogGroupCache = null;
             ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out catalogGroupCache);
 
             string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter})";
 
-            var assets = SearchAssets(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets);
-            if (assets != null && assets.Length > 0)
+            if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
             {
-                ids = assets.Select(x => long.Parse(x.AssetId)).ToList();
+                var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+
+                List<string> extraReturnFields = new List<string>() { topic.SystemName };
+
+                var assets = SearchAssets(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets, extraReturnFields);
+                if (assets != null && assets.Length > 0)
+                {
+                    List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
+                    var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
+
+                    foreach (var virtualAsset in virtualAssets)
+                    {
+                        var meta = virtualAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
+                        if (meta != null)
+                        {
+                            ids.Add(long.Parse(meta.m_sValue));
+                        }
+                    }
+                }
             }
             return ids;
         }
