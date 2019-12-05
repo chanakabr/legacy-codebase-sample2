@@ -1,20 +1,19 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using Core.Pricing;
+using DAL;
+using KLogMonitor;
+using QueueWrapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using ApiObjects;
-using ApiObjects.Billing;
-using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using KLogMonitor;
-using QueueWrapper;
-using DAL;
-using Core.Pricing;
-using ApiObjects.ConditionalAccess;
-using ApiObjects.Pricing;
-using ConfigurationManager;
 
 namespace Core.ConditionalAccess
 {
@@ -718,7 +717,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                SubscriptionsResponse subscriptionsResponse = Pricing.Module.GetSubscriptions(groupId, SubCodes.ToArray(), string.Empty, string.Empty, string.Empty);
+                SubscriptionsResponse subscriptionsResponse = Pricing.Module.GetSubscriptions(groupId, SubCodes.ToArray(), string.Empty, string.Empty, string.Empty, null);
                 if (subscriptionsResponse != null &&
                     subscriptionsResponse.Status.Code == (int)eResponseStatus.OK &&
                     subscriptionsResponse.Subscriptions != null &&

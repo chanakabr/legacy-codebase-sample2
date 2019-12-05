@@ -360,13 +360,15 @@ namespace Core.Catalog.CatalogManagement
             return objectsListResponse;
         }
 
-        public static Status UpdateBulkUploadResults(IEnumerable<BulkUploadResult> results)
+        public static Status UpdateBulkUploadResults(IEnumerable<BulkUploadResult> results, out BulkUploadJobStatus status)
         {
+            status = BulkUploadJobStatus.Processing;
             var response = new Status((int)eResponseStatus.Error);
+
             try
             {
                 var resultsToSave = results.ToList();
-                var isSuccess = CatalogDAL.SaveBulkUploadResultsCB(resultsToSave, BULK_UPLOAD_CB_TTL);
+                var isSuccess = CatalogDAL.SaveBulkUploadResultsCB(resultsToSave, BULK_UPLOAD_CB_TTL, out status);
                 if (!isSuccess)
                 {
                     log.ErrorFormat("UpdateBulkUploadResults - Error while saving to CB. results:[{0}]", string.Join(",", results));

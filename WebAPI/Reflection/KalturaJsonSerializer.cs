@@ -17427,6 +17427,7 @@ namespace WebAPI.Models.API
             }
             ret.Add("liveAssetIdEqual", "\"liveAssetIdEqual\": " + LiveAssetIdEqual);
             ret.Add("parentIdEqual", "\"parentIdEqual\": " + ParentIdEqual);
+            ret.Add("parentOnly", "\"parentOnly\": " + ParentOnly.ToString().ToLower());
             return ret;
         }
         
@@ -17446,6 +17447,7 @@ namespace WebAPI.Models.API
             }
             ret.Add("liveAssetIdEqual", "<liveAssetIdEqual>" + LiveAssetIdEqual + "</liveAssetIdEqual>");
             ret.Add("parentIdEqual", "<parentIdEqual>" + ParentIdEqual + "</parentIdEqual>");
+            ret.Add("parentOnly", "<parentOnly>" + ParentOnly.ToString().ToLower() + "</parentOnly>");
             return ret;
         }
     }
@@ -21315,6 +21317,10 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("externalIdIn", "\"externalIdIn\": " + "\"" + EscapeJson(ExternalIdIn) + "\"");
             }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
             if(MediaFileIdEqual.HasValue)
             {
                 ret.Add("mediaFileIdEqual", "\"mediaFileIdEqual\": " + MediaFileIdEqual);
@@ -21339,6 +21345,10 @@ namespace WebAPI.Models.Pricing
             if(ExternalIdIn != null)
             {
                 ret.Add("externalIdIn", "<externalIdIn>" + EscapeXml(ExternalIdIn) + "</externalIdIn>");
+            }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
             if(MediaFileIdEqual.HasValue)
             {
@@ -22191,6 +22201,10 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
             }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
             return ret;
         }
         
@@ -22203,6 +22217,10 @@ namespace WebAPI.Models.Segmentation
             if(IdIn != null)
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
             return ret;
         }
@@ -24387,6 +24405,62 @@ namespace WebAPI.Models.Partner
             if(SecondaryLanguages != null)
             {
                 ret.Add("secondaryLanguages", "<secondaryLanguages>" + EscapeXml(SecondaryLanguages) + "</secondaryLanguages>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaObjectVirtualAssetInfo
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
+            ret.Add("metaId", "\"metaId\": " + MetaId);
+            ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "\"");
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
+            ret.Add("metaId", "<metaId>" + MetaId + "</metaId>");
+            ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaObjectVirtualAssetInfoType), Type) + "" + "</type>");
+            return ret;
+        }
+    }
+    public partial class KalturaObjectVirtualAssetPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ObjectVirtualAssets != null)
+            {
+                propertyValue = "[" + String.Join(", ", ObjectVirtualAssets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objectVirtualAssets", "\"objectVirtualAssets\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(ObjectVirtualAssets != null)
+            {
+                propertyValue = ObjectVirtualAssets.Count > 0 ? "<item>" + String.Join("</item><item>", ObjectVirtualAssets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objectVirtualAssets", "<objectVirtualAssets>" + propertyValue + "</objectVirtualAssets>");
             }
             return ret;
         }

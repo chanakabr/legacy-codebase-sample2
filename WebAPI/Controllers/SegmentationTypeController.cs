@@ -1,14 +1,15 @@
-﻿using System;
+﻿using ApiObjects;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using KLogMonitor;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
-using WebAPI.Utils;
 using WebAPI.Models.Segmentation;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -29,8 +30,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
-                return ClientsManager.ApiClient().AddSegmentationType(groupId, segmentationType);
+                return ClientsManager.ApiClient().AddSegmentationType(groupId, segmentationType, userId);
             }
 
             catch (ClientException ex)
@@ -55,8 +57,9 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 segmentationType.Id = segmentationTypeId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
-                return ClientsManager.ApiClient().UpdateSegmentationType(groupId, segmentationType);
+                return ClientsManager.ApiClient().UpdateSegmentationType(groupId, segmentationType, userId);
             }
             catch (ClientException ex)
             {
@@ -80,9 +83,10 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
                 response = ClientsManager.
-                    ApiClient().DeleteSegmentationType(groupId, id);
+                    ApiClient().DeleteSegmentationType(groupId, id, userId);
             }
 
             catch (ClientException ex)
@@ -104,21 +108,42 @@ namespace WebAPI.Controllers
         static public KalturaSegmentationTypeListResponse List(KalturaSegmentationTypeFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSegmentationTypeListResponse response = null;
+            bool isFilterValid = false;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
 
             if (filter == null)
+            {
                 filter = new KalturaSegmentationTypeFilter();
+                isFilterValid = true;
+            }
+            else
+            {
+                isFilterValid = filter.Validate();
+            }
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long userId = Utils.Utils.GetUserIdFromKs();
 
-                List<long> ids = filter.GetIdIn();
+                List<long> ids = null;
+                bool isAllowedToViewInactiveAssets = false;
 
-                response = ClientsManager.
-                    ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize());
+                if (string.IsNullOrEmpty(filter.Ksql))
+                {
+                    ids = filter.GetIdIn();
+                }
+                else
+                {
+                    isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
+                }
+
+                
+
+                response = ClientsManager.ApiClient().ListSegmentationTypes(groupId, ids, pager.getPageIndex(), pager.getPageSize(), 
+                    new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets });                
             }
 
             catch (ClientException ex)
