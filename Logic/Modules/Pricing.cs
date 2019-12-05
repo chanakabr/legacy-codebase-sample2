@@ -701,7 +701,7 @@ namespace Core.Pricing
                         }
                     }
 
-                    if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue)
+                    if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue && oSubCodes?.Length> 0)
                     {
                         int startIndexOnList = pageIndex * pageSize;
                         int rangeToGetFromList = (startIndexOnList + pageSize) > oSubCodes.Length ? (oSubCodes.Length - startIndexOnList) > 0 ? (oSubCodes.Length - startIndexOnList) : 0 : pageSize;
@@ -713,7 +713,7 @@ namespace Core.Pricing
 
                     response.Subscriptions = (new SubscriptionCacheWrapper(t)).GetSubscriptionsData(oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, orderBy);
 
-                    if (response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
+                    if (response.Subscriptions?.Count>0 && response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
                     {
                         FilterSubscriptionsByCoupon(pageIndex, pageSize, couponGroupIdEqual, response);
                     }
