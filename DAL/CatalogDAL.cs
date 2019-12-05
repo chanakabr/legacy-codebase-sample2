@@ -5805,6 +5805,8 @@ namespace Tvinci.Core.DAL
             {
                 bulkUpload.Results[resultIndex] = bulkUploadResultToSave;
                 bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                log.Debug($"SaveBulkUploadResultsCB > updated from status {currentBulkUpload.Status}, calculated bulkUpload.Status:[{bulkUpload.Status}]");
+
                 actualStatusThatWasUpdated = bulkUpload.Status;
             });
 
@@ -5813,8 +5815,11 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
-        public static bool SaveBulkUploadResultsCB(List<BulkUploadResult> resultsToSave, uint ttl)
+        public static bool SaveBulkUploadResultsCB(List<BulkUploadResult> resultsToSave, uint ttl, out BulkUploadJobStatus status)
         {
+            status = BulkUploadJobStatus.Processing;
+            var statusAfterUpdate = BulkUploadJobStatus.Processing;
+
             if (!resultsToSave.Any())
             {
                 log.Error($"SaveBulkUploadResultsCB > got empty results list to save.");
@@ -5829,10 +5834,13 @@ namespace Tvinci.Core.DAL
                 {
                     bulkUpload.Results[resultToSave.Index] = resultToSave;
                     bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                    statusAfterUpdate = bulkUpload.Status;
+
                     log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
                 }
             });
 
+            status = statusAfterUpdate;
             return isUpdateSuccess;
         }
 
@@ -5845,6 +5853,8 @@ namespace Tvinci.Core.DAL
             {
                 bulkUpload.Status = bulkUploadToSave.Status;
                 bulkUpload.Status = GetBulkStatusByResultsStatus(bulkUpload);
+                log.Debug($"SaveBulkUploadResultsCB > updated from status {bulkUploadToSave.Status}, calculated bulkUpload.Status:[{bulkUpload.Status}]");
+
                 statusThatWasActuallyUpdated = bulkUpload.Status;
                 bulkUpload.Errors = bulkUploadToSave.Errors;
             });

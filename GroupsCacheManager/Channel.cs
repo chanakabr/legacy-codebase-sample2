@@ -145,4 +145,11 @@ namespace GroupsCacheManager
         Watcher = 3,
         KSQL = 4
     }
+
+    public class AssetScoreOrder
+    {
+        public int AssetId;
+        public double Score;
+        public int ChannelOrder;
+    }
 }
