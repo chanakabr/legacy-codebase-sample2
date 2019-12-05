@@ -306,8 +306,7 @@ namespace WebAPI.Controllers
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
-                var allowNullExternalId = false;
-                allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalId");
+                var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
 
                 // call client
                 return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, device.ExternalId, allowNullExternalId);
