@@ -75,163 +75,165 @@ namespace Core.Users
 
         private UserResponseObject GetMCUserProfile(string pass, string clientIP)
         {
-            UserResponseObject userObj = null;
+            throw new NotImplementedException();
 
-            try
-            {
-                log.Debug("GetMCUserProfile - " + string.Format("password:{0}, clientIp:{1}", pass, clientIP));
-                //MCUserProfile kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
+            //UserResponseObject userObj = null;
 
-                string ssoMcUrl = TCMClient.Settings.Instance.GetValue<string>("MCAuthURL");
+            //try
+            //{
+            //    log.Debug("GetMCUserProfile - " + string.Format("password:{0}, clientIp:{1}", pass, clientIP));
+            //    //MCUserProfile kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
 
-                if (string.IsNullOrEmpty(ssoMcUrl))
-                {
-                    log.Error("MC-SSO - Error getting MC URL From TCM");
-                    return userObj;
-                }
+            //    string ssoMcUrl = TCMClient.Settings.Instance.GetValue<string>("MCAuthURL");
 
-                Uri ssoMcUri = new Uri(ssoMcUrl);
-                if ((!Uri.TryCreate(ssoMcUrl, UriKind.Absolute, out ssoMcUri)) || ((ssoMcUri.Scheme != Uri.UriSchemeHttp) && (ssoMcUri.Scheme != Uri.UriSchemeHttps)))
-                {
-                    log.Error("MC-SSO - Error in MC URL format - [" + ssoMcUrl + "]");
-                    return userObj;
-                }
+            //    if (string.IsNullOrEmpty(ssoMcUrl))
+            //    {
+            //        log.Error("MC-SSO - Error getting MC URL From TCM");
+            //        return userObj;
+            //    }
 
-                Dictionary<string, string> dHeaders = new Dictionary<string, string>() 
-                {
-                    //{ "Host", "beta-login.mediacorp.sg" },
-                    { "Authorization", "Bearer " + pass }
-                };
+            //    Uri ssoMcUri = new Uri(ssoMcUrl);
+            //    if ((!Uri.TryCreate(ssoMcUrl, UriKind.Absolute, out ssoMcUri)) || ((ssoMcUri.Scheme != Uri.UriSchemeHttp) && (ssoMcUri.Scheme != Uri.UriSchemeHttps)))
+            //    {
+            //        log.Error("MC-SSO - Error in MC URL format - [" + ssoMcUrl + "]");
+            //        return userObj;
+            //    }
 
-                DateTime dNow = DateTime.UtcNow;
-                string profJson = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(ssoMcUrl, "", dHeaders, "application/x-www-form-urlencoded", "", "", "", "", "get");
-                double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
+            //    Dictionary<string, string> dHeaders = new Dictionary<string, string>() 
+            //    {
+            //        //{ "Host", "beta-login.mediacorp.sg" },
+            //        { "Authorization", "Bearer " + pass }
+            //    };
 
-                log.Debug("MC-SSO - " + string.Format("MC Json: {0}", profJson));
+            //    DateTime dNow = DateTime.UtcNow;
+            //    string profJson = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(ssoMcUrl, "", dHeaders, "application/x-www-form-urlencoded", "", "", "", "", "get");
+            //    double dTime = DateTime.UtcNow.Subtract(dNow).TotalMilliseconds;
 
-                if (string.IsNullOrEmpty(profJson))
-                {
-                    log.Debug("MC-SSO - No data received from MCAuth API");
-                    return userObj;
-                }
+            //    log.Debug("MC-SSO - " + string.Format("MC Json: {0}", profJson));
 
-                Dictionary<string, string> dUserInfo = JsonConvert.DeserializeObject<Dictionary<string, string>>(profJson);
+            //    if (string.IsNullOrEmpty(profJson))
+            //    {
+            //        log.Debug("MC-SSO - No data received from MCAuth API");
+            //        return userObj;
+            //    }
 
-                if (profJson.ToLower().Contains("api failed") && dUserInfo.Count < 3)
-                {
-                    log.Error("MC-SSO - Failed to retrieve user profile from MCAuth");
-                    return userObj;
-                }
+            //    Dictionary<string, string> dUserInfo = JsonConvert.DeserializeObject<Dictionary<string, string>>(profJson);
 
-                if (profJson.ToLower().Contains("invalid token") && dUserInfo.Count < 3)
-                {
-                    log.Error("MC-SSO - Invalid Token");
-                    return userObj;
-                }
+            //    if (profJson.ToLower().Contains("api failed") && dUserInfo.Count < 3)
+            //    {
+            //        log.Error("MC-SSO - Failed to retrieve user profile from MCAuth");
+            //        return userObj;
+            //    }
 
-                foreach (string key in dUserInfo.Keys.ToList())
-                {
-                    if (string.IsNullOrEmpty(dUserInfo[key]))
-                    {
-                        dUserInfo[key] = string.Empty;
-                    }
+            //    if (profJson.ToLower().Contains("invalid token") && dUserInfo.Count < 3)
+            //    {
+            //        log.Error("MC-SSO - Invalid Token");
+            //        return userObj;
+            //    }
 
-                    //if ((key.Equals("birthdate", StringComparison.OrdinalIgnoreCase)) &&
-                    //    (!string.IsNullOrEmpty(dUserInfo[key])))
-                    //{
-                    //    DateTime birthdate = new DateTime(2000, 1, 1);
-                    //    if (DateTime.TryParse(dUserInfo[key], out birthdate))
-                    //    {
-                    //        dUserInfo["BirthYear"] = birthdate.Year.ToString();
-                    //        dUserInfo["BirthMonth"] = birthdate.Month.ToString();
-                    //        dUserInfo["BirthDay"] = birthdate.Day.ToString();
-                    //    }
-                    //}
-                }
+            //    foreach (string key in dUserInfo.Keys.ToList())
+            //    {
+            //        if (string.IsNullOrEmpty(dUserInfo[key]))
+            //        {
+            //            dUserInfo[key] = string.Empty;
+            //        }
 
-                // If does not exist, new user will be created
-                userObj = GetUserProfile(dUserInfo);
+            //        //if ((key.Equals("birthdate", StringComparison.OrdinalIgnoreCase)) &&
+            //        //    (!string.IsNullOrEmpty(dUserInfo[key])))
+            //        //{
+            //        //    DateTime birthdate = new DateTime(2000, 1, 1);
+            //        //    if (DateTime.TryParse(dUserInfo[key], out birthdate))
+            //        //    {
+            //        //        dUserInfo["BirthYear"] = birthdate.Year.ToString();
+            //        //        dUserInfo["BirthMonth"] = birthdate.Month.ToString();
+            //        //        dUserInfo["BirthDay"] = birthdate.Day.ToString();
+            //        //    }
+            //        //}
+            //    }
 
-                // Check the user CoGuid (= Id)
-                string sDomainCoGuid = string.Empty;
-                Utils.GetContentInfo(ref sDomainCoGuid, "Id", dUserInfo);
+            //    // If does not exist, new user will be created
+            //    userObj = GetUserProfile(dUserInfo);
 
-                if ((userObj.m_user == null) || (string.IsNullOrEmpty(userObj.m_user.m_sSiteGUID)))
-                {
-                    log.Error("MC-SSO - User init error");
-                    userObj.m_RespStatus = ResponseStatus.ErrorOnInitUser;
-                    return userObj;
-                }
+            //    // Check the user CoGuid (= Id)
+            //    string sDomainCoGuid = string.Empty;
+            //    Utils.GetContentInfo(ref sDomainCoGuid, "Id", dUserInfo);
 
-                int userID = int.Parse(userObj.m_user.m_sSiteGUID);
+            //    if ((userObj.m_user == null) || (string.IsNullOrEmpty(userObj.m_user.m_sSiteGUID)))
+            //    {
+            //        log.Error("MC-SSO - User init error");
+            //        userObj.m_RespStatus = ResponseStatus.ErrorOnInitUser;
+            //        return userObj;
+            //    }
 
-                BaseDomain domainImpl = null;
-                Utils.GetBaseImpl(ref domainImpl, m_nGroupID);
+            //    int userID = int.Parse(userObj.m_user.m_sSiteGUID);
 
-                if (domainImpl != null)
-                {
-                    DomainResponseObject domain = domainImpl.GetDomainByCoGuid(sDomainCoGuid, m_nGroupID);
+            //    BaseDomain domainImpl = null;
+            //    Utils.GetBaseImpl(ref domainImpl, m_nGroupID);
 
-                    // domain by coguid found
-                    if (domain != null && domain.m_oDomainResponseStatus == DomainResponseStatus.OK)
-                    {
-                        if (userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
-                        {
-                            //Add user to domain
-                            DomainResponseObject domainResponse = domainImpl.AddUserToDomain(m_nGroupID, domain.m_oDomain.m_nDomainID, userID, domain.m_oDomain.m_masterGUIDs[0]);
-                            if (domainResponse.m_oDomainResponseStatus == DomainResponseStatus.OK)
-                            {
-                                userObj.m_user.m_domianID = domainResponse.m_oDomain.m_nDomainID;
-                                userObj.m_RespStatus = ResponseStatus.OK;
-                            }
-                            else
-                            {
-                                log.Error("Error adding user to domain - " + string.Format("domainCoGuid:{0}", sDomainCoGuid));
-                            }
-                        }
-                        // User has domain but with different cougid 
-                        else if (userObj.m_RespStatus == ResponseStatus.OK)
-                        {
-                            if (userObj.m_user.m_domianID != domain.m_oDomain.m_nDomainID)
-                            {
-                                bool changedCoguid = DAL.DomainDal.UpdateDomainCoGuid(userObj.m_user.m_domianID, m_nGroupID, sDomainCoGuid);
-                                if (!changedCoguid)
-                                {
-                                    userObj.m_RespStatus = ResponseStatus.InternalError;
-                                    log.Error("Error updating domain CoGuid - " + string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID));
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // User has no domain
-                        if ((domainImpl != null) && domain != null && (domain.m_oDomainResponseStatus != DomainResponseStatus.OK) &&
-                            userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
-                        {
-                            DomainResponseObject domainResponseObject =
-                                domainImpl.AddDomain(sDomainCoGuid, "", int.Parse(userObj.m_user.m_sSiteGUID), m_nGroupID, sDomainCoGuid, null);
+            //    if (domainImpl != null)
+            //    {
+            //        DomainResponseObject domain = domainImpl.GetDomainByCoGuid(sDomainCoGuid, m_nGroupID);
 
-                            if (domainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK)
-                            {
-                                userObj.m_user.m_domianID = domainResponseObject.m_oDomain.m_nDomainID;
-                                userObj.m_user.m_isDomainMaster = true;
-                                userObj.m_RespStatus = ResponseStatus.OK;
-                            }
-                            else
-                            {
-                                log.Error("Error creating domain - " + string.Format("domainCoGuid:{0}", sDomainCoGuid));
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("MC-SSO - " + string.Format("Error validating credentials with MC: ex:{0} Pass:{1}", ex.ToString(), pass), ex);
-            }
+            //        // domain by coguid found
+            //        if (domain != null && domain.m_oDomainResponseStatus == DomainResponseStatus.OK)
+            //        {
+            //            if (userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
+            //            {
+            //                //Add user to domain
+            //                DomainResponseObject domainResponse = domainImpl.AddUserToDomain(m_nGroupID, domain.m_oDomain.m_nDomainID, userID, domain.m_oDomain.m_masterGUIDs[0]);
+            //                if (domainResponse.m_oDomainResponseStatus == DomainResponseStatus.OK)
+            //                {
+            //                    userObj.m_user.m_domianID = domainResponse.m_oDomain.m_nDomainID;
+            //                    userObj.m_RespStatus = ResponseStatus.OK;
+            //                }
+            //                else
+            //                {
+            //                    log.Error("Error adding user to domain - " + string.Format("domainCoGuid:{0}", sDomainCoGuid));
+            //                }
+            //            }
+            //            // User has domain but with different cougid 
+            //            else if (userObj.m_RespStatus == ResponseStatus.OK)
+            //            {
+            //                if (userObj.m_user.m_domianID != domain.m_oDomain.m_nDomainID)
+            //                {
+            //                    bool changedCoguid = DAL.DomainDal.UpdateDomainCoGuid(userObj.m_user.m_domianID, m_nGroupID, sDomainCoGuid);
+            //                    if (!changedCoguid)
+            //                    {
+            //                        userObj.m_RespStatus = ResponseStatus.InternalError;
+            //                        log.Error("Error updating domain CoGuid - " + string.Format("newDomainCoGuid:{0} domainID:{1}", sDomainCoGuid, userObj.m_user.m_domianID));
+            //                    }
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            // User has no domain
+            //            if ((domainImpl != null) && domain != null && (domain.m_oDomainResponseStatus != DomainResponseStatus.OK) &&
+            //                userObj.m_RespStatus == ResponseStatus.UserWithNoDomain)
+            //            {
+            //                DomainResponseObject domainResponseObject =
+            //                    domainImpl.AddDomain(sDomainCoGuid, "", int.Parse(userObj.m_user.m_sSiteGUID), m_nGroupID, sDomainCoGuid, null);
 
-            return userObj;
+            //                if (domainResponseObject.m_oDomainResponseStatus == DomainResponseStatus.OK)
+            //                {
+            //                    userObj.m_user.m_domianID = domainResponseObject.m_oDomain.m_nDomainID;
+            //                    userObj.m_user.m_isDomainMaster = true;
+            //                    userObj.m_RespStatus = ResponseStatus.OK;
+            //                }
+            //                else
+            //                {
+            //                    log.Error("Error creating domain - " + string.Format("domainCoGuid:{0}", sDomainCoGuid));
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.Error("MC-SSO - " + string.Format("Error validating credentials with MC: ex:{0} Pass:{1}", ex.ToString(), pass), ex);
+            //}
+
+            //return userObj;
 
         }
 
