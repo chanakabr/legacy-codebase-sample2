@@ -148,7 +148,7 @@ namespace RoviFeeder
                     theNotificationXML = sw.ToString();
                 }
 
-                string response = TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(sURL, theNotificationXML, new Dictionary<string, string>() { });
+                string response = TVinciShared.WS_Utils.SendXMLHttpReq(sURL, theNotificationXML, string.Empty);
                 log.Debug("Finish - " + string.Format("{0}", response));
             }
             catch (Exception ex)
