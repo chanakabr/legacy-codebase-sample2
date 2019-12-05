@@ -644,7 +644,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("general_partner_config_{0}", groupId);
         }
-        
+
+        public static string GetObjectVirtualAssetPartnerConfig(int groupId)
+        {
+            return string.Format("object_virtual_asset_config_{0}", groupId);
+        }
 
         #endregion
 
@@ -1143,6 +1147,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGeneralPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_general_partner_config_{0}", groupId);
+        }
+
+        public static string GetObjectVirtualAssetPartnerConfigInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_object_virtual_asset_partner_config_{0}", groupId);
         }
 
         #endregion

@@ -125,7 +125,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }
+        }        
 
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
@@ -3913,10 +3913,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        internal KalturaSegmentationType AddSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType, long userId)
         {
             Func<SegmentationType, GenericResponse<SegmentationType>> addSegmentationTypeFunc = (SegmentationType segmentTypeToAdd) =>
-                Core.Api.Module.AddSegmentationType(groupId, segmentTypeToAdd);
+                Core.Api.Module.AddSegmentationType(groupId, segmentTypeToAdd, userId);
 
             KalturaSegmentationType result =
                 ClientUtils.GetResponseFromWS<KalturaSegmentationType, SegmentationType>(kalturaSegmentationType, addSegmentationTypeFunc);
@@ -3924,10 +3924,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType)
+        internal KalturaSegmentationType UpdateSegmentationType(int groupId, KalturaSegmentationType kalturaSegmentationType, long userId)
         {
             Func<SegmentationType, GenericResponse<SegmentationType>> updateSegmentationTypeFunc = (SegmentationType segmentTypeToUpdate) =>
-                Core.Api.Module.UpdateSegmentationType(groupId, segmentTypeToUpdate);
+                Core.Api.Module.UpdateSegmentationType(groupId, segmentTypeToUpdate, userId);
 
             KalturaSegmentationType result =
                 ClientUtils.GetResponseFromWS<KalturaSegmentationType, SegmentationType>(kalturaSegmentationType, updateSegmentationTypeFunc);
@@ -3935,18 +3935,18 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool DeleteSegmentationType(int groupId, long id)
+        internal bool DeleteSegmentationType(int groupId, long id, long userId)
         {
-            Func<Status> deleteSegmentationTypeFunc = () => Core.Api.Module.DeleteSegmentationType(groupId, id);
+            Func<Status> deleteSegmentationTypeFunc = () => Core.Api.Module.DeleteSegmentationType(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize)
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 
             Func<GenericListResponse<SegmentationType>> getListSegmentationTypesFunc = () =>
-               Core.Api.Module.ListSegmentationTypes(groupId, ids, pageIndex, pageSize);
+               Core.Api.Module.ListSegmentationTypes(groupId, ids, pageIndex, pageSize, assetSearchDefinition);
 
             KalturaGenericListResponse<KalturaSegmentationType> response =
                 ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getListSegmentationTypesFunc);
@@ -4395,6 +4395,30 @@ namespace WebAPI.Clients
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
         }
 
+        internal bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, KalturaObjectVirtualAssetPartnerConfig partnerConfig)
+        {
+            Func<ObjectVirtualAssetPartnerConfig, Status> UpdateConfigFunc = (ObjectVirtualAssetPartnerConfig partnerConfigToUpdate) =>
+            Core.Api.Module.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>(UpdateConfigFunc, partnerConfig);
+
+            return true;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<ObjectVirtualAssetPartnerConfig>> getPartnerConfigFunc = () => Core.Api.Module.GetObjectVirtualAssetPartnerConfiguration(groupId);
+
+            KalturaGenericListResponse<KalturaObjectVirtualAssetPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>(getPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
         internal  bool IncrementLayeredCacheGroupConfigVersion(int groupId)
         {
             Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);            

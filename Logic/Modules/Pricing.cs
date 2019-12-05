@@ -2,6 +2,7 @@
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -678,21 +679,29 @@ namespace Core.Pricing
 
         public static SubscriptionsResponse GetSubscriptionsData(int nGroupID, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            return GetSubscriptions(nGroupID, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, SubscriptionOrderBy.StartDateAsc);
+            return GetSubscriptions(nGroupID, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, null, SubscriptionOrderBy.StartDateAsc);
         }
 
-        public static SubscriptionsResponse GetSubscriptions(int nGroupID, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName,
-            SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
+        public static SubscriptionsResponse GetSubscriptions(int groupId, string[] oSubCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, 
+            AssetSearchDefinition assetSearchDefinition, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
         {
             SubscriptionsResponse response = new SubscriptionsResponse();
             BaseSubscription t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
+            Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
                 try
                 {
+                    if (assetSearchDefinition!= null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                    {
+                        var ids = api.GetObjectVirtualAssetIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription);
+                        if(ids?.Count >0)
+                        {
+                            oSubCodes = ids.Select(x => x.ToString()).ToArray(); ;
+                        }
+                    }
 
-                    if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue)
+                    if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue && oSubCodes?.Length> 0)
                     {
                         int startIndexOnList = pageIndex * pageSize;
                         int rangeToGetFromList = (startIndexOnList + pageSize) > oSubCodes.Length ? (oSubCodes.Length - startIndexOnList) > 0 ? (oSubCodes.Length - startIndexOnList) : 0 : pageSize;
@@ -704,7 +713,7 @@ namespace Core.Pricing
 
                     response.Subscriptions = (new SubscriptionCacheWrapper(t)).GetSubscriptionsData(oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, orderBy);
 
-                    if (response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
+                    if (response.Subscriptions != null && response.Subscriptions.Length>0 && response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
                     {
                         FilterSubscriptionsByCoupon(pageIndex, pageSize, couponGroupIdEqual, response);
                     }
@@ -770,7 +779,7 @@ namespace Core.Pricing
             }
 
             return GetSubscriptions(groupId, subscriptionIds.ToArray(), string.Empty,
-            language, udid, orderBy, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual);
+            language, udid, null, orderBy, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual);
         }
 
         public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
@@ -1469,7 +1478,7 @@ namespace Core.Pricing
                     case SubscriptionType.AddOn:
                         if (subscriptionIds != null && subscriptionIds.Count() > 0)
                         {
-                            SubscriptionsResponse subscriptionsResponse = GetSubscriptions(groupId, subscriptionIds.Select(x => x.ToString()).ToArray(), string.Empty, string.Empty, string.Empty);
+                            SubscriptionsResponse subscriptionsResponse = GetSubscriptions(groupId, subscriptionIds.Select(x => x.ToString()).ToArray(), string.Empty, string.Empty, string.Empty, null);
                             if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions != null && subscriptionsResponse.Subscriptions.Count() > 0)
                             {
                                 foreach (Subscription sub in subscriptionsResponse.Subscriptions)

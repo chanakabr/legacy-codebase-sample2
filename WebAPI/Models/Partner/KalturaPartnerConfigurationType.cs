@@ -11,7 +11,8 @@ namespace WebAPI.Models.Partner
         EnablePaymentGatewaySelection,
         OSSAdapter,
         Concurrency,
-        General
+        General,
+        ObjectVirtualAsset
     }
 
     /// <summary>

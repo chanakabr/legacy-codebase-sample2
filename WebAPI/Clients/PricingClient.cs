@@ -1,4 +1,5 @@
-﻿using ApiObjects.Pricing;
+﻿using ApiObjects;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
 using KLogMonitor;
@@ -25,7 +26,8 @@ namespace WebAPI.Clients
         {
         }
 
-        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy, int pageIndex = 0, int? pageSize = 30, int? couponGroupIdEqual = null)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy,
+            AssetSearchDefinition assetSearchDefinition, int pageIndex = 0, int? pageSize = 30, int? couponGroupIdEqual = null)
         {
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
@@ -37,7 +39,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
+                    response = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)

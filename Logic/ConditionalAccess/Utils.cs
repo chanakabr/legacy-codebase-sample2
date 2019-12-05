@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using APILogic.ConditionalAccess.Managers;
 using APILogic.ConditionalAccess.Modules;
@@ -1525,7 +1526,7 @@ namespace Core.ConditionalAccess
                 // Validate currencyCode if it was passed in the request
                 if (!string.IsNullOrEmpty(currencyCode))
                 {
-                    if (!Utils.IsValidCurrencyCode(groupId, currencyCode))
+                    if (!PartnerConfigurationManager.IsValidCurrencyCode(groupId, currencyCode))
                     {
                         theReason = PriceReason.InvalidCurrency;
                         return new Price();
@@ -1535,7 +1536,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // Get price code according to country and currency (if exists on the request)
-                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode)))
+                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || PartnerConfigurationManager.GetGroupDefaultCurrency(groupId, ref currencyCode)))
                 {
                     countryCode = Utils.GetIP2CountryCode(groupId, ip);
                     PriceCode priceCodeWithCurrency = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, priceCode.m_nObjectID, countryCode, currencyCode);
@@ -2048,7 +2049,7 @@ namespace Core.ConditionalAccess
             // Validate currencyCode if it was passed in the request
             if (!string.IsNullOrEmpty(currencyCode))
             {
-                if (!Utils.IsValidCurrencyCode(nGroupID, currencyCode))
+                if (!PartnerConfigurationManager.IsValidCurrencyCode(nGroupID, currencyCode))
                 {
                     theReason = PriceReason.InvalidCurrency;
                     return new Price();
@@ -2095,7 +2096,7 @@ namespace Core.ConditionalAccess
             DateTime? dtEndDate = null;
             DateTime? dtDiscountEndDate = null;
 
-            if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(nGroupID, ref currencyCode)))
+            if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || PartnerConfigurationManager.GetGroupDefaultCurrency(nGroupID, ref currencyCode)))
             {
                 countryCode = GetIP2CountryCode(nGroupID, ip);
                 PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(nGroupID, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
@@ -8656,103 +8657,6 @@ namespace Core.ConditionalAccess
             return subscription;
         }
 
-        internal static bool GetGroupDefaultCurrency(int groupId, ref string currencyCode)
-        {
-            bool res = false;
-            try
-            {
-                int defaultGroupCurrencyId = 0;
-                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
-                {
-                    DataTable dt = null;
-                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
-                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        currencyCode = (from row in dt.AsEnumerable()
-                                        where (Int64)row["ID"] == defaultGroupCurrencyId
-                                        select row.Field<string>("CODE3")).FirstOrDefault();
-                        res = !string.IsNullOrEmpty(currencyCode);
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupDefaultCurrency, groupId: {0}", groupId), ex);
-            }
-
-            return res;
-
-        }
-
-        internal static bool IsValidCurrencyCode(int groupId, string currencyCode3)
-        {
-            bool res = false;
-            if (string.IsNullOrEmpty(currencyCode3))
-            {
-                return res;
-            }
-
-            try
-            {
-                DataTable dt = null;
-                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
-                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res = (from row in dt.AsEnumerable()
-                           where ((string)row["CODE3"]).ToUpper() == currencyCode3.ToUpper()
-                           select row).Count() > 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed IsValidCurrencyCode, groupId: {0}, currencyCode: {1}", groupId, currencyCode3), ex);
-            }
-
-            return res;
-        }
-
-        private static Tuple<DataTable, bool> GetAllCurrencies(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            DataTable dt = null;
-            try
-            {
-                dt = ConditionalAccessDAL.GetAllCurrencies();
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetAllCurrencies failed, function parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            res = dt != null;
-            return new Tuple<DataTable, bool>(dt, res);
-        }
-
-        private static Tuple<int, bool> GetGroupDefaultCurrency(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            int groupDefaultCurrencyId = 0;
-            try
-            {
-                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    if (groupId.HasValue && groupId.Value > 0)
-                    {
-                        groupDefaultCurrencyId = ConditionalAccessDAL.GetGroupDefaultCurrency(groupId.Value);
-                        res = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetGroupDefaultCurrency failed, function parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<int, bool>(groupDefaultCurrencyId, res);
-        }
-
         public static Dictionary<long, Recording> GetDomainRecordingsToRecover(int groupId, long domainId)
         {
             Dictionary<long, Recording> DomainRecordingIdToRecordingMap = null;
@@ -9348,71 +9252,6 @@ namespace Core.ConditionalAccess
             }
 
             return epgs;
-        }
-
-        internal static bool IsValidCurrencyId(int groupId, int currencyId)
-        {
-            bool res = false;
-            if (currencyId <= 0)
-            {
-                return res;
-            }
-
-            try
-            {
-                DataTable dt = null;
-                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
-                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res = (from row in dt.AsEnumerable()
-                           where ((long)row["id"]) == (long)currencyId
-                           select row).Count() > 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed IsValidCurrencyId, groupId: {0}, currencyCode: {1}", groupId, currencyId), ex);
-            }
-
-            return res;
-        }
-
-        public static List<Currency> GetCurrencyList(int groupId)
-        {
-            List<Currency> currencies = null;
-            try
-            {
-                int defaultGroupCurrencyId = 0;
-                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
-                {
-                    DataTable dt = null;
-                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
-                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        currencies = new List<Currency>();
-                        Currency currency;
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            currency = new Currency()
-                            {
-                                m_nCurrencyID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
-                                m_sCurrencyName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                                m_sCurrencyCD2 = ODBCWrapper.Utils.GetSafeStr(dr, "code2"),
-                                m_sCurrencyCD3 = ODBCWrapper.Utils.GetSafeStr(dr, "code3"),
-                                m_sCurrencySign = ODBCWrapper.Utils.GetSafeStr(dr, "currency_sign")
-                            };
-
-                            currencies.Add(currency);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed GetCurrencyList, groupId: {0}, ex: {1}", groupId, ex);
-            }
-
-            return currencies;
         }
 
         internal static long GetCouponGroupIdForFirstCoupon(int groupId, Subscription subscription, ref string couponCode, long purchaseId)

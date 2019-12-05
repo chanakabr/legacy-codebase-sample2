@@ -1,16 +1,17 @@
-﻿using System;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.IngestBusinessModules;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using DAL;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using KLogMonitor;
-using ApiObjects.Response;
-using ApiObjects;
-using System.Data;
 using System.Xml;
-using ApiObjects.IngestBusinessModules;
-using DAL;
-using CachingProvider.LayeredCache;
 
 namespace Core.Pricing
 {
@@ -1795,14 +1796,14 @@ namespace Core.Pricing
 
             if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
             {
-                if (!Core.ConditionalAccess.Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                if (!PartnerConfigurationManager.IsValidCurrencyCode(m_nGroupID, currencyCode))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidCurrency, "Invalid currency");
                     return response;
                 }
             }
 
-            if (string.IsNullOrEmpty(currencyCode) && !Core.ConditionalAccess.Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
+            if (string.IsNullOrEmpty(currencyCode) && !PartnerConfigurationManager.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
             {
                 return response;
             }
@@ -1880,14 +1881,14 @@ namespace Core.Pricing
 
             if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
             {
-                if (!Core.ConditionalAccess.Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                if (!PartnerConfigurationManager.IsValidCurrencyCode(m_nGroupID, currencyCode))
                 {
                     response.SetStatus(eResponseStatus.InvalidCurrency, "Invalid currency");
                     return response;
                 }
             }
 
-            if (string.IsNullOrEmpty(currencyCode) && !Core.ConditionalAccess.Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
+            if (string.IsNullOrEmpty(currencyCode) && !PartnerConfigurationManager.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
             {
                 return response;
             }

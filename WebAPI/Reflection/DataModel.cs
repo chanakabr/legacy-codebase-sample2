@@ -3866,6 +3866,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaObjectVirtualAssetInfo":
+                    switch(property.Name)
+                    {
+                        case "AssetStructId":
+                            return "assetStructId";
+                        case "MetaId":
+                            return "metaId";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaObjectVirtualAssetPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "ObjectVirtualAssets":
+                            return "objectVirtualAssets";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
@@ -5437,6 +5457,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -5983,6 +6005,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "Ksql":
+                            return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
                         case "SubscriptionIdIn":

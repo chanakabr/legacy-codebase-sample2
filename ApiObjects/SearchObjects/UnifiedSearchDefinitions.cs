@@ -423,6 +423,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool ShouldSearchAutoFill;
+
+        [JsonProperty()]
+        [DataMember]
+        public HashSet<long> ObjectVirtualAssetIds;
         #endregion
 
         #region Ctor
