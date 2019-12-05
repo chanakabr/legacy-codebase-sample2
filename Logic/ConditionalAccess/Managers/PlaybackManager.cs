@@ -1,5 +1,6 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
+using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using ApiObjects;
@@ -235,7 +236,7 @@ namespace Core.ConditionalAccess
 
                                                 if (segmentationsWithBlockActions.Any())
                                                 {
-                                                    var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache);
+                                                    var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, ObjectVirtualAssetInfoType.Subscription, out CatalogGroupCache catalogGroupCache);
 
                                                     if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
                                                     {
