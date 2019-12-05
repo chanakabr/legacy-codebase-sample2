@@ -8,7 +8,6 @@ namespace ConfigurationManager.Types
     {
         private  static readonly AdapterConfiguration defaultAdapterConfig = new AdapterConfiguration();
         
-
         public override string TcmKey => TcmObjectKeys.AdaptersConfiguration;
 
         public override string[] TcmPath => new string[] { TcmKey };
@@ -24,6 +23,11 @@ namespace ConfigurationManager.Types
 
         public void SetValues(JToken token, Dictionary<string, AdapterConfiguration> defaultData)
         {
+            if(token == null)
+            {
+                _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
+                return;
+            }
             AdapterConfiguration defaultConfig = defaultData[TcmObjectKeys.DefaultConfigurationKey];
             JObject tokenConfiguration = JObject.Parse(token.ToString());
             var defaultTokenData = tokenConfiguration[TcmObjectKeys.DefaultConfigurationKey];

@@ -40,6 +40,11 @@ namespace ConfigurationManager.Types
 
         public void SetValues(JToken token, Dictionary<string, CouchbaseBucketConfig> bucketsConfiguration)
         {
+            if (token == null)
+            {
+                _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{string.Join(":", TcmPath) }], setting default value as actual value");
+                return;
+            }
             CouchbaseBucketConfig defaultConfig = bucketsConfiguration[TcmObjectKeys.DefaultConfigurationKey];
             JObject tokenConfiguration = JObject.Parse(token.ToString());
             var defaultTokenData = tokenConfiguration[TcmObjectKeys.DefaultConfigurationKey];

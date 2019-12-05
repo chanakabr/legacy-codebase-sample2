@@ -21,9 +21,17 @@ namespace ConfigurationManager
 
             try
             {
-
+                if(token == null)
+                {
+                    _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
+                    return;
+                }
                 var res = JsonConvert.DeserializeObject<ConsumerSettings>(token.ToString());
-                if(res != null)
+                if(res == null)
+                {
+                    _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
+                }
+                if (res != null)
                 {
                     ConsumerSettings = res;
                 }
@@ -40,23 +48,32 @@ namespace ConfigurationManager
 }
 
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class ConsumerSettings
+[Serializable]
+[JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+public class ConsumerSettings
+{
+    public ConsumerSettings()
     {
-        [JsonProperty("Consumers")]
-        public List<ConsumerDefinition> Consumers
-        {
-            get;
-            set;
-        }
-
+        Consumers = new List<ConsumerDefinition>() { new ConsumerDefinition() };
     }
+    [JsonProperty("Consumers")]
+    public List<ConsumerDefinition> Consumers
+    {
+        get;
+        set;
+    }
+
+}
 
 [Serializable]
 [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
 public class ConsumerDefinition
 {
+    public ConsumerDefinition()
+    {
+        DllLocation = "bin\\WebAPI.dll";
+        Type = "WebAPI.RestNotificationEventConsumer";
+    }
     [JsonProperty("DllLocation")]
     public string DllLocation
     {
