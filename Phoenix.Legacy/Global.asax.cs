@@ -29,7 +29,7 @@ namespace WebAPI
             InitializeLogging();
 
             // Configuration
-            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+            ApplicationConfiguration.Init();
 
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
