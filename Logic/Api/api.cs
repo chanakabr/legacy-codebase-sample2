@@ -11914,7 +11914,7 @@ namespace Core.Api
             CatalogGroupCache catalogGroupCache = null;
             ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out catalogGroupCache);
 
-            string filter = $"(and type_in:'{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter})";
+            string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter})";
 
             var assets = SearchAssets(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty, assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets);
             if (assets != null && assets.Length > 0)
