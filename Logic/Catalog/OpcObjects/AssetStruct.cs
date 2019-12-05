@@ -11,9 +11,9 @@ using System.Text;
 using TVinciShared;
 
 namespace Core.Catalog
-{
+{ 
     public class AssetStruct : IExcelStructure
-    {
+    {  
         private static readonly List<string> OVERVIEW_INSTRUCTIONS = new List<string>()
         {
             "//Template Overview",

@@ -17427,6 +17427,7 @@ namespace WebAPI.Models.API
             }
             ret.Add("liveAssetIdEqual", "\"liveAssetIdEqual\": " + LiveAssetIdEqual);
             ret.Add("parentIdEqual", "\"parentIdEqual\": " + ParentIdEqual);
+            ret.Add("parentOnly", "\"parentOnly\": " + ParentOnly.ToString().ToLower());
             return ret;
         }
         
@@ -17446,6 +17447,7 @@ namespace WebAPI.Models.API
             }
             ret.Add("liveAssetIdEqual", "<liveAssetIdEqual>" + LiveAssetIdEqual + "</liveAssetIdEqual>");
             ret.Add("parentIdEqual", "<parentIdEqual>" + ParentIdEqual + "</parentIdEqual>");
+            ret.Add("parentOnly", "<parentOnly>" + ParentOnly.ToString().ToLower() + "</parentOnly>");
             return ret;
         }
     }

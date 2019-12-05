@@ -27,8 +27,8 @@ namespace ApiObjects
         public int parentId;
         [JsonProperty()]
         public DateTime createDate;
-
-
+        [JsonProperty()]
+        public int childrenCount;
 
         #endregion
 

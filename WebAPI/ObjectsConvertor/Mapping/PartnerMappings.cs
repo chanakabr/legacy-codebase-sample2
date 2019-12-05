@@ -2,7 +2,6 @@
 using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
-using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
@@ -48,17 +47,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaGeneralPartnerConfig, GeneralPartnerConfig>()
                 .ForMember(dest => dest.PartnerName, opt => opt.MapFrom(src => src.PartnerName))
                 .ForMember(dest => dest.MainLanguage, opt => opt.MapFrom(src => src.MainLanguage))
-                .ForMember(dest => dest.SecondaryLanguages, opt => opt.ResolveUsing(src => src.GetItemsIn<List<int>, int>(src.SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages")))
+                .ForMember(dest => dest.SecondaryLanguages, opt => opt.MapFrom(src => src.GetSecondaryLanguagesIds()))
                 .ForMember(dest => dest.DeleteMediaPolicy, opt => opt.ResolveUsing(src => ConvertDeleteMediaPolicy(src.DeleteMediaPolicy)))
                 .ForMember(dest => dest.MainCurrency, opt => opt.MapFrom(src => src.MainCurrency))
-                .ForMember(dest => dest.SecondaryCurrencies, opt => opt.ResolveUsing(src => src.GetItemsIn<List<int>, int>(src.SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencys")))
+                .ForMember(dest => dest.SecondaryCurrencies, opt => opt.MapFrom(src => src.GetSecondaryCurrenciesIds()))
                 .ForMember(dest => dest.DowngradePolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicy(src.DowngradePolicy)))
                 .ForMember(dest => dest.MailSettings, opt => opt.MapFrom(src => src.MailSettings))
                 .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                 .ForMember(dest => dest.HouseholdLimitationModule, opt => opt.MapFrom(src => src.HouseholdLimitationModule))
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
-               ;
+                .AfterMap((src, dest) => dest.SecondaryLanguages = src.SecondaryLanguages == null ? null : dest.SecondaryLanguages)
+                .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
+                ;
 
             #region KalturaObjectVirtualAssetPartnerConfig
             // map ObjectVirtualAssetPartnerConfig to KalturaObjectVirtualAssetPartnerConfig
