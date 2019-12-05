@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace CachingProvider.LayeredCache
@@ -628,7 +627,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetRegionsKey(int groupId)
         {
-            return string.Format("Regions_{0}", groupId);
+            return string.Format("Regions_V1_{0}", groupId);
         }
 
         public static string GetUserRolesToPasswordPolicyKey(int groupId)

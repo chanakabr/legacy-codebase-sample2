@@ -18,7 +18,7 @@ node {
                     wait: false,
                     parameters: [
                         [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                        [$class: 'StringParameterValue', name: 'publish', value: false],
+                        // [$class: 'StringParameterValue', name: 'publish', value: false],
                     ]
                 )
             } else {
