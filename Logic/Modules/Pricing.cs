@@ -713,7 +713,7 @@ namespace Core.Pricing
 
                     response.Subscriptions = (new SubscriptionCacheWrapper(t)).GetSubscriptionsData(oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, orderBy);
 
-                    if (response.Subscriptions?.Count>0 && response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
+                    if (response.Subscriptions != null && response.Subscriptions.Length>0 && response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
                     {
                         FilterSubscriptionsByCoupon(pageIndex, pageSize, couponGroupIdEqual, response);
                     }
