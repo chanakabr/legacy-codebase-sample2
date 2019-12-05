@@ -1,34 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Net.Http;
 using System.IO;
 using KLogMonitor;
 using System.Reflection;
 using SkiaSharp;
+using TVinciShared;
 
 namespace ImageManager
 {
     public class ImageHelper
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         public static bool DownloadAndCropImage(int nGroupID, string sURL, string sBasePath, List<ImageObj> images, string sPicBaseName, string sUploadedFileExt)
         {
-            _Logger.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, images:{1}", nGroupID, images.Count));
+            _Logger.Debug($"DownloadAndCropImage - GroupID:{nGroupID}, images:{images.Count}");
 
-            var name = string.Format("{0}_original.{1}", sPicBaseName, sUploadedFileExt.Replace(".", string.Empty));
-            var originalPath = string.Format("{0}\\{1}", sBasePath, name);
+            var name = $"{sPicBaseName}_original.{sUploadedFileExt.Replace(".", string.Empty)}";
+            var originalPath = $"{sBasePath}\\{name}";
 
             bool res = DownloadImage(sURL, originalPath);
             if (!res)
             {
-                _Logger.Debug("DownloadAndCropImage - " + string.Format("Error : Exception while download img"));
+                _Logger.Debug($"DownloadAndCropImage - Error : Exception while download img");
                 return res;
             }
 
             foreach (var image in images)
             {
-                string dest = string.Format("{0}\\{1}", sBasePath, image.ToString());
+                string dest = $"{sBasePath}\\{image.ToString()}";
                 try
                 {
                     ResizeOrCropAndSaveImage(originalPath, dest, image.oResizeSettings);
@@ -37,9 +39,9 @@ namespace ImageManager
                 catch (Exception ex)
                 {
                     image.eResizeStatus = ResizeStatus.FAILED;
-                    _Logger.Error("DownloadAndCropImage - " + string.Format("(Resize) Exception:{0}", ex.Message), ex);
+                    _Logger.Error($"DownloadAndCropImage - (Resize) Exception:{ex.Message}", ex);
                 }
-                _Logger.Debug("DownloadAndCropImage - " + string.Format("GroupID:{0}, Image:{1}, {2}", nGroupID, image.ToString(), image.eResizeStatus));
+                _Logger.Debug($"DownloadAndCropImage - GroupID:{nGroupID}, Image:{image.ToString()}, {image.eResizeStatus}");
             }
 
             RemoveImage(originalPath);
@@ -54,12 +56,8 @@ namespace ImageManager
             try
             {
                 _Logger.Debug("DownloadOriginlImage - " + string.Format("url:{0}, dest:{1}", sURL, dest));
-
-                var uri = new Uri(sURL);
-                var httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
-                var httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-
-                using (var imageStream = httpResponse.GetResponseStream())
+                using (var httpResponse = httpClient.GetAsync(sURL).ExecuteAndWait().EnsureSuccessStatusCode())
+                using (var imageStream = httpResponse.Content.ReadAsStreamAsync().ExecuteAndWait())
                 {
                     try
                     {
@@ -69,18 +67,14 @@ namespace ImageManager
                     }
                     catch (Exception ex)
                     {
-                        _Logger.Error("DownloadOriginlImage - " + string.Format("(imageStream) Exception:{0}", ex.Message), ex);
+                        _Logger.Error($"DownloadOriginlImage - (imageStream) Exception:{ex.Message}", ex);
                         dest = string.Empty;
-                    }
-                    finally
-                    {
-                        httpResponse.Close();
                     }
                 }
             }
             catch (Exception ex)
             {
-                _Logger.Error("DownloadOriginlImage - " + string.Format("Exception:{0}", ex.Message), ex);
+                _Logger.Error($"DownloadOriginlImage - Exception:{ex.Message}", ex);
                 res = false;
             }
 

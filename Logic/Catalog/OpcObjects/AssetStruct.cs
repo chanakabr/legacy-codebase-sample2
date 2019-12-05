@@ -11,9 +11,9 @@ using System.Text;
 using TVinciShared;
 
 namespace Core.Catalog
-{
+{ 
     public class AssetStruct : IExcelStructure
-    {
+    {  
         private static readonly List<string> OVERVIEW_INSTRUCTIONS = new List<string>()
         {
             "//Template Overview",
@@ -49,6 +49,8 @@ namespace Core.Catalog
             { ExcelColumnType.Rule, Color.FromArgb(255, 234, 0) } // Yellow
         };
 
+        private const string OBJECT_VIRTUAL_ASSET = "ObjectVirtualAsset";
+
         #region Data Members
 
         public long Id { get; set; }
@@ -83,6 +85,14 @@ namespace Core.Catalog
             get
             {
                 return this.SystemName.ToLower() == "series";
+            }
+        }
+
+        public bool IsObjectVirtualAsset
+        {
+            get
+            {
+                return Features != null && Features.Contains(OBJECT_VIRTUAL_ASSET);
             }
         }
 

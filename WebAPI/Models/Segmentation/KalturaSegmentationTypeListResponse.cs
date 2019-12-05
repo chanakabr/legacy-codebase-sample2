@@ -40,6 +40,15 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "idIn")]
         public string IdIn { get; set; }
 
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string Ksql { get; set; }
+
         public override KalturaSegmentationTypeOrder GetDefaultOrderByValue()
         {
             return KalturaSegmentationTypeOrder.NONE;
@@ -66,6 +75,21 @@ namespace WebAPI.Models.Segmentation
             }
 
             return new List<long>(list);
+        }
+
+        internal bool Validate()
+        {
+            if (string.IsNullOrEmpty(IdIn) && string.IsNullOrEmpty(Ksql))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSegmentationTypeFilter.IdIn", "KalturaSegmentationTypeFilter.Ksql");
+            }
+
+            if (!string.IsNullOrEmpty(IdIn) && !string.IsNullOrEmpty(Ksql))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSegmentationTypeFilter.IdIn", "KalturaSegmentationTypeFilter.Ksql");
+            }
+
+            return true;
         }
     }
 

@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Threading;
 using Tvinci.Core.DAL;
 
-
 namespace DAL
 {
     public class UtilsDal : BaseDal
@@ -79,15 +78,21 @@ namespace DAL
 
         public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, bool serializeToString = false)
         {
+            eResultStatus getResult = eResultStatus.ERROR;
+            return GetObjectFromCB<T>(couchbaseBucket, key, out getResult, serializeToString);
+        }
+
+        public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, out eResultStatus getResult, bool serializeToString = false)
+        {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
 
             int numOfTries = 0;
             JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
             T responseT = default(T);
+            getResult = eResultStatus.ERROR;
 
             try
             {
-                eResultStatus getResult = eResultStatus.ERROR;
                 Random r = new Random();
                 while (numOfTries < NUM_OF_TRIES)
                 {
@@ -137,6 +142,7 @@ namespace DAL
 
             return responseT;
         }
+
 
         public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys, bool serializeToString = false)
         {
