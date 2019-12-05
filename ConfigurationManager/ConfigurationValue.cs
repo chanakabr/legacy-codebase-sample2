@@ -111,10 +111,7 @@ namespace ConfigurationManager
                 }
             }
 
-            if (!string.IsNullOrEmpty(this.OriginalKey))
-            {
-                ApplicationConfiguration.AddConfigurationValueWithOrigin(this);
-            }
+
 
             return result;
         }
@@ -148,7 +145,6 @@ namespace ConfigurationManager
 
             string log = builder.ToString();
 
-            ApplicationConfiguration.WriteToLog(log);
         }
 
         #endregion

@@ -18,7 +18,7 @@ namespace WebAPI.Filters
         {
             builder.ConfigureServices((hostContext, services) =>
             {
-                ApplicationConfiguration.Initialize(true, true);
+                ApplicationConfiguration.Init();
 
                 SubscribeConsumers();
             });

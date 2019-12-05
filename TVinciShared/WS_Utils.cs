@@ -569,7 +569,7 @@ namespace TVinciShared
         {
             try
             {
-                ApplicationConfiguration.Initialize(true);
+                ApplicationConfiguration.Init();
             }
             catch (Exception ex)
             {
