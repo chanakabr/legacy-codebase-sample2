@@ -62,6 +62,7 @@
         public const string CatalogLogicConfiguration = "catalog_logic_configuration";
         public const string EventConsumersConfiguration = "ConsumerSettings";
         public const string ConsumerSettings = "Consumers";
+        public const string LayeredCacheConfigurationValidation = "LayeredCache";
     }
 }
 

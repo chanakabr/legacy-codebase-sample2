@@ -22,6 +22,7 @@ namespace ConfigurationManager
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
         
+        public LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation();
         public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
 
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
@@ -162,110 +163,21 @@ namespace ConfigurationManager
         #region Configuration values
 
 
-        public static LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation;
 
 
 
         #endregion
 
         #region Private Members
-
-        private static List<ConfigurationValue> allConfigurationValues;
-        private static string logPath = string.Empty;
-        private static StringBuilder logBuilder;
-        private static List<ConfigurationValue> configurationValuesWithOriginalKeys;
-        private static bool isSilent = false;
-
         
 
         #endregion
-
-        #region Public Static Methods
 
         public static void Init()
         {
+            TCMClient.Settings.Instance.Init();
             Init(Current);
         }
 
-
-
-        public static void Initialize(bool shouldLoadDefaults = false, bool silent = false, string application = "", string host = "", string environment = "")
-        {
-            isSilent = silent;
-
-            if (!string.IsNullOrEmpty(application) || !string.IsNullOrEmpty(host) || !string.IsNullOrEmpty(environment))
-            {
-                var config = (TCMClient.TCMConfiguration)System.Configuration.ConfigurationManager.GetSection("TCMConfig");
-                config.OverrideEnvironmentVariable();
-
-                //config.OverrideEnvironmentVariable();
-                
-                if (string.IsNullOrEmpty(application))
-                {
-                    application = config.Application;
-                }
-
-                if (string.IsNullOrEmpty(host))
-                {
-                    host = config.Host;
-                }
-
-                if (string.IsNullOrEmpty(environment))
-                {
-                    environment = config.Environment;
-                }
-
-                //Populate settings from remote
-                TCMClient.Settings.Instance.Init(config.URL, application, host, environment, config.AppID, config.AppSecret, false);
-            }
-            else
-            {
-                TCMClient.Settings.Instance.Init();
-            }
-
-            LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation("LayeredCache");
-                                   
- 
-
-            allConfigurationValues = new List<ConfigurationValue>()
-                {
-                    
-                    LayeredCacheConfigurationValidation,
-                    
-            };
-
-            configurationValuesWithOriginalKeys = new List<ConfigurationManager.ConfigurationValue>();
-
-        }
-
-        
-
-        #endregion
-
-        #region Internal or Private Static Methods
-
-        internal static void WriteToLog(string log)
-        {
-            if (string.IsNullOrEmpty(logPath))
-            {
-                if (!isSilent)
-                {
-                    Console.WriteLine(log);
-                }
-            }
-            else
-            {
-                logBuilder.AppendLine(log);
-            }
-        }
-
-        internal static void AddConfigurationValueWithOrigin(ConfigurationValue configurationValue)
-        {
-            configurationValuesWithOriginalKeys.Add(configurationValue);
-        }
-
-
-
-        #endregion
     }
 }
