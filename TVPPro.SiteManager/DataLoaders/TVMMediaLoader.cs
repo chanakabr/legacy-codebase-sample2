@@ -241,7 +241,7 @@ namespace TVPPro.SiteManager.DataLoaders
         public override dsItemInfo Execute()
         {
             
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return new MediaLoader(int.Parse(MediaID), TvmUser, SiteHelper.GetClientIP(), PicSize)
                 {

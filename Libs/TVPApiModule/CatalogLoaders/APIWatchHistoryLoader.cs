@@ -199,7 +199,7 @@ namespace TVPApiModule.CatalogLoaders
 
 
                     // Store in Cache the medias from Catalog
-                    int duration = ApplicationConfiguration.TVPApiConfiguration.CacheLiteDurationInMinutes.IntValue;
+                    int duration = ApplicationConfiguration.Current.TVPApiConfiguration.CacheLiteDurationInMinutes.Value;
 
                     List<BaseObject> baseObjects = null;
 

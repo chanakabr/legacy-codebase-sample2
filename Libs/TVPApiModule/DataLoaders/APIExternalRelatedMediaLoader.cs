@@ -119,7 +119,7 @@ namespace TVPApi
 
         public override List<BaseObject> Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogExternalRelatedLoader = new TVPApiModule.CatalogLoaders.APIExternalRelatedMediaLoader(
                     (int)MediaID,

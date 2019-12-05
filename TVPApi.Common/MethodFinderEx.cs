@@ -586,7 +586,7 @@ public partial class MethodFinder
 
     private class ParameterJsonInit : ParameterInitBase
     {
-        private static List<string> _authorizationUnsupportedGroupsPlatforms = ApplicationConfiguration.TVPApiConfiguration.AuthorizationUnsupportedGroupsPlatforms.Values;
+        private static HashSet<string> _authorizationUnsupportedGroupsPlatforms = ApplicationConfiguration.Current.TVPApiConfiguration.AuthorizationUnsupportedGroupsPlatforms.Value;
 
         /// <summary>
         /// enumerate over the parameter of type Object to check it has properties of type enum

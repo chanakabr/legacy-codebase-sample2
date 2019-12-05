@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ConfigurationManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace WAP_TVPApi
             KLogMonitor.KMonitor.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
             KLogMonitor.KLogger.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
 
-            ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+            ApplicationConfiguration.Init();
         }
 
         protected void Session_Start(object sender, EventArgs e)

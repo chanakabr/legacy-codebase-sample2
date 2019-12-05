@@ -217,7 +217,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override SerializableDictionary<string, string> Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 List<int> picIDs = PicsIDArr.Select(id => int.Parse(id)).ToList();
                 m_oPicturesLoader = new PicturesLoader(picIDs, m_tvmUser, SiteHelper.GetClientIP(), PictureSize)

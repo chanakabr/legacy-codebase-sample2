@@ -27,7 +27,7 @@ namespace TVPApi.ODBCWrapper
         static protected string m_sLocker = "";
         static public Int32 GetCachedSec()
         {
-            int m_nCachedSec = ApplicationConfiguration.TVPApiConfiguration.OdbcCacheSeconds.IntValue;
+            int m_nCachedSec = ApplicationConfiguration.Current.TVPApiConfiguration.OdbcCacheSeconds.Value;
 
             if (m_nCachedSec == 0)
                 m_nCachedSec = 60;

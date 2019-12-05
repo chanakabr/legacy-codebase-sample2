@@ -134,7 +134,7 @@ namespace TVPApi
         //Get the TVINCI DB connection string
         public static string GetTvinciConnectionString()
         {
-            return ApplicationConfiguration.TVPApiConfiguration.MainConnectionString.Value;
+            return ApplicationConfiguration.Current.TVPApiConfiguration.MainConnectionString.Value;
                 //"Driver={SQL Server};Server=", TVinciDBConfiguration.GetConfig().DBServer,
                 //    ";Database=", TVinciDBConfiguration.GetConfig().DBInstance,
                 //    ";Uid=", TVinciDBConfiguration.GetConfig().User,

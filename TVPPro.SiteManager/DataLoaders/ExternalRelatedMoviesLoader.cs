@@ -193,7 +193,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override List<BaseObject> Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogExternalRelatedLoader = new ExternalRelatedMediaLoader((int)MediaID, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize, FreeParam)
                 {
@@ -268,7 +268,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogExternalRelatedLoader.TryGetItemsCount(out count);
             }

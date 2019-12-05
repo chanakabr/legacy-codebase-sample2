@@ -224,8 +224,8 @@ namespace TVPApiServices
                 try
                 {
                     SiteService siteSvc = new SiteService();
-                    string privateKey = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidKey.Value;
-                    string IV = ApplicationConfiguration.TVPApiConfiguration.SecureSiteGuidIV.Value;
+                    string privateKey = ApplicationConfiguration.Current.TVPApiConfiguration.SecureSiteGuidKey.Value;
+                    string IV = ApplicationConfiguration.Current.TVPApiConfiguration.SecureSiteGuidIV.Value;
                     string sClearPassword = SecurityHelper.DecryptSiteGuid(privateKey, IV, sEncryptedPassword);
 
                     response = siteSvc.SignIn(initObj, sUsername, sClearPassword);

@@ -93,7 +93,7 @@ namespace TVPPro.SiteManager.DataLoaders
         public override XmlDocument Execute()
         {
             
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return new FlashMediaLoader(int.Parse(MediaID), m_tvmUser, SiteHelper.GetClientIP(), m_FlashLoadersParams.Pic2Size)
                 {

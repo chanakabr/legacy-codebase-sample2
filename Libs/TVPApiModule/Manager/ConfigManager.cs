@@ -129,7 +129,7 @@ namespace TVPApi
 
             try
             {
-                configType.MediaConfiguration = new ApiMediaConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultMediaConfigurationFileLocation.Value);
+                configType.MediaConfiguration = new ApiMediaConfiguration(ApplicationConfiguration.Current.TVPApiConfiguration.DefaultMediaConfigurationFileLocation.Value);
 
             }
             catch (Exception ex)
@@ -144,14 +144,14 @@ namespace TVPApi
             catch { }
             try
             {
-                configType.SiteConfiguration = new ApiSiteConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultSiteConfigurationFileLocation.Value);
+                configType.SiteConfiguration = new ApiSiteConfiguration(ApplicationConfiguration.Current.TVPApiConfiguration.DefaultSiteConfigurationFileLocation.Value);
             }
             catch (Exception ex)
             {
             }
             try
             {
-                configType.TechnichalConfiguration = new ApiTechnichalConfiguration(ApplicationConfiguration.TVPApiConfiguration.DefaultTechnicalConfigurationFileLocation.Value);
+                configType.TechnichalConfiguration = new ApiTechnichalConfiguration(ApplicationConfiguration.Current.TVPApiConfiguration.DefaultTechnicalConfigurationFileLocation.Value);
             }
             catch (Exception ex)
             {

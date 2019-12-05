@@ -70,7 +70,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsCategory Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 CatalogLoaders.CategoryLoader categoryLoader = new CatalogLoaders.CategoryLoader(TVMUser, SiteHelper.GetClientIP(), CategoryId);
                 return categoryLoader.Execute() as dsCategory;

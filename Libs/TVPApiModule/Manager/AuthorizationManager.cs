@@ -56,7 +56,7 @@ namespace TVPApiModule.Manager
         {
             try
             {
-                _groupConfigsTtlSeconds = ApplicationConfiguration.TVPApiConfiguration.AuthorizationGroupConfigsTtlSeconds.LongValue;
+                _groupConfigsTtlSeconds = ApplicationConfiguration.Current.TVPApiConfiguration.AuthorizationGroupConfigsTtlSeconds.Value;
 
                 cbManager = new CouchbaseManager.CouchbaseManager("authorization", false, true);
                 _lock = new ReaderWriterLockSlim();

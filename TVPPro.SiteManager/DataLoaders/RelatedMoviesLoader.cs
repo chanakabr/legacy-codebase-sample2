@@ -155,7 +155,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override dsItemInfo Execute()
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 m_oCatalogRelatedLoader = new RelatedMediaLoader((int)MediaID, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
                 {
@@ -279,7 +279,7 @@ namespace TVPPro.SiteManager.DataLoaders
 
         public override bool TryGetItemsCount(out long count)
         {
-            if (ApplicationConfiguration.TVPApiConfiguration.ShouldUseNewCache.Value)
+            if (ApplicationConfiguration.Current.TVPApiConfiguration.ShouldUseNewCache.Value)
             {
                 return m_oCatalogRelatedLoader.TryGetItemsCount(out count);
             }
