@@ -222,15 +222,35 @@ namespace Core.ConditionalAccess
                                             continue;
                                         }
 
-                                        // TODO:
-                                        // 1. get subscriptionId from price.m_relevantSub 
-                                        // 2. get user block playback segments
-                                        // 3. if subscription is blocked return suspend error
-
                                         var subId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
                                         if (!string.IsNullOrEmpty(subId))
                                         {
                                             var segmentation = UserSegment.List(groupId, userId, 0, 1000, out int totalCount);
+                                            var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
+                                            if (segmentsIds.Any())
+                                            {
+                                                var segmentations = SegmentationType.List(groupId, segmentsIds, 0, 1000, out totalCount);
+                                                var segmentationsWithBlockActions = segmentations.Where(s => s.Actions != null && s.Actions.All(y => y is SegmentBlockPlaybackAction));
+
+                                                if (segmentationsWithBlockActions.Any())
+                                                {
+                                                    // should get topic_system_name from ANAT
+                                                    string topicSystemName = "subscriptionId";
+
+                                                    foreach (var swba in segmentationsWithBlockActions)
+                                                    {
+                                                        foreach (var item in swba.Actions.OfType<SegmentBlockPlaybackAction>())
+                                                        {
+                                                            string ksql = string.Format("(and {0} {1} = '{2}')", item.KSQL, topicSystemName, subId); // (or operator = 'sky' media_id = '2' media_id = '3')
+                                                            var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, (int)domain.Id, 0, false, false);
+                                                            if (assetResult != null && assetResult.Any())
+                                                            {
+                                                                // talk to shay which error to return
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
 
