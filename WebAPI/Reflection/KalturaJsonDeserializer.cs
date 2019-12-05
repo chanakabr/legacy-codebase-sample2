@@ -17709,6 +17709,10 @@ namespace WebAPI.Models.API
                 {
                     LiveAssetIdEqual = (Int32) Convert.ChangeType(parameters["liveAssetIdEqual"], typeof(Int32));
                 }
+                if (parameters.ContainsKey("parentOnly") && parameters["parentOnly"] != null)
+                {
+                    ParentOnly = (Boolean) Convert.ChangeType(parameters["parentOnly"], typeof(Boolean));
+                }
             }
         }
     }

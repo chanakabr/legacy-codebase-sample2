@@ -1504,7 +1504,11 @@ namespace ElasticSearch.Common
                 get;
                 set;
             }
-            //public double score { get; set; }
+            public double score
+            {
+                get;
+                set;
+            }
             public string name
             {
                 get;

@@ -5137,6 +5137,8 @@ namespace WebAPI.Reflection
                             return "liveAssetIdEqual";
                         case "ParentIdEqual":
                             return "parentIdEqual";
+                        case "ParentOnly":
+                            return "parentOnly";
                     }
                     break;
                     
@@ -9442,7 +9444,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
-                            return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            return RegionController.List((KalturaRegionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("region", "update", false);
@@ -16732,6 +16734,13 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

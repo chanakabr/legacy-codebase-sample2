@@ -456,6 +456,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentIdEqual))
                 .ForMember(dest => dest.orderBy, opt => opt.MapFrom(src => ConvertRegionOrderBy(src.OrderBy)))
                 .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetIdEqual))
+                .ForMember(dest => dest.ParentOnly, opt => opt.MapFrom(src => src.ParentOnly))
                 ;
 
             #endregion

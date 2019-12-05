@@ -3074,7 +3074,7 @@ namespace WebAPI.Clients
             return responseSettings;
         }
 
-        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter)
+        internal KalturaRegionListResponse GetRegions(int groupId, KalturaRegionFilter filter, int pageIndex, int pageSize)
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
             GenericListResponse<Region> response = null;
@@ -3084,7 +3084,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetRegions(groupId, wsFilter);
+                    response = Core.Api.Module.GetRegions(groupId, wsFilter, pageIndex, pageSize);                    
                 }
             }
             catch (Exception ex)
@@ -3104,9 +3104,9 @@ namespace WebAPI.Clients
             }
 
             regions = AutoMapper.Mapper.Map<List<KalturaRegion>>(response.Objects);
-
+            
             return new KalturaRegionListResponse() { Regions = regions, TotalCount = response.TotalItems};
-        }
+        }       
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
         {
@@ -4406,6 +4406,5 @@ namespace WebAPI.Clients
             Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
             return ClientUtils.GetResponseStatusFromWS(clearCache);
         }
-
     }
 }
