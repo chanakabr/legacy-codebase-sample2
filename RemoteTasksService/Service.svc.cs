@@ -50,16 +50,17 @@ namespace RemoteTasksService
                 if (string.IsNullOrEmpty(actionImplementation))
                     taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(request.task);
                 else
-                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(string.Format("{0}.{1}", request.task, actionImplementation));
+                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler($"{request.task}.{actionImplementation}");
 
                 log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
 
-                ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(Type.GetType(string.Format("{0}.TaskHandler, {0}", taskHandlerName)));
+                var taskHandlerType = Type.GetType($"{taskHandlerName}.TaskHandler, {taskHandlerName}");
+                ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(taskHandlerType);
 
                 response.retval = taskHandler.HandleTask(request.data);
                 response.status = "success";
 
-                log.Debug("Info - " + string.Concat("Add Task Request Success: ", request.task));
+                log.Debug($"Info - Add Task Request Success: {request.task}");
             }
             catch (Exception ex)
             {
