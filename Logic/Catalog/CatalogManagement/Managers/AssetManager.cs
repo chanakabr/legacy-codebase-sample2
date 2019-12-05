@@ -1689,6 +1689,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+
                 if (catalogGroupCache.IsRegionalizationEnabled)
                 {
                     linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
@@ -3092,9 +3093,12 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+                    log.Debug(string.Format("GetMediaForElasticSearchIndex -> Should get GetLinearMediaRegions, catalogGroupCache.IsRegionalizationEnabled: {0}", catalogGroupCache?.IsRegionalizationEnabled));
+
                     if (catalogGroupCache.IsRegionalizationEnabled)
                     {
                         linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
+                        log.Debug(string.Format("GetMediaForElasticSearchIndex -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping?.Count));
                     }
 
                     Dictionary<int, ApiObjects.SearchObjects.Media> assets = CreateMediasFromMediaAssetAndLanguages(groupId, mediaAsset, assetFileTypes, catalogGroupCache, linearChannelsRegionsMapping);
