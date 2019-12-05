@@ -74,7 +74,7 @@ namespace EPG_XDTVTransform
 
         private XmlDocument TransformToXDTV(XmlDocument XMLDoc, int channelIDALU, string sChannelName)
         {
-            string xsltLoction = ApplicationConfiguration.GraceNoteXSLTPath.Value;
+            string xsltLoction = ApplicationConfiguration.Current.GraceNoteXSLTPath.Value;
 
             XmlDocument xmlResult = new XmlDocument();
             GraceNoteTransform transformer = new GraceNoteTransform(xsltLoction);
@@ -103,7 +103,7 @@ namespace EPG_XDTVTransform
 
         private Dictionary<int, int> getALUIDs()
         {
-            string sPath = ApplicationConfiguration.GraceNoteALUIdConvertion.Value;
+            string sPath = ApplicationConfiguration.Current.GraceNoteALUIdConvertion.Value;
 
             Dictionary<int, int> channelID_DB_ALU = null;
             if (File.Exists(sPath))

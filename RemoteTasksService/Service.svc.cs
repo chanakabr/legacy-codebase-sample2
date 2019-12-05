@@ -48,9 +48,9 @@ namespace RemoteTasksService
                 // get task handler name (with/without action)
                 string taskHandlerName = string.Empty;
                 if (string.IsNullOrEmpty(actionImplementation))
-                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(request.task);
+                    taskHandlerName = ApplicationConfiguration.Current.CeleryRoutingConfiguration.distributedTasks.action_rule.Value;//Todo: GetHandler(request.task);Todo
                 else
-                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(string.Format("{0}.{1}", request.task, actionImplementation));
+                    taskHandlerName = ApplicationConfiguration.Current.CeleryRoutingConfiguration.distributedTasks.action_rule.Value; //Todo: GetHandler(string.Format("{0}.{1}", request.task, actionImplementation));
 
                 log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
 

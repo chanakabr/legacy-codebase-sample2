@@ -97,7 +97,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
-            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
 
             if (sizeOfBulk == 0)
             {

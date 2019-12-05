@@ -40,9 +40,9 @@ namespace SetupTaskHandler
             
             string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
 
-            int shards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
-            int replicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue; ;
-            int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            int shards = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+            int replicas = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value; ;
+            int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
 
             if (sizeOfBulk == 0)
             {

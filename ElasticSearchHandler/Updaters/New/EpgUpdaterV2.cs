@@ -23,7 +23,7 @@ namespace ElasticSearchHandler.Updaters
 
         public static readonly string EPG = "epg";
         public static readonly int DAYS = 30;
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         #region Data Members
 
@@ -74,7 +74,7 @@ namespace ElasticSearchHandler.Updaters
 
             epgBL = EpgBL.Utils.GetInstance(this.groupId);
 
-            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
 
             if (sizeOfBulk == 0)
             {

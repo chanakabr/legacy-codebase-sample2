@@ -30,12 +30,12 @@ namespace ImageResizeHandler
             {
                 HttpWebRequest httpWebRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
 
-                string proxyAddress = ApplicationConfiguration.ImageResizerConfiguration.ProxyAddress.Value;
+                string proxyAddress = ApplicationConfiguration.Current.ImageResizerConfiguration.ProxyAddress.Value;
 
                 if (!string.IsNullOrEmpty(proxyAddress))
                 {
-                    string username = ApplicationConfiguration.ImageResizerConfiguration.ProxyUsername.Value;
-                    string password = ApplicationConfiguration.ImageResizerConfiguration.ProxyPassword.Value;
+                    string username = ApplicationConfiguration.Current.ImageResizerConfiguration.ProxyUsername.Value;
+                    string password = ApplicationConfiguration.Current.ImageResizerConfiguration.ProxyPassword.Value;
 
                     WebProxy webProxy = new WebProxy();
 

@@ -49,11 +49,11 @@ namespace ElasticSearchHandler.IndexBuilders
             #region Build new index and specify number of nodes/shards
 
             // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
-            int numOfShards = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.IntValue;
-            int numOfReplicas = ApplicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.IntValue;
-            int sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-            int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
-            long mediaPageSize = ApplicationConfiguration.ElasticSearchConfiguration.MediaPageSize.IntValue;
+            int numOfShards = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+            int numOfReplicas = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
+            int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+            int maxResults =     ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
+            long mediaPageSize = ApplicationConfiguration.Current.ElasticSearchConfiguration.MediaPageSize.Value;
 
             // Default for size of bulk should be 50, if not stated otherwise in TCM
             if (sizeOfBulk == 0)

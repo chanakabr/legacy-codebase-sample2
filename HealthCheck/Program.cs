@@ -16,7 +16,7 @@ namespace HealthCheck
         public static int Main(string[] args)
         {
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WindowsService, @"C:\log\HealthCheck\");
-            ApplicationConfiguration.Initialize();
+            ApplicationConfiguration.Init();
             _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
             return (int)HealthCheck();
         }

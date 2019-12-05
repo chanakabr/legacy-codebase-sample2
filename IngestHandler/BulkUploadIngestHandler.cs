@@ -751,10 +751,10 @@ namespace IngestHandler
         {
             GetAnalyzers(out var analyzers, out var filters, out var tokenizers);
 
-            var sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            var sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
             if (sizeOfBulk == 0) { sizeOfBulk = 50; }
 
-            var maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            var maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
             if (maxResults == 0) { maxResults = 100000; }
 
             var success = _ElasticSearchClient.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);

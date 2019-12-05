@@ -21,7 +21,7 @@ namespace IngestHandler.Common
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly int DEFAULT_CATCHUP_DAYS = 7;
-        internal static readonly int EXPIRY_DATE_DELTA = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        internal static readonly int EXPIRY_DATE_DELTA = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         public static BulkUpload GetBulkUploadData(int groupId, long bulkUploadId)
         {
@@ -99,7 +99,7 @@ namespace IngestHandler.Common
         {
             try
             {
-                var days = ApplicationConfiguration.CatalogLogicConfiguration.CurrentRequestDaysOffset.IntValue;
+                var days = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
                 days = days == 0 ? DEFAULT_CATCHUP_DAYS : days;
 
                 List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();

@@ -91,8 +91,8 @@ namespace ProfessionalServicesHandler
         {
             try
             {
-                var actionConfigurationJson = ApplicationConfiguration.ProfessionalServicesTasksConfiguration.GetActionHandler(request.ActionImplementation);
-                return actionConfigurationJson.ToObject<ProfessionalServicesActionConfiguration>();
+                var actionConfigurationJson = ApplicationConfiguration.Current.ProfessionalServicesTasksConfiguration.ProfessionalServicesActionConfiguration;// GetActionHandler(request.ActionImplementation);
+                return null;//actionConfigurationJson;//.ToObject<ProfessionalServicesActionConfiguration>();
             }
             catch (Exception ex)
             {

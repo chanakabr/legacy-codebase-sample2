@@ -114,7 +114,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.DistributeRecording:
                     {
-                        bool shouldDistributeRecordingSynchronously = ApplicationConfiguration.ShouldDistributeRecordingSynchronously.Value;
+                        bool shouldDistributeRecordingSynchronously = ApplicationConfiguration.Current.ShouldDistributeRecordingSynchronously.Value;
 
                         if (shouldDistributeRecordingSynchronously)
                         {

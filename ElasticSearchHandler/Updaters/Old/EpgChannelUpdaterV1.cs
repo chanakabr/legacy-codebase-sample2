@@ -152,7 +152,7 @@ namespace ElasticSearchHandler.Updaters
                 }
 
                 // get all epg programs related to epg channel      
-                int days = ApplicationConfiguration.ElasticSearchHandlerConfiguration.ChannelStartDateDays.IntValue;
+                int days = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.ChannelStartDateDays.Value;
                 if (days == 0)
                     days = DAYS;
 

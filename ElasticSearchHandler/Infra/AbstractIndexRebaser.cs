@@ -48,8 +48,8 @@ namespace ElasticSearchHandler
             serializer = new ESSerializerV2();
             updater = null;
 
-            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-            maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+            maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
             // Default for size of bulk should be 1000, if not stated otherwise in TCM
             if (sizeOfBulk == 0)

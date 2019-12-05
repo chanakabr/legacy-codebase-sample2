@@ -70,8 +70,8 @@ namespace ElasticSearchHandler
 
                     if (rebaser != null)
                     {
-                        string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
-                        string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+                        string urlV1 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV1.Value;
+                        string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
 
                         bool result = rebaser.Rebase();
 

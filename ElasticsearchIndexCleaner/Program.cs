@@ -29,7 +29,7 @@ namespace ElasticsearchIndexCleaner
            .WithParsed(o =>
            {
                KLogger.InitLogger("log4net.config", KLogEnums.AppType.WindowsService, @"./");
-               ApplicationConfiguration.Initialize();
+               ApplicationConfiguration.Init();
 
                var cleaner = new IndexCleaner();
                cleaner.Clean(o.GroupIds, o.SaveLastXIndexes);

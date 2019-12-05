@@ -48,8 +48,8 @@ namespace SetupTaskHandler
                         bool v1Success = true;
                         bool v2Success = true;
 
-                        string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
-                        string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+                        string urlV1 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV1.Value;
+                        string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
 
                         if (string.IsNullOrEmpty(urlV1) && string.IsNullOrEmpty(urlV2))
                         {
@@ -121,8 +121,8 @@ namespace SetupTaskHandler
                     {
                         #region Migrate Statistics
 
-                        string urlV1 = ApplicationConfiguration.ElasticSearchConfiguration.URLV1.Value;
-                        string urlV2 = ApplicationConfiguration.ElasticSearchConfiguration.URLV2.Value;
+                        string urlV1 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV1.Value;
+                        string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
 
                         DateTime? startDate = null;
 

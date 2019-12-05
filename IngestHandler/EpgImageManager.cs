@@ -94,7 +94,7 @@ namespace IngestHandler
 
             var validPicturesToUpload = results.Where(p => p.IsOkStatusCode());
 
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 var originalMaxConcurrentConnections = ServicePointManager.DefaultConnectionLimit;
                 ServicePointManager.DefaultConnectionLimit = 10; // TODO: Arthur - Take from TCM ? 
@@ -180,9 +180,9 @@ namespace IngestHandler
             }
 
             // use old/or image queue
-            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+            if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
             {
-                bool sUseQueue = ApplicationConfiguration.DownloadPicWithQueue.Value;
+                bool sUseQueue = ApplicationConfiguration.Current.DownloadPicWithQueue.Value;
                 //use the rabbit Queue
                 if (sUseQueue)
                 {
@@ -203,7 +203,7 @@ namespace IngestHandler
                 log.ErrorFormat("Failed download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
             else
             {
-                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.UseOldImageServer.Value, ';'))
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.UseOldImageServer.Value, ';'))
                     log.DebugFormat("Successfully download pic- channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
                 else
                     log.DebugFormat("Successfully processed image - channelID:{0}, ratioId{1}, url:{2}", nChannelID, ratioID, sThumb);
@@ -327,7 +327,7 @@ namespace IngestHandler
             int picId = 0;
 
             //check if thumb Url exist            
-            if (!ApplicationConfiguration.CheckImageUrl.Value)
+            if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
             {
                 if (!ImageUtils.IsUrlExists(thumb))
                 {
@@ -343,8 +343,8 @@ namespace IngestHandler
             }
 
             //check for epg_image default threshold value
-            int pendingThresholdInMinutes = ApplicationConfiguration.EpgImagePendingThresholdInMinutes.IntValue;
-            int activeThresholdInMinutes = ApplicationConfiguration.EpgImageActiveThresholdInMinutes.IntValue;
+            int pendingThresholdInMinutes = ApplicationConfiguration.Current.EpgImagePendingThresholdInMinutes.Value;
+            int activeThresholdInMinutes =  ApplicationConfiguration.Current.EpgImageActiveThresholdInMinutes.Value;
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
@@ -515,9 +515,9 @@ namespace IngestHandler
             {
                 return TVinciShared.WS_Utils.GetTcmConfigValue(key);
             }
-            if (!string.IsNullOrEmpty(ApplicationConfiguration.PicsBasePath.Value))
+            if (!string.IsNullOrEmpty(ApplicationConfiguration.Current.PicsBasePath.Value))
             {
-                return ApplicationConfiguration.PicsBasePath.Value;
+                return ApplicationConfiguration.Current.PicsBasePath.Value;
             }
 
             string sBasePath = string.Empty;

@@ -46,7 +46,7 @@ namespace ImageResizeHandler
 
             try
             {
-                bool _useFileSystem = ApplicationConfiguration.ImageResizerConfiguration.UseFileSystem.Value;
+                bool _useFileSystem = ApplicationConfiguration.Current.ImageResizerConfiguration.UseFileSystem.Value;
                 
                 if (_useFileSystem)
                 {
@@ -64,7 +64,7 @@ namespace ImageResizeHandler
                     {
                         mutex.WaitOne();
 
-                        string imagesBasePath = ApplicationConfiguration.ImageResizerConfiguration.ImagesBasePath.Value;
+                        string imagesBasePath = ApplicationConfiguration.Current.ImageResizerConfiguration.ImagesBasePath.Value;
 
                         if (string.IsNullOrEmpty(imagesBasePath))
                         {

@@ -29,7 +29,7 @@ namespace InitiateNotificationActionHandler
 
                 InitiateNotificationActionRequest request = JsonConvert.DeserializeObject<InitiateNotificationActionRequest>(data);
 
-                string url = ApplicationConfiguration.WebServicesConfiguration.Notification.URL.Value;
+                string url = ApplicationConfiguration.Current.WebServicesConfiguration.Notification.URL.Value;
 
                 if (string.IsNullOrEmpty(url))
                 {

@@ -33,7 +33,7 @@ namespace RemoteTasksService
 
             RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(Service)));
 
-            ApplicationConfiguration.Initialize(true, true);
+            ApplicationConfiguration.Init();
             
             WebAPI.Filters.AutoMapperConfig.RegisterMappings();
             WebAPI.Filters.EventNotificationsConfig.SubscribeConsumers();

@@ -22,7 +22,7 @@ namespace ElasticSearchHandler.IndexBuilders
     {
         private static readonly string EPG = "epg";
         protected const string VERSION = "2";
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.EPGDocumentExpiry.IntValue > 0) ? ApplicationConfiguration.EPGDocumentExpiry.IntValue : 7;
+        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value> 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -120,14 +120,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
             GetAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
-            sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
+            sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
 
             if (sizeOfBulk == 0)
             {
                 sizeOfBulk = 50;
             }
 
-            int maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
+            int maxResults = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
 
             if (maxResults == 0)
             {
