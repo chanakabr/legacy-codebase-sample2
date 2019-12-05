@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ConfigurationManager.Types;
+﻿using ConfigurationManager.Types;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 
 namespace ConfigurationManager
@@ -160,18 +157,7 @@ namespace ConfigurationManager
         public EngagementsConfiguration EngagementsConfiguration = new EngagementsConfiguration();
         public CatalogLogicConfiguration CatalogLogicConfiguration = new CatalogLogicConfiguration();
 
-        #region Configuration values
 
-
-
-
-
-        #endregion
-
-        #region Private Members
-        
-
-        #endregion
 
         public static void Init()
         {
