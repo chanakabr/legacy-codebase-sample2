@@ -33,42 +33,57 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new string[] { TcmObjectKeys.CouchbaseClientConfiguration, TcmKey };
 
         private static readonly CouchbaseBucketConfig defaultCouchbaseBucketConfiguration = new CouchbaseBucketConfig();
-        public Dictionary<string, CouchbaseBucketConfig> BucketConfigs = new Dictionary<string, CouchbaseBucketConfig>()
+        private static  Dictionary<string, CouchbaseBucketConfig> bucketDefaultConfigs = new Dictionary<string, CouchbaseBucketConfig>()
         {
             {TcmObjectKeys.DefaultConfigurationKey, defaultCouchbaseBucketConfiguration }
         };
 
-        public void SetValues(JToken token, Dictionary<string, CouchbaseBucketConfig> bucketsConfiguration)
+        public BaseValue<Dictionary<string, CouchbaseBucketConfig>> BucketConfigs = new BaseValue<Dictionary<string, CouchbaseBucketConfig>>(TcmObjectKeys.CouchbaseBucketConfiguration, bucketDefaultConfigs);
+
+
+
+        public override void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)
         {
+            Dictionary<string, CouchbaseBucketConfig> actual = new Dictionary<string, CouchbaseBucketConfig>();
+            var defaultConfiguration = defaultData.DefaultValue as Dictionary<string, CouchbaseBucketConfig>;
             if (token == null)
             {
                 _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{string.Join(":", TcmPath) }], setting default value as actual value");
                 return;
             }
-            CouchbaseBucketConfig defaultConfig = bucketsConfiguration[TcmObjectKeys.DefaultConfigurationKey];
+            CouchbaseBucketConfig defaultConfig = defaultConfiguration[TcmObjectKeys.DefaultConfigurationKey];
             JObject tokenConfiguration = JObject.Parse(token.ToString());
             var defaultTokenData = tokenConfiguration[TcmObjectKeys.DefaultConfigurationKey];
             InitDefaultBucketConfig(defaultTokenData, defaultConfig);
 
+            actual.Add(TcmObjectKeys.DefaultConfigurationKey, defaultConfig);
+
             foreach (KeyValuePair<string, JToken> pair in tokenConfiguration)
             {
-                if(pair.Key == TcmObjectKeys.DefaultConfigurationKey)
+                if (pair.Key == TcmObjectKeys.DefaultConfigurationKey)
                 {
                     continue;//already init at the top 
                 }
-                CouchbaseBucketConfig newConfig = defaultConfig.DeepCopy();
-                if (!bucketsConfiguration.TryGetValue(pair.Key, out var currentConfig))
+                
+                if (defaultConfiguration.TryGetValue(pair.Key, out var currentConfig))
                 {
-                    bucketsConfiguration.Add(pair.Key, newConfig);
+                    actual.Add(pair.Key, currentConfig);
                 }
-
-                List<FieldInfo> fields = newConfig.GetType().GetFields().ToList();
-                newConfig.PoolConfiguration.AddPath(pair.Key);
-                IterateOverClassFields(newConfig, tokenConfiguration[pair.Key]);
-                bucketsConfiguration[pair.Key] = newConfig;
+                else
+                {
+                    CouchbaseBucketConfig newConfig = CouchbaseBucketConfig.Copy(defaultConfig);
+                    actual.Add(pair.Key, newConfig);
+                }
+                var newCalue = actual[pair.Key];
+                List<FieldInfo> fields = newCalue.GetType().GetFields().ToList();
+                newCalue.PoolConfiguration.AddPath(pair.Key);
+                IterateOverClassFields(newCalue, tokenConfiguration[pair.Key]);
             }
+
+            SetActualValue(defaultData as BaseValue<Dictionary<string, CouchbaseBucketConfig>>, actual);
         }
 
+         
         private void InitDefaultBucketConfig(JToken defaultTokenData, CouchbaseBucketConfig defaultBucketConfig)
         {
             defaultBucketConfig.PoolConfiguration.AddPath(TcmObjectKeys.DefaultConfigurationKey);
@@ -76,7 +91,7 @@ namespace ConfigurationManager.Types
         }
     }
 
-    public class CouchbaseBucketConfig : BaseConfig<CouchbaseBucketConfig>, IDeepCopyConverter<CouchbaseBucketConfig>
+    public class CouchbaseBucketConfig : BaseConfig<CouchbaseBucketConfig>
     {
         public BaseValue<string> BucketName = new BaseValue<string>("bucketName", "Default");
         public BaseValue<bool> UseSsl = new BaseValue<bool>("useSsl", false);
@@ -90,21 +105,23 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new string[] { TcmObjectKeys.CouchbaseClientConfiguration,  TcmKey };
 
 
-        public CouchbaseBucketConfig DeepCopy()
+        internal  static CouchbaseBucketConfig Copy(CouchbaseBucketConfig copyFrom)
         {
             CouchbaseBucketConfig res = new CouchbaseBucketConfig()
             {
-                BucketName = BucketName.DeepCopy(),
-                OperationLifespan = OperationLifespan.DeepCopy(),
-                Password = Password.DeepCopy(),
-                UseSsl = UseSsl.DeepCopy(),
-                PoolConfiguration = PoolConfiguration.DeepCopy(),
+                BucketName = copyFrom.BucketName,
+                OperationLifespan = copyFrom.OperationLifespan,
+                Password = copyFrom.Password,
+                UseSsl = copyFrom.UseSsl,
+                PoolConfiguration = CouchbasePoolConfiguration.Copy(copyFrom.PoolConfiguration)
             };
             return res;
+            
         }
+
     }
 
-    public class CouchbasePoolConfiguration : BaseConfig<CouchbaseBucketConfig>, IDeepCopyConverter<CouchbasePoolConfiguration>
+    public class CouchbasePoolConfiguration : BaseConfig<CouchbaseBucketConfig>
     {
         public BaseValue<string> Name = new BaseValue<string>("name", "custom");
         public BaseValue<long> MaxSize = new BaseValue<long>("maxSize", 25);
@@ -121,14 +138,17 @@ namespace ConfigurationManager.Types
             path = new string[] { TcmObjectKeys.CouchbaseClientConfiguration, TcmObjectKeys.CouchbaseBucketConfiguration, bucketName, TcmKey };
 
         }
-        public CouchbasePoolConfiguration DeepCopy()
+
+
+        internal static CouchbasePoolConfiguration Copy(CouchbasePoolConfiguration copyFrom)
         {
-            var res = new CouchbasePoolConfiguration()
+            CouchbasePoolConfiguration res = new CouchbasePoolConfiguration()
             {
-                MaxSize = MaxSize.DeepCopy(),
-                MinSize = MinSize.DeepCopy(),
-                Name = Name.DeepCopy(),
-                SendTimeout = SendTimeout.DeepCopy()
+                MaxSize = copyFrom.MaxSize,
+                MinSize = copyFrom.MinSize,
+                Name = copyFrom.Name,
+                path = copyFrom.path,
+                SendTimeout = copyFrom.SendTimeout
             };
             return res;
         }

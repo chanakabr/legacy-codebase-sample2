@@ -2,7 +2,7 @@
 
 namespace ConfigurationManager.Types
 {
-    public class AdapterConfiguration : IDeepCopyConverter<AdapterConfiguration>
+    public class AdapterConfiguration 
     {
         public BaseValue<int?> OpenTimeout = new BaseValue<int?>("openTimeout", 10);
         public BaseValue<int?> ReceiveTimeout = new BaseValue<int?>("receiveTimeout", 10);
@@ -10,22 +10,17 @@ namespace ConfigurationManager.Types
         public BaseValue<int?> CloseTimeout = new BaseValue<int?>("closeTimeout", 60);
         public BaseValue<long?> MaxReceivedMessageSize = new BaseValue<long?>("maxReceivedMessageSize", 2147483647);
 
-        public AdapterConfiguration DeepCopy()
+        internal static  AdapterConfiguration Copy(AdapterConfiguration copyFrom)
         {
             AdapterConfiguration res = new AdapterConfiguration()
             {
-                CloseTimeout = CloseTimeout.DeepCopy(),
-                MaxReceivedMessageSize = MaxReceivedMessageSize.DeepCopy(),
-                OpenTimeout = OpenTimeout.DeepCopy(),
-                ReceiveTimeout = ReceiveTimeout.DeepCopy(),
-                SendTimeout = SendTimeout.DeepCopy()
+                CloseTimeout = copyFrom.CloseTimeout,
+                MaxReceivedMessageSize = copyFrom.MaxReceivedMessageSize,
+                OpenTimeout = copyFrom.OpenTimeout,
+                ReceiveTimeout = copyFrom.ReceiveTimeout,
+                SendTimeout = copyFrom.SendTimeout
             };
             return res;
         }
-    }
-
-    public interface IDeepCopyConverter<T>
-    {
-        T DeepCopy();
     }
 }

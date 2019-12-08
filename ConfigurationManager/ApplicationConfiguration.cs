@@ -18,29 +18,7 @@ namespace ConfigurationManager
         }
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
-        
-        public LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation();
-        public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
 
-        public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
-        public  CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
-
-        public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
-        public EutelsatSettings EutelsatSettings = new EutelsatSettings();
-        public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration= new ProfessionalServicesTasksConfiguration();
-        public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
-
-        public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
-        public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();
-        public ODBCWrapperCacheConfiguration ODBCWrapperCacheConfiguration = new ODBCWrapperCacheConfiguration();
-        public CatalogCacheConfiguration CatalogCacheConfiguration = new CatalogCacheConfiguration();
-        public NotificationCacheConfiguration NotificationCacheConfiguration = new NotificationCacheConfiguration();
-        public GroupsCacheConfiguration GroupsCacheConfiguration = new GroupsCacheConfiguration();
-        public LicensedLinksCacheConfiguration LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration();
-
-
-        public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
-        public CouchbaseSectionMapping CouchbaseSectionMapping = new CouchbaseSectionMapping();
 
         public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
@@ -133,16 +111,14 @@ namespace ConfigurationManager
         public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
         public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
         public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
-        public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
+        /*Todo: Remote Task more work todo*/public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
-
         public DatabaseConfiguration DatabaseConfiguration = new DatabaseConfiguration();
         public NotificationConfiguration NotificationConfiguration = new NotificationConfiguration();
         public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
-
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
         public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
@@ -156,8 +132,23 @@ namespace ConfigurationManager
         public UserPINDigitsConfiguration UserPINDigitsConfiguration = new UserPINDigitsConfiguration();
         public EngagementsConfiguration EngagementsConfiguration = new EngagementsConfiguration();
         public CatalogLogicConfiguration CatalogLogicConfiguration = new CatalogLogicConfiguration();
-
-
+        public LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation();
+        public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
+        public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
+        public EutelsatSettings EutelsatSettings = new EutelsatSettings();
+        /* todo: RemoteTask!!! */ public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration(); 
+        public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
+        public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
+        public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();
+        public ODBCWrapperCacheConfiguration ODBCWrapperCacheConfiguration = new ODBCWrapperCacheConfiguration();
+        public CatalogCacheConfiguration CatalogCacheConfiguration = new CatalogCacheConfiguration();
+        public NotificationCacheConfiguration NotificationCacheConfiguration = new NotificationCacheConfiguration();
+        public GroupsCacheConfiguration GroupsCacheConfiguration = new GroupsCacheConfiguration();
+        public LicensedLinksCacheConfiguration LicensedLinksCacheConfiguration = new LicensedLinksCacheConfiguration();
+        public CouchBaseDesigns CouchBaseDesigns = new CouchBaseDesigns();
+        public CouchbaseSectionMapping CouchbaseSectionMapping = new CouchbaseSectionMapping();
+        public CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
+        public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
 
         public static void Init()
         {

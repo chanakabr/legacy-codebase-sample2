@@ -17,12 +17,17 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 
         public abstract string [] TcmPath { get; }
 
-        public const string BaseClassName = "BaseConfig";
+        protected const string BaseClassName = "BaseConfig";
         public JToken GetTcmToken()
         {
             JToken token;
             token = Settings.Instance.GetJsonString(TcmPath);
             return token;
+        }
+
+        protected void SetActualValue<TV>(BaseValue<TV> baseValue, TV actualvalue)
+        {
+            baseValue.ActualValue = actualvalue;
         }
 
 
@@ -54,10 +59,18 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 
         protected static void Init(IBaseConfig baseConfig)
         {
-            Type type = baseConfig.GetType();
-            MethodInfo TcmMethod = type.GetMethod("GetTcmToken");
-            JToken token = (JToken)TcmMethod.Invoke(baseConfig, null);
-            IterateOverClassFields(baseConfig,  token);
+            try
+            {
+                Type type = baseConfig.GetType();
+                MethodInfo TcmMethod = type.GetMethod("GetTcmToken");
+                JToken token = (JToken)TcmMethod.Invoke(baseConfig, null);
+                IterateOverClassFields(baseConfig, token);
+            }
+            catch(Exception ex)
+            {
+                _Logger.Error($"Eror in configuration reading: {ex}");
+                //todo
+            }
         }
 
         protected static void IterateOverClassFields(IBaseConfig baseConfig,  JToken token)
@@ -83,13 +96,6 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     var genericMethod = methodInfo.MakeGenericMethod(argu);
                     genericMethod.Invoke(baseConfig, new object[] { token, baseValueData });
                 }
-                else if (field.FieldType == typeof(Dictionary<string, AdapterConfiguration>) ||
-                    field.FieldType == typeof(ConsumerSettings) ||
-                    field.FieldType == typeof(Dictionary<string, CouchbaseBucketConfig> ))
-                {
-                    MethodInfo methodInfo = type.GetMethod("SetValues");
-                    methodInfo.Invoke(baseConfig, new object[] { token, baseValueData });
-                }
                 else if (field.FieldType == type && field.Name == "Current")
                 {
                     continue;
@@ -102,7 +108,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 }
                 else
                 {
-                    throw new Exception("Do somthing - ToDo");
+                    throw new Exception($"Unkown object {field.FieldType } in confiugration - please handle");
                 }
             }
         }

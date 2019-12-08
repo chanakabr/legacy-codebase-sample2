@@ -13,27 +13,27 @@ namespace ConfigurationManager
 
         public override string[] TcmPath => new string[] { TcmKey };
 
-        public ConsumerSettings ConsumerSettings = new ConsumerSettings();
+        private static readonly ConsumerSettings consumerDefaultSettings = new ConsumerSettings();
 
+        public BaseValue<ConsumerSettings> ConsumerSettings = new BaseValue<ConsumerSettings>(TcmObjectKeys.EventConsumersConfiguration,consumerDefaultSettings);
 
-        public void SetValues(JToken token, ConsumerSettings defaultSettings)
+        public override void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)
         {
-
             try
             {
-                if(token == null)
+                if (token == null)
                 {
                     _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
                     return;
                 }
                 var res = JsonConvert.DeserializeObject<ConsumerSettings>(token.ToString());
-                if(res == null)
+                if (res == null)
                 {
                     _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
                 }
                 if (res != null)
                 {
-                    ConsumerSettings = res;
+                    SetActualValue(defaultData as BaseValue<ConsumerSettings>, res);
                 }
 
             }
@@ -42,6 +42,7 @@ namespace ConfigurationManager
                 _Logger.Error(string.Format("Could not parse event consumers configuration. Error = {0}", ex));
             }
         }
+
     }
 
 
