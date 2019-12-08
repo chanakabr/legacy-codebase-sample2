@@ -321,29 +321,25 @@ namespace ApiLogic.Api.Managers
                         var regions = GetRegions(groupId.Value, new RegionFilter());
                         if (regions != null && regions.HasObjects())
                         {
-                            var parents = regions.Objects.Where(x => x.parentId == 0).ToList();
-                            if (parents?.Count > 0)
+                            foreach (var region in regions.Objects)
                             {
-                                foreach (var region in parents)
+                                if (region.linearChannels?.Count > 0)
                                 {
-                                    if (region.linearChannels?.Count > 0)
+                                    foreach (var kvp in region.linearChannels)
                                     {
-                                        foreach (var kvp in region.linearChannels)
+                                        int mediaId = 0;
+                                        if (int.TryParse(kvp.key, out mediaId) && mediaId > 0)
                                         {
-                                            int mediaId = 0;
-                                            if (int.TryParse(kvp.key, out mediaId) && mediaId > 0)
+                                            if (!result.ContainsKey(mediaId))
                                             {
-                                                if (!result.ContainsKey(mediaId))
-                                                {
-                                                    result.Add(mediaId, new List<int>());
-                                                }
-
-                                                result[mediaId].Add(region.id);
+                                                result.Add(mediaId, new List<int>());
                                             }
+
+                                            result[mediaId].Add(region.id);
                                         }
                                     }
                                 }
-                            }
+                            }                                
                         }
                     }
                 }
@@ -413,7 +409,7 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
+        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0 )
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
 
@@ -446,6 +442,12 @@ namespace ApiLogic.Api.Managers
                     {
                         result.Objects = regionsCache.Regions.Where(r => filter.RegionIds.Contains(r.Key)).Select(r => r.Value).ToList();
                         result.TotalItems = result.Objects.Count;
+
+                        if (filter.ParentOnly) 
+                        {
+                            result.Objects = result.Objects.Where(x => x.parentId == 0).ToList();
+                            result.TotalItems = result.Objects.Count;
+                        }
                     }
                     else if (filter.ExternalIds?.Count > 0)
                     {
@@ -462,6 +464,11 @@ namespace ApiLogic.Api.Managers
                             result.TotalItems = result.Objects.Count;
                         }
                     }
+                    else if (filter.ParentOnly)
+                    {
+                        result.Objects = regionsCache.Regions.Where( x => x.Value.parentId == 0).Select(x => x.Value).ToList();
+                        result.TotalItems = result.Objects.Count;
+                    }
 
                     if (result.Status.Code == (int)eResponseStatus.OK && result.Objects?.Count > 0)
                     {
@@ -472,6 +479,16 @@ namespace ApiLogic.Api.Managers
                         else if (filter.orderBy == RegionOrderBy.CreateDateDesc)
                         {
                             result.Objects = result.Objects.OrderByDescending(r => r.createDate).ToList();
+                        }
+
+                        result.Objects = pageSize > 0 ? result.Objects.Skip(pageIndex * pageSize).Take(pageSize).ToList() : result.Objects;
+
+                        foreach (var item in result.Objects)
+                        {
+                            if(item.parentId > 0)
+                            {
+                                item.linearChannels = regionsCache.Regions[item.parentId].linearChannels;
+                            }
                         }
                     }
                 }
@@ -593,10 +610,11 @@ namespace ApiLogic.Api.Managers
                             foreach (var key in regionsCache.ParentIdsToRegionIdsMapping.Keys)
                             {
                                 Region parent = regionsCache.Regions[key];
-                                foreach (var item in regionsCache.ParentIdsToRegionIdsMapping[key])
-                                {
-                                    regionsCache.Regions[item].linearChannels = parent.linearChannels;
-                                }
+                                parent.childrenCount = regionsCache.ParentIdsToRegionIdsMapping[key].Count;
+                                //foreach (var item in regionsCache.ParentIdsToRegionIdsMapping[key])
+                                //{
+                                //    regionsCache.Regions[item].linearChannels = parent.linearChannels;
+                                //}
                             }
                         }
                     }

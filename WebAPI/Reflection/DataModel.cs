@@ -3856,6 +3856,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaObjectVirtualAssetInfo":
+                    switch(property.Name)
+                    {
+                        case "AssetStructId":
+                            return "assetStructId";
+                        case "MetaId":
+                            return "metaId";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaObjectVirtualAssetPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "ObjectVirtualAssets":
+                            return "objectVirtualAssets";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
@@ -5127,6 +5147,8 @@ namespace WebAPI.Reflection
                             return "liveAssetIdEqual";
                         case "ParentIdEqual":
                             return "parentIdEqual";
+                        case "ParentOnly":
+                            return "parentOnly";
                     }
                     break;
                     
@@ -5425,6 +5447,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -5971,6 +5995,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "Ksql":
+                            return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
                         case "SubscriptionIdIn":
@@ -9432,7 +9458,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
-                            return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            return RegionController.List((KalturaRegionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("region", "update", false);
@@ -16722,6 +16748,13 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

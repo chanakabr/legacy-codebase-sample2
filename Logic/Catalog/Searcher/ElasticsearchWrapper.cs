@@ -1427,7 +1427,8 @@ namespace Core.Catalog
                     m_dUpdateDate = doc.update_date,
                     AssetType = assetType,
                     EndDate = doc.end_date,
-                    StartDate = doc.start_date
+                    StartDate = doc.start_date,
+                    Score = doc.score
                 };
 
                 if (doc.extraReturnFields != null)
@@ -1453,7 +1454,8 @@ namespace Core.Catalog
                     {
                         result = new RecordingSearchResult
                         {
-                            AssetType = eAssetTypes.NPVR
+                            AssetType = eAssetTypes.NPVR,
+                            Score = doc.score
                         };
                         if (definitions.recordingIdToSearchableRecordingMapping.ContainsKey(assetId))
                         {
@@ -1482,7 +1484,8 @@ namespace Core.Catalog
                             AssetId = assetId,
                             m_dUpdateDate = doc.update_date,
                             AssetType = assetType,
-                            EpgId = epgId
+                            EpgId = epgId,
+                            Score = doc.score
                         };
                     }
                 }
@@ -1492,7 +1495,8 @@ namespace Core.Catalog
                     {
                         AssetId = assetId,
                         m_dUpdateDate = doc.update_date,
-                        AssetType = assetType
+                        AssetType = assetType,
+                        Score = doc.score
                     };
                 }
             }

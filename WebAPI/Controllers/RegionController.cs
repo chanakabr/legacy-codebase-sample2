@@ -5,6 +5,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.API;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -16,19 +17,26 @@ namespace WebAPI.Controllers
         /// Returns all regions for the partner
         /// </summary>
         /// <param name="filter">Regions filter</param>
+        /// <param name="pager">Paging the request</param>
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.RegionNotFound)]
-        static public KalturaRegionListResponse List(KalturaRegionFilter filter)
+        static public KalturaRegionListResponse List(KalturaRegionFilter filter, KalturaFilterPager pager = null)
         {
             KalturaRegionListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            // parameters validation
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            filter.Validate();
+
             try
             {
-                response = ClientsManager.ApiClient().GetRegions(groupId, filter);
+                response = ClientsManager.ApiClient().GetRegions(groupId, filter, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)
             {

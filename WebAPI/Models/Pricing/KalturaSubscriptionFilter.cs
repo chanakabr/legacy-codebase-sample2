@@ -51,6 +51,15 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "couponGroupIdEqual", IsNullable = true)]
         public int? CouponGroupIdEqual { get; set; }
 
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string Ksql { get; set; }
+
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
             return KalturaSubscriptionOrderBy.START_DATE_ASC;
@@ -58,24 +67,34 @@ namespace WebAPI.Models.Pricing
 
         internal bool Validate()
         {
-            if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn)))
+            if (string.IsNullOrEmpty(Ksql))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
-            }
+                if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn)))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+                }
 
-            if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn)))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
-            }
+                if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn)))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+                }
 
-            if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn)))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
-            }
+                if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn)))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
+                }
 
-            if (string.IsNullOrEmpty(ExternalIdIn) && (!MediaFileIdEqual.HasValue || MediaFileIdEqual.Value == 0) && string.IsNullOrEmpty(SubscriptionIdIn) && CouponGroupIdEqual == null)
+                if (string.IsNullOrEmpty(ExternalIdIn) && (!MediaFileIdEqual.HasValue || MediaFileIdEqual.Value == 0) && string.IsNullOrEmpty(SubscriptionIdIn) && CouponGroupIdEqual == null)
+                {
+                    return false;
+                }
+            }
+            else
             {
-                return false;
+                if (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.Ksql", "KalturaSubscriptionFilter");
+                }
             }
 
             return true;

@@ -1,6 +1,10 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
+
 
 namespace WebAPI.Models.Partner
 {
@@ -105,6 +109,16 @@ namespace WebAPI.Models.Partner
         [JsonProperty("defaultRegion")]
         [XmlElement(ElementName = "defaultRegion")]
         public int? DefaultRegion { get; set; }
+
+        internal List<int> GetSecondaryLanguagesIds()
+        {
+            return GetItemsIn<List< int >, int> (SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
+        }
+
+        internal List<int> GetSecondaryCurrenciesIds()
+        {
+            return GetItemsIn<List<int>, int>(SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencies", false, false);
+        }
     }
 
     public enum KalturaDeleteMediaPolicy { Disable = 0, Delete = 1 }

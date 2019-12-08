@@ -1208,7 +1208,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetSubscriptions(nGroupID, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, orderBy);
+                return Core.Pricing.Module.GetSubscriptions(nGroupID, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
             }
             else
             {

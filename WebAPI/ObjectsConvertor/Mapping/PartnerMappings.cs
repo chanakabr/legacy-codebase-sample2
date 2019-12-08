@@ -2,7 +2,6 @@
 using ApiObjects.Billing;
 using ApiObjects.Rules;
 using AutoMapper.Configuration;
-using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
@@ -48,17 +47,72 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaGeneralPartnerConfig, GeneralPartnerConfig>()
                 .ForMember(dest => dest.PartnerName, opt => opt.MapFrom(src => src.PartnerName))
                 .ForMember(dest => dest.MainLanguage, opt => opt.MapFrom(src => src.MainLanguage))
-                .ForMember(dest => dest.SecondaryLanguages, opt => opt.ResolveUsing(src => src.GetItemsIn<List<int>, int>(src.SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages")))
+                .ForMember(dest => dest.SecondaryLanguages, opt => opt.MapFrom(src => src.GetSecondaryLanguagesIds()))
                 .ForMember(dest => dest.DeleteMediaPolicy, opt => opt.ResolveUsing(src => ConvertDeleteMediaPolicy(src.DeleteMediaPolicy)))
                 .ForMember(dest => dest.MainCurrency, opt => opt.MapFrom(src => src.MainCurrency))
-                .ForMember(dest => dest.SecondaryCurrencies, opt => opt.ResolveUsing(src => src.GetItemsIn<List<int>, int>(src.SecondaryCurrencies, "KalturaGeneralPartnerConfig.secondaryCurrencys")))
+                .ForMember(dest => dest.SecondaryCurrencies, opt => opt.MapFrom(src => src.GetSecondaryCurrenciesIds()))
                 .ForMember(dest => dest.DowngradePolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicy(src.DowngradePolicy)))
                 .ForMember(dest => dest.MailSettings, opt => opt.MapFrom(src => src.MailSettings))
                 .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                 .ForMember(dest => dest.HouseholdLimitationModule, opt => opt.MapFrom(src => src.HouseholdLimitationModule))
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
+                .AfterMap((src, dest) => dest.SecondaryLanguages = src.SecondaryLanguages == null ? null : dest.SecondaryLanguages)
+                .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
+                ;
+
+            #region KalturaObjectVirtualAssetPartnerConfig
+            // map ObjectVirtualAssetPartnerConfig to KalturaObjectVirtualAssetPartnerConfig
+            cfg.CreateMap<ObjectVirtualAssetPartnerConfig, KalturaObjectVirtualAssetPartnerConfig>()
+                .ForMember(dest => dest.ObjectVirtualAssets, opt => opt.MapFrom(src => src.ObjectVirtualAssets))
+                ;
+
+            // map KalturaObjectVirtualAssetPartnerConfig to ObjectVirtualAssetPartnerConfig
+            cfg.CreateMap<KalturaObjectVirtualAssetPartnerConfig, ObjectVirtualAssetPartnerConfig>()
+                .ForMember(dest => dest.ObjectVirtualAssets, opt => opt.MapFrom(src => src.ObjectVirtualAssets))
                ;
+
+            cfg.CreateMap<KalturaObjectVirtualAssetInfo, ObjectVirtualAssetInfo>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
+                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                ;
+
+            cfg.CreateMap<ObjectVirtualAssetInfo, KalturaObjectVirtualAssetInfo>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
+                .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+                ;
+
+            cfg.CreateMap<KalturaObjectVirtualAssetInfoType, ObjectVirtualAssetInfoType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaObjectVirtualAssetInfoType.Segment:
+                            return ObjectVirtualAssetInfoType.Segment;
+                        case KalturaObjectVirtualAssetInfoType.Subscription:
+                            return ObjectVirtualAssetInfoType.Subscription;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaObjectVirtualAssetInfoType value : {0}", type.ToString()));
+                    }                   
+                });
+
+            cfg.CreateMap<ObjectVirtualAssetInfoType, KalturaObjectVirtualAssetInfoType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case ObjectVirtualAssetInfoType.Segment:
+                            return KalturaObjectVirtualAssetInfoType.Segment;
+                        case ObjectVirtualAssetInfoType.Subscription:
+                            return KalturaObjectVirtualAssetInfoType.Subscription;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ObjectVirtualAssetInfoType value : {0}", type.ToString()));
+                    }
+                });
+
+            #endregion KalturaObjectVirtualAssetPartnerConfig
         }
 
         private static PartnerConfigurationType ConvertPartnerConfigurationType(KalturaPartnerConfigurationType type)
