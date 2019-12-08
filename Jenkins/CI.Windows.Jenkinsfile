@@ -15,6 +15,7 @@ pipeline {
         booleanParam(name: 'publish', defaultValue: false, description: 'Publush api client libs ?')
     }
     stages {
+        cleanWs()
         stage("Checkout"){
             steps{
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
