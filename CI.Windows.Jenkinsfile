@@ -62,7 +62,8 @@ pipeline {
         }
         stage("Zip and Publish"){
             steps{
-                dir("published"){  
+                dir("published"){
+                      
                     bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp tvpapi.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi.zip")
                 }
