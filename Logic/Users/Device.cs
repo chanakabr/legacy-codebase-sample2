@@ -319,6 +319,11 @@ namespace Core.Users
 
             this.InvalidateDomainDevice();
 
+            if (retVal > 0)
+            {
+                this.ExternalId = externalId;
+            }
+
             return retVal;
         }
 
