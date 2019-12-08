@@ -22882,6 +22882,10 @@ namespace WebAPI.Models.Segmentation
                     }
                     UserIdEqual = (String) Convert.ChangeType(parameters["userIdEqual"], typeof(String));
                 }
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
             }
         }
     }

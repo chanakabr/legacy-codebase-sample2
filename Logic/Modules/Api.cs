@@ -2145,7 +2145,12 @@ namespace Core.Api
             {
                 if(assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
                 {
-                    ids = api.GetObjectVirtualAssetIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);                    
+                    ids = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);       
+                    if(ids == null || ids.Count == 0)
+                    {
+                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        return result;
+                    }
                 }
 
                 int totalCount;
@@ -2177,13 +2182,19 @@ namespace Core.Api
             return api.DeletePersonalListItemForUser(groupId, personalListItemId, userId);
         }
 
-        public static GenericListResponse<UserSegment> GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        public static GenericListResponse<UserSegment> GetUserSegments(int groupId, string userId, AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             GenericListResponse<UserSegment> result = new GenericListResponse<UserSegment>();
+            List<long> segmentsIds = null;
 
             try
             {
-                result.Objects = UserSegment.List(groupId, userId, pageIndex, pageSize, out int totalCount);
+                if (assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                {
+                    segmentsIds = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);                    
+                }
+
+                result.Objects = UserSegment.List(groupId, userId, segmentsIds, pageIndex, pageSize, out int totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

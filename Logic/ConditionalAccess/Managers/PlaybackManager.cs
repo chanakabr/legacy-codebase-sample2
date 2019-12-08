@@ -227,7 +227,7 @@ namespace Core.ConditionalAccess
                                         var subId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
                                         if (!string.IsNullOrEmpty(subId))
                                         {
-                                            var segmentation = UserSegment.List(groupId, userId, 0, 1000, out int totalCount);
+                                            var segmentation = UserSegment.List(groupId, userId, null, 0, 1000, out int totalCount);
                                             var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
                                             if (segmentsIds.Any())
                                             {

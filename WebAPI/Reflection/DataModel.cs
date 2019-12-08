@@ -6681,6 +6681,8 @@ namespace WebAPI.Reflection
                 case "KalturaUserSegmentFilter":
                     switch(property.Name)
                     {
+                        case "Ksql":
+                            return "kSql";
                         case "UserIdEqual":
                             return "userIdEqual";
                     }

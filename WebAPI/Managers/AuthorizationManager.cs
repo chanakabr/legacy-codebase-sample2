@@ -123,7 +123,7 @@ namespace WebAPI.Managers
             // get group configurations
             var group = GetGroupConfiguration(groupId);
             var userSegments = new List<long>();
-            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, 0, 0);
+            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, null, 0, 0);
             if (userSegmentsResponse.HasObjects())
             {
                 userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
@@ -378,7 +378,7 @@ namespace WebAPI.Managers
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
             var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
             var userSegments = new List<long>();
-            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, 0, 0);
+            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, null, 0, 0);
             if (userSegmentsResponse.HasObjects())
             {
                 userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));

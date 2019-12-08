@@ -3956,13 +3956,12 @@ namespace WebAPI.Clients
 
             return result;
         }
-
-        public KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, int pageIndex, int pageSize)
+        internal KalturaUserSegmentListResponse GetUserSegments(int groupId, string userId, AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             KalturaUserSegmentListResponse result = new KalturaUserSegmentListResponse();
 
             Func<GenericListResponse<UserSegment>> getUserSegmentsFunc = () =>
-               Core.Api.Module.GetUserSegments(groupId, userId, pageIndex, pageSize);
+               Core.Api.Module.GetUserSegments(groupId, userId, assetSearchDefinition, pageIndex, pageSize);
 
             KalturaGenericListResponse<KalturaUserSegment> response =
                 ClientUtils.GetResponseListFromWS<KalturaUserSegment, UserSegment>(getUserSegmentsFunc);

@@ -189,10 +189,10 @@ namespace ApiObjects.Segmentation
 
         #region Public methods
 
-        public static List<UserSegment> List(int groupId, string userId, int pageIndex, int pageSize, out int totalCount)
+        public static List<UserSegment> List(int groupId, string userId, List<long> segmentsIds, int pageIndex, int pageSize, out int totalCount)
         {
             List<UserSegment> result = new List<UserSegment>();
-            totalCount = 0;
+            totalCount = 0;           
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string userSegmentsKey = GetUserSegmentsKey(userId);
@@ -217,7 +217,11 @@ namespace ApiObjects.Segmentation
                     }
                 }
 
-                totalCount = userSegments.Segments.Count;
+                if(segmentsIds?.Count > 0)
+                {
+                    // should return only segemtns in this list
+                    userSegments.Segments = userSegments.Segments.Where(x => segmentsIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+                }
 
                 if (pageSize == 0 && pageIndex == 0)
                 {
@@ -228,6 +232,8 @@ namespace ApiObjects.Segmentation
                     // get only segments on current page
                     result = userSegments.Segments.Values.ToList().Skip(pageIndex * pageSize).Take(pageSize).ToList();
                 }
+
+                totalCount = userSegments.Segments.Count;
             }
 
             return result;

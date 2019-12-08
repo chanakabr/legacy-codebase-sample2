@@ -11910,9 +11910,8 @@ namespace Core.Api
             AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static List<long> GetObjectVirtualAssetIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
+        internal static List<long> GetObjectVirtualAssetObjectIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
         {
-            List<long> assetIds = null;
             List<long> ids = new List<long>();
             CatalogGroupCache catalogGroupCache = null;
             ObjectVirtualAssetInfo objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out catalogGroupCache);

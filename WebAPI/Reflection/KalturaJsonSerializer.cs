@@ -22635,6 +22635,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
             if(UserIdEqual != null)
             {
                 ret.Add("userIdEqual", "\"userIdEqual\": " + "\"" + EscapeJson(UserIdEqual) + "\"");
@@ -22648,6 +22652,10 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
+            }
             if(UserIdEqual != null)
             {
                 ret.Add("userIdEqual", "<userIdEqual>" + EscapeXml(UserIdEqual) + "</userIdEqual>");

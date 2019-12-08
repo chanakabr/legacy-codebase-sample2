@@ -694,7 +694,7 @@ namespace Core.Pricing
                 {
                     if (assetSearchDefinition!= null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
                     {
-                        var ids = api.GetObjectVirtualAssetIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription);
+                        var ids = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription);
                         if(ids?.Count >0)
                         {
                             oSubCodes = ids.Select(x => x.ToString()).ToArray(); ;

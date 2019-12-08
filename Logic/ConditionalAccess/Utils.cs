@@ -1598,7 +1598,7 @@ namespace Core.ConditionalAccess
             {
                 foreach (var userInDomain in allUserIdsInDomain)
                 {
-                    var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, 0, 0);
+                    var userSegments = Api.Module.GetUserSegments(groupId, userInDomain, null, 0, 0);
                     if (userSegments != null && userSegments.HasObjects())
                     {
                         segmentIds.AddRange(userSegments.Objects.Select(x => x.SegmentId));
