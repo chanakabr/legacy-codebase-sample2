@@ -127,7 +127,9 @@ pipeline {
                     RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
             }
             steps{
-                dir("published"){  
+                dir("published"){
+                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                    sh (script: "git rev-parse HEAD >> version.txt")  
                     bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
                 }
