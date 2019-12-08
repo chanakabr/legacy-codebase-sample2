@@ -289,7 +289,7 @@ namespace Core.Catalog.CatalogManagement
                 bulkUploadResponse.Object.NumOfObjects = objectsListResponse.Objects.Count;
                 if (bulkUploadResponse.Object.NumOfObjects == 0)
                 {
-                    log.ErrorFormat("ProcessBulkUpload Deserialize file with no objects. groupId:{0}, bulkUploadId:{1}.", groupId, bulkUpload.Id);
+                    log.Error($"ProcessBulkUpload Deserialize file with no objects. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Success);
                     return bulkUploadResponse.Status;
                 }
@@ -298,7 +298,7 @@ namespace Core.Catalog.CatalogManagement
                 var hasErrors = bulkUploadResponse.Object.Results.Any(o => o.Status == BulkUploadResultStatus.Error);
                 if (hasErrors)
                 {
-                    log.Debug($"ProcessBulkUpload some seserialize objects has errors therefor all bulk objects will not enqueue. groupId:{groupId}, bulkUploadId:{1}.");
+                    log.Debug($"ProcessBulkUpload some seserialize objects has errors therefor all bulk objects will not enqueue. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                     bulkUploadResponse = UpdateBulkUpload(bulkUploadResponse.Object, BulkUploadJobStatus.Failed);
                 }
                 else
@@ -309,7 +309,7 @@ namespace Core.Catalog.CatalogManagement
                     log.Debug($"ProcessBulkUpload finish to Enqueue all BulkUpload Objects. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
                 }
 
-                log.Debug($"finish to ProcessBulkUpload. groupId:{groupId}, bulkUploadId:{1}.");
+                log.Debug($"finish to ProcessBulkUpload. groupId:{groupId}, bulkUploadId:{bulkUpload.Id}.");
             }
             catch (Exception ex)
             {
