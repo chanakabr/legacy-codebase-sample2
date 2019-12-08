@@ -71,7 +71,7 @@ pipeline {
             
             steps{
                 dir("published"){ 
-                    sh "echo 'gitcommit \$(git rev-parse HEAD) buildnum ${BUILD_NUMBER}' > version.txt" 
+                    sh "gitsha=$(git rev-parse HEAD); echo 'gitcommit $gitsha buildnum ${BUILD_NUMBER}' > version.txt" 
                     bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp remote-tasks.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks.zip")
               }
