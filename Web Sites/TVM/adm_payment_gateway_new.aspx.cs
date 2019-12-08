@@ -54,7 +54,7 @@ public partial class adm_payment_gateway_new : System.Web.UI.Page
                         string sWSUserName = "";
                         string sWSPass = "";
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
+                        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Billing.URL.Value;
                         if (sWSURL != "")
                             billing.Url = sWSURL;
                         

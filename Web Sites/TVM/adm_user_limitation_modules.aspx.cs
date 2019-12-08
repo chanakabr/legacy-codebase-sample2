@@ -163,7 +163,7 @@ public partial class adm_user_limitation_modules : System.Web.UI.Page
         {
             p = new TVM.DomainsWS.module();
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-            sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+            sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
             if (sWSURL != "")
                 p.Url = sWSURL;
             try

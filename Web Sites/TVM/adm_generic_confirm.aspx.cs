@@ -306,7 +306,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         int dlmID = int.Parse(oDlmID.ToString());
                         domainWS = new TVM.DomainsWS.module();
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                        sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;
                         try
@@ -323,7 +323,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 case "groups_device_limitation_modules":
                     domainWS = new TVM.DomainsWS.module();
                     TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                    sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                    sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                     if (sWSURL != "")
                         domainWS.Url = sWSURL;
                     try
@@ -339,7 +339,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 case "domains":
                     domainWS = new TVM.DomainsWS.module();
                     TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                    sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                    sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                     if (sWSURL != "")
                         domainWS.Url = sWSURL;
                     try
@@ -364,7 +364,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         paymentGatewayId = int.Parse(oPaymentGatewayId.ToString());
                         TVM.Billing.module billing = new TVM.Billing.module();
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetPaymentGatewayConfiguration", "billing", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Billing.URL.Value;
+                        sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Billing.URL.Value;
                         if (!string.IsNullOrEmpty(sWSURL))
                             billing.Url = sWSURL;
                         try
@@ -392,7 +392,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         sWSUserName = "";
                         sWSPass = "";
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetOSSAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                        sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
                         if (sWSURL != "")
                             api.Url = sWSURL;
 
@@ -488,7 +488,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
 
             int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-            string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+            string url = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
 
             if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
             {

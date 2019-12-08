@@ -38,7 +38,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
                     {
                         // call api service
                         TVM.apiWS.API api = new TVM.apiWS.API();
-                        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
 
                         if (sWSURL != "")
                             api.Url = sWSURL;

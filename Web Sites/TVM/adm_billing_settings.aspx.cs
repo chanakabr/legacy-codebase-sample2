@@ -230,7 +230,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
     private System.Data.DataTable GetOSSAdapterDT()
     {
         TVM.apiWS.API m = new TVM.apiWS.API();
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
 
         if (sWSURL != "")
             m.Url = sWSURL;

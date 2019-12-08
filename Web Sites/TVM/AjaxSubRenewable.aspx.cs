@@ -11,7 +11,7 @@ public partial class AjaxSubRenewable : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserBillingHistory", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         return p.RenewCancledSubscription(sWSUserName, sWSPass, sSiteGUID, sSubscriptionCode, nPurchaseID);
@@ -25,7 +25,7 @@ public partial class AjaxSubRenewable : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "GetUserBillingHistory", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         return p.CancelSubscription(sWSUserName, sWSPass, sSiteGUID, sSubscriptionCode, nPurchaseID);

@@ -78,7 +78,7 @@ public partial class adm_batch_upload_upload : System.Web.UI.Page
 
                     String path = Server.MapPath(string.Empty);
 
-                    path = ApplicationConfiguration.BatchUpload.Value;
+                    path = ApplicationConfiguration.Current.BatchUpload.Value;
                     //path = System.IO.Path.Combine(path, "batch_upload");
                     path = System.IO.Path.Combine(path, nGroupID.ToString());
 

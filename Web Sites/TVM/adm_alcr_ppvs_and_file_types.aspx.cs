@@ -56,7 +56,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
                 string sWSPass = "";
 
                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;                
+                string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;                
                 if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
                 {
                     TVM.apiWS.API client = new TVM.apiWS.API();
@@ -125,7 +125,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
         string sWSPass = "";
 
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
         FriendlyAssetLifeCycleRule friendlyAssetLifeCycleRule = null;
         if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
         {
@@ -256,7 +256,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
         string sIP = "1.1.1.1";
         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPPVModuleList", "pricing", sIP, ref sWSUserName, ref sWSPass);        
         TVM.TvinciPricing.mdoule m = new TVM.TvinciPricing.mdoule();
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
         if (string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass) || string.IsNullOrEmpty(sWSURL))
         {
             return ppvModules;

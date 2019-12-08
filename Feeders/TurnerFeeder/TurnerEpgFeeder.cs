@@ -166,7 +166,7 @@ namespace TurnerFeeder
 
 
                     BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(m_groupID);                    
-                    int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+                    int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.Value;
                     int nCount = 0;
 
                     List<ulong> ulProgram = new List<ulong>();

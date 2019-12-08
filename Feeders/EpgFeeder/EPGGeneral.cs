@@ -415,7 +415,7 @@ namespace EpgFeeder
             List<FieldTypeEntity> FieldEntityMapping = GetMappingFields();
             EpgCB newEpgItem;
             
-            int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+            int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.Value;
             int nCount = 0;
             List<ulong> ulProgram = new List<ulong>();
 

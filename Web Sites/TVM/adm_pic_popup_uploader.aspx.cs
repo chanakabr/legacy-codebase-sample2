@@ -423,7 +423,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
     {
         bool isImageUrlVaild = true;
         //check if thumb Url exist
-        if (!ApplicationConfiguration.CheckImageUrl.Value)
+        if (!ApplicationConfiguration.Current.CheckImageUrl.Value)
         {
             if (!ImageUtils.IsUrlExists(picLink))
             {

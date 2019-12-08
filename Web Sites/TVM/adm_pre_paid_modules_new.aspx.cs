@@ -427,7 +427,7 @@ public partial class adm_pre_paid_modules_new : System.Web.UI.Page
         string sMainLang = "";
         string sMainCode = "";
         TVM.TvinciPricing.mdoule m = new TVM.TvinciPricing.mdoule();
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         string sWSUserName = "";

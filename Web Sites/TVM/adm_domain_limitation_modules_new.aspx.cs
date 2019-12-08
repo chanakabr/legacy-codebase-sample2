@@ -69,7 +69,7 @@ public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
                                 string sWSUserName = "";
                                 string sWSPass = "";
                                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                                string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                                 if (sWSURL != "")
                                     p.Url = sWSURL;
                                 try
@@ -563,7 +563,7 @@ public partial class adm_domain_limitation_modules_new : System.Web.UI.Page
                 string sWSUserName = "";
                 string sWSPass = "";
                 TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                 if (sWSURL != "")
                     p.Url = sWSURL;
                 try

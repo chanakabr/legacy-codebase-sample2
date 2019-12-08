@@ -54,7 +54,7 @@ public partial class adm_oss_adapter_new : System.Web.UI.Page
                         string sWSUserName = "";
                         string sWSPass = "";
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetOSSAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
                         if (sWSURL != "")
                             api.Url = sWSURL;
                         try

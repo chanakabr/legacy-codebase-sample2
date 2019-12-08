@@ -81,7 +81,7 @@ namespace YesEpgFeeder
                     }
                 }
                 ParentGroupID = DAL.UtilsDal.GetParentGroupID(GroupID);
-                URL = ApplicationConfiguration.EPGUrl.Value;
+                URL = ApplicationConfiguration.Current.EPGUrl.Value;
                 Region = TVinciShared.WS_Utils.GetTcmConfigValue("regionId");
                 DBOnly = TVinciShared.WS_Utils.GetTcmBoolValue("DB_Only");
             }
@@ -115,7 +115,7 @@ namespace YesEpgFeeder
 
                     foreach (string sChannel in lChannelIds)
                     {
-                        URL = ApplicationConfiguration.EPGUrl.Value;
+                        URL = ApplicationConfiguration.Current.EPGUrl.Value;
                         ChannelID = sChannel;
                         SaveChannelByXML();
                     }
@@ -140,7 +140,7 @@ namespace YesEpgFeeder
 
                     foreach (string sChannel in lChannelIds)
                     {
-                        URL = ApplicationConfiguration.EPGUrl.Value;
+                        URL = ApplicationConfiguration.Current.EPGUrl.Value;
                         ChannelID = sChannel;
                         SaveChannelByXML();
                     }
@@ -197,7 +197,7 @@ namespace YesEpgFeeder
                 Dictionary<string, KeyValuePair<string, string>> dParentalRating = GetParentalRating();
 
                 BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(GroupID);                
-                int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+                int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.Value;
                 int nCount = 0;
 
                 List<ulong> ulProgram = new List<ulong>();

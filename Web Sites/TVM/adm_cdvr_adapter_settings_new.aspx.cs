@@ -42,7 +42,7 @@ public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
                     string sWSUserName = "";
                     string sWSPass = "";
                     TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendCDVRAdapterConfiguration", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+                    string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.ConditionalAccess.URL.Value;
                     if (!string.IsNullOrEmpty(sWSURL))
                         cas.Url = sWSURL;
                     try
@@ -52,7 +52,7 @@ public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
                             cdvrAdapterId, response != null && response.Status != null ? response.Status.Code : -1));
 
                         // remove adapter from cache
-                        string version = ApplicationConfiguration.Version.Value;
+                        string version = ApplicationConfiguration.Current.Version.Value;
                         string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_cdvr_adapter_{1}", version, cdvrAdapterId)

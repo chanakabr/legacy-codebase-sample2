@@ -145,7 +145,7 @@ namespace CrowdsourcingFeeder.DataCollector.Base
                                     m_nLanguage = languageObj.ID,
                                 },
                                 m_sSignString = catalogSignString,
-                                m_sSignature = WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
+                                m_sSignature = WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value),
                             });
                             retDict.Add(languageObj, mediaInfoForLanguage);
                         }

@@ -163,7 +163,7 @@ public partial class adm_export_tasks : System.Web.UI.Page
             {
                 // insert new message to tasks queue (for celery)
                 TVM.apiWS.API m = new TVM.apiWS.API();
-                sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
 
                 if (sWSURL != "")
                     m.Url = sWSURL;

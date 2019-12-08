@@ -166,7 +166,7 @@ public partial class adm_campaigns_new : System.Web.UI.Page
         theRecord.AddRecord(dr_end_date);
 
         TVM.TvinciPricing.mdoule m = new TVM.TvinciPricing.mdoule();
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         string sWSUserName = "";

@@ -55,7 +55,7 @@ public partial class adm_recommendation_engine_adapter : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
-        string version = ApplicationConfiguration.Version.Value;
+        string version = ApplicationConfiguration.Current.Version.Value;
         Int32 groupID = LoginManager.GetLoginGroupID();
         // string.Format("{0}_recommendation_engine_{1}", version, adapterId)
 

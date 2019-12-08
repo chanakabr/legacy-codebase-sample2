@@ -44,7 +44,7 @@ public partial class adm_stream_config_settings_new : System.Web.UI.Page
                     string sWSUserName = "";
                     string sWSPass = "";
                     TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "SendCDNAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                    string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
                     if (!string.IsNullOrEmpty(sWSURL))
                         api.Url = sWSURL;
                     try
@@ -54,7 +54,7 @@ public partial class adm_stream_config_settings_new : System.Web.UI.Page
                             cdnAdapterId, response != null && response.Status != null ? response.Status.Code : -1);
 
                         // remove adapter from cache
-                        string version = ApplicationConfiguration.Version.Value;
+                        string version = ApplicationConfiguration.Current.Version.Value;
                         string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_cdn_adapter_{1}", version, cdnAdapterId)

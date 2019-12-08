@@ -36,7 +36,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                     m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                     m_nPageIndex = 0,
                     m_sSignString = catalogSignString,
-                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value),
                     m_oFilter = new Filter()
                     {
 
@@ -116,7 +116,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                                     m_bOnlyActiveMedia = true
                                 },
                                 m_sSignString = catalogSignString,
-                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
+                                m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value),
                             });
 
                             if (programInfoForLanguage != null && programInfoForLanguage.programsPerChannel != null && programInfoForLanguage.programsPerChannel.Length > 0 && mediaInfo.Value != null && mediaInfo.Value.m_lObj[0] != null)

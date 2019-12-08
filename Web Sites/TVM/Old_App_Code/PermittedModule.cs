@@ -41,7 +41,7 @@ public class PermittedModule : IHttpModule
         HttpContext context = ((HttpApplication)sender).Context;
         HttpApplication application = sender as HttpApplication;
 
-        string sAppSateConfigValue = ApplicationConfiguration.AppState.Value;
+        string sAppSateConfigValue = ApplicationConfiguration.Current.AppState.Value;
 
         if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")
         {
@@ -87,7 +87,7 @@ public class PermittedModule : IHttpModule
         HttpContext context = ((HttpApplication)sender).Context;
         HttpApplication application = sender as HttpApplication;
 
-        string sAppSateConfigValue = ApplicationConfiguration.AppState.Value;
+        string sAppSateConfigValue = ApplicationConfiguration.Current.AppState.Value;
 
         if (!string.IsNullOrEmpty(sAppSateConfigValue) && sAppSateConfigValue == "moved_to_ny")
         {

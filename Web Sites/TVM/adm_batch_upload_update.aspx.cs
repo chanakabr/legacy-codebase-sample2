@@ -267,7 +267,7 @@ public partial class adm_batch_upload_update : System.Web.UI.Page
 
             int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
             TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "Channel", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+            string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
             if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
             {
                 return null;

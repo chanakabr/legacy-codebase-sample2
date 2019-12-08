@@ -363,7 +363,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         TVinciShared.WS_Utils.GetWSUNPass(nCommerceGroupID, "GetPPVModuleListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
         log.Debug("Pricing WS - User is : " + sWSUserName + " Pass is : " + sWSPass);
         TVM.TvinciPricing.mdoule m = new TVM.TvinciPricing.mdoule();
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TVM.TvinciPricing.PPVModuleContainer[] oModules = m.GetPPVModuleListForAdmin(sWSUserName, sWSPass, int.Parse(Session["media_file_id"].ToString()), string.Empty, string.Empty, string.Empty);

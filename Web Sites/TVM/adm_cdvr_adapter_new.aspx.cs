@@ -55,7 +55,7 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                             string sWSPass = "";
                             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
                             TVM.ca_ws.module cas = new TVM.ca_ws.module();
-                            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+                            string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.ConditionalAccess.URL.Value;
                             if (sWSURL != "")
                                 cas.Url = sWSURL;
                             try
@@ -64,7 +64,7 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                                 log.Debug("SendCDVRAdapterConfiguration - " + string.Format("cdvr adapter id:{0}, status:{1}", nID, status.Status != null ? status.Status.Code : 1));
 
                                 // remove adapter from cache
-                                string version = ApplicationConfiguration.Version.Value;
+                                string version = ApplicationConfiguration.Current.Version.Value;
                                 string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_cdvr_adapter_{1}", version, nID)

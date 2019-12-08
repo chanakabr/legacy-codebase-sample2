@@ -515,7 +515,7 @@ namespace EpgFeeder
         private string GetYesRestUrl(DateTime startDate, string sEPGChannelID, int nTotalMinutes, int nTotalPrograms)
         {
             string day = startDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = ApplicationConfiguration.EPGUrl.Value;
+            string epgURL = ApplicationConfiguration.Current.EPGUrl.Value;
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
             url.AppendFormat("schedules?");
@@ -627,7 +627,7 @@ namespace EpgFeeder
         {
             List<EPGChannelProgrammeObject> programs = new List<EPGChannelProgrammeObject>();
 
-            string epgURL = ApplicationConfiguration.EPGUrl.Value; //ConfigurationManager.AppSettings["EPGUrl"];
+            string epgURL = ApplicationConfiguration.Current.EPGUrl.Value; //ConfigurationManager.AppSettings["EPGUrl"];
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -692,7 +692,7 @@ namespace EpgFeeder
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = ApplicationConfiguration.EPGUrl.Value;
+            string epgURL = ApplicationConfiguration.Current.EPGUrl.Value;
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);
@@ -734,7 +734,7 @@ namespace EpgFeeder
             EPGChannelProgrammeObject program = new EPGChannelProgrammeObject();
 
             string date = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            string epgURL = ApplicationConfiguration.EPGUrl.Value;
+            string epgURL = ApplicationConfiguration.Current.EPGUrl.Value;
             //string epgURL = "http://lab-vms.tve.yeseng.co.il/opencase/sm/resource/rest/";
             StringBuilder url = new StringBuilder();
             url.AppendFormat(epgURL);

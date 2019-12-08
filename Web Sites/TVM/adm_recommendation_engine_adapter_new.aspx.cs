@@ -62,8 +62,8 @@ public partial class adm_recommendation_engine_adapter_new : System.Web.UI.Page
 
                         int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
                         TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-                        string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
-                        string version = ApplicationConfiguration.Version.Value;
+                        string url = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
+                        string version = ApplicationConfiguration.Current.Version.Value;
 
                         if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
                         {

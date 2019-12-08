@@ -214,7 +214,7 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 int exactGroupId = LoginManager.GetLoginGroupID();
                 int parentGroupID = DAL.UtilsDal.GetParentGroupID(exactGroupId);
                 TVinciShared.WS_Utils.GetWSUNPass(parentGroupID, "SearchAssets", "api", sIP, ref sWSUserName, ref sWSPass);
-                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
                 if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
                 {
                     log.ErrorFormat("fail to get api WS Url={0}, UserName={1}, Password={2}", sWSURL, sWSUserName, sWSPass);

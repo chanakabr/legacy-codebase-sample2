@@ -221,7 +221,7 @@ namespace EpgFeeder
                     #endregion
 
                     BaseEpgBL oEpgBL = EpgBL.Utils.GetInstance(groupID);                    
-                    int nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+                    int nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.Value;
                     int nCount = 0;
                     List<ulong> ulProgram = new List<ulong>();
                     List<DateTime> deletedDays = new List<DateTime>();

@@ -12,7 +12,7 @@ public partial class AjaxSubDateChange : System.Web.UI.Page
         string sWSUserName = "";
         string sWSPass = "";
         TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "ChangeSubscriptionDates", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.ConditionalAccess.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.ConditionalAccess.URL.Value;
         if (sWSURL != "")
             p.Url = sWSURL;
         return p.ChangeSubscriptionDates(sWSUserName, sWSPass, sSiteGUID, sSubscriptionCode, nPurchaseID, nDurationIndays, bNewRenewable);

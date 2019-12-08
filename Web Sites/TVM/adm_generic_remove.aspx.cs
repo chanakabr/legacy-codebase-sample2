@@ -243,7 +243,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                             int dlmID = int.Parse(oDlmID.ToString());
                             domainWS = new TVM.DomainsWS.module();
                             TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                            sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                            sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                             if (sWSURL != "")
                                 domainWS.Url = sWSURL;
                             try
@@ -263,7 +263,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         domainWS = new TVM.DomainsWS.module();
 
                         TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+                        sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;
                         try
@@ -292,7 +292,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
 
         //    int parentGroupId = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
         //    TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateCache", "api", ip, ref userName, ref password);
-        //    string url = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+        //    string url = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
 
         //    if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
         //    {
@@ -344,7 +344,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
             string sWSURL;
 
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
-            sWSURL = ApplicationConfiguration.WebServicesConfiguration.Domains.URL.Value;
+            sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Domains.URL.Value;
             if (sWSURL != "")
                 domainWS.Url = sWSURL;
             try

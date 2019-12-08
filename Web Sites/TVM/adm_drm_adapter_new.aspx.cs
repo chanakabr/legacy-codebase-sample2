@@ -54,7 +54,7 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
                             string sWSPass = "";
 
                             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendDrmAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                            string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
                             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
                             {
                                 TVM.apiWS.API client = new TVM.apiWS.API();
@@ -65,7 +65,7 @@ public partial class adm_drm_adapter_new : System.Web.UI.Page
                                     log.Debug("SendDrmAdapterConfiguration - " + string.Format("drm adapter id:{0}, status:{1}", id, status.Status != null ? status.Status.Code : 1));
 
                                     // remove adapter from cache
-                                    string version = ApplicationConfiguration.Version.Value;
+                                    string version = ApplicationConfiguration.Current.Version.Value;
                                     string[] keys = new string[1] 
                                 { 
                                     string.Format("{0}_drm_adapter_{1}", version, id)

@@ -47,7 +47,7 @@ public partial class adm_subscriptions_finacial_contracts : System.Web.UI.Page
             nCommerceGroupID = nGroupID;
         TVinciShared.WS_Utils.GetWSUNPass(nCommerceGroupID, "GetSubscriptionsList", "pricing", sIP, ref sWSUserName, ref sWSPass);
         TVM.TvinciPricing.mdoule m = new TVM.TvinciPricing.mdoule();
-        string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+        string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
         if (sWSURL != "")
             m.Url = sWSURL;
         TVM.TvinciPricing.Subscription oSubscription = m.GetSubscriptionData(sWSUserName, sWSPass , Session["subscription_id"].ToString(), string.Empty,string.Empty,string.Empty,false);

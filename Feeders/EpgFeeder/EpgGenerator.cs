@@ -38,7 +38,7 @@ namespace EpgFeeder
             lLanguage = GetLanguages(m_Channels.parentgroupid); // dictionary contains all language ids and its  code (string)
             // get mapping tags and metas 
             FieldEntityMapping = GetMappingFields(m_Channels.parentgroupid);            
-            nCountPackage = ApplicationConfiguration.CatalogLogicConfiguration.UpdateEPGPackage.IntValue;
+            nCountPackage = ApplicationConfiguration.Current.CatalogLogicConfiguration.UpdateEPGPackage.Value;
             // get mapping between ratio_id and ratio 
             Dictionary<string, string> sRatios = EpgDal.Get_PicsEpgRatios();
             ratios = sRatios.ToDictionary(x => int.Parse(x.Key), x => x.Value);

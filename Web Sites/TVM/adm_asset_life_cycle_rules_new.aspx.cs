@@ -100,7 +100,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             string sWSPass = "";
             
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+            string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
             {
                 TVM.apiWS.API client = new TVM.apiWS.API();
@@ -449,7 +449,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             string sWSPass = "";
 
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+            string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
             {
                 TVM.apiWS.API client = new TVM.apiWS.API();

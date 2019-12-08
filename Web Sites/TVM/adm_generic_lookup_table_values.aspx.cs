@@ -116,7 +116,7 @@ public partial class adm_generic_lookup_table_values : System.Web.UI.Page
                 {
                     String path = Server.MapPath(string.Empty);
 
-                    path = ApplicationConfiguration.LookupGenericUpload.Value;
+                    path = ApplicationConfiguration.Current.LookupGenericUpload.Value;
                     path = System.IO.Path.Combine(path, nGroupID.ToString());
 
                     // Determine whether the directory exists.

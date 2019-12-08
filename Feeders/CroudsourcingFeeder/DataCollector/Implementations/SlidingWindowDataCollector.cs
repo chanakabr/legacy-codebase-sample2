@@ -41,7 +41,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_bUseFinalDate = true,
                     },
                     m_sSignString = catalogSignString,
-                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.CatalogSignatureKey.Value),
+                    m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, ApplicationConfiguration.Current.CatalogSignatureKey.Value),
                     m_nPageIndex = 0,
                     m_nPageSize = TVinciShared.WS_Utils.GetTcmIntValue("crowdsourcer.CATALOG_PAGE_SIZE"),
                 });
@@ -83,7 +83,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
-                                ApplicationConfiguration.CatalogSignatureKey.Value),
+                                ApplicationConfiguration.Current.CatalogSignatureKey.Value),
                     });
 
                 if (channelObjResponse != null && channelObjResponse.ChannelObj.m_OrderObject.m_bIsSlidingWindowField)
@@ -99,7 +99,7 @@ namespace CrowdsourcingFeeder.DataCollector.Implementations
                         m_sSignString = catalogSignString,
                         m_sSignature =
                             TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString,
-                                ApplicationConfiguration.CatalogSignatureKey.Value),
+                                ApplicationConfiguration.Current.CatalogSignatureKey.Value),
 
                     });
 

@@ -66,7 +66,7 @@ public partial class adm_export_tasks_new : System.Web.UI.Page
                             {
                                 // insert new message to tasks queue (for celery)
                                 API m = new API();
-                                string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Api.URL.Value;
+                                string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Api.URL.Value;
 
                                 if (sWSURL != "")
                                     m.Url = sWSURL;

@@ -124,7 +124,7 @@ namespace CollectionTasker
             string sWSPass = "";
 
             CollectionTasker.TvinciPricing.mdoule m = new CollectionTasker.TvinciPricing.mdoule();
-            string sWSURL = ApplicationConfiguration.WebServicesConfiguration.Pricing.URL.Value;
+            string sWSURL = ApplicationConfiguration.Current.WebServicesConfiguration.Pricing.URL.Value;
             if (sWSURL != "")
                 m.Url = sWSURL;
 

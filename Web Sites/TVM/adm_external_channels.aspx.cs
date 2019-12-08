@@ -87,7 +87,7 @@ public partial class adm_external_channels : System.Web.UI.Page
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
-        string version = ApplicationConfiguration.Version.Value;
+        string version = ApplicationConfiguration.Current.Version.Value;
 
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable += "SELECT ec.ID, ec.Name, ec.EXTERNAL_IDENTIFIER AS 'External Identifier', ec.FILTER_EXPRESSION as 'Filter Expression', ";
