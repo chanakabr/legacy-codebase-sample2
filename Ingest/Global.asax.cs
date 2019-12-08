@@ -30,7 +30,7 @@ namespace Ingest
             log4net.GlobalContext.Properties["LogDir"] = logDir;
             
             // init TCM
-            ApplicationConfiguration.Initialize(true);
+            ApplicationConfiguration.Init();
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WCF);
