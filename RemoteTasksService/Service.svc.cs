@@ -1,14 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
 using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
-using System.Text;
-using System.Threading;
-using System.Configuration;
 using RemoteTasksCommon;
 using KLogMonitor;
 using System.Reflection;
@@ -29,33 +21,49 @@ namespace RemoteTasksService
 
             try
             {
-                string actionImplementation = string.Empty;
-                string requestId = string.Empty;
+                var actionImplementation = string.Empty;
+                var requestId = string.Empty;
                 if (request != null)
                 {
                     // update request ID
-                    if (ExtractRequestID(request.data, ref requestId))
-                        if (!KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId))
-                            log.ErrorFormat("Error while trying to update request ID. request: {0}, req_id: {1}", JsonConvert.SerializeObject(request), requestId);
-
+                    if (ExtractRequestID(request.data, ref requestId) && !KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(Constants.REQUEST_ID_KEY, requestId))
+                    {
+                        log.Error($"Error while trying to update request ID. request: {JsonConvert.SerializeObject(request)}, req_id: {requestId}.");
+                    }
+                        
                     // extract action if exists
                     if (!string.IsNullOrEmpty(request.data))
+                    {
                         ExtractActionImplementation(request.data, ref actionImplementation);
+                    }
                 }
 
                 log.DebugFormat("Info - Add Task Request Started: {0}, requestId:{1}, data: {2}", request.task, requestId, request.data);
 
                 // get task handler name (with/without action)
-                string taskHandlerName = string.Empty;
+                var taskHandlerPath = string.Empty;
                 if (string.IsNullOrEmpty(actionImplementation))
-                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(request.task);
+                {
+                    taskHandlerPath = request.task;
+                }
                 else
-                    taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler($"{request.task}.{actionImplementation}");
+                {
+                    taskHandlerPath = $"{request.task}.{actionImplementation}";
+                }
+                    
+                var taskHandlerName = ApplicationConfiguration.CeleryRoutingConfiguration.GetHandler(taskHandlerPath);
+                if (string.IsNullOrEmpty(taskHandlerName))
+                {
+                    response.status = "failure";
+                    response.reason = $"TaskHandler '{taskHandlerPath}' does not exist in TCM configuration";
+                    log.Error($"AddTask fail because {response.reason}.");
+                    return response;
+                }
 
-                log.Debug("Info - " + string.Format("Request: {0} should be handled by taskHandlerName: {1}", request.task, string.IsNullOrEmpty(taskHandlerName) ? string.Empty : taskHandlerName));
+                log.Debug($"Info - Request: {request.task} should be handled by taskHandlerName: {taskHandlerName}.");
 
                 var taskHandlerType = Type.GetType($"{taskHandlerName}.TaskHandler, {taskHandlerName}");
-                ITaskHandler taskHandler = (ITaskHandler)Activator.CreateInstance(taskHandlerType);
+                var taskHandler = (ITaskHandler)Activator.CreateInstance(taskHandlerType);
 
                 response.retval = taskHandler.HandleTask(request.data);
                 response.status = "success";
@@ -65,7 +73,6 @@ namespace RemoteTasksService
             catch (Exception ex)
             {
                 log.Error("Error - Add Task Request Failed", ex);
-
                 response.status = "failure";
                 response.reason = ex.Message;
             }
