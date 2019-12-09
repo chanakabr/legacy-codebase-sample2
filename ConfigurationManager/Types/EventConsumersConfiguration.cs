@@ -13,80 +13,40 @@ namespace ConfigurationManager
 
         public override string[] TcmPath => new string[] { TcmKey };
 
-        private static readonly ConsumerSettings consumerDefaultSettings = new ConsumerSettings();
 
-        public BaseValue<ConsumerSettings> ConsumerSettings = new BaseValue<ConsumerSettings>(TcmObjectKeys.EventConsumersConfiguration,consumerDefaultSettings);
+        private static readonly List<ConsumerDefinition> defaultConsumerSettings = new List<ConsumerDefinition>() {new ConsumerDefinition(){
+            DllLocation = "bin\\WebAPI.dll",
+            Type = "WebAPI.RestNotificationEventConsumer"}
+        };
 
-        public override void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)
+        public BaseValue<List<ConsumerDefinition>> ConsumerSettings = new BaseValue<List<ConsumerDefinition>>(TcmObjectKeys.ConsumerSettings, defaultConsumerSettings);
+
+
+    }
+
+
+
+
+
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ConsumerDefinition
+    {
+        [JsonProperty("DllLocation")]
+        public string DllLocation
         {
-            try
-            {
-                if (token == null)
-                {
-                    _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
-                    return;
-                }
-                var res = JsonConvert.DeserializeObject<ConsumerSettings>(token.ToString());
-                if (res == null)
-                {
-                    _Logger.Info($"Empty data in TCM under object:  [{GetType().Name}]  for key [{TcmKey}], setting default value as actual value");
-                }
-                if (res != null)
-                {
-                    SetActualValue(defaultData as BaseValue<ConsumerSettings>, res);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _Logger.Error(string.Format("Could not parse event consumers configuration. Error = {0}", ex));
-            }
+            get;
+            set;
         }
 
+        [JsonProperty("Type")]
+        public string Type
+        {
+            get;
+            set;
+        }
     }
 
-
-}
-
-
-[Serializable]
-[JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-public class ConsumerSettings
-{
-    public ConsumerSettings()
-    {
-        Consumers = new List<ConsumerDefinition>() { new ConsumerDefinition() };
-    }
-    [JsonProperty("Consumers")]
-    public List<ConsumerDefinition> Consumers
-    {
-        get;
-        set;
-    }
-
-}
-
-[Serializable]
-[JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-public class ConsumerDefinition
-{
-    public ConsumerDefinition()
-    {
-        DllLocation = "bin\\WebAPI.dll";
-        Type = "WebAPI.RestNotificationEventConsumer";
-    }
-    [JsonProperty("DllLocation")]
-    public string DllLocation
-    {
-        get;
-        set;
-    }
-
-    [JsonProperty("Type")]
-    public string Type
-    {
-        get;
-        set;
-    }
 }
 
