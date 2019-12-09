@@ -32,7 +32,7 @@ namespace ConfigurationManager
             Catalog = new ConfigurationManager.CatalogWebServiceConfiguration("Catalog", "http://webservices/catalog/service.svc");
         }
 
-        public override string TcmKey => "WebServices";
+        public override string TcmKey => TcmObjectKeys.WebServicesConfiguration;
 
         public override string[] TcmPath => new[] { TcmKey };
     }
@@ -52,7 +52,7 @@ namespace ConfigurationManager
         }
 
 
-        public override string[] TcmPath => new[] { "WebServices", TcmKey };
+        public override string[] TcmPath => new[] { TcmObjectKeys.WebServicesConfiguration, TcmKey };
     }
 
     public class CatalogWebServiceConfiguration : WebServiceConfiguration

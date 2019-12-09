@@ -63,6 +63,7 @@
         public const string EventConsumersConfiguration = "ConsumerSettings";
         public const string ConsumerSettings = "Consumers";
         public const string LayeredCacheConfigurationValidation = "LayeredCache";
+        public const string WebServicesConfiguration = "WebServices";
     }
 }
 

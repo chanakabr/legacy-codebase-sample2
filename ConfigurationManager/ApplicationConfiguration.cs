@@ -18,9 +18,10 @@ namespace ConfigurationManager
         }
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
+        /*Todo: Remote Task more work todo*/
 
 
-        public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
+        public BaseValue<string> ExcludeTemplatesImplementation =  new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
         public BaseValue<string> UseOldImageServer = new BaseValue<string>("USE_OLD_IMAGE_SERVER", "0", true, "Group Ids, split by ';', that wish to use old image server");
         public BaseValue<string> DMSAdapterUrl = new BaseValue<string>("DMS_ADAPTER_URL", null);
@@ -111,7 +112,6 @@ namespace ConfigurationManager
         public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
         public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
         public UsersCacheConfiguration UsersCacheConfiguration = new UsersCacheConfiguration();
-        /*Todo: Remote Task more work todo*/public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ImageResizerConfiguration ImageResizerConfiguration = new ImageResizerConfiguration();
         public FtpApiServerConfiguration FtpApiServerConfiguration = new FtpApiServerConfiguration();
         public HttpClientConfiguration HttpClientConfiguration = new HttpClientConfiguration();
@@ -149,6 +149,7 @@ namespace ConfigurationManager
         public CouchbaseSectionMapping CouchbaseSectionMapping = new CouchbaseSectionMapping();
         public CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
+        public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
 
         public static void Init()
         {
