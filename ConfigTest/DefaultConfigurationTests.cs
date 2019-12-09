@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ConfigurationManager;
-using Newtonsoft.Json.Linq;
 using System.Text;
 
 namespace Tests.ConfigTest
@@ -13,26 +12,19 @@ namespace Tests.ConfigTest
     [TestClass]
     public class DefaultConfigurationTests
     {
-        /*        [ClassInitialize]
-                public static void ClassInit(TestContext context)
-
-                {
-                //    TCMClient.Settings.Instance.Init();
-                }*/
-
-
 
         [TestMethod]
         public void Test_AllConfigurationSettingsMustHaveDefultValue()
         {
+
             ApplicationConfiguration configuration = ApplicationConfiguration.Current;
             Type type = typeof(ApplicationConfiguration);
-            TestIfConainNullDefaultValue(type, configuration);
-
+            var result = TestIfConainNullDefaultValue(type, configuration);
+            Assert.IsTrue(result);
 
         }
 
-        private void TestIfConainNullDefaultValue(Type type, IBaseConfig baseConfig)
+        private bool TestIfConainNullDefaultValue(Type type, IBaseConfig baseConfig)
         {
             bool result = true;
             StringBuilder sb = new StringBuilder();
@@ -43,7 +35,6 @@ namespace Tests.ConfigTest
                 object baseValueData = field.GetValue(baseConfig);
                 if (baseValueData == null)
                 {
-                    // Assert.Fail($"{baseConfig.ToString()} contains null object");
                     sb.AppendLine($"object [{type.Name}] holds null objcet {field.Name}");
                     result = false;
                 }
@@ -54,7 +45,6 @@ namespace Tests.ConfigTest
                     
                     if (value == null || string.IsNullOrEmpty(value.ToString()) )
                     {
-                        //Assert.Fail($"{baseConfig.ToString()} contains key with null default value");
                         sb.AppendLine($"object [{type.Name}] holds null default value [{field.Name}], Json key [{key}]");
                         result = false;
                     }
@@ -63,7 +53,6 @@ namespace Tests.ConfigTest
                         if (res == -1)
                         {
                             sb.AppendLine($"object [{type.Name}] integer problem, Json key [{key}]");
-                            //Assert.Fail($"{baseConfig.ToString()} contains key with null default value");
                             result = false;
                         }
                     }
@@ -80,12 +69,12 @@ namespace Tests.ConfigTest
                 else
                 {
                     result = false;
-                    Assert.Fail($"{baseConfig.ToString()} contains unkown param");
+                    sb.AppendLine($"{baseConfig.ToString()} contains unkown param");
                 }
             }
-
-            Console.Out.WriteLine(sb.ToString());
-           // Assert.IsTrue(result);
+            Console.Out.Write(sb.ToString());
+            return result;
+           
         }
 
 
@@ -103,14 +92,5 @@ namespace Tests.ConfigTest
             return false;
         }
 
-/*        [TestMethod]
-        public void InitConfigurationUsingReflection()
-        {
-
-            var type = typeof(ApplicationConfiguration);
-            var baseConfig = Activator.CreateInstance(type);
-
-            var k = ApplicationConfiguration.Current.MetaFeaturesPattern.Value;
-        }*/
     }
 }
