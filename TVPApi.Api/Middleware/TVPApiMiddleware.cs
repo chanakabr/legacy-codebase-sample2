@@ -30,10 +30,11 @@ namespace TVPApi.Web.Middleware
         public static IApplicationBuilder UseTvpApi(this IApplicationBuilder app)
         {
             app.UseCoreConcurrencyLimiter();
+            app.UseApiExceptionHandler();
             app.UseKloggerSessionIdBuilder();
             app.UseKlogerMonitor();
+            app.UseRequestLogger();
             app.EnablePublicCors();
-            app.UseApiExceptionHandler();
             app.UseMiddleware<TVPApiRequestExecutor>();
 
             return app;

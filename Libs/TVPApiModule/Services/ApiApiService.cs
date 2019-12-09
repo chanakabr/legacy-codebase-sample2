@@ -45,7 +45,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetGroupOperators, Error Message: {0}", ex.Message);
+                logger.ErrorFormat("Error calling webservice protocol : GetGroupOperators, Error Message: {0}", ex);
             }
 
             return response;
@@ -80,7 +80,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetOperators, Error Message: {0}, Parameters : operators: {1}", ex.Message,
+                logger.ErrorFormat("Error calling webservice protocol : GetOperators, Error Message: {0}, Parameters : operators: {1}", ex,
                     string.Join(",", operatorIds.Select(x => x.ToString()).ToArray()));
             }
 
@@ -100,7 +100,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : GetMediaMark, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex, iMediaID, sSiteGuid);
             }
 
             return mediaMark;
@@ -118,7 +118,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : AddUserSocialAction, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, iMediaID, sSiteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : AddUserSocialAction, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex, iMediaID, sSiteGuid);
             }
 
             return bRet;
@@ -136,7 +136,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : RateMedia, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex.Message, mediaId, siteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : RateMedia, Error Message: {0}, Parameters :  Media ID: {1}, User id: {2}", ex, mediaId, siteGuid);
             }
 
             return res;
@@ -154,7 +154,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : CheckGEOBlock, Error Message: {0}, Parameters :  Media ID: {1}, User ID: {2}", ex.Message, iMediaID, SiteHelper.GetClientIP());
+                logger.ErrorFormat("Error calling webservice protocol : CheckGEOBlock, Error Message: {0}, Parameters :  Media ID: {1}, User ID: {2}", ex, iMediaID, SiteHelper.GetClientIP());
             }
             return geo;
         }
@@ -173,7 +173,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling web service protocol : GetEPGChannel, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
+                logger.ErrorFormat("Error calling web service protocol : GetEPGChannel, Error Message: {0}, IP: {1}", ex, SiteHelper.GetClientIP());
             }
             return objEPGRes;
         }
@@ -187,7 +187,7 @@ namespace TVPApiModule.Services
         //    }
         //    catch (Exception ex)
         //    {
-        //        logger.ErrorFormat("Error calling web service protocol : GetEPGChannelProgrammeByDates, Error Message: {0}, IP: {1}", ex.Message, SiteHelper.GetClientIP());
+        //        logger.ErrorFormat("Error calling web service protocol : GetEPGChannelProgrammeByDates, Error Message: {0}, IP: {1}", ex, SiteHelper.GetClientIP());
         //    }
         //    return objEPGRes;
         //}
@@ -201,7 +201,7 @@ namespace TVPApiModule.Services
         //    }
         //    catch (Exception ex)
         //    {
-        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, sChannelID, SiteHelper.GetClientIP());
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGChannelProgramme, Error Message: {0}, ChannelID: {1}, IP: {2}", ex, sChannelID, SiteHelper.GetClientIP());
         //    }
         //    return objEPGProgramRes;
         //}
@@ -216,7 +216,7 @@ namespace TVPApiModule.Services
         //    }
         //    catch (Exception ex)
         //    {
-        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGMultiChannelProgram, Error Message: {0}, ChannelID: {1}, IP: {2}", ex.Message, string.Join(",", sEPGChannelID), SiteHelper.GetClientIP());
+        //        logger.ErrorFormat("Error calling webservice protocol : GetEPGMultiChannelProgram, Error Message: {0}, ChannelID: {1}, IP: {2}", ex, string.Join(",", sEPGChannelID), SiteHelper.GetClientIP());
         //    }
         //    return objEPGProgramRes;
         //}
@@ -234,7 +234,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetGroupMediaRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}", ex.Message, MediaId, siteGuid, SiteHelper.GetClientIP());
+                logger.ErrorFormat("Error calling webservice protocol : GetGroupMediaRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}", ex, MediaId, siteGuid, SiteHelper.GetClientIP());
             }
             return res;
         }
@@ -252,7 +252,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetGroupRules, Error Message: {0}, Parameters", ex.Message);
+                logger.ErrorFormat("Error calling webservice protocol : GetGroupRules, Error Message: {0}, Parameters", ex);
             }
             return res;
         }
@@ -270,7 +270,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserGroupRules, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : GetUserGroupRules, Error Message: {0}, Parameters : {1}", ex, siteGuid);
             }
             return res;
         }
@@ -287,7 +287,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SetUserGroupRule, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : SetUserGroupRule, Error Message: {0}, Parameters : {1}", ex, siteGuid);
             }
             return res;
         }
@@ -304,7 +304,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : CheckParentalPIN, Error Message: {0}, Parameters : {1}", ex.Message, siteGuid);
+                logger.ErrorFormat("Error calling webservice protocol : CheckParentalPIN, Error Message: {0}, Parameters : {1}", ex, siteGuid);
             }
             return res;
         }
@@ -335,7 +335,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetAutoCompleteList, Error Message: {0}, Parameters : prefix {1}", ex.Message, prefix);
+                logger.ErrorFormat("Error calling webservice protocol : GetAutoCompleteList, Error Message: {0}, Parameters : prefix {1}", ex, prefix);
             }
             return res;
         }
@@ -353,7 +353,7 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SetRuleState, Error Message: {0}, Parameters : siteGuid = {1}, domainID = {2}, ruleID = {3}, isActive = {4}",
-                    ex.Message, siteGuid, domainID, ruleID, isActive);
+                    ex, siteGuid, domainID, ruleID, isActive);
             }
             return res;
         }
@@ -371,7 +371,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainGroupRules, Error Message: {0}, Parameters : domainID: {1}", ex.Message, domainID);
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainGroupRules, Error Message: {0}, Parameters : domainID: {1}", ex, domainID);
             }
             return res;
         }
@@ -389,7 +389,7 @@ namespace TVPApiModule.Services
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error calling webservice protocol : SetDomainGroupRule, Error Message: {0}, Parameters : domainID: {1}, ruleID: {2}, PIN: {3} isActive: {4}",
-                    ex.Message, domainID, ruleID, PIN, isActive);
+                    ex, domainID, ruleID, PIN, isActive);
             }
             return res;
         }
@@ -407,7 +407,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}, ProgramID: {4}", ex.Message, MediaId, siteGuid, IP, programId);
+                logger.ErrorFormat("Error calling webservice protocol : GetEPGProgramRules, Error Message: {0}, Parameters :  MediaId: {1}, siteGuid: {2}, clientIP: {3}, ProgramID: {4}", ex, MediaId, siteGuid, IP, programId);
             }
             return res;
         }
@@ -424,7 +424,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetUserStartedWatchingMedias, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex.Message, siteGuid, SiteHelper.GetClientIP());
+                logger.ErrorFormat("Error calling webservice protocol : GetUserStartedWatchingMedias, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex, siteGuid, SiteHelper.GetClientIP());
             }
             return res;
         }
@@ -449,7 +449,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : CleanUserHistory, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex.Message, siteGuid, SiteHelper.GetClientIP());
+                logger.ErrorFormat("Error calling webservice protocol : CleanUserHistory, Error Message: {0}, Parameters :  siteGuid: {2}, clientIP: {3}", ex, siteGuid, SiteHelper.GetClientIP());
             }
             return res;
         }
@@ -466,7 +466,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : SendToFriend, Error Message: {0}, Parameters :  senderName: {1}, senderMail: {2}, mailTo: {3}, nameTo: {4}, mediaID: {5}", ex.Message, senderName, senderMail, mailTo, nameTo, mediaID);
+                logger.ErrorFormat("Error calling webservice protocol : SendToFriend, Error Message: {0}, Parameters :  senderName: {1}, senderMail: {2}, mailTo: {3}, nameTo: {4}, mediaID: {5}", ex, senderName, senderMail, mailTo, nameTo, mediaID);
             }
             return res;
         }
