@@ -64,6 +64,8 @@
         public const string ConsumerSettings = "Consumers";
         public const string LayeredCacheConfigurationValidation = "LayeredCache";
         public const string WebServicesConfiguration = "WebServices";
+        public const string ElasticSearchHttpClientConfiguration = "elastic_search_http_client_configuration";
+        public const string NPVRHttpClientConfiguration = "npvr_http_client_configuration";
     }
 }
 

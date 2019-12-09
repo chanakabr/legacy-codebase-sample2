@@ -1030,6 +1030,26 @@ namespace ElasticSearch.Searcher
 
                 #endregion
 
+                #region ObjectVirtualAsset
+
+                // region ObjectVirtualAsset 
+                if ((SearchDefinitions.ksqlAssetTypes?.Count == 0 || SearchDefinitions.ksqlAssetTypes.Contains("media"))
+                    && SearchDefinitions.mediaTypes?.Count == 0 
+                    && SearchDefinitions.ObjectVirtualAssetIds?.Count > 0)
+                {
+                    ESTerms objectVirtualAssetIds = new ESTerms(true)
+                    {
+                        Key = "media_type_id",
+                        isNot = true
+                    };
+
+                    objectVirtualAssetIds.Value.AddRange(SearchDefinitions.ObjectVirtualAssetIds.Select( x=>x.ToString()));
+                    
+                    mediaFilter.AddChild(objectVirtualAssetIds);
+                }
+
+                #endregion
+
             }
 
             // Recordings specific filters

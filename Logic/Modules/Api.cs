@@ -1,4 +1,5 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -805,11 +806,11 @@ namespace Core.Api
             return Core.Api.api.GetMediaConcurrencyRules(nMediaID, groupId, bmID, eType);
         }
 
-        public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy)
+        public static RegionsResponse GetRegions(int groupId, List<string> externalRegionList, RegionOrderBy orderBy, int pageIndex = 0, int pageSize = 0)
         {
             RegionsResponse response = null;
             RegionFilter filter = new RegionFilter() { ExternalIds = externalRegionList };
-            var regions = GetRegions(groupId, filter);
+            var regions = GetRegions(groupId, filter, pageIndex, pageSize);
             if (regions != null)
             {
                 response = new RegionsResponse();
@@ -1718,6 +1719,11 @@ namespace Core.Api
             return Core.Api.api.IncrementLayeredCacheGroupConfigVersion(groupId);
         }
 
+        public static Status ClearLocalServerCache(string action, string key)
+        {
+            return Core.Api.api.ClearLocalServerCache(action, key);
+        }
+
         public static bool DoActionRules(bool isSingleRun = false)
         {
             bool result = false;
@@ -2000,7 +2006,7 @@ namespace Core.Api
             return CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(key);
         }
 
-        public static GenericResponse<SegmentationType> AddSegmentationType(int groupId, SegmentationType segmentationType)
+        public static GenericResponse<SegmentationType> AddSegmentationType(int groupId, SegmentationType segmentationType, long userId)
         {
             GenericResponse<SegmentationType> response = segmentationType.ValidateForInsert();
             if (!response.IsOkStatusCode())
@@ -2018,6 +2024,20 @@ namespace Core.Api
                 }
                 else
                 {
+                    if (segmentationType?.Actions?.Count > 0)
+                    {
+                        var virtualAssetInfo = new VirtualAssetInfo()
+                        {
+                            Type = ObjectVirtualAssetInfoType.Segment,
+                            Id = segmentationType.Id,
+                            Name = segmentationType.Name,
+                            Description = segmentationType.Description,
+                            UserId = userId
+                        };
+
+                        api.AddVirtualAsset(groupId, virtualAssetInfo);
+                    }
+
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -2031,7 +2051,7 @@ namespace Core.Api
             return response;
         }
 
-        public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType)
+        public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType, long userId)
         {
             GenericResponse<SegmentationType> response = segmentationType.ValidateForUpdate();
             if (!response.IsOkStatusCode())
@@ -2049,6 +2069,17 @@ namespace Core.Api
                 }
                 else
                 {
+                    var virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Segment,
+                        Id = segmentationType.Id,
+                        Name = segmentationType.Name,
+                        Description = segmentationType.Description,
+                        UserId = userId
+                    };
+
+                    api.UpdateVirtualAsset(groupId, virtualAssetInfo);
+
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
@@ -2062,7 +2093,7 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteSegmentationType(int groupId, long id)
+        public static Status DeleteSegmentationType(int groupId, long id, long userId)
         {
             Status result = null;
             bool deleteResult = false;
@@ -2083,6 +2114,18 @@ namespace Core.Api
                 else
                 {
                     result = new Status();
+
+                    // Delete the virtual asset
+                    var virtualAssetInfo = new VirtualAssetInfo()
+                    {
+                        Type = ObjectVirtualAssetInfoType.Segment,
+                        Id = segmentationType.Id,
+                        Name = segmentationType.Name,
+                        Description = segmentationType.Description,
+                        UserId = userId
+                    };
+
+                    api.DeleteVirtualAsset(groupId, virtualAssetInfo);
                 }
             }
             catch (Exception ex)
@@ -2094,12 +2137,17 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
+                if(assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                {
+                    ids = api.GetObjectVirtualAssetIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);                    
+                }
+
                 int totalCount;
                 result.Objects = SegmentationType.List(groupId, ids, pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;
@@ -2281,18 +2329,18 @@ namespace Core.Api
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
         {
-            return api.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+            return PartnerConfigurationManager.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
         }
 
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
-            return api.GetGeneralPartnerConfiguration(groupId);
+            return PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
         }
 
         public static LanguageResponse GetAllLanguageList(int groupId)
         {
             LanguageResponse result = new LanguageResponse();
-            result.Languages = api.GetAllLanguages(groupId);
+            result.Languages = PartnerConfigurationManager.GetAllLanguages(groupId);
             if (result.Languages == null)
             {
                 result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2308,7 +2356,7 @@ namespace Core.Api
         public static CurrencyResponse GetCurrencyList(int groupId)
         {
             CurrencyResponse result = new CurrencyResponse();
-            result.Currencies = ConditionalAccess.Utils.GetCurrencyList(groupId);
+            result.Currencies = PartnerConfigurationManager.GetCurrencyList(groupId);
             if (result.Currencies == null)
             {
                 result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2382,9 +2430,19 @@ namespace Core.Api
             return ApiLogic.Api.Managers.RegionManager.DeleteRegion(groupId, id, userId);
         }
 
-        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter)
+        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex, int pageSize)
         {
-            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter);
+            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter, pageIndex, pageSize);
+        }
+
+        public static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
+        {
+            return PartnerConfigurationManager.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
+        }
+
+        public static GenericListResponse<ObjectVirtualAssetPartnerConfig> GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        {
+            return PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
         }
     }
 }

@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
 using ApiObjects.Epg;
+using ConfigurationManager;
 using KLogMonitor;
+using TVinciShared;
 
 namespace StreamingProvider
 {
     public class AlcatellLucentProvider : BaseLSProvider
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.NPVRHttpClientConfiguration);
 
         public AlcatellLucentProvider()
             : base()
@@ -160,7 +166,7 @@ namespace StreamingProvider
             try
             {
                 // request AlcatellLucentProvider for response (get XML to parse the url from it)
-                string sXml = TVinciShared.WS_Utils.SendXMLHttpReq(url, string.Empty, string.Empty, "text/xml; charset=utf-8", string.Empty, string.Empty, string.Empty, string.Empty, "get");
+                string sXml = SendGetXMLHttpReq(url);
                 if (!string.IsNullOrEmpty(sXml))
                 {
                     XmlDocument doc = new XmlDocument();
@@ -196,6 +202,38 @@ namespace StreamingProvider
                 log.Error("GetDynamicURL - " + string.Format("AlcatellLucent fail to get response from XMLHTTPREQUEST ex ={0}", ex.Message), ex);
                 return string.Empty;
             }
+        }
+
+        public static string SendGetXMLHttpReq(string url)
+        {
+            HttpMethod method = HttpMethod.Get;
+
+            HttpRequestMessage request = new HttpRequestMessage(method, url)
+            {
+                Content = new StringContent(string.Empty, Encoding.UTF8, "text/xml; charset=utf-8")
+            };
+
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/xml"));
+
+            try
+            {
+                using (var response = httpClient.SendAsync(request).ExecuteAndWait())
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        log.Error($"XML Http request not successful. url = {url}, status = {response.StatusCode}");
+                    }
+
+                    response.EnsureSuccessStatusCode();
+                    return response.Content.ReadAsStringAsync().ExecuteAndWait();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when sending XML http request. url = {url} ex={ex}");
+            }
+
+            return string.Empty;
         }
 
         private string GetDateFormat(DateTime dateTime, string formatDate)

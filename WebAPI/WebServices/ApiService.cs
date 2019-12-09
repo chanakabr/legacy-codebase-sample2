@@ -4273,6 +4273,23 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
+        public Status ClearLocalServerCache(string sWSUserName, string sWSPassword, string action = "clear_all", string key = "")
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                response = Core.Api.Module.ClearLocalServerCache(action, key);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        [WebMethod]
         public ApiObjects.DrmAdapterResponse SendDrmAdapterConfiguration(string sWSUserName, string sWSPassword, int adapterID)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);

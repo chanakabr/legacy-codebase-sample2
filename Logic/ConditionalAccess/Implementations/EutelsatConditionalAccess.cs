@@ -552,27 +552,29 @@ namespace Core.ConditionalAccess
 
         public static EutelsatTransactionResponse MakeJsonRequest(Uri requestUri, string wsUsername, string wsPassword, string jsonContent = "")
         {
-            try
-            {
-                string sRes = TVinciShared.WS_Utils.SendXMLHttpReq(requestUri.OriginalString, jsonContent, "", "application/json", "UserName", wsUsername, "Password", wsPassword);
-                object objResponse = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(EutelsatTransactionResponse));
+            throw new NotImplementedException();
 
-                return (EutelsatTransactionResponse)objResponse;
-            }
-            catch (Exception ex)
-            {
-                #region Logging
-                StringBuilder sb = new StringBuilder("Exception at MakeJsonRequest. ");
-                sb.Append(String.Concat(" Msg: ", ex.Message));
-                sb.Append(String.Concat(" Req URI: ", requestUri != null ? requestUri.OriginalString : "null"));
-                sb.Append(String.Concat(" JSON: ", jsonContent));
-                sb.Append(String.Concat(" Trace: ", ex.StackTrace));
+            //try
+            //{
+            //    string sRes = TVinciShared.WS_Utils.SendXMLHttpReq(requestUri.OriginalString, jsonContent, "", "application/json", "UserName", wsUsername, "Password", wsPassword);
+            //    object objResponse = Newtonsoft.Json.JsonConvert.DeserializeObject(sRes, typeof(EutelsatTransactionResponse));
 
-                log.Error("MakeJsonRequest - " + sb.ToString(), ex);
-                #endregion
-            }
+            //    return (EutelsatTransactionResponse)objResponse;
+            //}
+            //catch (Exception ex)
+            //{
+            //    #region Logging
+            //    StringBuilder sb = new StringBuilder("Exception at MakeJsonRequest. ");
+            //    sb.Append(String.Concat(" Msg: ", ex.Message));
+            //    sb.Append(String.Concat(" Req URI: ", requestUri != null ? requestUri.OriginalString : "null"));
+            //    sb.Append(String.Concat(" JSON: ", jsonContent));
+            //    sb.Append(String.Concat(" Trace: ", ex.StackTrace));
 
-            return null;
+            //    log.Error("MakeJsonRequest - " + sb.ToString(), ex);
+            //    #endregion
+            //}
+
+            //return null;
         }
 
 

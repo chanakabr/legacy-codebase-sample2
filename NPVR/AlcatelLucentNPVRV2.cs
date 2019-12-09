@@ -148,7 +148,7 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -202,7 +202,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -252,7 +252,7 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -307,7 +307,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -362,7 +362,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -415,7 +415,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -469,7 +469,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -525,7 +525,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -648,7 +648,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -700,7 +700,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -774,7 +774,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -828,7 +828,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         // parse here json
                         if (httpStatusCode == HTTP_STATUS_OK)
@@ -881,7 +881,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -950,7 +950,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -1013,7 +1013,7 @@ namespace NPVR
                         headersToAdd = new Dictionary<string, string>() { { ALU_X_KDATA, args.XkData } };
                     }
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, headersToAdd))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, headersToAdd))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -1084,7 +1084,7 @@ namespace NPVR
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
@@ -1133,7 +1133,7 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (HttpUtils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {

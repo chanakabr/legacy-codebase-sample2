@@ -437,7 +437,18 @@ namespace WebAPI.Managers
             List<string> groupFeatures = ClientsManager.ApiClient().GetGroupFeatures(groupId);
             if (groupFeatures?.Count > 0)
             {
-                return groupFeatures.Count(x => permissionItemsToFeaturesMap[key].Contains(x)) > 0;
+                bool result = groupFeatures.Count(x => permissionItemsToFeaturesMap[key].Contains(x)) > 0;
+
+                if (!result)
+                {
+                    log.Debug($"Group {groupId} does not have relevant feature for {key}");
+                }
+
+                return result;
+            }
+            else
+            {
+                log.Debug($"Group {groupId} has no features.");
             }
 
             return false;

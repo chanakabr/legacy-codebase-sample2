@@ -1,0 +1,13 @@
+﻿namespace ApiObjects
+{
+    public class ObjectVirtualAssetInfo
+    {
+        public int AssetStructId { get; set; }
+
+        public int MetaId { get; set; }
+
+        public ObjectVirtualAssetInfoType Type { get; set; }
+    }
+
+    public enum ObjectVirtualAssetInfoType { Subscription = 0, Segment = 1 }
+}

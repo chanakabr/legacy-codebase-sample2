@@ -114,6 +114,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_GENERAL_PARTNER_CONFIG = "GetGeneralPartnerConfig";
         public const string GET_GROUP_COLLECTIONS = "GetCollectionsIds";
         public const string GET_GROUP_SUBSCRIPTION = "GetSubscriptionIds";
+        public const string GET_OBJECT_VIRTUAL_ASSET_PARTNER_CONFIG = "GetObjectVirtualAssetPartnerConfig";
 
         #endregion
 

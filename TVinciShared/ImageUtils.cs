@@ -9,7 +9,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Web;
 
@@ -21,6 +21,7 @@ namespace TVinciShared
     public class ImageUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
         public ImageUtils()
         {
@@ -444,10 +445,10 @@ namespace TVinciShared
 
         public static string DownloadWebImage(string sURL, string sDirectory)
         {
-            log.Debug("File downloaded - Start Download Url:" + " " + sURL);
+            log.Debug($"File downloaded - Start Download Url: {sURL}");
             try
             {
-                string sBasePath = "";
+                var sBasePath = "";
                 if (string.IsNullOrEmpty(sDirectory))
                 {
                     if (HttpContext.Current != null)
@@ -456,7 +457,7 @@ namespace TVinciShared
                     {
                         if (!string.IsNullOrEmpty(AppDomain.CurrentDomain.BaseDirectory))
                         {
-                            sBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"bin");
+                            sBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
                         }
                         else
                             sBasePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -468,10 +469,11 @@ namespace TVinciShared
                 {
                     sBasePath = sDirectory;
                 }
+
                 char[] delim = { '/' };
-                Uri uri = new Uri(sURL);
-                string[] splited = sURL.Split(delim);
-                string sPicBaseName = splited[splited.Length - 1];
+                var uri = new Uri(sURL);
+                var splited = sURL.Split(delim);
+                var sPicBaseName = splited[splited.Length - 1];
                 if (sPicBaseName.IndexOf("?") != -1 && sPicBaseName.IndexOf("uuid") != -1)
                 {
                     Int32 nStart = sPicBaseName.IndexOf("uuid=", 0) + 5;
@@ -482,30 +484,22 @@ namespace TVinciShared
                         sPicBaseName = sPicBaseName.Substring(nStart);
                     sPicBaseName += ".jpg";
                 }
-                string sTmpImage = sBasePath + "/pics/" + sPicBaseName;
+                var sTmpImage = $"{sBasePath}/pics/{sPicBaseName}";
 
-                HttpWebRequest httpRequest = (HttpWebRequest)HttpWebRequest.Create(uri);
-                HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 
-                using (Stream inputStream = httpResponse.GetResponseStream())
-                using (Stream outputStream = File.OpenWrite(sTmpImage))
+                using (var httpResponse = httpClient.GetAsync(uri).ExecuteAndWait())
+                using (var webImgStream = httpResponse.Content.ReadAsStreamAsync().ExecuteAndWait())
+                using (var fileImgStream = File.OpenWrite(sTmpImage))
                 {
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    do
-                    {
-                        bytesRead = inputStream.Read(buffer, 0, buffer.Length);
-                        outputStream.Write(buffer, 0, bytesRead);
-                    } while (bytesRead != 0);
+                    webImgStream.CopyTo(fileImgStream);
                 }
-                httpResponse.Close();
 
-                log.Debug("File downloaded - Url:" + " " + sURL + " " + "File:" + " " + sPicBaseName);
+                log.Debug($"File downloaded - Url: {sURL} File: {sPicBaseName}");
                 return sPicBaseName;
             }
             catch (Exception ex)
             {
-                log.Error("Exception - " + sURL + " " + ex.Message + " " + ex.InnerException, ex);
+                log.Error($"Exception - {sURL} {ex.Message} {ex.InnerException}", ex);
                 return "";
             }
         }
@@ -695,7 +689,7 @@ namespace TVinciShared
             }
             return imageServerUrl;
         }
-        
+
         /// <summary>
         /// build image URL. 
         /// template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
@@ -794,27 +788,23 @@ namespace TVinciShared
 
         public static bool IsUrlExists(string url)
         {
-            HttpWebResponse response = null;
-
             try
             {
-                var request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "HEAD";
-                response = (HttpWebResponse)request.GetResponse();
-                //log.Debug("URL validated" + url);
-                return true;
-            }
-            catch (WebException)
-            {
-                log.Error("URL wasn't found" + url);
-                return false;
-            }
-            finally
-            {
-                if (response != null)
+                var req = new HttpRequestMessage(HttpMethod.Head, url);
+                using (var response = httpClient.SendAsync(req).ExecuteAndWait())
                 {
-                    response.Close();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        log.Error($"URL wasn't found status: {response?.StatusCode} url: {url}");
+                    }
+
+                    return response.IsSuccessStatusCode;
                 }
+            }
+            catch (Exception)
+            {
+                log.Error($"ImageUtils > Failed sending HEAD request url: {url}");
+                return false;
             }
         }
 

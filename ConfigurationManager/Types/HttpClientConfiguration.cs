@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace ConfigurationManager.Types
 {
-    public class HttpClientConfiguration : BaseConfig<HttpClientConfiguration>
+    public abstract class BaseHttpClientConfiguration : BaseConfig<BaseHttpClientConfiguration>
     {
         public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server",5,true,"The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
         public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation",false,true,"Indicates whether the certificate is checked against the certificate authority revocation list");
@@ -13,9 +13,7 @@ namespace ConfigurationManager.Types
         public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,Gzip",true,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
         public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout",100000,true,"The timeout in milliseconds for the HttpClient");
 
-        public override string TcmKey => TcmObjectKeys.HttpClientConfiguration;
-
-        public override string[] TcmPath => new string [] {TcmKey};
+      
 
         protected override bool Validate()
         {
@@ -177,5 +175,29 @@ namespace ConfigurationManager.Types
 
             return DecompressionMethods;
         }
+    }
+
+
+
+    public class HttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.HttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+    }
+
+    public class ElasticSearchHttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.ElasticSearchHttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
+    }
+
+
+    public class NPVRHttpClientConfiguration : BaseHttpClientConfiguration
+    {
+        public override string TcmKey => TcmObjectKeys.NPVRHttpClientConfiguration;
+
+        public override string[] TcmPath => new string[] { TcmKey };
     }
 }

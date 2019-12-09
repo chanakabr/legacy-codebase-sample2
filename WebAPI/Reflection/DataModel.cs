@@ -3856,6 +3856,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaObjectVirtualAssetInfo":
+                    switch(property.Name)
+                    {
+                        case "AssetStructId":
+                            return "assetStructId";
+                        case "MetaId":
+                            return "metaId";
+                        case "Type":
+                            return "type";
+                    }
+                    break;
+                    
+                case "KalturaObjectVirtualAssetPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "ObjectVirtualAssets":
+                            return "objectVirtualAssets";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
@@ -5127,6 +5147,8 @@ namespace WebAPI.Reflection
                             return "liveAssetIdEqual";
                         case "ParentIdEqual":
                             return "parentIdEqual";
+                        case "ParentOnly":
+                            return "parentOnly";
                     }
                     break;
                     
@@ -5425,6 +5447,8 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -5971,6 +5995,8 @@ namespace WebAPI.Reflection
                             return "couponGroupIdEqual";
                         case "ExternalIdIn":
                             return "externalIdIn";
+                        case "Ksql":
+                            return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
                         case "SubscriptionIdIn":
@@ -9432,7 +9458,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("region", "list", false);
-                            return RegionController.List((KalturaRegionFilter) methodParams[0]);
+                            return RegionController.List((KalturaRegionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("region", "update", false);
@@ -9810,6 +9836,10 @@ namespace WebAPI.Reflection
                 case "system":
                     switch(action)
                     {
+                        case "clearlocalservercache":
+                            RolesManager.ValidateActionPermitted("system", "clearLocalServerCache", false);
+                            return SystemController.ClearLocalServerCache((string) methodParams[0], (string) methodParams[1]);
+                            
                         case "getcountry":
                             RolesManager.ValidateActionPermitted("system", "getCountry", false);
                             return SystemController.GetCountry((string) methodParams[0]);
@@ -9823,6 +9853,10 @@ namespace WebAPI.Reflection
                             
                         case "getversion":
                             return SystemController.GetVersion();
+                            
+                        case "incrementlayeredcachegroupconfigversion":
+                            RolesManager.ValidateActionPermitted("system", "incrementLayeredCacheGroupConfigVersion", false);
+                            return SystemController.IncrementLayeredCacheGroupConfigVersion((int) methodParams[0]);
                             
                         case "ping":
                             return SystemController.Ping();
@@ -16715,6 +16749,13 @@ namespace WebAPI.Reflection
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegionFilter),
                             });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
                             return ret;
                             
                         case "update":
@@ -17506,6 +17547,21 @@ namespace WebAPI.Reflection
                 case "system":
                     switch(action)
                     {
+                        case "clearlocalservercache":
+                            ret.Add("action", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
                         case "getcountry":
                             ret.Add("ip", new MethodParam(){
                                 NewName = newParamName,
@@ -17522,6 +17578,15 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "getversion":
+                            return ret;
+                            
+                        case "incrementlayeredcachegroupconfigversion":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
                             return ret;
                             
                         case "ping":

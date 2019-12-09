@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
+using Polly;
+using Polly.Retry;
 
 namespace TCMClient
 {
@@ -276,18 +278,33 @@ namespace TCMClient
                 string tcmRequesturl = $"{m_URL}/{m_Application}/{m_Host}/{m_Environment}?app_id={m_AppID}&app_secret={m_AppSecret}";
                 _Logger.Info($"Issuing TCM (GET) [{tcmRequesturl}]");
 
-                var response = Task.Run(() => httpClient.GetAsync(tcmRequesturl)).ConfigureAwait(false).GetAwaiter().GetResult();
+                // GEN-533 - add retry mechanism
+                var policy = RetryPolicy
+                      .Handle<Exception>()
+                      .WaitAndRetry(3, retryAttempt =>
+                        TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time) =>
+                        {
+                            _Logger.Warn($"Error while trying to get TCM data {ex}");
+                            _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next retry");
+                        }
+                      );
 
-                _Logger.Info($"TCM Response Status: ({response.StatusCode})");
-
-                settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                string pathToLocalFile = getPathToLocalFile();
-
-                using (StreamWriter sw = new StreamWriter(pathToLocalFile))
+                policy.Execute(() =>
                 {
-                    sw.Write(settings);
+                    var response = Task.Run(() => httpClient.GetAsync(tcmRequesturl)).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    _Logger.Info($"TCM Response Status: ({response.StatusCode})");
+
+                    settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    string pathToLocalFile = getPathToLocalFile();
+
+                    using (StreamWriter sw = new StreamWriter(pathToLocalFile))
+                    {
+                        sw.Write(settings);
+                    }
                 }
+                );
             }
             catch (Exception e)
             {

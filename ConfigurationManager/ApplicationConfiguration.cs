@@ -150,6 +150,9 @@ namespace ConfigurationManager
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration();
+        public NPVRHttpClientConfiguration NPVRHttpClientConfiguration = new NPVRHttpClientConfiguration();
+        public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
+
 
         public static void Init()
         {
