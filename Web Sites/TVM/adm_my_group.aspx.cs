@@ -28,7 +28,12 @@ public partial class adm_my_group : System.Web.UI.Page
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                 groupManager.UpdateGroup(nGroupID);
 
-                LayeredCache.Instance.InvalidateKeys(new List<string>() { LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(DAL.UtilsDal.GetParentGroupID(nGroupID)) });
+                var parentGroupId = DAL.UtilsDal.GetParentGroupID(nGroupID);
+                LayeredCache.Instance.InvalidateKeys(new List<string>() 
+                { 
+                    LayeredCacheKeys.GroupManagerGetGroupInvalidationKey(parentGroupId),
+                    LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(parentGroupId)
+                });
             }
         }
     }
