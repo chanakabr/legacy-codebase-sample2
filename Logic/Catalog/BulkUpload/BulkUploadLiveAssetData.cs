@@ -26,7 +26,20 @@ namespace Core.Catalog
         {
             // We know for sure this should be a LiveAsset if not we want an exception here
             var liveAsset = (LiveAsset)bulkUploadObject;
+            var externalId = string.IsNullOrEmpty(liveAsset.CoGuid) ? null : liveAsset.CoGuid;
+            liveAsset.ExternalEpgIngestId = externalId;
+            liveAsset.EnableCatchUpState = TstvState.Inherited;
+            liveAsset.EnableCdvrState = TstvState.Inherited;
+            liveAsset.EnableRecordingPlaybackNonEntitledChannelState = TstvState.Inherited;
+            liveAsset.EnableStartOverState = TstvState.Inherited;
+            liveAsset.EnableTrickPlayState = TstvState.Inherited;
+            liveAsset.BufferCatchUp = 0;
+            liveAsset.BufferTrickPlay = 0;
+            liveAsset.ChannelType = LinearChannelType.Unknown;
 
+            var accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(this.GroupId);
+            liveAsset.FillEnabledAndBufferProperties(accountTstvSettings);
+            
             var bulkUploadAssetResult = new BulkUploadLiveAssetResult()
             {
                 Index = index,
@@ -34,8 +47,8 @@ namespace Core.Catalog
                 BulkUploadId = bulkUploadId,
                 Status = BulkUploadResultStatus.InProgress,
                 Type = liveAsset.MediaType != null && liveAsset.MediaType.m_nTypeID > 0 ? liveAsset.MediaType.m_nTypeID : (int?)null,
-                ExternalId = string.IsNullOrEmpty(liveAsset.CoGuid) ? null : liveAsset.CoGuid,
-                Object = bulkUploadObject
+                ExternalId = externalId,
+                Object = liveAsset
             };
 
             if (errorStatusDetails != null)

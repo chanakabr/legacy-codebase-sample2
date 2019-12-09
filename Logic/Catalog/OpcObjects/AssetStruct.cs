@@ -118,28 +118,6 @@ namespace Core.Catalog
             this.PluralName = string.Empty;
         }
 
-        // TODO SHIR - DELETE IF DONT NEED
-        //public AssetStruct(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, bool isPredefined, long? parentId,
-        //    long createDate, long updateDate, HashSet<string> features, long connectingMetaId, long connectedParentMetaId, string pluralName, bool isProgramAssetStruct, bool isLinearAssetStruct)
-        //{
-        //    this.Id = id;
-        //    this.Name = name;
-        //    this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
-        //    this.SystemName = systemName;
-        //    this.MetaIds = new List<long>();
-        //    this.IsPredefined = isPredefined;
-        //    this.ParentId = parentId;
-        //    this.CreateDate = createDate;
-        //    this.UpdateDate = updateDate;
-        //    this.AssetStructMetas = new Dictionary<long, AssetStructMeta>();
-        //    this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        //    this.ConnectingMetaId = connectingMetaId;
-        //    this.ConnectedParentMetaId = connectedParentMetaId;
-        //    this.PluralName = pluralName;
-        //    this.IsProgramAssetStruct = isProgramAssetStruct;
-        //    this.IsLinearAssetStruct = isLinearAssetStruct;
-        //}
-
         public AssetStruct(AssetStruct assetStructToCopy)
         {
             Copy(assetStructToCopy);

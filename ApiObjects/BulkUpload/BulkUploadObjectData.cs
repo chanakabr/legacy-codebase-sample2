@@ -7,7 +7,6 @@ using System.Reflection;
 
 namespace ApiObjects.BulkUpload
 {
-    // TODO SHIR REMOVE COMMENTS
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BulkUploadObjectData
@@ -22,8 +21,7 @@ namespace ApiObjects.BulkUpload
 
         public abstract IBulkUploadStructureManager GetStructureManager();
         public abstract Type GetObjectType();
-        // public abstract IBulkUploadObject CreateObjectInstance()
-
+        
         /// <summary>
         /// This creates a new bulk upload result that will display the details of a single item inside the entire bulk upload process
         /// </summary>
@@ -38,7 +36,7 @@ namespace ApiObjects.BulkUpload
 
         public IBulkUploadObject CreateObjectInstance()
         {
-            var bulkObject = Activator.CreateInstance(GetObjectType()) as IBulkUploadObject;//as mediaAsset;
+            var bulkObject = Activator.CreateInstance(GetObjectType()) as IBulkUploadObject;
             return bulkObject;
         }
     }
