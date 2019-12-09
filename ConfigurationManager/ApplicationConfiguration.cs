@@ -18,7 +18,7 @@ namespace ConfigurationManager
         }
 
         public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
-        /*Todo: Remote Task more work todo*/
+
 
 
         public BaseValue<string> ExcludeTemplatesImplementation =  new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
@@ -136,7 +136,6 @@ namespace ConfigurationManager
         public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
         public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
         public EutelsatSettings EutelsatSettings = new EutelsatSettings();
-        /* todo: RemoteTask!!! */ public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration(); 
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
         public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
         public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();
@@ -150,6 +149,7 @@ namespace ConfigurationManager
         public CouchbaseClientConfiguration CouchbaseClientConfiguration = new CouchbaseClientConfiguration();
         public AdaptersConfiguration AdaptersConfiguration = new AdaptersConfiguration();
         public CeleryRoutingConfiguration CeleryRoutingConfiguration = new CeleryRoutingConfiguration();
+        public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration();
 
         public static void Init()
         {

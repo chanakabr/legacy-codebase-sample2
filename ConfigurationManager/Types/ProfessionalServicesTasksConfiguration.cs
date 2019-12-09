@@ -1,27 +1,46 @@
 ﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ConfigurationManager
 {
     public class ProfessionalServicesTasksConfiguration : BaseConfig<ProfessionalServicesTasksConfiguration>
     {
-        public override string TcmKey => TcmObjectKeys.ProfessionalServicesTasksConfiguration;
+        public override string TcmKey => null;
 
-        public override string[] TcmPath => new string[] { TcmKey };
+        public override string[] TcmPath => null;
 
-        public ProfessionalServicesActionConfiguration ProfessionalServicesActionConfiguration = new ProfessionalServicesActionConfiguration();
+        private static readonly Dictionary<string, ProfessionalServicesActionConfiguration> defaultProfessionalServicesActionConfiguration = new Dictionary<string, ProfessionalServicesActionConfiguration>();
 
+
+        public BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>> ProfessionalServicesActionConfiguration = 
+            new BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>>(TcmObjectKeys.ProfessionalServicesTasksConfiguration, null);
     }
 
 
-        public class ProfessionalServicesActionConfiguration : BaseConfig<ProfessionalServicesActionConfiguration>
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class ProfessionalServicesActionConfiguration
+    {
+        [JsonProperty("DllLocation")]
+        public string DllLocation
         {
-
-            public BaseValue<string> DllLocation = new BaseValue<string>("DllLocation", null);
-            public BaseValue<string> Type = new BaseValue<string>("Type", null);
-
-            public override string TcmKey => TcmObjectKeys.ProfessionalServicesActionConfiguration;
-
-            public override string[] TcmPath => new string[] { TcmObjectKeys.ProfessionalServicesTasksConfiguration, TcmKey };
+            get;
+            set;
         }
-    
+
+        [JsonProperty("Type")]
+        public string Type
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("HandlerUrl")]
+        public string HandlerUrl
+        {
+            get;
+            set;
+        }
+    }
+
 }
