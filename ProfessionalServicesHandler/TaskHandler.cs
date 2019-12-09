@@ -1,22 +1,12 @@
 ﻿using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using TVinciShared;
-using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
-using ApiObjects.Response;
 using System.IO;
 using System.Net.Http;
 using ConfigurationManager;
-using Newtonsoft.Json.Linq;
 
 namespace ProfessionalServicesHandler
 {
@@ -91,8 +81,8 @@ namespace ProfessionalServicesHandler
         {
             try
             {
-                var actionConfigurationJson = ApplicationConfiguration.Current.ProfessionalServicesTasksConfiguration.ProfessionalServicesActionConfiguration;// GetActionHandler(request.ActionImplementation);
-                return null;//actionConfigurationJson;//.ToObject<ProfessionalServicesActionConfiguration>();
+                ApplicationConfiguration.Current.ProfessionalServicesTasksConfiguration.ProfessionalServicesActionConfiguration.Value.TryGetValue(request.ActionImplementation, out var result); ;
+                return result;
             }
             catch (Exception ex)
             {
