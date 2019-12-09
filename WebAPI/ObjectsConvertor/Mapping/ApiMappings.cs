@@ -1450,12 +1450,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // segment playback block action
             cfg.CreateMap<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackAction>()
-                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.KSQL))
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.KSQL))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertFromSegmentBlockPlaybackActionType(src.Type)))
                 ;
 
             cfg.CreateMap<SegmentBlockPlaybackAction, KalturaBlockPlaybackSegmentAction>()
-                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.KSQL))
+                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.Ksql))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToSegmentBlockPlaybackActionType(src.Type)))
                 ;
 
@@ -3625,44 +3625,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return kalturaActionRules;
         }
 
-        private static BlockPlaybackType ConvertFromSegmentBlockPlaybackActionType(KalturaBlockPlaybackType type)
+        private static KalturaBlockPlaybackType ConvertToSegmentBlockPlaybackActionType(eTransactionType type)
         {
-            BlockPlaybackType res = default;
+            switch (type)
+            {
+                case eTransactionType.PPV:
+                    return KalturaBlockPlaybackType.ppv;
+                case eTransactionType.Subscription:
+                    return KalturaBlockPlaybackType.subscription;
+                case eTransactionType.Collection:
+                    return KalturaBlockPlaybackType.boxet;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
 
+        private static eTransactionType ConvertFromSegmentBlockPlaybackActionType(KalturaBlockPlaybackType type)
+        {
             switch (type)
             {
                 case KalturaBlockPlaybackType.subscription:
-                    res = BlockPlaybackType.subscription;
-                    break;
+                    return eTransactionType.Subscription;
                 case KalturaBlockPlaybackType.ppv:
-                    res = BlockPlaybackType.ppv;
-                    break;
+                    return eTransactionType.PPV;
                 case KalturaBlockPlaybackType.boxet:
-                    res = BlockPlaybackType.boxet;
-                    break;
+                    return eTransactionType.Collection;
+                default:
+                    throw new NotImplementedException();
             }
-
-            return res;
-        }
-
-        private static KalturaBlockPlaybackType ConvertToSegmentBlockPlaybackActionType(BlockPlaybackType type)
-        {
-            KalturaBlockPlaybackType res = default;
-
-            switch (type)
-            {
-                case BlockPlaybackType.subscription:
-                    res = KalturaBlockPlaybackType.subscription;
-                    break;
-                case BlockPlaybackType.ppv:
-                    res = KalturaBlockPlaybackType.ppv;
-                    break;
-                case BlockPlaybackType.boxet:
-                    res = KalturaBlockPlaybackType.boxet;
-                    break;
-            }
-
-            return res;
         }
 
         #endregion

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ApiObjects.Segmentation
 {
-    public class SegmentAction
+    public abstract class SegmentAction
     {
         public virtual Status ValidateForInsert()
         {
@@ -17,6 +17,36 @@ namespace ApiObjects.Segmentation
         public virtual Status ValidateForUpdate()
         {
             return new Status(eResponseStatus.OK);
+        }
+    }
+
+    public abstract class SegmentActionKsql : SegmentAction
+    {
+        [JsonProperty()]
+        public string Ksql { get; set; }
+
+        public override Status ValidateForInsert()
+        {
+            var status = new Status(eResponseStatus.OK);
+
+            if (string.IsNullOrEmpty(Ksql))
+            {
+                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
+            }
+
+            return status;
+        }
+
+        public override Status ValidateForUpdate()
+        {
+            var status = new Status(eResponseStatus.OK);
+
+            if (string.IsNullOrEmpty(Ksql))
+            {
+                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
+            }
+
+            return status;
         }
     }
 
@@ -76,54 +106,22 @@ namespace ApiObjects.Segmentation
             return status;
         }
     }
-
-    public class SegmentBlockPlaybackAction : SegmentAction
+    
+    public class SegmentBlockPlaybackAction : SegmentActionKsql
     {
         [JsonProperty()]
-        public string KSQL { get; set; }
+        public eTransactionType Type { get; set; }
+    }
 
+    public class SegmentBlockCancelAction : SegmentActionKsql
+    {
         [JsonProperty()]
-        public BlockPlaybackType Type { get; set; }
+        public eTransactionType Type { get; set; }
+    }
 
-        public enum BlockPlaybackType
-        {
-            /// <summary>
-            /// subscription
-            /// </summary>
-            subscription,
-            /// <summary>
-            /// ppv
-            /// </summary>
-            ppv,
-            /// <summary>
-            /// boxet
-            /// </summary>
-            boxet
-        }
-
-        public override Status ValidateForInsert()
-        {
-            var status = new Status(eResponseStatus.OK);
-
-            if (string.IsNullOrEmpty(KSQL))
-            {
-                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
-            }
-
-            return status;
-        }
-
-        public override Status ValidateForUpdate()
-        {
-            var status = new Status(eResponseStatus.OK);
-
-            if (string.IsNullOrEmpty(KSQL))
-            {
-                status.Set(eResponseStatus.InvalidParameters, "missing ksql");
-            }
-
-            return status;
-        }
+    public class SegmentBlockPurchaseAction : SegmentActionKsql
+    {
+        [JsonProperty()]
+        public eTransactionType Type { get; set; }
     }
 }
-

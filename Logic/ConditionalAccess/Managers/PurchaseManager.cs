@@ -1,13 +1,17 @@
-﻿using APILogic.ConditionalAccess.Managers;
+﻿using ApiLogic.Api.Managers;
+using APILogic.ConditionalAccess.Managers;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
+using ApiObjects.Segmentation;
 using ApiObjects.SubscriptionSet;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
+using Core.Catalog;
 using Core.Pricing;
 using Core.Pricing.Handlers;
 using DAL;
@@ -1175,6 +1179,13 @@ namespace Core.ConditionalAccess
                         log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
                         return response;
                     }
+                }
+
+                var status = api.HandleBlockingSegment<SegmentBlockPurchaseAction>(groupId, siteguid, deviceName, userIp, (int)householdId, productId.ToString());
+                if (!status.IsOkStatusCode())
+                {
+                    response.Status = status;
+                    return response;
                 }
 
                 // if unified billing cycle is in the "history" ignore it in purchase ! 

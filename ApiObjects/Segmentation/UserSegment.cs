@@ -400,6 +400,19 @@ namespace ApiObjects.Segmentation
             }
         }
 
+        public static List<SegmentationType> ListUserSegmentationActionsOfTypes<T>(int groupId, string userId)
+        {
+            var segmentation = UserSegment.List(groupId, userId, null, 0, 1000, out int totalCount);
+            var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
+            if (segmentsIds.Any())
+            {
+                var segmentations = SegmentationType.List(groupId, segmentsIds, 0, 1000, out totalCount);
+                return segmentations.Where(s => s.Actions != null && s.Actions.All(y => y is T)).ToList();
+            }
+
+            return null;
+        }
+
         #endregion
 
         #region Private methods

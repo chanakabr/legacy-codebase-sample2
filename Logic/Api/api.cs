@@ -15,6 +15,7 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
@@ -11941,6 +11942,37 @@ namespace Core.Api
                 }
             }
             return ids;
-        }        
+        }
+
+        public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId, string subscriptionId) where T : SegmentActionKsql
+        {
+            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, ObjectVirtualAssetInfoType.Subscription, 
+                out CatalogGroupCache catalogGroupCache);
+
+            if (objectVirtualAssetInfo != null && catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
+            {
+                var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfTypes<T>(groupId, userId);
+                if (segmentationsWithBlockActions != null && segmentationsWithBlockActions.Any())
+                {
+                    var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+                    var topicSystemName = topic.SystemName;
+
+                    foreach (var segment in segmentationsWithBlockActions)
+                    {
+                        foreach (var blockAction in segment.Actions.OfType<T>())
+                        {
+                            string ksql = string.Format($"(and {blockAction.Ksql} asset_type = '{objectVirtualAssetInfo.AssetStructId}' {topicSystemName} = '{subscriptionId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
+                            var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, domainId, 0, false, false);
+                            if (assetResult != null && assetResult.Any())
+                            {
+                                return new Status((int)eResponseStatus.ActionBlocked, string.Format("Blocked by segment id {0}", segment.Id));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ApiObjects.Response.Status.Ok;
+        }
     }
 }

@@ -17,9 +17,11 @@ using ApiObjects.Pricing;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using ApiObjects.Rules;
+using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.ConditionalAccess.Modules;
@@ -1773,6 +1775,12 @@ namespace Core.ConditionalAccess
                         response.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
                         response.Message = "Cancellation is blocked for this subscription";
                         return response;
+                    }
+
+                    var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, subscriptionToCancel.m_ProductCode);
+                    if (!status.IsOkStatusCode())
+                    {
+                        return status;
                     }
 
                     int[] userIds = domain.m_UsersIDs.ToArray();
@@ -9993,7 +10001,6 @@ namespace Core.ConditionalAccess
                             result.Message = "Cancellation is blocked for this seasonal-pass subscription";
                             return result;
                         }
-
                     }
 
                     // Check if within cancellation window
@@ -10083,6 +10090,12 @@ namespace Core.ConditionalAccess
                                     break;
                                 case eTransactionType.Subscription:
                                     {
+                                        var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, assetID.ToString());
+                                        if (!status.IsOkStatusCode())
+                                        {
+                                            return status;
+                                        }
+
                                         long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
                                         if (subscriptionPurchaseId > 0)
                                         {

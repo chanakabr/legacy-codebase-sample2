@@ -12,6 +12,7 @@ using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.Response;
@@ -224,39 +225,17 @@ namespace Core.ConditionalAccess
                                             continue;
                                         }
 
-                                        var subId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
-                                        if (!string.IsNullOrEmpty(subId))
+                                        if (priceReason == PriceReason.SubscriptionPurchased)
                                         {
-                                            var segmentation = UserSegment.List(groupId, userId, null, 0, 1000, out int totalCount);
-                                            var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
-                                            if (segmentsIds.Any())
+                                            var subscriptionId = price.m_oItemPrices?.First()?.m_relevantSub?.m_sObjectCode;
+                                            
+                                            if (!string.IsNullOrEmpty(subscriptionId))
                                             {
-                                                var segmentations = SegmentationType.List(groupId, segmentsIds, 0, 1000, out totalCount);
-                                                var segmentationsWithBlockActions = segmentations.Where(s => s.Actions != null && s.Actions.All(y => y is SegmentBlockPlaybackAction));
-
-                                                if (segmentationsWithBlockActions.Any())
+                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackAction>(groupId, userId, udid, ip, (int)domain.Id, subscriptionId);
+                                                if (!status.IsOkStatusCode())
                                                 {
-                                                    var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, ObjectVirtualAssetInfoType.Subscription, out CatalogGroupCache catalogGroupCache);
-
-                                                    if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
-                                                    {
-                                                        var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
-                                                        var topicSystemName = topic.SystemName;
-
-                                                        foreach (var segment in segmentationsWithBlockActions)
-                                                        {
-                                                            foreach (var blockAction in segment.Actions.OfType<SegmentBlockPlaybackAction>())
-                                                            {
-                                                                string ksql = string.Format("(and {0} {1} = '{2}')", blockAction.KSQL, topicSystemName, subId); // (or operator = 'sky' media_id = '2' media_id = '3')
-                                                                var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, (int)domain.Id, 0, false, false);
-                                                                if (assetResult != null && assetResult.Any())
-                                                                {
-                                                                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ActionBlocked, string.Format("Blocked by segment id {0}", segment.Id));
-                                                                    return response;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
+                                                    response.Status = status;
+                                                    return response;
                                                 }
                                             }
                                         }

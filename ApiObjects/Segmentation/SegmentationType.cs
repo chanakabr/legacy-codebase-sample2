@@ -413,8 +413,6 @@ namespace ApiObjects.Segmentation
 
             return true;
         }
-
-
     }
     
     public class GroupSegmentationTypes
