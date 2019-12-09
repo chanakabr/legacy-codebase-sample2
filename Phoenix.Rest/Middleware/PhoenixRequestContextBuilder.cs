@@ -58,7 +58,9 @@ namespace Phoenix.Rest.Middleware
             var action = phoenixContext.RouteData.Action;
             var service = phoenixContext.RouteData.Service;
             var pathData = phoenixContext.RouteData.PathData;
-            KLogger.LogContextData[KLogMonitor.Constants.ACTION] = $"{service}.{action}";
+            string serviceAction = $"{service}.{action}";
+            KLogger.LogContextData[KLogMonitor.Constants.ACTION] = serviceAction;
+            System.Web.HttpContext.Current.Items[Constants.ACTION] = serviceAction;
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request, phoenixContext);
             phoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
