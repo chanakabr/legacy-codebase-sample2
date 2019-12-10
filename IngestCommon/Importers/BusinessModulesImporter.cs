@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Ingest.Importers
 {
