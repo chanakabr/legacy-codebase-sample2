@@ -13,7 +13,7 @@ pipeline {
     }
     environment{
         AWS_REGION="us-west-2"
-        REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/ws-ingest"
+        REPOSITORY_NAME="${BRANCH_NAME.toLowerCase()}/wsingest"
         ECR_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${REPOSITORY_NAME}"
         ECR_CORE_REPOSITORY="870777418594.dkr.ecr.us-west-2.amazonaws.com/${BRANCH_NAME.toLowerCase()}/core"
     }
