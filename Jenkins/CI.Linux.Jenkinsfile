@@ -9,7 +9,7 @@ pipeline {
     }
     parameters{
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch Name')
-        bool(name: 'TRIGGER_RC', defaultValue: 'true', description: 'Trigger RC?')
+        booleanParam(name: 'TRIGGER_RC', defaultValue: 'true', description: 'Trigger RC?')
     }
     environment{
         AWS_REGION="us-west-2"
