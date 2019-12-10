@@ -400,8 +400,10 @@ namespace ApiObjects.Segmentation
             }
         }
 
-        public static List<SegmentationType> ListUserSegmentationActionsOfTypes<T>(int groupId, string userId)
+        public static List<SegmentationType> ListUserSegmentationActionsOfType<T>(int groupId, string userId)
         {
+            List<SegmentationType> res = new List<SegmentationType>();
+
             var segmentation = UserSegment.List(groupId, userId, null, 0, 1000, out int totalCount);
             var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
             if (segmentsIds.Any())
@@ -410,7 +412,7 @@ namespace ApiObjects.Segmentation
                 return segmentations.Where(s => s.Actions != null && s.Actions.All(y => y is T)).ToList();
             }
 
-            return null;
+            return res;
         }
 
         #endregion

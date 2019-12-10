@@ -1645,6 +1645,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            #region Household Segment
+
+            // User Segment
+            cfg.CreateMap<KalturaHouseholdSegment, HouseholdSegment>()
+                .ForMember(d => d.HouseholdId, opt => opt.MapFrom(s => s.HouseholdId))
+                .ForMember(d => d.HouseholdSegmentId, opt => opt.MapFrom(s => s.HouseholdSegmentId))
+                .ForMember(d => d.BlockingSegmentIds, opt => opt.MapFrom(s => s.GetBlockingSegmentIds()))
+                ;
+
+            cfg.CreateMap<HouseholdSegment, KalturaHouseholdSegment>()
+                .ForMember(d => d.HouseholdId, opt => opt.MapFrom(s => s.HouseholdId))
+                .ForMember(d => d.HouseholdSegmentId, opt => opt.MapFrom(s => s.HouseholdSegmentId))
+                .ForMember(d => d.BlockingSegmentIds, opt => opt.MapFrom(s => string.Join(",", s.BlockingSegmentIds)))
+                ;
+
+            #endregion
+
             #region Business Module Rule
 
             cfg.CreateMap<BusinessModuleRule, KalturaBusinessModuleRule>()

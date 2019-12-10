@@ -2276,6 +2276,21 @@ namespace Core.Api
             return result;
         }
 
+        public static GenericResponse<HouseholdSegment> UpdateHouseholdSegment(int groupId, HouseholdSegment householdSegmentToAdd)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static GenericResponse<HouseholdSegment> AddHouseholdSegment(int groupId, HouseholdSegment householdSegmentToAdd)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status DeleteHouseholdSegment(int groupId, long householdId, long segmentId)
+        {
+            throw new NotImplementedException();
+        }
+
         public static GenericResponse<BusinessModuleRule> UpdateBusinessModuleRule(int groupId, BusinessModuleRule businessModuleRule)
         {
             return Core.Api.api.UpdateBusinessModuleRule(groupId, businessModuleRule);

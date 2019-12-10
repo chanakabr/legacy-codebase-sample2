@@ -11951,8 +11951,8 @@ namespace Core.Api
 
             if (objectVirtualAssetInfo != null && catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
             {
-                var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfTypes<T>(groupId, userId);
-                if (segmentationsWithBlockActions != null && segmentationsWithBlockActions.Any())
+                var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfType<T>(groupId, userId);
+                if (segmentationsWithBlockActions.Any())
                 {
                     var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
                     var topicSystemName = topic.SystemName;

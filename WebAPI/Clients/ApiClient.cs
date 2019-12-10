@@ -89,7 +89,7 @@ namespace WebAPI.Clients
             return roles;
 
         }
-        
+
         #region Parental Rules
 
         internal List<Models.API.KalturaParentalRule> GetGroupParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
@@ -125,7 +125,7 @@ namespace WebAPI.Clients
             rules = AutoMapper.Mapper.Map<List<WebAPI.Models.API.KalturaParentalRule>>(response.rules);
 
             return rules;
-        }        
+        }
 
         internal List<Models.API.KalturaParentalRule> GetUserParentalRules(int groupId, string userId)
         {
@@ -3987,6 +3987,34 @@ namespace WebAPI.Clients
         {
             Func<Status> deleteUserSegmentFunc = () => Core.Api.Module.DeleteUserSegment(groupId, userId, segmentId);
             return ClientUtils.GetResponseStatusFromWS(deleteUserSegmentFunc);
+        }
+
+        internal KalturaHouseholdSegment UpdateHouseholdSegment(int groupId, KalturaHouseholdSegment householdSegment)
+        {
+            Func<HouseholdSegment, GenericResponse<HouseholdSegment>> updateHouseholdSegmentFunc = (HouseholdSegment householdSegmentToUpdate) =>
+                Core.Api.Module.UpdateHouseholdSegment(groupId, householdSegmentToUpdate);
+
+            KalturaHouseholdSegment result =
+                ClientUtils.GetResponseFromWS<KalturaHouseholdSegment, HouseholdSegment>(householdSegment, updateHouseholdSegmentFunc);
+
+            return result;
+        }
+
+        internal KalturaHouseholdSegment AddHouseholdSegment(int groupId, KalturaHouseholdSegment householdSegment)
+        {
+            Func<HouseholdSegment, GenericResponse<HouseholdSegment>> addHouseholdSegmentFunc = (HouseholdSegment householdSegmentToAdd) =>
+                Core.Api.Module.AddHouseholdSegment(groupId, householdSegmentToAdd);
+
+            KalturaHouseholdSegment result =
+                ClientUtils.GetResponseFromWS<KalturaHouseholdSegment, HouseholdSegment>(householdSegment, addHouseholdSegmentFunc);
+
+            return result;
+        }
+
+        internal bool DeleteHouseholdSegment(int groupId, long householdId, long segmentId)
+        {
+            Func<Status> deleteHouseholdSegmentFunc = () => Core.Api.Module.DeleteHouseholdSegment(groupId, householdId, segmentId);
+            return ClientUtils.GetResponseStatusFromWS(deleteHouseholdSegmentFunc);
         }
 
         internal KalturaBusinessModuleRuleListResponse GetBusinessModuleRules(int groupId, KalturaBusinessModuleRuleFilter filter)
