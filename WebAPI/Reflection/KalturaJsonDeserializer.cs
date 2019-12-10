@@ -869,6 +869,12 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdQuota":
                     return new KalturaHouseholdQuota(parameters);
                     
+                case "KalturaHouseholdSegment":
+                    return new KalturaHouseholdSegment(parameters);
+                    
+                case "KalturaHouseholdSegmentListResponse":
+                    return new KalturaHouseholdSegmentListResponse(parameters);
+                    
                 case "KalturaHouseholdUser":
                     return new KalturaHouseholdUser(parameters);
                     
@@ -1492,6 +1498,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSeasonsReminderFilter":
                     return new KalturaSeasonsReminderFilter(parameters);
+                    
+                case "KalturaSegementAssetFilterAction":
+                    return new KalturaSegementAssetFilterAction(parameters);
                     
                 case "KalturaSegmentAllValues":
                     return new KalturaSegmentAllValues(parameters);
@@ -21928,6 +21937,107 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
+    public partial class KalturaHouseholdSegment
+    {
+        private static RuntimeSchemePropertyAttribute HouseholdSegmentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute BlockingSegmentIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdSegment")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = true,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaHouseholdSegment(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        HouseholdSegmentIdSchemaProperty.Validate("householdId", parameters["householdId"]);
+                    }
+                    HouseholdSegmentId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
+                    }
+                    HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("blockingSegmentIds") && parameters["blockingSegmentIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        BlockingSegmentIdsSchemaProperty.Validate("blockingSegmentIds", parameters["blockingSegmentIds"]);
+                    }
+                    BlockingSegmentIds = (String) Convert.ChangeType(parameters["blockingSegmentIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaHouseholdSegmentListResponse
+    {
+        private static RuntimeSchemePropertyAttribute HouseholdSegmentsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdSegmentListResponse")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        HouseholdSegmentsSchemaProperty.Validate("objects", parameters["objects"]);
+                    }
+                    if (parameters["objects"] is JArray)
+                    {
+                        HouseholdSegments = buildList<KalturaHouseholdSegment>(typeof(KalturaHouseholdSegment), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        HouseholdSegments = buildList(typeof(KalturaHouseholdSegment), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaMonetizationCondition
     {
         private static RuntimeSchemePropertyAttribute MinValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
@@ -22128,6 +22238,28 @@ namespace WebAPI.Models.Segmentation
                         DaysSchemaProperty.Validate("days", parameters["days"]);
                     }
                     Days = (Int32) Convert.ChangeType(parameters["days"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaSegementAssetFilterAction
+    {
+        public KalturaSegementAssetFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    Type = (KalturaSegementAssetFilterType) Enum.Parse(typeof(KalturaSegementAssetFilterType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSegementAssetFilterType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaSegementAssetFilterType)));
+                    }
                 }
             }
         }

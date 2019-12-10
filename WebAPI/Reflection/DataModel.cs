@@ -2958,6 +2958,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaHouseholdSegment":
+                    switch(property.Name)
+                    {
+                        case "BlockingSegmentIds":
+                            return "blockingSegmentIds";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "HouseholdSegmentId":
+                            return "householdId";
+                    }
+                    break;
+                    
+                case "KalturaHouseholdSegmentListResponse":
+                    switch(property.Name)
+                    {
+                        case "HouseholdSegments":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaHouseholdUser":
                     switch(property.Name)
                     {
@@ -5419,6 +5439,16 @@ namespace WebAPI.Reflection
                             return "seasonNumberIn";
                         case "SeriesIdEqual":
                             return "seriesIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaSegementAssetFilterAction":
+                    switch(property.Name)
+                    {
+                        case "Ksql":
+                            return "kSql";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -8227,6 +8257,24 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("householdQuota", "get", false);
                             return HouseholdQuotaController.Get();
+                            
+                    }
+                    break;
+                    
+                case "householdsegment":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdSegment", "add", false);
+                            return HouseholdSegmentController.Add((KalturaHouseholdSegment) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdSegment", "delete", false);
+                            return HouseholdSegmentController.Delete((long) methodParams[0], (long) methodParams[1]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("householdSegment", "list", false);
+                            return HouseholdSegmentController.List();
                             
                     }
                     break;
@@ -14236,6 +14284,34 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "get":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "householdsegment":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("householdSegment", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdSegment),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("householdId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("segmentId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
                             return ret;
                             
                     }

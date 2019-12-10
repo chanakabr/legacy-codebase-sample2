@@ -75,4 +75,32 @@ namespace WebAPI.Models.Segmentation
         /// </summary>
         Boxet
     }
+
+
+    /// <summary>
+    /// Asset filter action
+    /// </summary>
+    public partial class KalturaSegementAssetFilterAction : KalturaBaseSegmentAction
+    {
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql", IsNullable = true)]
+        public string Ksql { get; set; }
+
+        /// <summary>
+        /// Asset filter type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        public KalturaSegementAssetFilterType Type { get; set; }
+    }
+
+    /// <summary>
+    /// Asset filter type
+    /// </summary>
+    public enum KalturaSegementAssetFilterType { Subscription }
 }

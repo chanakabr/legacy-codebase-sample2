@@ -285,6 +285,41 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 ;
 
+            // segment playback block action
+            cfg.CreateMap<KalturaSegementAssetFilterAction, SegementAssetFilterAction>()
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                ;
+
+            cfg.CreateMap<SegementAssetFilterAction, KalturaSegementAssetFilterAction>()
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src =>src.Type))
+                ;
+
+            cfg.CreateMap<KalturaSegementAssetFilterType, eTransactionType>()
+              .ConvertUsing(type =>
+              {
+                  switch (type)
+                  {
+                      case KalturaSegementAssetFilterType.Subscription:
+                          return eTransactionType.Subscription;
+                      default:
+                          throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaSegementAssetFilterType value : {0}", type.ToString()));
+                  }
+              });
+
+            cfg.CreateMap<eTransactionType, KalturaSegementAssetFilterType>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case eTransactionType.Subscription:
+                            return KalturaSegementAssetFilterType.Subscription;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown eTransactionType value : {0}", type.ToString()));
+                    }
+                });
+
             #endregion
 
             #region User Segment

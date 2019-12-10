@@ -124,4 +124,10 @@ namespace ApiObjects.Segmentation
         [JsonProperty()]
         public eTransactionType Type { get; set; }
     }
+
+    public class SegementAssetFilterAction : SegmentActionKsql
+    {
+        [JsonProperty()]
+        public eTransactionType Type { get; set; }
+    }
 }
