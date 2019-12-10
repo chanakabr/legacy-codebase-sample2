@@ -1,10 +1,8 @@
 ﻿using ApiObjects.Response;
-using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace ApiObjects.BulkUpload
 {
@@ -32,8 +30,6 @@ namespace ApiObjects.BulkUpload
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUpload : CoreObject
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         [JsonProperty("FileURL")]
         public string FileURL { get; set; }
 

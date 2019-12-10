@@ -27,33 +27,34 @@ namespace Core.Catalog.CatalogManagement
             return 0;
         }
 
-        public static GenericListResponse<Status> UpsertMediaAsset(int groupId, ref MediaAsset mediaAsset, long userId, Dictionary<long, Image> images,
+        public static GenericListResponse<Status> UpsertMediaAsset<T>(int groupId, ref T mediaAsset, long userId, Dictionary<long, Image> images,
             Dictionary<int, Tuple<AssetFile, string>> assetFiles, string dateFormat, bool needToEraseMedia, bool isFromIngest = false, HashSet<long> topicIdsToRemove = null)
+            where T : MediaAsset
         {
-            GenericListResponse<Status> response = new GenericListResponse<Status>();
+            var response = new GenericListResponse<Status>();
             try
             {
                 if (mediaAsset.Id == 0)
                 {
-                    GenericResponse<Asset> addAsset = AssetManager.AddAsset(groupId, mediaAsset, userId, true);
+                    var addAsset = AssetManager.AddAsset(groupId, mediaAsset, userId, true);
                     if (!addAsset.HasObject())
                     {
                         log.Debug("UpsertMediaAsset - AddAsset faild");
                         response.SetStatus(addAsset.Status);
                         return response;
                     }
-                    mediaAsset = addAsset.Object as MediaAsset;
+                    mediaAsset = addAsset.Object as T;
                     response.Objects = UpsertMediaAssetImagesAndFiles(groupId, false, mediaAsset.Id, images, true, assetFiles, dateFormat, userId);
                 }
                 else
                 {
-                    bool isCleared = false;
+                    var isCleared = false;
 
                     if (needToEraseMedia)
                     {
                         if (!(isCleared = AssetManager.ClearAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, userId)))
                         {
-                            log.DebugFormat("UpsertMediaAsset - ClearAsset faild for media id: {0}", mediaAsset.Id);
+                            log.Debug($"UpsertMediaAsset - ClearAsset faild for media id: {mediaAsset.Id}");
                         }
                     }
 
@@ -66,14 +67,14 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    GenericResponse<Asset> updateAsset = AssetManager.UpdateAsset(groupId, mediaAsset.Id, mediaAsset, userId, true, isCleared);
+                    var updateAsset = AssetManager.UpdateAsset(groupId, mediaAsset.Id, mediaAsset, userId, true, isCleared);
                     if (!updateAsset.HasObject())
                     {
                         log.Debug("UpdateMediaAsset - UpdateAsset faild");
                         response.SetStatus(updateAsset.Status);
                         return response;
                     }
-                    mediaAsset = updateAsset.Object as MediaAsset;
+                    mediaAsset = updateAsset.Object as T;
                     response.Objects.AddRange(UpsertMediaAssetImagesAndFiles(groupId, true, mediaAsset.Id, images, needToEraseMedia, assetFiles, dateFormat, userId));
                 }
 
@@ -83,7 +84,7 @@ namespace Core.Catalog.CatalogManagement
                     bool indexingResult = IndexManager.UpsertMedia(groupId, mediaAsset.Id);
                     if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after Ingest", mediaAsset.Id, groupId);
+                        log.Error($"Failed UpsertMedia index for assetId: {mediaAsset.Id}, groupId: {groupId} after Ingest");
                     }
 
                     // invalidate asset
@@ -94,8 +95,7 @@ namespace Core.Catalog.CatalogManagement
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in UpsertMediaAsset. groupId:{0}, CoGuid:{1}, userId:{2}.",
-                                                        groupId, mediaAsset.CoGuid, userId), ex);
+                log.Error($"An Exception was occurred in UpsertMediaAsset. groupId:{groupId}, CoGuid:{mediaAsset.CoGuid}, userId:{userId}.", ex);
                 response.SetStatus(eResponseStatus.Error);
             }
 
@@ -503,6 +503,41 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return res;
+        }
+
+        public static Dictionary<int, Tuple<AssetFile, string>> CreateAssetFilesMap(List<AssetFile> files)
+        {
+            var assetFiles = new Dictionary<int, Tuple<AssetFile, string>>(); ;
+
+            if (files != null)
+            {
+                foreach (var assetFile in files)
+                {
+                    if (assetFile.TypeId.HasValue && !assetFiles.ContainsKey(assetFile.TypeId.Value))
+                    {
+                        assetFiles.Add(assetFile.TypeId.Value, new Tuple<AssetFile, string>(assetFile, assetFile.PpvModule));
+                    }
+                }
+            }
+
+            return assetFiles;
+        }
+
+        public static Dictionary<long, Image> CreateImagesMap(List<Image> images)
+        {
+            Dictionary<long, Image> imagesDic = new Dictionary<long, Image>();
+            if (images != null)
+            {
+                foreach (var image in images)
+                {
+                    if (!imagesDic.ContainsKey(image.ImageTypeId))
+                    {
+                        imagesDic.Add(image.ImageTypeId, image);
+                    }
+                }
+            }
+
+            return imagesDic;
         }
     }
 }

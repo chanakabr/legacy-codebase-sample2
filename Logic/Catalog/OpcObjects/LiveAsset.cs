@@ -27,6 +27,7 @@ namespace Core.Catalog
         public long SummedTrickPlayBuffer { get; set; }
         public bool RecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public LinearChannelType? ChannelType { get; set; }
+        //epg_identifier
         public long EpgChannelId { get; set; }
 
         public LiveAsset()
@@ -94,11 +95,10 @@ namespace Core.Catalog
             FillEnabledAndBufferProperties(accountTstvSettings);
         }
 
-        private void FillEnabledAndBufferProperties(TimeShiftedTvPartnerSettings accountTstvSettings)
+        internal void FillEnabledAndBufferProperties(TimeShiftedTvPartnerSettings accountTstvSettings)
         {
             if (accountTstvSettings != null)
             {
-
                 this.CdvrEnabled = accountTstvSettings.IsCdvrEnabled.HasValue ? accountTstvSettings.IsCdvrEnabled.Value : false;
                 // if account is true and channel is false we change the value to false
                 if (this.CdvrEnabled && this.EnableCdvrState.HasValue && this.EnableCdvrState.Value == TstvState.Disabled)

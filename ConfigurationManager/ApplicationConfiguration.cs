@@ -786,6 +786,7 @@ namespace ConfigurationManager
                     ShouldRecoverSubscriptionRenewalToMessageBus,
                     LogReloadInterval,
                     HttpClientConfiguration,
+                    FileUpload,
                     ElasticSearchHttpClientConfiguration,
                     NPVRHttpClientConfiguration
                 };
