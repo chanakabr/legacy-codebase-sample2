@@ -9,6 +9,7 @@ pipeline {
     environment {
         MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
     }
+    
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Branch')
         booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
