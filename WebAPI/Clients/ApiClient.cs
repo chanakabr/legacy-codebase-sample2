@@ -3989,17 +3989,6 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteUserSegmentFunc);
         }
 
-        internal KalturaHouseholdSegment UpdateHouseholdSegment(int groupId, KalturaHouseholdSegment householdSegment)
-        {
-            Func<HouseholdSegment, GenericResponse<HouseholdSegment>> updateHouseholdSegmentFunc = (HouseholdSegment householdSegmentToUpdate) =>
-                Core.Api.Module.UpdateHouseholdSegment(groupId, householdSegmentToUpdate);
-
-            KalturaHouseholdSegment result =
-                ClientUtils.GetResponseFromWS<KalturaHouseholdSegment, HouseholdSegment>(householdSegment, updateHouseholdSegmentFunc);
-
-            return result;
-        }
-
         internal KalturaHouseholdSegment AddHouseholdSegment(int groupId, KalturaHouseholdSegment householdSegment)
         {
             Func<HouseholdSegment, GenericResponse<HouseholdSegment>> addHouseholdSegmentFunc = (HouseholdSegment householdSegmentToAdd) =>

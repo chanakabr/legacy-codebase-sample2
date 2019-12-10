@@ -2276,11 +2276,6 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericResponse<HouseholdSegment> UpdateHouseholdSegment(int groupId, HouseholdSegment householdSegmentToAdd)
-        {
-            throw new NotImplementedException();
-        }
-
         public static GenericResponse<HouseholdSegment> AddHouseholdSegment(int groupId, HouseholdSegment householdSegmentToAdd)
         {
             throw new NotImplementedException();

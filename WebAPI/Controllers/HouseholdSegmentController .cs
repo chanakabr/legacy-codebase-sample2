@@ -72,29 +72,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update a segment of a household
-        /// </summary>
-        /// <param name="householdSegment">Household segment</param>
-        /// <param name="householdsegmentId">Household segment Id</param>
-        /// <returns></returns>
-        [Action("update")]
-        [ApiAuthorize]
-        static public KalturaHouseholdSegment Update(long householdsegmentId, KalturaHouseholdSegment householdSegment)
-        {
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-                return ClientsManager.ApiClient().UpdateHouseholdSegment(groupId, householdSegment);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Deletes a segment from a household
         /// </summary>
         /// <param name="householdId">Household id</param>
