@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
@@ -56,25 +54,25 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public KalturaBlockPlaybackType Type { get; set; }
+        public KalturaBlockPlaybackType Type { get; set; }        
+    }
 
+    /// <summary>
+    /// Block playback type
+    /// </summary>
+    public enum KalturaBlockPlaybackType
+    {
         /// <summary>
-        /// Block playback type
+        /// subscription
         /// </summary>
-        public enum KalturaBlockPlaybackType
-        {
-            /// <summary>
-            /// subscription
-            /// </summary>
-            subscription,
-            /// <summary>
-            /// ppv
-            /// </summary>
-            ppv,
-            /// <summary>
-            /// boxet
-            /// </summary>
-            boxet
-        }
+        Subscription,
+        /// <summary>
+        /// ppv
+        /// </summary>
+        PPV,
+        /// <summary>
+        /// boxet
+        /// </summary>
+        Boxet
     }
 }
