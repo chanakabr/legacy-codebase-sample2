@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileUploadHandler", "FileUploadHandler\FileUploadHandler.csproj", "{82876744-9A82-4730-B9E0-29810B4CDE81}"
 EndProject
@@ -190,7 +190,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestValidtionHandler", "I
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IngestHandlers", "IngestHandlers", "{F04B0B11-48FA-438A-9E73-3DF91B3D1913}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IngestHandler.Common", "IngestHandler.Common\IngestHandler.Common.csproj", "{221A036E-2A93-4E25-866E-239664AD9E3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IngestHandler.Common", "IngestHandler.Common\IngestHandler.Common.csproj", "{221A036E-2A93-4E25-866E-239664AD9E3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveAssetBulkUploadHandler", "LiveAssetBulkUploadHandler\LiveAssetBulkUploadHandler.csproj", "{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1389,6 +1391,22 @@ Global
 		{221A036E-2A93-4E25-866E-239664AD9E3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{221A036E-2A93-4E25-866E-239664AD9E3D}.Release|x86.ActiveCfg = Release|Any CPU
 		{221A036E-2A93-4E25-866E-239664AD9E3D}.Release|x86.Build.0 = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Basic|x86.ActiveCfg = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Basic|x86.Build.0 = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Debug|x86.Build.0 = Debug|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Local|Any CPU.Build.0 = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Local|x86.ActiveCfg = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Local|x86.Build.0 = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Release|x86.ActiveCfg = Release|Any CPU
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1479,6 +1497,7 @@ Global
 		{7834C46E-5AD3-435E-BDD2-571703AB5263} = {F04B0B11-48FA-438A-9E73-3DF91B3D1913}
 		{F04B0B11-48FA-438A-9E73-3DF91B3D1913} = {85CAC73F-7958-4A95-87F9-BCE28F3FDA78}
 		{221A036E-2A93-4E25-866E-239664AD9E3D} = {F04B0B11-48FA-438A-9E73-3DF91B3D1913}
+		{BFCF1A8E-3B5A-44AF-A16A-79B3D4272F69} = {579BBA6E-9BEC-4248-83E2-AAAF64D4C916}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40B1C766-E53F-4A55-9434-E4001604AA8F}

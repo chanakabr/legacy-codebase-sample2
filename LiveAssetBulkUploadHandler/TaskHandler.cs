@@ -8,7 +8,7 @@ using System;
 using System.Reflection;
 using TVinciShared;
 
-namespace MediaAssetBulkUploadHandler
+namespace LiveAssetBulkUploadHandler
 {
     public class TaskHandler : ITaskHandler
     {
@@ -18,18 +18,18 @@ namespace MediaAssetBulkUploadHandler
         {
             try
             {
-                log.DebugFormat("starting MediaAssetBulkUpload task. data={0}.", data);
-                var request = JsonConvert.DeserializeObject<MediaAssetBulkUploadRequest>(data);
+                log.Debug($"starting LiveAssetBulkUpload task. data={data}.");
+                var request = JsonConvert.DeserializeObject<LiveAssetBulkUploadRequest>(data);
 
                 if (request.ObjectData == null)
                 {
-                    var errorMassage = string.Format("{0} for BulkUploadId:{1}, ResultIndex:{2}.", eResponseStatus.BulkUploadResultIsMissing.ToString(), request.BulkUploadId, request.ResultIndex);
+                    var errorMassage = $"{eResponseStatus.BulkUploadResultIsMissing.ToString()} for BulkUploadId:{request.BulkUploadId}, ResultIndex:{request.ResultIndex}.";
                     log.Error(errorMassage);
                     BulkUploadManager.UpdateBulkUploadResult(request.GroupID, request.BulkUploadId, request.ResultIndex, new Status((int)eResponseStatus.BulkUploadResultIsMissing, "BulkUploadResult Is Missing"));
                     return errorMassage;
                 }
 
-                log.DebugFormat("MediaAssetBulkUpload details - bulkUploadId:{0}, ResultIndex:{1}.", request.BulkUploadId, request.ResultIndex);
+                log.Debug($"LiveAssetBulkUpload details - bulkUploadId:{request.BulkUploadId}, ResultIndex:{request.ResultIndex}.");
 
                 if (request.ObjectData.CoGuid.Equals("*"))
                 {
@@ -40,14 +40,14 @@ namespace MediaAssetBulkUploadHandler
                     request.ObjectData.Id = BulkAssetManager.GetMediaIdByCoGuid(request.GroupID, request.ObjectData.CoGuid);
                 }
 
-                GenericListResponse<Status> jobActionResponse = new GenericListResponse<Status>();
+                var jobActionResponse = new GenericListResponse<Status>();
                 switch (request.JobAction)
                 {
                     case BulkUploadJobAction.Upsert:
                         var images = BulkAssetManager.CreateImagesMap(request.ObjectData.Images);
                         var assetFiles = BulkAssetManager.CreateAssetFilesMap(request.ObjectData.Files);
-                        var mediaAsset = request.ObjectData;
-                        jobActionResponse = BulkAssetManager.UpsertMediaAsset(request.GroupID, ref mediaAsset, request.UserId, images, assetFiles, DateUtils.MAIN_FORMAT, false);
+                        var liveAsset = request.ObjectData;
+                        jobActionResponse = BulkAssetManager.UpsertMediaAsset(request.GroupID, ref liveAsset, request.UserId, images, assetFiles, DateUtils.MAIN_FORMAT, false);
                         break;
                     case BulkUploadJobAction.Delete:
                         break;
@@ -62,8 +62,7 @@ namespace MediaAssetBulkUploadHandler
                 var resultStatus = BulkUploadManager.UpdateBulkUploadResult(request.GroupID, request.BulkUploadId, request.ResultIndex, errorStatus, request.ObjectData.Id, jobActionResponse.Objects);
                 if (!resultStatus.IsOkStatusCode())
                 {
-                    var errorMassage = string.Format("MediaAssetBulkUpload task for BulkUploadId:{0}, ResultIndex:{1} did not finish successfully. resultStatus:{2}",
-                                                      request.BulkUploadId, request.ResultIndex, resultStatus.ToString());
+                    var errorMassage = $"LiveAssetBulkUpload task for BulkUploadId:{request.BulkUploadId}, ResultIndex:{request.ResultIndex} did not finish successfully. resultStatus:{resultStatus.ToString()}";
                     log.Error(errorMassage);
                     throw new Exception(errorMassage);
                 }
@@ -74,7 +73,7 @@ namespace MediaAssetBulkUploadHandler
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in MediaAssetBulkUploadHandler.HandleTask. data={0}.", data), ex);
+                log.Error($"An Exception was occurred in LiveAssetBulkUploadHandler.HandleTask. data={data}.", ex);
                 throw ex;
             }
         }
