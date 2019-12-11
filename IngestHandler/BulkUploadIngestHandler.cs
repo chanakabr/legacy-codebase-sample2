@@ -419,8 +419,18 @@ namespace IngestHandler
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
 
             crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.IsAutoFill).ToList();
+            Dictionary<string, EpgProgramBulkUploadObject> currentProgramsDictionary = null;
 
-            var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => epg.EpgExternalId);
+            try
+            {
+                currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => epg.EpgExternalId);
+            }
+            catch (Exception ex)
+            {
+                _Logger.Debug($"CalculateCRUDOperations > index contains more than one program with same epg external id");
+                throw ex;
+            }
+
             _Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
 
             // we cannot use the programs to ingest as a dictioanry becuse there are multiple translation with same external id
