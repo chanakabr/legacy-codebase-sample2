@@ -52,19 +52,6 @@ namespace Core.Catalog
                 var mediaAsset = results[i].Object as MediaAsset;
                 if (results[i].Status != BulkUploadResultStatus.Error && mediaAsset != null)
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new MediaAssetBulkUploadRequest()
-                    {
-                        GroupId = bulkUpload.GroupId,
-                        BulkUploadId = bulkUpload.Id,
-                        JobAction = bulkUpload.Action,
-                        ObjectData = mediaAsset,
-                        ResultIndex = i,
-                        UserId = bulkUpload.UpdaterId
-                    };
-
-                    eventBus.Publish(serviceEvent);
-
                     // Enqueue to CeleryQueue current bulkUploadObject (the remote will handle each bulkUploadObject in separate).
                     var queue = new GenericCeleryQueue();
                     var data = new BulkUploadItemData<MediaAsset>(this.DistributedTask, bulkUpload.GroupId, bulkUpload.UpdaterId, bulkUpload.Id, bulkUpload.Action, i, mediaAsset);

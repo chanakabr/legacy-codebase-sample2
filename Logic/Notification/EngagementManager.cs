@@ -570,26 +570,6 @@ namespace Core.Notification
         {
             bool res = true;
 
-            try
-            {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new EngagementRequest()
-                {
-                    GroupId = groupId,
-                    EngagementBulkId = engagementBulkId,
-                    EngagementId = engagementId,
-                    StartTime = startTime
-                };
-
-                eventBus.Publish(serviceEvent);
-                log.Debug($"Successfully inserted engagement message to queue: engagement {engagementId}");
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while inserting engagement {engagementId} to queue. ex = {ex}");
-                res = false;
-            }
-
             var queue = new EngagementQueue();
             var queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
             {
