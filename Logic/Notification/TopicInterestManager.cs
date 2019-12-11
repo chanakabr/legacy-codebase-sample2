@@ -1102,20 +1102,6 @@ namespace APILogic.Notification
                 ETA = interestNotificationMessage.SendTime
             };
 
-            try
-            {
-                var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                eventBus.Publish(messageReminderData);
-                log.Debug($"Successfully while inserting interest notification message to queue. Message: {messageReminderData}");
-                res = true;
-
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while inserting interest notification message to queue. Message: {messageReminderData}", ex);
-                res = false;
-            }
-
             return true;
         }
 

@@ -1572,19 +1572,6 @@ namespace Core.Notification
                 ETA = DateUtils.UtcUnixTimestampSecondsToDateTime(reminder.SendTime),
             };
 
-            try
-            {
-                var eventBus = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                eventBus.Publish(msg);
-                log.Debug($"Successfully inserted a reminder message to reminder queue: {msg}");
-                res = true;
-            }
-            catch (Exception e)
-            {
-                log.Error($"Error while inserting reminder {msg} to queue", e);
-                res = false;
-            }
-
             return res;
         }
 
