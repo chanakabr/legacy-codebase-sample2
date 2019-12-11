@@ -1047,18 +1047,6 @@ namespace Core.Users
         {
             if (Notification.NotificationSettings.IsNotificationSettingsExistsForPartner(groupId))
             {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new InitiateNotificationActionRequest()
-                {
-                    GroupId = groupId,
-                    pushToken = pushToken,
-                    Udid = udid,
-                    UserAction = userAction,
-                    UserId = userId
-                };
-
-                eventBus.Publish(serviceEvent);
-
                 InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
                 ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 

@@ -2237,28 +2237,6 @@ namespace Core.Billing
             var enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_CHECK_PENDING_TRANSACTION, groupID));
 
             if (!enqueueSuccessful) { log.ErrorFormat("Failed enqueue of pending transaction {0}", data); }
-
-            //enque using eventBus
-            var pendingTransactionData = new ApiObjects.EventBus.PendingTransactionRequest
-            {
-                GroupId = groupID,
-                SiteGuid = siteGuid,
-                ProductId = productId,
-                ProductType = (int)productType,
-                BillingGuide = paymentGWPending.BillingGuid,
-                NumberOfRetries = paymentGWPending.AdapterRetryCount,
-                PaymentGatewayPendingId = paymentGWPending.ID,
-                PaymentGatewayTransactionId = paymentGWPending.PaymentGatewayTransactionId,
-            };
-            try
-            {
-                var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                publisher.Publish(pendingTransactionData);
-            }
-            catch (Exception e)
-            {
-                log.Error($"Failed enqueue of pending transaction {pendingTransactionData}", e);
-            }
         }
 
         private Status SendRemoveHouseholdPaymentmethodToAdapter(string chargeId, long householdID, PaymentGateway paymentGateway, string paymentMethodExternalId)

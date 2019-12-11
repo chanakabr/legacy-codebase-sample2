@@ -8177,17 +8177,6 @@ namespace Core.Api
 
             try
             {
-
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new ExportRequest()
-                {
-                    GroupId = groupId,
-                    TaskId = taskId,
-                    Version = version
-                };
-
-                eventBus.Publish(serviceEvent);
-
                 ExportTaskData data = null;
 
                 // insert new message to tasks queue (for celery)
@@ -9424,24 +9413,6 @@ namespace Core.Api
             if (startDate != null && startDate.HasValue)
             {
                 dynamicData.Add("START_DATE", startDate.Value.ToString("yyyyMMddHHmmss"));
-            }
-
-            try
-            {
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new SetupTaskRequest()
-                {
-                    GroupID = groupId,
-                    Mission = eSetupTask.MigrateStatistics,
-                    DynamicData = dynamicData
-                };
-
-                eventBus.Publish(serviceEvent);
-                result = true;
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed publishing service event of MigrateStatistics. group id = {groupId}, ex = {ex}");
             }
 
             var queueObject = new CelerySetupTaskData(groupId, eSetupTask.MigrateStatistics, dynamicData);
@@ -10885,16 +10856,6 @@ namespace Core.Api
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(assetRuleScheduledTaskIntervalSec);
-
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new ActionRuleRequest()
-                    {
-                        ActionType = RuleActionTaskType.Asset,
-                        GroupId = 0,
-                        ETA = nextExecutionDate
-                    };
-
-                    eventBus.Publish(serviceEvent);
 
                     var queue = new GenericCeleryQueue();
                     var data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, (int)RuleActionTaskType.Asset)

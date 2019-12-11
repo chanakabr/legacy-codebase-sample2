@@ -356,28 +356,6 @@ namespace Core.ConditionalAccess
                         var nextRenewalDate = endDate.Value.AddMinutes(0); // default                                           
                         var endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate);
 
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-                        {
-                            GroupId = groupId,
-                            BillingGuid = billingGuid,
-                            EndDate = endDateUnix,
-                            ETA = nextRenewalDate,
-                            Type = eSubscriptionRenewRequestType.Renew,
-                            SiteGuid = userId,
-                            PurchaseId = purchaseID
-                        };
-
-                        try
-                        {
-                            eventBus.Publish(serviceEvent);
-                        }
-                        catch (Exception ex)
-                        {
-                            enqueueSuccessful = false;
-                            log.ErrorFormat("Failed enqueue of renew transaction {0} ex = {1}", serviceEvent, ex);
-                        }
-
                         var data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
                             TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds((DateTime)endDate), nextRenewalDate);
 
