@@ -231,7 +231,7 @@ namespace Core.ConditionalAccess
                                             
                                             if (!string.IsNullOrEmpty(subscriptionId))
                                             {
-                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackAction>(groupId, userId, udid, ip, (int)domain.Id, subscriptionId);
+                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackAction>(groupId, userId, udid, ip, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionId);
                                                 if (!status.IsOkStatusCode())
                                                 {
                                                     response.Status = status;

@@ -1181,7 +1181,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                var status = api.HandleBlockingSegment<SegmentBlockPurchaseAction>(groupId, siteguid, deviceName, userIp, (int)householdId, productId.ToString());
+                var status = api.HandleBlockingSegment<SegmentBlockPurchaseAction>(groupId, siteguid, deviceName, userIp, (int)householdId, ObjectVirtualAssetInfoType.Subscription, productId.ToString());
                 if (!status.IsOkStatusCode())
                 {
                     response.Status = status;

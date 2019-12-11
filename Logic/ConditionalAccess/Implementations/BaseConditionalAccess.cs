@@ -1777,7 +1777,7 @@ namespace Core.ConditionalAccess
                         return response;
                     }
 
-                    var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, subscriptionToCancel.m_ProductCode);
+                    var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionToCancel.m_ProductCode);
                     if (!status.IsOkStatusCode())
                     {
                         return status;
@@ -10090,7 +10090,7 @@ namespace Core.ConditionalAccess
                                     break;
                                 case eTransactionType.Subscription:
                                     {
-                                        var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, assetID.ToString());
+                                        var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, assetID.ToString());
                                         if (!status.IsOkStatusCode())
                                         {
                                             return status;
