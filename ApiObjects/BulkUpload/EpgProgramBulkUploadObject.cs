@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ApiObjects.BulkUpload
 {
-    // TODO: Move and merge with all other epg objects
+    // TODO ARTHUR: Move and merge with all other epg objects
     public class EpgProgramBulkUploadObject : IBulkUploadObject
     {
         public programme ParsedProgramObject { get; set; }

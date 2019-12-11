@@ -2,7 +2,7 @@
 
 namespace WebAPI.App_Start
 {
-    public interface IKalturaExcelStructure : IKalturaBulkUploadStructure
+    public interface IKalturaExcelStructureManager : IKalturaBulkUploadStructureManager
     {
         ExcelStructure GetExcelStructure(int groupId);
     }

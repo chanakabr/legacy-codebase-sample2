@@ -371,7 +371,7 @@ namespace Core.Catalog
             return multilingualExcelValues;
         }
 
-        public virtual void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
+        public virtual void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureObject)
         {
         }
 
