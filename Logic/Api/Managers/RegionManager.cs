@@ -463,10 +463,9 @@ namespace ApiLogic.Api.Managers
                             result.Objects = regionsCache.Regions.Where(r => idsToFilter.Contains(r.Key)).Select(r => r.Value).ToList();
                             result.TotalItems = result.Objects.Count;
                         }
-                        // GEN-582 - non-existing parent id returns all regions 
                         else
                         {
-                            result.Objects = new List<Region>();
+                            result.Objects = null;
                             result.TotalItems = 0;
                         }
                     }
