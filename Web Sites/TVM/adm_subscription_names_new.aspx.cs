@@ -57,18 +57,6 @@ public partial class adm_subscription_names_new : System.Web.UI.Page
             {
                 DBManipulator.DoTheWork("pricing_connection");
 
-                try
-                {
-                    Notifiers.BaseSubscriptionNotifier t = null;
-                    Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
-                    if (t != null)
-                        t.NotifyChange(Session["subscription_id"].ToString());
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message, ex);
-                }
 
                 return;
             }

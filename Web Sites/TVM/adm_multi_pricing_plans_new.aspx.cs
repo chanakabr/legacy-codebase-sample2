@@ -209,18 +209,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                     insertQuery = null;
                 }
 
-                try
-                {
-                    Notifiers.BaseSubscriptionNotifier t = null;
-                    Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
-                    if (t != null)
-                        t.NotifyChange(nSuscriptionID.ToString());
-                    //return;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + nSuscriptionID.ToString() + " : " + ex.Message, ex);
-                }
+
                 if (nSuscriptionID != 0)
                 {
                     log.Debug("MultiUM - Subscription " + nSuscriptionID.ToString() + " Found");

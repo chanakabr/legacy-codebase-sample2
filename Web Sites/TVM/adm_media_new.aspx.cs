@@ -56,32 +56,6 @@ public partial class adm_media_new : System.Web.UI.Page
                         ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);
                 }
 
-                try
-                {
-                    Notifiers.BaseMediaNotifier t = null;
-                    Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-
-                    string errorMessage = "";
-
-                    if (t != null)
-                    {
-                        t.NotifyChange(nID.ToString(), ref errorMessage);
-                    }
-
-                    if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nID + ":\r\n" + errorMessage;
-                    }
-
-
-                    //if (t != null)
-                    //    t.NotifyChange(nID.ToString());
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + nID.ToString() + " : " + ex.Message, ex);
-                }
 
                 return;
             }

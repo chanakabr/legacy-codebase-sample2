@@ -92,7 +92,6 @@ public partial class adm_subscription_operators : System.Web.UI.Page
         insertQuery.Finish();
         insertQuery = null;
 
-        TvinciImporter.ImporterImpl.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, 0, eOperatorEvent.SubscriptionAddedToOperator);
     }
 
     protected void UpdateSubscriptionOperatorID(Int32 nID, Int32 nStatus, int nGroupID, int nOperatorID, int nSubscriptionID)
@@ -106,16 +105,6 @@ public partial class adm_subscription_operators : System.Web.UI.Page
         updateQuery.Finish();
         updateQuery = null;
 
-        if (nStatus > 0)
-        {
-            // sub added to operator
-            TvinciImporter.ImporterImpl.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, 0, eOperatorEvent.SubscriptionAddedToOperator);
-        }
-        else
-        {
-            // sub removed from operator
-            TvinciImporter.ImporterImpl.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, 0, eOperatorEvent.SubscriptionRemovedFromOperator);
-        }
     }
 
     protected Int32 GetSubscriptionOperatorID(Int32 nOperatorID, Int32 nLogedInGroupID, ref Int32 nStatus)
@@ -186,18 +175,6 @@ public partial class adm_subscription_operators : System.Web.UI.Page
             InsertSubscriptionOperatorID(int.Parse(sID), int.Parse(Session["subscription_id"].ToString()), nLogedInGroupID);
         }
 
-        try
-        {
-            Notifiers.BaseSubscriptionNotifier t = null;
-            Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
-            if (t != null)
-                t.NotifyChange(Session["subscription_id"].ToString());
-            return "";
-        }
-        catch (Exception ex)
-        {
-            log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message, ex);
-        }
 
         return "";
     }

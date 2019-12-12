@@ -41,18 +41,6 @@ public partial class adm_media_translate : System.Web.UI.Page
                 ProtocolsFuncs.SeperateMediaTranslateTexts(int.Parse(Session["media_id"].ToString()),
                     int.Parse(Session["lang_id"].ToString()));
 
-                try
-                {
-                    Notifiers.BaseMediaNotifier t = null;
-                    Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-                    if (t != null)
-                        t.NotifyChange(Session["media_id"].ToString());
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + Session["media_id"].ToString() + " : " + ex.Message, ex);
-                }
 
                 return;
             }

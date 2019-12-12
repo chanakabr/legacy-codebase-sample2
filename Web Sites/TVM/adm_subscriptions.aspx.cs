@@ -249,11 +249,4 @@ public partial class adm_subscriptions : System.Web.UI.Page
         Response.Write(PageUtils.GetPreHeader() + ": Subscriptions");
     }
 
-    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
-    {
-        Notifiers.BaseSubscriptionNotifier t = null;
-        Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
-        if (t != null)
-            t.NotifyChange(sID);
-    }
 }

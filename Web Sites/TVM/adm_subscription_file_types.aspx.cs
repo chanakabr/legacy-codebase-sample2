@@ -163,18 +163,6 @@ public partial class adm_subscription_file_types : System.Web.UI.Page
             InsertSubscriptionFileTypeID(int.Parse(sID), int.Parse(Session["subscription_id"].ToString()), nLogedInGroupID);
         }
 
-        try
-        {
-            Notifiers.BaseSubscriptionNotifier t = null;
-            Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
-            if (t != null)
-                t.NotifyChange(Session["subscription_id"].ToString());
-            return "";
-        }
-        catch (Exception ex)
-        {
-            log.Error("exception - " + Session["subscription_id"].ToString() + " : " + ex.Message);
-        }
 
         return "";
     }

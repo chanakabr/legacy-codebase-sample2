@@ -91,30 +91,6 @@ public partial class adm_media_files_new : System.Web.UI.Page
                             log.ErrorFormat("Failed to set invalidation key for mediaFileID {0}, key = {1}", nMediaFileID, invalidationKey);
                         }
                     }
-
-                    try
-                    {
-                        Notifiers.BaseMediaNotifier t = null;
-                        Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-
-                        string errorMessage = "";
-
-                        if (t != null)
-                        {
-                            t.NotifyChange(nMediaID.ToString(), ref errorMessage);
-                        }
-
-                        if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nMediaID + ":\r\n" + errorMessage;
-                        }
-
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("exception - " + nMediaID.ToString() + " : " + ex.Message, ex);
-                    }
                 }
 
                 return;

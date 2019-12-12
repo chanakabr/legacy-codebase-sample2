@@ -191,28 +191,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
                     insertQuery = null;
                 }
 
-                try
-                {
-                    Notifiers.BaseSubscriptionNotifier t = null;
-                    Notifiers.Utils.GetBaseSubscriptionsNotifierImpl(ref t, LoginManager.GetLoginGroupID(), "pricing_connection");
 
-                    //bool update = (nSuscriptionID != 0);
-
-                    if (t != null)
-                    {
-                        string errorMessage = "";
-                        t.NotifyChange(nSuscriptionID.ToString(), ref errorMessage, Convert.ToInt32(update));
-
-                        if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            HttpContext.Current.Session["error_msg_sub"] = "Error in Subscription ID " + nSuscriptionID + ":\r\n" + errorMessage;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + nSuscriptionID.ToString() + " : " + ex.Message, ex);
-                }
 
                 if (nSuscriptionID != 0)
                 {

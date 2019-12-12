@@ -268,18 +268,6 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
             }
         }
 
-        try
-        {
-            Notifiers.BaseMediaNotifier t = null;
-            Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-            if (t != null)
-                t.NotifyChange(Session["media_id"].ToString());
-            return "";
-        }
-        catch (Exception ex)
-        {
-            log.Error("exception - " + Session["media_id"].ToString() + " : " + ex.Message, ex);
-        }
 
         return "";
     }
