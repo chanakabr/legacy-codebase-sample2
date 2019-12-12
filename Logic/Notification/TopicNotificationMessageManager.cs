@@ -385,18 +385,6 @@ namespace Core.Notification
         {
             bool result = true;
 
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.MessageAnnouncementRequest()
-            {
-                GroupId = groupId,
-                MessageAnnouncementId = (int)topicNotificationMessageId,
-                StartTime = sendDate,
-                Type = MessageAnnouncementRequestType.TopicNotificationMessage,
-                ETA = DateTime.UtcNow
-            };
-
-            eventBus.Publish(serviceEvent);
-
             QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue queue = new QueueWrapper.Queues.QueueObjects.MessageAnnouncementQueue();
             ApiObjects.QueueObjects.MessageAnnouncementData messageAnnouncementData = new ApiObjects.QueueObjects.MessageAnnouncementData(
                 groupId,

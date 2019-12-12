@@ -28,6 +28,16 @@ namespace EventBus.RabbitMQ
 
         public static RabbitMQPersistentConnection GetInstanceUsingTCMConfiguration()
         {
+            var configuration = ApplicationConfiguration.Current.RabbitConfiguration.EventBus;
+            if (string.IsNullOrEmpty(configuration.HostName.Value) ||
+                configuration.Port.Value <= 0 ||
+                string.IsNullOrEmpty(configuration.UserName.Value) ||
+                string.IsNullOrEmpty(configuration.Password.Value)
+                )
+            {
+                throw new Exception("rabbit mq configuration is missing for event_bus in tcm");
+            }
+
             if (_Instance == null)
             {
                 lock (_SyncRoot)
@@ -35,23 +45,14 @@ namespace EventBus.RabbitMQ
                     if (_Instance == null)
                     {
                         var connectionFactory = new ConnectionFactory();
-                        if (ApplicationConfiguration.Current.ShouldSupportEventBusMessages.Value)
-                        {
-                            var configuration = ApplicationConfiguration.Current.RabbitConfiguration.EventBus;
-                            connectionFactory.HostName = configuration.HostName.Value;
-                            connectionFactory.UserName = configuration.UserName.Value;
-                            connectionFactory.Password = configuration.Password.Value;
-                            connectionFactory.Port = configuration.Port.Value;
-                            connectionFactory.DispatchConsumersAsync = true;
+                        connectionFactory.HostName = configuration.HostName.Value;
+                        connectionFactory.UserName = configuration.UserName.Value;
+                        connectionFactory.Password = configuration.Password.Value;
+                        connectionFactory.Port = configuration.Port.Value;
+                        connectionFactory.DispatchConsumersAsync = true;
 
-                            _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.Value}]");
-                            _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.Current.QueueFailLimit.Value);
-                        }
-                        else
-                        {
-                            _Logger.Info($"ShouldSupportEventBusMessages is false, Constructing connection factory with default values");
-                            _Instance = new RabbitMQPersistentConnection(connectionFactory);
-                        }
+                        _Logger.Info($"Constructing connection factory with HostName:[{configuration.HostName.Value}] on port:[{configuration.Port.Value}]");
+                        _Instance = new RabbitMQPersistentConnection(connectionFactory, ApplicationConfiguration.Current.QueueFailLimit.Value);
                     }
                 }
             }

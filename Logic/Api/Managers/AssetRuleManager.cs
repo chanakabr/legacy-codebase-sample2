@@ -1487,19 +1487,6 @@ namespace Core.Api.Managers
                 if (updateKsql || removeAllowed || removeBlocked || countriesToRemove?.Count > 0)
                 {
                     assetRule.Status = RuleStatus.InProgress;
-
-                    var serviceEvent = new GeoRuleUpdateRequest()
-                    {
-                        GroupId = groupId,
-                        AssetRuleId = assetRule.Id,
-                        CountriesToRemove = countriesToRemove,
-                        RemoveAllowed = removeAllowed,
-                        RemoveBlocked = removeBlocked,
-                        UpdateKsql = updateKsql
-                    };
-
-                    EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration().Publish(serviceEvent);
-
                     var queue = new GenericCeleryQueue();
                     ApiObjects.QueueObjects.GeoRuleUpdateData data = new ApiObjects.QueueObjects.GeoRuleUpdateData(groupId, assetRule.Id,
                         countriesToRemove, removeBlocked, removeAllowed, updateKsql)

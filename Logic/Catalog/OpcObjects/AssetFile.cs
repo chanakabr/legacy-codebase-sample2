@@ -261,7 +261,7 @@ namespace Core.Catalog
             return excelValues;
         }
 
-        public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
+        public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureObject)
         {
             foreach (var columnValue in columnNamesToValues)
             {
@@ -273,7 +273,7 @@ namespace Core.Catalog
                         object convertedValue;
                         if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
                         {
-                            convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), ExcelManager.DATE_FORMAT);
+                            convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), DateUtils.MAIN_FORMAT);
                         }
                         else
                         {

@@ -28,4 +28,10 @@ namespace ApiObjects.BulkUpload
         public long LiveAssetId { get; set; }
         public string ProgramExternalId { get; set; }
     }
+
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class BulkUploadLiveAssetResult : BulkUploadMediaAssetResult
+    {
+    }
 }

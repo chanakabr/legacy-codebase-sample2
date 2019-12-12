@@ -15,7 +15,7 @@ namespace WebAPI.Models.General
         string ToXml(Version currentVersion, bool omitObsolete);
     }
 
-    // TODO SHIR - use it in all places and delete to old object
+    // TODO - use it in all places and delete to old object
     /// <summary>
     /// Base wrapper for list of KalturaOTTObject
     /// </summary>

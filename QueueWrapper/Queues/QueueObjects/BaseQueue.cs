@@ -24,12 +24,6 @@ namespace QueueWrapper
         {
             var isCeleryObject = record.GetType().IsAssignableFrom(typeof(BaseCeleryData));
 
-            if (!ApplicationConfiguration.Current.ShouldSupportCeleryMessages.Value && isCeleryObject)
-            {
-                log.Debug($"Ignoring message sent to [{routingKey}], due to ShouldSupportCeleryMessages=false in TCM");
-                return true;
-            }
-
             bool bIsEnqueueSucceeded = false;
             string sMessage = string.Empty;
 

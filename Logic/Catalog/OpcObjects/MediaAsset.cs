@@ -279,10 +279,10 @@ namespace Core.Catalog
             return basicMetaDate;
         }
 
-        public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructure structureObject)
+        public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureManager)
         {
             this.AssetType = eAssetTypes.MEDIA;
-            AssetStruct assetStruct = structureObject as AssetStruct;
+            AssetStruct assetStruct = structureManager as AssetStruct;
             CatalogGroupCache catalogGroupCache;
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
@@ -311,7 +311,7 @@ namespace Core.Catalog
                                     fileTypesSystemName.Add(fileSystemName);
                                     var fileValues = columnNamesToValues.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
                                     var fileColumns = columns.Where(x => x.Key.StartsWith(fileSystemName)).ToDictionary(x => x.Key, x => x.Value);
-                                    SetFileByExcelValues(groupId, fileValues, fileColumns, structureObject);
+                                    SetFileByExcelValues(groupId, fileValues, fileColumns, structureManager);
                                 }
                                 break;
                             case ExcelColumnType.Image:
@@ -395,7 +395,7 @@ namespace Core.Catalog
             }
         }
 
-        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructure structureObject)
+        private void SetFileByExcelValues(int groupId, Dictionary<string, object> fileValues, Dictionary<string, ExcelColumn> fileColumns, IExcelStructureManager structureObject)
         {
             if (fileValues != null && fileValues.Count > 0 && fileColumns != null && fileColumns.Count > 0)
             {
@@ -411,7 +411,7 @@ namespace Core.Catalog
             object convertedValue;
             if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
             {
-                convertedValue = DateUtils.ExtractDate(value.ToString(), ExcelManager.DATE_FORMAT);
+                convertedValue = DateUtils.ExtractDate(value.ToString(), DateUtils.MAIN_FORMAT);
             }
             else
             {

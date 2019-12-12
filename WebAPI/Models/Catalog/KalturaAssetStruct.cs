@@ -13,7 +13,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public partial class KalturaAssetStruct : KalturaOTTObject, IKalturaExcelStructure
+    public partial class KalturaAssetStruct : KalturaOTTObject, IKalturaExcelStructureManager
     {
         /// <summary>
         /// Asset Struct id 
