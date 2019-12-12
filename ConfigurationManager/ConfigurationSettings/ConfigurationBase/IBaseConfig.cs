@@ -8,5 +8,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         string[] TcmPath { get; }
 
         void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData);
+
+        bool Validate();
     }
 }

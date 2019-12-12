@@ -14,7 +14,7 @@ namespace ConfigurationManager
 
 
         public BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>> ProfessionalServicesActionConfiguration = 
-            new BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>>(TcmObjectKeys.ProfessionalServicesTasksConfiguration, null);
+            new BaseValue<Dictionary<string, ProfessionalServicesActionConfiguration>>(TcmObjectKeys.ProfessionalServicesTasksConfiguration, null,true);
     }
 
 

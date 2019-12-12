@@ -41,13 +41,12 @@ namespace ConfigurationManager
         public BaseValue<string> DMSUrl = new BaseValue<string>("DMSUrl", null, false, "Address of DMS server.");
         public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", null, false, "liat regev");
         public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "Cache", true, null);
-        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", null, true, null);
+        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", string.Empty, false, null);
         public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", null, true, null);
         public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", true, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
         public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", null, true, "Use in yes epg BL");
-        public BaseValue<string> GroupIDsWithIPNOFilteringSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIPNOFilteringSeperatedBySemiColon", null, true, null);
-        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", null, true, null);
-        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", null, true, null);
+        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Dummy, false, null);
+        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Dummy, false, null);
         public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", null, true, null);
         public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", null, true, null);
         public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", null, true, null);
@@ -89,7 +88,7 @@ namespace ConfigurationManager
         public BaseValue<long> ReconciliationFrequencySeconds = new BaseValue<long>("reconciliation_frequency_seconds", 7200);
         public BaseValue<ulong> EpgInitialId = new BaseValue<ulong>("epg_initial_id", 100000000);
 
-        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("elasticsearch_handler_configuration", true, true, null);
+        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("ShouldDistributeRecordingSynchronously", true, true, null);
         public BaseValue<bool> ShouldSupportCeleryMessages = new BaseValue<bool>("should_support_celery_messages", true, true, null);
         public BaseValue<bool> ShouldSupportEventBusMessages = new BaseValue<bool>("should_support_event_bus_messages", false, true, null);
         public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false, true, null);
@@ -121,7 +120,6 @@ namespace ConfigurationManager
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
-        public HarmonicProviderConfiguration HarmonicProviderConfiguration = new HarmonicProviderConfiguration();
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
         public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();
@@ -135,7 +133,6 @@ namespace ConfigurationManager
         public LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation();
         public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
         public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
-        public EutelsatSettings EutelsatSettings = new EutelsatSettings();
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
         public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
         public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();

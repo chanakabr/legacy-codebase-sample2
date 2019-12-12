@@ -7,9 +7,9 @@ namespace ConfigurationManager
         public override string TcmKey => TcmObjectKeys.AnnouncementManagerConfiguration;
         public override string[] TcmPath => new string[] { TcmKey };
 
-        public BaseValue<string> PushDomainName = new BaseValue<string>("PushDomainName", null);
-        public BaseValue<string> PushServerKey = new BaseValue<string>("PushServerKey", null);
-        public BaseValue<string> PushServerIV = new BaseValue<string>("PushServerIV", null);
+        public BaseValue<string> PushDomainName = new BaseValue<string>("PushDomainName", null,true);
+        public BaseValue<string> PushServerKey = new BaseValue<string>("PushServerKey", null,true);
+        public BaseValue<string> PushServerIV = new BaseValue<string>("PushServerIV", null,true);
 
 
     }

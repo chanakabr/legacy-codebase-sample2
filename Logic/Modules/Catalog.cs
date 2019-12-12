@@ -199,32 +199,6 @@ namespace Core.Catalog
             return bIsUpdateIndexSucceeded;
         }
 
-        public static bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
-        {
-            // get group ID
-            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
-
-            try
-            {
-                GroupManager groupManager = new GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(nGroupID);
-
-                return groupManager.HandleOperatorEvent(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
-            }
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder(String.Concat("Exception. Group ID: ", nGroupID));
-                sb.Append(String.Concat(" Operator ID: ", nOperatorID));
-                sb.Append(String.Concat(" Subscription ID: ", nSubscriptionID));
-                sb.Append(String.Concat(" Channel ID: ", lChannelID));
-                sb.Append(String.Concat(" Operator Event: ", oe.ToString()));
-                sb.Append(String.Concat(" Exception msg: ", ex.Message));
-                sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
-                log.Error("UpdateOperator - " + sb.ToString(), ex);
-                return false;
-            }
-        }
 
         public static bool UpdateEpgIndex(List<ulong> lEpgIds, int nGroupId, eAction eAction)
         {

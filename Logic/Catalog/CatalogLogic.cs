@@ -4664,8 +4664,8 @@ namespace Core.Catalog
 
 
 
-                        List<long> channelsOfIPNO = groupManager.GetOperatorChannelIDs(nParentGroupID, operatorID);
-                        List<long> allChannelsOfAllIPNOs = groupManager.GetDistinctAllOperatorsChannels(nParentGroupID);
+                        List<long> channelsOfIPNO = new List<long>(0);
+                        List<long> allChannelsOfAllIPNOs = new List<long>(0);
 
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {

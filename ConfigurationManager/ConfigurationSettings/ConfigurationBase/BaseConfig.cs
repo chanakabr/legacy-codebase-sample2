@@ -45,10 +45,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 {
                     defaultData.ActualValue = token[defaultData.Key].ToObject<TV>();
                 }
-                if (!Validate())
-                {
-                    _Logger.Error($"TCM Configuration Validation Error under object:  [{GetType().Name}]  for key [{path}], setting default value as actual value");
-                }
+
             }
             catch(Exception ex)
             {
@@ -103,8 +100,12 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 else if (IsBaseStartWithName(field.FieldType, BaseClassName) &&
                     field.FieldType.GetInterface("IBaseConfig") != null)
                 {
-                    Init(baseValueData as IBaseConfig);
-
+                    var baseConfig2 = baseValueData as IBaseConfig;
+                    Init(baseConfig2);
+                    if (!baseConfig2.Validate())
+                    {
+                        _Logger.Error($"TCM Configuration Validation Error under object:  [{field.GetType().Name}] ");
+                    }
                 }
                 else
                 {
@@ -126,7 +127,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             return false;
         }
 
-        protected virtual bool Validate()
+        public virtual bool Validate()
         {
             return true;
         }

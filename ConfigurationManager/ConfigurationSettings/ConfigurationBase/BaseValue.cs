@@ -1,11 +1,14 @@
 ﻿
+using System;
+
 namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
 {
     public class BaseValue<T> : IBaseValue<T>
     {
         internal string Key { get; }
         internal T DefaultValue { get; }
-        internal bool MustBeOverwriteInTcm { get; } //seems we don't neet it anymore
+
+        internal bool MustBeOverwriteInTcm { get; }
 
         internal readonly string description;
 
@@ -15,6 +18,10 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             get
             {
+                if(MustBeOverwriteInTcm && typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Dummy)
+                {
+                    throw new MissingFieldException($"key [{Key}] must be set in DCM ");
+                }
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
         }

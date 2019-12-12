@@ -101,11 +101,6 @@ namespace Core.ConditionalAccess
                         oConditionalAccess = new ElisaConditionalAccess(nGroupID, sConnKey);
                         break;
                     }
-                case (7):
-                    {
-                        oConditionalAccess = new EutelsatConditionalAccess(nGroupID, sConnKey);
-                        break;
-                    }
                 case (9):
                     {
                         oConditionalAccess = new CinepolisConditionalAccess(nGroupID, sConnKey);

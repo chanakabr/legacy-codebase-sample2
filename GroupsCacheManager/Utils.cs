@@ -51,30 +51,6 @@ namespace GroupsCacheManager
             return lGroups;
         }
 
-
-        public static bool IsGroupIDContainedInConfig(long lGroupID, char cSeperator)
-        {
-            bool res = false;
-            string rawStrFromConfig = ApplicationConfiguration.Current.GroupIDsWithIPNOFilteringSeperatedBySemiColon.Value;
-            if (rawStrFromConfig.Length > 0)
-            {
-                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
-                if (strArrOfIDs != null && strArrOfIDs.Length > 0)
-                {
-                    List<long> listOfIDs = strArrOfIDs.Select(s =>
-                    {
-                        long l = 0;
-                        if (Int64.TryParse(s, out l))
-                            return l;
-                        return 0;
-                    }).ToList();
-
-                    res = listOfIDs.Contains(lGroupID);
-                }
-            }
-
-            return res;
-        }
     }
 }
 

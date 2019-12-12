@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Authentication;
 
 namespace ConfigurationManager.Types
 {
@@ -9,13 +11,13 @@ namespace ConfigurationManager.Types
     {
         public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server",5,true,"The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
         public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation",false,true,"Indicates whether the certificate is checked against the certificate authority revocation list");
-        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols","Tls,Tls11,Tls12",true,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
-        public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,Gzip",true,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
+        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols", "Ssl2,Ssl3,Tls,Tls11,Tls12,Tls13", true,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
+        public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,GZip",true,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
         public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout",100000,true,"The timeout in milliseconds for the HttpClient");
 
       
 
-        protected override bool Validate()
+        public override bool Validate()
         {
             bool isValid = base.Validate();
             if (isValid)
@@ -60,8 +62,8 @@ namespace ConfigurationManager.Types
 
             if (sslProtocols.Count > 0)
             {
-                System.Security.Authentication.SslProtocols sslProtocol;
-                isValid = sslProtocols.Any(x => !Enum.TryParse<System.Security.Authentication.SslProtocols>(x, out sslProtocol));
+                SslProtocols sslProtocol;
+                isValid = sslProtocols.TrueForAll(protpcol => Enum.TryParse(protpcol, out sslProtocol));
             }
 
             return isValid;
@@ -135,8 +137,8 @@ namespace ConfigurationManager.Types
 
             if (decompressionMethods.Count > 0)
             {
-                System.Net.DecompressionMethods decompressionMethod;
-                isValid = decompressionMethods.Any(x => !Enum.TryParse<System.Net.DecompressionMethods>(x, out decompressionMethod));
+                DecompressionMethods decompressionMethod;
+                isValid = decompressionMethods.TrueForAll(x => Enum.TryParse(x, out decompressionMethod));
             }
 
             return isValid;

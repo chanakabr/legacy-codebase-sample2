@@ -5698,33 +5698,7 @@ namespace TvinciImporter
             return isUpdateChannelIndexSucceeded;
         }
 
-        public static bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
-        {
-            bool res = true;
-            try
-            {
-                int nParentGroupID = UtilsDal.GetParentGroupID(nGroupID);
-                res &= Core.Catalog.Module.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
-
-            }
-            catch (Exception ex)
-            {
-                #region Logging
-                StringBuilder sb = new StringBuilder(String.Concat("Exception. Msg: ", ex.Message));
-                sb.Append(String.Concat(" Group ID: ", nGroupID));
-                sb.Append(String.Concat(" Operator ID: ", nOperatorID));
-                sb.Append(String.Concat(" Sub ID: ", nSubscriptionID));
-                sb.Append(String.Concat(" Channel ID: ", lChannelID));
-                sb.Append(String.Concat(" Operator Event: ", oe.ToString().ToLower()));
-                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-                log.Error("UpdateOperator - " + sb.ToString(), ex);
-                #endregion
-                res = false;
-            }
-
-            return res;
-        }
-
+    
         public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true, bool isCalledFromTvm = false)
         {
             bool isUpdateIndexSucceeded = false;
