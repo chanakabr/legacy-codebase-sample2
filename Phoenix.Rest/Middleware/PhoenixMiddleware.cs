@@ -35,6 +35,7 @@ namespace Phoenix.Rest.Middleware
             services.AddStaticHttpContextAccessor();
             services.AddSingleton<IResponseFromatterProvider, ResponseFromatterProvider>();
             services.AddApiExceptionHandler<PhoenixExceptionHandler>();
+            
             return services;
         }
 
@@ -45,6 +46,7 @@ namespace Phoenix.Rest.Middleware
         public static IApplicationBuilder UsePhoenix(this IApplicationBuilder app)
         {
             AutoMapperConfig.RegisterMappings();
+            EventNotificationsConfig.SubscribeConsumers();
 
             app.UseCoreConcurrencyLimiter();
             app.UseApiExceptionHandler();
@@ -53,6 +55,7 @@ namespace Phoenix.Rest.Middleware
             app.EnablePublicCors();
             app.UseMiddleware<PhoenixRequestContextBuilder>();
             app.UseMiddleware<PhoenixRequestExecutor>();
+
             return app;
         }
 
