@@ -25,6 +25,8 @@ namespace IngetsNetCore
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
+                //.ConfigureKestrel(o => o.AllowSynchronousIO = true)
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>();
     }
