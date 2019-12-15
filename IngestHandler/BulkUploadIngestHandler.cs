@@ -420,18 +420,19 @@ namespace IngestHandler
 
             crudOperations.ItemsToDelete = currentPrograms.Where(epg => epg.IsAutoFill).ToList();
 
-            var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => epg.EpgExternalId);
+            var currentProgramsDictionary = currentPrograms.Where(epg => !epg.IsAutoFill).ToDictionary(epg => GetEPGKey(epg));
             _Logger.Debug($"CalculateCRUDOperations > currentProgramsDictionary.Count:[{currentProgramsDictionary.Count}], programsToIngest:[{programsToIngest.Count}]");
 
             // we cannot use the programs to ingest as a dictioanry becuse there are multiple translation with same external id
             // var programsToIngestDictionary = programsToIngest.ToDictionary(epg => epg.EpgIdentifier);
             foreach (var programToIngest in programsToIngest)
             {
+                string key = GetEPGKey(programToIngest);
                 // if a program exists both on newly ingested epgs and in index - it's an update
-                if (currentProgramsDictionary.ContainsKey(programToIngest.EpgExternalId))
+                if (currentProgramsDictionary.ContainsKey(key))
                 {
                     // update the epg id of the ingested programs with their existing epg id from CB
-                    var idToUpdate = currentProgramsDictionary[programToIngest.EpgExternalId].EpgId;
+                    var idToUpdate = currentProgramsDictionary[key].EpgId;
                     programToIngest.EpgId = idToUpdate;
                     programToIngest.EpgCbObjects.ForEach(p => p.EpgID = idToUpdate);
                     crudOperations.ItemsToUpdate.Add(programToIngest);
@@ -443,7 +444,7 @@ namespace IngestHandler
                 }
 
                 // Remove programs that marked to add or update so that all that is left will be to delete
-                currentProgramsDictionary.Remove(programToIngest.EpgExternalId);
+                currentProgramsDictionary.Remove(key);
             }
 
             // all update or add programs were removed form list so we left with items to delete
@@ -452,6 +453,11 @@ namespace IngestHandler
             _Logger.Debug($"CalculateCRUDOperations > add:[{crudOperations.ItemsToAdd.Count}], update:[{crudOperations.ItemsToUpdate.Count}], delete:[{crudOperations.ItemsToDelete.Count}]");
 
             return crudOperations;
+        }
+
+        private static string GetEPGKey(EpgProgramBulkUploadObject epg)
+        {
+            return $"{epg.ChannelId}_{epg.EpgExternalId}";
         }
 
         private List<EpgProgramBulkUploadObject> CalculateRequiredUpdatesToEdgesDueToOverlap(IList<EpgProgramBulkUploadObject> currentPrograms, CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
