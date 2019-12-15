@@ -12,111 +12,42 @@ namespace ElasticSearchHandler.Updaters
         {
             IElasticSearchUpdater result = null;
 
-            string urlV1 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV1.Value;
-            string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
 
             switch (eType)
             {
                 case ApiObjects.eObjectType.Channel:
-                {
-                    if (!string.IsNullOrEmpty(urlV2))
                     {
-                        if (!string.IsNullOrEmpty(urlV1))
-                        {
-                            result = new DualChannelUpdater(nGroupID, urlV1, urlV2);
-                        }
-                        else
-                        {
-                            result = new ChannelUpdaterV2(nGroupID);
-                        }
+                        result = new ChannelUpdaterV2(nGroupID);
+                        break;
                     }
-                    else
-                    {
-                        result = new ChannelUpdaterV1(nGroupID);
-                    }
-
-                    break;
-                }
                 case ApiObjects.eObjectType.Media:
-                {
-                    if (!string.IsNullOrEmpty(urlV2))
                     {
-                        if (!string.IsNullOrEmpty(urlV1))
-                        {
-                            result = new DualMediaUpdater(nGroupID, urlV1, urlV2);
-                        }
-                        else
-                        {
                             result = new MediaUpdaterV2(nGroupID);
-                        }
-                    }
-                    else
-                    {
-                        result = new MediaUpdaterV1(nGroupID);
-                    }
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.eObjectType.EPG:
-                {
-                    if (!string.IsNullOrEmpty(urlV2))
                     {
-                        if (!string.IsNullOrEmpty(urlV1))
-                        {
-                            result = new DualEpgUpdater(nGroupID, urlV1, urlV2);
-                        }
-                        else
-                        {
-                            result = new EpgUpdaterV2(nGroupID);
-                        }
+                        result = new EpgUpdaterV2(nGroupID);
+                        break;
                     }
-                    else
-                    {
-                        result = new EpgUpdaterV1(nGroupID);
-                    }
-
-                    break;
-                }
                 case ApiObjects.eObjectType.Recording:
-                {
-                    if (!string.IsNullOrEmpty(urlV2))
                     {
-                        if (!string.IsNullOrEmpty(urlV1))
-                        {
-                            result = new DualRecordingUpdater(nGroupID, urlV1, urlV2);
-                        }
-                        else
-                        {
-                            result = new RecordingUpdaterV2(nGroupID);
-                        }
+                        result = new RecordingUpdaterV2(nGroupID);
+                        break;
                     }
-                    else
-                    {
-                        result = new RecordingUpdaterV1(nGroupID);
-                    }
-
-                    break;
-                }
                 case ApiObjects.eObjectType.Tag:
-                {
-                    if (!string.IsNullOrEmpty(urlV2))
                     {
                         result = new TagUpdater(nGroupID);
+                        break;
                     }
-
-                    break;
-                }
                 case ApiObjects.eObjectType.ChannelMetadata:
-                {
-                    if (!string.IsNullOrEmpty(urlV2))
                     {
                         result = new ChannelMetadataUpdater(nGroupID);
+                        break;
                     }
-
-                    break;
-                }
                 default:
-                break;
+                    break;
             }
 
             return result;

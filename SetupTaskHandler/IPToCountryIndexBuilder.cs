@@ -29,33 +29,12 @@ namespace SetupTaskHandler
             api = new ElasticSearchApi();
         }
 
-        public bool BuildIndex(string elasticSearchUrl = "", int version = 1)
+        public bool BuildIndex()
         {
             bool result = false;
 
-            if (!string.IsNullOrEmpty(elasticSearchUrl))
-            {
-                api.baseUrl = elasticSearchUrl;
-            }
+            serializer = new ESSerializerV2();
 
-            switch (version)
-            {
-                case 1:
-                {
-                    serializer = new ESSerializerV1();
-                    break;
-                }
-                case 2:
-                {
-                    serializer = new ESSerializerV2();
-                    break;
-                }
-                default:
-                {
-                    serializer = new ESSerializerV1();
-                    break;
-                }
-            }
 
             string newIndexName = ElasticSearchTaskUtils.GetNewUtilsIndexString();
             string ipToCountryType = "iptocountry";
@@ -63,7 +42,7 @@ namespace SetupTaskHandler
 
             int numOfShards = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
             int numOfReplicas = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
-            
+
             try
             {
                 bool indexExists = api.IndexExists(newIndexName);

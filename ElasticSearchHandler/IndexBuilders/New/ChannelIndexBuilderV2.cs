@@ -157,8 +157,8 @@ namespace ElasticSearchHandler.IndexBuilders
             }
             else
             {
-                // TODO: Ira decide
-                return new MediaIndexBuilderV1(groupId).BuildIndex();
+                // TODO: Tzachi: Ira decide what should be done?
+                return true;
             }
 
             return true;

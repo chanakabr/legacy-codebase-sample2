@@ -21,9 +21,9 @@ namespace BulkUploadHandler
                 var request = JsonConvert.DeserializeObject<BulkUploadRequest>(data);
                 var processBulkUploadStatus = BulkUploadManager.ProcessBulkUpload(request.GroupID, request.UserId, request.BulkUploadId);
 
-                if (processBulkUploadStatus == null || !processBulkUploadStatus.IsOkStatusCode())
+                if (!processBulkUploadStatus.IsOkStatusCode())
                 {
-                    throw new Exception(string.Format("BulkUpload task did not finish successfully. {0}", processBulkUploadStatus != null ? processBulkUploadStatus.ToString() : string.Empty));
+                    throw new Exception($"BulkUpload task did not finish successfully. ProcessBulkUpload error: {processBulkUploadStatus.ToString()}.");
                 }
                 else
                 {
@@ -32,7 +32,7 @@ namespace BulkUploadHandler
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("An Exception was occurred in BulkUploadHandler.HandleTask. data={0}.", data), ex);
+                log.Error($"An Exception was occurred in BulkUploadHandler.HandleTask. data={data}.", ex);
                 throw ex;
             }
 

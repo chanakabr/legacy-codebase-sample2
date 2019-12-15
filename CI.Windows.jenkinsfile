@@ -69,6 +69,7 @@ pipeline {
                     RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'cd remotetasks && ../Core/get-version-tag.sh', , returnStdout: true).trim()
                     RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
             }
+            
             steps{
                 dir("published"){  
                     sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 

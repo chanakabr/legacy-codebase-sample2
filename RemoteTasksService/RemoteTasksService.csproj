@@ -247,6 +247,10 @@
       <Project>{ef6f5898-9ae0-45d3-8fa9-19566d0b49cf}</Project>
       <Name>InitiateNotificationActionHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LiveAssetBulkUploadHandler\LiveAssetBulkUploadHandler.csproj">
+      <Project>{bfcf1a8e-3b5a-44af-a16a-79b3d4272f69}</Project>
+      <Name>LiveAssetBulkUploadHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MessageAnnouncementHandler\MessageAnnouncementHandler.csproj">
       <Project>{665fc35c-073a-4099-8abf-296d1f3d1d24}</Project>
       <Name>MessageAnnouncementHandler</Name>

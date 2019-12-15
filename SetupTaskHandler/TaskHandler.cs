@@ -40,46 +40,24 @@ namespace SetupTaskHandler
                 switch (request.Mission.Value)
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
-                    {
-                        #region IP to Country
-
-                        var worker = new IPToCountryIndexBuilder();
-
-                        bool v1Success = true;
-                        bool v2Success = true;
-
-                        string urlV1 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV1.Value;
-                        string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
-
-                        if (string.IsNullOrEmpty(urlV1) && string.IsNullOrEmpty(urlV2))
                         {
+                            #region IP to Country
+
+                            var worker = new IPToCountryIndexBuilder();
+
+
                             success = worker.BuildIndex();
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(urlV1))
+
+                            if (success)
                             {
-                                v1Success = worker.BuildIndex(urlV1, 1);
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.GET_COUNTRY_BY_IP_INVALIDATION_KEY);
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY);
                             }
 
-                            if (!string.IsNullOrEmpty(urlV2))
-                            {
-                                v2Success = worker.BuildIndex(urlV2, 2);
-                            }
+                            break;
 
-                            success = v1Success && v2Success;
+                            #endregion
                         }
-
-                        if (success || v1Success || v2Success)
-                        {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.GET_COUNTRY_BY_IP_INVALIDATION_KEY);
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY);
-                        }
-
-                        break;
-
-                        #endregion
-                    }
                     case ApiObjects.eSetupTask.NotificationSeriesCleanupIteration:
                     {
                         #region Notification Clean Iteration
@@ -117,61 +95,7 @@ namespace SetupTaskHandler
 
                         #endregion
                     }
-                    case ApiObjects.eSetupTask.MigrateStatistics:
-                    {
-                        #region Migrate Statistics
-
-                        string urlV1 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV1.Value;
-                        string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
-
-                        DateTime? startDate = null;
-
-                        if (request.DynamicData.ContainsKey("START_DATE"))
-                        {
-                            string startDateString = request.DynamicData["START_DATE"].ToString();
-                            DateTime temp;
-
-                            DateTime.TryParseExact(startDateString, "yyyyMMddHHmmss",
-                                System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None,
-                                out temp);
-
-                            startDate = temp;
-                        }
-
-                        var worker = new StatisticsMigrationTool(urlV1, urlV2);
-                        success = worker.Migrate(request.GroupID, startDate);
-
-                        if (success)
-                        {
-                            var queue = new SetupTasksQueue();
-
-                            var dynamicData = new Dictionary<string, object>();
-
-                            if (startDate != null && startDate.HasValue)
-                            {
-                                dynamicData.Add("START_DATE", DateTime.UtcNow);
-                            }
-
-                            var queueObject = new CelerySetupTaskData(request.GroupID, eSetupTask.MigrateStatistics, dynamicData)
-                            {
-                                ETA = DateTime.UtcNow.AddMinutes(30)
-                            };
-
-                            try
-                            {
-                                queue.Enqueue(queueObject, "MIGRATE_STATISTICS");
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error("MigrateStatistics - " +
-                                        string.Format("Error in MigrateStatistics: group = {0} ex = {1}, ST = {2}", request.GroupID, ex.Message, ex.StackTrace),
-                                        ex);
-                            }
-                        }
-                        break;
-
-                        #endregion
-                    }
+                 
                     case ApiObjects.eSetupTask.InsertExpiredRecordingsTasks:
                     {
                         #region Recording Lifetime
