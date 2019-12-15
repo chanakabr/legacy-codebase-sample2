@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using AdapterClients.IngestTransformation;
 
 namespace Core.Profiles
 {
@@ -52,6 +53,13 @@ namespace Core.Profiles
 
                     response.Object = profileToAdd;
                     response.SetStatus(eResponseStatus.OK, "New ingest profile was successfully created");
+
+                    var transformationAdptr = new IngestTransformationAdapterClient(profileToAdd);
+                    var status = transformationAdptr.SetConfiguration();
+                    if (status != RestAdaptersCommon.eAdapterStatus.OK)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
+                    }
                 }
                 else
                 {
@@ -199,6 +207,13 @@ namespace Core.Profiles
                     profileToUpdate.Id = ingestProfileId;
                     response.Object = profileToUpdate;
                     response.SetStatus(eResponseStatus.OK, " ingest profile was successfully updated");
+
+                    var transformationAdptr = new IngestTransformationAdapterClient(profileToUpdate);
+                    var status = transformationAdptr.SetConfiguration();
+                    if (status != RestAdaptersCommon.eAdapterStatus.OK)
+                    {
+                        response.SetStatus((int)eResponseStatus.Error, "failed to call transformation adapter client");
+                    }
                 }
                 else
                 {
