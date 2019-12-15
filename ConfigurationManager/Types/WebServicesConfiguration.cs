@@ -1,9 +1,4 @@
 ﻿using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConfigurationManager
 {
@@ -21,15 +16,15 @@ namespace ConfigurationManager
 
         public WebServicesConfiguration()
         {
-            Users = new WebServiceConfiguration("Users", "http://webservices/users/module.asmx");
-            ConditionalAccess = new ConfigurationManager.WebServiceConfiguration("ConditionalAccess", "http://webservices/cas/module.asmx");
-            Api = new ConfigurationManager.WebServiceConfiguration("Api", "http://webservices/api/api.asmx");
-            Pricing = new ConfigurationManager.WebServiceConfiguration("Pricing", "http://webservices/pricing/module.asmx");
-            Billing = new ConfigurationManager.WebServiceConfiguration("Billing", "http://webservices/billing/module.asmx");
-            Domains = new ConfigurationManager.WebServiceConfiguration("Domains", "http://webservices/domains/module.asmx");
-            Social = new ConfigurationManager.WebServiceConfiguration("Social", "http://webservices/social/module.asmx");
-            Notification = new ConfigurationManager.WebServiceConfiguration("Notification", "http://webservices/notification/service.svc");
-            Catalog = new ConfigurationManager.CatalogWebServiceConfiguration("Catalog", "http://webservices/catalog/service.svc");
+            Users = new WebServiceConfiguration("Users",                         "https://webservices.service.consul:48080/ws_users_module.asmx");
+            ConditionalAccess = new WebServiceConfiguration("ConditionalAccess", "https://webservices.service.consul:48080/ws_cas_module.asmx");
+            Api = new WebServiceConfiguration("Api",                             "https://webservices.service.consul:48080/api.asmx");
+            Pricing = new WebServiceConfiguration("Pricing",                     "https://webservices.service.consul:48080/ws_pricing_module.asmx");
+            Billing = new WebServiceConfiguration("Billing",                     "https://webservices.service.consul:48080/ws_billing_module.asmx");
+            Domains = new WebServiceConfiguration("Domains",                     "https://webservices.service.consul:48080/ws_domains_module.asmx");
+            Social = new WebServiceConfiguration("Social",                       "https://webservices.service.consul:48080/ws_social_module.asmx");
+            Notification = new WebServiceConfiguration("Notification",           "https://webservices.service.consul:48080/ws_notification_service.svc");
+            Catalog = new CatalogWebServiceConfiguration("Catalog",              "https://webservices.service.consul:48080/ws_catalog_service.svc");
         }
 
         public override string TcmKey => TcmObjectKeys.WebServicesConfiguration;

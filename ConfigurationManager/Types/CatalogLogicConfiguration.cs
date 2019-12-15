@@ -12,7 +12,7 @@ namespace ConfigurationManager
         public BaseValue<int> UpdateEPGPackage = new BaseValue<int>("update_epg_package", 200);
         public BaseValue<int> PersonalRecommendedMaxResultsSize = new BaseValue<int>("personal_recommended_max_results_size", 20);
         public BaseValue<string> WatchHistoryStaleMode = new BaseValue<string>("watch_history_stale_mode", "false", false, "ViewStaleState enum. Possible values are: None, False, Ok, UpdateAfter");
-        public BaseValue<string> GroupsWithIUserTypeSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIUserTypeSeperatedBySemiColon", null);
+        public BaseValue<string> GroupsWithIUserTypeSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIUserTypeSeperatedBySemiColon", "0");
 
         public override string TcmKey => TcmObjectKeys.CatalogLogicConfiguration;
 

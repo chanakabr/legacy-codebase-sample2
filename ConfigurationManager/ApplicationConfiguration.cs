@@ -44,19 +44,19 @@ namespace ConfigurationManager
         public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", TcmObjectKeys.Stub,  true, null);
         public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", false, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
         public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", TcmObjectKeys.Stub, true, "Use in yes epg BL");
-        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> IngestFtpUser = new BaseValue<string>("IngestFtpUser", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> AdyenWSUser = new BaseValue<string>("TvinciAdyenWS_User", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> AdyenWSPass = new BaseValue<string>("TvinciAdyenWS_Pass", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> AdyenWSMerchAccount = new BaseValue<string>("TvinciAdyenWS_MerchAccount", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", TcmObjectKeys.Stub, true, null);
-        public BaseValue<string> MetaFeaturesPattern = new BaseValue<string>("meta_features_pattern", @"\W|[^ ]{64}[^ ]", true, null);
-        public BaseValue<string> LogConfigurationDocumentKey = new BaseValue<string>("log_configuration_document_key", "phoenix_log_configuration", true, "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config");
-        public BaseValue<string> SearchIndexType = new BaseValue<string>("search_index_type", "ES", true, "Used in TVM, for transition between Lucene and ElasticSearch. " +
+        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Stub, true);
+        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Stub, true);
+        public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", TcmObjectKeys.Stub, true);
+        public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", TcmObjectKeys.Stub, true);
+        public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", TcmObjectKeys.Stub, true);
+        public BaseValue<string> IngestFtpUser = new BaseValue<string>("IngestFtpUser", TcmObjectKeys.Stub, true);
+        public BaseValue<string> AdyenWSUser = new BaseValue<string>("TvinciAdyenWS_User", TcmObjectKeys.Stub, true);
+        public BaseValue<string> AdyenWSPass = new BaseValue<string>("TvinciAdyenWS_Pass", TcmObjectKeys.Stub, true);
+        public BaseValue<string> AdyenWSMerchAccount = new BaseValue<string>("TvinciAdyenWS_MerchAccount", TcmObjectKeys.Stub, true);
+        public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", TcmObjectKeys.Stub, true);
+        public BaseValue<string> MetaFeaturesPattern = new BaseValue<string>("meta_features_pattern", @"\W|[^ ]{64}[^ ]", false);
+        public BaseValue<string> LogConfigurationDocumentKey = new BaseValue<string>("log_configuration_document_key", "phoenix_log_configuration", false, "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config");
+        public BaseValue<string> SearchIndexType = new BaseValue<string>("search_index_type", "ES", false, "Used in TVM, for transition between Lucene and ElasticSearch. " +
         "Today we use ES exclusively. Only valid value is 'ES', otherwise Lucene is used");
 
 
@@ -67,18 +67,18 @@ namespace ConfigurationManager
         public BaseValue<int> PreviewModuleNumOfCancelOrRefundAttempts = new BaseValue<int>("PreviewModuleNumOfCancelOrRefundAttempts", 120);
         public BaseValue<int> EPGDocumentExpiry = new BaseValue<int>("epg_doc_expiry", 7);
         public BaseValue<int> DomainCacheDocTimeout = new BaseValue<int>("DomainCacheDocTimeout", 1440);
-        public BaseValue<int> PlayCycleDocumentExpiryMinutes = new BaseValue<int>("playCycle_doc_expiry_min", 60, true, "TTL for CouchBase documents of play cycle data in minutes.");
+        public BaseValue<int> PlayCycleDocumentExpiryMinutes = new BaseValue<int>("playCycle_doc_expiry_min", 60, false, "TTL for CouchBase documents of play cycle data in minutes.");
         public BaseValue<int> UserInterestsTTLDays = new BaseValue<int>("ttl_user_interest_days", 30);
         public BaseValue<int> PersonalizedFeedTTLDays = new BaseValue<int>("PersonalizedFeedTTLDays", 365);
         public BaseValue<int> RecordingsMaxDegreeOfParallelism = new BaseValue<int>("recordings_max_degree_of_parallelism", 5);
-        public BaseValue<int> QueueFailLimit = new BaseValue<int>("queue_fail_limit", 3, true, "Retry limit for RabbitMQ actions like enqueue.");
+        public BaseValue<int> QueueFailLimit = new BaseValue<int>("queue_fail_limit", 3, false, "Retry limit for RabbitMQ actions like enqueue.");
         public BaseValue<int> PendingThresholdDays = new BaseValue<int>("pending_threshold_days", 180);
         public BaseValue<int> CrowdSourcerFeedNumberOfItems = new BaseValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS", 0);
-        public BaseValue<int> UserSegmentTTL = new BaseValue<int>("user_segment_ttl_hours", 36, true, "How long do we keep information about the users' segments");
+        public BaseValue<int> UserSegmentTTL = new BaseValue<int>("user_segment_ttl_hours", 36, false, "How long do we keep information about the users' segments");
         public BaseValue<int> EPGDeleteBulkSize = new BaseValue<int>("epg_delete_bulk_size", 10);
         public BaseValue<int> MediaMarksListLength = new BaseValue<int>("media_marks_list_limit", 300);
         public BaseValue<int> MediaMarksTTL = new BaseValue<int>("media_marks_ttl_days", 90);
-        public BaseValue<int> LogReloadInterval = new BaseValue<int>("log_reload_interval", 0, true, "Interval of reloading the KLogger configuration from Couchbase, in milliseconds.");
+        public BaseValue<int> LogReloadInterval = new BaseValue<int>("log_reload_interval", 0, false, "Interval of reloading the KLogger configuration from Couchbase, in milliseconds.");
 
         public BaseValue<double> CrowdSourceTimeSpan = new BaseValue<double>("CrowdSourceTimeSpan", 30);
         public BaseValue<double> BillingCacheTTL = new BaseValue<double>("BillingCacheTTL", 60);
@@ -87,16 +87,16 @@ namespace ConfigurationManager
         public BaseValue<long> ReconciliationFrequencySeconds = new BaseValue<long>("reconciliation_frequency_seconds", 7200);
         public BaseValue<ulong> EpgInitialId = new BaseValue<ulong>("epg_initial_id", 100000000);
 
-        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("ShouldDistributeRecordingSynchronously", true, true, null);
-        public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false, true, null);
+        public BaseValue<bool> ShouldDistributeRecordingSynchronously = new BaseValue<bool>("ShouldDistributeRecordingSynchronously", true);
+        public BaseValue<bool> ShouldRecoverSubscriptionRenewalToMessageBus = new BaseValue<bool>("should_recover_subscription_renewal_to_message_bus", false);
         public BaseValue<bool> ShouldGetMediaFileDetailsDirectly = new BaseValue<bool>("ShouldGetMediaFileDetailsDirectly", false, false, "description");
-        public BaseValue<bool> ShouldGetCatalogDataFromDB = new BaseValue<bool>("get_catalog_data_from_db",false, true, "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty.");
+        public BaseValue<bool> ShouldGetCatalogDataFromDB = new BaseValue<bool>("get_catalog_data_from_db",false, false, "Just in case media mark information is not in Couchbase, we might want to continue to DB. Should be false or empty.");
         public BaseValue<bool> DownloadPicWithQueue = new BaseValue<bool>("downloadPicWithQueue", false);
         public BaseValue<bool> CheckImageUrl = new BaseValue<bool>("CheckImageUrl", true);
         public BaseValue<bool> AllowUnknownCountry = new BaseValue<bool>("allow_unknown_country", false);
         public BaseValue<bool> ShouldSubscriptionOverlapConsiderDLM = new BaseValue<bool>("should_subscription_overlap_consider_dlm", false);
         public BaseValue<bool> ShouldAddInvalidationKeysToHeader = new BaseValue<bool>("add_invalidation_keys_to_header", false);
-        public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, true, "TVM key, whether IP check during login should be skipped or not.");
+        public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, false, "TVM key, whether IP check during login should be skipped or not.");
         public BaseValue<bool> EnableHttpLogin = new BaseValue<bool>("EnableHttpLogin", true);
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
@@ -115,7 +115,7 @@ namespace ConfigurationManager
         public NotificationConfiguration NotificationConfiguration = new NotificationConfiguration();
         public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
-        public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration(); // todo
+        public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration();
         public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
