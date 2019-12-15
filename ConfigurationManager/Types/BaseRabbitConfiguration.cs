@@ -4,9 +4,9 @@ namespace ConfigurationManager
 {
     public abstract class BaseRabbitConfiguration : BaseConfig<BaseRabbitConfiguration>
     {
-        public BaseValue<string> HostName = new BaseValue<string>("hostName", "rabbitmq", false, "RabbitMQ host name (server address). Only for 'default' it is mandatory.");
-        public BaseValue<string> UserName = new BaseValue<string>("userName", "logs", false, "RabbitMQ login user. Only for 'default' it is mandatory.");
-        public BaseValue<string> Password = new BaseValue<string>("password", TcmObjectKeys.Dummy, true, "RabbitMQ login password. Only for 'default' it is mandatory.");
+        public BaseValue<string> HostName = new BaseValue<string>("hostName", "rabbit.service.consul", false, "RabbitMQ host name (server address). Only for 'default' it is mandatory.");
+        public BaseValue<string> UserName = new BaseValue<string>("userName", "admin", true, "RabbitMQ login user. Only for 'default' it is mandatory.");
+        public BaseValue<string> Password = new BaseValue<string>("password", TcmObjectKeys.Stub, true, "RabbitMQ login password. Only for 'default' it is mandatory.");
         public BaseValue<string> RoutingKey = new BaseValue<string>("routingKey", ".");
         public BaseValue<string> Exchange = new BaseValue<string>("exchange", "scheduled_tasks", false, "RabbitMQ exchange. Only for 'default' it is mandatory.");
         public BaseValue<string> Queue = new BaseValue<string>("queue", ".");

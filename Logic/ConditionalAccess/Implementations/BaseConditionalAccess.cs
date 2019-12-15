@@ -10966,21 +10966,6 @@ namespace Core.ConditionalAccess
             {
                 playCycleKey = Guid.NewGuid().ToString();
             }
-
-            /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
-            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
-            {
-                int ruleID = 0;
-                // take the first rule (probably will be just one rule)
-                if (devicePlayDataToInsert != null && devicePlayDataToInsert.MediaConcurrencyRuleIds != null && devicePlayDataToInsert.MediaConcurrencyRuleIds.Count > 0)
-                {
-                    ruleID = devicePlayDataToInsert.MediaConcurrencyRuleIds[0];
-                }
-
-                int nCountryID = Utils.GetIP2CountryId(m_nGroupID, userIp);
-                CatalogDAL.InsertPlayCycleKey(devicePlayDataToInsert.UserId.ToString(), devicePlayDataToInsert.AssetId, mediaFileID, devicePlayDataToInsert.UDID, 0,
-                                              nCountryID, ruleID, m_nGroupID, playCycleKey);
-            }
         }
 
         internal ConcurrencyResponse CheckMediaConcurrency(string userId, string udid, MediaFileItemPricesContainer[] prices, int mediaId,

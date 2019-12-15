@@ -25,7 +25,7 @@ namespace ConfigurationManager
         public BaseValue<int> AuthorizationGroupConfigsTtlSeconds = new BaseValue<int>("authorization_group_configs_ttl_seconds", 86400);
         public BaseValue<int> EPGSearchOffsetDays = new BaseValue<int>("epg_search_offset_days", 7, true, "On old EPG search requests, how many days back/forward from now should we search. " +
                 "Originally from GlobalAppSettings.config, key EPGSearchOffsetDays.");
-        public BaseValue<string> MainConnectionString = new BaseValue<string>("main_connection_string", null, true, "Originally in web.config: TVinciDBConfig section, but now it is put together.");
+        public BaseValue<string> MainConnectionString = new BaseValue<string>("main_connection_string", TcmObjectKeys.Stub, true, "Originally in web.config: TVinciDBConfig section, but now it is put together.");
         public BaseValue<string> DefaultTechnicalConfigurationFileLocation = new BaseValue<string>("default_technical_configuration_file_location", "DefaultTechnicalConfiguration.config", true, "Location of XML file that will contain all group-platform default values for technical configuration.");
         public BaseValue<string> DefaultMediaConfigurationFileLocation = new BaseValue<string>("default_media_configuration_file_location", "DefaultMediaConfiguration.config", true, "Location of XML file that will contain group-platform default values for media configuration.");
         public BaseValue<string> DefaultSiteConfigurationFileLocation = new BaseValue<string>("default_site_configuration_file_location", "DefaultSiteConfiguration.config", true, "Location of XML file that will contain group-platform default values for site configuration.");

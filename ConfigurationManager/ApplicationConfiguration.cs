@@ -1,5 +1,6 @@
 ﻿using ConfigurationManager.Types;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using System;
 
 namespace ConfigurationManager
 {
@@ -22,39 +23,37 @@ namespace ConfigurationManager
 
 
         public BaseValue<string> ExcludeTemplatesImplementation =  new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
-        public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", "https://ny-udrm-stg.kaltura.com");
-        public BaseValue<string> UseOldImageServer = new BaseValue<string>("USE_OLD_IMAGE_SERVER", "0", true, "Group Ids, split by ';', that wish to use old image server");
-        public BaseValue<string> DMSAdapterUrl = new BaseValue<string>("DMS_ADAPTER_URL", null);
+        public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", TcmObjectKeys.Stub,true);
+        public BaseValue<string> UseOldImageServer = new BaseValue<string>("USE_OLD_IMAGE_SERVER", "0", false, "Group Ids, split by ';', that wish to use old image server");
+        public BaseValue<string> DMSAdapterUrl = new BaseValue<string>("DMS_ADAPTER_URL", "https://dms.service.consul/");
         public BaseValue<string> PlayManifestDynamicQueryStringParamsNames = new BaseValue<string>("PlayManifestDynamicQueryStringParamsNames", "clientTag,playSessionId");
-        public BaseValue<string> Version = new BaseValue<string>("Version", null,true, "CouchBase document prefix. Each version has its own cached document to avoid backward compatibilty issues.");
-        public BaseValue<string> PictureUploaderPath = new BaseValue<string>("pic_uploader_path", null, true, "Configuration for DBManipulator/CouchBaseManipulator in TVM.");
-        public BaseValue<string> TVMBaseUrl = new BaseValue<string>("BASE_URL", "/", true, "Base URL for TVM.");
-        public BaseValue<string> ClearCachePath = new BaseValue<string>("CLEAR_CACHE_PATH", null, true, "TVM key, location of clean_cache.aspx page in different servers.");
-        public BaseValue<string> StagingClearCachePath = new BaseValue<string>("STAGING_CLEAR_CACHE_PATH", null, true, "TVM key, location of clean_cache.aspx page in different servers, for staging environment.");
-        public BaseValue<string> BatchUpload = new BaseValue<string>("batch_upload", null);
-        public BaseValue<string> LookupGenericUpload = new BaseValue<string>("lookup_generic_upload", null);
+        public BaseValue<string> Version = new BaseValue<string>("Version", "SV", false, "CouchBase document prefix. Each version has its own cached document to avoid backward compatibilty issues.");
+        public BaseValue<string> PictureUploaderPath = new BaseValue<string>("pic_uploader_path", TcmObjectKeys.Stub, true, "Configuration for DBManipulator/CouchBaseManipulator in TVM.");
+        public BaseValue<string> TVMBaseUrl = new BaseValue<string>("BASE_URL", TcmObjectKeys.Stub, true, "Base URL for TVM.");
+        public BaseValue<string> BatchUpload = new BaseValue<string>("batch_upload", TcmObjectKeys.Stub,true);
+        public BaseValue<string> LookupGenericUpload = new BaseValue<string>("lookup_generic_upload", TcmObjectKeys.Stub, true);
         public BaseValue<string> AppState = new BaseValue<string>("APP_STATE", "normal");
         public BaseValue<string> ServerName = new BaseValue<string>("SERVER_NAME", "TVM_EU");
-        public BaseValue<string> ApplicationName = new BaseValue<string>("APPLICATION_NAME", null);
-        public BaseValue<string> GraceNoteXSLTPath = new BaseValue<string>("GraceNote_XSLT_PATH", null, true, "Remote tasks configuration for EPG XDTV Transformation.");
-        public BaseValue<string> GraceNoteALUIdConvertion = new BaseValue<string>("GraceNote_ALU_IDConvertion", null, true, "Remote tasks configuration for EPG XDTV Transformation.");
-        public BaseValue<string> DMSUrl = new BaseValue<string>("DMSUrl", null, false, "Address of DMS server.");
-        public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", null, false, "liat regev");
-        public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "Cache", true, null);
-        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", string.Empty, false, null);
-        public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", null, true, null);
-        public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", true, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
-        public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", null, true, "Use in yes epg BL");
-        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Dummy, false, null);
-        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Dummy, false, null);
-        public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", null, true, null);
-        public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", null, true, null);
-        public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", null, true, null);
-        public BaseValue<string> IngestFtpUser = new BaseValue<string>("IngestFtpUser", null, true, null);
-        public BaseValue<string> AdyenWSUser = new BaseValue<string>("TvinciAdyenWS_User", null, true, null);
-        public BaseValue<string> AdyenWSPass = new BaseValue<string>("TvinciAdyenWS_Pass", null, true, null);
-        public BaseValue<string> AdyenWSMerchAccount = new BaseValue<string>("TvinciAdyenWS_MerchAccount", null, true, null);
-        public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", null, true, null);
+        public BaseValue<string> ApplicationName = new BaseValue<string>("APPLICATION_NAME", TcmObjectKeys.Stub, true); 
+        public BaseValue<string> GraceNoteXSLTPath = new BaseValue<string>("GraceNote_XSLT_PATH", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
+        public BaseValue<string> GraceNoteALUIdConvertion = new BaseValue<string>("GraceNote_ALU_IDConvertion", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
+        public BaseValue<string> DMSUrl = new BaseValue<string>("DMSUrl", TcmObjectKeys.Stub, true, "Address of DMS server.");
+        public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
+        public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "SVInMemoryCache" );
+        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", string.Empty );
+        public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", TcmObjectKeys.Stub,  true, null);
+        public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", false, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
+        public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", TcmObjectKeys.Stub, true, "Use in yes epg BL");
+        public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> PicsBasePath = new BaseValue<string>("pics_base_path", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> IngestFtpPass = new BaseValue<string>("IngestFtpPass", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> IngestFtpUrl = new BaseValue<string>("IngestFtpUrl", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> IngestFtpUser = new BaseValue<string>("IngestFtpUser", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> AdyenWSUser = new BaseValue<string>("TvinciAdyenWS_User", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> AdyenWSPass = new BaseValue<string>("TvinciAdyenWS_Pass", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> AdyenWSMerchAccount = new BaseValue<string>("TvinciAdyenWS_MerchAccount", TcmObjectKeys.Stub, true, null);
+        public BaseValue<string> AdyenPSPReferenceRegexOverride = new BaseValue<string>("AdyenPSPReferenceRegexOverride", TcmObjectKeys.Stub, true, null);
         public BaseValue<string> MetaFeaturesPattern = new BaseValue<string>("meta_features_pattern", @"\W|[^ ]{64}[^ ]", true, null);
         public BaseValue<string> LogConfigurationDocumentKey = new BaseValue<string>("log_configuration_document_key", "phoenix_log_configuration", true, "Document key in Couchbase from which the log reloader mechanism will read the configuration of log4net.config");
         public BaseValue<string> SearchIndexType = new BaseValue<string>("search_index_type", "ES", true, "Used in TVM, for transition between Lucene and ElasticSearch. " +
@@ -149,6 +148,20 @@ namespace ConfigurationManager
         public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
 
 
+        public T GetValueByKey<T>(string key)
+        {
+            T result = default;
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<T>(key);
+            }
+            catch (Exception ex)
+            {
+
+                _Logger.Error("Error getting key:" + key + ", from TCM" + ex.Message, ex);
+            }
+            return result;
+        }
         public static void Init()
         {
             TCMClient.Settings.Instance.Init();

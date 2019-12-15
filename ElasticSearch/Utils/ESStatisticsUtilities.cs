@@ -32,11 +32,9 @@ namespace ElasticSearch.Utilities
                 Date = DateTime.UtcNow
             };
 
-            string urlV2 = ApplicationConfiguration.Current.ElasticSearchConfiguration.URLV2.Value;
             string originalUrl = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
 
             HashSet<string> urls = new HashSet<string>();
-            urls.Add(urlV2);
             urls.Add(originalUrl);
 
             if (urls.Count > 0)

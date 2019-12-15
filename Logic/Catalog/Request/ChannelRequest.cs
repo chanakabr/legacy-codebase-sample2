@@ -168,22 +168,8 @@ namespace Core.Catalog.Request
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    if (Utils.IsGroupIDContainedInConfig(nGroupId, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
-                    {
-                        result = new List<int>();
-                        Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(windowTime, DateTime.UtcNow, nGroupId, media);
-                        if (dict != null && dict.Count > 0)
-                        {
-                            result = (from pair in dict
-                                      orderby pair.Value[0] descending
-                                      select pair.Key).ToList();
-                        }
-                    }
-                    /************* For versions after Joker that don't want to use DB for getting view stats (first_play), we fetch the data from ES statistics index **********/
-                    else
-                    {
-                        result = CatalogLogic.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_FIRST_PLAY);
-                    }
+
+                    result = CatalogLogic.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_FIRST_PLAY);
                     break;
                 case OrderBy.RATING:
                     result = CatalogLogic.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES, CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD,

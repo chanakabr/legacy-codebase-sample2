@@ -5,8 +5,10 @@ namespace ConfigurationManager
 {
     public class ElasticSearchConfiguration : BaseConfig<ElasticSearchConfiguration>
     {
-        public BaseValue<string> URL = new BaseValue<string>("url", "http://elasticsearch_storm:9200");
-        public BaseValue<string> URLV2 = new BaseValue<string>("url_v2", "http://elasticsearch_storm:9200");
+        /// <summary>
+        /// uses key: url_v2
+        /// </summary>
+        public BaseValue<string> URL = new BaseValue<string>("url_v2", "http://elasticsearch.service.consul:9200");
         public BaseValue<string> AlternativeUrl = new BaseValue<string>("alt_url", null, false, "Alternative, backup ElasticSearch server location. In most cases we don't use this.");
         public BaseValue<int> MaxNGram = new BaseValue<int>("max_ngram", 20, false, "Maximum size of search tokens for 'like' and 'autocomplete' in ElasticSearch. It should be synced with analyzers in remote tasks");
         public BaseValue<int> MaxResults = new BaseValue<int>("max_results", 100000);

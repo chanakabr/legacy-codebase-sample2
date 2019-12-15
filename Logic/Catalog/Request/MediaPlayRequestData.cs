@@ -92,20 +92,7 @@ namespace Core.Catalog.Request
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
                         mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, ttl, action);
 
-                    //FPNPC -  on First Play create New Play Cycle
-                    if (CatalogLogic.IsGroupUseFPNPC(groupId))
-                    {
-                        // We still insert to DB incase needed by other process
-                        if (currDevicePlayData != null && !string.IsNullOrEmpty(currDevicePlayData.PlayCycleKey))
-                        {
-                            CatalogDAL.InsertPlayCycleKey(currDevicePlayData.UserId.ToString(), currDevicePlayData.AssetId, this.m_nMediaFileID,
-                                                          currDevicePlayData.UDID, platform, countryId, 0, groupId, currDevicePlayData.PlayCycleKey);
-                        }
-                        else
-                        {
-                            CatalogDAL.GetOrInsertPlayCycleKey(userId.ToString(), mediaId, this.m_nMediaFileID, this.m_sUDID, platform, countryId, 0, groupId, true);
-                        }
-                    }
+
                 }
 
                 // update NpvrId

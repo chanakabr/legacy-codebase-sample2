@@ -1856,18 +1856,6 @@ namespace Core.Catalog
             }
         }
 
-        public static bool IsGroupUseFPNPC(int nGroupID) //FPNPC - First Play New Play Cycle
-        {
-            try
-            {
-                return Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupIDsWithIFPNPC.Value, ';');
-            }
-            catch (Exception ex)
-            {
-                log.Error("", ex);
-                return false;
-            }
-        }
 
         #region Build Search object for Searcher project.
 
@@ -4184,122 +4172,17 @@ namespace Core.Catalog
 
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
+                        /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
 
-                        /*
-                         * When we have valid dates in Media Asset Stats request we fetch the data as follows:
-                         * 1. Views Rating and Likes from ES statistics index.
-                         * 
-                         *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                         */
-
-                        if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
+                        if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
                         {
-                            #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
-
-                            DateTime? startDate = dStartDate;
-                            DateTime? endDate = dEndDate;
-
-                            if (dStartDate < System.Data.SqlTypes.SqlDateTime.MinValue.Value)
-                            {
-                                startDate = null;
-                                dStartDate = System.Data.SqlTypes.SqlDateTime.MinValue.Value;
-                            }
-
-                            if (dEndDate < System.Data.SqlTypes.SqlDateTime.MinValue.Value)
-                            {
-                                endDate = null;
-                                dEndDate = System.Data.SqlTypes.SqlDateTime.MinValue.Value;
-                            }
-
-                            if (dStartDate > System.Data.SqlTypes.SqlDateTime.MaxValue.Value)
-                            {
-                                startDate = null;
-                                dStartDate = System.Data.SqlTypes.SqlDateTime.MaxValue.Value;
-                            }
-
-                            if (dEndDate > System.Data.SqlTypes.SqlDateTime.MaxValue.Value)
-                            {
-                                endDate = null;
-                                dEndDate = System.Data.SqlTypes.SqlDateTime.MaxValue.Value;
-                            }
-
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(startDate, dEndDate, nGroupID, lAssetIDs);
-                            if (dict.Count > 0)
-                            {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
-                                {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
-                                    {
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                        if (isBuzzNotEmpty)
-                                        {
-                                            string strAssetID = kvp.Key.ToString();
-                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                                            {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                            }
-                                            else
-                                            {
-                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                                            }
-                                        }
-                                    }
-                                } // foreach
-                            }
-                            else
-                            {
-                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                            }
-
-                            // save monitor and logs context data
-                            ContextData contextData = new ContextData();
-
-                            // bring social actions from CB social bucket
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
-                            {
-                                tasks[(int)i] = new Task<Response.AssetStatsResult.SocialPartialAssetStatsResult>((obj) =>
-                                {
-                                    int index = (int)obj;
-                                    // load monitor and logs context data
-                                    contextData.Load();
-
-                                    return GetSocialAssetStats(nGroupID, lAssetIDs[index], eType, dStartDate, dEndDate);
-                                }, i);
-
-                                tasks[i].Start();
-                            }
-
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                    {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
-                                    }
-                                }
-                                tasks[i].Dispose();
-                            }
-                            #endregion
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
                         }
                         else
                         {
-                            /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-
-                            if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
-                            {
-                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
-                            }
-                            else
-                            {
-                                Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetMediaStatsKey(x), x => x.ToString());
-                                Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
-                                Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                            Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetMediaStatsKey(x), x => x.ToString());
+                            Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
+                            Dictionary<string, object> funcParameters = new Dictionary<string, object>()
                                     {
                                         { "assetsIds", lAssetIDs },
                                         { "statsType", StatsType.MEDIA },
@@ -4307,23 +4190,23 @@ namespace Core.Catalog
                                         { "mapping", assetIdToAssetStatsMapping },
                                     };
 
-                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
-                                    ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+                            bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
+                                ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
 
-                                if (!success)
+                            if (!success)
+                            {
+                                log.ErrorFormat("Failed getting stats for medias {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                            }
+                            else
+                            {
+                                foreach (var assetStats in results.Values)
                                 {
-                                    log.ErrorFormat("Failed getting stats for medias {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
-                                }
-                                else
-                                {
-                                    foreach (var assetStats in results.Values)
-                                    {
-                                        assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
-                                    }
+                                    assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
                                 }
                             }
-
                         }
+
+                        
 
                         break;
                     }
@@ -4363,61 +4246,17 @@ namespace Core.Catalog
                         }
                         else
                         {
-                            // we bring data from ES statistics index only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsUsingDBForAssetsStats.Value, ';'))
+                            /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
+
+                            if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
                             {
-                                #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
-
-                                // save monitor and logs context data
-                                ContextData contextData = new ContextData();
-
-                                // we bring data from social bucket in CB.
-                                Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                                for (int i = 0; i < lAssetIDs.Count; i++)
-                                {
-                                    tasks[(int)i] = new Task<Response.AssetStatsResult.SocialPartialAssetStatsResult>((obj) =>
-                                    {
-                                        int index = (int)obj;
-
-                                        // load monitor and logs context data
-                                        contextData.Load();
-
-                                        return GetSocialAssetStats(nGroupID, lAssetIDs[index], eType, dStartDate, dEndDate);
-                                    }, i);
-
-                                    tasks[(int)i].Start();
-                                }
-
-                                Task.WaitAll(tasks);
-                                for (int i = 0; i < tasks.Length; i++)
-                                {
-                                    if (tasks[i] != null)
-                                    {
-                                        AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                        if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                        {
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
-                                        }
-                                    }
-                                    tasks[i].Dispose();
-                                }
-                                #endregion
+                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
                             }
                             else
                             {
-                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-
-                                if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
-                                {
-                                    GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
-                                }
-                                else
-                                {
-                                    Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetEPGStatsKey(x), x => x.ToString());
-                                    Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
-                                    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetEPGStatsKey(x), x => x.ToString());
+                                Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
+                                Dictionary<string, object> funcParameters = new Dictionary<string, object>()
                                     {
                                         { "assetsIds", lAssetIDs },
                                         { "statsType", StatsType.EPG },
@@ -4425,40 +4264,39 @@ namespace Core.Catalog
                                         { "mapping", assetIdToAssetStatsMapping },
                                     };
 
-                                    bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
-                                        ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+                                bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
+                                    ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
 
-                                    if (!success)
-                                    {
-                                        log.ErrorFormat("Failed getting stats for epgs {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
-                                    }
-                                    else
-                                    {
-                                        foreach (var assetStats in results.Values)
-                                        {
-                                            assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
-                                        }
-                                    }
-                                    //foreach (var assetId in lAssetIDs)
-                                    //{
-                                    //    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
-                                    //{
-                                    //    { "assetId", assetId },
-                                    //    { "statsType", StatsType.EPG },
-                                    //    { "groupId", nGroupID },
-                                    //    { "mapping", assetIdToAssetStatsMapping },
-                                    //};
-
-                                    //    AssetStatsResult assetStatsResult = null;
-                                    //    bool success = LayeredCache.Instance.Get<AssetStatsResult>(LayeredCacheKeys.GetEPGStatsKey(assetId), ref assetStatsResult, GetAssetStats, funcParameters,
-                                    //        nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
-
-                                    //    if (!success)
-                                    //    {
-                                    //        log.ErrorFormat("Failed getting stats for EPG {0} group {1}", assetId, nGroupID);
-                                    //    }
-                                    //}
+                                if (!success)
+                                {
+                                    log.ErrorFormat("Failed getting stats for epgs {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
                                 }
+                                else
+                                {
+                                    foreach (var assetStats in results.Values)
+                                    {
+                                        assetIdToAssetStatsMapping[assetStats.m_nAssetID].CopyFrom(assetStats);
+                                    }
+                                }
+                                //foreach (var assetId in lAssetIDs)
+                                //{
+                                //    Dictionary<string, object> funcParameters = new Dictionary<string, object>()
+                                //{
+                                //    { "assetId", assetId },
+                                //    { "statsType", StatsType.EPG },
+                                //    { "groupId", nGroupID },
+                                //    { "mapping", assetIdToAssetStatsMapping },
+                                //};
+
+                                //    AssetStatsResult assetStatsResult = null;
+                                //    bool success = LayeredCache.Instance.Get<AssetStatsResult>(LayeredCacheKeys.GetEPGStatsKey(assetId), ref assetStatsResult, GetAssetStats, funcParameters,
+                                //        nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+
+                                //    if (!success)
+                                //    {
+                                //        log.ErrorFormat("Failed getting stats for EPG {0} group {1}", assetId, nGroupID);
+                                //    }
+                                //}
                             }
                         }
 
@@ -4604,16 +4442,8 @@ namespace Core.Catalog
                  */
                 if (!Int64.TryParse(oMediaRequest.m_sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
                 {
-                    // anonymous user
-                    if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIPNOFilteringShowAllCatalogAnonymousUser.Value, ';'))
-                    {
-                        //user is able to watch the entire catalog
-                        res = false;
-                    }
-                    else
-                    {
-                        throw new Exception("IPNO Filtering. No site guid at Catalog Request");
-                    }
+
+                    throw new Exception("IPNO Filtering. No site guid at Catalog Request");
                 }
                 else
                 {
