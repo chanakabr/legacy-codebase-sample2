@@ -105,7 +105,15 @@ namespace IngestHandler
 
                 var edgeProgramsToUpdate = CalculateRequiredUpdatesToEdgesDueToOverlap(currentPrograms, crudOperations);
 
-                HandleOverlapsAndGaps(crudOperations, _Results);
+                bool isValid = HandleOverlapsAndGaps(crudOperations, _Results);
+
+                if (!isValid)
+                {
+                    _Logger.Debug($"Overlaps or gaps are not valid");
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
+
+                    return;
+                }
 
                 var finalEpgState = CalculateSimulatedFinalStateAfterIngest(crudOperations.ItemsToAdd, crudOperations.ItemsToUpdate);
 
