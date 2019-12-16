@@ -17,6 +17,11 @@ namespace TVPPro.SiteManager.Objects
 
         [System.Runtime.Serialization.DataMemberAttribute()]
         public List<EPGChannelProgrammeObject> EPGChannelProgrammeObject { get; set; }
+
+        public EPGMultiChannelProgrammeObject() : base()
+        {
+            this.AssetType = eAssetTypes.EPG;
+        }
     }
 
     public enum EPGUnit
