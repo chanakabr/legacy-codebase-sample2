@@ -43,6 +43,7 @@ namespace ConfigurationManager
             {"ps_events"                   , "ProfessionalServicesHandler"},
             {"asset_inheritance"           , "AssetInheritanceHandler"},
             {"geo_rule_update"             , "GeoRuleUpdateHandler"},
+            { "bulk_upload_live_asset"     , "LiveAssetBulkUploadHandler" }
         };
 
         public BaseValue<Dictionary<string, string>> distributedTasks = new BaseValue<Dictionary<string, string>>(TcmObjectKeys.DistributedTasks, handlerDefaultDic);
