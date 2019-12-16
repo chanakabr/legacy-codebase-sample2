@@ -325,7 +325,21 @@ public partial class MethodFinder
                 //    serializer.WriteObject(ms, SerializationTarget);
                 //    Product = Encoding.UTF8.GetString(ms.ToArray());
                 //}
-                Product = Newtonsoft.Json.JsonConvert.SerializeObject(SerializationTarget);
+
+
+                // handle BEO-7531
+                if (SerializationTarget is Core.ConditionalAccess.MediaFileItemPricesContainer[]
+                    || SerializationTarget is Core.Pricing.PPVModule || SerializationTarget is Core.Pricing.Subscription)
+                {
+                    TVPApi.Common.TvpapiCustomContractResolver jsonResolver = TVPApi.Common.TvpapiCustomContractResolver.Instance;
+                    JsonSerializerSettings serializerSettings = new JsonSerializerSettings();
+                    serializerSettings.ContractResolver = jsonResolver;
+                    Product = Newtonsoft.Json.JsonConvert.SerializeObject(SerializationTarget, serializerSettings);
+                }
+                else
+                {
+                    Product = Newtonsoft.Json.JsonConvert.SerializeObject(SerializationTarget);
+                }
             } while (false);
             return Product;
         }
