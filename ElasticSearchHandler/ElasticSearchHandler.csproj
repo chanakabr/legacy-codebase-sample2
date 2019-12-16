@@ -61,8 +61,6 @@
   <ItemGroup>
     <Compile Include="ElasticSearchRequest.cs" />
     <Compile Include="ElasticSearchTaskUtils.cs" />
-    <Compile Include="IndexBuilders\Dual\DualEPGIndexBuilder.cs" />
-    <Compile Include="IndexBuilders\Dual\DualRecordingIndexBuilder.cs" />
     <Compile Include="IndexBuilders\New\ChannelIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\ChannelMetadataIndexBuilder.cs" />
     <Compile Include="IndexBuilders\New\EpgIndexBuilderV2.cs" />
@@ -78,10 +76,6 @@
     <Compile Include="Rebasers\EPGRebaser.cs" />
     <Compile Include="Rebasers\MediaRebaser.cs" />
     <Compile Include="TaskHandler.cs" />
-    <Compile Include="Updaters\Dual\DualRecordingUpdater.cs" />
-    <Compile Include="Updaters\Dual\DualEpgUpdater.cs" />
-    <Compile Include="Updaters\Dual\DualMediaUpdater.cs" />
-    <Compile Include="Updaters\Dual\DualUpdater.cs" />
     <Compile Include="Updaters\New\ChannelMetadataUpdater.cs" />
     <Compile Include="Updaters\New\ChannelUpdaterV2.cs" />
     <Compile Include="Updaters\New\EpgChannelUpdaterV2.cs" />
@@ -89,12 +83,7 @@
     <Compile Include="Updaters\New\MediaUpdaterV2.cs" />
     <Compile Include="Updaters\New\RecordingUpdaterV2.cs" />
     <Compile Include="Updaters\New\TagUpdater.cs" />
-    <Compile Include="Updaters\Old\ChannelUpdaterV1.cs" />
-    <Compile Include="Updaters\Old\EpgChannelUpdaterV1.cs" />
-    <Compile Include="Updaters\Old\EpgUpdaterV1.cs" />
     <Compile Include="Infra\IElasticSearchUpdater.cs" />
-    <Compile Include="Updaters\Old\MediaUpdaterV1.cs" />
-    <Compile Include="Updaters\Old\RecordingUpdaterV1.cs" />
     <Compile Include="Infra\UpdaterFactory.cs" />
   </ItemGroup>
   <ItemGroup>
