@@ -233,18 +233,21 @@ namespace IngestValidtionHandler
             string currentProgramsAlias = BulkUploadMethods.GetIngestCurrentProgramsAliasName(_EventData.GroupId, _EventData.DateOfProgramsToIngest);
             string globalAlias = _EpgBL.GetProgramIndexAlias();
 
-
             // Should only be one but we will loop anyway ...
             var previousIndices = _ElasticSearchClient.GetAliases(currentProgramsAlias);
-            _Logger.Debug($"Removing alias:[{currentProgramsAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
-            foreach (var index in previousIndices)
+            if (previousIndices.Any())
             {
-                _ElasticSearchClient.RemoveAlias(index, globalAlias);
-                _ElasticSearchClient.RemoveAlias(index, currentProgramsAlias);
+                _Logger.Debug($"Removing alias:[{currentProgramsAlias}, {globalAlias}] from:[{string.Join(",", previousIndices)}].");
+                foreach (var index in previousIndices)
+                {
+                    _ElasticSearchClient.RemoveAlias(index, globalAlias);
+                    _ElasticSearchClient.RemoveAlias(index, currentProgramsAlias);
+                }
             }
 
             string newIndex = BulkUploadMethods.GetIngestDraftTargetIndexName(_EventData.GroupId, _EventData.BulkUploadId, _EventData.DateOfProgramsToIngest);
             _Logger.Debug($"Adding alias:[{currentProgramsAlias}, {globalAlias}] To:[{string.Join(",", newIndex)}].");
+            
             _ElasticSearchClient.AddAlias(newIndex, currentProgramsAlias);
             _ElasticSearchClient.AddAlias(newIndex, globalAlias);
         }
