@@ -8,8 +8,8 @@ namespace ConfigurationManager
         public override string[] TcmPath => new string[] { TcmKey };
 
         public BaseValue<string> PushDomainName = new BaseValue<string>("PushDomainName", "push-as.ott.kaltura.com");
-        public BaseValue<string> PushServerKey = new BaseValue<string>("PushServerKey", TcmObjectKeys.Stub);
-        public BaseValue<string> PushServerIV = new BaseValue<string>("PushServerIV", TcmObjectKeys.Stub);
+        public BaseValue<string> PushServerKey = new BaseValue<string>("PushServerKey", TcmObjectKeys.Stub,true);
+        public BaseValue<string> PushServerIV = new BaseValue<string>("PushServerIV", TcmObjectKeys.Stub,true);
 
 
     }

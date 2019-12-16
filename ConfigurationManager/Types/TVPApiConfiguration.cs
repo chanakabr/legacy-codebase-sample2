@@ -19,18 +19,18 @@ namespace ConfigurationManager
         public BaseValue<HashSet<int>> OfflineFavoriteSyncGroups = new BaseValue<HashSet<int>>(Offline_favorite_sync_groupsKey, offlineFavoriteSyncGroupsSet);
 
 
-        public BaseValue<bool> ShouldUseNewCache = new BaseValue<bool>("should_use_new_cache", true, true, "Originally in web.config: ShouldUseNewCache");
-        public BaseValue<int> CacheLiteDurationInMinutes = new BaseValue<int>("cache_lite_duration_in_minutes", 1440, true, "Originally in web.config: Tvinci.DataLoader.CacheLite.DurationInMinutes");
+        public BaseValue<bool> ShouldUseNewCache = new BaseValue<bool>("should_use_new_cache", true, false, "Originally in web.config: ShouldUseNewCache");
+        public BaseValue<int> CacheLiteDurationInMinutes = new BaseValue<int>("cache_lite_duration_in_minutes", 1440, false, "Originally in web.config: Tvinci.DataLoader.CacheLite.DurationInMinutes");
         public BaseValue<int> OdbcCacheSeconds = new BaseValue<int>("odbc_cache_seconds", 60);
         public BaseValue<int> AuthorizationGroupConfigsTtlSeconds = new BaseValue<int>("authorization_group_configs_ttl_seconds", 86400);
-        public BaseValue<int> EPGSearchOffsetDays = new BaseValue<int>("epg_search_offset_days", 7, true, "On old EPG search requests, how many days back/forward from now should we search. " +
+        public BaseValue<int> EPGSearchOffsetDays = new BaseValue<int>("epg_search_offset_days", 7, false, "On old EPG search requests, how many days back/forward from now should we search. " +
                 "Originally from GlobalAppSettings.config, key EPGSearchOffsetDays.");
         public BaseValue<string> MainConnectionString = new BaseValue<string>("main_connection_string", TcmObjectKeys.Stub, true, "Originally in web.config: TVinciDBConfig section, but now it is put together.");
-        public BaseValue<string> DefaultTechnicalConfigurationFileLocation = new BaseValue<string>("default_technical_configuration_file_location", "DefaultTechnicalConfiguration.config", true, "Location of XML file that will contain all group-platform default values for technical configuration.");
-        public BaseValue<string> DefaultMediaConfigurationFileLocation = new BaseValue<string>("default_media_configuration_file_location", "DefaultMediaConfiguration.config", true, "Location of XML file that will contain group-platform default values for media configuration.");
-        public BaseValue<string> DefaultSiteConfigurationFileLocation = new BaseValue<string>("default_site_configuration_file_location", "DefaultSiteConfiguration.config", true, "Location of XML file that will contain group-platform default values for site configuration.");
-        public BaseValue<string> SecureSiteGuidKey = new BaseValue<string>("secure_site_guid_key", "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA=", true, "Originally from GlobalAppSettings.config, key SecureSiteGuidKey");
-        public BaseValue<string> SecureSiteGuidIV = new BaseValue<string>("secure_site_guid_iv", "Yn5/n0s8B0yLRvGuhSLRrA==", true, "Originally from GlobalAppSettings.config, key SecureSiteGuidIV");
+        public BaseValue<string> DefaultTechnicalConfigurationFileLocation = new BaseValue<string>("default_technical_configuration_file_location", "DefaultTechnicalConfiguration.config", false, "Location of XML file that will contain all group-platform default values for technical configuration.");
+        public BaseValue<string> DefaultMediaConfigurationFileLocation = new BaseValue<string>("default_media_configuration_file_location", "DefaultMediaConfiguration.config", false, "Location of XML file that will contain group-platform default values for media configuration.");
+        public BaseValue<string> DefaultSiteConfigurationFileLocation = new BaseValue<string>("default_site_configuration_file_location", "DefaultSiteConfiguration.config", false, "Location of XML file that will contain group-platform default values for site configuration.");
+        public BaseValue<string> SecureSiteGuidKey = new BaseValue<string>("secure_site_guid_key", "L3CDpYFfCrGnx5ACoO/Az3oIIt/XeC2dhSmFcB6ckxA=", false, "Originally from GlobalAppSettings.config, key SecureSiteGuidKey");
+        public BaseValue<string> SecureSiteGuidIV = new BaseValue<string>("secure_site_guid_iv", "Yn5/n0s8B0yLRvGuhSLRrA==", false, "Originally from GlobalAppSettings.config, key SecureSiteGuidIV");
 
 
         public override void SetActualValue<TV>(JToken token, BaseValue<TV> defaultData)

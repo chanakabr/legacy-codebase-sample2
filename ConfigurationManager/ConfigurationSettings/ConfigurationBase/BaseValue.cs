@@ -18,7 +18,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
         {
             get
             {
-                if(MustBeOverwriteInTcm && typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Stub)
+                if(MustBeOverwriteInTcm && (typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Stub || ActualValue == null))
                 {
                     throw new MissingFieldException($"key [{Key}] must be set in DCM ");
                 }
