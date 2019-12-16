@@ -13,7 +13,6 @@ namespace TVPApiModule.Objects.CRM
         [JsonProperty("NormalizedWeightedAverageScore")]
         public double NormalizedWeightedAverageScore;
         [JsonProperty("UpdateDate")]
-        [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
         public DateTime UpdateDate;
 
         public static BuzzWeightedAverScoreDTO ConvertToDTO(BuzzWeightedAverScore weightedAverScore)
@@ -28,6 +27,7 @@ namespace TVPApiModule.Objects.CRM
                 WeightedAverageScore = weightedAverScore.WeightedAverageScore,
                 UpdateDate = weightedAverScore.UpdateDate
             };
+            
             return res;
         }
     }
