@@ -9,7 +9,6 @@ namespace ConfigurationManager
         /// uses key: url_v2
         /// </summary>
         public BaseValue<string> URL = new BaseValue<string>("url_v2", "http://elasticsearch.service.consul:9200");
-        public BaseValue<string> AlternativeUrl = new BaseValue<string>("alt_url", null, false, "Alternative, backup ElasticSearch server location. In most cases we don't use this.");
         public BaseValue<int> MaxNGram = new BaseValue<int>("max_ngram", 20, false, "Maximum size of search tokens for 'like' and 'autocomplete' in ElasticSearch. It should be synced with analyzers in remote tasks");
         public BaseValue<int> MaxResults = new BaseValue<int>("max_results", 100000);
         public BaseValue<int> MaxStatSortResults = new BaseValue<int>("max_stat_sort_results",0);

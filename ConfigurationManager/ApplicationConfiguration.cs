@@ -40,7 +40,7 @@ namespace ConfigurationManager
         public BaseValue<string> DMSUrl = new BaseValue<string>("DMSUrl", TcmObjectKeys.Stub, true, "Address of DMS server.");
         public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
         public BaseValue<string> SingleInMemoryCacheName = new BaseValue<string>("single_in_memory_cache_name", "SVInMemoryCache" );
-        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", string.Empty );
+        public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", TcmObjectKeys.Stub, true);
         public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", TcmObjectKeys.Stub,  true, null);
         public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", false, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
         public BaseValue<string> EPGUrl = new BaseValue<string>("EPGUrl", TcmObjectKeys.Stub, true, "Use in yes epg BL");
