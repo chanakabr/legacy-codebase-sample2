@@ -71,8 +71,7 @@ namespace IngestValidtionHandler
                     UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
                     SwitchAliases();
                     BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus newStatus);
-
-                    _BulkUploadObject.Status = newStatus;
+                    UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
 
                     // Update edgs if there are any updates to be made dure to overlap
                     if (eventData.EdgeProgramsToUpdate.Any())
@@ -97,6 +96,14 @@ namespace IngestValidtionHandler
             {
                 _Logger.Error($"An Exception occurred in BulkUploadIngestValidationHandler requestId:[{eventData.RequestId}], BulkUploadId:[{eventData.BulkUploadId}].", ex);
                 throw;
+            }
+        }
+
+        private void UpdateBulkUploadStatus(BulkUpload bulkUploadObject, BulkUploadJobStatus newStatus)
+        {
+            if (newStatus == BulkUploadJobStatus.Success)
+            {
+                BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, newStatus);
             }
         }
 
