@@ -111,6 +111,7 @@ namespace IngestHandler
                 {
                     _Logger.Debug($"Overlaps or gaps are not valid by ingest profile");
                     BulkUploadManager.UpdateBulkUploadResults(_ResultsDictionary.Values, out BulkUploadJobStatus jobStatus);
+                    BulkUploadManager.UpdateBulkUpload(_BulkUploadObject, jobStatus);
 
                     return;
                 }
