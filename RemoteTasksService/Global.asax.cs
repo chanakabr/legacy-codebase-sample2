@@ -37,6 +37,9 @@ namespace RemoteTasksService
             
             WebAPI.Filters.AutoMapperConfig.RegisterMappings();
             WebAPI.Filters.EventNotificationsConfig.SubscribeConsumers();
+
+            // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
+            TVinciShared.AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
         }
 
         protected void Session_Start(object sender, EventArgs e)
