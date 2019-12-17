@@ -104,7 +104,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     Init(baseConfig2);
                     if (!baseConfig2.Validate())
                     {
-                        _Logger.Error($"TCM Configuration Validation Error under object:  [{field.GetType().Name}] ");
+                        _Logger.Error($"TCM Configuration Validation Error under object:  [{baseConfig2.GetType().Name}] ");
                     }
                 }
                 else
