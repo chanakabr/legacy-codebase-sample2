@@ -142,7 +142,7 @@ pipeline {
             steps{
                 dir("published"){
                     sh (script: "echo 'buildnum ${BUILD_NUMBER}' > kaltura_ott_api/version.txt") 
-                    sh (script: "cd ../tvpapi_rest && git rev-parse HEAD >> ../published/kaltura_ott_api/version.txt") 
+                    // sh (script: "cd ../tvpapi_rest && git rev-parse HEAD >> ../published/kaltura_ott_api/version.txt") 
                     bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
                     sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
                 }
