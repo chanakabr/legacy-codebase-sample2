@@ -38,7 +38,7 @@ namespace DAL
             {
                 while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
                 {
-                    var bulkUploadToSave = cbManager.GetWithVersion<T>(key, out version, out getResult);
+                    var objectToSave = cbManager.GetWithVersion<T>(key, out version, out getResult);
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
@@ -48,9 +48,9 @@ namespace DAL
 
                     if (getResult == eResultStatus.SUCCESS)
                     {
-                        updateObjectAction(bulkUploadToSave);
+                        updateObjectAction(objectToSave);
 
-                        if (cbManager.SetWithVersion(key, bulkUploadToSave, version, ttl))
+                        if (cbManager.SetWithVersion(key, objectToSave, version, ttl))
                         {
                             log.DebugFormat("successfully SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
                                 key, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);

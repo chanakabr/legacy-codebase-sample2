@@ -2122,8 +2122,6 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            log.DebugFormat("new code for BEO-7420 ip:{0}", ip);
-
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
