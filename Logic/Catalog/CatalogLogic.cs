@@ -586,12 +586,12 @@ namespace Core.Catalog
             ppvMoudleName.Append(name);
             if (startDate.HasValue)
             {
-                ppvMoudleName.AppendFormat(";{0}", startDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
+                ppvMoudleName.AppendFormat(";{0}", startDate.Value.ToString(DateUtils.MAIN_FORMAT));
             }
 
             if (endDate.HasValue)
             {
-                ppvMoudleName.AppendFormat(";{0}", endDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
+                ppvMoudleName.AppendFormat(";{0}", endDate.Value.ToString(DateUtils.MAIN_FORMAT));
             }
 
             return ppvMoudleName.Length > 0 ? ppvMoudleName.ToString() : string.Empty;
@@ -705,7 +705,8 @@ namespace Core.Catalog
                     {
                         oMeta = new Metas();
                         oMeta.m_oTagMeta = new TagMeta(ODBCWrapper.Utils.GetSafeStr(metaRow, "name"), typeof(DateTime).ToString());
-                        oMeta.m_sValue = ODBCWrapper.Utils.GetSafeStr(metaRow, "value");
+                        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(metaRow, "value");
+                        oMeta.m_sValue = dt.ToString(DateUtils.MAIN_FORMAT);
                         lMetas.Add(oMeta);
                     }
                 }
