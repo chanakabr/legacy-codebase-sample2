@@ -981,6 +981,10 @@
       <Project>{bac5dc27-79d6-4bfb-8584-dfec4defd696}</Project>
       <Name>TCMClient</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj">
+      <Project>{d29ef6ea-805e-4a3a-8af0-7e360ec12c12}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataLoader\Tvinci.Data.DataLoader.csproj">
       <Project>{c14818ed-f1a0-4cdb-85df-4f8018f60c31}</Project>
       <Name>Tvinci.Data.DataLoader</Name>
