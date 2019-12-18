@@ -1673,7 +1673,7 @@ namespace Core.ConditionalAccess
                 Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false, sSiteGUID);
 
                 if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
                 {
@@ -1770,6 +1770,13 @@ namespace Core.ConditionalAccess
                     // check if cancellation is allowed
                     Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false);
 
+                    if (subscriptionToCancel == null)
+                    {
+                        response.Code = (int)eResponseStatus.SubscriptionDoesNotExist;
+                        response.Message = "Subscription Does Not Exist";
+                        return response;
+                    }
+
                     if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
                     {
                         response.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
@@ -1777,10 +1784,10 @@ namespace Core.ConditionalAccess
                         return response;
                     }
 
-                    var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionToCancel.m_ProductCode);
-                    if (!status.IsOkStatusCode())
+                    response = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionToCancel.m_sObjectCode);
+                    if (!response.IsOkStatusCode())
                     {
-                        return status;
+                        return response;
                     }
 
                     int[] userIds = domain.m_UsersIDs.ToArray();
@@ -9987,7 +9994,15 @@ namespace Core.ConditionalAccess
                     // Check if cancellation allowed for subscription
                     if (!isForce && transactionType == eTransactionType.Subscription)
                     {
-                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false);
+                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false, domain.m_masterGUIDs[0].ToString());
+
+                        if (subscriptionToCancel == null)
+                        {
+                            result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
+                            result.Message = "Cancellation is blocked for this subscription";
+                            return result;
+                        }
+
                         if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
                         {
                             result.Code = (int)eResponseStatus.SubscriptionCancellationIsBlocked;
@@ -10090,10 +10105,10 @@ namespace Core.ConditionalAccess
                                     break;
                                 case eTransactionType.Subscription:
                                     {
-                                        var status = api.HandleBlockingSegment<SegmentBlockCancelAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, assetID.ToString());
-                                        if (!status.IsOkStatusCode())
+                                        result = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, purchasingSiteGuid, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, assetID.ToString());
+                                        if (!result.IsOkStatusCode())
                                         {
-                                            return status;
+                                            return result;
                                         }
 
                                         long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");

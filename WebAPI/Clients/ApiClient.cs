@@ -3941,7 +3941,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteSegmentationTypeFunc);
         }
 
-        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
+        internal KalturaSegmentationTypeListResponse ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 

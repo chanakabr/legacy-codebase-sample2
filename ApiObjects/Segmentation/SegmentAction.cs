@@ -20,10 +20,13 @@ namespace ApiObjects.Segmentation
         }
     }
 
-    public abstract class SegmentActionKsql : SegmentAction
+    public abstract class SegmentActionObjectVirtualAsset : SegmentAction
     {
         [JsonProperty()]
         public string Ksql { get; set; }
+
+        [JsonProperty()]
+        public abstract ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get; }
 
         public override Status ValidateForInsert()
         {
@@ -48,6 +51,10 @@ namespace ApiObjects.Segmentation
 
             return status;
         }
+    }
+
+    public abstract class SegmentActionObjectVirtualFilterAsset : SegmentActionObjectVirtualAsset
+    {
     }
 
     public class SegmentAssetOrderAction : SegmentAction
@@ -106,28 +113,36 @@ namespace ApiObjects.Segmentation
             return status;
         }
     }
-    
-    public class SegmentBlockPlaybackAction : SegmentActionKsql
+
+
+    public class SegementAssetFilterSegmentAction : SegmentActionObjectVirtualFilterAsset
     {
-        [JsonProperty()]
-        public eTransactionType Type { get; set; }
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Segment; } }
     }
 
-    public class SegmentBlockCancelAction : SegmentActionKsql
+    public class SegementAssetFilterSubscriptionAction : SegmentActionObjectVirtualFilterAsset
     {
-        [JsonProperty()]
-        public eTransactionType Type { get; set; }
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
     }
 
-    public class SegmentBlockPurchaseAction : SegmentActionKsql
+    public abstract class SegmentActionObjectVirtualAssetBlockAction : SegmentActionObjectVirtualAsset
     {
-        [JsonProperty()]
-        public eTransactionType Type { get; set; }
     }
 
-    public class SegementAssetFilterAction : SegmentActionKsql
+    public class SegmentBlockPlaybackSubscriptionAction : SegmentActionObjectVirtualAssetBlockAction
     {
-        [JsonProperty()]
-        public eTransactionType Type { get; set; }
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
     }
+
+    public class SegmentBlockCancelSubscriptionAction : SegmentActionObjectVirtualAssetBlockAction
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
+    }
+
+    public class SegmentBlockPurchaseSubscriptionAction : SegmentActionObjectVirtualAssetBlockAction
+    {
+        public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
+    }
+
+
 }

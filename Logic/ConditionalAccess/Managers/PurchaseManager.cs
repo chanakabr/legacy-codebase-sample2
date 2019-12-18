@@ -171,7 +171,7 @@ namespace Core.ConditionalAccess
 
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
-                Subscription subscription = Utils.GetSubscription(groupId, productId);
+                Subscription subscription = Utils.GetSubscription(groupId, productId, userId);
 
                 if (subscription == null)
                 {
@@ -1103,8 +1103,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid,
-            long householdId, double price, string currency, int productId, CouponData coupon, string userIp, string deviceName,
+        private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string userId,
+            long householdId, double price, string currency, int productId, CouponData coupon, string userIp, string udid,
             int paymentGwId, int paymentMethodId, string adapterData, bool isSubscriptionSetModifySubscription,
             Core.Users.User user, PaymentGateway paymentGateway)
         {
@@ -1121,14 +1121,14 @@ namespace Core.ConditionalAccess
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, " +
                 "userIp {6}, deviceName {7}, " +
                 "paymentGwId {8}, paymentMethodId {9}, adapterData {10}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
+                !string.IsNullOrEmpty(userId) ? userId : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 productId,                                                     // {4}   
                 !string.IsNullOrEmpty(couponCode) ? couponCode : string.Empty, // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
-                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
+                !string.IsNullOrEmpty(udid) ? udid : string.Empty, // {7}
                 paymentGwId, paymentMethodId, adapterData);
 
             try
@@ -1149,8 +1149,8 @@ namespace Core.ConditionalAccess
                 Price priceResponse = null;
                 double couponRemainder = 0;
                 UnifiedBillingCycle unifiedBillingCycle = null; // there is a unified billingCycle for this subscription cycle
-                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, ref couponCode, ref priceReason, ref subscription, country, string.Empty,
-                                                                deviceName, userIp, ref unifiedBillingCycle, out couponRemainder, currency, isSubscriptionSetModifySubscription);
+                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), userId, ref couponCode, ref priceReason, ref subscription, country, string.Empty,
+                                                                udid, userIp, ref unifiedBillingCycle, out couponRemainder, currency, isSubscriptionSetModifySubscription);
 
                 if (subscription == null)
                 {
@@ -1173,7 +1173,7 @@ namespace Core.ConditionalAccess
                 // check permission for subscription with premium services - by roles 
                 if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
                 {
-                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, siteguid, RolePermissions.PURCHASE_SERVICE))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PURCHASE_SERVICE))
                     {
                         response.Status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(groupId, (int)householdId);
                         log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
@@ -1181,7 +1181,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                var status = api.HandleBlockingSegment<SegmentBlockPurchaseAction>(groupId, siteguid, deviceName, userIp, (int)householdId, ObjectVirtualAssetInfoType.Subscription, productId.ToString());
+                var status = api.HandleBlockingSegment<SegmentBlockPurchaseSubscriptionAction>(groupId, userId, udid, userIp, (int)householdId, ObjectVirtualAssetInfoType.Subscription, productId.ToString());
                 if (!status.IsOkStatusCode())
                 {
                     response.Status = status;
@@ -1291,8 +1291,8 @@ namespace Core.ConditionalAccess
                     {
                         // price is validated, create custom data
                         bool partialPrice = unifiedBillingCycle != null && unifiedBillingCycle.endDate > 0 && unifiedBillingCycle.endDate > DateUtils.DateTimeToUtcUnixTimestampMilliseconds(DateTime.UtcNow);
-                        string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, price, currency,
-                                                                         couponCode, userIp, country, string.Empty, deviceName, string.Empty,
+                        string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, userId, price, currency,
+                                                                         couponCode, userIp, country, string.Empty, udid, string.Empty,
                                                                          entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
                                                                          entitleToPreview, false, 0, false, null, partialPrice);
 
@@ -1302,12 +1302,12 @@ namespace Core.ConditionalAccess
                         // purchase
                         if (couponFullDiscount || isGiftCard)
                         {
-                            response = HandleFullCouponPurchase(cas, groupId, siteguid, price, currency, userIp,
+                            response = HandleFullCouponPurchase(cas, groupId, userId, price, currency, userIp,
                                 customData, productId, eTransactionType.Subscription, billingGuid, 0, isGiftCard);
                         }
                         else
                         {
-                            response = HandlePurchase(cas, groupId, siteguid, householdId, price, currency, userIp, customData, productId,
+                            response = HandlePurchase(cas, groupId, userId, householdId, price, currency, userIp, customData, productId,
                                                       eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId, adapterData);
                         }
 
@@ -1390,13 +1390,13 @@ namespace Core.ConditionalAccess
 
                                 // grant entitlement
                                 bool handleBillingPassed =
-                                    cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode,
-                                        userIp, country, deviceName, long.Parse(response.TransactionID), customData, productId, billingGuid.ToString(),
+                                    cas.HandleSubscriptionBillingSuccess(ref response, userId, householdId, subscription, price, currency, couponCode,
+                                        userIp, country, udid, long.Parse(response.TransactionID), customData, productId, billingGuid.ToString(),
                                         entitleToPreview, subscription.m_bIsRecurring && !subscription.PreSaleDate.HasValue, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK, processId);
 
                                 if (handleBillingPassed && endDate.HasValue)
                                 {
-                                    cas.WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                    cas.WriteToUserLog(userId, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
                                     var recurringRenewDetails = new RecurringRenewDetails()
@@ -1466,7 +1466,7 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            PurchaseManager.SendGiftCardReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, householdId, purchaseID, billingGuid);
+                                            PurchaseManager.SendGiftCardReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, userId, householdId, purchaseID, billingGuid);
                                         }
 
                                         // enqueue renew transaction
@@ -1485,7 +1485,7 @@ namespace Core.ConditionalAccess
                                         else if (unifiedBillingCycle == null || ((entitleToPreview || !string.IsNullOrEmpty(couponCode)) && !isNew))
                                         {
                                             // insert regular message 
-                                            RenewTransactionMessageInQueue(groupId, siteguid, billingGuid, purchaseID, endDateUnix, nextRenewalDate, householdId);
+                                            RenewTransactionMessageInQueue(groupId, userId, billingGuid, purchaseID, endDateUnix, nextRenewalDate, householdId);
                                         }
 
                                         //else do nothing, message already exists
@@ -1504,12 +1504,12 @@ namespace Core.ConditionalAccess
 
                                         if (!blockDoublePurchase) // reminder message
                                         {
-                                            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid,
+                                            RenewTransactionData data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid,
                                                 endDateUnix, endDate.Value, eSubscriptionRenewRequestType.Reminder);
                                             PurchaseManager.SendRenewalReminder(data, householdId);
                                         }
 
-                                        RenewManager.EnqueueSubscriptionEndsMessage(groupId, siteguid, purchaseID, endDateUnix);
+                                        RenewManager.EnqueueSubscriptionEndsMessage(groupId, userId, purchaseID, endDateUnix);
                                     }
 
                                     // build notification message
@@ -1517,14 +1517,14 @@ namespace Core.ConditionalAccess
                                     {
                                         {"SubscriptionCode", productId},
                                         {"BillingTransactionID", response.TransactionID},
-                                        {"SiteGUID", siteguid},
+                                        {"SiteGUID", userId},
                                         {"PurchaseID", purchaseID},
                                         {"CouponCode", couponCode},
                                         {"CustomData", customData}
                                     };
 
                                     // notify purchase
-                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, siteguid, deviceName, userIp))
+                                    if (!cas.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData, userId, udid, userIp))
                                     {
                                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", response.Status.Message, logString);
                                     }

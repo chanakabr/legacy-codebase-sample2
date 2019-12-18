@@ -1,6 +1,8 @@
-﻿namespace ApiObjects
+﻿using System.Collections.Generic;
+
+namespace ApiObjects
 {
-    public class ObjectVirtualAssetInfo
+    public abstract class ObjectVirtualAssetInfo
     {
         public int AssetStructId { get; set; }
 
@@ -9,5 +11,17 @@
         public ObjectVirtualAssetInfoType Type { get; set; }
     }
 
+    public class SubscriptionObjectVirtualAssetInfo : ObjectVirtualAssetInfo
+    {
+    }
+
     public enum ObjectVirtualAssetInfoType { Subscription = 0, Segment = 1 }
+
+    public enum ObjectVirtualAssetFilterStatus { None = 0, Results = 1 }
+
+    public class ObjectVirtualAssetFilter
+    {
+        public List<long> ObjectIds;
+        public ObjectVirtualAssetFilterStatus Status;
+    }
 }

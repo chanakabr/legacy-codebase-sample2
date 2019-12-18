@@ -35,10 +35,7 @@ namespace WebAPI.Models.Segmentation
         public List<KalturaStringValue> Values { get; set; }
     }
 
-    /// <summary>
-    /// Block playback action
-    /// </summary>
-    public partial class KalturaBlockPlaybackSegmentAction : KalturaBaseSegmentAction
+    public abstract partial class KalturaKsqlSegmentAction : KalturaBaseSegmentAction
     {
         /// <summary>
         /// KSQL
@@ -47,6 +44,14 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty(PropertyName = "ksql")]
         [XmlElement(ElementName = "ksql")]
         public string KSQL { get; set; }
+    }
+
+    /// <summary>
+    /// Block playback action
+    /// </summary>
+    public partial class KalturaBlockPlaybackSegmentAction : KalturaKsqlSegmentAction
+    {
+        
 
         /// <summary>
         /// Block playback type
@@ -80,7 +85,7 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Asset filter action
     /// </summary>
-    public partial class KalturaSegementAssetFilterAction : KalturaBaseSegmentAction
+    public abstract partial class KalturaSegementAssetFilterAction : KalturaBaseSegmentAction
     {
         /// <summary>
         /// KSQL expression
@@ -89,14 +94,10 @@ namespace WebAPI.Models.Segmentation
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         public string Ksql { get; set; }
+    }
 
-        /// <summary>
-        /// Asset filter type
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaSegementAssetFilterType Type { get; set; }
+    public abstract partial class KalturaSegementAssetFilterAction : KalturaBaseSegmentAction
+    {
     }
 
     /// <summary>

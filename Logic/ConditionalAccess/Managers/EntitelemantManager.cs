@@ -444,13 +444,42 @@ namespace Core.ConditionalAccess
                     return entitlementsResponse;
                 }
 
-                entitlementsResponse.totalItems = allSubscriptionsPurchases.Rows.Count;
+                HashSet<long> subIds = new HashSet<long>();
+                long subId = 0;
+
+                foreach (DataRow dr in allSubscriptionsPurchases.Rows)
+                {
+                    subId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_CODE");
+                    if (!subIds.Contains(subId))
+                    {
+                        subIds.Add(subId);
+                    }
+                }
+
+                var result = Api.api.GetObjectVirtualAssetObjectIds(groupId, 0, 0, new AssetSearchDefinition(), ObjectVirtualAssetInfoType.Subscription, subIds);
+                if (result.Status == ObjectVirtualAssetFilterStatus.None || result.ObjectIds?.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                List<DataRow> rows = new List<DataRow>();
+                foreach (DataRow dr in allSubscriptionsPurchases.Rows)
+                {
+                    subId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_CODE");
+                    if (result.ObjectIds.Contains(subId))
+                    {
+                        rows.Add(dr);
+                    }
+                }
+                
+                entitlementsResponse.totalItems = rows.Count;
 
                 //Get Iteration Rows according page size and index
-                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allSubscriptionsPurchases);
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, rows);
 
                 // get all builingGuid from subscription 
-                List<string> billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
+                List<string> billingGuids = (from row in rows
                                              where row.Field<int>("IS_RECURRING_STATUS") == 1
                                              select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
                 List<PaymentDetails> renewPaymentDetails = null;
@@ -467,7 +496,7 @@ namespace Core.ConditionalAccess
                 foreach (DataRow dr in iterationRows)
                 {
                     entitlement = CreateSubscriptionEntitelment(cas, dr, isExpired, renewPaymentDetails, purchaseIdToScheduledSubscriptionId);
-                    if (entitlement != null)
+                    if (entitlement != null && long.TryParse(entitlement.entitlementId, out subId))
                     {
                         entitlementsResponse.entitelments.Add(entitlement);
                     }
@@ -725,6 +754,38 @@ namespace Core.ConditionalAccess
             return iterationRows;
         }
 
+        private static IEnumerable<DataRow> GetIterationRows(int pageSize, int pageIndex, List<DataRow> usersPermittedItems)
+        {
+            IEnumerable<DataRow> iterationRows = null;
+            List<DataRow> filteredRows = null;
+
+            if (pageIndex > 0 && pageSize > 0)
+            {
+                filteredRows = usersPermittedItems.AsEnumerable().Skip(pageSize * pageIndex).Take(pageSize).ToList();
+                //int takeTop = pageIndex * pageSize;
+                //Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
+                //                          select row.Field<Int64>("ID")).ToList().Min();
+                //filteredRows = (from row in usersPermittedItems.AsEnumerable()
+                //                where (Int64)row["ID"] < maxTransactionID
+                //                select row).Take(pageSize).ToList();
+            }
+
+            if (filteredRows != null)
+            {
+                iterationRows = filteredRows;
+            }
+            else if (pageSize > -1)
+            {
+                iterationRows = usersPermittedItems.AsEnumerable().Take(pageSize);
+            }
+            else
+            {
+                iterationRows = usersPermittedItems.AsEnumerable();
+            }
+
+            return iterationRows;
+        }
+
         private static ConditionalAccess.Response.Entitlement CreatePPVEntitelment(BaseConditionalAccess cas, DataRow dataRow)
         {
             UsageModule oUsageModule = null;
@@ -880,7 +941,7 @@ namespace Core.ConditionalAccess
 
                 // get subscription
                 compensation.SubscriptionId = ODBCWrapper.Utils.GetIntSafeVal(subscriptionPurchaseRow, "SUBSCRIPTION_CODE");
-                Subscription subscription = Utils.GetSubscription(groupId, (int)compensation.SubscriptionId);
+                Subscription subscription = Utils.GetSubscription(groupId, (int)compensation.SubscriptionId, userId);
 
                 // validate subscription
                 if (subscription == null)

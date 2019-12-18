@@ -337,14 +337,14 @@ namespace Core.Pricing
             return pricePlans != null && Add(key, pricePlans);
         }
 
-        public static List<string> GetCollectionsIds(int groupId)
+        public static HashSet<long> GetCollectionsIds(int groupId)
         {
-            var response = new List<string>();
+            var response = new HashSet<long>();
             try
             {
                 var key = GetCollectionsIdsCacheKey(groupId);
                 if (!LayeredCache.Instance.Get(key, ref response,
-                    CouponWalletHandler.GetGroupCollectionIds, new Dictionary<string, object>() { { "groupId", groupId } },
+                    GetGroupCollectionIds, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, null))
                 {
                     log.ErrorFormat($"GetGroupCollectionIds - Failed get data from cache. groupId: {groupId}");
@@ -359,14 +359,14 @@ namespace Core.Pricing
             return response;
         }
 
-        public static List<string> GetSubscriptionsIds(int groupId)
+        public static HashSet<long> GetSubscriptionsIds(int groupId)
         {
-            var response = new List<string>();
+            var response = new HashSet<long>();
             try
             {
                 var key = GetSubscriptionsCacheKey(groupId);
                 if (!LayeredCache.Instance.Get(key, ref response,
-                    CouponWalletHandler.GetGroupSubscriptionsIds, new Dictionary<string, object>() { { "groupId", groupId } },
+                    GetGroupSubscriptionsIds, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GET_GROUP_SUBSCRIPTION, null))
                 {
                     log.ErrorFormat($"GetGroupSubscriptionsIds - Failed get data from cache. groupId: {groupId}");
@@ -383,12 +383,50 @@ namespace Core.Pricing
 
         public static string GetSubscriptionsCacheKey(int groupId)
         {
-            return $"SubscriptionsIds_{groupId}";
+            return $"SubscriptionsIds_V1_{groupId}";
         }
 
         public static string GetCollectionsIdsCacheKey(int groupId)
         {
-            return $"CollectionsIds_{groupId}";
+            return $"CollectionsIds_V1_{groupId}";
+        }
+
+        public static Tuple<HashSet<long>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)
+        {
+            int? groupId = 0;
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId == null)
+                    {
+                        return Tuple.Create(new HashSet<long>(), false);
+                    }
+                }
+            }
+
+            HashSet<long> res = DAL.PricingDAL.GetCollectionIds(groupId.Value);
+            return Tuple.Create(res, res?.Count > 0);
+        }
+
+        public static Tuple<HashSet<long>, bool> GetGroupSubscriptionsIds(Dictionary<string, object> funcParams)
+        {
+            int? groupId = 0;
+            if (funcParams != null && funcParams.Count == 1)
+            {
+                if (funcParams.ContainsKey("groupId"))
+                {
+                    groupId = funcParams["groupId"] as int?;
+                    if (groupId == null)
+                    {
+                        return Tuple.Create(new HashSet<long>(), false);
+                    }
+                }
+            }
+
+            HashSet<long> res = DAL.PricingDAL.GetSubscriptions(groupId.Value);
+            return Tuple.Create(res, res?.Count > 0);
         }
     }
 }

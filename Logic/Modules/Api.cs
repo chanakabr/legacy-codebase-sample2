@@ -2137,24 +2137,21 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, List<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
+        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
             try
             {
-                if(assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids);
+                if (filter.Status == ObjectVirtualAssetFilterStatus.None)
                 {
-                    ids = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);       
-                    if(ids == null || ids.Count == 0)
-                    {
-                        result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        return result;
-                    }
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return result;
                 }
 
                 int totalCount;
-                result.Objects = SegmentationType.List(groupId, ids, pageIndex, pageSize, out totalCount);
+                result.Objects = SegmentationType.List(groupId, filter.ObjectIds.ToList(), pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2185,16 +2182,17 @@ namespace Core.Api
         public static GenericListResponse<UserSegment> GetUserSegments(int groupId, string userId, AssetSearchDefinition assetSearchDefinition, int pageIndex, int pageSize)
         {
             GenericListResponse<UserSegment> result = new GenericListResponse<UserSegment>();
-            List<long> segmentsIds = null;
 
             try
             {
-                if (assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null);
+                if (filter.Status == ObjectVirtualAssetFilterStatus.None)
                 {
-                    segmentsIds = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment);                    
+                    result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    return result;
                 }
 
-                result.Objects = UserSegment.List(groupId, userId, segmentsIds, pageIndex, pageSize, out int totalCount);
+                result.Objects = UserSegment.List(groupId, userId, filter.ObjectIds.ToList(), pageIndex, pageSize, out int totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

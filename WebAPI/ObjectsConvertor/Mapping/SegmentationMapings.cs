@@ -86,12 +86,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // segmentation action
             cfg.CreateMap<KalturaBaseSegmentAction, SegmentAction>()
                 .Include<KalturaAssetOrderSegmentAction, SegmentAssetOrderAction>()
-                .Include<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackAction>()
+                .Include<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackSubscriptionAction>()
                 ;
 
             cfg.CreateMap<SegmentAction, KalturaBaseSegmentAction>()
                 .Include<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
-                .Include<SegmentBlockPlaybackAction, KalturaBlockPlaybackSegmentAction>()
+                .Include<SegmentBlockPlaybackSubscriptionAction, KalturaBlockPlaybackSegmentAction>()
                 ;
 
             // segment order action
@@ -106,14 +106,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             // segment playback block action
-            cfg.CreateMap<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackAction>()
+            cfg.CreateMap<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackSubscriptionAction>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.KSQL))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertFromSegmentBlockPlaybackActionType(src.Type)))
+                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertFromSegmentBlockPlaybackActionType(src.Type)))
                 ;
 
-            cfg.CreateMap<SegmentBlockPlaybackAction, KalturaBlockPlaybackSegmentAction>()
+            cfg.CreateMap<SegmentBlockPlaybackSubscriptionAction, KalturaBlockPlaybackSegmentAction>()
                 .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.Ksql))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToSegmentBlockPlaybackActionType(src.Type)))
+                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToSegmentBlockPlaybackActionType(src.Type)))
                 ;
 
             // segmentation condition
@@ -286,14 +286,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             // segment playback block action
-            cfg.CreateMap<KalturaSegementAssetFilterAction, SegementAssetFilterAction>()
+            cfg.CreateMap<KalturaSegementAssetFilterAction, KalturaSegementAssetFilterAction>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 ;
 
-            cfg.CreateMap<SegementAssetFilterAction, KalturaSegementAssetFilterAction>()
+            cfg.CreateMap<KalturaSegementAssetFilterAction, KalturaSegementAssetFilterAction>()
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src =>src.Type))
+                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src =>src.Type))
                 ;
 
             cfg.CreateMap<KalturaSegementAssetFilterType, eTransactionType>()

@@ -334,43 +334,5 @@ namespace Core.Pricing.Handlers
 
             return result;
         }
-
-        public static Tuple<List<string>, bool> GetGroupCollectionIds(Dictionary<string, object> funcParams)
-        {
-            int? groupId = 0;
-            if (funcParams != null && funcParams.Count == 1)
-            {
-                if (funcParams.ContainsKey("groupId"))
-                {
-                    groupId = funcParams["groupId"] as int?;
-                    if (groupId == null)
-                    {
-                        return Tuple.Create(new List<string>(), false);
-                    }
-                }
-            }
-
-            List<string> res = PricingDAL.GetCollectionIds(groupId.Value);
-            return Tuple.Create(res, res?.Count > 0);
-        }
-
-        public static Tuple<List<string>, bool> GetGroupSubscriptionsIds(Dictionary<string, object> funcParams)
-        {
-            int? groupId = 0;
-            if (funcParams != null && funcParams.Count == 1)
-            {
-                if (funcParams.ContainsKey("groupId"))
-                {
-                    groupId = funcParams["groupId"] as int?;
-                    if (groupId == null)
-                    {
-                        return Tuple.Create(new List<string>(), false);
-                    }
-                }
-            }
-
-            List<string> res = PricingDAL.GetSubscriptions(groupId.Value);
-            return Tuple.Create(res, res?.Count > 0);
-        }
     }
 }

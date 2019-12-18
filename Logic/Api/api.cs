@@ -1732,7 +1732,7 @@ namespace Core.Api
             }
 
             return res;
-        }       
+        }
 
         internal static List<int> GetMediaConcurrencyRulesByDeviceLimitionModule(int groupId, int dlmId)
         {
@@ -1768,7 +1768,7 @@ namespace Core.Api
                 log.Error("GetMediaConcurrencyRulesByDomainLimitionModule - Failed  due ex = " + ex.Message, ex);
                 return null;
             }
-        }        
+        }
 
         internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
         {
@@ -1823,7 +1823,7 @@ namespace Core.Api
                 selectMetaQuery = null;
             }
             return EPG_ResponseMeta;
-        }        
+        }
 
         static private List<EPGDictionary> GetEPGMetasData(int nGroupID, string ProgramID)
         {
@@ -2301,7 +2301,7 @@ namespace Core.Api
 
             }
             return res;
-        }      
+        }
 
         public static List<EPGChannelProgrammeObject> GetEPGChannelProgramsByDates_Old(Int32 groupID, string sEPGChannelID, string sPicSize, DateTime fromDay, DateTime toDay, double nUTCOffset)
         {
@@ -10013,7 +10013,7 @@ namespace Core.Api
                 string actionToPerform = string.IsNullOrEmpty(action) ? string.Empty : action.ToLower().Trim();
                 string sentKey = string.IsNullOrEmpty(key) ? string.Empty : key.Trim();
                 if (!string.IsNullOrEmpty(action))
-                {                    
+                {
                     if (actionToPerform == "clear_all")
                     {
                         try
@@ -10028,7 +10028,7 @@ namespace Core.Api
                         {
                             status.Message = string.Format("Error : {0}", ex.Message);
                             status.Code = 404;
-                        }                      
+                        }
                     }
                     if (actionToPerform == "keys")
                     {
@@ -10086,7 +10086,7 @@ namespace Core.Api
                 {
                     status.Code = 404;
                 }
-            }            
+            }
             catch (Exception ex)
             {
                 log.Error("Failed ClearLocalServerCache", ex);
@@ -11894,7 +11894,7 @@ namespace Core.Api
             }
 
             return response;
-        }     
+        }
 
         internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
@@ -11911,16 +11911,36 @@ namespace Core.Api
             AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static List<long> GetObjectVirtualAssetObjectIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
+        internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition,
+            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds)
         {
-            List<long> ids = new List<long>();
-            CatalogGroupCache catalogGroupCache = null;
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out catalogGroupCache);
+            var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
+            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache);
 
-            string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter})";
+            if (objectVirtualAssetInfo == null)
+            {
+                objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.Results;
+                objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
+                return objectVirtualAssetFilter;
+            }
+           
+            if (assetSearchDefinition == null)
+            {
+                assetSearchDefinition = new AssetSearchDefinition() { Filter = string.Empty };
+            }
+            else if (assetSearchDefinition.Filter == null)
+            {
+                assetSearchDefinition.Filter = string.Empty;
+            }
+
+            string assetFilter = GetObjectVirtualAssetsFilters(groupId, assetSearchDefinition, objectVirtualAssetInfo);
+
+            string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter})";
 
             if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
             {
+                objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.None;
+
                 var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
 
                 List<string> extraReturnFields = new List<string>() { topic.SystemName };
@@ -11931,21 +11951,29 @@ namespace Core.Api
                     List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
                     var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
 
+                    objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.Results;
+                    objectVirtualAssetFilter.ObjectIds = new List<long>();
+
+                    long objectId = 0;
                     foreach (var virtualAsset in virtualAssets)
                     {
                         var meta = virtualAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == topic.SystemName);
-                        if (meta != null)
+                        if (meta != null && long.TryParse(meta.m_sValue, out objectId))
                         {
-                            ids.Add(long.Parse(meta.m_sValue));
+                            if (objectIds?.Count == 0 || objectIds.Contains(objectId))
+                            {
+                                objectVirtualAssetFilter.ObjectIds.Add(objectId);
+                            }
                         }
                     }
                 }
             }
-            return ids;
-        }
 
-        public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId, 
-            ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionKsql
+            return objectVirtualAssetFilter;
+        }       
+
+        public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
+            ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionObjectVirtualAssetBlockAction
         {
             var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType, out CatalogGroupCache catalogGroupCache);
 
@@ -11959,7 +11987,7 @@ namespace Core.Api
 
                     foreach (var segment in segmentationsWithBlockActions)
                     {
-                        foreach (var blockAction in segment.Actions.OfType<T>())
+                        foreach (var blockAction in segment.Actions.OfType<T>().Where(x => x.objectVirtualAssetInfoType == virtualAssetInfoType))
                         {
                             string ksql = string.Format($"(and {blockAction.Ksql} asset_type = '{objectVirtualAssetInfo.AssetStructId}' {topicSystemName} = '{objectId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
                             var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, domainId, 0, false, false);
@@ -11973,6 +12001,34 @@ namespace Core.Api
             }
 
             return Status.Ok;
+        }
+
+        private static string GetObjectVirtualAssetsFilters(int groupId, AssetSearchDefinition assetSearchDefinition, ObjectVirtualAssetInfo objectVirtualAssetInfo)
+        {
+            if(assetSearchDefinition == null || assetSearchDefinition.UserId == 0)
+            {
+                return string.Empty;
+            }
+
+            // Get User segmentations 
+            var segmentationTypes = UserSegment.ListUserSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, assetSearchDefinition.UserId.ToString());
+
+            List<string> ksqls = new List<string>();
+
+            if (segmentationTypes?.Count > 0)
+            {
+                //check if user have rules with the same type and if yes get the sql
+                foreach (var segment in segmentationTypes)
+                {
+                    var actionList = segment.Actions.OfType<SegmentActionObjectVirtualAsset>().Where(x => x.objectVirtualAssetInfoType == objectVirtualAssetInfo.Type).ToList();
+                    if (actionList.Count > 0)
+                    {
+                        ksqls.AddRange(actionList.Where(x => !string.IsNullOrEmpty(x.Ksql)).Select(x => $"({x.Ksql})"));
+                    }
+                }
+            }
+            // (and )
+            return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
         }
     }
 }

@@ -439,9 +439,17 @@ namespace Core.ConditionalAccess
          */
         internal static Subscription[] GetSubscriptionsDataWithCaching<T>(List<T> lstSubsCodes, int nGroupID) where T : IComparable, IComparable<T>, IEquatable<T>, IConvertible
         {
-            string[] subs = lstSubsCodes.Select((item) => item.ToString()).Distinct().ToArray();
+            HashSet<long> subIds = new HashSet<long>();
+            long subId = 0;
+            foreach (var item in lstSubsCodes)
+            {
+                if (long.TryParse(item.ToString(), out subId) && !subIds.Contains(subId))
+                {
+                    subIds.Add(subId);
+                }
+            }
 
-            var res = Pricing.Module.GetSubscriptionsData(nGroupID, subs, string.Empty, string.Empty, string.Empty);
+            var res = Pricing.Module.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
             if (res != null)
                 return res.Subscriptions;
             return null;
@@ -1298,7 +1306,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                subscription = Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
+                subscription = Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false, userId);
                 if (subscription == null)
                 {
                     theReason = PriceReason.UnKnown;
@@ -4079,7 +4087,15 @@ namespace Core.ConditionalAccess
             {
                 if (domainBundleEntitlements.EntitledSubscriptions != null && domainBundleEntitlements.EntitledSubscriptions.Count > 0)
                 {
-                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.GetSubscriptionsData(groupId, domainBundleEntitlements.EntitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    HashSet<long> subIds = new HashSet<long>();
+                    foreach (var item in domainBundleEntitlements.EntitledSubscriptions.Keys)
+                    {
+                        subIds.Add(long.Parse(item));
+                    }
+
+                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.GetSubscriptions(groupId, subIds, String.Empty, String.Empty, 
+                        String.Empty, null);
+
                     if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
                     {
                         foreach (Subscription subscription in subscriptionsResponse.Subscriptions)
@@ -8641,13 +8657,13 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        public static Subscription GetSubscription(int groupId, int subscriptionId)
+        public static Subscription GetSubscription(int groupId, int subscriptionId, string userId = null)
         {
             Subscription subscription = null;
 
             try
             {
-                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false, userId);
             }
             catch (Exception ex)
             {
