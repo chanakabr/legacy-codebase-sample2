@@ -34,6 +34,15 @@ public partial class MethodFinder
     /// </summary>
     private abstract class ParameterInitBase
     {
+        protected readonly TVPApi.Common.TvpapiCustomContractResolver jsonResolver;
+        protected readonly JsonSerializerSettings serializerSettings;
+        public ParameterInitBase()
+        {
+            jsonResolver = TVPApi.Common.TvpapiCustomContractResolver.Instance;
+            serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ContractResolver = jsonResolver;
+        }
+
         /// <summary>
         /// Method to be execute when load parameters object values
         /// </summary>
@@ -328,12 +337,8 @@ public partial class MethodFinder
 
 
                 // handle BEO-7531
-                if (SerializationTarget is Core.ConditionalAccess.MediaFileItemPricesContainer[]
-                    || SerializationTarget is Core.Pricing.PPVModule || SerializationTarget is Core.Pricing.Subscription)
+                if (DoesObjectNeedSerializerSettings(SerializationTarget))
                 {
-                    TVPApi.Common.TvpapiCustomContractResolver jsonResolver = TVPApi.Common.TvpapiCustomContractResolver.Instance;
-                    JsonSerializerSettings serializerSettings = new JsonSerializerSettings();
-                    serializerSettings.ContractResolver = jsonResolver;
                     Product = Newtonsoft.Json.JsonConvert.SerializeObject(SerializationTarget, serializerSettings);
                 }
                 else
@@ -343,6 +348,20 @@ public partial class MethodFinder
             } while (false);
             return Product;
         }
+
+        private bool DoesObjectNeedSerializerSettings(object serializationTarget)
+        {
+            object objToCheck = serializationTarget;
+            if (serializationTarget is IList && (serializationTarget as IList).Count > 0)
+            {
+                objToCheck = (serializationTarget as IList)[0];
+            }
+            
+            return objToCheck is Core.ConditionalAccess.MediaFileItemPricesContainer
+                    || objToCheck is Core.Pricing.PPVModule
+                    || objToCheck is Core.Pricing.Subscription;
+        }
+
         /// <summary>
         /// Since enum names are been included in json string (not values of enums)
         /// we need to change the enum name (present in json string) to its equivalent enum value by type.
