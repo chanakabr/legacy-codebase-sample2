@@ -7,6 +7,8 @@ using System.Text;
 using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
+using System.Reflection;
+using TVinciShared;
 
 namespace WAP_TVPApi
 {
@@ -41,8 +43,9 @@ namespace WAP_TVPApi
             KLogMonitor.KLogger.Configure("log4net.config", KLogMonitor.KLogEnums.AppType.WS);
 
             ConfigurationManager.ApplicationConfiguration.Initialize(true, true);
+
             // This line is here to avoid error while deserilizing json that was serlizied using net core with TypeNameHandling
-            TVinciShared.AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
+            AssemblyUtils.RedirectAssembly("System.Private.CoreLib", "mscorlib");
         }
 
         protected void Session_Start(object sender, EventArgs e)
