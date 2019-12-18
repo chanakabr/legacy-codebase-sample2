@@ -308,8 +308,8 @@ namespace WebAPI.Reflection
                 case "KalturaBlockPlaybackAction":
                     return new KalturaBlockPlaybackAction(parameters);
                     
-                case "KalturaBlockPlaybackSegmentAction":
-                    return new KalturaBlockPlaybackSegmentAction(parameters);
+                case "KalturaBlockSubscriptionSegmentAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBookmark":
                     return new KalturaBookmark(parameters);
@@ -950,6 +950,9 @@ namespace WebAPI.Reflection
                 case "KalturaKeyValue":
                     return new KalturaKeyValue(parameters);
                     
+                case "KalturaKsqlSegmentAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
                 case "KalturaLanguage":
                     return new KalturaLanguage(parameters);
                     
@@ -1500,7 +1503,13 @@ namespace WebAPI.Reflection
                     return new KalturaSeasonsReminderFilter(parameters);
                     
                 case "KalturaSegementAssetFilterAction":
-                    return new KalturaSegementAssetFilterAction(parameters);
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaSegementAssetFilterSegmentAction":
+                    return new KalturaSegementAssetFilterSegmentAction(parameters);
+                    
+                case "KalturaSegementAssetFilterSubscriptionAction":
+                    return new KalturaSegementAssetFilterSubscriptionAction(parameters);
                     
                 case "KalturaSegmentAllValues":
                     return new KalturaSegmentAllValues(parameters);
@@ -1513,6 +1522,15 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSegmentationTypeListResponse":
                     return new KalturaSegmentationTypeListResponse(parameters);
+                    
+                case "KalturaSegmentBlockCancelSubscriptionAction":
+                    return new KalturaSegmentBlockCancelSubscriptionAction(parameters);
+                    
+                case "KalturaSegmentBlockPlaybackSubscriptionAction":
+                    return new KalturaSegmentBlockPlaybackSubscriptionAction(parameters);
+                    
+                case "KalturaSegmentBlockPurchaseSubscriptionAction":
+                    return new KalturaSegmentBlockPurchaseSubscriptionAction(parameters);
                     
                 case "KalturaSegmentRange":
                     return new KalturaSegmentRange(parameters);
@@ -21660,26 +21678,10 @@ namespace WebAPI.Models.Segmentation
         {
         }
     }
-    public partial class KalturaBlockPlaybackSegmentAction
+    public partial class KalturaBlockSubscriptionSegmentAction
     {
-        public KalturaBlockPlaybackSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBlockSubscriptionSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
-                {
-                    KSQL = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
-                }
-                if (parameters.ContainsKey("type") && parameters["type"] != null)
-                {
-                    Type = (KalturaBlockPlaybackType) Enum.Parse(typeof(KalturaBlockPlaybackType), parameters["type"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaBlockPlaybackType), Type))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaBlockPlaybackType)));
-                    }
-                }
-            }
         }
     }
     public partial class KalturaContentActionCondition
@@ -22038,6 +22040,19 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
+    public partial class KalturaKsqlSegmentAction
+    {
+        public KalturaKsqlSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
+                {
+                    KSQL = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaMonetizationCondition
     {
         private static RuntimeSchemePropertyAttribute MinValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
@@ -22246,22 +22261,18 @@ namespace WebAPI.Models.Segmentation
     {
         public KalturaSegementAssetFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
         {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
-                {
-                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
-                }
-                if (parameters.ContainsKey("type") && parameters["type"] != null)
-                {
-                    Type = (KalturaSegementAssetFilterType) Enum.Parse(typeof(KalturaSegementAssetFilterType), parameters["type"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaSegementAssetFilterType), Type))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaSegementAssetFilterType)));
-                    }
-                }
-            }
+        }
+    }
+    public partial class KalturaSegementAssetFilterSegmentAction
+    {
+        public KalturaSegementAssetFilterSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegementAssetFilterSubscriptionAction
+    {
+        public KalturaSegementAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaSegmentAllValues
@@ -22450,6 +22461,24 @@ namespace WebAPI.Models.Segmentation
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaSegmentBlockCancelSubscriptionAction
+    {
+        public KalturaSegmentBlockCancelSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentBlockPlaybackSubscriptionAction
+    {
+        public KalturaSegmentBlockPlaybackSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentBlockPurchaseSubscriptionAction
+    {
+        public KalturaSegmentBlockPurchaseSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaSegmentRange

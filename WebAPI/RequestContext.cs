@@ -41,6 +41,7 @@ namespace WebAPI
         public const string REQUEST_SERVE_CONTENT_TYPE = "requestServeContentType";
         public const string REQUEST_PATH_DATA = "pathData";
         public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
+        public const string REQUEST_KS_ORIGINAL_USER_ID = "ks_original_user_id";
 
         public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR = "global_abort_on_error";
 

@@ -29,7 +29,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
-
         static public KalturaUserSegmentListResponse List(KalturaUserSegmentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaUserSegmentListResponse response = null;

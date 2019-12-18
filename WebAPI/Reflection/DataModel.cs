@@ -896,16 +896,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaBlockPlaybackSegmentAction":
-                    switch(property.Name)
-                    {
-                        case "KSQL":
-                            return "ksql";
-                        case "Type":
-                            return "type";
-                    }
-                    break;
-                    
                 case "KalturaBookmark":
                     switch(property.Name)
                     {
@@ -3220,6 +3210,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaKsqlSegmentAction":
+                    switch(property.Name)
+                    {
+                        case "KSQL":
+                            return "ksql";
+                    }
+                    break;
+                    
                 case "KalturaLanguage":
                     switch(property.Name)
                     {
@@ -5439,16 +5437,6 @@ namespace WebAPI.Reflection
                             return "seasonNumberIn";
                         case "SeriesIdEqual":
                             return "seriesIdEqual";
-                    }
-                    break;
-                    
-                case "KalturaSegementAssetFilterAction":
-                    switch(property.Name)
-                    {
-                        case "Ksql":
-                            return "kSql";
-                        case "Type":
-                            return "type";
                     }
                     break;
                     

@@ -35,6 +35,9 @@ namespace WebAPI.Models.Segmentation
         public List<KalturaStringValue> Values { get; set; }
     }
 
+    /// <summary>
+    /// Segment action with ksql
+    /// </summary>
     public abstract partial class KalturaKsqlSegmentAction : KalturaBaseSegmentAction
     {
         /// <summary>
@@ -47,61 +50,51 @@ namespace WebAPI.Models.Segmentation
     }
 
     /// <summary>
-    /// Block playback action
-    /// </summary>
-    public partial class KalturaBlockPlaybackSegmentAction : KalturaKsqlSegmentAction
-    {
-        
-
-        /// <summary>
-        /// Block playback type
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaBlockPlaybackType Type { get; set; }        
-    }
-
-    /// <summary>
-    /// Block playback type
-    /// </summary>
-    public enum KalturaBlockPlaybackType
-    {
-        /// <summary>
-        /// subscription
-        /// </summary>
-        Subscription,
-        /// <summary>
-        /// ppv
-        /// </summary>
-        PPV,
-        /// <summary>
-        /// boxet
-        /// </summary>
-        Boxet
-    }
-
-
-    /// <summary>
     /// Asset filter action
     /// </summary>
-    public abstract partial class KalturaSegementAssetFilterAction : KalturaBaseSegmentAction
-    {
-        /// <summary>
-        /// KSQL expression
-        /// </summary>
-        [DataMember(Name = "kSql")]
-        [JsonProperty("kSql")]
-        [XmlElement(ElementName = "kSql", IsNullable = true)]
-        public string Ksql { get; set; }
-    }
-
-    public abstract partial class KalturaSegementAssetFilterAction : KalturaBaseSegmentAction
+    public abstract partial class KalturaSegementAssetFilterAction : KalturaKsqlSegmentAction
     {
     }
 
     /// <summary>
-    /// Asset filter type
+    /// segment asset filter for segment action
     /// </summary>
-    public enum KalturaSegementAssetFilterType { Subscription }
+    public partial class KalturaSegementAssetFilterSegmentAction : KalturaSegementAssetFilterAction
+    {
+    }
+
+    /// <summary>
+    /// segment asset filter for subscription action
+    /// </summary>
+    public partial class KalturaSegementAssetFilterSubscriptionAction : KalturaSegementAssetFilterAction
+    {
+    }
+
+    /// <summary>
+    /// segment block subscription action
+    /// </summary>
+    public abstract partial class KalturaBlockSubscriptionSegmentAction : KalturaKsqlSegmentAction
+    {
+    }
+
+    /// <summary>
+    /// segment block subscription for playback action
+    /// </summary>
+    public partial class KalturaSegmentBlockPlaybackSubscriptionAction : KalturaBlockSubscriptionSegmentAction
+    {
+    }
+
+    /// <summary>
+    /// segment block subscription for cancel action
+    /// </summary>
+    public partial class KalturaSegmentBlockCancelSubscriptionAction : KalturaBlockSubscriptionSegmentAction
+    {
+    }
+
+    /// <summary>
+    /// segment block subscription for purchase action
+    /// </summary>
+    public partial class KalturaSegmentBlockPurchaseSubscriptionAction : KalturaBlockSubscriptionSegmentAction
+    {
+    }
 }

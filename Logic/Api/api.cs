@@ -11933,6 +11933,12 @@ namespace Core.Api
                 assetSearchDefinition.Filter = string.Empty;
             }
 
+            long originalUserId = GetOriginalUserId();
+            if (originalUserId > 0)
+            {
+                assetSearchDefinition.UserId = originalUserId;
+            }
+
             string assetFilter = GetObjectVirtualAssetsFilters(groupId, assetSearchDefinition, objectVirtualAssetInfo);
 
             string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter})";
@@ -12029,6 +12035,19 @@ namespace Core.Api
             }
             // (and )
             return ksqls.Count > 0 ? $" (or {string.Join(" ", ksqls)})" : string.Empty;
+        }
+
+        private static long GetOriginalUserId()
+        {
+            long originalUserId = 0;
+            string key = "ks_original_user_id";
+
+            if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null && System.Web.HttpContext.Current.Items.ContainsKey(key))
+            {
+                long.TryParse((string)System.Web.HttpContext.Current.Items[key], out originalUserId);
+            }
+
+            return originalUserId;
         }
     }
 }

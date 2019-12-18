@@ -351,6 +351,14 @@ namespace WebAPI.Managers.Models
                 HttpContext.Current.Items[RequestContext.REQUEST_GROUP_ID] = ks.groupId;
             else
                 HttpContext.Current.Items.Add(RequestContext.REQUEST_GROUP_ID, ks.groupId);
+
+            if (ks.OriginalUserId != ks.userId)
+            {
+                if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_KS_ORIGINAL_USER_ID))
+                    HttpContext.Current.Items[RequestContext.REQUEST_KS_ORIGINAL_USER_ID] = ks.OriginalUserId;
+                else
+                    HttpContext.Current.Items.Add(RequestContext.REQUEST_KS_ORIGINAL_USER_ID, ks.OriginalUserId);
+            }
         }
 
         internal static KS GetFromRequest()

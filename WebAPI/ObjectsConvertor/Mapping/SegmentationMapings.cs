@@ -84,37 +84,78 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
 
             // segmentation action
-            cfg.CreateMap<KalturaBaseSegmentAction, SegmentAction>()
-                .Include<KalturaAssetOrderSegmentAction, SegmentAssetOrderAction>()
-                .Include<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackSubscriptionAction>()
-                ;
+            cfg.CreateMap<KalturaBaseSegmentAction, SegmentAction>();
 
-            cfg.CreateMap<SegmentAction, KalturaBaseSegmentAction>()
-                .Include<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
-                .Include<SegmentBlockPlaybackSubscriptionAction, KalturaBlockPlaybackSegmentAction>()
-                ;
+            cfg.CreateMap<SegmentAction, KalturaBaseSegmentAction>();
 
             // segment order action
             cfg.CreateMap<KalturaAssetOrderSegmentAction, SegmentAssetOrderAction>()
+                .IncludeBase<KalturaBaseSegmentAction, SegmentAction>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => x.value).ToList()))
-                ;
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => x.value).ToList()));
 
             cfg.CreateMap<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
+                .IncludeBase<SegmentAction, KalturaBaseSegmentAction>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
-                ;
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()));
 
-            // segment playback block action
-            cfg.CreateMap<KalturaBlockPlaybackSegmentAction, SegmentBlockPlaybackSubscriptionAction>()
-                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.KSQL))
-                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertFromSegmentBlockPlaybackActionType(src.Type)))
-                ;
+            // segment ksql action
+            cfg.CreateMap<KalturaKsqlSegmentAction, SegmentActionObjectVirtualAsset>()
+                .IncludeBase<KalturaBaseSegmentAction, SegmentAction>()
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.KSQL));
 
-            cfg.CreateMap<SegmentBlockPlaybackSubscriptionAction, KalturaBlockPlaybackSegmentAction>()
-                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.Ksql))
-                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertToSegmentBlockPlaybackActionType(src.Type)))
-                ;
+            cfg.CreateMap<SegmentActionObjectVirtualAsset, KalturaKsqlSegmentAction>()
+                .IncludeBase<SegmentAction, KalturaBaseSegmentAction>()
+                .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.Ksql));
+
+            // segment asset filter action
+            cfg.CreateMap<KalturaSegementAssetFilterAction, SegmentActionObjectVirtualFilterAsset>()
+                .IncludeBase<KalturaKsqlSegmentAction, SegmentActionObjectVirtualAsset>();
+
+            cfg.CreateMap<SegmentActionObjectVirtualFilterAsset, KalturaSegementAssetFilterAction>()
+                .IncludeBase<SegmentActionObjectVirtualAsset, KalturaKsqlSegmentAction>();
+
+            // segment asset filter for segment action
+            cfg.CreateMap<KalturaSegementAssetFilterSegmentAction, SegementAssetFilterSegmentAction>()
+                .IncludeBase<KalturaSegementAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
+
+            cfg.CreateMap<SegementAssetFilterSegmentAction, KalturaSegementAssetFilterSegmentAction>()
+                .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegementAssetFilterAction>();
+
+            // segment asset filter for subscription action
+            cfg.CreateMap<KalturaSegementAssetFilterSubscriptionAction, SegementAssetFilterSubscriptionAction>()
+                .IncludeBase<KalturaSegementAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
+
+            cfg.CreateMap<SegementAssetFilterSubscriptionAction, KalturaSegementAssetFilterSubscriptionAction>()
+                .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegementAssetFilterAction>();
+
+            // segment block subscription action
+            cfg.CreateMap<KalturaBlockSubscriptionSegmentAction, SegmentActionObjectVirtualAssetBlockAction>()
+                .IncludeBase<KalturaKsqlSegmentAction, SegmentActionObjectVirtualAsset>();
+
+            cfg.CreateMap<SegmentActionObjectVirtualAssetBlockAction, KalturaBlockSubscriptionSegmentAction>()
+                .IncludeBase<SegmentActionObjectVirtualAsset, KalturaKsqlSegmentAction>();
+
+            // segment block subscription for playback action
+            cfg.CreateMap<KalturaSegmentBlockPlaybackSubscriptionAction, SegmentBlockPlaybackSubscriptionAction>()
+                .IncludeBase<KalturaBlockSubscriptionSegmentAction, SegmentActionObjectVirtualAssetBlockAction>();
+
+            cfg.CreateMap<SegmentBlockPlaybackSubscriptionAction, KalturaSegmentBlockPlaybackSubscriptionAction>()
+                .IncludeBase<SegmentActionObjectVirtualAssetBlockAction, KalturaBlockSubscriptionSegmentAction>();
+
+            // segment block subscription for cancel action
+            cfg.CreateMap<KalturaSegmentBlockCancelSubscriptionAction, SegmentBlockCancelSubscriptionAction>()
+               .IncludeBase<KalturaBlockSubscriptionSegmentAction, SegmentActionObjectVirtualAssetBlockAction>();
+
+            cfg.CreateMap<SegmentBlockCancelSubscriptionAction, KalturaSegmentBlockCancelSubscriptionAction>()
+                .IncludeBase<SegmentActionObjectVirtualAssetBlockAction, KalturaBlockSubscriptionSegmentAction>();
+
+            // segment block subscription for purchase action
+            cfg.CreateMap<KalturaSegmentBlockPurchaseSubscriptionAction, SegmentBlockPurchaseSubscriptionAction>()
+               .IncludeBase<KalturaBlockSubscriptionSegmentAction, SegmentActionObjectVirtualAssetBlockAction>();
+
+            cfg.CreateMap<SegmentBlockPurchaseSubscriptionAction, KalturaSegmentBlockPurchaseSubscriptionAction>()
+                .IncludeBase<SegmentActionObjectVirtualAssetBlockAction, KalturaBlockSubscriptionSegmentAction>();
 
             // segmentation condition
             cfg.CreateMap<KalturaBaseSegmentCondition, SegmentCondition>()
@@ -284,41 +325,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LessThanOrEquals, opt => opt.MapFrom(src => src.LessThanOrEquals))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 ;
-
-            // segment playback block action
-            cfg.CreateMap<KalturaSegementAssetFilterAction, KalturaSegementAssetFilterAction>()
-                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
-                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                ;
-
-            cfg.CreateMap<KalturaSegementAssetFilterAction, KalturaSegementAssetFilterAction>()
-                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql))
-                //.ForMember(dest => dest.Type, opt => opt.MapFrom(src =>src.Type))
-                ;
-
-            cfg.CreateMap<KalturaSegementAssetFilterType, eTransactionType>()
-              .ConvertUsing(type =>
-              {
-                  switch (type)
-                  {
-                      case KalturaSegementAssetFilterType.Subscription:
-                          return eTransactionType.Subscription;
-                      default:
-                          throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaSegementAssetFilterType value : {0}", type.ToString()));
-                  }
-              });
-
-            cfg.CreateMap<eTransactionType, KalturaSegementAssetFilterType>()
-                .ConvertUsing(type =>
-                {
-                    switch (type)
-                    {
-                        case eTransactionType.Subscription:
-                            return KalturaSegementAssetFilterType.Subscription;
-                        default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown eTransactionType value : {0}", type.ToString()));
-                    }
-                });
 
             #endregion
 
@@ -599,35 +605,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaBlockPlaybackType ConvertToSegmentBlockPlaybackActionType(eTransactionType type)
-        {
-            switch (type)
-            {
-                case eTransactionType.PPV:
-                    return KalturaBlockPlaybackType.PPV;
-                case eTransactionType.Subscription:
-                    return KalturaBlockPlaybackType.Subscription;
-                case eTransactionType.Collection:
-                    return KalturaBlockPlaybackType.Boxet;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private static eTransactionType ConvertFromSegmentBlockPlaybackActionType(KalturaBlockPlaybackType type)
-        {
-            switch (type)
-            {
-                case KalturaBlockPlaybackType.Subscription:
-                    return eTransactionType.Subscription;
-                case KalturaBlockPlaybackType.PPV:
-                    return eTransactionType.PPV;
-                case KalturaBlockPlaybackType.Boxet:
-                    return eTransactionType.Collection;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
         #endregion
     }
 }

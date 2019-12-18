@@ -143,6 +143,4 @@ namespace ApiObjects.Segmentation
     {
         public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
     }
-
-
 }
