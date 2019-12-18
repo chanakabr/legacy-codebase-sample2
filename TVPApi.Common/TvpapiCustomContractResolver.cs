@@ -41,11 +41,24 @@ namespace TVPApi.Common
         private Dictionary<Type, Dictionary<string, string>> GetAllPropertiesForRename()
         {
             Dictionary<Type, Dictionary<string, string>> objectTypesToRenamedPropertiesMap = new Dictionary<Type, Dictionary<string, string>>();
-            objectTypesToRenamedPropertiesMap.Add(typeof(ApiObjects.LanguageContainer), new Dictionary<string, string>() { { "LanguageCode", "m_sLanguageCode3" } });
-            objectTypesToRenamedPropertiesMap.Add(typeof(ApiObjects.LanguageContainer), new Dictionary<string, string>() { { "Value", "m_sValue" } });
+            AddTypePropertyMap(objectTypesToRenamedPropertiesMap, typeof(ApiObjects.LanguageContainer), new KeyValuePair<string, string>("LanguageCode", "m_sLanguageCode3"));
+            AddTypePropertyMap(objectTypesToRenamedPropertiesMap, typeof(ApiObjects.LanguageContainer), new KeyValuePair<string, string>("Value", "m_sValue"));
 
             return objectTypesToRenamedPropertiesMap;
 
+        }
+
+        private void AddTypePropertyMap(Dictionary<Type, Dictionary<string, string>> objectTypesToRenamedPropertiesMap, Type type, KeyValuePair<string, string> pair)
+        {
+            if (!objectTypesToRenamedPropertiesMap.ContainsKey(type))
+            {
+                objectTypesToRenamedPropertiesMap.Add(type, new Dictionary<string, string>());
+            }
+
+            if (!objectTypesToRenamedPropertiesMap[type].ContainsKey(pair.Key))
+            {
+                objectTypesToRenamedPropertiesMap[type].Add(pair.Key, pair.Value);
+            }
         }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
