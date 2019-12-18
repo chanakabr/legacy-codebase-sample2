@@ -28,7 +28,7 @@ namespace EventBus.RabbitMQ
             // TODO: MakeSingleTone, in phoenix it is used without IOC \ DI so it has to maintaine a singletone on its one and not relay on ServiceCollection :(
             var eventBusConsumer = new EventBusPublisherRabbitMQ(
                 RabbitMQPersistentConnection.GetInstanceUsingTCMConfiguration(),
-                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value, 
+                ApplicationConfiguration.RabbitConfiguration.EventBus.Exchange.Value,
                 ApplicationConfiguration.QueueFailLimit.IntValue);
 
             return eventBusConsumer;
@@ -45,45 +45,28 @@ namespace EventBus.RabbitMQ
         {
             Publish(new[] { serviceEvent });
         }
-        
+
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
-            bool shouldSupportEventBusMessages = ApplicationConfiguration.ShouldSupportEventBusMessages.Value;
-            if (shouldSupportEventBusMessages || ContainsIngestV2Event(serviceEvents))
+            var publishRetryPolicy = GetRetryPolicyForEventPublishing();
+            using (var channel = _PersistentConnection.CreateModel())
             {
-                var publishRetryPolicy = GetRetryPolicyForEventPublishing();
-                using (var channel = _PersistentConnection.CreateModel())
+                channel.ConfirmSelect();
+                channel.BasicAcks += (o, e) =>
                 {
-                    channel.ConfirmSelect();
-                    channel.BasicAcks += (o, e) =>
+                    _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
+                };
+
+                foreach (var serviceEvent in serviceEvents)
+                {
+                    var eventName = ServiceEvent.GetEventName(serviceEvent);
+                    var message = JsonConvert.SerializeObject(serviceEvent);
+                    var body = Encoding.UTF8.GetBytes(message);
+
+                    publishRetryPolicy.Execute(() =>
                     {
-                        _Logger.Debug($"Event delivered with tag:[{e.DeliveryTag}]");
-                    };
-
-                    foreach (var serviceEvent in serviceEvents)
-                    {
-                        #region please dont look here
-                        // This is a workaround until we kill celery totaly and move to event-bus
-                        // right now we have to prevent sending event bus messages according to TCM Value 
-                        // but if its an ingest V2 event then it should pass regradless of TCM config
-                        bool isIngestV2Event = IsIngestV2Event(serviceEvent);
-                        #endregion
-
-                        if (!shouldSupportEventBusMessages && !isIngestV2Event)
-                        {
-                            _Logger.Debug($"Ignoring publish message to eventbus to [{serviceEvent.GetType().FullName}], due to ShouldSupportEventBusMessages=false in TCM");
-                            continue;
-                        }
-
-                        var eventName = ServiceEvent.GetEventName(serviceEvent);
-                        var message = JsonConvert.SerializeObject(serviceEvent);
-                        var body = Encoding.UTF8.GetBytes(message);
-
-                        publishRetryPolicy.Execute(() =>
-                        {
-                            PublishEvent(channel, eventName, body, message);
-                        });
-                    }
+                        PublishEvent(channel, eventName, body, message);
+                    });
                 }
             }
         }
@@ -108,29 +91,6 @@ namespace EventBus.RabbitMQ
                     _Logger.Warn(ex.ToString());
                     _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next publish retry");
                 });
-        }
-
-        private bool ContainsIngestV2Event(IEnumerable<ServiceEvent> serviceEvents)
-        {
-            bool result = false;
-            foreach (ServiceEvent serviceEvent in serviceEvents)
-            {
-                result = IsIngestV2Event(serviceEvent);
-                if (result)
-                {
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        private bool IsIngestV2Event(ServiceEvent serviceEvent)
-        {
-            return serviceEvent is BulkUploadEvent ||
-                    serviceEvent is BulkUploadIngestEvent ||
-                    serviceEvent is BulkUploadIngestValidationEvent ||
-                    serviceEvent is BulkUploadTransformationEvent;
         }
     }
 }

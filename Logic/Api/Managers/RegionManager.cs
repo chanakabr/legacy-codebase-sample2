@@ -463,6 +463,11 @@ namespace ApiLogic.Api.Managers
                             result.Objects = regionsCache.Regions.Where(r => idsToFilter.Contains(r.Key)).Select(r => r.Value).ToList();
                             result.TotalItems = result.Objects.Count;
                         }
+                        else
+                        {
+                            result.Objects = null;
+                            result.TotalItems = 0;
+                        }
                     }
                     else if (filter.ParentOnly)
                     {

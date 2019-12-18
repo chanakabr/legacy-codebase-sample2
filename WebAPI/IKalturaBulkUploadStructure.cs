@@ -1,6 +1,6 @@
 ﻿namespace WebAPI.App_Start
 {
-    public interface IKalturaBulkUploadStructure
+    public interface IKalturaBulkUploadStructureManager
     {
     }
 }

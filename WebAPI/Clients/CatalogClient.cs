@@ -4133,13 +4133,13 @@ namespace WebAPI.Clients
             return excelValues;
         }
 
-        internal ExcelStructure GetExcelStructure(int groupId, IKalturaExcelStructure kalturaExcelStructure)
+        internal ExcelStructure GetExcelStructure(int groupId, IKalturaExcelStructureManager kalturaExcelStructureManager)
         {
             ExcelStructure excelStructure = null;
             try
             {
-                var iExcelStructure = AutoMapper.Mapper.Map<IExcelStructure>(kalturaExcelStructure);
-                excelStructure = iExcelStructure.GetExcelStructure(groupId);
+                var excelStructureManager = AutoMapper.Mapper.Map<IExcelStructureManager>(kalturaExcelStructureManager);
+                excelStructure = excelStructureManager.GetExcelStructure(groupId);
             }
             catch (Exception ex)
             {

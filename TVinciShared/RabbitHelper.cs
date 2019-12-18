@@ -30,18 +30,6 @@ namespace TVinciShared
                     return result;
                 }
 
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new FreeAssetUpdateRequest()
-                {
-                    GroupId = parentGroupId,
-                    asset_ids = assetIDs,
-                    type = type,
-                    ETA = updateIndexDate
-                };
-
-                eventBus.Publish(serviceEvent);
-                log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, serviceEvent);
-
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
                 bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));

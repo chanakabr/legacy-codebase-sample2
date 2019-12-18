@@ -19,8 +19,6 @@ namespace ConfigurationManager
         public static ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration;
         public static BooleanConfigurationValue ShouldDistributeRecordingSynchronously;
         public static ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration;
-        public static BooleanConfigurationValue ShouldSupportCeleryMessages;
-        public static BooleanConfigurationValue ShouldSupportEventBusMessages;
         public static BooleanConfigurationValue ShouldRecoverSubscriptionRenewalToMessageBus;
 
         #endregion
@@ -628,16 +626,6 @@ namespace ConfigurationManager
             {
                 ShouldAllowEmpty = true
             };
-            ShouldSupportCeleryMessages = new BooleanConfigurationValue("should_support_celery_messages")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = true
-            };
-            ShouldSupportEventBusMessages = new BooleanConfigurationValue("should_support_event_bus_messages")
-            {
-                ShouldAllowEmpty = true,
-                DefaultValue = false,
-            };
             ShouldRecoverSubscriptionRenewalToMessageBus = new BooleanConfigurationValue("should_recover_subscription_renewal_to_message_bus")
             {
                 ShouldAllowEmpty = true,
@@ -781,11 +769,10 @@ namespace ConfigurationManager
                     EpgInitialId,
                     ShouldAddInvalidationKeysToHeader,
                     TVPApiConfiguration,
-                    ShouldSupportCeleryMessages,
-                    ShouldSupportEventBusMessages,
                     ShouldRecoverSubscriptionRenewalToMessageBus,
                     LogReloadInterval,
                     HttpClientConfiguration,
+                    FileUpload,
                     ElasticSearchHttpClientConfiguration,
                     NPVRHttpClientConfiguration
                 };

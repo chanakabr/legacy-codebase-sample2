@@ -382,7 +382,7 @@ namespace Core.Recordings
                             {
                                 log.ErrorFormat("GetRecordingStatus: Exception when using adapter. ID = {0}, ex = {1}", recordingId, ex);
                                 adapterResponse = null;
-                            }                           
+                            }
 
                             // Adapter failed for some reason - retry
                             if (adapterResponse == null)
@@ -627,18 +627,14 @@ namespace Core.Recordings
 
         private static void EnqueueRecordingModificationEvent(int groupId, Recording recording, int oldRecordingLength)
         {
-            var data = new ApiObjects.EventBus.ModifiedRecordingRequest
+            GenericCeleryQueue queue = new GenericCeleryQueue();
+            DateTime utcNow = DateTime.UtcNow;
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, 0, recording.Id, 0) { ETA = utcNow };
+            bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
+            if (!queueExpiredRecordingResult)
             {
-                GroupId = groupId,
-                Id = 0,
-                RecordingId = recording.Id,
-                ScheduledExpirationEpoch = 0,
-                OldRecordingDuration = oldRecordingLength,
-            };
-
-
-            var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            publisher.Publish(data);
+                log.ErrorFormat("Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {0}, groupId: {1}", recording.Id, groupId);
+            }
         }
 
         public Recording GetRecordingByProgramId(int groupId, long programId)
@@ -771,27 +767,6 @@ namespace Core.Recordings
 
         public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task, long maxDomainSeriesId = 0)
         {
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.RecordingTaskRequest()
-            {
-                GroupId = groupId,
-                EpgStartDate = epgStartDate,
-                ETA = etaTime,
-                MaxDomainSeriesId = maxDomainSeriesId,
-                ProgramId = programId,
-                RecordingId = recordingId,
-                Task = task
-            };
-
-            try
-            {
-                eventBus.Publish(serviceEvent);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed event bus publish of event {0}, ex = {1}", serviceEvent, ex);
-            }
-
             var queue = new GenericCeleryQueue();
             var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId, maxDomainSeriesId);
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));

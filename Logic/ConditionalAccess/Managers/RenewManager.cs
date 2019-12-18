@@ -336,30 +336,7 @@ namespace Core.ConditionalAccess
             DateTime endDate = DateUtils.UtcUnixTimestampSecondsToDateTime(endDateUnix);
             bool enqueueSuccessful = true;
 
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-            {
-                GroupId = groupId,
-                EndDate = endDateUnix,
-                ETA = endDate,
-                SiteGuid = siteguid,
-                PurchaseId = purchaseId,
-                BillingGuid = string.Empty,
-                Type = eSubscriptionRenewRequestType.SubscriptionEnds
-            };
-
-            try
-            {
-                eventBus.Publish(serviceEvent);
-            }
-            catch (Exception ex)
-            {
-                enqueueSuccessful = false;
-                log.ErrorFormat("Failed enqueue of subscription ends event {0} ex = {1}", serviceEvent, ex);
-            }
-
             var queue = new RenewTransactionsQueue();
-
             var data = new RenewTransactionData(groupId, siteguid, purchaseId, string.Empty,
                             endDateUnix, endDate, eSubscriptionRenewRequestType.SubscriptionEnds);
 
@@ -780,20 +757,6 @@ namespace Core.ConditionalAccess
 
             long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
             DateTime nextRenewalDate = endDate.AddMinutes(0);
-
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-            {
-                GroupId = groupId,
-                BillingGuid = billingGuid,
-                EndDate = endDateUnix,
-                ETA = nextRenewalDate,
-                Type = eSubscriptionRenewRequestType.Renew,
-                SiteGuid = siteguid,
-                PurchaseId = purchaseId
-            };
-
-            eventBus.Publish(serviceEvent);
 
             var queue = new RenewTransactionsQueue();
             var data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, endDateUnix, nextRenewalDate);
@@ -1626,27 +1589,6 @@ namespace Core.ConditionalAccess
 
                 DateTime nextRenewalDate = DateTime.UtcNow;
                 long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
-                var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                var serviceEvent = new ApiObjects.EventBus.SubscriptionRenewRequest()
-                {
-                    GroupId = groupId,
-                    BillingGuid = billingGuid,
-                    EndDate = endDateUnix,
-                    ETA = nextRenewalDate,
-                    Type = eSubscriptionRenewRequestType.Renew,
-                    SiteGuid = siteguid,
-                    PurchaseId = purchaseId
-                };
-
-                try
-                {
-                    eventBus.Publish(serviceEvent);
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Failed event bus publish of renew transaction {0}, ex = {1}", serviceEvent, ex);
-                    enqueueSuccessful = false;
-                }
 
                 var data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, endDateUnix, nextRenewalDate);
                 var queue = new RenewTransactionsQueue();

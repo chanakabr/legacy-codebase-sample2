@@ -312,7 +312,7 @@ namespace WebAPI.Controllers
             {
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaT>>(response.Objects);
                 result.TotalCount = response.TotalItems != 0 ? response.TotalItems : response.Objects.Count;
-                // TODO SHIR - order BY GetResponseListFromWS
+                // TODO - order BY GetResponseListFromWS
             }
             else
             {

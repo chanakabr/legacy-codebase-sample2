@@ -3266,17 +3266,6 @@ namespace Core.Catalog
                 }
                 if (doesGroupUsesTemplates || group != null)
                 {
-                    var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    var serviceEvent = new ElasticSearchRequest()
-                    {
-                        GroupId = groupId,
-                        Action = action,
-                        DocumentIDs = ids,
-                        Type = updatedObjectType
-                    };
-
-                    eventBus.Publish(serviceEvent);
-
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupIdForCelery, ids, updatedObjectType, action, DateTime.UtcNow);
                     var queue = new CatalogQueue();
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupIdForCelery, updatedObjectType.ToString()));
@@ -3342,25 +3331,6 @@ namespace Core.Catalog
 
                 if (groupId > 0)
                 {
-                    try
-                    {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ElasticSearchRequest()
-                        {
-                            GroupId = groupId,
-                            Action = action,
-                            DocumentIDs = ids,
-                            Type = objectType
-                        };
-
-                        eventBus.Publish(serviceEvent);
-                        log.Debug($"successfully enqueue of epg upload. ids = {string.Join(",", ids)}");
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Failed enqueue of epg upload. ids = {string.Join(",", ids)}, ex = {ex}");
-                    }
-
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(groupId,
                         ids, objectType, action, DateTime.UtcNow);
 
@@ -6129,24 +6099,6 @@ namespace Core.Catalog
 
                 if (group != null)
                 {
-                    try
-                    {
-                        var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                        var serviceEvent = new ElasticSearchRequest()
-                        {
-                            GroupId = groupId,
-                            Action = eAction.Rebase,
-                            StartDate = date,
-                            Type = type
-                        };
-
-                        eventBus.Publish(serviceEvent);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Failed enqueue of rebase message. group = {groupId} type = {type}, ex = {ex}");
-                    }
-
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID, new List<long>(), type,
                         eAction.Rebase, date);
 

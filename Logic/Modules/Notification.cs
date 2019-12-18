@@ -551,18 +551,6 @@ namespace Core.Notification
         public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
             bool res = true;
-            var eventBus = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-            var serviceEvent = new InitiateNotificationActionRequest()
-            {
-                GroupId = groupId,
-                pushToken = pushToken,
-                Udid = udid,
-                UserAction = userAction,
-                UserId = userId
-            };
-
-            eventBus.Publish(serviceEvent);
-
             var que = new InitiateNotificationActionQueue();
             ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
