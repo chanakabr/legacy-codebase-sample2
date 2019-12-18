@@ -13,6 +13,6 @@ namespace ApiObjects.EventBus
         public List<EpgProgramBulkUploadObject> EdgeProgramsToUpdate { get; set; }
         public DateTime DateOfProgramsToIngest { get; set; }
         public IDictionary<string, LanguageObj> Languages { get; set; }
-        public Dictionary<string, BulkUploadProgramAssetResult> Results { get; set; }
+        public Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> Results { get; set; }
     }
 }
