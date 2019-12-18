@@ -11876,7 +11876,7 @@ namespace Core.Api
             ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds)
         {
             var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
-            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType, out CatalogGroupCache catalogGroupCache);
+            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
 
             if (objectVirtualAssetInfo == null)
             {
@@ -11903,6 +11903,12 @@ namespace Core.Api
             string assetFilter = GetObjectVirtualAssetsFilters(groupId, assetSearchDefinition, objectVirtualAssetInfo);
 
             string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter})";
+
+            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            {
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                return objectVirtualAssetFilter;
+            }
 
             if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
             {
@@ -11942,25 +11948,34 @@ namespace Core.Api
         public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
             ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionObjectVirtualAssetBlockAction
         {
-            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType, out CatalogGroupCache catalogGroupCache);
+            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType);
 
-            if (objectVirtualAssetInfo != null && catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
+            if (objectVirtualAssetInfo != null)
             {
-                var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfType<T>(groupId, userId);
-                if (segmentationsWithBlockActions.Any())
+                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
-                    var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
-                    var topicSystemName = topic.SystemName;
+                    log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                    return Status.Ok;
+                }
 
-                    foreach (var segment in segmentationsWithBlockActions)
+                if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
+                {
+                    var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfType<T>(groupId, userId);
+                    if (segmentationsWithBlockActions.Any())
                     {
-                        foreach (var blockAction in segment.Actions.OfType<T>().Where(x => x.objectVirtualAssetInfoType == virtualAssetInfoType))
+                        var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+                        var topicSystemName = topic.SystemName;
+
+                        foreach (var segment in segmentationsWithBlockActions)
                         {
-                            string ksql = string.Format($"(and {blockAction.Ksql} asset_type = '{objectVirtualAssetInfo.AssetStructId}' {topicSystemName} = '{objectId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
-                            var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, domainId, 0, false, false);
-                            if (assetResult != null && assetResult.Any())
+                            foreach (var blockAction in segment.Actions.OfType<T>().Where(x => x.objectVirtualAssetInfoType == virtualAssetInfoType))
                             {
-                                return new Status((int)eResponseStatus.ActionBlocked, string.Format("Blocked by segment id {0}", segment.Id));
+                                string ksql = string.Format($"(and {blockAction.Ksql} asset_type = '{objectVirtualAssetInfo.AssetStructId}' {topicSystemName} = '{objectId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
+                                var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, domainId, 0, false, false);
+                                if (assetResult != null && assetResult.Any())
+                                {
+                                    return new Status((int)eResponseStatus.ActionBlocked, string.Format("Blocked by segment id {0}", segment.Id));
+                                }
                             }
                         }
                     }
