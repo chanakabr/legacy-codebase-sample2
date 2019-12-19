@@ -152,12 +152,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override string GetIndexType(LanguageObj language)
         {
-            return (language.IsDefault) ? RECORDING : string.Concat(RECORDING, "_", language.Code);
+            return (language.IsDefault) ? IndexManager.RECORDING_IDEX_TYPE : string.Concat(IndexManager.RECORDING_IDEX_TYPE, "_", language.Code);
         }
 
         protected override string GetIndexType()
         {
-            return RECORDING;
+            return IndexManager.RECORDING_IDEX_TYPE;
         }
 
         protected override bool ShouldSetTTL()

@@ -123,14 +123,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region create mapping            
             
-            MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, VERSION);
+            MappingAnalyzers defaultMappingAnalyzers = IndexManager.GetMappingAnalyzers(defaultLanguage, VERSION);
 
-            Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
-            List<string> tags = null;
             HashSet<string> metasToPad = null;
 
-            if (!IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags,
-                ref metasToPad, serializer, group, catalogGroupCache))
+            if (!IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, out Dictionary<string, KeyValuePair<eESFieldType, string>> metas, out List<string> tags,
+                out metasToPad, serializer, group, catalogGroupCache))
             {
                 log.Error("Failed GetMetasAndTagsForMapping as part of BuildIndex");
                 return false;
@@ -148,7 +146,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     type = string.Concat(MEDIA, "_", language.Code);
                 }
 
-                MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, VERSION);
+                MappingAnalyzers specificMappingAnalyzers = IndexManager.GetMappingAnalyzers(language, VERSION);
                 
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers);

@@ -70,10 +70,10 @@ namespace IngestValidtionHandler
                 {
                     UpdateBulkUploadResults(eventData.Results, eventData.EPGs);
                     SwitchAliases();
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus newStatus);
+                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus newStatus);
                     UpdateBulkUploadStatus(_BulkUploadObject, newStatus);
 
-                    // Update edgs if there are any updates to be made dure to overlap
+                    // Update edgs if there are any updates to be made due to overlap
                     if (eventData.EdgeProgramsToUpdate.Any())
                     {
                         await BulkUploadMethods.UpdateCouchbase(eventData.EdgeProgramsToUpdate, eventData.GroupId);
@@ -85,7 +85,7 @@ namespace IngestValidtionHandler
                 }
                 else
                 {
-                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values, out BulkUploadJobStatus tmp);
+                    BulkUploadManager.UpdateBulkUploadResults(eventData.Results.Values.SelectMany(r => r.Values), out BulkUploadJobStatus tmp);
                     bulkUploadResultAfterUpdate = BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_BulkUploadObject, BulkUploadJobStatus.Failed);
                 }
 
@@ -129,7 +129,9 @@ namespace IngestValidtionHandler
         {
             // Wait time is 2 sec + 50ms for every program that was indexed
             // TODO: make configurable
-            var delayMsBeforeValidation = 2000 + (eventDate.EPGs.Count * 10);
+            var epgsCounts = eventDate.EPGs.Count;// + eventDate.EdgeProgramsToUpdate.Count;
+
+            var delayMsBeforeValidation = 2000 + (epgsCounts * 10);
             var result = false;
             int retryCount = 5; // TODO: Tcm configuration?
 
@@ -146,26 +148,33 @@ namespace IngestValidtionHandler
             // Checking all languages by searhcing for all types
             var type = string.Empty;
             var isValid = true;
+
             policy.Execute(() =>
             {
                 isValid = true;
-                var searchQuery = GetElasticsearchQueryForEpgIDs(eventDate.EPGs.Select(program => program.EpgId));
 
-                var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
-
-                var jsonResult = JObject.Parse(searchResult);
-                var tempToken = jsonResult.SelectToken("hits.total");
-                int totalItems = tempToken?.Value<int>() ?? 0;
-
-                if (totalItems != eventDate.EPGs.SelectMany(p => p.EpgCbObjects).Count())
+                var allEpgs = eventDate.EPGs;//.Concat(eventDate.EdgeProgramsToUpdate);
+                
+                if (allEpgs.Any())
                 {
-                    isValid = false;
-                }
+                    var searchQuery = GetElasticsearchQueryForEpgIDs(allEpgs.Select(program => program.EpgId));
 
-                if (!isValid)
-                {
-                    _Logger.Warn($"Missing program from ES index.");
-                    throw new Exception("Missing program from ES index");
+                    var searchResult = _ElasticSearchClient.Search(index, type, ref searchQuery);
+
+                    var jsonResult = JObject.Parse(searchResult);
+                    var tempToken = jsonResult.SelectToken("hits.total");
+                    int totalItems = tempToken?.Value<int>() ?? 0;
+
+                    if (totalItems != allEpgs.SelectMany(p => p.EpgCbObjects).Count())
+                    {
+                        isValid = false;
+                    }
+
+                    if (!isValid)
+                    {
+                        _Logger.Warn($"Missing program from ES index.");
+                        throw new Exception("Missing program from ES index");
+                    }
                 }
             });
 
@@ -213,13 +222,13 @@ namespace IngestValidtionHandler
             return searchQuery;
         }
 
-        private void UpdateBulkUploadResults(Dictionary<string, BulkUploadProgramAssetResult> results, List<EpgProgramBulkUploadObject> epgs)
+        private void UpdateBulkUploadResults(Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> results, List<EpgProgramBulkUploadObject> epgs)
         {
             foreach (var prog in epgs)
             {
-                if (prog.EpgExternalId != null && results.ContainsKey(prog.EpgExternalId))
+                if (prog.EpgExternalId != null && results.ContainsKey(prog.ChannelId) && results[prog.ChannelId].ContainsKey(prog.EpgExternalId))
                 {
-                    var resultObj = results[prog.EpgExternalId];
+                    var resultObj = results[prog.ChannelId][prog.EpgExternalId];
                     resultObj.ObjectId = (long)prog.EpgId;
                     resultObj.Status = BulkUploadResultStatus.Ok;
                     // TODO: allow updating results in bulk
