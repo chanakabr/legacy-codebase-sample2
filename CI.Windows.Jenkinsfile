@@ -19,7 +19,6 @@ pipeline {
                 script { currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME}" }
                 dir('core'){ git(url: 'https://github.com/kaltura/Core.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvpapi') { git(url: 'https://github.com/kaltura/tvpapi.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
-                dir('tvplibs') { git(url: 'https://github.com/kaltura/tvplibs.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
                 dir('tvincicommon') { git(url: 'https://github.com/kaltura/TvinciCommon.git', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd") }
             }
         }
@@ -27,10 +26,6 @@ pipeline {
             steps{
                 dir("core"){ bat "sh DllVersioning.Core.sh ." }
                 dir("tvpapi") { 
-                    bat "sh ../core/DllVersioning.Core.sh ."
-                    powershell "../Core/DllVersioning.ps1 ."
-                }
-                dir("tvplibs") { 
                     bat "sh ../core/DllVersioning.Core.sh ."
                     powershell "../Core/DllVersioning.ps1 ."
                 }
