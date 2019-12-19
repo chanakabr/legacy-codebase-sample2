@@ -404,12 +404,12 @@ namespace ApiObjects.Segmentation
         {
             List<SegmentationType> res = new List<SegmentationType>();
 
-            var segmentation = UserSegment.List(groupId, userId, null, 0, 0, out int totalCount);
+            var segmentation = List(groupId, userId, null, 0, 0, out int totalCount);
             var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
             if (segmentsIds.Any())
             {
                 var segmentations = SegmentationType.List(groupId, segmentsIds, 0, 1000, out totalCount);
-                return segmentations.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).ToList();
+                res = segmentations.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).ToList();
             }
 
             return res;

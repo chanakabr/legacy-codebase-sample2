@@ -2939,20 +2939,18 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdSegment":
                     switch(property.Name)
                     {
-                        case "BlockingSegmentIds":
-                            return "blockingSegmentIds";
                         case "HouseholdId":
                             return "householdId";
-                        case "HouseholdSegmentId":
-                            return "householdId";
+                        case "SegmentId":
+                            return "segmentId";
                     }
                     break;
                     
-                case "KalturaHouseholdSegmentListResponse":
+                case "KalturaHouseholdSegmentFilter":
                     switch(property.Name)
                     {
-                        case "HouseholdSegments":
-                            return "objects";
+                        case "Ksql":
+                            return "kSql";
                     }
                     break;
                     
@@ -8241,16 +8239,17 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            RolesManager.ValidateActionPermitted("householdSegment", "add", false);
+                            RolesManager.ValidateActionPermitted("householdsegment", "add");
                             return HouseholdSegmentController.Add((KalturaHouseholdSegment) methodParams[0]);
                             
                         case "delete":
-                            RolesManager.ValidateActionPermitted("householdSegment", "delete", false);
-                            return HouseholdSegmentController.Delete((long) methodParams[0], (long) methodParams[1]);
+                            RolesManager.ValidateActionPermitted("householdsegment", "delete");
+                            HouseholdSegmentController.Delete((long) methodParams[0]);
+                            return null;
                             
                         case "list":
-                            RolesManager.ValidateActionPermitted("householdSegment", "list", false);
-                            return HouseholdSegmentController.List();
+                            RolesManager.ValidateActionPermitted("householdsegment", "list");
+                            return HouseholdSegmentController.List((KalturaHouseholdSegmentFilter) methodParams[0]);
                             
                     }
                     break;
@@ -14269,7 +14268,7 @@ namespace WebAPI.Reflection
                     switch(action)
                     {
                         case "add":
-                            ret.Add("householdSegment", new MethodParam(){
+                            ret.Add("objectToAdd", new MethodParam(){
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaHouseholdSegment),
@@ -14277,17 +14276,20 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "delete":
-                            ret.Add("householdId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            ret.Add("segmentId", new MethodParam(){
+                            ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
                             });
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdSegmentFilter),
+                            });
                             return ret;
                             
                     }

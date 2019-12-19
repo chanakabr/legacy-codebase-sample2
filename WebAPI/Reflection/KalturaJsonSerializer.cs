@@ -22035,12 +22035,8 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BlockingSegmentIds != null)
-            {
-                ret.Add("blockingSegmentIds", "\"blockingSegmentIds\": " + "\"" + EscapeJson(BlockingSegmentIds) + "\"");
-            }
             ret.Add("householdId", "\"householdId\": " + HouseholdId);
-            ret.Add("householdId", "\"householdId\": " + HouseholdSegmentId);
+            ret.Add("segmentId", "\"segmentId\": " + SegmentId);
             return ret;
         }
         
@@ -22050,12 +22046,36 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(BlockingSegmentIds != null)
-            {
-                ret.Add("blockingSegmentIds", "<blockingSegmentIds>" + EscapeXml(BlockingSegmentIds) + "</blockingSegmentIds>");
-            }
             ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
-            ret.Add("householdId", "<householdId>" + HouseholdSegmentId + "</householdId>");
+            ret.Add("segmentId", "<segmentId>" + SegmentId + "</segmentId>");
+            return ret;
+        }
+    }
+    public partial class KalturaHouseholdSegmentFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            if(Ksql != null)
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
+            }
             return ret;
         }
     }
@@ -22067,11 +22087,6 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(HouseholdSegments != null)
-            {
-                propertyValue = "[" + String.Join(", ", HouseholdSegments.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
-                ret.Add("objects", "\"objects\": " + propertyValue);
-            }
             return ret;
         }
         
@@ -22081,11 +22096,6 @@ namespace WebAPI.Models.Segmentation
             Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
             string propertyValue;
 
-            if(HouseholdSegments != null)
-            {
-                propertyValue = HouseholdSegments.Count > 0 ? "<item>" + String.Join("</item><item>", HouseholdSegments.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
-                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
-            }
             return ret;
         }
     }

@@ -344,18 +344,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
 
             #region Household Segment
-
-            // User Segment
+            
             cfg.CreateMap<KalturaHouseholdSegment, HouseholdSegment>()
                 .ForMember(d => d.HouseholdId, opt => opt.MapFrom(s => s.HouseholdId))
-                .ForMember(d => d.HouseholdSegmentId, opt => opt.MapFrom(s => s.HouseholdSegmentId))
-                .ForMember(d => d.BlockingSegmentIds, opt => opt.MapFrom(s => s.GetBlockingSegmentIds()))
+                .ForMember(d => d.SegmentId, opt => opt.MapFrom(s => s.SegmentId))
                 ;
 
             cfg.CreateMap<HouseholdSegment, KalturaHouseholdSegment>()
                 .ForMember(d => d.HouseholdId, opt => opt.MapFrom(s => s.HouseholdId))
-                .ForMember(d => d.HouseholdSegmentId, opt => opt.MapFrom(s => s.HouseholdSegmentId))
-                .ForMember(d => d.BlockingSegmentIds, opt => opt.MapFrom(s => string.Join(",", s.BlockingSegmentIds)))
+                .ForMember(d => d.SegmentId, opt => opt.MapFrom(s => s.SegmentId))
+                ;
+
+            cfg.CreateMap<KalturaHouseholdSegmentFilter, HouseholdSegmentFilter>()
+                .ForMember(d => d.Ksql, opt => opt.MapFrom(s => s.Ksql))
+                ;
+
+            cfg.CreateMap<HouseholdSegmentFilter, KalturaHouseholdSegmentFilter>()
+                .ForMember(d => d.Ksql, opt => opt.MapFrom(s => s.Ksql))                
                 ;
 
             #endregion

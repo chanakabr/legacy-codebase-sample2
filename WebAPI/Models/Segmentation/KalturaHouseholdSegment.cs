@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using ApiLogic.Base;
+using ApiLogic.Users.Managers;
+using ApiObjects.Segmentation;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
@@ -12,16 +13,16 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Indicates a segment of a household
     /// </summary>
-    public partial class KalturaHouseholdSegment : KalturaOTTObject
+    public partial class KalturaHouseholdSegment : KalturaCrudObject<HouseholdSegment, long, HouseholdSegmentFilter>
     {
         /// <summary>
-        /// Household SegmentId
+        /// Segment Id
         /// </summary>
-        [DataMember(Name = "householdId")]
-        [JsonProperty(PropertyName = "householdId")]
-        [XmlElement(ElementName = "householdId")]
+        [DataMember(Name = "segmentId")]
+        [JsonProperty(PropertyName = "segmentId")]
+        [XmlElement(ElementName = "segmentId")]
         [SchemeProperty()]
-        public long HouseholdSegmentId { get; internal set; }
+        public long SegmentId { get; set; }
 
         /// <summary>
         /// Segment Id
@@ -31,37 +32,36 @@ namespace WebAPI.Models.Segmentation
         [XmlElement(ElementName = "householdId")]
         [SchemeProperty()]
         public long HouseholdId { get; set; }
-
-        /// <summary>
-        /// Blocking segment Ids
-        /// </summary>
-        [DataMember(Name = "blockingSegmentIds")]
-        [JsonProperty(PropertyName = "blockingSegmentIds")]
-        [XmlElement(ElementName = "blockingSegmentIds")]
-        [SchemeProperty(WriteOnly = true)]
-        public string BlockingSegmentIds { get; set; }
-
-        internal List<long> GetBlockingSegmentIds()
+        
+        internal override ICrudHandler<HouseholdSegment, long, HouseholdSegmentFilter> Handler
         {
-            return BlockingSegmentIds.Split(',').Select(x => long.Parse(x.Trim())).ToList();
+            get
+            {
+                return HouseholdSegmentManager.Instance;
+            }
         }
+
+        internal override void ValidateForAdd()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void ValidateForUpdate()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void SetId(long id)
+        {
+            SegmentId = id;
+            
+        }
+
+        public KalturaHouseholdSegment() : base() { }
     }
 
-    /// <summary>
-    /// List of user segments
-    /// </summary>
-    [DataContract(Name = "KalturaHouseholdSegmentListResponse", Namespace = "")]
-    [XmlRoot("KalturaHouseholdSegmentListResponse")]
-    public partial class KalturaHouseholdSegmentListResponse : KalturaListResponse
+    public partial class KalturaHouseholdSegmentListResponse : KalturaListResponse<KalturaHouseholdSegment>
     {
-        /// <summary>
-        /// Segmentation Types
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        [SchemeProperty()]
-        public List<KalturaHouseholdSegment> HouseholdSegments { get; set; }
+        public KalturaHouseholdSegmentListResponse() : base() { }
     }
 }

@@ -11995,6 +11995,12 @@ namespace Core.Api
             // Get User segmentations 
             var segmentationTypes = UserSegment.ListUserSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, assetSearchDefinition.UserId.ToString());
 
+            var user = Users.Module.GetUserData(groupId, assetSearchDefinition.UserId.ToString(), string.Empty);
+            if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
+            {
+                segmentationTypes.AddRange(HouseholdSegment.ListHouseholdSegmentationActionsOfType<SegmentActionObjectVirtualFilterAsset>(groupId, user.m_user.m_domianID));
+            }
+
             List<string> ksqls = new List<string>();
 
             if (segmentationTypes?.Count > 0)
