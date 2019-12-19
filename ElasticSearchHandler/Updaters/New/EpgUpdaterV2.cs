@@ -161,7 +161,7 @@ namespace ElasticSearchHandler.Updaters
                 Dictionary<string, KeyValuePair<eESFieldType, string>> metas = null;
                 List<string> tags = null;
                 HashSet<string> metasToPad = null;
-                IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, ref metas, ref tags, ref metasToPad, esSerializer, group, catalogGroupCache, true);
+                IndexManager.GetMetasAndTagsForMapping(groupId, doesGroupUsesTemplates, out metas, out tags, out metasToPad, esSerializer, group, catalogGroupCache, true);
 
                 // dictionary contains all language ids and its  code (string)
                 List<LanguageObj> languages = doesGroupUsesTemplates ? catalogGroupCache.LanguageMapById.Values.ToList() : group.GetLangauges();

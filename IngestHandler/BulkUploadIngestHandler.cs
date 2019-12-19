@@ -17,6 +17,7 @@ using ElasticSearch.Searcher;
 using EpgBL;
 using EventBus.Abstraction;
 using EventBus.RabbitMQ;
+using GroupsCacheManager;
 using IngestHandler.Common;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -66,6 +67,7 @@ namespace IngestHandler
         private LanguageObj _DefaultLanguage;
         private bool _IsOpc;
         private Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> _ResultsDictionary;
+        private HashSet<string> _MetasToPad;
 
         public BulkUploadIngestHandler()
         {
@@ -127,7 +129,7 @@ namespace IngestHandler
                 updater.Update(finalEpgState, crudOperations.ItemsToDelete);
 
                 var errorProgramExternalIds = _ResultsDictionary.Values.SelectMany(r => r.Values).Where(item => item.Status == BulkUploadResultStatus.Error)
-                    .Select(item => GetEPGKey(item)).ToDictionary(x=>x, null);
+                    .Select(item => GetEPGKey(item)).ToDictionary(x => x, null);
 
                 // publish using EventBus to a new consumer with a new event ValidateIngest
                 var publisher = EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
@@ -174,7 +176,7 @@ namespace IngestHandler
         private void AddEpgCBObjects(Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> results)
         {
             _Logger.Debug($"Generating EpgCB translation object for every bulk request, with languages:[{string.Join(",", _Languages.Keys)}]");
-            
+
             foreach (var item in results.Values)
             {
                 foreach (var progResult in item.Values)
@@ -343,7 +345,7 @@ namespace IngestHandler
             {
                 var program = _EventData.ProgramsToIngest.FirstOrDefault(p => p.EpgExternalId == bulkUploadProgram.ProgramExternalId
                                                                     && p.LinearMediaId == bulkUploadProgram.LiveAssetId);
-                
+
                 if (program != null)
                 {
                     if (!res.ContainsKey(program.ChannelId))
@@ -617,7 +619,7 @@ namespace IngestHandler
             {
                 string autoFillKey = GetAutoFillKey(_BulkUploadObject.GroupId);
                 // Get AutoFill default program
-                autoFillEpgsCB = _CouchbaseManager.Get<Dictionary<string,EpgCB>>(autoFillKey, true);
+                autoFillEpgsCB = _CouchbaseManager.Get<Dictionary<string, EpgCB>>(autoFillKey, true);
             }
 
             // split epgs by channel ids
@@ -789,16 +791,22 @@ namespace IngestHandler
 
         private bool BuildNewIndex(string newIndexName)
         {
-            GetAnalyzers(out var analyzers, out var filters, out var tokenizers);
+            try
+            {
+                CatalogManager.TryGetCatalogGroupCacheFromCache(_EventData.GroupId, out var catalogGroupCache);
+                var groupManager = new GroupManager();
+                groupManager.RemoveGroup(_EventData.GroupId);
+                var group = groupManager.GetGroup(_EventData.GroupId);
+                _MetasToPad = IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while building new index. ", e);
+                _BulkUploadObject.AddError(eResponseStatus.Error, "Error while building new index. ");
+                return false;
+            }
 
-            var sizeOfBulk = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
-            if (sizeOfBulk == 0) { sizeOfBulk = 50; }
-
-            var maxResults = ApplicationConfiguration.ElasticSearchConfiguration.MaxResults.IntValue;
-            if (maxResults == 0) { maxResults = 100000; }
-
-            var success = _ElasticSearchClient.BuildIndex(newIndexName, 0, 0, analyzers, filters, tokenizers, maxResults);
-            return success;
+            return true;
         }
 
         private void GetAnalyzers(out List<string> analyzers, out List<string> filters, out List<string> tokenizers)
