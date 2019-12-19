@@ -101,7 +101,7 @@ pipeline {
         stage("Publish Kaltura Clients"){
             // Generate only when release branch
             when {
-                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' }        
+                expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ || BRANCH_NAME == 'master' || "${publish}" == true }        
             }
             steps{
                 dir("clients-generator"){
