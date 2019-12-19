@@ -36,22 +36,6 @@ namespace IngestHandler
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string LOWERCASE_ANALYZER =
-            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_FILTER =
-            "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
-
-        public const string PHRASE_STARTS_WITH_ANALYZER =
-            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER =
-            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        protected const string ANALYZER_VERSION = "2";
-
         private readonly ElasticSearchApi _ElasticSearchClient = null;
         private readonly CouchbaseManager.CouchbaseManager _CouchbaseManager = null;
 
@@ -67,7 +51,6 @@ namespace IngestHandler
         private LanguageObj _DefaultLanguage;
         private bool _IsOpc;
         private Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> _ResultsDictionary;
-        private HashSet<string> _MetasToPad;
 
         public BulkUploadIngestHandler()
         {
@@ -797,7 +780,7 @@ namespace IngestHandler
                 var groupManager = new GroupManager();
                 groupManager.RemoveGroup(_EventData.GroupId);
                 var group = groupManager.GetGroup(_EventData.GroupId);
-                _MetasToPad = IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
+                _ = IndexManager.CreateNewEpgIndex(_EventData.GroupId, catalogGroupCache, group, _Languages.Values, _DefaultLanguage, newIndexName);
             }
             catch (Exception e)
             {
@@ -807,51 +790,6 @@ namespace IngestHandler
             }
 
             return true;
-        }
-
-        private void GetAnalyzers(out List<string> analyzers, out List<string> filters, out List<string> tokenizers)
-        {
-            analyzers = new List<string>();
-            filters = new List<string>();
-            tokenizers = new List<string>();
-
-            if (_Languages?.Values != null)
-            {
-                foreach (var language in _Languages.Values)
-                {
-                    string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, ANALYZER_VERSION));
-                    string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, ANALYZER_VERSION));
-                    string tokenizer = ElasticSearchApi.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code, ANALYZER_VERSION));
-
-                    if (string.IsNullOrEmpty(analyzer))
-                    {
-                        _Logger.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
-                    }
-                    else
-                    {
-                        analyzers.Add(analyzer);
-                    }
-
-                    if (!string.IsNullOrEmpty(filter))
-                    {
-                        filters.Add(filter);
-                    }
-
-                    if (!string.IsNullOrEmpty(tokenizer))
-                    {
-                        tokenizers.Add(tokenizer);
-                    }
-                }
-
-                // we always want a lowercase analyzer
-                analyzers.Add(LOWERCASE_ANALYZER);
-
-                // we always want "autocomplete" ability
-                filters.Add(PHRASE_STARTS_WITH_FILTER);
-                analyzers.Add(PHRASE_STARTS_WITH_ANALYZER);
-                analyzers.Add(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
-
-            }
         }
 
         private string GetAutoFillKey(object groupId)
