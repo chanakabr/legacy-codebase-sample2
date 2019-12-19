@@ -27,6 +27,7 @@ namespace IngestHandler.Common
         private readonly long _BulkUploadId;
         private readonly IDictionary<string, LanguageObj> _Languages;
         private readonly ESSerializerV2 _Serializer;
+        private readonly LanguageObj _DefaultLanguage;
 
         public UpdateClonedIndex(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages)
         {
@@ -36,6 +37,7 @@ namespace IngestHandler.Common
             _DateOfProgramsToIngest = dateOfProgramsToIngest;
             _Languages = languages;
             _Serializer = new ESSerializerV2();
+            _DefaultLanguage = languages.Values.First(l => l.IsDefault);
         }
 
         public void Update(IList<EpgProgramBulkUploadObject> calculatedPrograms, IList<EpgProgramBulkUploadObject> programsToDelete)
@@ -43,7 +45,7 @@ namespace IngestHandler.Common
             var bulkSize = ApplicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.IntValue;
             var index = BulkUploadMethods.GetIngestDraftTargetIndexName(_GroupId, _BulkUploadId, _DateOfProgramsToIngest);
             var bulkRequests = new List<ESBulkRequestObj<string>>();
-            
+
             var isOpc = GroupSettingsManager.IsOpc(_GroupId);
             var metasToPad = GetMetasToPad(_GroupId, isOpc);
 
@@ -53,7 +55,7 @@ namespace IngestHandler.Common
             foreach (var program in programTranslationsToIndex)
             {
                 program.PadMetas(metasToPad);
-                var suffix = program.Language;
+                var suffix = program.Language == _DefaultLanguage.Code ? "" : program.Language;
                 var language = _Languages[program.Language];
 
                 // Serialize EPG object to string
@@ -130,7 +132,7 @@ namespace IngestHandler.Common
             CatalogManager.TryGetCatalogGroupCacheFromCache(_GroupId, out var catalogGroupCache);
             var groupManager = new GroupManager();
             var group = groupManager.GetGroup(_GroupId);
-            IndexManager.GetMetasAndTagsForMapping(_GroupId, isOpc, out var metas, out var tags, out var metasTopad, _Serializer, group, catalogGroupCache, isEpg: true );
+            IndexManager.GetMetasAndTagsForMapping(_GroupId, isOpc, out var metas, out var tags, out var metasTopad, _Serializer, group, catalogGroupCache, isEpg: true);
             return metasTopad;
         }
 
