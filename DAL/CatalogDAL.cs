@@ -5880,6 +5880,12 @@ namespace Tvinci.Core.DAL
                 return newStatus;
             }
 
+            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
+            if (isAnyInError)
+            {
+                return BulkUploadJobStatus.Failed;
+            }
+
             var isAnyInProgress = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.InProgress);
             if (isAnyInProgress)
             {
@@ -5887,8 +5893,6 @@ namespace Tvinci.Core.DAL
             }
 
             var isAnyInOk = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Ok);
-            var isAnyInError = bulkUpload.Results.Any(r => r.Status == BulkUploadResultStatus.Error);
-
 
             if (!isAnyInError)
             {
