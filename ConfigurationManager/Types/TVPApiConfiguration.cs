@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using Newtonsoft.Json.Linq;
 
@@ -37,11 +38,25 @@ namespace ConfigurationManager
         {
             if (defaultData.Key == AuthrizationUnsupportedGroupPlatforsmKey)
             {
-                PopulateList(token, defaultData as BaseValue<HashSet<string>>);
+                try
+                {
+                    PopulateList(token, defaultData as BaseValue<HashSet<string>>);
+                }
+                catch (Exception e)
+                {
+                    _Logger.Error($"Error while trying to set tcm values for Objcet {GetType().Name} ,key: {defaultData.Key}, setting defualt data as actual data ",e);
+                }
             }
             else if(defaultData.Key == Offline_favorite_sync_groupsKey)
             {
-                PopulateList(token, defaultData as BaseValue<HashSet<int>>);
+                try
+                {
+                    PopulateList(token, defaultData as BaseValue<HashSet<int>>);
+                }
+                catch (Exception e)
+                {
+                    _Logger.Error($"Error while trying to set tcm values for Objcet {GetType().Name} ,key: {defaultData.Key}, setting defualt data as actual data ", e);
+                }
             }
             else
             {
@@ -52,6 +67,7 @@ namespace ConfigurationManager
         private void PopulateList(JToken token, BaseValue<HashSet<int>> defaultData)
         {
             HashSet<int> res = null;
+            token = token[defaultData.Key];
             if (token != null)
             {
                 string[] values = token.ToString().Split(',');
@@ -62,7 +78,8 @@ namespace ConfigurationManager
 
                     if (!int.TryParse(value, out groupId))
                     {
-                        _Logger.Error($"Group Ids should be comma separated list of numbers. Found invalid value {value}");
+                        _Logger.Error($"Group Ids should be comma separated list of numbers. Found invalid value {value},key: {defaultData.Key}, setting defualt data as actual data ");
+                        break;
                     }
                     else
                     {
@@ -76,7 +93,7 @@ namespace ConfigurationManager
         private void PopulateList(JToken token, BaseValue<HashSet<string>> defaultData) 
         {
             var res  = new HashSet<string>();
-
+            token = token[defaultData.Key];
             if (token != null)
             {
                 string[] splitted = token.ToString().Split(',');
