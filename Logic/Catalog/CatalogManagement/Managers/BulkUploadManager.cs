@@ -377,6 +377,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 response.Set(eResponseStatus.OK);
+
             }
             catch (Exception)
             {
@@ -457,12 +458,6 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        /// <summary>
-        /// Updates only BulkUpload status
-        /// </summary>
-        /// <param name="bulkUploadToUpdate"></param>
-        /// <param name="newStatus"></param>
-        /// <returns></returns>
         public static GenericResponse<BulkUpload> UpdateBulkUploadStatusWithVersionCheck(BulkUpload bulkUploadToUpdate, BulkUploadJobStatus newStatus)
         {
             var response = new GenericResponse<BulkUpload>();

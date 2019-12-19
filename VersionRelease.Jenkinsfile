@@ -35,8 +35,8 @@ pipeline {
                 dir('ws_ingest') { git(url: 'git@github.com:kaltura/WS_Ingest.git', branch: "${params.branch}") }
                 
                 dir('tvpapi') { git(url: 'git@github.com:kaltura/tvpapi.git', branch: "${params.branch}") }
-                //dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
-                //dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
+                dir('tvplibs') { git(url: 'git@github.com:kaltura/tvplibs.git', branch: "${params.branch}") }
+                dir('tvincicommon') { git(url: 'git@github.com:kaltura/TvinciCommon.git', branch: "${params.branch}") }
                 
                 dir('clients-generator'){ git(url: 'git@github.com:kaltura/clients-generator.git') }
 
