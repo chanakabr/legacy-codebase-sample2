@@ -110,7 +110,8 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = Core.Pricing.Module.GetSubscriptionsData(m_groupID, p_arrSubscriptionCodes, string.Empty, string.Empty, string.Empty);
+                    var res = Core.Pricing.Module.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select( s => long.Parse(s)).ToList()), string.Empty, 
+                        string.Empty, string.Empty, null);
                     if (res != null)
                         arrSubs = res.Subscriptions;
                 }
