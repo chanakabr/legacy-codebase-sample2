@@ -52,21 +52,21 @@ namespace WebAPI.Models.Segmentation
     /// <summary>
     /// Asset filter action
     /// </summary>
-    public abstract partial class KalturaSegementAssetFilterAction : KalturaKsqlSegmentAction
+    public abstract partial class KalturaSegmentAssetFilterAction : KalturaKsqlSegmentAction
     {
     }
 
     /// <summary>
     /// segment asset filter for segment action
     /// </summary>
-    public partial class KalturaSegementAssetFilterSegmentAction : KalturaSegementAssetFilterAction
+    public partial class KalturaSegmentAssetFilterSegmentAction : KalturaSegmentAssetFilterAction
     {
     }
 
     /// <summary>
     /// segment asset filter for subscription action
     /// </summary>
-    public partial class KalturaSegementAssetFilterSubscriptionAction : KalturaSegementAssetFilterAction
+    public partial class KalturaSegementAssetFilterSubscriptionAction : KalturaSegmentAssetFilterAction
     {
     }
 

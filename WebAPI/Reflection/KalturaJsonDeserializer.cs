@@ -1508,17 +1508,17 @@ namespace WebAPI.Reflection
                 case "KalturaSeasonsReminderFilter":
                     return new KalturaSeasonsReminderFilter(parameters);
                     
-                case "KalturaSegementAssetFilterAction":
-                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-                    
-                case "KalturaSegementAssetFilterSegmentAction":
-                    return new KalturaSegementAssetFilterSegmentAction(parameters);
-                    
                 case "KalturaSegementAssetFilterSubscriptionAction":
                     return new KalturaSegementAssetFilterSubscriptionAction(parameters);
                     
                 case "KalturaSegmentAllValues":
                     return new KalturaSegmentAllValues(parameters);
+                    
+                case "KalturaSegmentAssetFilterAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaSegmentAssetFilterSegmentAction":
+                    return new KalturaSegmentAssetFilterSegmentAction(parameters);
                     
                 case "KalturaSegmentationType":
                     return new KalturaSegmentationType(parameters);
@@ -22228,18 +22228,6 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
-    public partial class KalturaSegementAssetFilterAction
-    {
-        public KalturaSegementAssetFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaSegementAssetFilterSegmentAction
-    {
-        public KalturaSegementAssetFilterSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaSegementAssetFilterSubscriptionAction
     {
         public KalturaSegementAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22273,6 +22261,18 @@ namespace WebAPI.Models.Segmentation
                     NameFormat = (String) Convert.ChangeType(parameters["nameFormat"], typeof(String));
                 }
             }
+        }
+    }
+    public partial class KalturaSegmentAssetFilterAction
+    {
+        public KalturaSegmentAssetFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentAssetFilterSegmentAction
+    {
+        public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaSegmentationType

@@ -109,25 +109,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.KSQL, opt => opt.MapFrom(src => src.Ksql));
 
             // segment asset filter action
-            cfg.CreateMap<KalturaSegementAssetFilterAction, SegmentActionObjectVirtualFilterAsset>()
+            cfg.CreateMap<KalturaSegmentAssetFilterAction, SegmentActionObjectVirtualFilterAsset>()
                 .IncludeBase<KalturaKsqlSegmentAction, SegmentActionObjectVirtualAsset>();
 
-            cfg.CreateMap<SegmentActionObjectVirtualFilterAsset, KalturaSegementAssetFilterAction>()
+            cfg.CreateMap<SegmentActionObjectVirtualFilterAsset, KalturaSegmentAssetFilterAction>()
                 .IncludeBase<SegmentActionObjectVirtualAsset, KalturaKsqlSegmentAction>();
 
             // segment asset filter for segment action
-            cfg.CreateMap<KalturaSegementAssetFilterSegmentAction, SegementAssetFilterSegmentAction>()
-                .IncludeBase<KalturaSegementAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
+            cfg.CreateMap<KalturaSegmentAssetFilterSegmentAction, SegmentAssetFilterSegmentAction>()
+                .IncludeBase<KalturaSegmentAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
 
-            cfg.CreateMap<SegementAssetFilterSegmentAction, KalturaSegementAssetFilterSegmentAction>()
-                .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegementAssetFilterAction>();
+            cfg.CreateMap<SegmentAssetFilterSegmentAction, KalturaSegmentAssetFilterSegmentAction>()
+                .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegmentAssetFilterAction>();
 
             // segment asset filter for subscription action
-            cfg.CreateMap<KalturaSegementAssetFilterSubscriptionAction, SegementAssetFilterSubscriptionAction>()
-                .IncludeBase<KalturaSegementAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
+            cfg.CreateMap<KalturaSegementAssetFilterSubscriptionAction, SegmentAssetFilterSubscriptionAction>()
+                .IncludeBase<KalturaSegmentAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
 
-            cfg.CreateMap<SegementAssetFilterSubscriptionAction, KalturaSegementAssetFilterSubscriptionAction>()
-                .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegementAssetFilterAction>();
+            cfg.CreateMap<SegmentAssetFilterSubscriptionAction, KalturaSegementAssetFilterSubscriptionAction>()
+                .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegmentAssetFilterAction>();
 
             // segment block subscription action
             cfg.CreateMap<KalturaBlockSubscriptionSegmentAction, SegmentActionObjectVirtualAssetBlockAction>()

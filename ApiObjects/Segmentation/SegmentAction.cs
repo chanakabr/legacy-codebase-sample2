@@ -115,12 +115,12 @@ namespace ApiObjects.Segmentation
     }
 
 
-    public class SegementAssetFilterSegmentAction : SegmentActionObjectVirtualFilterAsset
+    public class SegmentAssetFilterSegmentAction : SegmentActionObjectVirtualFilterAsset
     {
         public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Segment; } }
     }
 
-    public class SegementAssetFilterSubscriptionAction : SegmentActionObjectVirtualFilterAsset
+    public class SegmentAssetFilterSubscriptionAction : SegmentActionObjectVirtualFilterAsset
     {
         public override ObjectVirtualAssetInfoType objectVirtualAssetInfoType { get { return ObjectVirtualAssetInfoType.Subscription; } }
     }

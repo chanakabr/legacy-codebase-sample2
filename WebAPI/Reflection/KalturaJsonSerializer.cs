@@ -22209,46 +22209,6 @@ namespace WebAPI.Models.Segmentation
             return ret;
         }
     }
-    public partial class KalturaSegementAssetFilterAction
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
-    public partial class KalturaSegementAssetFilterSegmentAction
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
-            string propertyValue;
-
-            return ret;
-        }
-    }
     public partial class KalturaSegementAssetFilterSubscriptionAction
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
@@ -22294,6 +22254,46 @@ namespace WebAPI.Models.Segmentation
             {
                 ret.Add("nameFormat", "<nameFormat>" + EscapeXml(NameFormat) + "</nameFormat>");
             }
+            return ret;
+        }
+    }
+    public partial class KalturaSegmentAssetFilterAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+    }
+    public partial class KalturaSegmentAssetFilterSegmentAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete);
+            string propertyValue;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete);
+            string propertyValue;
+
             return ret;
         }
     }
