@@ -393,8 +393,7 @@ namespace WebAPI.Managers
             }
 
             // 10. build the ks:
-            var payload = KSUtils.PrepareKSPayload(ksData);
-            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, payload, privilagesList, KS.KSVersion.V2);
+            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
 
             // 11. build the response from the ks:
             response = new KalturaSessionInfo(ks);
@@ -842,7 +841,7 @@ namespace WebAPI.Managers
                 string.Empty,
                 (int)(DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(expiration)) - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
                 KalturaSessionType.ADMIN,
-                string.Empty,
+                new KS.KSData(),
                 null,
                 Models.KS.KSVersion.V2);
 

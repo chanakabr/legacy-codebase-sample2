@@ -17,7 +17,7 @@ namespace WebAPI.Managers.Models
     {
         private const int BLOCK_SIZE = 16;
         private const int SHA1_SIZE = 20;
-        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}"; 
+        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}";
         private const string REPLACE_UNDERSCORE = "^^^";
 
         private string encryptedValue;
@@ -41,6 +41,7 @@ namespace WebAPI.Managers.Models
             public int RegionId { get; set; }
             public List<long> UserSegments { get; set; }
             public List<long> UserRoles { get; set; }
+            public string Signature { get; set; }
 
             public KSData()
             {
@@ -75,7 +76,7 @@ namespace WebAPI.Managers.Models
         }
 
         public KSVersion ksVersion { get; private set; }
-        
+
         public bool IsValid
         {
             get { return AuthorizationManager.IsKsValid(this); }
@@ -127,21 +128,31 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, Dictionary<string, string> privilegesList, KSVersion ksType)
+        private string ConvertSignature(string secret, byte[] randomBytes)
         {
-            int relativeExpiration = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) + expiration;
+            var random = Encoding.Default.GetString(randomBytes);
+            var concat = $"{random}:{secret}";
+            return Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
+        }
 
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, KSData data, Dictionary<string, string> privilegesList, KSVersion ksType)
+        {
+            byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
+            int relativeExpiration = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) + expiration;
             //prepare data - url encode + replace '_'
             string encodedData = string.Empty;
-            if (!string.IsNullOrEmpty(data))
+            var payload = string.Empty;
+            if (data != null)
             {
-                encodedData = data.Replace("_", REPLACE_UNDERSCORE);
+                data.Signature = ConvertSignature(secret, randomBytes);
+                payload = KSUtils.PrepareKSPayload(data);
+                encodedData = payload.Replace("_", REPLACE_UNDERSCORE);
                 encodedData = HttpUtility.UrlEncode(encodedData);
             }
 
             string ks = string.Format(KS_FORMAT, JoinPrivileges(privilegesList), (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
-            byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
+            
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
             Array.Copy(randomBytes, 0, randWithFields, 0, randomBytes.Length);
             Array.Copy(ksBytes, 0, randWithFields, randomBytes.Length, ksBytes.Length);
@@ -166,7 +177,7 @@ namespace WebAPI.Managers.Models
 
             this.encryptedValue = encodedKs.ToString();
             this.ksVersion = ksType;
-            this.data = data;
+            this.data = payload;
             this.expiration = DateTime.UtcNow.AddSeconds(expiration);
             this.groupId = int.Parse(groupID);
             this.privileges = privilegesList;
@@ -293,12 +304,12 @@ namespace WebAPI.Managers.Models
                 }
             }).Reverse().ToArray();
         }
-        
+
         public override string ToString()
         {
             return encryptedValue;
         }
-        
+
         public static string preparePayloadData(List<KeyValuePair<string, string>> pairs)
         {
             return string.Join(";;", pairs.Select(x => string.Format("{0}={1}", x.Key, x.Value)));
