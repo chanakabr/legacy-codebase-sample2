@@ -28,7 +28,7 @@ namespace ConfigurationManager.Types
             return isValid;
         }
 
-        public bool ValidateSslProtocols()
+        private bool ValidateSslProtocols()
         {
             bool isValid = true;
             List<string> sslProtocols = new List<string>();
@@ -69,12 +69,12 @@ namespace ConfigurationManager.Types
             return isValid;
         }
 
-        public List<System.Security.Authentication.SslProtocols> GetSslProtocols()
+        private List<SslProtocols> GetSslProtocols()
         {            
-            List<System.Security.Authentication.SslProtocols> SslProtocols = new List<System.Security.Authentication.SslProtocols>();
+            List<SslProtocols> SslProtocols = new List<SslProtocols>();
             if (!string.IsNullOrEmpty(EnabledSslProtocols.Value))
             {
-                System.Security.Authentication.SslProtocols tempSslProtocols;                
+                SslProtocols tempSslProtocols;                
                 string splitValue = EnabledSslProtocols.Value.Contains(",") ? "," : EnabledSslProtocols.Value.Contains(";") ? ";" : string.Empty;
                 if (!string.IsNullOrEmpty(splitValue))
                 {

@@ -87,6 +87,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     if (token == null)
                     {
                         _Logger.Info($"No data exist in TCM for {baseConfig.ToString()} configuration, will use the default configuration");
+                        continue;
                     }
                     Type argu = field.FieldType.GetGenericArguments()[0];
                     MethodInfo methodInfo = type.GetMethod("SetActualValue");
