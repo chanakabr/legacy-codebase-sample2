@@ -69,7 +69,7 @@ namespace ConfigurationManager.Types
             return isValid;
         }
 
-        private List<SslProtocols> GetSslProtocols()
+        public List<SslProtocols> GetSslProtocols()
         {            
             List<SslProtocols> SslProtocols = new List<SslProtocols>();
             if (!string.IsNullOrEmpty(EnabledSslProtocols.Value))
@@ -103,7 +103,7 @@ namespace ConfigurationManager.Types
             return SslProtocols;            
         }
 
-        public bool ValidateDecompressionMethods()
+        private bool ValidateDecompressionMethods()
         {
             bool isValid = true;
             List<string> decompressionMethods = new List<string>();
