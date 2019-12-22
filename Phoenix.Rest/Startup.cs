@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,9 +10,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Phoenix.Rest.Middleware;
+using Core.Middleware;
 
 namespace Phoenix.Rest
 {
@@ -41,6 +44,11 @@ namespace Phoenix.Rest
             {
                 apiApp.UsePhoenix();
             });
+
+            // support file server
+            app.UsePhoenixLocalFileSystem();
+
+            // WRITE NEW ENDPOINTS ABOVE THIS LINE TO AVOID GETTING 404 AND NOT KNOWING WHY IT DOESN'T WORK
             app.Use(async (context, next) =>
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;
