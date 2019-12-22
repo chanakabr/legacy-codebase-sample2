@@ -121,7 +121,13 @@ namespace ApiObjects.Segmentation
             List<long> segmentsToRemove = GetUserSegmentsToCleanup(GroupId, userSegments.Segments.Values.ToList());
             segmentsToRemove.ForEach(s => userSegments.Segments.Remove(s));
 
-            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments, GetDocumentTTL());
+            ulong ttl = GetDocumentTTL();
+            if (userSegments.Segments.Values.FirstOrDefault(x => x.UpdateDate == DateTime.MaxValue) != null)
+            {
+                ttl = 0;
+            }
+
+            result = couchbaseManager.Set<UserSegments>(userSegmentsKey, userSegments);
 
             if (!result)
             {
