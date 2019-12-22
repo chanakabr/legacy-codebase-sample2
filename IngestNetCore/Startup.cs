@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SoapCore;
 using Ingest;
 using System.ServiceModel;
+using Core.Middleware;
+using System.Reflection;
 
 namespace IngetsNetCore
 {
@@ -24,10 +26,23 @@ namespace IngetsNetCore
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSoapEndpoint<IService>("/Service.svc", new BasicHttpBinding(), SoapSerializer.DataContractSerializer, caseInsensitivePath: true);
             app.UseMvc();
+
+            app.MapEndpoint("GetVersion", versionApp =>
+            {
+                versionApp.Run((ctx) =>
+                {
+                    ctx.Response.StatusCode = 200;
+                    ctx.Response.ContentType = "application/json; charset=utf-8";
+                    ctx.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                    var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    return ctx.Response.WriteAsync("{\"result\":\"" + currentVersion + "\"}");
+                });
+
+            });
         }
     }
 }
