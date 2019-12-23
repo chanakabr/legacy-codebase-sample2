@@ -291,6 +291,7 @@ namespace ApiObjects.Response
         RelatedEntitiesExceedLimitation = 4087,
         AccountEpgIngestVersionDoesNotSupportBulk = 4088,
         ImageUrlRequired = 4089,
+        CanNotDeleteObjectVirtualAssetMeta = 4090,
 
         #endregion
 
