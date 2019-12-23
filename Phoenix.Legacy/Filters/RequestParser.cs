@@ -77,7 +77,7 @@ namespace WebAPI.Filters
 
         public static object GetRequestPayload()
         {
-            return HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS];
+            return HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS];
         }
 
         
@@ -168,7 +168,7 @@ namespace WebAPI.Filters
                 return;
             }
 
-            HttpContext.Current.Items[RequestContext.REQUEST_TIME] = DateTime.UtcNow;
+            HttpContext.Current.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
 
             Dictionary<string, object> formData = null;
 
@@ -216,7 +216,7 @@ namespace WebAPI.Filters
                     if (!Version.TryParse((string)formData["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
                     
-                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
                 }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
@@ -252,16 +252,16 @@ namespace WebAPI.Filters
 
             if (currentController != null)
             {
-                HttpContext.Current.Items[RequestContext.REQUEST_SERVICE] = currentController;
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = currentController;
                 if (currentAction != null)
                 {
-                    HttpContext.Current.Items[RequestContext.REQUEST_ACTION] = currentAction;
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = currentAction;
                 }
             }
 
             if (pathData != null)
             {
-                HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] = pathData;
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] = pathData;
             }
 
             if (actionContext.Request.Method == HttpMethod.Post)
@@ -314,13 +314,13 @@ namespace WebAPI.Filters
                             if (!Version.TryParse((string)JObj["apiVersion"], out version))
                                 throw new RequestParserException(RequestParserException.INVALID_VERSION, JObj["apiVersion"]);
 
-                            HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
+                            HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
                         }
 
                         Dictionary<string, object> requestParams;
-                        if (HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] != null)
                         {
-                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA]);
+                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -338,7 +338,7 @@ namespace WebAPI.Filters
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
                             methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, requestParams);
                         }
-                        HttpContext.Current.Items.Add(RequestContext.REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -378,9 +378,9 @@ namespace WebAPI.Filters
                     try
                     {
                         Dictionary<string, object> groupedParams;
-                        if (HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA]);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -400,7 +400,7 @@ namespace WebAPI.Filters
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
                             methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, groupedParams);
                         }
-                        HttpContext.Current.Items.Add(RequestContext.REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -436,7 +436,7 @@ namespace WebAPI.Filters
                     if (!Version.TryParse(tokens["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, tokens["apiVersion"]);
 
-                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = version;
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
                 }
                 if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
                 {
@@ -459,9 +459,9 @@ namespace WebAPI.Filters
                     try
                     {
                         Dictionary<string, object> groupedParams;
-                        if (HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContext.REQUEST_PATH_DATA]);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -481,7 +481,7 @@ namespace WebAPI.Filters
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
                             methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, groupedParams);
                         }
-                        HttpContext.Current.Items.Add(RequestContext.REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {

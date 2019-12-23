@@ -148,7 +148,7 @@ namespace Reflector
             file.WriteLine("            service = service.ToLower();");
             file.WriteLine("            action = action.ToLower();");
             file.WriteLine("            Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();");
-            file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestContext.REQUEST_VERSION];");
+            file.WriteLine("            Version currentVersion = (Version)HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION];");
             file.WriteLine("            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);");
             file.WriteLine("            string paramName;");
             file.WriteLine("            string newParamName = null;");
@@ -510,7 +510,7 @@ namespace Reflector
             SchemeServeAttribute serve = action.GetCustomAttribute<SchemeServeAttribute>(true);
             if (serve != null)
             {
-                file.WriteLine(tab + "                            HttpContext.Current.Items[RequestContext.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
+                file.WriteLine(tab + "                            HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVE_CONTENT_TYPE] = \"" + serve.ContentType + "\";");
             }
 
             string args = String.Join(", ", action.GetParameters().Select(paramInfo => "(" + GetTypeName(paramInfo.ParameterType, true) + ") methodParams[" + paramInfo.Position + "]"));
