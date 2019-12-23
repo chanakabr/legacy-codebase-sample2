@@ -122,13 +122,7 @@ namespace WebAPI.Managers
 
             // get group configurations
             var group = GetGroupConfiguration(groupId);
-            var userSegments = new List<long>();
-            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, null, 0, 0);
-            if (userSegmentsResponse.HasObjects())
-            {
-                userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
-            }
-
+            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
             var payload = new KS.KSData(udid, 0, regionId, userSegments, userRoles);
             var token = new ApiToken(userId, groupId, payload, isAdmin, group, isLoginWithPin, privileges);
             return GenerateSessionByApiToken(token, group);
@@ -377,12 +371,7 @@ namespace WebAPI.Managers
             // set payload data
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
             var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
-            var userSegments = new List<long>();
-            var userSegmentsResponse = Core.Api.Module.GetUserSegments(groupId, userId, null, 0, 0);
-            if (userSegmentsResponse.HasObjects())
-            {
-                userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
-            }
+            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);            
             
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);

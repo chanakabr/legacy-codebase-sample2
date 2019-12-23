@@ -2463,5 +2463,35 @@ namespace Core.Api
         {
             return PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
         }
+
+        public static List<long> GetUserAndHouseholdSegmentIds(int groupId, string userId, long householdId = -1)
+        {
+            List<long> result = new List<long>();
+
+            try
+            {
+                result = UserSegment.List(groupId, userId, null, 0, 0, out int totalCount).Select( x =>x.SegmentId).ToList();
+
+                if ( householdId == -1)
+                {
+                    var user = Users.Module.GetUserData(groupId, userId, string.Empty);
+                    if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
+                    {
+                        householdId = user.m_user.m_domianID;
+                    }
+                }
+
+                if (householdId > 0)
+                {
+                    result.AddRange(HouseholdSegment.List(groupId, householdId, null, 0, 0, out totalCount).Select( x => x.SegmentId));                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed getting User And Household SegmentIds of user id {0} in group id = {1}. ex = {2}", userId, groupId, ex);
+            }
+
+            return result;
+        }
     }
 }

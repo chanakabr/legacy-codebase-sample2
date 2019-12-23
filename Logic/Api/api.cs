@@ -12021,14 +12021,8 @@ namespace Core.Api
 
         private static long GetOriginalUserId()
         {
-            long originalUserId = 0;
-            string key = "ks_original_user_id";
-
-            if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null && System.Web.HttpContext.Current.Items.ContainsKey(key))
-            {
-                long.TryParse((string)System.Web.HttpContext.Current.Items[key], out originalUserId);
-            }
-
+            RequestContextUtils.GetRequestContextValue<long>(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, out long originalUserId);
+            
             return originalUserId;
         }
     }

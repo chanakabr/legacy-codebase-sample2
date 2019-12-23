@@ -86,9 +86,9 @@ namespace WebAPI.App_Start
                 throw new RequestParserException(RequestParserException.PARTNER_INVALID);
             }
 
-            if (HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS] is IEnumerable)
+            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS] is IEnumerable)
             {
-                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestContext.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
+                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {

@@ -16,37 +16,7 @@ using TVinciShared;
 namespace WebAPI
 {
     public static class RequestContext
-    {
-        public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
-        public const string REQUEST_VERSION = "requestVersion";
-        public const string REQUEST_USER_ID = "user_id";
-        public const string REQUEST_GROUP_ID = "group_id";
-        public const string REQUEST_KS = "KS";
-        public const string REQUEST_LANGUAGE = "language";
-        public const string REQUEST_CURRENCY = "currency";
-        public const string REQUEST_FORMAT = "format";
-        public const string USER_IP = "USER_IP";
-
-        // same key as in REST solution KLogMonitor.Constants
-        // in-case changing this  - you must change there  as well
-        public const string REQUEST_GLOBAL_KS = "global_ks";
-
-        public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
-        public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
-        public const string REQUEST_GLOBAL_CURRENCY = "global_currency";
-        public const string REQUEST_SERVICE = "requestService";
-        public const string REQUEST_ACTION = "requestAction";
-        public const string REQUEST_TIME = "requestTime";
-        public const string REQUEST_TYPE = "requestType";
-        public const string REQUEST_SERVE_CONTENT_TYPE = "requestServeContentType";
-        public const string REQUEST_PATH_DATA = "pathData";
-        public const string REQUEST_RESPONSE_PROFILE = "responseProfile";
-        public const string REQUEST_KS_ORIGINAL_USER_ID = "ks_original_user_id";
-
-        public const string MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR = "global_abort_on_error";
-
-
-
+    {        
         private const string CB_SECTION_NAME = "tokens";
         private static int accessTokenLength = ApplicationConfiguration.RequestParserConfiguration.AccessTokenLength.IntValue;
         private static string accessTokenKeyFormat = ApplicationConfiguration.RequestParserConfiguration.AccessTokenKeyFormat.Value;
@@ -71,9 +41,9 @@ namespace WebAPI
 
         private static void SetUserIpContext()
         {
-            if (HttpContext.Current.Items[RequestContext.USER_IP] == null)
+            if (HttpContext.Current.Items[RequestContextUtils.USER_IP] == null)
             {
-                HttpContext.Current.Items.Add(RequestContext.USER_IP, WebAPI.Utils.Utils.GetClientIP());
+                HttpContext.Current.Items.Add(RequestContextUtils.USER_IP, WebAPI.Utils.Utils.GetClientIP());
             }
         }
 
@@ -96,19 +66,19 @@ namespace WebAPI
                        ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
                 }
 
-                if (globalScope && HttpContext.Current.Items[RequestContext.REQUEST_RESPONSE_PROFILE] == null)
-                    HttpContext.Current.Items.Add(RequestContext.REQUEST_RESPONSE_PROFILE, responseProfile);
+                if (globalScope && HttpContext.Current.Items[RequestContextUtils.REQUEST_RESPONSE_PROFILE] == null)
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_RESPONSE_PROFILE, responseProfile);
             }
-            else if (HttpContext.Current.Items[RequestContext.REQUEST_RESPONSE_PROFILE] != null)
+            else if (HttpContext.Current.Items[RequestContextUtils.REQUEST_RESPONSE_PROFILE] != null)
             {
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[RequestContext.REQUEST_RESPONSE_PROFILE]);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_RESPONSE_PROFILE, HttpContext.Current.Items[RequestContextUtils.REQUEST_RESPONSE_PROFILE]);
             }
         }
 
         private static void SetRequestTypeContext(string action)
         {
-            if (HttpContext.Current.Items[RequestContext.REQUEST_TYPE] != null)
-                HttpContext.Current.Items.Remove(RequestContext.REQUEST_TYPE);
+            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] != null)
+                HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_TYPE);
 
             if (action != null)
             {
@@ -116,16 +86,16 @@ namespace WebAPI
                 {
                     case "register":
                     case "add":
-                        HttpContext.Current.Items[RequestContext.REQUEST_TYPE] = RequestType.INSERT;
+                        HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] = RequestType.INSERT;
                         break;
 
                     case "update":
-                        HttpContext.Current.Items[RequestContext.REQUEST_TYPE] = RequestType.UPDATE;
+                        HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] = RequestType.UPDATE;
                         break;
 
                     case "get":
                     case "list":
-                        HttpContext.Current.Items[RequestContext.REQUEST_TYPE] = RequestType.READ;
+                        HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] = RequestType.READ;
                         break;
 
                     default:
@@ -136,19 +106,19 @@ namespace WebAPI
 
         private static void SetRequestFormatContext()
         {
-            if (HttpContext.Current.Items.ContainsKey(RequestContext.REQUEST_FORMAT))
+            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_FORMAT))
             {
-                HttpContext.Current.Items.Remove(RequestContext.REQUEST_FORMAT);
+                HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_FORMAT);
             }
-            if (!string.IsNullOrEmpty(HttpContext.Current.Request.GetQueryString()[RequestContext.REQUEST_FORMAT]))
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request.GetQueryString()[RequestContextUtils.REQUEST_FORMAT]))
             {
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_FORMAT, HttpContext.Current.Request.GetQueryString()[RequestContext.REQUEST_FORMAT]);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_FORMAT, HttpContext.Current.Request.GetQueryString()[RequestContextUtils.REQUEST_FORMAT]);
             }
         }
 
         private static void SetCurrencyContext(IDictionary<string, object> requestParams, bool globalScope)
         {
-            HttpContext.Current.Items.Remove(RequestContext.REQUEST_CURRENCY);
+            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_CURRENCY);
             if (requestParams.ContainsKey("currency") && requestParams["currency"] != null)
             {
                 string currency;
@@ -161,19 +131,19 @@ namespace WebAPI
                     currency = (string)Convert.ChangeType(requestParams["currency"], typeof(string));
                 }
 
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_CURRENCY, currency);
-                if (globalScope && HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_CURRENCY] == null)
-                    HttpContext.Current.Items.Add(RequestContext.REQUEST_GLOBAL_CURRENCY, currency);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_CURRENCY, currency);
+                if (globalScope && HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY] == null)
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GLOBAL_CURRENCY, currency);
             }
-            else if (HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_CURRENCY] != null)
+            else if (HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY] != null)
             {
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_CURRENCY, HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_CURRENCY]);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_CURRENCY, HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY]);
             }
         }
 
         private static void SetLanguageContext(IDictionary<string, object> requestParams, bool globalScope)
         {
-            HttpContext.Current.Items.Remove(RequestContext.REQUEST_LANGUAGE);
+            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_LANGUAGE);
             if (requestParams.ContainsKey("language") && requestParams["language"] != null)
             {
                 string language;
@@ -186,19 +156,19 @@ namespace WebAPI
                     language = (string)Convert.ChangeType(requestParams["language"], typeof(string));
                 }
 
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_LANGUAGE, language);
-                if (globalScope && HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_LANGUAGE] == null)
-                    HttpContext.Current.Items.Add(RequestContext.REQUEST_GLOBAL_LANGUAGE, language);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_LANGUAGE, language);
+                if (globalScope && HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE] == null)
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GLOBAL_LANGUAGE, language);
             }
-            else if (HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_LANGUAGE] != null)
+            else if (HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE] != null)
             {
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_LANGUAGE, HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_LANGUAGE]);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_LANGUAGE, HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE]);
             }
         }
 
         private static void SetImpersonateUserContext(IDictionary<string, object> requestParams, bool globalScope)
         {
-            HttpContext.Current.Items.Remove(RequestContext.REQUEST_USER_ID);
+            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_USER_ID);
             if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
             {
                 object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
@@ -212,13 +182,13 @@ namespace WebAPI
                     userId = (string)Convert.ChangeType(userIdObject, typeof(string));
                 }
 
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_USER_ID, userId);
-                if (globalScope && HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_USER_ID] == null)
-                    HttpContext.Current.Items.Add(RequestContext.REQUEST_GLOBAL_USER_ID, userId);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, userId);
+                if (globalScope && HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_USER_ID] == null)
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GLOBAL_USER_ID, userId);
             }
-            else if (HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_USER_ID] != null)
+            else if (HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_USER_ID] != null)
             {
-                HttpContext.Current.Items.Add(RequestContext.REQUEST_USER_ID, HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_USER_ID]);
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_USER_ID]);
             }
         }
 
@@ -239,12 +209,12 @@ namespace WebAPI
 
                 InitKS(ks);
 
-                if (globalScope && HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_KS] == null)
-                    HttpContext.Current.Items.Add(RequestContext.REQUEST_GLOBAL_KS, ks);
+                if (globalScope && HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_KS] == null)
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GLOBAL_KS, ks);
             }
-            else if (HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_KS] != null)
+            else if (HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_KS] != null)
             {
-                InitKS((string)HttpContext.Current.Items[RequestContext.REQUEST_GLOBAL_KS]);
+                InitKS((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_KS]);
             }
             else if (requestParams.ContainsKey("partnerId") && requestParams["partnerId"] != null)
             {
@@ -305,7 +275,7 @@ namespace WebAPI
                 Version versionFromParams;
                 if (Version.TryParse((string)requestParams["apiVersion"], out versionFromParams))
                 {
-                    HttpContext.Current.Items[RequestContext.REQUEST_VERSION] = versionFromParams;
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = versionFromParams;
                 }
                 else
                 {
