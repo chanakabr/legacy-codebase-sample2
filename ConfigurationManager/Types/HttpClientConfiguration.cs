@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
+using System.Text;
 
 namespace ConfigurationManager.Types
 {
@@ -11,7 +12,7 @@ namespace ConfigurationManager.Types
     {
         public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server",5,false,"The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
         public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation",false,false,"Indicates whether the certificate is checked against the certificate authority revocation list");
-        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols", "Ssl2,Ssl3,Tls,Tls11,Tls12,Tls13", false,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
+        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols", "Ssl2,Ssl3,Tls,Tls11,Tls12", false,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
         public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,GZip",false,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
         public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout",100000,false,"The timeout in milliseconds for the HttpClient");
 
@@ -62,11 +63,27 @@ namespace ConfigurationManager.Types
 
             if (sslProtocols.Count > 0)
             {
-                SslProtocols sslProtocol;
-                isValid = sslProtocols.TrueForAll(protpcol => Enum.TryParse(protpcol, out sslProtocol));
+                isValid = sslProtocols.TrueForAll(x => ValidateEnum(x));
             }
 
             return isValid;
+        }
+
+        private bool ValidateEnum(string stringValue)
+        {
+            System.Security.Authentication.SslProtocols sslProtocol;
+            if (! Enum.TryParse(stringValue, out sslProtocol))
+            {
+                _Logger.Error($"Invalid casting to SslProtocols enum, param {stringValue}");
+                StringBuilder sb = new StringBuilder();
+                foreach (SslProtocols foo in Enum.GetValues(typeof(SslProtocols)))
+                {
+                    sb.Append(foo.ToString() + ",");
+                }
+                _Logger.Error($"valid params for SslProtocols: {sb.ToString()}");
+                return false;
+            }
+            return true;
         }
 
         public List<SslProtocols> GetSslProtocols()
