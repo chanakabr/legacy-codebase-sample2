@@ -598,7 +598,7 @@ namespace IngestHandler
             List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
             IDictionary<string, EpgCB> autoFillEpgsCB = null;
 
-            if (_Languages?.Keys.Count > 0)
+            if (_Languages?.Keys.Count > 0 && _IngestProfile.DefaultAutoFillPolicy == eIngestProfileAutofillPolicy.Autofill)
             {
                 string autoFillKey = GetAutoFillKey(_BulkUploadObject.GroupId);
                 // Get AutoFill default program
