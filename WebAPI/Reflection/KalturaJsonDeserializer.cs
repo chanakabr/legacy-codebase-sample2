@@ -1508,9 +1508,6 @@ namespace WebAPI.Reflection
                 case "KalturaSeasonsReminderFilter":
                     return new KalturaSeasonsReminderFilter(parameters);
                     
-                case "KalturaSegementAssetFilterSubscriptionAction":
-                    return new KalturaSegementAssetFilterSubscriptionAction(parameters);
-                    
                 case "KalturaSegmentAllValues":
                     return new KalturaSegmentAllValues(parameters);
                     
@@ -1519,6 +1516,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSegmentAssetFilterSegmentAction":
                     return new KalturaSegmentAssetFilterSegmentAction(parameters);
+                    
+                case "KalturaSegmentAssetFilterSubscriptionAction":
+                    return new KalturaSegmentAssetFilterSubscriptionAction(parameters);
                     
                 case "KalturaSegmentationType":
                     return new KalturaSegmentationType(parameters);
@@ -22228,12 +22228,6 @@ namespace WebAPI.Models.Segmentation
             }
         }
     }
-    public partial class KalturaSegementAssetFilterSubscriptionAction
-    {
-        public KalturaSegementAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
     public partial class KalturaSegmentAllValues
     {
         private static RuntimeSchemePropertyAttribute NameFormatSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentAllValues")
@@ -22272,6 +22266,12 @@ namespace WebAPI.Models.Segmentation
     public partial class KalturaSegmentAssetFilterSegmentAction
     {
         public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSegmentAssetFilterSubscriptionAction
+    {
+        public KalturaSegmentAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
         {
         }
     }

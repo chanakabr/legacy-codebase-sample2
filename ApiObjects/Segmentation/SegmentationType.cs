@@ -314,7 +314,7 @@ namespace ApiObjects.Segmentation
 
             if (ids != null && ids.Count > 0)
             {
-                // ignore segmentation types that are not part of this group's segementation types
+                // ignore segmentation types that are not part of this group's segmentation types
                 ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));                
                 keys = ids.Select(id => GetSegmentationTypeDocumentKey(groupId, id)).ToList();
                 totalCount = keys.Count;

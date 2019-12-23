@@ -123,10 +123,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegmentAssetFilterAction>();
 
             // segment asset filter for subscription action
-            cfg.CreateMap<KalturaSegementAssetFilterSubscriptionAction, SegmentAssetFilterSubscriptionAction>()
+            cfg.CreateMap<KalturaSegmentAssetFilterSubscriptionAction, SegmentAssetFilterSubscriptionAction>()
                 .IncludeBase<KalturaSegmentAssetFilterAction, SegmentActionObjectVirtualFilterAsset>();
 
-            cfg.CreateMap<SegmentAssetFilterSubscriptionAction, KalturaSegementAssetFilterSubscriptionAction>()
+            cfg.CreateMap<SegmentAssetFilterSubscriptionAction, KalturaSegmentAssetFilterSubscriptionAction>()
                 .IncludeBase<SegmentActionObjectVirtualFilterAsset, KalturaSegmentAssetFilterAction>();
 
             // segment block subscription action
