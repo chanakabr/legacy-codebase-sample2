@@ -11970,7 +11970,7 @@ namespace Core.Api
                         {
                             foreach (var blockAction in segment.Actions.OfType<T>().Where(x => x.objectVirtualAssetInfoType == virtualAssetInfoType))
                             {
-                                string ksql = string.Format($"(and {blockAction.Ksql} asset_type = '{objectVirtualAssetInfo.AssetStructId}' {topicSystemName} = '{objectId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
+                                string ksql = string.Format($"(and {blockAction.Ksql} asset_type='{objectVirtualAssetInfo.AssetStructId}' {topicSystemName}='{objectId}')"); // (or operator = 'sky' media_id = '2' media_id = '3')
                                 var assetResult = Api.api.SearchAssets(groupId, ksql, 0, 1, true, 0, true, udid, ip, userId, domainId, 0, false, false);
                                 if (assetResult != null && assetResult.Any())
                                 {

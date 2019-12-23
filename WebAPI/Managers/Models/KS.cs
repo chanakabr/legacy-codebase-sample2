@@ -351,13 +351,13 @@ namespace WebAPI.Managers.Models
                 HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID] = ks.groupId;
             else
                 HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, ks.groupId);
-
-            if (ks.OriginalUserId != ks.userId)
+            
+            if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.userId && long.TryParse(ks.OriginalUserId, out long originalUserId))
             {
                 if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID))
-                    HttpContext.Current.Items[RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID] = ks.OriginalUserId;
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID] = originalUserId;
                 else
-                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, ks.OriginalUserId);
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
             }
         }
 
