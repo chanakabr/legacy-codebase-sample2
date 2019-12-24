@@ -12011,7 +12011,7 @@ namespace Core.Api
                     var actionList = segment.Actions.OfType<SegmentActionObjectVirtualAsset>().Where(x => x.objectVirtualAssetInfoType == objectVirtualAssetInfo.Type).ToList();
                     if (actionList.Count > 0)
                     {
-                        ksqls.AddRange(actionList.Where(x => !string.IsNullOrEmpty(x.Ksql)).Select(x => $"({x.Ksql})"));
+                        ksqls.AddRange(actionList.Where(x => !string.IsNullOrEmpty(x.Ksql)).Select(x => $"{x.Ksql}"));
                     }
                 }
             }
