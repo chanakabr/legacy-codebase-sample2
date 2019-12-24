@@ -37,6 +37,8 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
+                objectToAdd.GroupId = contextData.GroupId;
+
                 if (!objectToAdd.Insert())
                 {
                     log.Error($"Error while Save HouseholdSegment. contextData: {contextData.ToString()}.");
