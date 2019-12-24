@@ -11902,6 +11902,13 @@ namespace Core.Api
 
             string assetFilter = GetObjectVirtualAssetsFilters(groupId, assetSearchDefinition, objectVirtualAssetInfo);
 
+            if (string.IsNullOrEmpty(assetFilter) && string.IsNullOrEmpty(assetSearchDefinition.Filter))
+            {
+                objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.Results;
+                objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
+                return objectVirtualAssetFilter;
+            }
+
             string filter = $"(and asset_type='{objectVirtualAssetInfo.AssetStructId}' {assetSearchDefinition.Filter} {assetFilter})";
 
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
