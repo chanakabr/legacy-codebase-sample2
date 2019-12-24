@@ -11883,7 +11883,7 @@ namespace Core.Api
                 if (assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
                 {
                     objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Error;
-                    objectVirtualAssetFilter.Status.Set(eResponseStatus.Error, "Cant use filter when object virtual asset not set  for partner");
+                    objectVirtualAssetFilter.Status = new Status(eResponseStatus.Error, "Cant use filter when object virtual asset not set  for partner");
                     return objectVirtualAssetFilter;
                 }
 
