@@ -1,8 +1,11 @@
 ﻿using ConfigurationManager;
 using ConfigurationManager.Types;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -15,6 +18,8 @@ namespace TVinciShared
         static readonly int defaultMaxConnectionsPerServer = ApplicationConfiguration.Current.HttpClientConfiguration.MaxConnectionsPerServer.Value;
         static readonly bool defaultCheckCertificateRevocationList = ApplicationConfiguration.Current.HttpClientConfiguration.CheckCertificateRevocationList.Value;
         static readonly System.TimeSpan defaultTimeout = System.TimeSpan.FromMilliseconds(ApplicationConfiguration.Current.HttpClientConfiguration.TimeOutInMiliSeconds.Value);
+
+        static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static HttpClient GetHttpClient(BaseHttpClientConfiguration specificConfiguration = null)
         {
@@ -50,10 +55,15 @@ namespace TVinciShared
             return httpClient;
 #elif NETFRAMEWORK
             HttpClientHandler httpHandler = new HttpClientHandler() { SslProtocols = new SslProtocols() };
-            foreach (SslProtocols sslProtocols in enabledSslProtocols)
+/*            foreach (SslProtocols sslProtocols in enabledSslProtocols)
             {
-                httpHandler.SslProtocols = sslProtocols | httpHandler.SslProtocols;
-            }
+                try {
+                    httpHandler.SslProtocols = sslProtocols | httpHandler.SslProtocols;
+                }catch(Exception e){
+                    _Logger.Error($"Error with ssl protocol: {sslProtocols}", e);
+                    _Logger.Error($"curent ssl protocol: {httpHandler.SslProtocols }", e);
+                }
+            }*/
 
             foreach (DecompressionMethods decompressionMethod in enabledDecompressionMethod)
             {
