@@ -18,7 +18,7 @@ RUN dotnet publish -c Release "./IngestValidtionHandler/IngestValidtionHandler.c
 # Cannot use alpine base runtime image because of this issue:
 # https://github.com/dotnet/corefx/issues/29147
 # Sql server will not connect on alpine, if this issue is resolved we should really switch to runtime:2.2-alpine
-FROM mcr.microsoft.com/dotnet/core/runtime:2.2
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /
 
 ENV RUN_TASK=no-task-selected
