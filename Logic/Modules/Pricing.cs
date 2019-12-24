@@ -702,7 +702,13 @@ namespace Core.Pricing
                 try
                 {
                     var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription, subscriptionIds);
-                    if (filter.Status == ObjectVirtualAssetFilterStatus.None)
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                    {
+                        response.Status = filter.Status;
+                        return response;
+                    }
+
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
                     {
                         response.Status = new Status((int)eResponseStatus.OK, "OK");
                         return response;

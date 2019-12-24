@@ -2144,14 +2144,20 @@ namespace Core.Api
             try
             {
                 var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids);
-                if (filter.Status == ObjectVirtualAssetFilterStatus.None)
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    result.SetStatus(filter.Status);
+                    return result;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
                 {
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return result;
                 }
 
                 int totalCount;
-                result.Objects = SegmentationType.List(groupId, filter.ObjectIds.ToList(), pageIndex, pageSize, out totalCount);
+                result.Objects = SegmentationType.List(groupId, filter.ObjectIds?.ToList(), pageIndex, pageSize, out totalCount);
                 result.TotalItems = totalCount;
                 result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -2186,7 +2192,13 @@ namespace Core.Api
             try
             {
                 var filter = api.GetObjectVirtualAssetObjectIds(groupId, pageIndex, pageSize, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null);
-                if (filter.Status == ObjectVirtualAssetFilterStatus.None)
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    result.SetStatus(filter.Status);
+                    return result;
+                }
+
+                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
                 {
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return result;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ApiObjects.Response;
+using System.Collections.Generic;
 
 namespace ApiObjects
 {
@@ -13,11 +14,13 @@ namespace ApiObjects
 
     public enum ObjectVirtualAssetInfoType { Subscription = 0, Segment = 1 }
 
-    public enum ObjectVirtualAssetFilterStatus { None = 0, Results = 1 }
+    public enum ObjectVirtualAssetFilterStatus { None = 0, Results = 1, Error = 2 }
 
     public class ObjectVirtualAssetFilter
     {
         public List<long> ObjectIds;
-        public ObjectVirtualAssetFilterStatus Status;
+        public ObjectVirtualAssetFilterStatus ResultStatus;
+        public Status Status;
+
     }
 }

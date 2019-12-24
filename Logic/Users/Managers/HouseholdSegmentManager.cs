@@ -125,7 +125,13 @@ namespace ApiLogic.Users.Managers
                 AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
 
                 var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, 0, 0, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, null);
-                if (filtered.Status == ObjectVirtualAssetFilterStatus.None)
+                if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    response.SetStatus(filtered.Status);
+                    return response;
+                }
+
+                if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.None)
                 {
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;

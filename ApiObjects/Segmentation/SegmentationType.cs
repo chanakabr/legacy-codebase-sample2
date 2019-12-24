@@ -312,7 +312,7 @@ namespace ApiObjects.Segmentation
             totalCount = groupSegmentationTypes.segmentationTypes.Count;
             List<string> keys = null;
 
-            if (ids != null && ids.Count > 0)
+            if (ids?.Count > 0)
             {
                 // ignore segmentation types that are not part of this group's segmentation types
                 ids.RemoveAll(id => !groupSegmentationTypes.segmentationTypes.Exists(id2 => id == id2));                

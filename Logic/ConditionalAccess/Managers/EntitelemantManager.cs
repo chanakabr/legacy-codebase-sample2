@@ -457,7 +457,13 @@ namespace Core.ConditionalAccess
                 }
 
                 var result = Api.api.GetObjectVirtualAssetObjectIds(groupId, 0, 0, new AssetSearchDefinition(), ObjectVirtualAssetInfoType.Subscription, subIds);
-                if (result.Status == ObjectVirtualAssetFilterStatus.None || result.ObjectIds?.Count == 0)
+                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                {
+                    entitlementsResponse.status = result.Status;
+                    return entitlementsResponse;
+                }
+
+                if (result.ResultStatus == ObjectVirtualAssetFilterStatus.None || result.ObjectIds?.Count == 0)
                 {
                     entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
                     return entitlementsResponse;

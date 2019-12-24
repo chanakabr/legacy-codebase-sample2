@@ -11880,7 +11880,14 @@ namespace Core.Api
 
             if (objectVirtualAssetInfo == null)
             {
-                objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.Results;
+                if (assetSearchDefinition != null && !string.IsNullOrEmpty(assetSearchDefinition.Filter))
+                {
+                    objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Error;
+                    objectVirtualAssetFilter.Status.Set(eResponseStatus.Error, "Cant use filter when object virtual asset not set  for partner");
+                    return objectVirtualAssetFilter;
+                }
+
+                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
                 objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
                 return objectVirtualAssetFilter;
             }
@@ -11904,7 +11911,7 @@ namespace Core.Api
 
             if (string.IsNullOrEmpty(assetFilter) && string.IsNullOrEmpty(assetSearchDefinition.Filter))
             {
-                objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.Results;
+                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
                 objectVirtualAssetFilter.ObjectIds = objectIds?.ToList();
                 return objectVirtualAssetFilter;
             }
@@ -11919,7 +11926,7 @@ namespace Core.Api
 
             if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
             {
-                objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.None;
+                objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.None;
 
                 var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
 
@@ -11931,7 +11938,7 @@ namespace Core.Api
                     List<KeyValuePair<eAssetTypes, long>> kvp = assets.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId))).ToList();
                     var virtualAssets = AssetManager.GetAssets(groupId, kvp, false);
 
-                    objectVirtualAssetFilter.Status = ObjectVirtualAssetFilterStatus.Results;
+                    objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
 
                     long objectId = 0;
