@@ -24,16 +24,24 @@ namespace ApiLogic.Users.Managers
 
             try
             {
+
+                //TODO ANAT !!!
                 // validate 
-                if (!contextData.DomainId.HasValue)
+                //if (!contextData.DomainId.HasValue)
+                //{
+                //    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
+                //    return response;
+                //}
+
+                //if (contextData.DomainId.Value != objectToAdd.HouseholdId)
+                //{
+                //    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required"); //TODO: Anat cgange status
+                //    return response;
+                //}
+
+                if (objectToAdd.HouseholdId == 0)
                 {
                     response.SetStatus(eResponseStatus.HouseholdRequired, "Household required");
-                    return response;
-                }
-
-                if (contextData.DomainId.Value != objectToAdd.HouseholdId)
-                {
-                    response.SetStatus(eResponseStatus.HouseholdRequired, "Household required"); //TODO: Anat cgange status
                     return response;
                 }
 
@@ -77,7 +85,8 @@ namespace ApiLogic.Users.Managers
                 HouseholdSegment householdSegment = new HouseholdSegment()
                 {
                     HouseholdId = contextData.DomainId.Value,
-                    SegmentId = segmentId
+                    SegmentId = segmentId,
+                    GroupId = contextData.GroupId
                 };
 
                 if (!householdSegment.Delete())
@@ -87,7 +96,6 @@ namespace ApiLogic.Users.Managers
                 }
 
                 response.Set(eResponseStatus.OK);
-
             }
             catch (Exception ex)
             {
