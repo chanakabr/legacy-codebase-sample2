@@ -21,7 +21,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "segmentId")]
         [JsonProperty(PropertyName = "segmentId")]
         [XmlElement(ElementName = "segmentId")]
-        [SchemeProperty()]
+        [SchemeProperty(MinInteger = 1)]        
         public long SegmentId { get; set; }
 
         /// <summary>
@@ -42,13 +42,11 @@ namespace WebAPI.Models.Segmentation
         }
 
         internal override void ValidateForAdd()
-        {
-            throw new NotImplementedException();
+        {            
         }
 
         internal override void ValidateForUpdate()
-        {
-            throw new NotImplementedException();
+        {         
         }
 
         internal override void SetId(long id)
