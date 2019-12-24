@@ -174,7 +174,7 @@ namespace ApiObjects.Segmentation
         public static List<HouseholdSegment> List(int groupId, long householdId, List<long> segmentsIds, int pageIndex, int pageSize, out int totalCount)
         {
             totalCount = 0;
-            List<HouseholdSegment> result = null;
+            List<HouseholdSegment> result = new List<HouseholdSegment>();
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
             string key = GetHouseholdSegmentsKey(householdId);
@@ -209,9 +209,9 @@ namespace ApiObjects.Segmentation
             List<SegmentationType> res = new List<SegmentationType>();
 
             var segmentation = List(groupId, householdId, null, 0, 0, out int totalCount);
-            var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
-            if (segmentsIds.Any())
+            if (segmentation?.Count > 0)
             {
+                var segmentsIds = segmentation.Select(s => s.SegmentId).ToList();
                 var segmentations = SegmentationType.List(groupId, segmentsIds, 0, 1000, out totalCount);
                 res = segmentations.Where(s => s.Actions != null && s.Actions.Any(y => y is T)).ToList();
             }
