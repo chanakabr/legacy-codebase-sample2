@@ -22,6 +22,7 @@ using WebAPI;
 using WebAPI.Controllers;
 using WebAPI.Managers.Models;
 using WebAPI.Filters;
+using TVinciShared;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -45,7 +46,7 @@ namespace Phoenix.Rest.Middleware
             KS.ClearOnRequest();
             var phoenixContext = new PhoenixRequestContext();
             context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixContext;
-            context.Items[RequestContext.REQUEST_TIME] = DateTime.UtcNow;
+            context.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
             phoenixContext.SessionId = KLogger.GetRequestId();
             phoenixContext.RequestDate = DateTime.UtcNow;
             phoenixContext.ApiMonitorLog = km;
@@ -67,7 +68,7 @@ namespace Phoenix.Rest.Middleware
             SetCommonRequestContextItems(context, phoenixContext, parsedActionParams, service, action);
 
             var actionParams = GetDeserializedActionParams(parsedActionParams, phoenixContext.IsMultiRequest, service, action);
-            context.Items[RequestContext.REQUEST_METHOD_PARAMETERS] = actionParams;
+            context.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS] = actionParams;
             phoenixContext.ActionParams = actionParams;
 
             await _Next(context);
@@ -77,32 +78,32 @@ namespace Phoenix.Rest.Middleware
         {
             RequestContext.SetContext(parsedActionParams, service, action);
 
-            _PhoenixContext.UserIpAdress = context.Items[RequestContext.USER_IP]?.ToString();
-            _PhoenixContext.Format = context.Items[RequestContext.REQUEST_FORMAT]?.ToString();
-            _PhoenixContext.Currency = context.Items[RequestContext.REQUEST_GLOBAL_CURRENCY]?.ToString();
-            _PhoenixContext.Language = context.Items[RequestContext.REQUEST_GLOBAL_LANGUAGE]?.ToString();
+            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
+            _PhoenixContext.Format = context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
+            _PhoenixContext.Currency = context.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY]?.ToString();
+            _PhoenixContext.Language = context.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE]?.ToString();
 
-            if (context.Items.TryGetValue(RequestContext.REQUEST_RESPONSE_PROFILE, out var responseProfile))
+            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_RESPONSE_PROFILE, out var responseProfile))
             {
                 _PhoenixContext.ResponseProfile = responseProfile as KalturaOTTObject;
             }
 
-            if (context.Items.TryGetValue(RequestContext.REQUEST_TYPE, out var reqType))
+            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_TYPE, out var reqType))
             {
                 _PhoenixContext.RequestType = reqType as RequestType?;
             }
 
-            if (context.Items.TryGetValue(RequestContext.REQUEST_GLOBAL_USER_ID, out var userId))
+            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_GLOBAL_USER_ID, out var userId))
             {
                 _PhoenixContext.UserId = userId as int?;
             }
 
-            if (context.Items.TryGetValue(RequestContext.REQUEST_GLOBAL_KS, out var ks))
+            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_GLOBAL_KS, out var ks))
             {
                 _PhoenixContext.Ks = ks as KS;
             }
 
-            if (context.Items.TryGetValue(RequestContext.REQUEST_VERSION, out var version))
+            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_VERSION, out var version))
             {
                 _PhoenixContext.RequestVersion = version as Version;
             }
