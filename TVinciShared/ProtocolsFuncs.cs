@@ -8913,7 +8913,7 @@ namespace TVinciShared
         }
 #endif
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
 
         /// <summary>
         /// CUWMAuthTickets not supported in netstandard

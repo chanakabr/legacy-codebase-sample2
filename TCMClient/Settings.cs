@@ -29,7 +29,7 @@ namespace TCMClient
             bool checkCertificateRevocationList = false;
             System.TimeSpan timeout = System.TimeSpan.FromMilliseconds(100000);
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             SocketsHttpHandler httpHandler = new SocketsHttpHandler() { SslOptions = new System.Net.Security.SslClientAuthenticationOptions() };
             httpHandler.SslOptions.EnabledSslProtocols = enabledSslProtocols;
             httpHandler.AutomaticDecompression = enabledDecompressionMethod;
