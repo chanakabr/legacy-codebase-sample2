@@ -158,7 +158,7 @@ namespace Core.Profiles
                     return response;
                 }
 
-                if (IsIngestProfileIdExists(ingestProfileId) != null)
+                if (!IsIngestProfileIdExists(ingestProfileId))
                 {
                     response.Set((int)eResponseStatus.AdapterNotExists, PROFILE_NOT_EXIST);
                     return response;
@@ -255,9 +255,10 @@ namespace Core.Profiles
             return profileById?.Id != profileByExternalId.Id;
         }
 
-        private static IngestProfile IsIngestProfileIdExists(int id)
+        private static bool IsIngestProfileIdExists(int id)
         {
-            return ApiDAL.GetIngestProfilesByProfileId(id).FirstOrDefault();
+            var profile = ApiDAL.GetIngestProfilesByProfileId(id).FirstOrDefault();
+            return (profile != null);
         }
 
     }
