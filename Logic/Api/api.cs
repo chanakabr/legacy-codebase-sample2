@@ -11974,7 +11974,14 @@ namespace Core.Api
 
                 if (catalogGroupCache.TopicsMapById.ContainsKey(objectVirtualAssetInfo.MetaId))
                 {
+                    // Get User segmentations 
                     var segmentationsWithBlockActions = UserSegment.ListUserSegmentationActionsOfType<T>(groupId, userId);
+                    var user = Users.Module.GetUserData(groupId, userId, string.Empty);
+                    if (user != null && user.m_user != null && user.m_user.m_domianID > 0)
+                    {
+                        segmentationsWithBlockActions.AddRange(HouseholdSegment.ListHouseholdSegmentationActionsOfType<T>(groupId, user.m_user.m_domianID));
+                    }
+
                     if (segmentationsWithBlockActions.Any())
                     {
                         var topic = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
