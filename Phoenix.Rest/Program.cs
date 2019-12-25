@@ -19,7 +19,10 @@ namespace Phoenix.Rest
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging((context, logging) => { logging.ClearProviders(); })
+                .ConfigureLogging((context, logging) => { 
+                    logging.ClearProviders(); 
+                    logging.AddProvider(new KLoggerProvider());
+                })
                 .ConfigureKestrel(o => o.AllowSynchronousIO = true)
                 .UseStartup<Startup>();
     }
