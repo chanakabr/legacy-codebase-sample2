@@ -10,6 +10,7 @@ using TVinciShared;
 using ApiObjects.Base;
 using WebAPI.Utils;
 using System.Text.RegularExpressions;
+using WebAPI.ClientManagers;
 
 namespace WebAPI.Managers.Models
 {
@@ -128,10 +129,16 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        private string ConvertSignature(string secret, byte[] randomBytes)
+        private string ConvertSignature(byte[] randomBytes, int groupID)
         {
+            var group = GroupsManager.GetGroup(groupID);
+            if (!group.EnforceGroupsSecret)
+            {
+                return string.Empty;
+            }
+            var secret = group.GroupSecrets.FirstOrDefault();
             var random = Encoding.Default.GetString(randomBytes);
-            var concat = $"{random}:{secret}";
+            var concat = string.Format(group.SignatureFormat, random, secret);
             return Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
         }
 
@@ -144,7 +151,7 @@ namespace WebAPI.Managers.Models
             var payload = string.Empty;
             if (data != null)
             {
-                data.Signature = ConvertSignature(secret, randomBytes);
+                data.Signature = ConvertSignature(randomBytes, Convert.ToInt32(groupID));
                 payload = KSUtils.PrepareKSPayload(data);
                 encodedData = payload.Replace("_", REPLACE_UNDERSCORE);
                 encodedData = HttpUtility.UrlEncode(encodedData);
@@ -152,7 +159,7 @@ namespace WebAPI.Managers.Models
 
             string ks = string.Format(KS_FORMAT, JoinPrivileges(privilegesList), (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
-            
+
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
             Array.Copy(randomBytes, 0, randWithFields, 0, randomBytes.Length);
             Array.Copy(ksBytes, 0, randWithFields, randomBytes.Length, ksBytes.Length);

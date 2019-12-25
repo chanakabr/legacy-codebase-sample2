@@ -17,6 +17,8 @@ using ApiObjects;
 using ConfigurationManager;
 using TVinciShared;
 using Core.Api;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace WebAPI.Managers
 {
@@ -383,7 +385,7 @@ namespace WebAPI.Managers
             {
                 userSegments.AddRange(userSegmentsResponse.Objects.Select(x => x.SegmentId));
             }
-            
+
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
@@ -624,7 +626,7 @@ namespace WebAPI.Managers
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ksRandomHeader == ks.Random)
             {
-                return true;
+                return ValidateKsSignature(ks);
             }
 
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
@@ -678,6 +680,30 @@ namespace WebAPI.Managers
                 }
             }
 
+            return true;
+        }
+
+        public static bool ValidateKsSignature(KS ks)
+        {
+            var group = GroupsManager.GetGroup(ks.GroupId);
+            if (group.EnforceGroupsSecret)
+            {
+                var signature = KSUtils.ExtractKSPayload(ks).Signature;
+                var index = 0;
+                foreach (var secret in group.GroupSecrets)
+                {
+                    var concat = string.Format(group.SignatureFormat, ks.Random, secret);
+                    var encryptedValue = Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
+                    if (encryptedValue == signature)
+                    {
+                        log.Debug($"Matching signature was received by {ks.UserId}, index: {index}");
+                        return true;
+                    }
+                    log.Info($"Signature validation failed for group: {ks.GroupId}, iteration: {index}");
+                    ++index;
+                }
+                return false;
+            }
             return true;
         }
 
