@@ -642,6 +642,9 @@ namespace IngestHandler
                                         programAssetResultsDictionary[currentProgram.ChannelId][nextProgram.EpgExternalId].AddError(eResponseStatus.EPGSProgramDatesError, "Program gap");
 
                                         isValid = false;
+
+                                        _Logger.Debug($"Rejecting due to GAP of (current) program {currentProgram.EpgExternalId} that start in {currentProgram.StartDate} and end in {currentProgram.EndDate}," +
+                                            $" and (next) program {nextProgram.EpgExternalId} that start in {nextProgram.StartDate} and end in {nextProgram.EndDate}");
                                         break;
                                     case eIngestProfileAutofillPolicy.Autofill:
 
