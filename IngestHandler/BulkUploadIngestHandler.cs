@@ -595,6 +595,7 @@ namespace IngestHandler
             bool isValid = true;
 
             List<EpgProgramBulkUploadObject> calculatedPrograms = crudOperations.ItemsToAdd.Concat(crudOperations.ItemsToUpdate).ToList();
+
             IDictionary<string, EpgCB> autoFillEpgsCB = null;
 
             if (_Languages?.Keys.Count > 0 && _IngestProfile.DefaultAutoFillPolicy == eIngestProfileAutofillPolicy.Autofill)
@@ -607,7 +608,7 @@ namespace IngestHandler
             // split epgs by channel ids
             foreach (var channel in calculatedPrograms.GroupBy(epg => epg.ChannelId))
             {
-                var channelPrograms = channel.ToList();
+                var channelPrograms = channel.OrderBy(p => p.StartDate).ToList();
 
                 for (int programIndex = 0; programIndex < channelPrograms.Count - 1; programIndex++)
                 {
@@ -632,8 +633,8 @@ namespace IngestHandler
                                     isValid = false;
                                 }
                             }
-                            // if the next program starts after the current ends, it means we have a gap
-                            else
+                            // if the next program starts after the current ends and the programs are adjacent, it means we have a gap
+                            else if (secondaryIndex - programIndex == 1)
                             {
                                 switch (_IngestProfile.DefaultAutoFillPolicy)
                                 {
