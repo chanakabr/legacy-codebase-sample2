@@ -30,7 +30,7 @@ namespace WebAPI.Models.Segmentation
         [DataMember(Name = "householdId")]
         [JsonProperty(PropertyName = "householdId")]
         [XmlElement(ElementName = "householdId")]
-        [SchemeProperty()]
+        [SchemeProperty(ReadOnly = true)]
         public long HouseholdId { get; set; }
         
         internal override ICrudHandler<HouseholdSegment, long, HouseholdSegmentFilter> Handler
