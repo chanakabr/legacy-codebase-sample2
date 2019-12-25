@@ -20,7 +20,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             {
                 if(MustBeOverwriteInTcm && (typeof(string) == typeof(T) && ActualValue.ToString() == TcmObjectKeys.Stub || ActualValue == null))
                 {
-                    throw new MissingFieldException($"key [{Key}] must be set in DCM ");
+                    throw new MissingFieldException($"key [{Key}] must be set in TCM ");
                 }
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
