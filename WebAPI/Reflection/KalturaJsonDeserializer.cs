@@ -21958,16 +21958,6 @@ namespace WebAPI.Models.Segmentation
             MinLength = -1,
             MinInteger = 1,
         };
-        private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdSegment")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaHouseholdSegment(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -21984,10 +21974,6 @@ namespace WebAPI.Models.Segmentation
                 }
                 if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
-                    }
                     HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
                 }
             }
