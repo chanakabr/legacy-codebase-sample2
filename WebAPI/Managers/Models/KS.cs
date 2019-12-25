@@ -136,7 +136,11 @@ namespace WebAPI.Managers.Models
             {
                 return string.Empty;
             }
-            var secret = group.GroupSecrets?.Last();
+            var secret = group.GroupSecrets?.LastOrDefault();
+            if (string.IsNullOrEmpty(secret))
+            {
+                return string.Empty;
+            }
             var random = Encoding.Default.GetString(randomBytes);
             var concat = string.Format(group.SignatureFormat, random, secret);
             return Encoding.Default.GetString(EncryptionUtils.HashSHA1(concat));
