@@ -530,6 +530,10 @@ namespace KLogMonitor
 
 		void Microsoft.Extensions.Logging.ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
 		{
+			LogContextData[Constants.CLASS_NAME] = this.ClassName;
+			LogContextData[Constants.SERVER] = this.Server;
+			LogContextData[Constants.TOPIC] = this.Topic;
+
 			var msg = formatter(state, exception);
 			switch(logLevel)
 			{
